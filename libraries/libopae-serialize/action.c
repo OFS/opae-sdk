@@ -2346,3 +2346,138 @@ out_respond:
 
 	return res;
 }
+
+bool opae_handle_fpgaGetMetricsByIndex_request_38(opae_remote_context *c,
+						  const char *req_json,
+						  char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetMetricsByIndex_request req;
+	opae_fpgaGetMetricsByIndex_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaGetMetricsByIndex_request_38(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetMetricsByIndex request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetMetricsByIndex_response_38");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.metrics = NULL;
+	resp.num_metric_indexes = req.num_metric_indexes;
+
+	if (req.num_metric_indexes) {
+		resp.metrics = opae_calloc(req.num_metric_indexes,
+				sizeof(fpga_metric));
+		if (!resp.metrics) {
+			OPAE_ERR("calloc failed");
+			goto out_respond;
+		}
+	}
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetMetricsByIndex(handle,
+					    req.metric_num,
+					    req.num_metric_indexes,
+					    resp.metrics);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetMetricsByIndex_response_38(
+			&resp,
+			c->json_to_string_flags);
+
+	if (req.metric_num)
+		opae_free(req.metric_num);
+
+	if (resp.metrics)
+		opae_free(resp.metrics);
+
+	return res;
+}
+
+bool opae_handle_fpgaGetMetricsByName_request_39(opae_remote_context *c,
+						 const char *req_json,
+						 char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetMetricsByName_request req;
+	opae_fpgaGetMetricsByName_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+	uint64_t i;
+
+	if (!opae_decode_fpgaGetMetricsByName_request_39(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetMetricsByName request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetMetricsByName_response_39");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.metrics = NULL;
+	resp.num_metric_names = req.num_metric_names;
+
+	if (req.num_metric_names) {
+		resp.metrics = opae_calloc(req.num_metric_names,
+				sizeof(fpga_metric));
+		if (!resp.metrics) {
+			OPAE_ERR("calloc failed");
+			goto out_respond;
+		}
+	}
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetMetricsByName(handle,
+					   req.metrics_names,
+					   req.num_metric_names,
+					   resp.metrics);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetMetricsByName_response_39(
+			&resp,
+			c->json_to_string_flags);
+
+	if (req.metrics_names) {
+		for (i = 0 ; i < req.num_metric_names ; ++i)
+			opae_free(req.metrics_names[i]);
+
+		opae_free(req.metrics_names);
+	}
+
+	if (resp.metrics)
+		opae_free(resp.metrics);
+
+	return res;
+}

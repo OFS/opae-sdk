@@ -78,7 +78,8 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaGetUserClock_request_35,
 	opae_handle_fpgaGetNumMetrics_request_36,
 	opae_handle_fpgaGetMetricsInfo_request_37,
-
+	opae_handle_fpgaGetMetricsByIndex_request_38,
+	opae_handle_fpgaGetMetricsByName_request_39,
 
 
 };

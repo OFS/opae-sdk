@@ -1585,3 +1585,98 @@ bool opae_ser_json_to_metric_info_obj(struct json_object *jobj,
 
 	return true;
 }
+
+bool opae_ser_fpga_metric_to_json_obj(const fpga_metric *m,
+                                      struct json_object *parent)
+{
+	uint8_t *p;
+	uint8_t *pend;
+	struct json_object *jvalue;
+	size_t i;
+
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("fpga_metric"));
+
+	json_object_object_add(parent, "metric_num",
+			json_object_new_int(m->metric_num));
+
+	p = (uint8_t *)&m->value;
+	pend = p + sizeof(metric_value);
+
+	jvalue = json_object_new_array();
+
+	i = 0;
+	while (p < pend) {
+                struct json_object *array_i;
+
+                array_i = json_object_new_int((unsigned)*p);
+                json_object_array_put_idx(jvalue, i, array_i);
+
+		++i;
+		++p;
+	}
+
+	json_object_object_add(parent, "value", jvalue);
+
+	json_object_object_add(parent, "isvalid",
+			json_object_new_boolean(m->isvalid));
+
+	return true;
+}
+
+bool opae_ser_json_to_fpga_metric_obj(struct json_object *jobj,
+                                      fpga_metric *m)
+{
+	struct json_object *serialized_type;
+	struct json_object *jvalue = NULL;
+	char *str;
+	uint8_t *p;
+	size_t i;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "fpga_metric")) {
+		OPAE_ERR("fpga_metric de-serialize failed");
+		return false;
+	}
+
+	m->metric_num = 0;
+	if (!parse_json_u64(jobj, "metric_num", &m->metric_num))
+		return false;
+
+	if (!json_object_object_get_ex(jobj, "value", &jvalue)) {
+		OPAE_DBG("Error parsing JSON: missing 'value'");
+		return false;
+	}
+
+	len = json_object_array_length(jvalue);
+	if (len != sizeof(metric_value)) {
+		OPAE_ERR("Error parsing JSON: incorrect size for 'value'");
+		return false;
+	}
+
+	p = (uint8_t *)&m->value;
+	for (i = 0 ; i < len ; ++i) {
+		unsigned val;
+		struct json_object *array_i =
+			json_object_array_get_idx(jvalue, i);
+
+		if (!json_object_is_type(array_i, json_type_int)) {
+			OPAE_DBG("'value[%u]' not integer", i);
+			return false;
+		}
+
+		val = json_object_get_int(array_i);
+
+		*p++ = (uint8_t)val;
+	}
+
+	m->isvalid = false;
+	if (!parse_json_boolean(jobj, "isvalid", &m->isvalid))
+		return false;
+
+	return true;
+}

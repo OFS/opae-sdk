@@ -200,6 +200,14 @@ bool opae_handle_fpgaGetMetricsInfo_request_37(opae_remote_context *c,
 					       const char *req_json,
 					       char **resp_json);
 
+bool opae_handle_fpgaGetMetricsByIndex_request_38(opae_remote_context *c,
+						  const char *req_json,
+						  char **resp_json);
+
+bool opae_handle_fpgaGetMetricsByName_request_39(opae_remote_context *c,
+						 const char *req_json,
+						 char **resp_json);
+
 
 
 #ifdef __cplusplus

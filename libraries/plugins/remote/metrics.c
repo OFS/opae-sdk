@@ -184,15 +184,77 @@ remote_fpgaGetMetricsByIndex(fpga_handle handle,
 			     uint64_t num_metric_indexes,
 			     fpga_metric *metrics)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) metric_num;
-(void) num_metric_indexes;
-(void) metrics;
+	opae_fpgaGetMetricsByIndex_request req;
+	opae_fpgaGetMetricsByIndex_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!metric_num) {
+		OPAE_ERR("NULL metric_num pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (!metrics) {
+		OPAE_ERR("NULL metrics pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+
+	tok = h->token;
+
+	req.handle = h->hdr;
+	req.metric_num = metric_num;
+	req.num_metric_indexes = num_metric_indexes;
+	resp.num_metric_indexes = num_metric_indexes;
+
+	req_json = opae_encode_fpgaGetMetricsByIndex_request_38(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaGetMetricsByIndex_response_38(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		memcpy(metrics,
+		       resp.metrics,
+		       resp.num_metric_indexes * sizeof(fpga_metric));
+
+		opae_free(resp.metrics);
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -201,15 +263,77 @@ remote_fpgaGetMetricsByName(fpga_handle handle,
 			    uint64_t num_metric_names,
 			    fpga_metric *metrics)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) metrics_names;
-(void) num_metric_names;
-(void) metrics;
+	opae_fpgaGetMetricsByName_request req;
+	opae_fpgaGetMetricsByName_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!metrics_names) {
+		OPAE_ERR("NULL metrics_names pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (!metrics) {
+		OPAE_ERR("NULL metrics pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+
+	tok = h->token;
+
+	req.handle = h->hdr;
+	req.metrics_names = metrics_names;
+	req.num_metric_names = num_metric_names;
+	resp.num_metric_names = num_metric_names;
+
+	req_json = opae_encode_fpgaGetMetricsByName_request_39(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaGetMetricsByName_response_39(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		memcpy(metrics,
+		       resp.metrics,
+		       resp.num_metric_names * sizeof(fpga_metric));
+
+		opae_free(resp.metrics);
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__

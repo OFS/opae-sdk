@@ -491,6 +491,34 @@ bool opae_decode_fpgaGetMetricsInfo_response_37(
 	const char *json,
 	opae_fpgaGetMetricsInfo_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	uint64_t num_metric_indexes;
+	fpga_metric *metrics;
+	fpga_result result;
+} opae_fpgaGetMetricsByIndex_response;
+
+char *opae_encode_fpgaGetMetricsByIndex_response_38(
+	opae_fpgaGetMetricsByIndex_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetMetricsByIndex_response_38(
+	const char *json,
+	opae_fpgaGetMetricsByIndex_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	uint64_t num_metric_names;
+	fpga_metric *metrics;
+	fpga_result result;
+} opae_fpgaGetMetricsByName_response;
+
+char *opae_encode_fpgaGetMetricsByName_response_39(
+	opae_fpgaGetMetricsByName_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetMetricsByName_response_39(
+	const char *json,
+	opae_fpgaGetMetricsByName_response *resp);
+
 
 
 

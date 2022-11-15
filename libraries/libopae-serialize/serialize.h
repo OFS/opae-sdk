@@ -88,6 +88,12 @@ bool opae_ser_json_to_metric_info_obj(struct json_object *jobj,
 				      fpga_metric_info *mi);
 
 
+bool opae_ser_fpga_metric_to_json_obj(const fpga_metric *m,
+				      struct json_object *parent);
+bool opae_ser_json_to_fpga_metric_obj(struct json_object *jobj,
+				      fpga_metric *m);
+
+
 
 
 static inline json_object *

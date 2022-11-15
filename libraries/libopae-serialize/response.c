@@ -2784,3 +2784,227 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaGetMetricsByIndex_response_38(
+	opae_fpgaGetMetricsByIndex_response *resp,
+	int json_flags)
+{
+	struct json_object *root;
+	struct json_object *jmetrics;
+	char *json = NULL;
+	uint64_t i;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	json_object_object_add(root,
+			       "num_metric_indexes",
+			       json_object_new_int(resp->num_metric_indexes));
+
+	jmetrics = json_object_new_array();
+
+	for (i = 0 ; i < resp->num_metric_indexes ; ++i) {
+		struct json_object *array_i =
+			json_object_new_object();
+
+		if (!opae_ser_fpga_metric_to_json_obj(
+			&resp->metrics[i], array_i))
+			goto out_err;
+
+		json_object_array_put_idx(jmetrics, i, array_i);
+	}
+
+	json_object_object_add(root, "metrics", jmetrics);
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetMetricsByIndex_response_38(
+	const char *json,
+	opae_fpgaGetMetricsByIndex_response *resp)
+{
+        struct json_object *root = NULL;
+        struct json_object *jmetrics = NULL;
+        enum json_tokener_error j_err = json_tokener_success;
+        bool res = false;
+	size_t len;
+	size_t i;
+
+        root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!parse_json_u64(root, "num_metric_indexes", &resp->num_metric_indexes))
+		goto out_put;
+
+	if (!json_object_object_get_ex(root, "metrics", &jmetrics)) {
+                OPAE_DBG("Error parsing JSON: missing 'info'");
+                goto out_put;
+        }
+
+	len = json_object_array_length(jmetrics);
+	if (len != resp->num_metric_indexes) {
+                OPAE_DBG("Error parsing JSON: incorrect 'num_metric_indexes'");
+                goto out_put;
+	}
+
+	resp->metrics = NULL;
+	if (len) {
+		resp->metrics = opae_calloc(len, sizeof(fpga_metric));
+		if (!resp->metrics) {
+			OPAE_ERR("calloc failed");
+			goto out_put;
+		}
+	}
+
+	for (i = 0 ; i < len ; ++i) {
+		struct json_object *array_i =
+			json_object_array_get_idx(jmetrics, i);
+
+		if (!opae_ser_json_to_fpga_metric_obj(array_i,
+			&resp->metrics[i]))
+			goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetMetricsByName_response_39(
+	opae_fpgaGetMetricsByName_response *resp,
+	int json_flags)
+{
+	struct json_object *root;
+	struct json_object *jmetrics;
+	char *json = NULL;
+	uint64_t i;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	json_object_object_add(root,
+			       "num_metric_names",
+			       json_object_new_int(resp->num_metric_names));
+
+	jmetrics = json_object_new_array();
+
+	for (i = 0 ; i < resp->num_metric_names ; ++i) {
+		struct json_object *array_i =
+			json_object_new_object();
+
+		if (!opae_ser_fpga_metric_to_json_obj(
+			&resp->metrics[i], array_i))
+			goto out_err;
+
+		json_object_array_put_idx(jmetrics, i, array_i);
+	}
+
+	json_object_object_add(root, "metrics", jmetrics);
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetMetricsByName_response_39(
+	const char *json,
+	opae_fpgaGetMetricsByName_response *resp)
+{
+        struct json_object *root = NULL;
+        struct json_object *jmetrics = NULL;
+        enum json_tokener_error j_err = json_tokener_success;
+        bool res = false;
+	size_t len;
+	size_t i;
+
+        root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!parse_json_u64(root, "num_metric_names", &resp->num_metric_names))
+		goto out_put;
+
+	if (!json_object_object_get_ex(root, "metrics", &jmetrics)) {
+                OPAE_DBG("Error parsing JSON: missing 'info'");
+                goto out_put;
+        }
+
+	len = json_object_array_length(jmetrics);
+	if (len != resp->num_metric_names) {
+                OPAE_DBG("Error parsing JSON: incorrect 'num_metric_names'");
+                goto out_put;
+	}
+
+	resp->metrics = NULL;
+	if (len) {
+		resp->metrics = opae_calloc(len, sizeof(fpga_metric));
+		if (!resp->metrics) {
+			OPAE_ERR("calloc failed");
+			goto out_put;
+		}
+	}
+
+	for (i = 0 ; i < len ; ++i) {
+		struct json_object *array_i =
+			json_object_array_get_idx(jmetrics, i);
+
+		if (!opae_ser_json_to_fpga_metric_obj(array_i,
+			&resp->metrics[i]))
+			goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
