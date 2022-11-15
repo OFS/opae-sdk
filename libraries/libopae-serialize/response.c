@@ -3008,3 +3008,117 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaGetMetricsThresholdInfo_response_40(
+	opae_fpgaGetMetricsThresholdInfo_response *resp,
+	int json_flags)
+{
+	struct json_object *root;
+	struct json_object *jmetric_threshold;
+	char *json = NULL;
+	uint64_t i;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	jmetric_threshold = json_object_new_array();
+
+	for (i = 0 ; i < resp->num_thresholds ; ++i) {
+		struct json_object *array_i =
+			json_object_new_object();
+
+		if (!opae_ser_metric_threshold_to_json_obj(
+			&resp->metric_threshold[i], array_i))
+			goto out_err;
+
+		json_object_array_put_idx(jmetric_threshold, i, array_i);
+	}
+
+	json_object_object_add(root, "metric_threshold", jmetric_threshold);
+
+	json_object_object_add(root,
+			       "num_thresholds",
+			       json_object_new_int(resp->num_thresholds));
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetMetricsThresholdInfo_response_40(
+	const char *json,
+	opae_fpgaGetMetricsThresholdInfo_response *resp)
+{
+        struct json_object *root = NULL;
+        struct json_object *jmetric_threshold = NULL;
+        enum json_tokener_error j_err = json_tokener_success;
+        bool res = false;
+	size_t len;
+	size_t i;
+
+        root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!parse_json_u32(root, "num_thresholds", &resp->num_thresholds))
+		goto out_put;
+
+	if (!json_object_object_get_ex(root,
+				       "metric_threshold",
+				       &jmetric_threshold)) {
+                OPAE_DBG("Error parsing JSON: missing 'info'");
+                goto out_put;
+        }
+
+	len = json_object_array_length(jmetric_threshold);
+	if (len != resp->num_thresholds) {
+                OPAE_DBG("Error parsing JSON: incorrect 'num_thresholds'");
+                goto out_put;
+	}
+
+	resp->metric_threshold = NULL;
+	if (len) {
+		resp->metric_threshold = opae_calloc(len, sizeof(metric_threshold));
+		if (!resp->metric_threshold) {
+			OPAE_ERR("calloc failed");
+			goto out_put;
+		}
+	}
+
+	for (i = 0 ; i < len ; ++i) {
+		struct json_object *array_i =
+			json_object_array_get_idx(jmetric_threshold, i);
+
+		if (!opae_ser_json_to_metric_threshold_obj(array_i,
+			&resp->metric_threshold[i]))
+			goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}

@@ -341,11 +341,76 @@ remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 				   metric_threshold *metric_thresholds,
 				   uint32_t *num_thresholds)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) metric_thresholds;
-(void) num_thresholds;
+	opae_fpgaGetMetricsThresholdInfo_request req;
+	opae_fpgaGetMetricsThresholdInfo_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (!metric_thresholds) {
+		OPAE_ERR("NULL metric_thresholds pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!num_thresholds) {
+		OPAE_ERR("NULL num_thresholds pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+
+	tok = h->token;
+
+	req.handle = h->hdr;
+	req.num_thresholds = *num_thresholds;
+	*num_thresholds = 0;
+
+	req_json = opae_encode_fpgaGetMetricsThresholdInfo_request_40(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaGetMetricsThresholdInfo_response_40(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		*num_thresholds = resp.num_thresholds;
+
+		memcpy(metric_thresholds,
+		       resp.metric_threshold,
+		       resp.num_thresholds * sizeof(metric_threshold));
+
+		opae_free(resp.metric_threshold);
+	}
+
+	return resp.result;
 }

@@ -1680,3 +1680,242 @@ bool opae_ser_json_to_fpga_metric_obj(struct json_object *jobj,
 
 	return true;
 }
+
+STATIC bool
+opae_ser_threshold_to_json_obj(const threshold *t,
+			       struct json_object *parent)
+{
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("threshold"));
+
+	json_object_object_add(parent, "threshold_name",
+			json_object_new_string(t->threshold_name));
+
+	json_object_object_add(parent, "is_valid",
+			json_object_new_int(t->is_valid));
+
+	json_object_object_add(parent, "value",
+			json_object_new_double(t->value));
+
+	return true;
+}
+
+STATIC bool
+opae_ser_json_to_threshold_obj(struct json_object *jobj,
+			       threshold *t)
+{
+	struct json_object *serialized_type;
+	char *str;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "threshold")) {
+		OPAE_ERR("threshold de-serialize failed");
+		return false;
+	}
+
+	memset(t->threshold_name, 0, sizeof(t->threshold_name));
+
+	str = NULL;
+	if (!parse_json_string(jobj, "threshold_name", &str))
+		return false;
+
+	len = strnlen(str, FPGA_METRIC_STR_SIZE - 1);
+	memcpy(t->threshold_name, str, len + 1);
+
+	t->is_valid = 0;
+	if (!parse_json_u32(jobj, "is_valid", &t->is_valid))
+		return false;
+
+	t->value = 0.0;
+	if (!parse_json_double(jobj, "value", &t->value))
+		return false;
+
+	return true;
+}
+
+bool opae_ser_metric_threshold_to_json_obj(const metric_threshold *m,
+                                           struct json_object *parent)
+{
+	struct json_object *jobj;
+
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("metric_threshold"));
+
+	json_object_object_add(parent, "metric_name",
+			json_object_new_string(m->metric_name));
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->upper_nr_threshold, jobj))
+		return false;
+
+	json_object_object_add(parent, "upper_nr_threshold", jobj);
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->upper_c_threshold, jobj))
+		return false;
+
+	json_object_object_add(parent, "upper_c_threshold", jobj);
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->upper_nc_threshold, jobj))
+		return false;
+
+	json_object_object_add(parent, "upper_nc_threshold", jobj);
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->lower_nr_threshold, jobj))
+		return false;
+
+	json_object_object_add(parent, "lower_nr_threshold", jobj);
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->lower_c_threshold, jobj))
+		return false;
+
+	json_object_object_add(parent, "lower_c_threshold", jobj);
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->lower_nc_threshold, jobj))
+		return false;
+
+	json_object_object_add(parent, "lower_nc_threshold", jobj);
+
+        jobj = json_object_new_object();
+        if (!jobj) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_threshold_to_json_obj(&m->hysteresis, jobj))
+		return false;
+
+	json_object_object_add(parent, "hysteresis", jobj);
+
+	return true;
+}
+
+bool opae_ser_json_to_metric_threshold_obj(struct json_object *jobj,
+                                           metric_threshold *m)
+{
+	struct json_object *serialized_type;
+	struct json_object *o;
+	char *str;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "metric_threshold")) {
+		OPAE_ERR("metric_threshold de-serialize failed");
+		return false;
+	}
+
+	memset(m->metric_name, 0, sizeof(m->metric_name));
+
+	str = NULL;
+	if (!parse_json_string(jobj, "metric_name", &str))
+		return false;
+
+	len = strnlen(str, FPGA_METRIC_STR_SIZE - 1);
+	memcpy(m->metric_name, str, len + 1);
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "upper_nr_threshold", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'upper_nr_threshold'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->upper_nr_threshold))
+		return false;
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "upper_c_threshold", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'upper_c_threshold'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->upper_c_threshold))
+		return false;
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "upper_nc_threshold", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'upper_nc_threshold'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->upper_nc_threshold))
+		return false;
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "lower_nr_threshold", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'lower_nr_threshold'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->lower_nr_threshold))
+		return false;
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "lower_c_threshold", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'lower_c_threshold'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->lower_c_threshold))
+		return false;
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "lower_nc_threshold", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'lower_nc_threshold'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->lower_nc_threshold))
+		return false;
+
+	o = NULL;
+	if (!json_object_object_get_ex(jobj, "hysteresis", &o)) {
+		OPAE_DBG("Error parsing JSON: missing 'hysteresis'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_threshold_obj(o, &m->hysteresis))
+		return false;
+
+	return true;
+}

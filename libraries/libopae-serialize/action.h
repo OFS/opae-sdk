@@ -208,6 +208,10 @@ bool opae_handle_fpgaGetMetricsByName_request_39(opae_remote_context *c,
 						 const char *req_json,
 						 char **resp_json);
 
+bool opae_handle_fpgaGetMetricsThresholdInfo_request_40(opae_remote_context *c,
+							const char *req_json,
+							char **resp_json);
+
 
 
 #ifdef __cplusplus

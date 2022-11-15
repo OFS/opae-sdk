@@ -2304,6 +2304,7 @@ bool opae_handle_fpgaGetMetricsInfo_request_37(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	resp.info = NULL;
 	resp.num_metrics = 0;
+	num_metrics = req.num_metrics;
 
 	if (req.num_metrics) {
 		resp.info = opae_calloc(req.num_metrics,
@@ -2326,7 +2327,6 @@ bool opae_handle_fpgaGetMetricsInfo_request_37(opae_remote_context *c,
 		goto out_respond;
 	}
 
-	num_metrics = req.num_metrics;
 	resp.result = fpgaGetMetricsInfo(handle,
 					 resp.info,
 					 &num_metrics);
@@ -2478,6 +2478,75 @@ out_respond:
 
 	if (resp.metrics)
 		opae_free(resp.metrics);
+
+	return res;
+}
+
+bool opae_handle_fpgaGetMetricsThresholdInfo_request_40(opae_remote_context *c,
+							const char *req_json,
+							char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetMetricsThresholdInfo_request req;
+	opae_fpgaGetMetricsThresholdInfo_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+	uint32_t num_thresholds;
+
+	if (!opae_decode_fpgaGetMetricsThresholdInfo_request_40(req_json,
+								&req)) {
+		OPAE_ERR("failed to decode "
+			 "fpgaGetMetricsThresholdInfo request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"fpgaGetMetricsThresholdInfo_response_40");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.metric_threshold = NULL;
+	num_thresholds = req.num_thresholds;
+	resp.num_thresholds = 0;
+
+	if (req.num_thresholds) {
+		resp.metric_threshold = opae_calloc(req.num_thresholds,
+				sizeof(metric_threshold));
+		if (!resp.metric_threshold) {
+			OPAE_ERR("calloc failed");
+			goto out_respond;
+		}
+	}
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetMetricsThresholdInfo(handle,
+				resp.metric_threshold,
+				&num_thresholds);
+
+	if (resp.result == FPGA_OK)
+		resp.num_thresholds = num_thresholds;
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetMetricsThresholdInfo_response_40(
+			&resp,
+			c->json_to_string_flags);
+
+	if (resp.metric_threshold)
+		opae_free(resp.metric_threshold);
 
 	return res;
 }

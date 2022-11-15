@@ -539,6 +539,19 @@ bool opae_decode_fpgaGetMetricsByName_request_39(
 	const char *json,
 	opae_fpgaGetMetricsByName_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t num_thresholds;
+} opae_fpgaGetMetricsThresholdInfo_request;
+
+char *opae_encode_fpgaGetMetricsThresholdInfo_request_40(
+	opae_fpgaGetMetricsThresholdInfo_request *req,
+	int json_flags);
+bool opae_decode_fpgaGetMetricsThresholdInfo_request_40(
+	const char *json,
+	opae_fpgaGetMetricsThresholdInfo_request *req);
+
 
 
 

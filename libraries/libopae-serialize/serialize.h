@@ -94,6 +94,11 @@ bool opae_ser_json_to_fpga_metric_obj(struct json_object *jobj,
 				      fpga_metric *m);
 
 
+bool opae_ser_metric_threshold_to_json_obj(const metric_threshold *m,
+					   struct json_object *parent);
+bool opae_ser_json_to_metric_threshold_obj(struct json_object *jobj,
+					   metric_threshold *m);
+
 
 
 static inline json_object *
@@ -155,6 +160,27 @@ parse_json_u64(json_object *parent, const char *name, uint64_t *value)
 
 	if (value)
 	        *value = json_object_get_int(jname);
+
+	return jname;
+}
+
+static inline json_object *
+parse_json_double(json_object *parent, const char *name, double *value)
+{
+	json_object *jname = NULL;
+
+	if (!json_object_object_get_ex(parent, name, &jname)) {
+	        OPAE_DBG("Error parsing JSON: missing '%s'", name);
+	        return NULL;
+	}
+
+	if (!json_object_is_type(jname, json_type_double)) {
+	        OPAE_DBG("'%s' JSON object not double", name);
+	        return NULL;
+	}
+
+	if (value)
+	        *value = json_object_get_double(jname);
 
 	return jname;
 }
