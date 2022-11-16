@@ -4,46 +4,46 @@
 # of responsibility (which is defined by the paths of the files touched by a
 # pull request).
 
-# @OPAE/api reviews everything, unless overridden below.
-*                               @OPAE/api
+# @OFS/opae-sdk-api-maintainers reviews everything, unless overridden below.
+*                               @OFS/opae-sdk-api-maintainers
 
 # API specification, implementation, and samples
-CMakeLists.txt                  @OPAE/api
-/include/                       @OPAE/api
-/libraries/                     @OPAE/api
-/ofs/                           @OPAE/api
-/python/                        @OPAE/api
+CMakeLists.txt                  @OFS/opae-sdk-api-maintainers
+/include/                       @OFS/opae-sdk-api-maintainers
+/libraries/                     @OFS/opae-sdk-api-maintainers
+/ofs/                           @OFS/opae-sdk-api-maintainers
+/python/                        @OFS/opae-sdk-api-maintainers
 
 # Tools
-/binaries/                      @OPAE/tools
-/samples/                       @OPAE/tools
+/binaries/                      @OFS/opae-sdk-tools-maintainers
+/samples/                       @OFS/opae-sdk-tools-maintainers
 
 # Platforms database
-/platforms/                     @OPAE/ase
+/platforms/                     @OFS/opae-sdk-ase-maintainers
 
 # Documentation
-AUTHORS                         @OPAE/doc
-CONTRIBUTING.md                 @OPAE/doc
-COPYING                         @OPAE/doc
-LICENSE                         @OPAE/doc
-README.md                       @OPAE/doc
-RELEASE_NOTES.md                @OPAE/doc
+AUTHORS                         @OFS/opae-sdk-doc-maintainers
+CONTRIBUTING.md                 @OFS/opae-sdk-doc-maintainers
+COPYING                         @OFS/opae-sdk-doc-maintainers
+LICENSE                         @OFS/opae-sdk-doc-maintainers
+README.md                       @OFS/opae-sdk-doc-maintainers
+RELEASE_NOTES.md                @OFS/opae-sdk-doc-maintainers
 
-/doc/                           @OPAE/doc
-/scripts/build-documentation.sh @OPAE/doc
-/scripts/push-documentation.sh  @OPAE/doc
-/setup/                         @OPAE/doc
+/doc/                           @OFS/opae-sdk-doc-maintainers
+/scripts/build-documentation.sh @OFS/opae-sdk-doc-maintainers
+/scripts/push-documentation.sh  @OFS/opae-sdk-doc-maintainers
+/setup/                         @OFS/opae-sdk-doc-maintainers
 
 # Build toolchain & continuous integration
-buildit.py                      @OPAE/ci
-opae.spec.in                    @OPAE/ci
-opae.spec.rhel                  @OPAE/ci
-opae.spec.fedora                @OPAE/ci
-.gitattributes                  @OPAE/ci
-.gitconfig                      @OPAE/ci
-.gitignore                      @OPAE/ci
-/.github/                       @OPAE/ci
-/packaging/                     @OPAE/ci
-/scripts/                       @OPAE/ci
-/tests/                         @OPAE/ci
-/cmake/                         @OPAE/ci
+buildit.py                      @OFS/opae-sdk-ci-maintainers
+opae.spec.in                    @OFS/opae-sdk-ci-maintainers
+opae.spec.rhel                  @OFS/opae-sdk-ci-maintainers
+opae.spec.fedora                @OFS/opae-sdk-ci-maintainers
+.gitattributes                  @OFS/opae-sdk-ci-maintainers
+.gitconfig                      @OFS/opae-sdk-ci-maintainers
+.gitignore                      @OFS/opae-sdk-ci-maintainers
+/.github/                       @OFS/opae-sdk-ci-maintainers
+/packaging/                     @OFS/opae-sdk-ci-maintainers
+/scripts/                       @OFS/opae-sdk-ci-maintainers
+/tests/                         @OFS/opae-sdk-ci-maintainers
+/cmake/                         @OFS/opae-sdk-ci-maintainers
