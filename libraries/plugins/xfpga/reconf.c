@@ -481,7 +481,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlotByName(fpga_handle fpga,
 		}
 
 		bytes_read += this_read;
-	} while(bytes_read < bitstream_len);
+	} while (bytes_read < bitstream_len);
 
 	opae_fclose(fp);
 	fp = NULL;
