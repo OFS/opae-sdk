@@ -412,3 +412,95 @@ out_unlock:
 		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
+
+fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlotByName(fpga_handle fpga,
+							  uint32_t slot,
+							  const char *path,
+							  int flags)
+{
+	fpga_result result = FPGA_OK;
+	char *canon_path = NULL;
+	FILE *fp = NULL;
+	uint8_t *bitstream = NULL;
+	size_t bitstream_len;
+	size_t bytes_read;
+
+	if (!fpga) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	canon_path = opae_canonicalize_file_name(path);
+	if (!canon_path) {
+		OPAE_ERR("failed to resolve \"%s\"", path);
+		result = FPGA_NOT_FOUND;
+		goto out_cleanup;
+	}
+
+	fp = opae_fopen(canon_path, "rb");
+	if (!fp) {
+		OPAE_ERR("failed to open \"%s\"", canon_path);
+		result = FPGA_EXCEPTION;
+		goto out_cleanup;
+	}
+
+	if (fseek(fp, 0, SEEK_END) < 0) {
+		OPAE_ERR("failed to determine file size");
+		result = FPGA_EXCEPTION;
+		goto out_cleanup;
+	}
+
+	bitstream_len = (size_t)ftell(fp);
+
+	if (fseek(fp, 0, SEEK_SET) < 0) {
+		OPAE_ERR("failed to determine file size");
+		result = FPGA_EXCEPTION;
+		goto out_cleanup;
+	}
+
+	bitstream = opae_malloc(bitstream_len);
+	if (!bitstream) {
+		OPAE_ERR("malloc failed");
+		result = FPGA_NO_MEMORY;
+		goto out_cleanup;
+	}
+
+	bytes_read = 0;
+	do {
+		size_t this_read;
+
+		this_read = fread(bitstream + bytes_read,
+				  1,
+				  bitstream_len - bytes_read,
+				  fp);
+
+		if (ferror(fp)) {
+			OPAE_ERR("failed to read \"%s\"", canon_path);
+			result = FPGA_EXCEPTION;
+			goto out_cleanup;
+		}
+
+		bytes_read += this_read;
+	} while(bytes_read < bitstream_len);
+
+	opae_fclose(fp);
+	fp = NULL;
+
+	result = xfpga_fpgaReconfigureSlot(fpga,
+					   slot,
+					   bitstream,
+					   bitstream_len,
+					   flags);
+
+out_cleanup:
+	if (bitstream)
+		opae_free(bitstream);
+
+	if (fp)
+		opae_fclose(fp);
+
+	if (canon_path)
+		opae_free(canon_path);
+
+	return result;
+}

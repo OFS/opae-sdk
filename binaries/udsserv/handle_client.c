@@ -81,7 +81,7 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaGetMetricsByIndex_request_38,
 	opae_handle_fpgaGetMetricsByName_request_39,
 	opae_handle_fpgaGetMetricsThresholdInfo_request_40,
-
+	opae_handle_fpgaReconfigureSlotByName_request_41,
 
 };
 

@@ -158,6 +158,11 @@ typedef struct _opae_api_adapter_table {
 					   const uint8_t *bitstream,
 					   size_t bitstream_len, int flags);
 
+	fpga_result (*fpgaReconfigureSlotByName)(fpga_handle fpga,
+						 uint32_t slot,
+						 const char *path,
+						 int flags);
+
 	fpga_result (*fpgaTokenGetObject)(fpga_token token, const char *name,
 					  fpga_object *object, int flags);
 

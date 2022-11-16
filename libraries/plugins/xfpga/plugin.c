@@ -141,6 +141,8 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		adapter->plugin.dl_handle, "xfpga_fpgaReleaseFromInterface");
 	adapter->fpgaReconfigureSlot =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlot");
+	adapter->fpgaReconfigureSlotByName =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlotByName");
 	adapter->fpgaTokenGetObject =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTokenGetObject");
 	adapter->fpgaHandleGetObject =

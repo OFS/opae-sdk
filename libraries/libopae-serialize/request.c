@@ -3838,3 +3838,104 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaReconfigureSlotByName_request_41(
+	opae_fpgaReconfigureSlotByName_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		41, "fpgaReconfigureSlotByName_request_41"))
+		goto out_err;
+
+        jhandle = json_object_new_object();
+        if (!jhandle) {
+                OPAE_ERR("out of memory");
+                goto out_err;
+        }
+
+        if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+                goto out_err;
+
+        json_object_object_add(root, "handle", jhandle);
+
+	json_object_object_add(root,
+			       "slot",
+			       json_object_new_int(req->slot));
+
+	json_object_object_add(root,
+			       "path",
+			       json_object_new_string(req->path));
+
+	json_object_object_add(root,
+			       "flags",
+			       json_object_new_int(req->flags));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaReconfigureSlotByName_request_41(
+	const char *json,
+	opae_fpgaReconfigureSlotByName_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+	char *str;
+	size_t len;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	if (!parse_json_u32(root, "slot", &req->slot))
+		goto out_put;
+
+	str = NULL;
+	if (!parse_json_string(root, "path", &str))
+		goto out_put;
+
+	memset(req->path, 0, sizeof(req->path));
+	len = strnlen(str, PATH_MAX - 1);
+
+	memcpy(req->path, str, len + 1);
+
+	if (!parse_json_int(root, "flags", &req->flags))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}

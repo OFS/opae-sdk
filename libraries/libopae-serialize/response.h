@@ -533,6 +533,18 @@ bool opae_decode_fpgaGetMetricsThresholdInfo_response_40(
 	const char *json,
 	opae_fpgaGetMetricsThresholdInfo_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaReconfigureSlotByName_response;
+
+char *opae_encode_fpgaReconfigureSlotByName_response_41(
+	opae_fpgaReconfigureSlotByName_response *resp,
+	int json_flags);
+bool opae_decode_fpgaReconfigureSlotByName_response_41(
+	const char *json,
+	opae_fpgaReconfigureSlotByName_response *resp);
+
 
 
 #ifdef __cplusplus

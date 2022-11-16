@@ -140,6 +140,12 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				const uint8_t *bitstream,
 				size_t bitstream_len, int flags);
 
+
+fpga_result fpgaReconfigureSlotByName(fpga_handle fpga,
+				      uint32_t slot,
+				      const char *path,
+				      int flags);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

@@ -28,23 +28,11 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <ctype.h>
-//#include <limits.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-
 #include <opae/types.h>
 
-//#include "xfpga.h"
-//#include "bitstream_int.h"
-//#include "common_int.h"
-//#include "opae_drv.h"
-//#include "usrclk/fpga_user_clk.h"
-
-//#include "reconf_int.h"
+#include "remote.h"
+#include "request.h"
+#include "response.h"
 
 #include "mock/opae_std.h"
 
@@ -55,15 +43,79 @@ remote_fpgaReconfigureSlot(fpga_handle fpga,
 			   size_t bitstream_len,
 			   int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) fpga;
-(void) slot;
-(void) bitstream;
-(void) bitstream_len;
-(void) flags;
+	UNUSED_PARAM(fpga);
+	UNUSED_PARAM(slot);
+	UNUSED_PARAM(bitstream);
+	UNUSED_PARAM(bitstream_len);
+	UNUSED_PARAM(flags);
+	return FPGA_NOT_SUPPORTED;
+}
 
+fpga_result __REMOTE_API__
+remote_fpgaReconfigureSlotByName(fpga_handle fpga,
+				 uint32_t slot,
+				 const char *path,
+				 int flags)
+{
+	opae_fpgaReconfigureSlotByName_request req;
+	opae_fpgaReconfigureSlotByName_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!fpga) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!path) {
+		OPAE_ERR("NULL path");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	h = (struct _remote_handle *)fpga;
+	tok = h->token;
+
+	req.handle = h->hdr;
+	req.slot = slot;
+
+	len = strnlen(path, PATH_MAX - 1);
+	memcpy(req.path, path, len + 1);
+
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaReconfigureSlotByName_request_41(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaReconfigureSlotByName_response_41(
+		recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }

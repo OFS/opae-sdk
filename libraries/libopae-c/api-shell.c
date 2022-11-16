@@ -1327,6 +1327,23 @@ fpga_result __OPAE_API__ fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 		flags);
 }
 
+fpga_result __OPAE_API__ fpgaReconfigureSlotByName(fpga_handle fpga,
+				uint32_t slot, const char *path,
+				int flags)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(fpga);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(path);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_handle->adapter_table->fpgaReconfigureSlotByName,
+		FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaReconfigureSlotByName(
+		wrapped_handle->opae_handle, slot, path, flags);
+}
+
 fpga_result __OPAE_API__ fpgaTokenGetObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags)
 {
