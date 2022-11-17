@@ -126,7 +126,7 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 
 	res = opae_hash_map_init(&c->remote_id_to_token_map,
 				 1024, /* num_buckets   */
-                                 0,    /* hash_seed     */
+				 0,    /* hash_seed     */
 				 murmur3_32_string_hash,
 				 opae_str_key_compare,
 				 opae_str_key_cleanup,
@@ -136,7 +136,7 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 
 	res = opae_hash_map_init(&c->remote_id_to_handle_map,
 				 1024, /* num_buckets   */
-                                 0,    /* hash_seed     */
+				 0,    /* hash_seed     */
 				 murmur3_32_string_hash,
 				 opae_str_key_compare,
 				 opae_str_key_cleanup,
@@ -146,7 +146,7 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 
 	res = opae_hash_map_init(&c->remote_id_to_mmio_map,
 				 1024, /* num_buckets   */
-                                 0,    /* hash_seed     */
+				 0,    /* hash_seed     */
 				 murmur3_32_string_hash,
 				 opae_str_key_compare,
 				 opae_str_key_cleanup,
@@ -156,7 +156,7 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 
 	res = opae_hash_map_init(&c->remote_id_to_buf_info_map,
 				 1024, /* num_buckets   */
-                                 0,    /* hash_seed     */
+				 0,    /* hash_seed     */
 				 murmur3_32_string_hash,
 				 opae_str_key_compare,
 				 opae_str_key_cleanup,
@@ -166,7 +166,7 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 
 	res = opae_hash_map_init(&c->remote_id_to_sysobject_map,
 				 1024, /* num_buckets   */
-                                 0,    /* hash_seed     */
+				 0,    /* hash_seed     */
 				 murmur3_32_string_hash,
 				 opae_str_key_compare,
 				 opae_str_key_cleanup,
@@ -330,7 +330,7 @@ bool opae_handle_fpgaDestroyToken_request_1(opae_remote_context *c,
 					  "fpgaDestroyToken_response_1");
 	resp.result = FPGA_INVALID_PARAM;
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key,
 				   sizeof(hash_key));
 
@@ -383,7 +383,7 @@ bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
 	resp.result = FPGA_INVALID_PARAM;
 	memset(&resp.dest_token, 0, sizeof(resp.dest_token));
 
-	opae_remote_id_to_hash_key(&req.src_token.token_id,
+	opae_remote_id_to_hash_key(&req.src_token_id,
 				   hash_key,
 				   sizeof(hash_key));
 
@@ -443,8 +443,8 @@ out:
 }
 
 bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
-                                             const char *req_json,
-                                             char **resp_json)
+					     const char *req_json,
+					     char **resp_json)
 {
 	bool res = false;
 	opae_fpgaGetProperties_request req;
@@ -464,7 +464,7 @@ bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
 	resp.result = FPGA_INVALID_PARAM;
 	resp.properties = NULL;
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key,
 				   sizeof(hash_key));
 
@@ -522,7 +522,7 @@ bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
 		goto out_destroy;
 	}
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key,
 				   sizeof(hash_key));
 
@@ -574,7 +574,7 @@ bool opae_handle_fpgaOpen_request_5(opae_remote_context *c,
 	resp.result = FPGA_NOT_FOUND;
 	memset(&resp.handle, 0, sizeof(fpga_handle_header));
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -657,7 +657,7 @@ bool opae_handle_fpgaClose_request_6(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -704,7 +704,7 @@ bool opae_handle_fpgaReset_request_7(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -749,7 +749,7 @@ bool opae_handle_fpgaGetPropertiesFromHandle_request_8(opae_remote_context *c,
 	resp.result = FPGA_NOT_FOUND;
 	resp.properties = NULL;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key,
 				   sizeof(hash_key));
 
@@ -798,7 +798,7 @@ bool opae_handle_fpgaMapMMIO_request_9(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -863,7 +863,7 @@ bool opae_handle_fpgaUnmapMMIO_request_10(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -918,7 +918,7 @@ bool opae_handle_fpgaReadMMIO32_request_11(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	resp.value = 0;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -965,7 +965,7 @@ bool opae_handle_fpgaWriteMMIO32_request_12(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1013,7 +1013,7 @@ bool opae_handle_fpgaReadMMIO64_request_13(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	resp.value = 0;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1060,7 +1060,7 @@ bool opae_handle_fpgaWriteMMIO64_request_14(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1107,7 +1107,7 @@ bool opae_handle_fpgaWriteMMIO512_request_15(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1158,7 +1158,7 @@ bool opae_handle_fpgaPrepareBuffer_request_16(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	memset(&resp.buf_id, 0, sizeof(fpga_remote_id));
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1248,7 +1248,7 @@ bool opae_handle_fpgaReleaseBuffer_request_17(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1311,7 +1311,7 @@ bool opae_handle_fpgaGetIOAddress_request_18(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	resp.ioaddr = 0;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1368,7 +1368,7 @@ bool opae_handle_fpgaReadError_request_19(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	resp.value = 0;
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1413,7 +1413,7 @@ bool opae_handle_fpgaGetErrorInfo_request_20(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	memset(&resp.error_info, 0, sizeof(resp.error_info));
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1457,7 +1457,7 @@ bool opae_handle_fpgaClearError_request_21(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1501,7 +1501,7 @@ bool opae_handle_fpgaClearAllErrors_request_22(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1546,7 +1546,7 @@ bool opae_handle_fpgaTokenGetObject_request_23(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.token.token_id,
+	opae_remote_id_to_hash_key(&req.token_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -1942,7 +1942,7 @@ bool opae_handle_fpgaHandleGetObject_request_31(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2161,7 +2161,7 @@ bool opae_handle_fpgaSetUserClock_request_34(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2210,7 +2210,7 @@ bool opae_handle_fpgaGetUserClock_request_35(opae_remote_context *c,
 	resp.high_clk = 0;
 	resp.low_clk = 0;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2258,7 +2258,7 @@ bool opae_handle_fpgaGetNumMetrics_request_36(opae_remote_context *c,
 	resp.result = FPGA_EXCEPTION;
 	resp.num_metrics = 0;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2315,7 +2315,7 @@ bool opae_handle_fpgaGetMetricsInfo_request_37(opae_remote_context *c,
 		}
 	}
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2379,7 +2379,7 @@ bool opae_handle_fpgaGetMetricsByIndex_request_38(opae_remote_context *c,
 		}
 	}
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2445,7 +2445,7 @@ bool opae_handle_fpgaGetMetricsByName_request_39(opae_remote_context *c,
 		}
 	}
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2519,7 +2519,7 @@ bool opae_handle_fpgaGetMetricsThresholdInfo_request_40(opae_remote_context *c,
 		}
 	}
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 
@@ -2575,7 +2575,7 @@ bool opae_handle_fpgaReconfigureSlotByName_request_41(opae_remote_context *c,
 
 	resp.result = FPGA_EXCEPTION;
 
-	opae_remote_id_to_hash_key(&req.handle.handle_id,
+	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
 				   sizeof(hash_key_buf));
 

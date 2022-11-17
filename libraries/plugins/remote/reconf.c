@@ -79,7 +79,7 @@ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
 	h = (struct _remote_handle *)fpga;
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.slot = slot;
 
 	len = strnlen(path, PATH_MAX - 1);

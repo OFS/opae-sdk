@@ -77,7 +77,7 @@ remote_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	}
 
 	tok = (struct _remote_token *)token;
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 	req.flags = flags;
 
 	req_json = opae_encode_fpgaOpen_request_5(

@@ -85,7 +85,7 @@ remote_fpgaTokenGetObject(fpga_token token,
 	}
 
 	tok = (struct _remote_token *)token;
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 
 	memset(req.name, 0, sizeof(req.name));
 	len = strnlen(name, OPAE_SYSOBJECT_NAME_MAX);
@@ -171,7 +171,7 @@ remote_fpgaHandleGetObject(fpga_handle handle,
 	h = (struct _remote_handle *)handle;
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 
 	memset(req.name, 0, sizeof(req.name));
 	len = strnlen(name, OPAE_SYSOBJECT_NAME_MAX);

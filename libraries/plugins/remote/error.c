@@ -58,7 +58,7 @@ remote_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 	}
 
 	tok = (struct _remote_token *)token;
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 	req.error_num = error_num;
 
 	req_json = opae_encode_fpgaReadError_request_19(
@@ -112,7 +112,7 @@ remote_fpgaClearError(fpga_token token, uint32_t error_num)
 	}
 
 	tok = (struct _remote_token *)token;
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 	req.error_num = error_num;
 
 	req_json = opae_encode_fpgaClearError_request_21(
@@ -163,7 +163,7 @@ fpga_result __REMOTE_API__ remote_fpgaClearAllErrors(fpga_token token)
 	}
 
 	tok = (struct _remote_token *)token;
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 
 	req_json = opae_encode_fpgaClearAllErrors_request_22(
 		&req, tok->json_to_string_flags);
@@ -220,7 +220,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetErrorInfo(fpga_token token,
 	}
 
 	tok = (struct _remote_token *)token;
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 	req.error_num = error_num;
 
 	req_json = opae_encode_fpgaGetErrorInfo_request_20(

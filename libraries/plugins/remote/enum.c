@@ -30,18 +30,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-//#include <errno.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-//#include <dirent.h>
-//#include <fcntl.h>
-//#include <unistd.h>
-
-//#include "xfpga.h"
-//#include "common_int.h"
-//#include "error_int.h"
-//#include "props.h"
-//#include "opae_drv.h"
 
 #include <opae/types.h>
 #include <opae/log.h>
@@ -257,7 +245,7 @@ fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src, fpga_token *dst
 
 	tok = (struct _remote_token *)src;
 
-	req.src_token = tok->hdr;
+	req.src_token_id = tok->hdr.token_id;
 
 	req_json = opae_encode_fpgaCloneToken_request_2(
 		&req, tok->json_to_string_flags);
@@ -320,7 +308,7 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token)
 
 	tok = (struct _remote_token *)*token;
 
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 
 	req_json = opae_encode_fpgaDestroyToken_request_1(
 		&req, tok->json_to_string_flags);

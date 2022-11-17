@@ -69,23 +69,8 @@ STATIC bool opae_add_response_header_obj(struct json_object *root,
 	return true;
 }
 
-/*
-{
-    "header": { ... },
-    "tokens": [
-        {
-            <token 0>
-	},
-	{
-            <token 1>
-	}
-    ],
-    "num_matches": 3,
-    "fpga_result": "FPGA_OK"
-}
-*/
 char *opae_encode_fpgaEnumerate_response_0(opae_fpgaEnumerate_response *resp,
-                                           int json_flags)
+					   int json_flags)
 {
 	struct json_object *root;
 	char *json = NULL;
@@ -144,10 +129,10 @@ opae_decode_response_header_obj(struct json_object *root,
 
 	memset(header, 0, sizeof(opae_response_header));
 
-        if (!json_object_object_get_ex(root, "header", &jheader)) {
-                OPAE_DBG("Error parsing JSON: missing 'header'");
-                return false;
-        }
+	if (!json_object_object_get_ex(root, "header", &jheader)) {
+		OPAE_DBG("Error parsing JSON: missing 'header'");
+		return false;
+	}
 
 	if (!parse_json_u64(jheader, "request_id", &header->request_id))
 		return false;
@@ -180,19 +165,19 @@ opae_decode_response_header_obj(struct json_object *root,
 bool opae_decode_fpgaEnumerate_response_0(const char *json,
 					  opae_fpgaEnumerate_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jtokens = NULL;
 	size_t i;
 	size_t len;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -200,9 +185,9 @@ bool opae_decode_fpgaEnumerate_response_0(const char *json,
 	}
 
 	if (!json_object_object_get_ex(root, "tokens", &jtokens)) {
-                OPAE_DBG("Error parsing JSON: missing 'tokens'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'tokens'");
+		goto out_put;
+	}
 
 	len = json_object_array_length(jtokens);
 
@@ -239,12 +224,6 @@ out_put:
 	return res;
 }
 
-/*
-{
-    "header": { ... },
-    "fpga_result": "FPGA_OK"
-}
-*/
 char *opae_encode_fpgaDestroyToken_response_1(opae_fpgaDestroyToken_response *resp,
 					      int json_flags)
 {
@@ -271,18 +250,18 @@ out_err:
 }
 
 bool opae_decode_fpgaDestroyToken_response_1(const char *json,
-                                             opae_fpgaDestroyToken_response *resp)
+					     opae_fpgaDestroyToken_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -300,7 +279,7 @@ out_put:
 }
 
 char *opae_encode_fpgaCloneToken_response_2(opae_fpgaCloneToken_response *resp,
-                                            int json_flags)
+					    int json_flags)
 {
 	struct json_object *root;
 	char *json = NULL;
@@ -337,19 +316,19 @@ out_err:
 }
 
 bool opae_decode_fpgaCloneToken_response_2(const char *json,
-                                           opae_fpgaCloneToken_response *resp)
+					   opae_fpgaCloneToken_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jdest_token;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -357,9 +336,9 @@ bool opae_decode_fpgaCloneToken_response_2(const char *json,
 	}
 
 	if (!json_object_object_get_ex(root, "dest_token", &jdest_token)) {
-                OPAE_DBG("Error parsing JSON: missing 'dest_token'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'dest_token'");
+		goto out_put;
+	}
 
 	if (!opae_ser_json_to_token_header_obj(jdest_token, &resp->dest_token))
 		goto out_put;
@@ -375,7 +354,7 @@ out_put:
 }
 
 char *opae_encode_fpgaGetProperties_response_3(opae_fpgaGetProperties_response *resp,
-                                               int json_flags)
+					       int json_flags)
 {
 	struct json_object *root;
 	char *json = NULL;
@@ -415,19 +394,19 @@ out_err:
 }
 
 bool opae_decode_fpgaGetProperties_response_3(const char *json,
-                                              opae_fpgaGetProperties_response *resp)
+					      opae_fpgaGetProperties_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jproperties = NULL;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -439,7 +418,7 @@ bool opae_decode_fpgaGetProperties_response_3(const char *json,
 		if (!opae_ser_json_to_properties_obj(jproperties,
 			&resp->properties))
 			goto out_put;
-        }
+	}
 
 	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
 		goto out_put;
@@ -494,17 +473,17 @@ out_err:
 bool opae_decode_fpgaUpdateProperties_response_4(const char *json,
 						 opae_fpgaUpdateProperties_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jproperties = NULL;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -516,7 +495,7 @@ bool opae_decode_fpgaUpdateProperties_response_4(const char *json,
 		if (!opae_ser_json_to_properties_obj(jproperties,
 			&resp->properties))
 			goto out_put;
-        }
+	}
 
 	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
 		goto out_put;
@@ -566,19 +545,19 @@ out_err:
 }
 
 bool opae_decode_fpgaOpen_response_5(const char *json,
-                                     opae_fpgaOpen_response *resp)
+				     opae_fpgaOpen_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jhandle = NULL;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -586,9 +565,9 @@ bool opae_decode_fpgaOpen_response_5(const char *json,
 	}
 
 	if (!json_object_object_get_ex(root, "handle", &jhandle)) {
-                OPAE_DBG("Error parsing JSON: missing 'handle'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'handle'");
+		goto out_put;
+	}
 
 	if (!opae_ser_json_to_handle_header_obj(jhandle, &resp->handle))
 		goto out_put;
@@ -631,16 +610,16 @@ out_err:
 bool opae_decode_fpgaClose_response_6(const char *json,
 				      opae_fpgaClose_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -685,16 +664,16 @@ out_err:
 bool opae_decode_fpgaReset_response_7(const char *json,
 				      opae_fpgaReset_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -756,17 +735,17 @@ bool opae_decode_fpgaGetPropertiesFromHandle_response_8(
 	const char *json,
 	opae_fpgaGetPropertiesFromHandle_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jproperties = NULL;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -778,7 +757,7 @@ bool opae_decode_fpgaGetPropertiesFromHandle_response_8(
 		if (!opae_ser_json_to_properties_obj(jproperties,
 			&resp->properties))
 			goto out_put;
-        }
+	}
 
 	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
 		goto out_put;
@@ -825,17 +804,17 @@ out_err:
 bool opae_decode_fpgaMapMMIO_response_9(const char *json,
 					opae_fpgaMapMMIO_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	struct json_object *jmmio_id = NULL;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -843,7 +822,7 @@ bool opae_decode_fpgaMapMMIO_response_9(const char *json,
 	}
 
 	if (!json_object_object_get_ex(root, "mmio_id", &jmmio_id)) {
-                OPAE_DBG("Error parsing JSON: missing 'mmio_id'");
+		OPAE_DBG("Error parsing JSON: missing 'mmio_id'");
 		goto out_put;
 	}
 
@@ -888,16 +867,16 @@ out_err:
 bool opae_decode_fpgaUnmapMMIO_response_10(const char *json,
 					   opae_fpgaUnmapMMIO_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -953,18 +932,18 @@ out_err:
 bool opae_decode_fpgaReadMMIO32_response_11(const char *json,
 					    opae_fpgaReadMMIO32_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	char *endptr;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1020,16 +999,16 @@ out_err:
 bool opae_decode_fpgaWriteMMIO32_response_12(const char *json,
 					     opae_fpgaWriteMMIO32_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1085,18 +1064,18 @@ out_err:
 bool opae_decode_fpgaReadMMIO64_response_13(const char *json,
 					    opae_fpgaReadMMIO64_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	char *endptr;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1152,16 +1131,16 @@ out_err:
 bool opae_decode_fpgaWriteMMIO64_response_14(const char *json,
 					     opae_fpgaWriteMMIO64_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1206,16 +1185,16 @@ out_err:
 bool opae_decode_fpgaWriteMMIO512_response_15(const char *json,
 					      opae_fpgaWriteMMIO512_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1267,17 +1246,17 @@ out_err:
 bool opae_decode_fpgaPrepareBuffer_response_16(const char *json,
 					       opae_fpgaPrepareBuffer_response *resp)
 {
-        struct json_object *root = NULL;
+	struct json_object *root = NULL;
 	struct json_object *jbuf_id = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1285,7 +1264,7 @@ bool opae_decode_fpgaPrepareBuffer_response_16(const char *json,
 	}
 
 	if (!json_object_object_get_ex(root, "buf_id", &jbuf_id)) {
-                OPAE_DBG("Error parsing JSON: missing 'buf_id'");
+		OPAE_DBG("Error parsing JSON: missing 'buf_id'");
 		goto out_put;
 	}
 
@@ -1330,16 +1309,16 @@ out_err:
 bool opae_decode_fpgaReleaseBuffer_response_17(const char *json,
 					       opae_fpgaReleaseBuffer_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1395,18 +1374,18 @@ out_err:
 bool opae_decode_fpgaGetIOAddress_response_18(const char *json,
 					      opae_fpgaGetIOAddress_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	char *endptr;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1473,18 +1452,18 @@ out_err:
 bool opae_decode_fpgaReadError_response_19(const char *json,
 					   opae_fpgaReadError_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	char *endptr;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1547,17 +1526,17 @@ out_err:
 bool opae_decode_fpgaGetErrorInfo_response_20(const char *json,
 					      opae_fpgaGetErrorInfo_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jerror_info = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jerror_info = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1565,7 +1544,7 @@ bool opae_decode_fpgaGetErrorInfo_response_20(const char *json,
 	}
 
 	if (!json_object_object_get_ex(root, "error_info", &jerror_info)) {
-                OPAE_DBG("Error parsing JSON: missing 'error_info'");
+		OPAE_DBG("Error parsing JSON: missing 'error_info'");
 		goto out_put;
 	}
 
@@ -1610,16 +1589,16 @@ out_err:
 bool opae_decode_fpgaClearError_response_21(const char *json,
 					    opae_fpgaClearError_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1666,16 +1645,16 @@ bool opae_decode_fpgaClearAllErrors_response_22(
 	const char *json,
 	opae_fpgaClearAllErrors_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1734,17 +1713,17 @@ bool opae_decode_fpgaTokenGetObject_response_23(
 	const char *json,
 	opae_fpgaTokenGetObject_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jobject_id = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jobject_id = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1752,7 +1731,7 @@ bool opae_decode_fpgaTokenGetObject_response_23(
 	}
 
 	if (!json_object_object_get_ex(root, "object_id", &jobject_id)) {
-                OPAE_DBG("Error parsing JSON: missing 'object_id'");
+		OPAE_DBG("Error parsing JSON: missing 'object_id'");
 		goto out_put;
 	}
 
@@ -1799,16 +1778,16 @@ bool opae_decode_fpgaDestroyObject_response_24(
 	const char *json,
 	opae_fpgaDestroyObject_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1859,16 +1838,16 @@ bool opae_decode_fpgaObjectGetType_response_25(
 	const char *json,
 	opae_fpgaObjectGetType_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1923,18 +1902,18 @@ bool opae_decode_fpgaObjectGetName_response_26(
 	const char *json,
 	opae_fpgaObjectGetName_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	size_t len;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -1992,16 +1971,16 @@ bool opae_decode_fpgaObjectGetSize_response_27(
 	const char *json,
 	opae_fpgaObjectGetSize_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2055,18 +2034,18 @@ bool opae_decode_fpgaObjectRead_response_28(
 	const char *json,
 	opae_fpgaObjectRead_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str = NULL;
 	size_t len;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2130,18 +2109,18 @@ bool opae_decode_fpgaObjectRead64_response_29(
 	const char *json,
 	opae_fpgaObjectRead64_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	char *endptr;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2199,16 +2178,16 @@ bool opae_decode_fpgaObjectWrite64_response_30(
 	const char *json,
 	opae_fpgaObjectWrite64_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2267,17 +2246,17 @@ bool opae_decode_fpgaHandleGetObject_response_31(
 	const char *json,
 	opae_fpgaHandleGetObject_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jobject_id = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jobject_id = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2285,7 +2264,7 @@ bool opae_decode_fpgaHandleGetObject_response_31(
 	}
 
 	if (!json_object_object_get_ex(root, "object_id", &jobject_id)) {
-                OPAE_DBG("Error parsing JSON: missing 'object_id'");
+		OPAE_DBG("Error parsing JSON: missing 'object_id'");
 		goto out_put;
 	}
 
@@ -2344,17 +2323,17 @@ bool opae_decode_fpgaObjectGetObject_response_32(
 	const char *json,
 	opae_fpgaObjectGetObject_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jobject_id = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jobject_id = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2362,7 +2341,7 @@ bool opae_decode_fpgaObjectGetObject_response_32(
 	}
 
 	if (!json_object_object_get_ex(root, "object_id", &jobject_id)) {
-                OPAE_DBG("Error parsing JSON: missing 'object_id'");
+		OPAE_DBG("Error parsing JSON: missing 'object_id'");
 		goto out_put;
 	}
 
@@ -2421,17 +2400,17 @@ bool opae_decode_fpgaObjectGetObjectAt_response_33(
 	const char *json,
 	opae_fpgaObjectGetObjectAt_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jobject_id = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jobject_id = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2439,7 +2418,7 @@ bool opae_decode_fpgaObjectGetObjectAt_response_33(
 	}
 
 	if (!json_object_object_get_ex(root, "object_id", &jobject_id)) {
-                OPAE_DBG("Error parsing JSON: missing 'object_id'");
+		OPAE_DBG("Error parsing JSON: missing 'object_id'");
 		goto out_put;
 	}
 
@@ -2486,16 +2465,16 @@ bool opae_decode_fpgaSetUserClock_response_34(
 	const char *json,
 	opae_fpgaSetUserClock_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2563,18 +2542,18 @@ bool opae_decode_fpgaGetUserClock_response_35(
 	const char *json,
 	opae_fpgaGetUserClock_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	char *str;
 	char *endptr;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2647,16 +2626,16 @@ bool opae_decode_fpgaGetNumMetrics_response_36(
 	const char *json,
 	opae_fpgaGetNumMetrics_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2727,19 +2706,19 @@ bool opae_decode_fpgaGetMetricsInfo_response_37(
 	const char *json,
 	opae_fpgaGetMetricsInfo_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jinfo = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jinfo = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	size_t len;
 	size_t i;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2747,9 +2726,9 @@ bool opae_decode_fpgaGetMetricsInfo_response_37(
 	}
 
 	if (!json_object_object_get_ex(root, "info", &jinfo)) {
-                OPAE_DBG("Error parsing JSON: missing 'info'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'info'");
+		goto out_put;
+	}
 
 	len = json_object_array_length(jinfo);
 
@@ -2836,19 +2815,19 @@ bool opae_decode_fpgaGetMetricsByIndex_response_38(
 	const char *json,
 	opae_fpgaGetMetricsByIndex_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jmetrics = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jmetrics = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	size_t len;
 	size_t i;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2859,14 +2838,14 @@ bool opae_decode_fpgaGetMetricsByIndex_response_38(
 		goto out_put;
 
 	if (!json_object_object_get_ex(root, "metrics", &jmetrics)) {
-                OPAE_DBG("Error parsing JSON: missing 'info'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'info'");
+		goto out_put;
+	}
 
 	len = json_object_array_length(jmetrics);
 	if (len != resp->num_metric_indexes) {
-                OPAE_DBG("Error parsing JSON: incorrect 'num_metric_indexes'");
-                goto out_put;
+		OPAE_DBG("Error parsing JSON: incorrect 'num_metric_indexes'");
+		goto out_put;
 	}
 
 	resp->metrics = NULL;
@@ -2948,19 +2927,19 @@ bool opae_decode_fpgaGetMetricsByName_response_39(
 	const char *json,
 	opae_fpgaGetMetricsByName_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jmetrics = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jmetrics = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	size_t len;
 	size_t i;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -2971,14 +2950,14 @@ bool opae_decode_fpgaGetMetricsByName_response_39(
 		goto out_put;
 
 	if (!json_object_object_get_ex(root, "metrics", &jmetrics)) {
-                OPAE_DBG("Error parsing JSON: missing 'info'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'info'");
+		goto out_put;
+	}
 
 	len = json_object_array_length(jmetrics);
 	if (len != resp->num_metric_names) {
-                OPAE_DBG("Error parsing JSON: incorrect 'num_metric_names'");
-                goto out_put;
+		OPAE_DBG("Error parsing JSON: incorrect 'num_metric_names'");
+		goto out_put;
 	}
 
 	resp->metrics = NULL;
@@ -3060,19 +3039,19 @@ bool opae_decode_fpgaGetMetricsThresholdInfo_response_40(
 	const char *json,
 	opae_fpgaGetMetricsThresholdInfo_response *resp)
 {
-        struct json_object *root = NULL;
-        struct json_object *jmetric_threshold = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	struct json_object *jmetric_threshold = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 	size_t len;
 	size_t i;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
@@ -3085,14 +3064,14 @@ bool opae_decode_fpgaGetMetricsThresholdInfo_response_40(
 	if (!json_object_object_get_ex(root,
 				       "metric_threshold",
 				       &jmetric_threshold)) {
-                OPAE_DBG("Error parsing JSON: missing 'info'");
-                goto out_put;
-        }
+		OPAE_DBG("Error parsing JSON: missing 'info'");
+		goto out_put;
+	}
 
 	len = json_object_array_length(jmetric_threshold);
 	if (len != resp->num_thresholds) {
-                OPAE_DBG("Error parsing JSON: incorrect 'num_thresholds'");
-                goto out_put;
+		OPAE_DBG("Error parsing JSON: incorrect 'num_thresholds'");
+		goto out_put;
 	}
 
 	resp->metric_threshold = NULL;
@@ -3153,16 +3132,16 @@ bool opae_decode_fpgaReconfigureSlotByName_response_41(
 	const char *json,
 	opae_fpgaReconfigureSlotByName_response *resp)
 {
-        struct json_object *root = NULL;
-        enum json_tokener_error j_err = json_tokener_success;
-        bool res = false;
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
 
-        root = json_tokener_parse_verbose(json, &j_err);
-        if (!root) {
-                OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-        }
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");

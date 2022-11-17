@@ -67,7 +67,7 @@ remote_fpgaPrepareBuffer(fpga_handle handle, uint64_t blen,
 	h = (struct _remote_handle *)handle;
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.len = blen;
 	req.have_buf_addr = false;
 	req.pre_allocated_addr = NULL;
@@ -159,7 +159,7 @@ remote_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 
 	rid = (fpga_remote_id *)(void *)wsid;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.buf_id = *rid;
 
 	req_json = opae_encode_fpgaReleaseBuffer_request_17(
@@ -222,7 +222,7 @@ remote_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid, uint64_t *ioaddr)
 
 	rid = (fpga_remote_id *)(void *)wsid;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.buf_id = *rid;
 
 	req_json = opae_encode_fpgaGetIOAddress_request_18(

@@ -63,7 +63,7 @@ remote_fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 
 	req_json = opae_encode_fpgaGetNumMetrics_request_36(
 		&req, tok->json_to_string_flags);
@@ -133,7 +133,7 @@ remote_fpgaGetMetricsInfo(fpga_handle handle,
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.num_metrics = *num_metrics;
 
 	req_json = opae_encode_fpgaGetMetricsInfo_request_37(
@@ -212,7 +212,7 @@ remote_fpgaGetMetricsByIndex(fpga_handle handle,
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.metric_num = metric_num;
 	req.num_metric_indexes = num_metric_indexes;
 	resp.num_metric_indexes = num_metric_indexes;
@@ -291,7 +291,7 @@ remote_fpgaGetMetricsByName(fpga_handle handle,
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.metrics_names = metrics_names;
 	req.num_metric_names = num_metric_names;
 	resp.num_metric_names = num_metric_names;
@@ -369,7 +369,7 @@ remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.num_thresholds = *num_thresholds;
 	*num_thresholds = 0;
 

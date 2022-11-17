@@ -173,16 +173,16 @@ bool opae_handle_fpgaObjectWrite64_request_30(opae_remote_context *c,
 					      char **resp_json);
 
 bool opae_handle_fpgaHandleGetObject_request_31(opae_remote_context *c,
-					        const char *req_json,
-					        char **resp_json);
+						const char *req_json,
+						char **resp_json);
 
 bool opae_handle_fpgaObjectGetObject_request_32(opae_remote_context *c,
-					        const char *req_json,
-					        char **resp_json);
+						const char *req_json,
+						char **resp_json);
 
 bool opae_handle_fpgaObjectGetObjectAt_request_33(opae_remote_context *c,
-					          const char *req_json,
-					          char **resp_json);
+						  const char *req_json,
+						  char **resp_json);
 
 bool opae_handle_fpgaSetUserClock_request_34(opae_remote_context *c,
 					     const char *req_json,

@@ -223,33 +223,17 @@ void test_fpgaEnumerate_request_0(void)
 
 void test_fpgaDestroyToken_request_1(void)
 {
-	fpga_token_header hdr = {
-		.magic = 0x46504741544f4b4e,
-		.vendor_id = 0x8086,
-		.device_id = 0x0b30,
-		.segment = 0x0000,
-		.bus = 0x3f,
-		.device = 0x00,
-		.function = 0,
-		.interface = FPGA_IFC_DFL,
-		.objtype = FPGA_ACCELERATOR,
-		.object_id = 0x000000000ea00000,
-		.guid = { 0, },
-		.subsystem_vendor_id = 0x8086,
-		.subsystem_device_id = 0x0000,
-		.token_id = {
-			.hostname = { 0, },
-			.unique_id = 2
-		}
+	fpga_remote_id token_id = {
+		.hostname = { 0, },
+		.unique_id = 2
 	};
+
 	opae_fpgaDestroyToken_request req;
 	opae_fpgaDestroyToken_response resp;
-	char buf[64];
 
-	uuid_parse(TEST_GUID_STR, hdr.guid);
-	opae_get_host_name_buf(hdr.token_id.hostname, HOST_NAME_MAX);
+	opae_get_host_name_buf(token_id.hostname, HOST_NAME_MAX);
 
-	req.token = hdr;
+	req.token_id = token_id;
 
 	char *json;
 	char *response = NULL;
@@ -266,22 +250,8 @@ void test_fpgaDestroyToken_request_1(void)
 	assert(req.header.serial == 1);
 	assert(!strcmp(opae_get_host_name(), req.header.from));
 
-	assert(req.token.magic == hdr.magic);
-	assert(req.token.vendor_id == hdr.vendor_id);
-	assert(req.token.device_id == hdr.device_id);
-	assert(req.token.segment == hdr.segment);
-	assert(req.token.bus == hdr.bus);
-	assert(req.token.device == hdr.device);
-	assert(req.token.function == hdr.function);
-	assert(req.token.interface == hdr.interface);
-	assert(req.token.objtype == hdr.objtype);
-	assert(req.token.object_id == hdr.object_id);
-	uuid_unparse(req.token.guid, buf);
-	assert(!strcmp(TEST_GUID_STR, buf));
-	assert(req.token.subsystem_vendor_id == hdr.subsystem_vendor_id);
-	assert(req.token.subsystem_device_id == hdr.subsystem_device_id);
-	assert(!strcmp(req.token.token_id.hostname, hdr.token_id.hostname));
-	assert(req.token.token_id.unique_id == 2);
+	assert(!strcmp(req.token_id.hostname, token_id.hostname));
+	assert(req.token_id.unique_id == 2);
 
 	opae_handle_fpgaDestroyToken_request_1(&remote_context, json, &response);
 
@@ -303,33 +273,17 @@ void test_fpgaDestroyToken_request_1(void)
 
 void test_fpgaCloneToken_request_2(void)
 {
-	fpga_token_header hdr = {
-		.magic = 0x46504741544f4b4e,
-		.vendor_id = 0x8086,
-		.device_id = 0x0b30,
-		.segment = 0x0000,
-		.bus = 0x3f,
-		.device = 0x00,
-		.function = 0,
-		.interface = FPGA_IFC_DFL,
-		.objtype = FPGA_ACCELERATOR,
-		.object_id = 0x000000000ea00000,
-		.guid = { 0, },
-		.subsystem_vendor_id = 0x8086,
-		.subsystem_device_id = 0x0000,
-		.token_id = {
-			.hostname = { 0, },
-			.unique_id = 2
-		}
+	fpga_remote_id src_token_id = {
+		.hostname = { 0, },
+		.unique_id = 2
 	};
+
 	opae_fpgaCloneToken_request req;
 	opae_fpgaCloneToken_response resp;
-	char buf[64];
 
-	uuid_parse(TEST_GUID_STR, hdr.guid);
-	opae_get_host_name_buf(hdr.token_id.hostname, HOST_NAME_MAX);
+	opae_get_host_name_buf(src_token_id.hostname, HOST_NAME_MAX);
 
-	req.src_token = hdr;
+	req.src_token_id = src_token_id;
 
 	char *json;
 	char *response = NULL;
@@ -346,22 +300,8 @@ void test_fpgaCloneToken_request_2(void)
 	assert(req.header.serial == 2);
 	assert(!strcmp(opae_get_host_name(), req.header.from));
 
-	assert(req.src_token.magic == hdr.magic);
-	assert(req.src_token.vendor_id == hdr.vendor_id);
-	assert(req.src_token.device_id == hdr.device_id);
-	assert(req.src_token.segment == hdr.segment);
-	assert(req.src_token.bus == hdr.bus);
-	assert(req.src_token.device == hdr.device);
-	assert(req.src_token.function == hdr.function);
-	assert(req.src_token.interface == hdr.interface);
-	assert(req.src_token.objtype == hdr.objtype);
-	assert(req.src_token.object_id == hdr.object_id);
-	uuid_unparse(req.src_token.guid, buf);
-	assert(!strcmp(TEST_GUID_STR, buf));
-	assert(req.src_token.subsystem_vendor_id == hdr.subsystem_vendor_id);
-	assert(req.src_token.subsystem_device_id == hdr.subsystem_device_id);
-	assert(!strcmp(req.src_token.token_id.hostname, hdr.token_id.hostname));
-	assert(req.src_token.token_id.unique_id == 2);
+	assert(!strcmp(req.src_token_id.hostname, src_token_id.hostname));
+	assert(req.src_token_id.unique_id == 2);
 
 	opae_handle_fpgaCloneToken_request_2(&remote_context, json, &response);
 
@@ -383,33 +323,17 @@ void test_fpgaCloneToken_request_2(void)
 
 void test_fpgaGetProperties_request_3(void)
 {
-	fpga_token_header hdr = {
-		.magic = 0x46504741544f4b4e,
-		.vendor_id = 0x8086,
-		.device_id = 0x0b30,
-		.segment = 0x0000,
-		.bus = 0x3f,
-		.device = 0x00,
-		.function = 0,
-		.interface = FPGA_IFC_DFL,
-		.objtype = FPGA_ACCELERATOR,
-		.object_id = 0x000000000ea00000,
-		.guid = { 0, },
-		.subsystem_vendor_id = 0x8086,
-		.subsystem_device_id = 0x0000,
-		.token_id = {
-			.hostname = { 0, },
-			.unique_id = 3
-		}
+	fpga_remote_id token_id = {
+		.hostname = { 0, },
+		.unique_id = 3
 	};
+
 	opae_fpgaGetProperties_request req;
 	opae_fpgaGetProperties_response resp;
-	char buf[64];
 
-	uuid_parse(TEST_GUID_STR, hdr.guid);
-	opae_get_host_name_buf(hdr.token_id.hostname, HOST_NAME_MAX);
+	opae_get_host_name_buf(token_id.hostname, HOST_NAME_MAX);
 
-	req.token = hdr;
+	req.token_id = token_id;
 
 	char *json;
 	char *response = NULL;
@@ -426,22 +350,8 @@ void test_fpgaGetProperties_request_3(void)
 	assert(req.header.serial == 3);
 	assert(!strcmp(opae_get_host_name(), req.header.from));
 
-	assert(req.token.magic == hdr.magic);
-	assert(req.token.vendor_id == hdr.vendor_id);
-	assert(req.token.device_id == hdr.device_id);
-	assert(req.token.segment == hdr.segment);
-	assert(req.token.bus == hdr.bus);
-	assert(req.token.device == hdr.device);
-	assert(req.token.function == hdr.function);
-	assert(req.token.interface == hdr.interface);
-	assert(req.token.objtype == hdr.objtype);
-	assert(req.token.object_id == hdr.object_id);
-	uuid_unparse(req.token.guid, buf);
-	assert(!strcmp(TEST_GUID_STR, buf));
-	assert(req.token.subsystem_vendor_id == hdr.subsystem_vendor_id);
-	assert(req.token.subsystem_device_id == hdr.subsystem_device_id);
-	assert(!strcmp(req.token.token_id.hostname, hdr.token_id.hostname));
-	assert(req.token.token_id.unique_id == 3);
+	assert(!strcmp(req.token_id.hostname, token_id.hostname));
+	assert(req.token_id.unique_id == 3);
 
 	opae_handle_fpgaGetProperties_request_3(&remote_context, json, &response);
 

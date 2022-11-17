@@ -60,7 +60,7 @@ remote_fpgaSetUserClock(fpga_handle handle,
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.high_clk = high_clk;
 	req.low_clk = low_clk;
 	req.flags = flags;
@@ -131,7 +131,7 @@ remote_fpgaGetUserClock(fpga_handle handle,
 
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.flags = flags;
 
 	req_json = opae_encode_fpgaGetUserClock_request_35(

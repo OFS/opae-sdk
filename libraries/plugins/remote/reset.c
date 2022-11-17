@@ -54,7 +54,7 @@ fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle)
 	h = (struct _remote_handle *)handle;
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 
 	req_json = opae_encode_fpgaReset_request_7(
 		&req, tok->json_to_string_flags);

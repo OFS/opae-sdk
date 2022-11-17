@@ -56,7 +56,7 @@ bool opae_decode_fpgaEnumerate_request_0(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 } opae_fpgaDestroyToken_request;
 
 char *opae_encode_fpgaDestroyToken_request_1(opae_fpgaDestroyToken_request *req,
@@ -66,7 +66,7 @@ bool opae_decode_fpgaDestroyToken_request_1(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header src_token;
+	fpga_remote_id src_token_id;
 } opae_fpgaCloneToken_request;
 
 char *opae_encode_fpgaCloneToken_request_2(opae_fpgaCloneToken_request *req,
@@ -76,7 +76,7 @@ bool opae_decode_fpgaCloneToken_request_2(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 } opae_fpgaGetProperties_request;
 
 char *opae_encode_fpgaGetProperties_request_3(opae_fpgaGetProperties_request *req,
@@ -86,7 +86,7 @@ bool opae_decode_fpgaGetProperties_request_3(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 } opae_fpgaUpdateProperties_request;
 
 char *opae_encode_fpgaUpdateProperties_request_4(opae_fpgaUpdateProperties_request *req,
@@ -96,7 +96,7 @@ bool opae_decode_fpgaUpdateProperties_request_4(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 	int flags;
 } opae_fpgaOpen_request;
 
@@ -107,7 +107,7 @@ bool opae_decode_fpgaOpen_request_5(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 } opae_fpgaClose_request;
 
 char *opae_encode_fpgaClose_request_6(opae_fpgaClose_request *req,
@@ -117,7 +117,7 @@ bool opae_decode_fpgaClose_request_6(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 } opae_fpgaReset_request;
 
 char *opae_encode_fpgaReset_request_7(opae_fpgaReset_request *req,
@@ -127,7 +127,7 @@ bool opae_decode_fpgaReset_request_7(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 } opae_fpgaGetPropertiesFromHandle_request;
 
 char *opae_encode_fpgaGetPropertiesFromHandle_request_8(
@@ -139,7 +139,7 @@ bool opae_decode_fpgaGetPropertiesFromHandle_request_8(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t mmio_num;
 } opae_fpgaMapMMIO_request;
 
@@ -150,7 +150,7 @@ bool opae_decode_fpgaMapMMIO_request_9(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	fpga_remote_id mmio_id;
 	uint32_t mmio_num;
 } opae_fpgaUnmapMMIO_request;
@@ -162,7 +162,7 @@ bool opae_decode_fpgaUnmapMMIO_request_10(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t mmio_num;
 	uint64_t offset;
 } opae_fpgaReadMMIO32_request;
@@ -174,7 +174,7 @@ bool opae_decode_fpgaReadMMIO32_request_11(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t mmio_num;
 	uint64_t offset;
 	uint32_t value;
@@ -187,7 +187,7 @@ bool opae_decode_fpgaWriteMMIO32_request_12(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t mmio_num;
 	uint64_t offset;
 } opae_fpgaReadMMIO64_request;
@@ -199,7 +199,7 @@ bool opae_decode_fpgaReadMMIO64_request_13(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t mmio_num;
 	uint64_t offset;
 	uint64_t value;
@@ -212,7 +212,7 @@ bool opae_decode_fpgaWriteMMIO64_request_14(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t mmio_num;
 	uint64_t offset;
 	uint64_t values[8];
@@ -225,7 +225,7 @@ bool opae_decode_fpgaWriteMMIO512_request_15(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint64_t len;
 	bool have_buf_addr;
 	void *pre_allocated_addr;
@@ -239,7 +239,7 @@ bool opae_decode_fpgaPrepareBuffer_request_16(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	fpga_remote_id buf_id;
 } opae_fpgaReleaseBuffer_request;
 
@@ -250,7 +250,7 @@ bool opae_decode_fpgaReleaseBuffer_request_17(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	fpga_remote_id buf_id;
 } opae_fpgaGetIOAddress_request;
 
@@ -261,7 +261,7 @@ bool opae_decode_fpgaGetIOAddress_request_18(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 	uint32_t error_num;
 } opae_fpgaReadError_request;
 
@@ -272,7 +272,7 @@ bool opae_decode_fpgaReadError_request_19(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 	uint32_t error_num;
 } opae_fpgaGetErrorInfo_request;
 
@@ -283,7 +283,7 @@ bool opae_decode_fpgaGetErrorInfo_request_20(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 	uint32_t error_num;
 } opae_fpgaClearError_request;
 
@@ -294,7 +294,7 @@ bool opae_decode_fpgaClearError_request_21(const char *json,
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 } opae_fpgaClearAllErrors_request;
 
 char *opae_encode_fpgaClearAllErrors_request_22(
@@ -314,7 +314,7 @@ bool opae_decode_fpgaClearAllErrors_request_22(
 
 typedef struct {
 	opae_request_header header;
-	fpga_token_header token;
+	fpga_remote_id token_id;
 	char name[OPAE_SYSOBJECT_NAME_MAX];
 	int flags;
 } opae_fpgaTokenGetObject_request;
@@ -419,7 +419,7 @@ bool opae_decode_fpgaObjectWrite64_request_30(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	char name[OPAE_SYSOBJECT_NAME_MAX];
 	int flags;
 } opae_fpgaHandleGetObject_request;
@@ -460,7 +460,7 @@ bool opae_decode_fpgaObjectGetObjectAt_request_33(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint64_t high_clk;
 	uint64_t low_clk;
 	int flags;
@@ -475,7 +475,7 @@ bool opae_decode_fpgaSetUserClock_request_34(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	int flags;
 } opae_fpgaGetUserClock_request;
 
@@ -488,7 +488,7 @@ bool opae_decode_fpgaGetUserClock_request_35(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 } opae_fpgaGetNumMetrics_request;
 
 char *opae_encode_fpgaGetNumMetrics_request_36(
@@ -500,7 +500,7 @@ bool opae_decode_fpgaGetNumMetrics_request_36(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint64_t num_metrics;
 } opae_fpgaGetMetricsInfo_request;
 
@@ -513,7 +513,7 @@ bool opae_decode_fpgaGetMetricsInfo_request_37(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint64_t *metric_num;
 	uint64_t num_metric_indexes;
 } opae_fpgaGetMetricsByIndex_request;
@@ -527,7 +527,7 @@ bool opae_decode_fpgaGetMetricsByIndex_request_38(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	char **metrics_names;
 	uint64_t num_metric_names;
 } opae_fpgaGetMetricsByName_request;
@@ -541,7 +541,7 @@ bool opae_decode_fpgaGetMetricsByName_request_39(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t num_thresholds;
 } opae_fpgaGetMetricsThresholdInfo_request;
 
@@ -554,7 +554,7 @@ bool opae_decode_fpgaGetMetricsThresholdInfo_request_40(
 
 typedef struct {
 	opae_request_header header;
-	fpga_handle_header handle;
+	fpga_remote_id handle_id;
 	uint32_t slot;
 	char path[PATH_MAX];
 	int flags;

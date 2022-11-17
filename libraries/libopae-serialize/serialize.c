@@ -213,7 +213,7 @@ opae_str_to_accelerator_state(const char *s)
 }
 
 bool opae_ser_properties_to_json_obj(fpga_properties prop,
-                                     struct json_object *parent)
+				     struct json_object *parent)
 {
 	struct _fpga_properties *p;
 	int res;
@@ -375,8 +375,8 @@ bool opae_ser_properties_to_json_obj(fpga_properties prop,
 				       json_object_new_string(p->hostname));
 	}
 
-        if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
-            && (FPGA_DEVICE == p->objtype)) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
+	    && (FPGA_DEVICE == p->objtype)) {
 		struct json_object *fpga_device = NULL;
 
 		if (FIELD_VALID(p, FPGA_PROPERTY_NUM_SLOTS) ||
@@ -418,7 +418,7 @@ bool opae_ser_properties_to_json_obj(fpga_properties prop,
 		}
 
 	} else if (FIELD_VALID(p, FPGA_PROPERTY_OBJTYPE)
-                   && (FPGA_ACCELERATOR == p->objtype)) {
+		   && (FPGA_ACCELERATOR == p->objtype)) {
 		struct json_object *fpga_accelerator = NULL;
 
 		if (FIELD_VALID(p, FPGA_PROPERTY_ACCELERATOR_STATE) ||
@@ -460,7 +460,7 @@ bool opae_ser_properties_to_json_obj(fpga_properties prop,
 }
 
 bool opae_ser_json_to_properties_obj(struct json_object *jobj,
-                                     fpga_properties *props)
+				     fpga_properties *props)
 {
 	fpga_result res;
 	struct _fpga_properties *p;
@@ -765,7 +765,7 @@ out_destroy:
 }
 
 bool opae_ser_remote_id_to_json_obj(const fpga_remote_id *rid,
-                                    struct json_object *parent)
+				    struct json_object *parent)
 {
 	json_object_object_add(parent, "serialized_type",
 			json_object_new_string("fpga_remote_id"));
@@ -782,7 +782,7 @@ bool opae_ser_remote_id_to_json_obj(const fpga_remote_id *rid,
 }
 
 bool opae_ser_json_to_remote_id_obj(struct json_object *jobj,
-                                    fpga_remote_id *rid)
+				    fpga_remote_id *rid)
 {
 	char *str;
 	struct json_object *obj;
@@ -812,7 +812,7 @@ bool opae_ser_json_to_remote_id_obj(struct json_object *jobj,
 }
 
 bool opae_ser_token_header_to_json_obj(const fpga_token_header *hdr,
-                                       struct json_object *parent)
+				       struct json_object *parent)
 {
 	char buf[64];
 	const char *str;
@@ -938,7 +938,7 @@ bool opae_ser_token_header_to_json_obj(const fpga_token_header *hdr,
 }
 
 bool opae_ser_json_to_token_header_obj(struct json_object *jobj,
-                                       fpga_token_header *hdr)
+				       fpga_token_header *hdr)
 {
 	struct json_object *jtoken_id = NULL;
 	struct json_object *serialized_type;
@@ -1095,12 +1095,12 @@ bool opae_ser_json_to_token_header_obj(struct json_object *jobj,
 	}
 	hdr->subsystem_device_id = u16;
 
-        if (!json_object_object_get_ex(jobj,
+	if (!json_object_object_get_ex(jobj,
 				       "token_id",
 				       &jtoken_id)) {
-                OPAE_ERR("Error parsing JSON: missing 'token_id'");
-                return false;
-        }
+		OPAE_ERR("Error parsing JSON: missing 'token_id'");
+		return false;
+	}
 
 	if (!opae_ser_json_to_remote_id_obj(jtoken_id, &hdr->token_id))
 		return false;
@@ -1153,7 +1153,7 @@ opae_str_to_fpga_result(const char *s)
 }
 
 bool opae_ser_fpga_result_to_json_obj(const fpga_result res,
-                                      struct json_object *parent)
+				      struct json_object *parent)
 {
 	const char *str;
 
@@ -1165,7 +1165,7 @@ bool opae_ser_fpga_result_to_json_obj(const fpga_result res,
 }
 
 bool opae_ser_json_to_fpga_result_obj(struct json_object *jobj,
-                                      fpga_result *res)
+				      fpga_result *res)
 {
 	char *str = NULL;
 	struct json_object *obj;
@@ -1180,7 +1180,7 @@ bool opae_ser_json_to_fpga_result_obj(struct json_object *jobj,
 }
 
 bool opae_ser_handle_header_to_json_obj(const fpga_handle_header *hdr,
-                                        struct json_object *parent)
+					struct json_object *parent)
 {
 	char buf[64];
 	struct json_object *jtoken_id;
@@ -1198,22 +1198,22 @@ bool opae_ser_handle_header_to_json_obj(const fpga_handle_header *hdr,
 			       "magic",
 			       json_object_new_string(buf));
 
-        jtoken_id = json_object_new_object();
-        if (!jtoken_id) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jtoken_id = json_object_new_object();
+	if (!jtoken_id) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_remote_id_to_json_obj(&hdr->token_id, jtoken_id))
 		return false;
 
 	json_object_object_add(parent, "token_id", jtoken_id);
 
-        jhandle_id = json_object_new_object();
-        if (!jhandle_id) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jhandle_id = json_object_new_object();
+	if (!jhandle_id) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_remote_id_to_json_obj(&hdr->handle_id, jhandle_id))
 		return false;
@@ -1224,7 +1224,7 @@ bool opae_ser_handle_header_to_json_obj(const fpga_handle_header *hdr,
 }
 
 bool opae_ser_json_to_handle_header_obj(struct json_object *jobj,
-                                        fpga_handle_header *hdr)
+					fpga_handle_header *hdr)
 {
 	char *str;
 	char *endptr;
@@ -1254,14 +1254,14 @@ bool opae_ser_json_to_handle_header_obj(struct json_object *jobj,
 	}
 	hdr->magic = u64;
 
-        if (!json_object_object_get_ex(jobj,
+	if (!json_object_object_get_ex(jobj,
 				       "token_id",
 				       &jtoken_id)) {
-                OPAE_ERR("Error parsing JSON: missing 'token_id'");
-                return false;
-        }
+		OPAE_ERR("Error parsing JSON: missing 'token_id'");
+		return false;
+	}
 
-        if (!opae_ser_json_to_remote_id_obj(jtoken_id,
+	if (!opae_ser_json_to_remote_id_obj(jtoken_id,
 					    &hdr->token_id))
 		return false;
 
@@ -1467,7 +1467,7 @@ opae_str_to_metric_type(const char *s)
 }
 
 bool opae_ser_metric_info_to_json_obj(const fpga_metric_info *mi,
-                                      struct json_object *parent)
+				      struct json_object *parent)
 {
 	char buf[64];
 	const char *str;
@@ -1514,7 +1514,7 @@ bool opae_ser_metric_info_to_json_obj(const fpga_metric_info *mi,
 }
 
 bool opae_ser_json_to_metric_info_obj(struct json_object *jobj,
-                                      fpga_metric_info *mi)
+				      fpga_metric_info *mi)
 {
 	struct json_object *serialized_type;
 	char *str;
@@ -1587,7 +1587,7 @@ bool opae_ser_json_to_metric_info_obj(struct json_object *jobj,
 }
 
 bool opae_ser_fpga_metric_to_json_obj(const fpga_metric *m,
-                                      struct json_object *parent)
+				      struct json_object *parent)
 {
 	uint8_t *p;
 	uint8_t *pend;
@@ -1607,10 +1607,10 @@ bool opae_ser_fpga_metric_to_json_obj(const fpga_metric *m,
 
 	i = 0;
 	while (p < pend) {
-                struct json_object *array_i;
+		struct json_object *array_i;
 
-                array_i = json_object_new_int((unsigned)*p);
-                json_object_array_put_idx(jvalue, i, array_i);
+		array_i = json_object_new_int((unsigned)*p);
+		json_object_array_put_idx(jvalue, i, array_i);
 
 		++i;
 		++p;
@@ -1625,7 +1625,7 @@ bool opae_ser_fpga_metric_to_json_obj(const fpga_metric *m,
 }
 
 bool opae_ser_json_to_fpga_metric_obj(struct json_object *jobj,
-                                      fpga_metric *m)
+				      fpga_metric *m)
 {
 	struct json_object *serialized_type;
 	struct json_object *jvalue = NULL;
@@ -1738,7 +1738,7 @@ opae_ser_json_to_threshold_obj(struct json_object *jobj,
 }
 
 bool opae_ser_metric_threshold_to_json_obj(const metric_threshold *m,
-                                           struct json_object *parent)
+					   struct json_object *parent)
 {
 	struct json_object *jobj;
 
@@ -1748,77 +1748,77 @@ bool opae_ser_metric_threshold_to_json_obj(const metric_threshold *m,
 	json_object_object_add(parent, "metric_name",
 			json_object_new_string(m->metric_name));
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->upper_nr_threshold, jobj))
 		return false;
 
 	json_object_object_add(parent, "upper_nr_threshold", jobj);
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->upper_c_threshold, jobj))
 		return false;
 
 	json_object_object_add(parent, "upper_c_threshold", jobj);
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->upper_nc_threshold, jobj))
 		return false;
 
 	json_object_object_add(parent, "upper_nc_threshold", jobj);
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->lower_nr_threshold, jobj))
 		return false;
 
 	json_object_object_add(parent, "lower_nr_threshold", jobj);
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->lower_c_threshold, jobj))
 		return false;
 
 	json_object_object_add(parent, "lower_c_threshold", jobj);
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->lower_nc_threshold, jobj))
 		return false;
 
 	json_object_object_add(parent, "lower_nc_threshold", jobj);
 
-        jobj = json_object_new_object();
-        if (!jobj) {
-                OPAE_ERR("out of memory");
-                return false;
-        }
+	jobj = json_object_new_object();
+	if (!jobj) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
 
 	if (!opae_ser_threshold_to_json_obj(&m->hysteresis, jobj))
 		return false;
@@ -1829,7 +1829,7 @@ bool opae_ser_metric_threshold_to_json_obj(const metric_threshold *m,
 }
 
 bool opae_ser_json_to_metric_threshold_obj(struct json_object *jobj,
-                                           metric_threshold *m)
+					   metric_threshold *m)
 {
 	struct json_object *serialized_type;
 	struct json_object *o;

@@ -71,7 +71,7 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_num = mmio_num;
 	req.offset = offset;
 	req.value = value;
@@ -147,7 +147,7 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_num = mmio_num;
 	req.offset = offset;
 
@@ -220,7 +220,7 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_num = mmio_num;
 	req.offset = offset;
 	req.value = value;
@@ -296,7 +296,7 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_num = mmio_num;
 	req.offset = offset;
 
@@ -369,7 +369,7 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_num = mmio_num;
 	req.offset = offset;
 	memcpy(req.values, value, sizeof(req.values));
@@ -442,7 +442,7 @@ remote_fpgaMapMMIO(fpga_handle handle,
 		h->mmio_regions[mmio_num] = NULL;
 	}
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_num = mmio_num;
 
 	req_json = opae_encode_fpgaMapMMIO_request_9(
@@ -523,7 +523,7 @@ remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 
 	mmio_id = h->mmio_regions[mmio_num];
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 	req.mmio_id = *mmio_id;
 	req.mmio_num = mmio_num;
 

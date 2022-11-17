@@ -64,7 +64,7 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 	h = (struct _remote_handle *)handle;
 	tok = h->token;
 
-	req.handle = h->hdr;
+	req.handle_id = h->hdr.handle_id;
 
 	req_json = opae_encode_fpgaGetPropertiesFromHandle_request_8(
 		&req, tok->json_to_string_flags);
@@ -153,7 +153,7 @@ remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	tok = (struct _remote_token *)token;
 
-	req.token = tok->hdr;
+	req.token_id = tok->hdr.token_id;
 
 	req_json = opae_encode_fpgaUpdateProperties_request_4(
 		&req, tok->json_to_string_flags);
