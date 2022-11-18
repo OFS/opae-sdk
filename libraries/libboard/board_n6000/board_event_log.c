@@ -822,16 +822,31 @@ void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 void bel_timespan(struct bel_event *event, uint32_t idx)
 {
 	struct bel_header *header_off = &event->power_off_status.header;
-	struct bel_header *header_on = &event->power_on_status.header;
 	time_t off_sec = (((uint64_t)header_off->timespamp_high << 32) |
 		header_off->timestamp_low) /1000UL;
-	time_t on_sec = (((uint64_t)header_on->timespamp_high << 32) |
-		header_on->timestamp_low) / 1000UL;
 	char off_str[26] = { '\0' };
 	char on_str[26] = { '\0' };
+	time_t on_sec = 0;
 
-	if (header_on->magic != BEL_POWER_ON_STATUS)
+	/* Power on status is logged immediately after power on.
+	Time of the day information is written by SW into a BMC register.
+	This write will take some time after power on and hence with Power
+	on log there is no timestamp value available.*/
+	if (event->timeof_day.header.magic != BEL_TIMEOF_DAY_STATUS)
 		return;
+
+	// Timestamps are 64-bit milliseconds:
+	uint64_t correct_time = ((uint64_t)event->timeof_day.header.timespamp_high << 32) +
+		event->timeof_day.header.timestamp_low;
+
+	if (event->timeof_day.header.timespamp_high == 0) {
+		uint64_t offset = ((uint64_t)event->timeof_day.timeofday_offset_high << 32) +
+			event->timeof_day.timeofday_offset_low;
+		correct_time += offset;
+	}
+
+	// Convert milliseconds to seconds; no rounding up from 500 milliseconds!
+	on_sec = correct_time / 1000UL;
 
 	if (ctime_r(&on_sec, on_str) == NULL) {
 		OPAE_ERR("Failed to format time: %s", strerror(errno));
