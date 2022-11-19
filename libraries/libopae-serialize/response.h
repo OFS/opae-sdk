@@ -545,6 +545,30 @@ bool opae_decode_fpgaReconfigureSlotByName_response_41(
 	const char *json,
 	opae_fpgaReconfigureSlotByName_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaBufMemSet_response;
+
+char *opae_encode_fpgaBufMemSet_response_42(
+	opae_fpgaBufMemSet_response *resp,
+	int json_flags);
+bool opae_decode_fpgaBufMemSet_response_42(
+	const char *json,
+	opae_fpgaBufMemSet_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaBufMemCpyToRemote_response;
+
+char *opae_encode_fpgaBufMemCpyToRemote_response_43(
+	opae_fpgaBufMemCpyToRemote_response *resp,
+	int json_flags);
+bool opae_decode_fpgaBufMemCpyToRemote_response_43(
+	const char *json,
+	opae_fpgaBufMemCpyToRemote_response *resp);
+
 
 
 #ifdef __cplusplus

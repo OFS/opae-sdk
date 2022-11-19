@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -134,6 +134,14 @@ fpga_result fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
  */
 fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 			     uint64_t *ioaddr);
+
+fpga_result fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+			  size_t offset, int c, size_t n);
+
+fpga_result fpgaBufMemCpyToRemote(fpga_handle, uint64_t dest_wsid,
+				  size_t dest_offset, void *src,
+				  size_t n);
+
 
 #ifdef __cplusplus
 } // extern "C"

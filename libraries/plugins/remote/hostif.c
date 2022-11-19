@@ -29,12 +29,9 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/types.h>
+#include <opae/log.h>
 
-//#include "opae/access.h"
-//#include "opae/utils.h"
-//#include "opae/manage.h"
-//#include "common_int.h"
-//#include "opae_drv.h"
+#include "remote.h"
 
 //Assign Port to PF from Interface
 #define ASSIGN_PORT_TO_PF           0
@@ -47,12 +44,10 @@ fpga_result __REMOTE_API__ remote_fpgaAssignPortToInterface(fpga_handle fpga,
 						uint32_t slot_num,
 						int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) fpga;
-(void) interface_num;
-(void) slot_num;
-(void) flags;
-
-
-	return result;
+	OPAE_MSG("remote_fpgaAssignPortToInterface not supported");
+	UNUSED_PARAM(fpga);
+	UNUSED_PARAM(interface_num);
+	UNUSED_PARAM(slot_num);
+	UNUSED_PARAM(flags);
+	return FPGA_NOT_SUPPORTED;
 }

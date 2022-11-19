@@ -80,8 +80,6 @@ fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaReset_response_7(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 

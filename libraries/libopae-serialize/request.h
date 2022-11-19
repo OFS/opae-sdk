@@ -567,6 +567,38 @@ bool opae_decode_fpgaReconfigureSlotByName_request_41(
 	const char *json,
 	opae_fpgaReconfigureSlotByName_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id handle_id;
+	fpga_remote_id buf_id;
+	size_t offset;
+	int c;
+	size_t n;
+} opae_fpgaBufMemSet_request;
+
+char *opae_encode_fpgaBufMemSet_request_42(
+	opae_fpgaBufMemSet_request *req,
+	int json_flags);
+bool opae_decode_fpgaBufMemSet_request_42(
+	const char *json,
+	opae_fpgaBufMemSet_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id handle_id;
+	fpga_remote_id dest_buf_id;
+	size_t dest_offset;
+	void *src;
+	size_t n;
+} opae_fpgaBufMemCpyToRemote_request;
+
+char *opae_encode_fpgaBufMemCpyToRemote_request_43(
+	opae_fpgaBufMemCpyToRemote_request *req,
+	int json_flags);
+bool opae_decode_fpgaBufMemCpyToRemote_request_43(
+	const char *json,
+	opae_fpgaBufMemCpyToRemote_request *req);
+
 
 
 #ifdef __cplusplus

@@ -100,6 +100,12 @@ bool opae_ser_json_to_metric_threshold_obj(struct json_object *jobj,
 					   metric_threshold *m);
 
 
+bool opae_ser_buffer_to_json_obj(const void *src, size_t n,
+				 struct json_object *parent);
+bool opae_ser_json_to_buffer_obj(struct json_object *jobj,
+				 void **src, size_t *n);
+
+
 
 static inline json_object *
 parse_json_int(json_object *parent, const char *name, int *value)

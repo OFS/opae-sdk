@@ -117,8 +117,6 @@ remote_fpgaTokenGetObject(fpga_token token,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaTokenGetObject_response_23(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -202,8 +200,6 @@ remote_fpgaHandleGetObject(fpga_handle handle,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaHandleGetObject_response_31(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -289,8 +285,6 @@ remote_fpgaObjectGetObject(fpga_object parent,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaObjectGetObject_response_32(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -308,18 +302,6 @@ printf("%s\n", recvbuf);
 	}
 
 	return resp.result;
-}
-
-fpga_result __REMOTE_API__
-remote_fpgaCloneObject(fpga_object src, fpga_object *dst)
-{
-	fpga_result result = FPGA_OK;
-(void) src;
-(void) dst;
-
-
-
-	return result;
 }
 
 fpga_result __REMOTE_API__
@@ -375,8 +357,6 @@ remote_fpgaObjectGetObjectAt(fpga_object parent,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaObjectGetObjectAt_response_33(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -442,13 +422,13 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaDestroyObject_response_24(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	if (resp.result == FPGA_OK)
+	if (resp.result == FPGA_OK) {
+		opae_destroy_remote_sysobject(o);
 		*obj = NULL;
+	}
 
 	return resp.result;
 }
@@ -506,8 +486,6 @@ remote_fpgaObjectGetSize(fpga_object obj,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaObjectGetSize_response_27(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -571,8 +549,6 @@ remote_fpgaObjectRead64(fpga_object obj,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaObjectRead64_response_29(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -646,8 +622,6 @@ remote_fpgaObjectRead(fpga_object obj,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaObjectRead_response_28(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -709,8 +683,6 @@ remote_fpgaObjectWrite64(fpga_object obj,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaObjectWrite64_response_30(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -767,8 +739,6 @@ remote_fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type)
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaObjectGetType_response_25(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -829,8 +799,6 @@ remote_fpgaObjectGetName(fpga_object obj, char *name, size_t max_len)
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaObjectGetName_response_26(recvbuf, &resp))
 		return FPGA_EXCEPTION;

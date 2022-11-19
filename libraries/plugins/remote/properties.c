@@ -90,13 +90,12 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaGetPropertiesFromHandle_response_8(
 		recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	*prop = resp.properties;
+	if (resp.result == FPGA_OK)
+		*prop = resp.properties;
 
 	return resp.result;
 }
@@ -179,24 +178,24 @@ remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaUpdateProperties_response_4(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	p = opae_validate_and_lock_properties(prop);
-	if (!p) {
-		fpgaDestroyProperties(&resp.properties);
-		return FPGA_INVALID_PARAM;
+	if (resp.result == FPGA_OK) {
+		p = opae_validate_and_lock_properties(prop);
+		if (!p) {
+			fpgaDestroyProperties(&resp.properties);
+			return FPGA_INVALID_PARAM;
+		}
+
+		save_lock = p->lock;
+
+		*p = *(struct _fpga_properties *)resp.properties;
+
+		p->lock = save_lock;
+
+		opae_mutex_unlock(res, &p->lock);
 	}
-
-	save_lock = p->lock;
-
-	*p = *(struct _fpga_properties *)resp.properties;
-
-	p->lock = save_lock;
-
-	opae_mutex_unlock(res, &p->lock);
 
 	return resp.result;
 }

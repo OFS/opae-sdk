@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -106,6 +106,11 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseBuffer");
 	adapter->fpgaGetIOAddress =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetIOAddress");
+	adapter->fpgaBufMemSet =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufMemSet");
+	adapter->fpgaBufMemCpyToRemote =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufMemCpyToRemote");
+
 	/*
 	**	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle,
 	*"xfpga_fpgaGetOPAECVersion");

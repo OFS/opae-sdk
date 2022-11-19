@@ -135,8 +135,6 @@ static int remote_enumerate(opae_remote_client_ifc *ifc, void *context)
 		return OPAE_ENUM_STOP;
 	}
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaEnumerate_response_0(recvbuf, &resp)) {
 		++ctx->errors;
 		return OPAE_ENUM_STOP;
@@ -271,8 +269,6 @@ fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src, fpga_token *dst
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaCloneToken_response_2(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -333,8 +329,6 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token)
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaDestroyToken_response_1(recvbuf, &resp))
 		return FPGA_EXCEPTION;

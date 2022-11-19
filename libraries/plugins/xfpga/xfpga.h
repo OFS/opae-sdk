@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -69,6 +69,11 @@ fpga_result xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 fpga_result xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
 fpga_result xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 				   uint64_t *ioaddr);
+fpga_result xfpga_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+				size_t offset, int c, size_t n);
+fpga_result xfpga_fpgaBufMemCpyToRemote(fpga_handle, uint64_t dest_wsid,
+					size_t dest_offset, void *src,
+					size_t n);
 fpga_result xfpga_fpgaGetOPAECVersion(fpga_version *version);
 fpga_result xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len);
 fpga_result xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len);

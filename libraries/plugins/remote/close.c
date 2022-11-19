@@ -85,8 +85,6 @@ fpga_result __REMOTE_API__ remote_fpgaClose(fpga_handle handle)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaClose_response_6(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 

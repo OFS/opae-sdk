@@ -89,8 +89,6 @@ remote_fpgaSetUserClock(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaSetUserClock_response_34(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -157,8 +155,6 @@ remote_fpgaGetUserClock(fpga_handle handle,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaGetUserClock_response_35(recvbuf, &resp))
 		return FPGA_EXCEPTION;

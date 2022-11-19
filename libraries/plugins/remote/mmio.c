@@ -100,8 +100,6 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaWriteMMIO32_response_12(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -175,8 +173,6 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaReadMMIO32_response_11(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -248,8 +244,6 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaWriteMMIO64_response_14(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -324,8 +318,6 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaReadMMIO64_response_13(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -398,8 +390,6 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaWriteMMIO512_response_15(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -469,22 +459,25 @@ remote_fpgaMapMMIO(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaMapMMIO_response_9(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	mmio_id = opae_calloc(1, sizeof(fpga_remote_id));
-	if (!mmio_id) {
-		OPAE_ERR("calloc failed");
-		return FPGA_NO_MEMORY;
+	if (resp.result == FPGA_OK) {
+		mmio_id = opae_calloc(1, sizeof(fpga_remote_id));
+		if (!mmio_id) {
+			OPAE_ERR("calloc failed");
+			return FPGA_NO_MEMORY;
+		}
+
+		*mmio_id = resp.mmio_id;
+		h->mmio_regions[mmio_num] = mmio_id;
+
+		if (mmio_ptr) {
+			*mmio_ptr = NULL;
+			OPAE_ERR("Access to the raw MMIO pointer "
+				 "is not provided by this plugin.");
+		}
 	}
-
-	*mmio_id = resp.mmio_id;
-	h->mmio_regions[mmio_num] = mmio_id;
-
-	if (mmio_ptr)
-		*mmio_ptr = NULL;
 
 	return resp.result;
 }
@@ -550,8 +543,6 @@ remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaUnmapMMIO_response_10(recvbuf, &resp))
 		return FPGA_EXCEPTION;

@@ -32,9 +32,6 @@
 
 #include "remote.h"
 #include "adapter.h"
-//#include "common_int.h"
-//#include "sysfs_int.h"
-//#include "opae_drv.h"
 
 int __REMOTE_API__ remote_plugin_initialize(void)
 {
@@ -96,6 +93,11 @@ int __REMOTE_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaReleaseBuffer");
 	adapter->fpgaGetIOAddress =
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaGetIOAddress");
+	adapter->fpgaBufMemSet =
+		dlsym(adapter->plugin.dl_handle, "remote_fpgaBufMemSet");
+	adapter->fpgaBufMemCpyToRemote =
+		dlsym(adapter->plugin.dl_handle, "remote_fpgaBufMemCpyToRemote");
+
 	/*
 	**	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle,
 	*"remote_fpgaGetOPAECVersion");

@@ -1563,6 +1563,89 @@ out_unlock:
 	return res;
 }
 
+fpga_result vfio_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+			       size_t offset, int c, size_t n)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if ((virt + offset + n) > end_virt) {
+				OPAE_ERR("buffer overflow detected");
+				res = FPGA_EXCEPTION;
+				goto out_unlock;
+			}
+
+			memset(virt + offset, c, n);
+
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_NOT_FOUND;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+fpga_result vfio_fpgaBufMemCpyToRemote(fpga_handle handle,
+				       uint64_t dest_wsid,
+				       size_t dest_offset,
+				       void *src,
+				       size_t n)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == dest_wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if ((virt + dest_offset + n) > end_virt) {
+				OPAE_ERR("buffer overflow detected");
+				res = FPGA_EXCEPTION;
+				goto out_unlock;
+			}
+
+			memcpy(virt + dest_offset, src, n);
+
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_NOT_FOUND;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
 fpga_result vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	vfio_event_handle *_veh;

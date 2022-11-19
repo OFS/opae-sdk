@@ -111,13 +111,18 @@ ssize_t opae_uds_client_receive(void *con, void *buf, size_t len)
 {
 	opae_uds_client_connection *c =
 		(opae_uds_client_connection *)con;
+	ssize_t received;
 
 	if (c->client_socket < 0) {
 		OPAE_ERR("invalid client_socket");
 		return -1;
 	}
 
-	return recv(c->client_socket, buf, len, c->receive_flags);
+	received = recv(c->client_socket, buf, len, c->receive_flags);
+#if 1
+	printf("%s\n", (char *)buf);
+#endif
+	return received;
 }
 
 int opae_uds_ifc_init(opae_remote_client_ifc *i,

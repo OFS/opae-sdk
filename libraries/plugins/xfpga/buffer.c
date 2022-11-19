@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -335,6 +335,87 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t ws
 		*ioaddr = wm->phys;
 	}
 
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+					      size_t offset, int c, size_t n)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if ((virt + offset + n) > end_virt) {
+		OPAE_ERR("buffer overflow detected");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	memset(virt + offset, c, n);
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufMemCpyToRemote(fpga_handle handle, uint64_t dest_wsid,
+						      size_t dest_offset, void *src,
+						      size_t n)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, dest_wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if ((virt + dest_offset + n) > end_virt) {
+		OPAE_ERR("buffer overflow detected");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	memcpy(virt + dest_offset, src, n);
+
+out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
 		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));

@@ -89,8 +89,6 @@ remote_fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaGetNumMetrics_response_36(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -159,8 +157,6 @@ remote_fpgaGetMetricsInfo(fpga_handle handle,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaGetMetricsInfo_response_37(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -241,8 +237,6 @@ remote_fpgaGetMetricsByIndex(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaGetMetricsByIndex_response_38(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -320,8 +314,6 @@ remote_fpgaGetMetricsByName(fpga_handle handle,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaGetMetricsByName_response_39(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -396,8 +388,6 @@ remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaGetMetricsThresholdInfo_response_40(recvbuf, &resp))
 		return FPGA_EXCEPTION;

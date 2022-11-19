@@ -411,16 +411,33 @@ int main(int argc, char *argv[])
 
 	printf("Running Test\n");
 
-	/* Initialize buffers */
+	/* Initialize buffers
 	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
 	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
 	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+	*/
+	fpgaBufMemSet(accelerator_handle, dsm_wsid, 0, 0, LPBK1_DSM_SIZE);
+	fpgaBufMemSet(accelerator_handle, input_wsid, 0, 0xAF, LPBK1_BUFFER_SIZE);
+	fpgaBufMemSet(accelerator_handle, output_wsid, 0, 0xBE, LPBK1_BUFFER_SIZE);
 
+	/*
 	cache_line *cl_ptr = (cache_line *)input_ptr;
 	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
-		cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
+		cl_ptr[i].uint[15] = i+1; // set the last uint in every cacheline
 	}
+	*/
+	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+		/*
+		** Set the last uint32_t in every cacheline to
+		** its 1-based index.
+		*/
+		uint32_t cl = i + 1;
+		size_t offset = CL(cl) - sizeof(uint32_t);
 
+		res1 = fpgaBufMemCpyToRemote(accelerator_handle, input_wsid,
+					     offset, &cl, sizeof(cl));
+		ON_ERR_GOTO(res1, out_free_output, "initializing input buffer");
+	}
 
 	/* Reset accelerator */
 	res1 = fpgaReset(accelerator_handle);

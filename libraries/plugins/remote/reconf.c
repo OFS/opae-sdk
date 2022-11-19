@@ -43,6 +43,7 @@ remote_fpgaReconfigureSlot(fpga_handle fpga,
 			   size_t bitstream_len,
 			   int flags)
 {
+	OPAE_MSG("remote_fpgaReconfigureSlot not supported");
 	UNUSED_PARAM(fpga);
 	UNUSED_PARAM(slot);
 	UNUSED_PARAM(bitstream);
@@ -110,8 +111,6 @@ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaReconfigureSlotByName_response_41(
 		recvbuf, &resp))

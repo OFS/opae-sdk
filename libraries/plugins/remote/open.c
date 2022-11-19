@@ -104,18 +104,18 @@ remote_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaOpen_response_5(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	h = opae_create_remote_handle(tok, &resp.handle);
-	if (!h) {
-		OPAE_ERR("calloc failed");
-		return FPGA_NO_MEMORY;
-	}
+	if (resp.result == FPGA_OK) {
+		h = opae_create_remote_handle(tok, &resp.handle);
+		if (!h) {
+			OPAE_ERR("calloc failed");
+			return FPGA_NO_MEMORY;
+		}
 
-	*handle = h;
+		*handle = h;
+	}
 
 	return resp.result;
 }

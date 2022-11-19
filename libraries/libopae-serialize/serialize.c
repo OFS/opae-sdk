@@ -1919,3 +1919,241 @@ bool opae_ser_json_to_metric_threshold_obj(struct json_object *jobj,
 
 	return true;
 }
+
+bool opae_ser_buffer_to_json_obj(const void *src, size_t n,
+                                 struct json_object *array)
+{
+	uint64_t *pu64;
+	uint32_t *pu32;
+	uint16_t *pu16;
+	uint8_t *pu8;
+
+	size_t i;
+	size_t rem;
+	size_t num_u64;
+	size_t num_u32;
+	size_t num_u16;
+	size_t num_u8;
+
+	size_t idx = 0;
+	struct json_object *string_i;
+
+	char buf[32];
+
+	num_u64 = n / sizeof(uint64_t);
+	rem = n % sizeof(uint64_t);
+
+	json_object_array_put_idx(array, 0, json_object_new_int(num_u64));
+
+	num_u32 = rem / sizeof(uint32_t);
+	rem = rem % sizeof(uint32_t);
+
+	json_object_array_put_idx(array, 1, json_object_new_int(num_u32));
+
+	num_u16 = rem / sizeof(uint16_t);
+	rem = rem % sizeof(uint16_t);
+
+	json_object_array_put_idx(array, 2, json_object_new_int(num_u16));
+
+	num_u8 = rem;
+
+	json_object_array_put_idx(array, 3, json_object_new_int(num_u8));
+
+	idx = 4;
+	for (i = 0, pu64 = (uint64_t *)src ; i < num_u64 ; ++i, ++pu64, ++idx) {
+
+		if (snprintf(buf, sizeof(buf), "0x%016" PRIx64, *pu64) >=
+			(int)sizeof(buf)) {
+			OPAE_ERR("snprintf() buffer overflow");
+		}
+
+		string_i = json_object_new_string(buf);
+
+		json_object_array_put_idx(array, idx, string_i);
+	}
+
+	for (i = 0, pu32 = (uint32_t *)pu64 ; i < num_u32 ; ++i, ++pu32, ++idx) {
+
+		if (snprintf(buf, sizeof(buf), "0x%08" PRIx32, *pu32) >=
+			(int)sizeof(buf)) {
+			OPAE_ERR("snprintf() buffer overflow");
+		}
+
+		string_i = json_object_new_string(buf);
+
+		json_object_array_put_idx(array, idx, string_i);
+	}
+
+	for (i = 0, pu16 = (uint16_t *)pu32 ; i < num_u16 ; ++i, ++pu16, ++idx) {
+
+		if (snprintf(buf, sizeof(buf), "0x%04" PRIx16, *pu16) >=
+			(int)sizeof(buf)) {
+			OPAE_ERR("snprintf() buffer overflow");
+		}
+
+		string_i = json_object_new_string(buf);
+
+		json_object_array_put_idx(array, idx, string_i);
+	}
+
+	for (i = 0, pu8 = (uint8_t *)pu16 ; i < num_u8 ; ++i, ++pu8, ++idx) {
+
+		if (snprintf(buf, sizeof(buf), "0x%02" PRIx8, *pu8) >=
+			(int)sizeof(buf)) {
+			OPAE_ERR("snprintf() buffer overflow");
+		}
+
+		string_i = json_object_new_string(buf);
+
+		json_object_array_put_idx(array, idx, string_i);
+	}
+
+	return true;
+}
+
+bool opae_ser_json_to_buffer_obj(struct json_object *array,
+                                 void **src, size_t *n)
+{
+	struct json_object *jobj;
+
+	uint64_t *pu64;
+	uint32_t *pu32;
+	uint16_t *pu16;
+	uint8_t *pu8;
+
+	size_t num_u64;
+	size_t num_u32;
+	size_t num_u16;
+	size_t num_u8;
+
+	size_t len;
+	size_t i;
+	size_t idx;
+
+	const char *str;
+	char *endptr;
+
+	uint8_t *buf;
+
+	len = json_object_array_length(array);
+	if (len < 4) {
+		OPAE_DBG("invalid src array size");
+		return false;
+	}
+
+	jobj = json_object_array_get_idx(array, 0);
+	if (!json_object_is_type(jobj, json_type_int)) {
+		OPAE_DBG("src[0] (num_u64) not int");
+		return false;
+	}
+	num_u64 = json_object_get_int(jobj);
+
+	jobj = json_object_array_get_idx(array, 1);
+	if (!json_object_is_type(jobj, json_type_int)) {
+		OPAE_DBG("src[1] (num_u32) not int");
+		return false;
+	}
+	num_u32 = json_object_get_int(jobj);
+
+	jobj = json_object_array_get_idx(array, 2);
+	if (!json_object_is_type(jobj, json_type_int)) {
+		OPAE_DBG("src[2] (num_u16) not int");
+		return false;
+	}
+	num_u16 = json_object_get_int(jobj);
+
+	jobj = json_object_array_get_idx(array, 3);
+	if (!json_object_is_type(jobj, json_type_int)) {
+		OPAE_DBG("src[3] (num_u8) not int");
+		return false;
+	}
+	num_u8 = json_object_get_int(jobj);
+
+	*n = (num_u64 * sizeof(uint64_t)) +
+	     (num_u32 * sizeof(uint32_t)) +
+	     (num_u16 * sizeof(uint16_t)) +
+	     num_u8;
+
+	buf = opae_malloc(*n);
+	if (!buf) {
+		OPAE_ERR("out of memory");
+		return false;
+	}
+
+	idx = 4;
+	for (i = 0, pu64 = (uint64_t *)buf ; i < num_u64 ; ++i, ++pu64, ++idx) {
+		jobj = json_object_array_get_idx(array, idx);
+
+		if (!json_object_is_type(jobj, json_type_string)) {
+			OPAE_DBG("src[%u] not string", idx);
+			return false;
+		}
+
+		str = json_object_get_string(jobj);
+
+		endptr = NULL;
+		*pu64 = strtoul(str, &endptr, 0);
+		if (endptr != str + strlen(str)) {
+			OPAE_ERR("src[%u] buffer decode failed", idx);
+			return false;
+		}
+	}
+
+	for (i = 0, pu32 = (uint32_t *)pu64 ; i < num_u32 ; ++i, ++pu32, ++idx) {
+		jobj = json_object_array_get_idx(array, idx);
+
+		if (!json_object_is_type(jobj, json_type_string)) {
+			OPAE_DBG("src[%u] not string", idx);
+			return false;
+		}
+
+		str = json_object_get_string(jobj);
+
+		endptr = NULL;
+		*pu32 = (uint32_t)strtoul(str, &endptr, 0);
+		if (endptr != str + strlen(str)) {
+			OPAE_ERR("src[%u] buffer decode failed", idx);
+			return false;
+		}
+	}
+
+	for (i = 0, pu16 = (uint16_t *)pu32 ; i < num_u16 ; ++i, ++pu16, ++idx) {
+		jobj = json_object_array_get_idx(array, idx);
+
+		if (!json_object_is_type(jobj, json_type_string)) {
+			OPAE_DBG("src[%u] not string", idx);
+			return false;
+		}
+
+		str = json_object_get_string(jobj);
+
+		endptr = NULL;
+		*pu16 = (uint16_t)strtoul(str, &endptr, 0);
+		if (endptr != str + strlen(str)) {
+			OPAE_ERR("src[%u] buffer decode failed", idx);
+			return false;
+		}
+	}
+
+	for (i = 0, pu8 = (uint8_t *)pu16 ; i < num_u8 ; ++i, ++pu8, ++idx) {
+		jobj = json_object_array_get_idx(array, idx);
+
+		if (!json_object_is_type(jobj, json_type_string)) {
+			OPAE_DBG("src[%u] not string", idx);
+			return false;
+		}
+
+		str = json_object_get_string(jobj);
+
+		endptr = NULL;
+		*pu8 = (uint8_t)strtoul(str, &endptr, 0);
+		if (endptr != str + strlen(str)) {
+			OPAE_ERR("src[%u] buffer decode failed", idx);
+			return false;
+		}
+	}
+
+	*src = buf;
+
+	return true;
+}

@@ -85,12 +85,11 @@ remote_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaReadError_response_19(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	*value = resp.value;
+	if (resp.result == FPGA_OK)
+		*value = resp.value;
 
 	return resp.result;
 }
@@ -139,8 +138,6 @@ remote_fpgaClearError(fpga_token token, uint32_t error_num)
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaClearError_response_21(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
@@ -188,8 +185,6 @@ fpga_result __REMOTE_API__ remote_fpgaClearAllErrors(fpga_token token)
 				 sizeof(recvbuf));
 	if (slen < 0)
 		return FPGA_EXCEPTION;
-
-printf("%s\n", recvbuf);
 
 	if (!opae_decode_fpgaClearAllErrors_response_22(recvbuf, &resp))
 		return FPGA_EXCEPTION;
@@ -247,12 +242,11 @@ fpga_result __REMOTE_API__ remote_fpgaGetErrorInfo(fpga_token token,
 	if (slen < 0)
 		return FPGA_EXCEPTION;
 
-printf("%s\n", recvbuf);
-
 	if (!opae_decode_fpgaGetErrorInfo_response_20(recvbuf, &resp))
 		return FPGA_EXCEPTION;
 
-	*error_info = resp.error_info;
+	if (resp.result == FPGA_OK)
+		*error_info = resp.error_info;
 
 	return resp.result;
 }

@@ -102,6 +102,14 @@ typedef struct _opae_api_adapter_table {
 
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
 					uint64_t *ioaddr);
+
+	fpga_result (*fpgaBufMemSet)(fpga_handle handle, uint64_t wsid,
+				     size_t offset, int c, size_t n);
+
+	fpga_result (*fpgaBufMemCpyToRemote)(fpga_handle, uint64_t dest_wsid,
+					     size_t dest_offset, void *src,
+					     size_t n);
+
 	/*
 	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 	**

@@ -216,6 +216,14 @@ bool opae_handle_fpgaReconfigureSlotByName_request_41(opae_remote_context *c,
 						      const char *req_json,
 						      char **resp_json);
 
+bool opae_handle_fpgaBufMemSet_request_42(opae_remote_context *c,
+					  const char *req_json,
+					  char **resp_json);
+
+bool opae_handle_fpgaBufMemCpyToRemote_request_43(opae_remote_context *c,
+						  const char *req_json,
+						  char **resp_json);
+
 
 #ifdef __cplusplus
 }

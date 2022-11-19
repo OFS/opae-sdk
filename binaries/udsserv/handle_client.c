@@ -82,6 +82,9 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaGetMetricsByName_request_39,
 	opae_handle_fpgaGetMetricsThresholdInfo_request_40,
 	opae_handle_fpgaReconfigureSlotByName_request_41,
+	opae_handle_fpgaBufMemSet_request_42,
+	opae_handle_fpgaBufMemCpyToRemote_request_43,
+
 
 };
 
@@ -109,8 +112,9 @@ int handle_client(uds_server_context *c, void *remote_ctx, int sock)
 	}
 
 	// deal with buf
-
+#if 1
 	printf("%s\n", buf);
+#endif
 
 	root = json_tokener_parse_verbose(buf, &j_err);
         if (!root) {

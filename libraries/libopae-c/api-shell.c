@@ -953,6 +953,37 @@ fpga_result __OPAE_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		wrapped_handle->opae_handle, wsid, ioaddr);
 }
 
+fpga_result __OPAE_API__ fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+				       size_t offset, int c, size_t n)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufMemSet,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufMemSet(
+		wrapped_handle->opae_handle, wsid, offset, c, n);
+}
+
+fpga_result __OPAE_API__ fpgaBufMemCpyToRemote(fpga_handle handle,
+	uint64_t dest_wsid, size_t dest_offset,
+	void *src, size_t n)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(src);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufMemCpyToRemote,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufMemCpyToRemote(
+		wrapped_handle->opae_handle, dest_wsid, dest_offset,
+		src, n);
+}
+
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);

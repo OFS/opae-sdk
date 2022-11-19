@@ -70,6 +70,12 @@ fpga_result remote_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 fpga_result remote_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
 fpga_result remote_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 				   uint64_t *ioaddr);
+fpga_result remote_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+				 size_t offset, int c, size_t n);
+fpga_result remote_fpgaBufMemCpyToRemote(fpga_handle handle,
+					 uint64_t dest_wsid,
+					 size_t dest_offset,
+					 void *src, size_t n);
 fpga_result remote_fpgaGetOPAECVersion(fpga_version *version);
 fpga_result remote_fpgaGetOPAECVersionString(char *version_str, size_t len);
 fpga_result remote_fpgaGetOPAECBuildString(char *build_str, size_t len);

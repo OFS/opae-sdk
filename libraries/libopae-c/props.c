@@ -159,6 +159,13 @@ void opae_get_remote_id(fpga_remote_id *rid)
 	opae_mutex_unlock(res, &remote_id_lock);
 }
 
+bool opae_remote_ids_match(const fpga_remote_id *lhs,
+			   const fpga_remote_id *rhs)
+{
+	return (lhs->unique_id == rhs->unique_id) &&
+		!strcmp(lhs->hostname, rhs->hostname);
+}
+
 fpga_result __OPAE_API__ fpgaDestroyProperties(fpga_properties *prop)
 {
 	struct _fpga_properties *p;
