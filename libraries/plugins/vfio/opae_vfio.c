@@ -1655,7 +1655,7 @@ STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
 	uint64_t expected = expected_value & mask;
 
 	switch (width) {
-	case 1 : {
+	case 1: {
 		volatile uint8_t *p8 = (volatile uint8_t *)virt;
 
 		do {
@@ -1667,7 +1667,7 @@ STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
 		result = FPGA_NOT_FOUND; // timeout
 	} break;
 
-	case 2 : {
+	case 2: {
 		volatile uint16_t *p16 = (volatile uint16_t *)virt;
 
 		do {
@@ -1679,7 +1679,7 @@ STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
 		result = FPGA_NOT_FOUND; // timeout
 	} break;
 
-	case 4 : {
+	case 4: {
 		volatile uint32_t *p32 = (volatile uint32_t *)virt;
 
 		do {
@@ -1691,7 +1691,7 @@ STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
 		result = FPGA_NOT_FOUND; // timeout
 	} break;
 
-	case 8 : {
+	case 8: {
 		volatile uint64_t *p64 = (volatile uint64_t *)virt;
 
 		do {
@@ -1704,8 +1704,8 @@ STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
 	} break;
 
 	default:
-                OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
-                result = FPGA_INVALID_PARAM;
+		OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
+		result = FPGA_INVALID_PARAM;
 	}
 
 out_exit:
@@ -1713,8 +1713,8 @@ out_exit:
 }
 
 fpga_result fpgaBufPoll(fpga_handle handle, uint64_t wsid, size_t offset,
-                 int width, uint64_t mask, uint64_t expected_value,
-                 uint64_t sleep_interval, uint64_t loops_timeout)
+		int width, uint64_t mask, uint64_t expected_value,
+		uint64_t sleep_interval, uint64_t loops_timeout)
 {
 	UNUSED_PARAM(handle);
 	vfio_buffer *ptr;

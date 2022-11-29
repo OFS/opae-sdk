@@ -457,7 +457,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 	}
 
 	switch (width) {
-	case 1 : {
+	case 1: {
 		volatile uint8_t *p8 = (volatile uint8_t *)(virt + offset);
 
 		do {
@@ -469,7 +469,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 		result = FPGA_NOT_FOUND; // timeout
 	} break;
 
-	case 2 : {
+	case 2: {
 		volatile uint16_t *p16 = (volatile uint16_t *)(virt + offset);
 
 		do {
@@ -481,7 +481,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 		result = FPGA_NOT_FOUND; // timeout
 	} break;
 
-	case 4 : {
+	case 4: {
 		volatile uint32_t *p32 = (volatile uint32_t *)(virt + offset);
 
 		do {
@@ -493,7 +493,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 		result = FPGA_NOT_FOUND; // timeout
 	} break;
 
-	case 8 : {
+	case 8: {
 		volatile uint64_t *p64 = (volatile uint64_t *)(virt + offset);
 
 		do {
