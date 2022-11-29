@@ -569,6 +569,18 @@ bool opae_decode_fpgaBufMemCpyToRemote_response_43(
 	const char *json,
 	opae_fpgaBufMemCpyToRemote_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaBufPoll_response;
+
+char *opae_encode_fpgaBufPoll_response_44(
+	opae_fpgaBufPoll_response *resp,
+	int json_flags);
+bool opae_decode_fpgaBufPoll_response_44(
+	const char *json,
+	opae_fpgaBufPoll_response *resp);
+
 
 
 #ifdef __cplusplus

@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
 	uint32_t           use_ase;
 
 	volatile uint64_t *dsm_ptr    = NULL;
-	volatile uint64_t *status_ptr = NULL;
+	//volatile uint64_t *status_ptr = NULL;
 	volatile uint64_t *input_ptr  = NULL;
 	volatile uint64_t *output_ptr = NULL;
 
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 	uint64_t           input_wsid;
 	uint64_t           output_wsid;
 	uint32_t           i;
-	uint32_t           timeout;
+	//uint32_t           timeout;
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
 	fpga_properties    device_filter = NULL;
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CFG, 0x42000);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
-	status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/sizeof(uint64_t);
+	//status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/sizeof(uint64_t);
 
 
 	/* Start the test */
@@ -486,6 +486,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for test completion */
+	/*
 	timeout = TEST_TIMEOUT;
 	while (0 == ((*status_ptr) & 0x1)) {
 		usleep(100);
@@ -494,6 +495,12 @@ int main(int argc, char *argv[])
 			ON_ERR_GOTO(res1, out_free_output, "test timed out");
 		}
 	}
+	*/
+
+	res1 = fpgaBufPoll(accelerator_handle, dsm_wsid, DSM_STATUS_TEST_COMPLETE,
+			   sizeof(uint64_t), 0x1, 1, 100, TEST_TIMEOUT);
+	ON_ERR_GOTO(res1, out_free_output, "test timed out");
+
 
 	/* Stop the device */
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CTL, 7);

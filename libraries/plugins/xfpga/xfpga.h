@@ -74,6 +74,9 @@ fpga_result xfpga_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
 fpga_result xfpga_fpgaBufMemCpyToRemote(fpga_handle, uint64_t dest_wsid,
 					size_t dest_offset, void *src,
 					size_t n);
+fpga_result xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
+	size_t offset, int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout);
 fpga_result xfpga_fpgaGetOPAECVersion(fpga_version *version);
 fpga_result xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len);
 fpga_result xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len);

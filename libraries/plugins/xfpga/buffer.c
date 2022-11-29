@@ -422,3 +422,98 @@ out_unlock:
 	}
 	return result;
 }
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
+	size_t offset, int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+	uint64_t expected = expected_value & mask;
+	uint64_t loops = 0;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if ((virt + offset + width) > end_virt) {
+		OPAE_ERR("buffer overflow detected");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	switch (width) {
+	case 1 : {
+		volatile uint8_t *p8 = (volatile uint8_t *)(virt + offset);
+
+		do {
+			if ((*p8 & (uint8_t)mask) == (uint8_t)expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 2 : {
+		volatile uint16_t *p16 = (volatile uint16_t *)(virt + offset);
+
+		do {
+			if ((*p16 & (uint16_t)mask) == (uint16_t)expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 4 : {
+		volatile uint32_t *p32 = (volatile uint32_t *)(virt + offset);
+
+		do {
+			if ((*p32 & (uint32_t)mask) == (uint32_t)expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 8 : {
+		volatile uint64_t *p64 = (volatile uint64_t *)(virt + offset);
+
+		do {
+			if ((*p64 & mask) == expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	default:
+		OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
+		result = FPGA_INVALID_PARAM;
+	}
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}

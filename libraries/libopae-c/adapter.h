@@ -110,6 +110,12 @@ typedef struct _opae_api_adapter_table {
 					     size_t dest_offset, void *src,
 					     size_t n);
 
+	fpga_result (*fpgaBufPoll)(fpga_handle handle, uint64_t wsid,
+				   size_t offset, int width, uint64_t mask,
+				   uint64_t expected_value,
+				   uint64_t sleep_interval,
+				   uint64_t loops_timeout);
+
 	/*
 	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 	**

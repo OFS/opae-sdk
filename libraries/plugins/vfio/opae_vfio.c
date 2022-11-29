@@ -1646,6 +1646,114 @@ out_unlock:
 	return res;
 }
 
+STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
+	uint64_t expected_value, uint64_t sleep_interval,
+	uint64_t loops_timeout)
+{
+	fpga_result result = FPGA_OK;
+	uint64_t loops = 0;
+	uint64_t expected = expected_value & mask;
+
+	switch (width) {
+	case 1 : {
+		volatile uint8_t *p8 = (volatile uint8_t *)virt;
+
+		do {
+			if ((*p8 & (uint8_t)mask) == (uint8_t)expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 2 : {
+		volatile uint16_t *p16 = (volatile uint16_t *)virt;
+
+		do {
+			if ((*p16 & (uint16_t)mask) == (uint16_t)expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 4 : {
+		volatile uint32_t *p32 = (volatile uint32_t *)virt;
+
+		do {
+			if ((*p32 & (uint32_t)mask) == (uint32_t)expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 8 : {
+		volatile uint64_t *p64 = (volatile uint64_t *)virt;
+
+		do {
+			if ((*p64 & mask) == expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	default:
+                OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
+                result = FPGA_INVALID_PARAM;
+	}
+
+out_exit:
+	return result;
+}
+
+fpga_result fpgaBufPoll(fpga_handle handle, uint64_t wsid, size_t offset,
+                 int width, uint64_t mask, uint64_t expected_value,
+                 uint64_t sleep_interval, uint64_t loops_timeout)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if ((virt + offset + width) > end_virt) {
+				OPAE_ERR("buffer overflow detected");
+				res = FPGA_EXCEPTION;
+				goto out_unlock;
+			}
+
+			res = buffer_poll(virt + offset, width, mask,
+					  expected_value, sleep_interval,
+					  loops_timeout);
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_INVALID_PARAM;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
 fpga_result vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	vfio_event_handle *_veh;

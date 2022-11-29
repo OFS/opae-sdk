@@ -984,6 +984,22 @@ fpga_result __OPAE_API__ fpgaBufMemCpyToRemote(fpga_handle handle,
 		src, n);
 }
 
+fpga_result __OPAE_API__ fpgaBufPoll(fpga_handle handle, uint64_t wsid,
+	size_t offset, int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufPoll,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufPoll(
+		wrapped_handle->opae_handle, wsid, offset, width,
+		mask, expected_value, sleep_interval, loops_timeout);
+}
+
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);

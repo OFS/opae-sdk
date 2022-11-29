@@ -84,6 +84,7 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaReconfigureSlotByName_request_41,
 	opae_handle_fpgaBufMemSet_request_42,
 	opae_handle_fpgaBufMemCpyToRemote_request_43,
+	opae_handle_fpgaBufPoll_request_44,
 
 
 };

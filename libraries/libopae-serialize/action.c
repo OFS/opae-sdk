@@ -2774,3 +2774,80 @@ out_respond:
 
 	return res;
 }
+
+bool opae_handle_fpgaBufPoll_request_44(
+	opae_remote_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_fpgaBufPoll_request req;
+	opae_fpgaBufPoll_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+	opae_buffer_info *binfo = NULL;
+
+	if (!opae_decode_fpgaBufPoll_request_44(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "fpgaBufPoll request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"fpgaBufPoll_response_44");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	// Find our buffer info struct.
+	opae_remote_id_to_hash_key(&req.buf_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	if (opae_hash_map_find(&c->remote_id_to_buf_info_map,
+			       hash_key_buf,
+			       (void **)&binfo) != FPGA_OK) {
+		OPAE_ERR("buffer info lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	if (!opae_remote_ids_match(&req.handle_id, &binfo->handle_id)) {
+		OPAE_ERR("invalid handle / wsid combination");
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	resp.result = fpgaBufPoll(handle,
+				  binfo->wsid,
+				  req.offset,
+				  req.width,
+				  req.mask,
+				  req.expected_value,
+				  req.sleep_interval,
+				  req.loops_timeout);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaBufPoll_response_44(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
