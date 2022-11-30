@@ -228,6 +228,10 @@ bool opae_handle_fpgaBufPoll_request_44(opae_remote_context *c,
 					const char *req_json,
 					char **resp_json);
 
+bool opae_handle_fpgaBufMemCmp_request_45(opae_remote_context *c,
+					  const char *req_json,
+					  char **resp_json);
+
 
 #ifdef __cplusplus
 }

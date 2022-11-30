@@ -442,3 +442,75 @@ remote_fpgaBufPoll(fpga_handle handle, uint64_t wsid, size_t offset,
 
 	return resp.result;
 }
+
+fpga_result __REMOTE_API__
+remote_fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *cmp_result)
+{
+	opae_fpgaBufMemCmp_request req;
+	opae_fpgaBufMemCmp_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	fpga_remote_id *rid_a;
+	fpga_remote_id *rid_b;
+
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!cmp_result) {
+		OPAE_ERR("NULL cmp_result pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	rid_a = (fpga_remote_id *)(void *)bufa_wsid;
+	rid_b = (fpga_remote_id *)(void *)bufb_wsid;
+
+	req.handle_id = h->hdr.handle_id;
+	req.bufa_id = *rid_a;
+	req.bufa_offset = bufa_offset;
+	req.bufb_id = *rid_b;
+	req.bufb_offset = bufb_offset;
+	req.n = n;
+
+	req_json = opae_encode_fpgaBufMemCmp_request_45(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+	if (!opae_decode_fpgaBufMemCmp_response_45(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	*cmp_result = resp.cmp_result;
+
+	return resp.result;
+}

@@ -1000,6 +1000,24 @@ fpga_result __OPAE_API__ fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 		mask, expected_value, sleep_interval, loops_timeout);
 }
 
+fpga_result __OPAE_API__ fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *result)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(result);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufMemCmp,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufMemCmp(
+		wrapped_handle->opae_handle, bufa_wsid, bufa_offset,
+		bufb_wsid, bufb_offset, n, result);
+}
+
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);

@@ -1712,9 +1712,10 @@ out_exit:
 	return result;
 }
 
-fpga_result fpgaBufPoll(fpga_handle handle, uint64_t wsid, size_t offset,
-		int width, uint64_t mask, uint64_t expected_value,
-		uint64_t sleep_interval, uint64_t loops_timeout)
+fpga_result vfio_fpgaBufPoll(fpga_handle handle,
+	uint64_t wsid, size_t offset,
+	int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout)
 {
 	UNUSED_PARAM(handle);
 	vfio_buffer *ptr;
@@ -1746,6 +1747,68 @@ fpga_result fpgaBufPoll(fpga_handle handle, uint64_t wsid, size_t offset,
 	}
 
 	res = FPGA_INVALID_PARAM;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+fpga_result vfio_fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *cmp_result)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+	uint8_t *virt_a = NULL;
+	uint8_t *end_virt_a;
+	uint8_t *virt_b = NULL;
+	uint8_t *end_virt_b;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == bufa_wsid) {
+			virt_a = ptr->virtual;
+			end_virt_a = virt_a + ptr->size;
+		} else if (ptr->wsid == bufb_wsid) {
+			virt_b = ptr->virtual;
+			end_virt_b = virt_b + ptr->size;
+		}
+
+		if (virt_a && virt_b)
+			break;
+
+		ptr = ptr->next;
+	}
+
+	if (!virt_a || !virt_b) {
+		res = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	if ((virt_a + bufa_offset + n) > end_virt_a) {
+		OPAE_ERR("buffer (bufa) overflow detected");
+		res = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	if ((virt_b + bufb_offset + n) > end_virt_b) {
+		OPAE_ERR("buffer (bufb) overflow detected");
+		res = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	*cmp_result = memcmp(virt_a + bufa_offset,
+			     virt_b + bufb_offset,
+			     n);
 
 out_unlock:
 	if (pthread_mutex_unlock(&_buffers_mutex)) {

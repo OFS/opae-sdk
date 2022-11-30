@@ -332,6 +332,7 @@ int main(int argc, char *argv[])
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
 	fpga_properties    device_filter = NULL;
+	int cmp_result;
 
 	res1 = fpgaGetProperties(NULL, &device_filter);
 	if (res1 != FPGA_OK) {
@@ -527,6 +528,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Check output buffer contents */
+	/*
 	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
 		if (((uint8_t *)output_ptr)[i] != ((uint8_t *)input_ptr)[i]) {
 			fprintf(stderr, "Output does NOT match input "
@@ -534,6 +536,16 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+	*/
+
+	cmp_result = 999;
+	res1 = fpgaBufMemCmp(accelerator_handle,
+			     input_wsid, 0, output_wsid, 0,
+			     LPBK1_BUFFER_SIZE, &cmp_result);
+	ON_ERR_GOTO(res1, out_free_output, "comparing buffers");
+
+	if (cmp_result)
+		fprintf(stderr, "Output does NOT match input\n");
 
 	printf("Done Running Test\n");
 

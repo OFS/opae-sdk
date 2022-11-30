@@ -146,6 +146,11 @@ fpga_result fpgaBufPoll(fpga_handle handle, uint64_t wsid, size_t offset,
 			int width, uint64_t mask, uint64_t expected_value,
 			uint64_t sleep_interval, uint64_t loops_timeout);
 
+fpga_result fpgaBufMemCmp(fpga_handle handle,
+			  uint64_t bufa_wsid, size_t bufa_offset,
+			  uint64_t bufb_wsid, size_t bufb_offset,
+			  size_t n, int *result);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

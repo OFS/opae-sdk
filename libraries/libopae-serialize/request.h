@@ -618,6 +618,23 @@ bool opae_decode_fpgaBufPoll_request_44(
 	const char *json,
 	opae_fpgaBufPoll_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id handle_id;
+	fpga_remote_id bufa_id;
+	size_t bufa_offset;
+	fpga_remote_id bufb_id;
+	size_t bufb_offset;
+	size_t n;
+} opae_fpgaBufMemCmp_request;
+
+char *opae_encode_fpgaBufMemCmp_request_45(
+	opae_fpgaBufMemCmp_request *req,
+	int json_flags);
+bool opae_decode_fpgaBufMemCmp_request_45(
+	const char *json,
+	opae_fpgaBufMemCmp_request *req);
+
 
 
 #ifdef __cplusplus

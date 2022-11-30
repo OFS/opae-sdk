@@ -393,6 +393,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaBufMemCpyToRemote(fpga_handle handle, uint64
 	uint8_t *virt;
 	uint8_t *end_virt;
 
+	if (!src) {
+		OPAE_ERR("NULL src pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
@@ -509,6 +514,74 @@ fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 		OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
 		result = FPGA_INVALID_PARAM;
 	}
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *cmp_result)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm_a;
+	struct wsid_map *wm_b;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt_a;
+	uint8_t *end_virt_a;
+	uint8_t *virt_b;
+	uint8_t *end_virt_b;
+
+	if (!cmp_result) {
+		OPAE_ERR("NULL cmp_result pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm_a = wsid_find(_handle->wsid_root, bufa_wsid);
+	if (!wm_a) {
+		OPAE_MSG("bufa WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	wm_b = wsid_find(_handle->wsid_root, bufb_wsid);
+	if (!wm_b) {
+		OPAE_MSG("bufb WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt_a = (uint8_t *)wm_a->addr;
+	end_virt_a = virt_a + wm_a->len;
+
+	virt_b = (uint8_t *)wm_b->addr;
+	end_virt_b = virt_b + wm_b->len;
+
+	if ((virt_a + bufa_offset + n) > end_virt_a) {
+		OPAE_ERR("buffer overflow detected (bufa)");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	if ((virt_b + bufb_offset + n) > end_virt_b) {
+		OPAE_ERR("buffer overflow detected (bufb)");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	*cmp_result = memcmp(virt_a + bufa_offset,
+			     virt_b + bufb_offset,
+			     n);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);

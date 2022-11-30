@@ -99,7 +99,8 @@ int __REMOTE_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaBufMemCpyToRemote");
 	adapter->fpgaBufPoll =
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaBufPoll");
-
+	adapter->fpgaBufMemCmp =
+		dlsym(adapter->plugin.dl_handle, "remote_fpgaBufMemCmp");
 
 	/*
 	**	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle,

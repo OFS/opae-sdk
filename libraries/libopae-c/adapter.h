@@ -116,6 +116,11 @@ typedef struct _opae_api_adapter_table {
 				   uint64_t sleep_interval,
 				   uint64_t loops_timeout);
 
+	fpga_result (*fpgaBufMemCmp)(fpga_handle handle,
+				     uint64_t bufa_wsid, size_t bufa_offset,
+				     uint64_t bufb_wsid, size_t bufb_offset,
+				     size_t n, int *result);
+
 	/*
 	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 	**
