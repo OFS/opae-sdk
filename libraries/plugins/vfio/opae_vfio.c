@@ -1764,9 +1764,9 @@ fpga_result vfio_fpgaBufMemCmp(fpga_handle handle,
 	vfio_buffer *ptr;
 	fpga_result res = FPGA_OK;
 	uint8_t *virt_a = NULL;
-	uint8_t *end_virt_a;
+	uint8_t *end_virt_a = NULL;
 	uint8_t *virt_b = NULL;
-	uint8_t *end_virt_b;
+	uint8_t *end_virt_b = NULL;
 
 	if (pthread_mutex_lock(&_buffers_mutex)) {
 		OPAE_MSG("error locking buffer mutex");
