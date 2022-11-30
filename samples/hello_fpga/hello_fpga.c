@@ -499,6 +499,8 @@ int main(int argc, char *argv[])
 
 	res1 = fpgaBufPoll(accelerator_handle, dsm_wsid, DSM_STATUS_TEST_COMPLETE,
 			   sizeof(uint64_t), 0x1, 1, 100, TEST_TIMEOUT);
+	if (res1 == FPGA_NOT_FOUND) // fpgaBufPoll() returns FPGA_NOT_FOUND on timeout.
+		res1 = FPGA_EXCEPTION;
 	ON_ERR_GOTO(res1, out_free_output, "test timed out");
 
 
