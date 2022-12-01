@@ -202,7 +202,7 @@ void test_fpgaEnumerate_request_0(void)
 	fpgaDestroyProperties(&req.filters[1]);
 	opae_free(req.filters);
 
-	opae_handle_fpgaEnumerate_request_0(&remote_context, json, &response);
+	opae_remote_handle_client_request(&remote_context, json, &response);
 
 	printf("%s\n", response);
 
@@ -253,7 +253,7 @@ void test_fpgaDestroyToken_request_1(void)
 	assert(!strcmp(req.token_id.hostname, token_id.hostname));
 	assert(req.token_id.unique_id == 2);
 
-	opae_handle_fpgaDestroyToken_request_1(&remote_context, json, &response);
+	opae_remote_handle_client_request(&remote_context, json, &response);
 
 	printf("%s\n", response);
 
@@ -303,7 +303,7 @@ void test_fpgaCloneToken_request_2(void)
 	assert(!strcmp(req.src_token_id.hostname, src_token_id.hostname));
 	assert(req.src_token_id.unique_id == 2);
 
-	opae_handle_fpgaCloneToken_request_2(&remote_context, json, &response);
+	opae_remote_handle_client_request(&remote_context, json, &response);
 
 	printf("%s\n", response);
 
@@ -353,7 +353,7 @@ void test_fpgaGetProperties_request_3(void)
 	assert(!strcmp(req.token_id.hostname, token_id.hostname));
 	assert(req.token_id.unique_id == 3);
 
-	opae_handle_fpgaGetProperties_request_3(&remote_context, json, &response);
+	opae_remote_handle_client_request(&remote_context, json, &response);
 
 	printf("%s\n", response);
 

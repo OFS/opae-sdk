@@ -26,7 +26,6 @@
 #ifndef __OPAE_UDSSERV_HANDLE_CLIENT_H__
 #define __OPAE_UDSSERV_HANDLE_CLIENT_H__
 #include "udsserv.h"
-#include "action.h"
 
 int handle_client(uds_server_context *c, void *remote_ctx, int sock);
 
