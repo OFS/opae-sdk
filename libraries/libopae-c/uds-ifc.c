@@ -119,15 +119,15 @@ ssize_t opae_uds_client_receive(void *con, void *buf, size_t len)
 	}
 
 	total_bytes = chunked_recv(c->client_socket,
-	                           buf,
-	                           len,
-	                           c->receive_flags);
+				   buf,
+				   len,
+				   c->receive_flags);
 
 	if (total_bytes == -2) {
-	        // Orderly shutdown by peer.
-	        OPAE_ERR("%s: peer closed connection",
-	                 c->socket_name);
-	        opae_uds_client_close(con);
+		// Orderly shutdown by peer.
+		OPAE_ERR("%s: peer closed connection",
+			 c->socket_name);
+		opae_uds_client_close(con);
 	}
 
 	return total_bytes;

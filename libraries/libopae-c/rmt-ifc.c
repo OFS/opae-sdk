@@ -53,9 +53,9 @@ ssize_t chunked_send(int sockfd, const void *buf, size_t len, int flags)
 		} else {
 			// sent < 0: Error
 			if (errno != EINTR) {
-	                        OPAE_ERR("send() failed: %s",
+				OPAE_ERR("send() failed: %s",
 					 strerror(errno));
-	                        return -1;
+				return -1;
 			}
 		}
 
@@ -71,24 +71,24 @@ ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags)
 	uint8_t *rdbuf = (uint8_t *)buf;
 
 	do {
-	        received = recv(sockfd,
-	                        rdbuf + total_bytes,
-	                        len - total_bytes,
+		received = recv(sockfd,
+				rdbuf + total_bytes,
+				len - total_bytes,
 				flags);
 
-	        if (!received) {
-	                // Orderly shutdown by peer.
-	                return -2;
-	        } else if (received > 0) {
-	                total_bytes += received;
-	        } else {
-	                // received < 0: Error
-	                if (errno != EINTR) {
-	                        OPAE_ERR("recv() failed: %s",
+		if (!received) {
+			// Orderly shutdown by peer.
+			return -2;
+		} else if (received > 0) {
+			total_bytes += received;
+		} else {
+			// received < 0: Error
+			if (errno != EINTR) {
+				OPAE_ERR("recv() failed: %s",
 					 strerror(errno));
-	                        return -1;
-	                }
-	        }
+				return -1;
+			}
+		}
 
 	} while (!total_bytes || (rdbuf[total_bytes - 1] != 0));
 #if 0

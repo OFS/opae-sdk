@@ -208,17 +208,17 @@ parse_json_int(json_object *parent, const char *name, int *value)
 	json_object *jname = NULL;
 
 	if (!json_object_object_get_ex(parent, name, &jname)) {
-	        OPAE_DBG("Error parsing JSON: missing '%s'", name);
-	        return NULL;
+		OPAE_DBG("Error parsing JSON: missing '%s'", name);
+		return NULL;
 	}
 
 	if (!json_object_is_type(jname, json_type_int)) {
-	        OPAE_DBG("'%s' JSON object not int", name);
-	        return NULL;
+		OPAE_DBG("'%s' JSON object not int", name);
+		return NULL;
 	}
 
 	if (value)
-	        *value = json_object_get_int(jname);
+		*value = json_object_get_int(jname);
 
 	return jname;
 }
