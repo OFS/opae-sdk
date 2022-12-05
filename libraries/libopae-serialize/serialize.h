@@ -108,27 +108,6 @@ bool opae_ser_json_to_buffer_obj(struct json_object *jobj,
 
 
 static inline json_object *
-parse_json_int(json_object *parent, const char *name, int *value)
-{
-	json_object *jname = NULL;
-
-	if (!json_object_object_get_ex(parent, name, &jname)) {
-		OPAE_DBG("Error parsing JSON: missing '%s'", name);
-		return NULL;
-	}
-
-	if (!json_object_is_type(jname, json_type_int)) {
-		OPAE_DBG("'%s' JSON object not int", name);
-		return NULL;
-	}
-
-	if (value)
-		*value = json_object_get_int(jname);
-
-	return jname;
-}
-
-static inline json_object *
 parse_json_u32(json_object *parent, const char *name, uint32_t *value)
 {
 	json_object *jname = NULL;

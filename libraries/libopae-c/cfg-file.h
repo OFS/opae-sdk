@@ -202,6 +202,27 @@ parse_json_string(json_object *parent, const char *name, char **value)
 	return jname;
 }
 
+static inline json_object *
+parse_json_int(json_object *parent, const char *name, int *value)
+{
+	json_object *jname = NULL;
+
+	if (!json_object_object_get_ex(parent, name, &jname)) {
+	        OPAE_DBG("Error parsing JSON: missing '%s'", name);
+	        return NULL;
+	}
+
+	if (!json_object_is_type(jname, json_type_int)) {
+	        OPAE_DBG("'%s' JSON object not int", name);
+	        return NULL;
+	}
+
+	if (value)
+	        *value = json_object_get_int(jname);
+
+	return jname;
+}
+
 static inline int
 string_to_unsigned_wildcard(const char *s,
 			    unsigned long *u,

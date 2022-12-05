@@ -34,6 +34,7 @@
 #include "cfg-file.h"
 
 #include "uds-ifc.h"
+#include "inet-ifc.h"
 
 STATIC int parse_remote_unix_domain_socket(json_object *j_remote_i,
 					   opae_remote_client_ifc *i)
@@ -48,6 +49,25 @@ STATIC int parse_remote_unix_domain_socket(json_object *j_remote_i,
 	return opae_uds_ifc_init(i, socket, 0, 0);
 }
 
+STATIC int parse_remote_ipv4_socket(json_object *j_remote_i,
+				    opae_remote_client_ifc *i)
+{
+	char *server = NULL;
+	int port = 0;
+
+	if (!parse_json_string(j_remote_i, "server", &server)) {
+		OPAE_ERR("IPv4_SOCK_STREAM remote missing \"server\" key");
+		return 1;
+	}
+
+	if (!parse_json_int(j_remote_i, "port", &port)) {
+		OPAE_ERR("IPv4_SOCK_STREAM remote missing \"port\" key");
+		return 2;
+	}
+
+	return opae_inet_ifc_init(i, server, port, 0, 0);
+}
+
 opae_remote_client_ifc *
 opae_parse_remote_json(const char *json_input)
 {
@@ -58,6 +78,7 @@ opae_parse_remote_json(const char *json_input)
 	json_object *j_remotes = NULL;
 
 	int i;
+	int j;
 	int num_remotes = 0;
 
 	root = json_tokener_parse_verbose(json_input, &j_err);
@@ -77,7 +98,7 @@ opae_parse_remote_json(const char *json_input)
 		goto out_free;
 	}
 
-	for (i = 0 ; i < num_remotes ; ++i) {
+	for (i = j = 0 ; i < num_remotes ; ++i) {
 		json_object *j_remote_i =
 			json_object_array_get_idx(j_remotes, i);
 		char *interface = NULL;
@@ -97,8 +118,13 @@ opae_parse_remote_json(const char *json_input)
 		}
 
 		if (!strcmp(interface, "UNIX_DOMAIN_SOCKET")) {
-			if (parse_remote_unix_domain_socket(j_remote_i, &ifcs[i]))
+			if (parse_remote_unix_domain_socket(j_remote_i, &ifcs[j]))
 				goto out_parse_failed;
+			++j;
+		} else if (!strcmp(interface, "IPv4_SOCK_STREAM")) {
+			if (parse_remote_ipv4_socket(j_remote_i, &ifcs[j]))
+				goto out_parse_failed;
+			++j;
 		} else {
 			OPAE_ERR("Unrecognized remote interface: %s", interface);
 			goto out_parse_failed;

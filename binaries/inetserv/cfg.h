@@ -23,39 +23,16 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_RMT_IFC_H__
-#define __OPAE_RMT_IFC_H__
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#ifndef __OPAE_INETSERV_CFG_H__
+#define __OPAE_INETSERV_CFG_H__
+#include <stdbool.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
-#define OPAE_SOCKET_NAME_MAX 108
+typedef struct _inet_server_config {
+	volatile bool running;
+	char ip_addr[INET_ADDRSTRLEN];
+	in_port_t port;
+} inet_server_config;
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-
-typedef int (*open_connection)(void *con);
-typedef int (*close_connection)(void *con);
-typedef int (*release_connection)(void *con);
-
-typedef ssize_t (*send_data)(void *con, const void *buf, size_t len);
-typedef ssize_t (*receive_data)(void *con, void *buf, size_t len);
-
-typedef struct _opae_remote_client_ifc {
-	open_connection open;
-	close_connection close;
-	release_connection release;
-	send_data send;
-	receive_data receive;
-	void *connection;
-} opae_remote_client_ifc;
-
-ssize_t chunked_send(int sockfd, const void *buf, size_t len, int flags);
-ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags);
-
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-
-#endif // __OPAE_RMT_IFC_H__
+#endif // __OPAE_INETSERV_CFG_H__

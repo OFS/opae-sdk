@@ -23,39 +23,48 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_RMT_IFC_H__
-#define __OPAE_RMT_IFC_H__
-#include <stdint.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define OPAE_SOCKET_NAME_MAX 108
+#include "mock/opae_std.h"
+#include "rmt-ifc.h"
+#include "action.h"
+#include "inetserv.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+int handle_client(inet_server_context *c, void *remote_ctx, int sock)
+{
+	char buf[OPAE_RECEIVE_BUF_MAX];
+	ssize_t n;
+	opae_remote_context *remc = (opae_remote_context *)remote_ctx;
+	char *response_json = NULL;
+	bool res;
 
-typedef int (*open_connection)(void *con);
-typedef int (*close_connection)(void *con);
-typedef int (*release_connection)(void *con);
+	n = chunked_recv(sock, buf, sizeof(buf), 0);
+	if (n == -2) {
+	        OPAE_DBG("peer closed connection");
+	        inet_server_close_client(c, sock);
+	        return 0;
+	} else if (n < 0) {
+	        OPAE_ERR("recv() failed");
+	        return (int)n;
+	}
 
-typedef ssize_t (*send_data)(void *con, const void *buf, size_t len);
-typedef ssize_t (*receive_data)(void *con, void *buf, size_t len);
+	res = opae_remote_handle_client_request(remc, buf, &response_json);
+	if (res && response_json) {
+		chunked_send(sock,
+			     response_json,
+			     strlen(response_json) + 1,
+			     0);
+		opae_free(response_json);
+		return 0;
+	}
 
-typedef struct _opae_remote_client_ifc {
-	open_connection open;
-	close_connection close;
-	release_connection release;
-	send_data send;
-	receive_data receive;
-	void *connection;
-} opae_remote_client_ifc;
+	if (response_json)
+		opae_free(response_json);
 
-ssize_t chunked_send(int sockfd, const void *buf, size_t len, int flags);
-ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags);
-
-#ifdef __cplusplus
+	return 1;
 }
-#endif // __cplusplus
-
-#endif // __OPAE_RMT_IFC_H__

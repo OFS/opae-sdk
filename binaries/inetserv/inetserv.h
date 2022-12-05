@@ -23,39 +23,49 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_RMT_IFC_H__
-#define __OPAE_RMT_IFC_H__
-#include <stdint.h>
+#ifndef __OPAE_INETSERV_H__
+#define __OPAE_INETSERV_H__
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <poll.h>
 
-#define OPAE_SOCKET_NAME_MAX 108
+#include <opae/log.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+#include "cfg.h"
 
-typedef int (*open_connection)(void *con);
-typedef int (*close_connection)(void *con);
-typedef int (*release_connection)(void *con);
+#define MAX_CLIENT_CONNECTIONS 511
+#define SRV_SOCKET               0
+#define FIRST_CLIENT_SOCKET      1
 
-typedef ssize_t (*send_data)(void *con, const void *buf, size_t len);
-typedef ssize_t (*receive_data)(void *con, void *buf, size_t len);
+#define LISTEN_BACKLOG          16
+#define POLL_TIMEOUT           100
+typedef struct _inet_server_context {
+	inet_server_config *cfg;
 
-typedef struct _opae_remote_client_ifc {
-	open_connection open;
-	close_connection close;
-	release_connection release;
-	send_data send;
-	receive_data receive;
-	void *connection;
-} opae_remote_client_ifc;
+	void *remote_context[MAX_CLIENT_CONNECTIONS + 1];
+	struct pollfd pollfds[MAX_CLIENT_CONNECTIONS + 1];
+	nfds_t num_fds;
+	int poll_timeout;
 
-ssize_t chunked_send(int sockfd, const void *buf, size_t len, int flags);
-ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags);
+	int (*handle_client_message)(struct _inet_server_context * , void * , int );
+	int (*on_poll_timeout)(struct _inet_server_context *);
+	int (*init_remote_context)(struct _inet_server_context * , nfds_t );
+	int (*release_remote_context)(struct _inet_server_context * , nfds_t );
+} inet_server_context;
 
-#ifdef __cplusplus
-}
-#endif // __cplusplus
+int inet_server_init(inet_server_context *c, inet_server_config *cfg);
 
-#endif // __OPAE_RMT_IFC_H__
+int inet_server_poll_loop(inet_server_context *c);
+
+void inet_server_close_client(inet_server_context *c, int client);
+
+void inet_server_release(inet_server_context *c);
+
+#endif // __OPAE_INETSERV_H__

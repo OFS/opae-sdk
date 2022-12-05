@@ -23,39 +23,76 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_RMT_IFC_H__
-#define __OPAE_RMT_IFC_H__
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
+#include <stdio.h>
 #include <stdint.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include <string.h>
+#include <errno.h>
 
-#define OPAE_SOCKET_NAME_MAX 108
+#include <opae/log.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+#include "rmt-ifc.h"
 
-typedef int (*open_connection)(void *con);
-typedef int (*close_connection)(void *con);
-typedef int (*release_connection)(void *con);
+ssize_t chunked_send(int sockfd, const void *buf, size_t len, int flags)
+{
+	ssize_t total_bytes = 0;
+	ssize_t sent;
+	const uint8_t *rdbuf = (const uint8_t *)buf;
 
-typedef ssize_t (*send_data)(void *con, const void *buf, size_t len);
-typedef ssize_t (*receive_data)(void *con, void *buf, size_t len);
+	do {
+		sent = send(sockfd,
+			    rdbuf + total_bytes,
+			    len - total_bytes,
+			    flags);
 
-typedef struct _opae_remote_client_ifc {
-	open_connection open;
-	close_connection close;
-	release_connection release;
-	send_data send;
-	receive_data receive;
-	void *connection;
-} opae_remote_client_ifc;
+		if (sent >= 0) {
+			total_bytes += sent;
+		} else {
+			// sent < 0: Error
+			if (errno != EINTR) {
+	                        OPAE_ERR("send() failed: %s",
+					 strerror(errno));
+	                        return -1;
+			}
+		}
 
-ssize_t chunked_send(int sockfd, const void *buf, size_t len, int flags);
-ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags);
+	} while ((size_t)total_bytes < len);
 
-#ifdef __cplusplus
+	return total_bytes;
 }
-#endif // __cplusplus
 
-#endif // __OPAE_RMT_IFC_H__
+ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags)
+{
+	ssize_t total_bytes = 0;
+	ssize_t received;
+	uint8_t *rdbuf = (uint8_t *)buf;
+
+	do {
+	        received = recv(sockfd,
+	                        rdbuf + total_bytes,
+	                        len - total_bytes,
+				flags);
+
+	        if (!received) {
+	                // Orderly shutdown by peer.
+	                return -2;
+	        } else if (received > 0) {
+	                total_bytes += received;
+	        } else {
+	                // received < 0: Error
+	                if (errno != EINTR) {
+	                        OPAE_ERR("recv() failed: %s",
+					 strerror(errno));
+	                        return -1;
+	                }
+	        }
+
+	} while (!total_bytes || (rdbuf[total_bytes - 1] != 0));
+#if 0
+	printf("%s\n", (const char *)buf);
+#endif
+	return total_bytes;
+}

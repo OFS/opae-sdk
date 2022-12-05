@@ -31,6 +31,7 @@
 #include <sys/socket.h>
 
 #include "mock/opae_std.h"
+#include "rmt-ifc.h"
 #include "action.h"
 #include "udsserv.h"
 
@@ -42,24 +43,22 @@ int handle_client(uds_server_context *c, void *remote_ctx, int sock)
 	char *response_json = NULL;
 	bool res;
 
-	n = recv(sock, buf, sizeof(buf), 0);
-	if (n < 0) {
+	n = chunked_recv(sock, buf, sizeof(buf), 0);
+	if (n == -2) {
+		OPAE_DBG("peer closed connection");
+		uds_server_close_client(c, sock);
+		return 0;
+	} else if (n < 0) {
 		OPAE_ERR("recv() failed");
 		return (int)n;
 	}
 
-	if (!n) { // socket closed by peer
-		uds_server_close_client(c, sock);
-		return (int)n;
-	}
-
-#if 1
-	printf("%s\n", buf);
-#endif
-
 	res = opae_remote_handle_client_request(remc, buf, &response_json);
 	if (res && response_json) {
-		send(sock, response_json, strlen(response_json) + 1, 0);
+		chunked_send(sock,
+			     response_json,
+			     strlen(response_json) + 1,
+			     0);
 		opae_free(response_json);
 		return 0;
 	}

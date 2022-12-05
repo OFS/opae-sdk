@@ -38,7 +38,11 @@ set(SRC
 )
 
 if (OPAE_BUILD_REMOTE)
-    list(APPEND SRC uds-ifc.c rmt-cfg.c)
+    list(APPEND SRC
+        uds-ifc.c
+        inet-ifc.c
+        rmt-ifc.c
+        rmt-cfg.c)
 endif (OPAE_BUILD_REMOTE)
 
 opae_add_shared_library(TARGET opae-c

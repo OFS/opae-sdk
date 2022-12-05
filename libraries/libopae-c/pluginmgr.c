@@ -592,8 +592,13 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	errors += opae_plugin_mgr_initialize_all();
 
 	initialized = 0;
+#ifdef OPAE_BUILD_REMOTE
+	if (!errors && adapter_list)
+		initialized = 1;
+#else
 	if (!errors && platforms_detected)
 		initialized = 1;
+#endif // OPAE_BUILD_REMOTE
 
 out_unlock:
 	if (!initialized) {

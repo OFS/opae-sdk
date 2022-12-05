@@ -37,8 +37,10 @@ set(SRC
 
 if (OPAE_BUILD_REMOTE)
     list(APPEND SRC
-	    ${OPAE_LIB_SOURCE}/libopae-c/uds-ifc.c
-	    ${OPAE_LIB_SOURCE}/libopae-c/rmt-cfg.c)
+            ${OPAE_LIB_SOURCE}/libopae-c/uds-ifc.c
+            ${OPAE_LIB_SOURCE}/libopae-c/inet-ifc.c
+            ${OPAE_LIB_SOURCE}/libopae-c/rmt-ifc.c
+            ${OPAE_LIB_SOURCE}/libopae-c/rmt-cfg.c)
 endif (OPAE_BUILD_REMOTE)
 
 opae_test_add_static_lib(TARGET opae-c-static

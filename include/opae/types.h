@@ -297,7 +297,9 @@ typedef struct _fpga_token_header {
  ((__child_hdr)->objtype == FPGA_ACCELERATOR) && \
  ((__parent_hdr)->segment == (__child_hdr)->segment) && \
  ((__parent_hdr)->bus == (__child_hdr)->bus) && \
- ((__parent_hdr)->device == (__child_hdr)->device))
+ ((__parent_hdr)->device == (__child_hdr)->device) && \
+ !strcmp((__parent_hdr)->token_id.hostname, \
+         (__child_hdr)->token_id.hostname))
 
 typedef struct _fpga_handle_header {
 	uint64_t magic;
