@@ -327,12 +327,12 @@ int main(int argc, char *argv[])
 	uint64_t           dsm_wsid;
 	uint64_t           input_wsid;
 	uint64_t           output_wsid;
-	uint32_t           i;
+	//uint32_t           i;
 	//uint32_t           timeout;
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
 	fpga_properties    device_filter = NULL;
-	int cmp_result;
+	int		   cmp_result;
 
 	res1 = fpgaGetProperties(NULL, &device_filter);
 	if (res1 != FPGA_OK) {
@@ -427,11 +427,12 @@ int main(int argc, char *argv[])
 		cl_ptr[i].uint[15] = i+1; // set the last uint in every cacheline
 	}
 	*/
+	/*
 	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
-		/*
+		/ *
 		** Set the last uint32_t in every cacheline to
 		** its 1-based index.
-		*/
+		* /
 		uint32_t cl = i + 1;
 		size_t offset = CL(cl) - sizeof(uint32_t);
 
@@ -439,6 +440,11 @@ int main(int argc, char *argv[])
 					     offset, &cl, sizeof(cl));
 		ON_ERR_GOTO(res1, out_free_output, "initializing input buffer");
 	}
+	*/
+	res1 = fpgaBufWritePattern(accelerator_handle,
+				   input_wsid,
+				   "cl_index_end");
+	ON_ERR_GOTO(res1, out_free_output, "initializing input buffer");
 
 	/* Reset accelerator */
 	res1 = fpgaReset(accelerator_handle);

@@ -84,6 +84,9 @@ fpga_result remote_fpgaBufMemCmp(fpga_handle handle,
 	uint64_t bufa_wsid, size_t bufa_offset,
 	uint64_t bufb_wsid, size_t bufb_offset,
 	size_t n, int *result);
+fpga_result remote_fpgaBufWritePattern(fpga_handle handle,
+				       uint64_t wsid,
+				       const char *pattern_name);
 fpga_result remote_fpgaGetOPAECVersion(fpga_version *version);
 fpga_result remote_fpgaGetOPAECVersionString(char *version_str, size_t len);
 fpga_result remote_fpgaGetOPAECBuildString(char *build_str, size_t len);

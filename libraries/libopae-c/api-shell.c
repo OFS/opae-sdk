@@ -1018,6 +1018,22 @@ fpga_result __OPAE_API__ fpgaBufMemCmp(fpga_handle handle,
 		bufb_wsid, bufb_offset, n, result);
 }
 
+fpga_result __OPAE_API__ fpgaBufWritePattern(fpga_handle handle,
+					     uint64_t wsid,
+					     const char *pattern_name)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(pattern_name);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufWritePattern,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufWritePattern(
+		wrapped_handle->opae_handle, wsid, pattern_name);
+}
+
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);

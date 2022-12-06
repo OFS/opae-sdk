@@ -91,7 +91,7 @@ ssize_t chunked_recv(int sockfd, void *buf, size_t len, int flags)
 		}
 
 	} while (!total_bytes || (rdbuf[total_bytes - 1] != 0));
-#if 0
+#if 1
 	printf("%s\n", (const char *)buf);
 #endif
 	return total_bytes;

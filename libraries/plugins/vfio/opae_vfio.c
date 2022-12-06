@@ -1817,6 +1817,58 @@ out_unlock:
 	return res;
 }
 
+#ifndef CL
+#define CL(x) ((x) * 64)
+#endif // CL
+
+fpga_result vfio_fpgaBufWritePattern(fpga_handle handle,
+				     uint64_t wsid,
+				     const char *pattern_name)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (!pattern_name) {
+		OPAE_ERR("NULL pattern_name");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if (!strcmp(pattern_name, "cl_index_end")) {
+				uint32_t cl = 1;
+				while (virt < end_virt) {
+					uint32_t *p = (uint32_t *)
+					(virt + CL(1) - sizeof(uint32_t));
+					*p = cl++;
+					virt += CL(1);
+				}
+			}
+
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_NOT_FOUND;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
 fpga_result vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	vfio_event_handle *_veh;

@@ -121,6 +121,10 @@ typedef struct _opae_api_adapter_table {
 				     uint64_t bufb_wsid, size_t bufb_offset,
 				     size_t n, int *result);
 
+	fpga_result (*fpgaBufWritePattern)(fpga_handle handle,
+					   uint64_t wsid,
+					   const char *pattern_name);
+
 	/*
 	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 	**

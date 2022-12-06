@@ -590,3 +590,55 @@ out_unlock:
 	}
 	return result;
 }
+
+#ifndef CL
+#define CL(x) ((x) * 64)
+#endif // CL
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufWritePattern(fpga_handle handle,
+						    uint64_t wsid,
+						    const char *pattern_name)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+
+	if (!pattern_name) {
+		OPAE_ERR("NULL pattern_name");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if (!strcmp(pattern_name, "cl_index_end")) {
+		uint32_t cl = 1;
+		while (virt < end_virt) {
+			uint32_t *p = (uint32_t *)
+				(virt + CL(1) - sizeof(uint32_t));
+			*p = cl++;
+			virt += CL(1);
+		}
+	}
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}

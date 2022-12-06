@@ -4605,3 +4605,109 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaBufWritePattern_request_46(
+	opae_fpgaBufWritePattern_request *req, int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle_id;
+	struct json_object *jbuf_id;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		46, "fpgaBufWritePattern_request_46"))
+		goto out_err;
+
+	jhandle_id = json_object_new_object();
+	if (!jhandle_id) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_remote_id_to_json_obj(&req->handle_id, jhandle_id))
+		goto out_err;
+
+	json_object_object_add(root, "handle_id", jhandle_id);
+
+	jbuf_id = json_object_new_object();
+	if (!jbuf_id) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_remote_id_to_json_obj(&req->buf_id, jbuf_id))
+		goto out_err;
+
+	json_object_object_add(root, "buf_id", jbuf_id);
+
+	json_object_object_add(root,
+			       "pattern_name",
+			       json_object_new_string(req->pattern_name));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaBufWritePattern_request_46(
+	const char *json,
+	opae_fpgaBufWritePattern_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle_id = NULL;
+	struct json_object *jbuf_id = NULL;
+	char *str;
+	size_t len;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+	if (!json_object_object_get_ex(root, "handle_id", &jhandle_id)) {
+		OPAE_DBG("Error parsing JSON: missing 'handle_id'");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_remote_id_obj(jhandle_id, &req->handle_id))
+		goto out_put;
+
+	if (!json_object_object_get_ex(root, "buf_id", &jbuf_id)) {
+		OPAE_DBG("Error parsing JSON: missing 'buf_id'");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_remote_id_obj(jbuf_id, &req->buf_id))
+		goto out_put;
+
+	str = NULL;
+	if (!parse_json_string(root, "pattern_name", &str))
+		goto out_put;
+
+	memset(req->pattern_name, 0, sizeof(req->pattern_name));
+	len = strnlen(str, OPAE_REQUEST_NAME_MAX - 1);
+	memcpy(req->pattern_name, str, len + 1);
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}

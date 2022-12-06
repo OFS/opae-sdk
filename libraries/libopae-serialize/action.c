@@ -2949,6 +2949,78 @@ out_respond:
 	return res;
 }
 
+bool opae_handle_fpgaBufWritePattern_request_46(
+	opae_remote_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_fpgaBufWritePattern_request req;
+	opae_fpgaBufWritePattern_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+	opae_buffer_info *binfo = NULL;
+
+	if (!opae_decode_fpgaBufWritePattern_request_46(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "fpgaBufWritePattern request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"fpgaBufWritePattern_response_46");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	// Find our buffer info struct.
+	opae_remote_id_to_hash_key(&req.buf_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	if (opae_hash_map_find(&c->remote_id_to_buf_info_map,
+			       hash_key_buf,
+			       (void **)&binfo) != FPGA_OK) {
+		OPAE_ERR("buffer info lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	if (!opae_remote_ids_match(&req.handle_id, &binfo->handle_id)) {
+		OPAE_ERR("invalid handle / wsid combination");
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	resp.result = fpgaBufWritePattern(handle,
+					  binfo->wsid,
+					  req.pattern_name);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaBufWritePattern_response_46(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
+
 /******************************************************************************/
 
 typedef bool (*client_handler)(opae_remote_context *c,
@@ -3001,7 +3073,8 @@ STATIC client_handler client_handlers[] = {
 	opae_handle_fpgaBufMemSet_request_42,
 	opae_handle_fpgaBufMemCpyToRemote_request_43,
 	opae_handle_fpgaBufPoll_request_44,
-	opae_handle_fpgaBufMemCmp_request_45
+	opae_handle_fpgaBufMemCmp_request_45,
+	opae_handle_fpgaBufWritePattern_request_46
 };
 
 bool opae_remote_handle_client_request(opae_remote_context *c,

@@ -594,6 +594,17 @@ bool opae_decode_fpgaBufMemCmp_response_45(
 	const char *json,
 	opae_fpgaBufMemCmp_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaBufWritePattern_response;
+
+char *opae_encode_fpgaBufWritePattern_response_46(
+	opae_fpgaBufWritePattern_response *resp,
+	int json_flags);
+bool opae_decode_fpgaBufWritePattern_response_46(
+	const char *json,
+	opae_fpgaBufWritePattern_response *resp);
 
 
 
