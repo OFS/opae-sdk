@@ -3444,3 +3444,188 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaCreateEventHandle_response_47(
+	opae_fpgaCreateEventHandle_response *resp,
+	int json_flags)
+{
+	struct json_object *root;
+	struct json_object *jeh_id;
+	char *json = NULL;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	jeh_id = json_object_new_object();
+
+	if (!opae_ser_remote_id_to_json_obj(&resp->eh_id, jeh_id))
+		goto out_err;
+
+	json_object_object_add(root, "eh_id", jeh_id);
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaCreateEventHandle_response_47(
+	const char *json,
+	opae_fpgaCreateEventHandle_response *resp)
+{
+	struct json_object *root = NULL;
+	struct json_object *jeh_id = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!json_object_object_get_ex(root, "eh_id", &jeh_id)) {
+		OPAE_DBG("Error parsing JSON: missing 'eh_id'");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_remote_id_obj(jeh_id, &resp->eh_id))
+		goto out_put;
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaRegisterEvent_response_48(
+	opae_fpgaRegisterEvent_response *resp,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaRegisterEvent_response_48(
+	const char *json,
+	opae_fpgaRegisterEvent_response *resp)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaUnregisterEvent_response_49(
+	opae_fpgaUnregisterEvent_response *resp,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaUnregisterEvent_response_49(
+	const char *json,
+	opae_fpgaUnregisterEvent_response *resp)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}

@@ -2157,3 +2157,66 @@ bool opae_ser_json_to_buffer_obj(struct json_object *array,
 
 	return true;
 }
+
+#define NUM_EVENT_TYPES 3
+STATIC struct {
+	fpga_event_type type;
+	const char *str;
+} event_type_table[NUM_EVENT_TYPES] = {
+	{ FPGA_EVENT_INTERRUPT,     "FPGA_EVENT_INTERRUPT"     },
+	{ FPGA_EVENT_ERROR,         "FPGA_EVENT_ERROR"         },
+	{ FPGA_EVENT_POWER_THERMAL, "FPGA_EVENT_POWER_THERMAL" }
+};
+
+STATIC const char *
+opae_event_type_to_str(fpga_event_type t)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_EVENT_TYPES ; ++i) {
+		if (t == event_type_table[i].type)
+			return event_type_table[i].str;
+	}
+
+	return "<unknown>";
+}
+
+STATIC fpga_event_type
+opae_str_to_event_type(const char *s)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_EVENT_TYPES ; ++i) {
+		if (!strcmp(s, event_type_table[i].str))
+			return event_type_table[i].type;
+	}
+
+	return (fpga_event_type)-1;
+}
+
+bool opae_ser_event_type_to_json_obj(const fpga_event_type type,
+                                     struct json_object *parent)
+{
+	const char *str;
+
+	str = opae_event_type_to_str(type);
+	json_object_object_add(parent, "fpga_event_type",
+		json_object_new_string(str));
+
+	return true;
+}
+
+bool opae_ser_json_to_event_type_obj(struct json_object *jobj,
+                                     fpga_event_type *type)
+{
+	char *str = NULL;
+	struct json_object *obj;
+
+	obj = parse_json_string(jobj, "fpga_event_type", &str);
+	if (!obj)
+		return false;
+
+	*type = opae_str_to_event_type(str);
+
+	return true;
+}

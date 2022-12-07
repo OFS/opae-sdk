@@ -42,6 +42,7 @@ typedef struct _opae_remote_context {
 	opae_hash_map remote_id_to_mmio_map;
 	opae_hash_map remote_id_to_buf_info_map;
 	opae_hash_map remote_id_to_sysobject_map;
+	opae_hash_map remote_id_to_event_handle_map;
 
 } opae_remote_context;
 

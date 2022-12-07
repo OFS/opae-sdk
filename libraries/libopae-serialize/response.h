@@ -606,6 +606,43 @@ bool opae_decode_fpgaBufWritePattern_response_46(
 	const char *json,
 	opae_fpgaBufWritePattern_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_remote_id eh_id;
+	fpga_result result;
+} opae_fpgaCreateEventHandle_response;
+
+char *opae_encode_fpgaCreateEventHandle_response_47(
+	opae_fpgaCreateEventHandle_response *resp,
+	int json_flags);
+bool opae_decode_fpgaCreateEventHandle_response_47(
+	const char *json,
+	opae_fpgaCreateEventHandle_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaRegisterEvent_response;
+
+char *opae_encode_fpgaRegisterEvent_response_48(
+	opae_fpgaRegisterEvent_response *resp,
+	int json_flags);
+bool opae_decode_fpgaRegisterEvent_response_48(
+	const char *json,
+	opae_fpgaRegisterEvent_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaUnregisterEvent_response;
+
+char *opae_encode_fpgaUnregisterEvent_response_49(
+	opae_fpgaUnregisterEvent_response *resp,
+	int json_flags);
+bool opae_decode_fpgaUnregisterEvent_response_49(
+	const char *json,
+	opae_fpgaUnregisterEvent_response *resp);
+
 
 
 #ifdef __cplusplus

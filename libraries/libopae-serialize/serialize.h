@@ -106,6 +106,12 @@ bool opae_ser_json_to_buffer_obj(struct json_object *jobj,
 				 void **src, size_t *n);
 
 
+bool opae_ser_event_type_to_json_obj(const fpga_event_type type,
+				     struct json_object *parent);
+bool opae_ser_json_to_event_type_obj(struct json_object *jobj,
+				     fpga_event_type *type);
+
+
 
 static inline json_object *
 parse_json_u32(json_object *parent, const char *name, uint32_t *value)

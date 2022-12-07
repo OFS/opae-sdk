@@ -649,6 +649,48 @@ bool opae_decode_fpgaBufWritePattern_request_46(
 	const char *json,
 	opae_fpgaBufWritePattern_request *req);
 
+typedef struct {
+	opae_request_header header;
+} opae_fpgaCreateEventHandle_request;
+
+char *opae_encode_fpgaCreateEventHandle_request_47(
+	opae_fpgaCreateEventHandle_request *req,
+	int json_flags);
+bool opae_decode_fpgaCreateEventHandle_request_47(
+	const char *json,
+	opae_fpgaCreateEventHandle_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id handle_id;
+	fpga_event_type event_type;
+	fpga_remote_id eh_id;
+	uint32_t flags;
+} opae_fpgaRegisterEvent_request;
+
+char *opae_encode_fpgaRegisterEvent_request_48(
+	opae_fpgaRegisterEvent_request *req,
+	int json_flags);
+bool opae_decode_fpgaRegisterEvent_request_48(
+	const char *json,
+	opae_fpgaRegisterEvent_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id handle_id;
+	fpga_event_type event_type;
+	fpga_remote_id eh_id;
+} opae_fpgaUnregisterEvent_request;
+
+char *opae_encode_fpgaUnregisterEvent_request_49(
+	opae_fpgaUnregisterEvent_request *req,
+	int json_flags);
+bool opae_decode_fpgaUnregisterEvent_request_49(
+	const char *json,
+	opae_fpgaUnregisterEvent_request *req);
+
+
+
 
 #ifdef __cplusplus
 }
