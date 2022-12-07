@@ -80,19 +80,145 @@ remote_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 fpga_result __REMOTE_API__
 remote_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
-(void) event_handle;
+	struct _remote_event_handle *eh;
+	fpga_result res = FPGA_OK;
 
-	return FPGA_OK;
+	if (!event_handle || !*event_handle) {
+		OPAE_ERR("NULL event_handle");
+		return FPGA_INVALID_PARAM;
+	}
+
+	eh = *event_handle;
+
+	if (eh->handle) {
+		opae_fpgaDestroyEventHandle_request req;
+		opae_fpgaDestroyEventHandle_response resp;
+		struct _remote_token *tok;
+		struct _remote_handle *h;
+		char *req_json;
+		size_t len;
+		ssize_t slen;
+		char recvbuf[OPAE_RECEIVE_BUF_MAX];
+
+		h = eh->handle;
+		tok = h->token;
+
+		req.eh_id = eh->eh_id;
+
+		req_json = opae_encode_fpgaDestroyEventHandle_request_51(
+			&req, tok->json_to_string_flags);
+
+		if (!req_json) {
+			res = FPGA_NO_MEMORY;
+			goto out_destroy;
+		}
+
+		len = strlen(req_json);
+
+		slen = tok->ifc->send(tok->ifc->connection,
+				      req_json,
+				      len + 1);
+		if (slen < 0) {
+			opae_free(req_json);
+			res = FPGA_EXCEPTION;
+			goto out_destroy;
+		}
+
+		opae_free(req_json);
+
+		slen = tok->ifc->receive(tok->ifc->connection,
+					 recvbuf,
+					 sizeof(recvbuf));
+		if (slen < 0) {
+			res = FPGA_EXCEPTION;
+			goto out_destroy;
+		}
+
+		if (!opae_decode_fpgaDestroyEventHandle_response_51(
+			recvbuf, &resp)) {
+			res = FPGA_EXCEPTION;
+			goto out_destroy;
+		}
+
+		res = resp.result;
+	}
+
+out_destroy:
+	opae_destroy_remote_event_handle(eh);
+	*event_handle = NULL;
+
+	return res;
 }
 
 fpga_result __REMOTE_API__
-remote_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
+remote_fpgaGetOSObjectFromEventHandle(
+	const fpga_event_handle event_handle,
+	int *fd)
 {
-(void) eh;
-(void) fd;
+	opae_fpgaGetOSObjectFromEventHandle_request req;
+	opae_fpgaGetOSObjectFromEventHandle_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	struct _remote_event_handle *eh;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!event_handle) {
+		OPAE_ERR("NULL event_handle");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return FPGA_OK;
+	if (!fd) {
+		OPAE_ERR("NULL fd pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	eh = (struct _remote_event_handle *)event_handle;
+
+	if (!eh->handle) {
+		OPAE_ERR("You must call fpgaRegisterEvent() prior "
+			 "to requesting the OS Object.");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = eh->handle;
+	tok = h->token;
+
+	req.eh_id = eh->eh_id;
+
+	req_json = opae_encode_fpgaGetOSObjectFromEventHandle_request_50(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+	if (!opae_decode_fpgaGetOSObjectFromEventHandle_response_50(
+		recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	*fd = resp.fd;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,

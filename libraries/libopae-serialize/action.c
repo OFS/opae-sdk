@@ -3226,6 +3226,113 @@ out_respond:
 	return res;
 }
 
+bool opae_handle_fpgaGetOSObjectFromEventHandle_request_50(
+	opae_remote_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetOSObjectFromEventHandle_request req;
+	opae_fpgaGetOSObjectFromEventHandle_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_event_handle event_handle = NULL;
+
+	if (!opae_decode_fpgaGetOSObjectFromEventHandle_request_50(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "fpgaGetOSObjectFromEventHandle request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"fpgaGetOSObjectFromEventHandle_response_50");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.fd = -1;
+
+	opae_remote_id_to_hash_key(&req.eh_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the event_handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_event_handle_map,
+				hash_key_buf,
+				&event_handle) != FPGA_OK) {
+		OPAE_ERR("event_handle lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetOSObjectFromEventHandle(event_handle, &resp.fd);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetOSObjectFromEventHandle_response_50(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
+
+bool opae_handle_fpgaDestroyEventHandle_request_51(
+	opae_remote_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_fpgaDestroyEventHandle_request req;
+	opae_fpgaDestroyEventHandle_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_event_handle event_handle = NULL;
+
+	if (!opae_decode_fpgaDestroyEventHandle_request_51(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "fpgaDestroyEventHandle request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"fpgaDestroyEventHandle_response_51");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.eh_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the event_handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_event_handle_map,
+				hash_key_buf,
+				&event_handle) != FPGA_OK) {
+		OPAE_ERR("event_handle lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	resp.result = fpgaDestroyEventHandle(&event_handle);
+
+	if (resp.result == FPGA_OK) {
+		// Remove the event_handle from our remote context object.
+		opae_hash_map_remove(
+			&c->remote_id_to_event_handle_map, hash_key_buf);
+
+		res = true;
+	}
+
+out_respond:
+	*resp_json = opae_encode_fpgaDestroyEventHandle_response_51(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
+
 /******************************************************************************/
 
 typedef bool (*client_handler)(opae_remote_context *c,
@@ -3282,7 +3389,9 @@ STATIC client_handler client_handlers[] = {
 	opae_handle_fpgaBufWritePattern_request_46,
 	opae_handle_fpgaCreateEventHandle_request_47,
 	opae_handle_fpgaRegisterEvent_request_48,
-	opae_handle_fpgaUnregisterEvent_request_49
+	opae_handle_fpgaUnregisterEvent_request_49,
+	opae_handle_fpgaGetOSObjectFromEventHandle_request_50,
+	opae_handle_fpgaDestroyEventHandle_request_51
 };
 
 bool opae_remote_handle_client_request(opae_remote_context *c,

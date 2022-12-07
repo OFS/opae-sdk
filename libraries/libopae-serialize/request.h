@@ -689,8 +689,29 @@ bool opae_decode_fpgaUnregisterEvent_request_49(
 	const char *json,
 	opae_fpgaUnregisterEvent_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id eh_id;
+} opae_fpgaGetOSObjectFromEventHandle_request;
 
+char *opae_encode_fpgaGetOSObjectFromEventHandle_request_50(
+	opae_fpgaGetOSObjectFromEventHandle_request *req,
+	int json_flags);
+bool opae_decode_fpgaGetOSObjectFromEventHandle_request_50(
+	const char *json,
+	opae_fpgaGetOSObjectFromEventHandle_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id eh_id;
+} opae_fpgaDestroyEventHandle_request;
+
+char *opae_encode_fpgaDestroyEventHandle_request_51(
+	opae_fpgaDestroyEventHandle_request *req,
+	int json_flags);
+bool opae_decode_fpgaDestroyEventHandle_request_51(
+	const char *json,
+	opae_fpgaDestroyEventHandle_request *req);
 
 #ifdef __cplusplus
 }

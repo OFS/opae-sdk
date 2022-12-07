@@ -643,7 +643,30 @@ bool opae_decode_fpgaUnregisterEvent_response_49(
 	const char *json,
 	opae_fpgaUnregisterEvent_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	int fd;
+	fpga_result result;
+} opae_fpgaGetOSObjectFromEventHandle_response;
 
+char *opae_encode_fpgaGetOSObjectFromEventHandle_response_50(
+	opae_fpgaGetOSObjectFromEventHandle_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetOSObjectFromEventHandle_response_50(
+	const char *json,
+	opae_fpgaGetOSObjectFromEventHandle_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaDestroyEventHandle_response;
+
+char *opae_encode_fpgaDestroyEventHandle_response_51(
+	opae_fpgaDestroyEventHandle_response *resp,
+	int json_flags);
+bool opae_decode_fpgaDestroyEventHandle_response_51(
+	const char *json,
+	opae_fpgaDestroyEventHandle_response *resp);
 
 #ifdef __cplusplus
 }
