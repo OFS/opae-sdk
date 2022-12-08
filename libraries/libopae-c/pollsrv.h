@@ -55,12 +55,12 @@ typedef struct _opae_poll_server {
 	nfds_t num_fds;
 	int poll_timeout;
 
-	int (*on_poll_timeout)(struct _opae_poll_server * );
-	int (*handle_client_message)(struct _opae_poll_server * ,
-				     void * ,
-				     int );
-	int (*init_remote_context)(struct _opae_poll_server * , nfds_t );
-	int (*release_remote_context)(struct _opae_poll_server * , nfds_t );
+	int (*on_poll_timeout)(struct _opae_poll_server *);
+	int (*handle_client_message)(struct _opae_poll_server *,
+				     void *,
+				     int);
+	int (*init_remote_context)(struct _opae_poll_server *, nfds_t);
+	int (*release_remote_context)(struct _opae_poll_server *, nfds_t);
 } opae_poll_server;
 
 void opae_poll_server_init(opae_poll_server *psrv, int server_socket);
