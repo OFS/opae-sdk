@@ -25,6 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #ifndef __OPAE_SERIALIZE_ACTION_H__
 #define __OPAE_SERIALIZE_ACTION_H__
+#include "pollsrv.h"
+
 #include "request.h"
 #include "response.h"
 #include "hash_map.h"
@@ -52,6 +54,14 @@ fpga_result opae_release_remote_context(opae_remote_context *c);
 bool opae_remote_handle_client_request(opae_remote_context *c,
 				       const char *req_json,
 				       char **resp_json);
+
+
+int opae_poll_server_handle_client(opae_poll_server *psrv,
+				   void *remote_ctx,
+				   int client_sock);
+
+int opae_poll_server_init_remote_context(opae_poll_server *psrv, nfds_t i);
+int opae_poll_server_release_remote_context(opae_poll_server *psrv, nfds_t i);
 
 #ifdef __cplusplus
 }

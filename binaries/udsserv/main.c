@@ -34,46 +34,20 @@
 #include "mock/opae_std.h"
 
 #include "action.h"
-#include "udsserv.h"
-#include "handle_client.h"
 
-volatile bool running = true;
+opae_uds_server srv;
 
 void sig_handler(int sig, siginfo_t *info, void *unused)
 {
-(void) info;
-(void) unused;
+	UNUSED_PARAM(info);
+	UNUSED_PARAM(unused);
 
 	switch (sig) {
 	case SIGINT :
 	case SIGTERM:
-		running = false;
+		srv.psrv.running = false;
 		break;
 	}
-}
-
-int init_remote_context(uds_server_context *c, nfds_t i)
-{
-	opae_remote_context *remc =
-		opae_malloc(sizeof(opae_remote_context));
-
-	opae_init_remote_context(remc);
-
-	c->remote_context[i] = remc;
-
-	return 0;
-}
-
-int release_remote_context(uds_server_context *c, nfds_t i)
-{
-	opae_remote_context *remc =
-		(opae_remote_context *)c->remote_context[i];
-
-	opae_release_remote_context(remc);
-
-	opae_free(remc);
-
-	return 0;
 }
 
 int main(int argc, char *argv[])
@@ -81,7 +55,6 @@ int main(int argc, char *argv[])
 	UNUSED_PARAM(argc);
 	UNUSED_PARAM(argv);
 
-	uds_server_context serv;
 	struct sigaction sa;
 
 	memset(&sa, 0, sizeof(sa));
@@ -94,16 +67,16 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if (uds_server_init(&serv, SOCKET_NAME, &running))
+	if (opae_uds_server_init(&srv, "/tmp/opaeuds"))
 		return 2;
 
-	serv.handle_client_message = handle_client;
-	serv.init_remote_context = init_remote_context;
-	serv.release_remote_context = release_remote_context;
+	srv.psrv.handle_client_message = opae_poll_server_handle_client;
+	srv.psrv.init_remote_context = opae_poll_server_init_remote_context;
+	srv.psrv.release_remote_context = opae_poll_server_release_remote_context;
 
-	uds_server_poll_loop(&serv);
+	opae_poll_server_loop(&srv.psrv);
 
-	uds_server_release(&serv);
+	opae_uds_server_release(&srv);
 
 	return 0;
 }

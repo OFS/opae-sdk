@@ -42,7 +42,8 @@ if (OPAE_BUILD_REMOTE)
         uds-ifc.c
         inet-ifc.c
         rmt-ifc.c
-        rmt-cfg.c)
+        rmt-cfg.c
+        pollsrv.c)
 endif (OPAE_BUILD_REMOTE)
 
 opae_add_shared_library(TARGET opae-c

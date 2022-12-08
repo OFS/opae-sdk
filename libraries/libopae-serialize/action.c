@@ -32,9 +32,11 @@
 
 #include <opae/fpga.h>
 
-#include "action.h"
+#include "rmt-ifc.h"
 #include "props.h"
 #include "mock/opae_std.h"
+
+#include "action.h"
 
 typedef struct {
 	fpga_remote_id handle_id;
@@ -3425,4 +3427,76 @@ bool opae_remote_handle_client_request(opae_remote_context *c,
 	}
 
 	return client_handlers[header.request_id](c, req_json, resp_json);
+}
+
+/******************************************************************************/
+
+int opae_poll_server_handle_client(opae_poll_server *psrv,
+				   void *remote_ctx,
+				   int client_sock)
+{
+	char buf[OPAE_RECEIVE_BUF_MAX];
+	ssize_t n;
+	opae_remote_context *remc = (opae_remote_context *)remote_ctx;
+	char *response_json = NULL;
+	bool res;
+
+	n = chunked_recv(client_sock, buf, sizeof(buf), 0);
+	if (n == -2) {
+		OPAE_DBG("peer closed connection");
+		opae_poll_server_close_client(psrv, client_sock);
+		return 0;
+	} else if (n < 0) {
+		OPAE_ERR("recv() failed: %s", strerror(errno));
+		return (int)n;
+	}
+
+	res = opae_remote_handle_client_request(remc, buf, &response_json);
+	if (res && response_json) {
+		chunked_send(client_sock,
+			     response_json,
+			     strlen(response_json) + 1,
+			     0);
+		opae_free(response_json);
+		return 0;
+	}
+
+	if (response_json)
+		opae_free(response_json);
+
+	return 1;
+}
+
+int opae_poll_server_init_remote_context(opae_poll_server *psrv, nfds_t i)
+{
+	fpga_result res;
+	opae_remote_context *remc;
+
+	remc = opae_malloc(sizeof(opae_remote_context));
+	if (!remc) {
+		OPAE_ERR("malloc() failed");
+		return 1;
+	}
+
+	res = opae_init_remote_context(remc);
+	if (res) {
+		OPAE_ERR("failed to init remote context");
+		return 2;
+	}
+
+	psrv->remote_context[i] = remc;
+
+	return 0;
+}
+
+int opae_poll_server_release_remote_context(opae_poll_server *psrv, nfds_t i)
+{
+	opae_remote_context *remc =
+		(opae_remote_context *)psrv->remote_context[i];
+
+	opae_release_remote_context(remc);
+
+	opae_free(remc);
+
+	return 0;
 }

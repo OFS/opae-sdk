@@ -27,8 +27,6 @@
 opae_add_executable(TARGET inetserv
     SOURCE
         main.c
-        inetserv.c
-        handle_client.c
         ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         opae-serialize
