@@ -129,7 +129,7 @@ cp samples/hssi/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/hssi/
 cp binaries/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
-cp binaries/ofs.uio/ofs/uio/*.py %{buildroot}%{_usr}/src/opae/samples/ofs.uio/uio
+cp binaries/ofs.uio/uio/*.py %{buildroot}%{_usr}/src/opae/samples/ofs.uio/uio
 
 %if 0%{rhel} > 8
   %cmake_install
@@ -159,7 +159,7 @@ done
 for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hssimac,hssistats}.py; do
    chmod a+x $file
 done
-# opae.uio
+# ofs.uio
 for file in %{buildroot}%{python3_sitelib}/ofs.uio/uio/{ofs.uio}.py; do
    chmod a+x $file
 done

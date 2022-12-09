@@ -23,12 +23,12 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 setup(
     name='ofs.uio',
-    version="2.0",
-    packages=find_packages(include=['*']),
+    version="1.0",
+    packages=find_namespace_packages(include=['*']),
     entry_points={
         'console_scripts': [
             'ofs.uio = uio.ofs.uio:main',
