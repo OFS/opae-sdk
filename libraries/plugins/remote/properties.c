@@ -47,9 +47,8 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -69,29 +68,12 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 	req_json = opae_encode_fpgaGetPropertiesFromHandle_request_8(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
-
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
 	if (!opae_decode_fpgaGetPropertiesFromHandle_response_8(
-		recvbuf, &resp))
+		resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	if (resp.result == FPGA_OK)
@@ -133,9 +115,8 @@ remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	opae_fpgaUpdateProperties_response resp;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result result;
 	struct _fpga_properties *p;
 	int res;
 	pthread_mutex_t save_lock;
@@ -157,28 +138,11 @@ remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	req_json = opae_encode_fpgaUpdateProperties_request_4(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	result = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (result)
+		return result;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaUpdateProperties_response_4(recvbuf, &resp))
+	if (!opae_decode_fpgaUpdateProperties_response_4(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	if (resp.result == FPGA_OK) {

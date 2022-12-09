@@ -29,6 +29,8 @@
 
 #include <linux/un.h>
 
+#include "mock/opae_std.h"
+
 #include "pollsrv.h"
 
 void opae_poll_server_init(opae_poll_server *psrv, int server_socket)
@@ -87,10 +89,18 @@ int opae_uds_server_init(opae_uds_server *srv,
 	return 0;
 }
 
-void opae_uds_server_release(opae_uds_server *srv)
+void opae_uds_server_release(void *srv)
 {
-	opae_poll_server_release(&srv->psrv);
-	unlink(srv->socket_name);
+	opae_uds_server *p = (opae_uds_server *)srv;
+
+	opae_poll_server_release(&p->psrv);
+	unlink(p->socket_name);
+}
+
+void opae_uds_server_release_free(void *srv)
+{
+	opae_uds_server_release(srv);
+	opae_free(srv);
 }
 
 int opae_inet_server_init(opae_inet_server *srv,
@@ -144,9 +154,17 @@ int opae_inet_server_init(opae_inet_server *srv,
 	return 0;
 }
 
-void opae_inet_server_release(opae_inet_server *srv)
+void opae_inet_server_release(void *srv)
 {
-	opae_poll_server_release(&srv->psrv);
+	opae_inet_server *p = (opae_inet_server *)srv;
+
+	opae_poll_server_release(&p->psrv);
+}
+
+void opae_inet_server_release_free(void *srv)
+{
+	opae_inet_server_release(srv);
+	opae_free(srv);
 }
 
 int opae_poll_server_loop(opae_poll_server *psrv)

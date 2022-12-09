@@ -37,7 +37,7 @@
 #include "mock/opae_std.h"
 
 #ifdef OPAE_BUILD_REMOTE
-#include "uds-ifc.h"
+#include "comms.h"
 #endif // OPAE_BUILD_REMOTE
 
 
@@ -586,29 +586,33 @@ void opae_free_fpgad_config(fpgad_config_data *cfg)
 
 #ifdef OPAE_BUILD_REMOTE
 
-STATIC opae_remote_client_ifc default_remote_ifcs[] = {
+STATIC opae_comms_channel default_comms_channels[] = {
 	{
-		.open = NULL,
-		.close = NULL,
-		.release = NULL,
-		.send = NULL,
-		.receive = NULL,
-		.connection = NULL
+		false,
+		{
+			.open = NULL,
+			.close = NULL,
+			.release = NULL,
+			.send = NULL,
+			.receive = NULL,
+			.connection = NULL
+		},
+		NULL
 	}
 };
 
-opae_remote_client_ifc *
+opae_comms_channel *
 opae_parse_remote_json(const char *json_input);
 
-opae_remote_client_ifc *
+opae_comms_channel *
 opae_parse_remote_config(const char *json_input)
 {
-	opae_remote_client_ifc *r = NULL;
+	opae_comms_channel *c = NULL;
 
 	if (json_input)
-		r = opae_parse_remote_json(json_input);
+		c = opae_parse_remote_json(json_input);
 
-	return r ? r : default_remote_ifcs;
+	return c ? c : default_comms_channels;
 }
 
 #endif // OPAE_BUILD_REMOTE

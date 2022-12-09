@@ -27,6 +27,8 @@
 #define __OPAE_UDS_IFC_H__
 #include "rmt-ifc.h"
 
+#define OPAE_SOCKET_NAME_MAX 108
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

@@ -31,7 +31,9 @@
 #include <opae/log.h>
 #include <json-c/json.h>
 
-#include "rmt-ifc.h"
+#ifdef OPAE_BUILD_REMOTE
+#include "comms.h"
+#endif // OPAE_BUILD_REMOTE
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,7 +134,7 @@ void opae_free_fpgad_config(fpgad_config_data *cfg);
 
 #ifdef OPAE_BUILD_REMOTE
 
-opae_remote_client_ifc *
+opae_comms_channel *
 opae_parse_remote_config(const char *json_input);
 
 #endif // OPAE_BUILD_REMOTE

@@ -29,8 +29,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define OPAE_SOCKET_NAME_MAX 108
-
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

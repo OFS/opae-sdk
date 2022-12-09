@@ -54,8 +54,8 @@ int initialized;
 STATIC int finalizing;
 
 #ifdef OPAE_BUILD_REMOTE
-opae_remote_client_ifc *remote_interfaces;
-static pthread_mutex_t remote_interfaces_lock =
+opae_comms_channel *comms_channels;
+static pthread_mutex_t comms_channels_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif // OPAE_BUILD_REMOTE
 
@@ -566,9 +566,9 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	}
 
 #ifdef OPAE_BUILD_REMOTE
-	remote_interfaces = opae_parse_remote_config(raw_config);
+	comms_channels = opae_parse_remote_config(raw_config);
 
-	if (remote_interfaces && remote_interfaces[0].open) {
+	if (comms_channels && comms_channels[0].valid) {
 		errors += opae_plugin_mgr_register_plugin("libopae-r.so",
 							  NULL);
 	}
@@ -646,26 +646,26 @@ out_unlock:
 
 #ifdef OPAE_BUILD_REMOTE
 int opae_plugin_mgr_for_each_remote
-	(int (*callback)(opae_remote_client_ifc *, void *), void *context)
+	(int (*callback)(opae_comms_channel *, void *), void *context)
 {
 	int res;
 	int cb_res = 0;
-	opae_remote_client_ifc *iptr;
+	opae_comms_channel *cptr;
 
 	if (!callback) {
 		OPAE_ERR("NULL callback passed to %s()", __func__);
 		return 1;
 	}
 
-	opae_mutex_lock(res, &remote_interfaces_lock);
+	opae_mutex_lock(res, &comms_channels_lock);
 
-	for (iptr = remote_interfaces ; iptr->open ; ++iptr) {
-		cb_res = callback(iptr, context);
+	for (cptr = comms_channels ; cptr->valid ; ++cptr) {
+		cb_res = callback(cptr, context);
 		if (cb_res)
 			break;
 	}
 
-	opae_mutex_unlock(res, &remote_interfaces_lock);
+	opae_mutex_unlock(res, &comms_channels_lock);
 
 	return cb_res;
 }

@@ -48,9 +48,8 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -79,28 +78,11 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 	req_json = opae_encode_fpgaWriteMMIO32_request_12(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaWriteMMIO32_response_12(recvbuf, &resp))
+	if (!opae_decode_fpgaWriteMMIO32_response_12(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	return resp.result;
@@ -117,9 +99,8 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -152,28 +133,11 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 	req_json = opae_encode_fpgaReadMMIO32_request_11(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaReadMMIO32_response_11(recvbuf, &resp))
+	if (!opae_decode_fpgaReadMMIO32_response_11(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	if (resp.result == FPGA_OK)
@@ -193,9 +157,8 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -224,28 +187,11 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 	req_json = opae_encode_fpgaWriteMMIO64_request_14(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaWriteMMIO64_response_14(recvbuf, &resp))
+	if (!opae_decode_fpgaWriteMMIO64_response_14(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	return resp.result;
@@ -262,9 +208,8 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -297,28 +242,11 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 	req_json = opae_encode_fpgaReadMMIO64_request_13(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaReadMMIO64_response_13(recvbuf, &resp))
+	if (!opae_decode_fpgaReadMMIO64_response_13(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	if (resp.result == FPGA_OK)
@@ -338,9 +266,8 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -369,28 +296,11 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 	req_json = opae_encode_fpgaWriteMMIO512_request_15(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaWriteMMIO512_response_15(recvbuf, &resp))
+	if (!opae_decode_fpgaWriteMMIO512_response_15(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	return resp.result;
@@ -406,9 +316,8 @@ remote_fpgaMapMMIO(fpga_handle handle,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 	fpga_remote_id *mmio_id;
 
 	if (!handle) {
@@ -438,28 +347,11 @@ remote_fpgaMapMMIO(fpga_handle handle,
 	req_json = opae_encode_fpgaMapMMIO_request_9(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaMapMMIO_response_9(recvbuf, &resp))
+	if (!opae_decode_fpgaMapMMIO_response_9(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	if (resp.result == FPGA_OK) {
@@ -490,9 +382,8 @@ remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *resp_json = NULL;
+	fpga_result res;
 	fpga_remote_id *mmio_id;
 
 	if (!handle) {
@@ -523,28 +414,11 @@ remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 	req_json = opae_encode_fpgaUnmapMMIO_request_10(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	if (!opae_decode_fpgaUnmapMMIO_response_10(recvbuf, &resp))
+	if (!opae_decode_fpgaUnmapMMIO_response_10(resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	if (resp.result == FPGA_OK) {

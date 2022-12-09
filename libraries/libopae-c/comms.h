@@ -23,55 +23,25 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifndef __OPAE_COMMS_H__
+#define __OPAE_COMMS_H__
+#include "rmt-ifc.h"
+#include "uds-ifc.h"
+#include "inet-ifc.h"
+#include "pollsrv.h"
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+typedef struct _opae_comms_channel {
+	bool valid;
+	opae_remote_client_ifc client;
+	opae_poll_server *server;
+} opae_comms_channel;
 
-#include <opae/types.h>
-
-#include "remote.h"
-#include "request.h"
-#include "response.h"
-
-#include "mock/opae_std.h"
-
-fpga_result __REMOTE_API__ remote_fpgaClose(fpga_handle handle)
-{
-	opae_fpgaClose_request req;
-	opae_fpgaClose_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
-
-	if (!handle) {
-		OPAE_ERR("NULL handle");
-		return FPGA_INVALID_PARAM;
-	}
-
-	h = (struct _remote_handle *)handle;
-	tok = h->token;
-
-	req.handle_id = h->hdr.handle_id;
-
-	req_json = opae_encode_fpgaClose_request_6(
-		&req, tok->json_to_string_flags);
-
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
-
-	if (!opae_decode_fpgaClose_response_6(resp_json, &resp))
-		return FPGA_EXCEPTION;
-
-	if (resp.result == FPGA_OK)
-		opae_destroy_remote_handle(h);
-
-	return resp.result;
+#ifdef __cplusplus
 }
+#endif // __cplusplus
+
+#endif // __OPAE_COMMS_H__

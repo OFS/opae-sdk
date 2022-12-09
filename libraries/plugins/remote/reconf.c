@@ -63,9 +63,9 @@ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
 	struct _remote_handle *h;
 	struct _remote_token *tok;
 	char *req_json;
+	char *resp_json = NULL;
+	fpga_result res;
 	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
 	if (!fpga) {
 		OPAE_ERR("NULL handle");
@@ -91,29 +91,12 @@ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
 	req_json = opae_encode_fpgaReconfigureSlotByName_request_41(
 		&req, tok->json_to_string_flags);
 
-	if (!req_json)
-		return FPGA_NO_MEMORY;
-
-	len = strlen(req_json);
-
-	slen = tok->ifc->send(tok->ifc->connection,
-			      req_json,
-			      len + 1);
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->ifc->receive(tok->ifc->connection,
-				 recvbuf,
-				 sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
 	if (!opae_decode_fpgaReconfigureSlotByName_response_41(
-		recvbuf, &resp))
+		resp_json, &resp))
 		return FPGA_EXCEPTION;
 
 	return resp.result;

@@ -61,6 +61,7 @@ typedef struct _opae_poll_server {
 				     int);
 	int (*init_remote_context)(struct _opae_poll_server *, nfds_t);
 	int (*release_remote_context)(struct _opae_poll_server *, nfds_t);
+	void (*release_server)(void *);
 } opae_poll_server;
 
 void opae_poll_server_init(opae_poll_server *psrv, int server_socket);
@@ -81,7 +82,8 @@ typedef struct _opae_uds_server {
 int opae_uds_server_init(opae_uds_server *srv,
 			 const char *socket_name);
 
-void opae_uds_server_release(opae_uds_server *srv);
+void opae_uds_server_release(void *srv);
+void opae_uds_server_release_free(void *srv);
 
 
 typedef struct _opae_inet_server {
@@ -94,6 +96,7 @@ int opae_inet_server_init(opae_inet_server *srv,
 			  const char *ip_addr,
 			  in_port_t port);
 
-void opae_inet_server_release(opae_inet_server *srv);
+void opae_inet_server_release(void *srv);
+void opae_inet_server_release_free(void *srv);
 
 #endif // __OPAE_POLLSRV_H__

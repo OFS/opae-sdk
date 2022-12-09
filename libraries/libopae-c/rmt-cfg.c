@@ -33,45 +33,92 @@
 #include "mock/opae_std.h"
 #include "cfg-file.h"
 
-#include "uds-ifc.h"
-#include "inet-ifc.h"
+#include "comms.h"
 
 STATIC int parse_remote_unix_domain_socket(json_object *j_remote_i,
-					   opae_remote_client_ifc *i)
+					   opae_comms_channel *comms)
 {
+	opae_uds_server *server;
 	char *socket = NULL;
+	char *events_socket = NULL;
+	int res;
 
 	if (!parse_json_string(j_remote_i, "socket", &socket)) {
 		OPAE_ERR("UNIX_DOMAIN_SOCKET remote missing \"socket\" key");
 		return 1;
 	}
 
-	return opae_uds_ifc_init(i, socket, 0, 0);
+	if (!parse_json_string(j_remote_i, "events_socket", &events_socket)) {
+		OPAE_ERR("UNIX_DOMAIN_SOCKET remote missing "
+			 "\"events_socket\" key");
+		return 2;
+	}
+
+	res = opae_uds_ifc_init(&comms->client, socket, 0, 0);
+	if (res)
+		return res;
+
+	server = opae_malloc(sizeof(opae_uds_server));
+	if (!server) {
+		OPAE_ERR("malloc() failed");
+		return 3;
+	}
+
+	if (opae_uds_server_init(server, events_socket))
+		return 4;
+
+	server->psrv.release_server = opae_uds_server_release_free;
+
+	comms->server = (opae_poll_server *)server;
+	comms->valid = true;
+
+	return 0;
 }
 
-STATIC int parse_remote_ipv4_socket(json_object *j_remote_i,
-				    opae_remote_client_ifc *i)
+STATIC int parse_remote_inet_socket(json_object *j_remote_i,
+				    opae_comms_channel *comms)
 {
-	char *server = NULL;
+	opae_inet_server *server;
+	char *ip_or_host = NULL;
 	int port = 0;
+	int res;
 
-	if (!parse_json_string(j_remote_i, "server", &server)) {
-		OPAE_ERR("IPv4_SOCK_STREAM remote missing \"server\" key");
+	if (!parse_json_string(j_remote_i, "server", &ip_or_host)) {
+		OPAE_ERR("INET_SOCK_STREAM remote missing \"server\" key");
 		return 1;
 	}
 
 	if (!parse_json_int(j_remote_i, "port", &port)) {
-		OPAE_ERR("IPv4_SOCK_STREAM remote missing \"port\" key");
+		OPAE_ERR("INET_SOCK_STREAM remote missing \"port\" key");
 		return 2;
 	}
 
-	return opae_inet_ifc_init(i, server, port, 0, 0);
+	res = opae_inet_ifc_init(&comms->client, ip_or_host, port, 0, 0);
+	if (res)
+		return res;
+
+	server = opae_malloc(sizeof(opae_inet_server));
+	if (!server) {
+		OPAE_ERR("malloc() failed");
+		return 3;
+	}
+
+
+//TODO	if (opae_inet_server_init(server,
+
+
+	server->psrv.release_server = opae_inet_server_release_free;
+
+	comms->server = (opae_poll_server *)server;
+	comms->valid = true;
+
+	return 0;
 }
 
-opae_remote_client_ifc *
+opae_comms_channel *
 opae_parse_remote_json(const char *json_input)
 {
-	opae_remote_client_ifc *ifcs = NULL;
+	opae_comms_channel *comms = NULL;
 
 	enum json_tokener_error j_err = json_tokener_success;
 	json_object *root = NULL;
@@ -92,8 +139,8 @@ opae_parse_remote_json(const char *json_input)
 	if (!j_remotes)
 		goto out_free;
 
-	ifcs = opae_calloc(num_remotes + 1, sizeof(*ifcs));
-	if (!ifcs) {
+	comms = opae_calloc(num_remotes + 1, sizeof(*comms));
+	if (!comms) {
 		OPAE_ERR("calloc() failed");
 		goto out_free;
 	}
@@ -118,11 +165,11 @@ opae_parse_remote_json(const char *json_input)
 		}
 
 		if (!strcmp(interface, "UNIX_DOMAIN_SOCKET")) {
-			if (parse_remote_unix_domain_socket(j_remote_i, &ifcs[j]))
+			if (parse_remote_unix_domain_socket(j_remote_i, &comms[j]))
 				goto out_parse_failed;
 			++j;
-		} else if (!strcmp(interface, "IPv4_SOCK_STREAM")) {
-			if (parse_remote_ipv4_socket(j_remote_i, &ifcs[j]))
+		} else if (!strcmp(interface, "INET_SOCK_STREAM")) {
+			if (parse_remote_inet_socket(j_remote_i, &comms[j]))
 				goto out_parse_failed;
 			++j;
 		} else {
@@ -135,10 +182,10 @@ opae_parse_remote_json(const char *json_input)
 	goto out_free;
 
 out_parse_failed:
-	opae_free(ifcs);
-	ifcs = NULL;
+	opae_free(comms);
+	comms = NULL;
 out_free:
 	if (root)
 		json_object_put(root);
-	return ifcs;
+	return comms;
 }

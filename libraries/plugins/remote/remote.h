@@ -26,7 +26,7 @@
 #ifndef __OPAE_REMOTE_PLUGIN_H__
 #define __OPAE_REMOTE_PLUGIN_H__
 #include <opae/types.h>
-#include "rmt-ifc.h"
+#include "comms.h"
 
 #ifndef UNUSED_PARAM
 #define UNUSED_PARAM(x) ((void)x)
@@ -165,13 +165,13 @@ fpga_result remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 
 struct _remote_token {
 	fpga_token_header hdr; //< Must appear at offset 0!
-	opae_remote_client_ifc *ifc;
+	opae_comms_channel *comms;
 	int json_to_string_flags;
 };
 
 struct _remote_token *
 opae_create_remote_token(fpga_token_header *hdr,
-			 opae_remote_client_ifc *ifc,
+			 opae_comms_channel *comms,
 			 int json_to_string_flags);
 
 void opae_destroy_remote_token(struct _remote_token *t);
@@ -211,6 +211,10 @@ opae_create_remote_event_handle(void);
 
 void opae_destroy_remote_event_handle(struct _remote_event_handle *eh);
 
+fpga_result
+opae_client_send_and_receive(struct _remote_token *tok,
+			     char *req_json,
+			     char **resp_json);
 
 #ifdef __cplusplus
 }
