@@ -307,28 +307,22 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 				goto out_glob_free;
 			}
 
-			if (snprintf(u->device_path, sizeof(u->device_path),
-				"/dev/%s", ptr) < 0) {
-				ERR("snprintf() failed\n");
-				res = 5;
-				goto out_glob_free;
-			}
-
 			break;
 		}
 
 		if (!glob_fmts[i]) {
 			ERR("failed to find UIO device for %s\n", dfl_device);
-			res = 6;
+			res = 5;
 			goto out_glob_free;
 		}
 
-	} else {
-		if (snprintf(u->device_path, sizeof(u->device_path),
-			"/dev/%s", ptr) < 0) {
-			ERR("snprintf() failed\n");
-			res = 7;
-		}
+	}
+
+	if (snprintf(u->device_path, sizeof(u->device_path),
+		"/dev/%s", ptr) < 0) {
+		ERR("snprintf() failed\n");
+		res = 6;
+		goto out_glob_free;
 	}
 
 	u->device_fd = opae_open(u->device_path, O_RDWR);
