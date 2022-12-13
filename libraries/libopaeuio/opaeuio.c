@@ -265,7 +265,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 	memset(&globbuf, 0, sizeof(globbuf));
 
-	// Check for uio sting in dfl_device
+	// Check for uio string in dfl_device
 	ptr = strstr(dfl_device, "uio");
 	if (ptr != dfl_device) {
 
@@ -354,7 +354,6 @@ out_destroy:
 	opae_uio_destroy(u);
 out_glob_free:
 	opae_globfree(&globbuf);
-
 	return res;
 }
 
