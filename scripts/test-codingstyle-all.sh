@@ -67,9 +67,9 @@ check_cpp () {
 
     FILES=$(find_cpp)
     echo "Checking $FILES"
-    clang-format -i -style=Google ${FILES}
+    clang-format --dry-run -Werror -style=Google ${FILES}
 
-    if [ x"$(git diff -- ${FILES})" != x ]; then
+    if [ $? -ne 0 ]; then
         echo "Coding style check failed. Please fix them based on the following suggestions. You can run clang-format on these files in order to automatically format your code." 
         git --no-pager diff
         echo "The files that need to be fixed are:"
