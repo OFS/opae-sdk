@@ -34,7 +34,7 @@ setup(
             'ofs.uio = uio.ofs.uio:main',
         ]
     },
-    description="ofs uio tool to peek/pork and mailbox read/write csr",
+    description="ofs uio tool to peek/poke and mailbox read/write csr",
     license="BSD3",
     keywords="ofs uio tools ",
     url="https://01.org/OPAE",
