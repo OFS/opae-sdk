@@ -48,7 +48,6 @@ mark_as_advanced(OPAE_BUILD_OPAEIO)
 
 opae_add_subdirectory(hssi)
 
-
 if(OPAE_BUILD_EXTRA_TOOLS)
   if(OPAE_BUILD_USERCLK)
     opae_add_subdirectory(userclk)
