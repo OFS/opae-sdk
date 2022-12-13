@@ -267,7 +267,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 	// Check for uio sting in dfl_device
 	ptr = strstr(dfl_device, "uio");
-	if (ptr == NULL) {
+	if (ptr != dfl_device) {
 
 		// Use glob to discover the uio device name.
 		for (i = 0; glob_fmts[i]; ++i) {
@@ -353,9 +353,8 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 out_destroy:
 	opae_uio_destroy(u);
 out_glob_free:
-	if (glob_res || !globbuf.gl_pathc) {
-		opae_globfree(&globbuf);
-	}
+	opae_globfree(&globbuf);
+
 	return res;
 }
 
