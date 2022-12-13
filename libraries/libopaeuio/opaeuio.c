@@ -251,6 +251,8 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 	int res = 0;
 	size_t len;
 	char *p = NULL;
+	char *ptr = NULL;
+	int glob_res = 0;
 	const char *glob_fmts[] = {
 		"/sys/bus/dfl/devices/%s/uio/uio*",
 		"/sys/bus/dfl/devices/%s/uio_pdrv_genirq.*.auto/uio/uio*",
@@ -263,71 +265,84 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 	memset(&globbuf, 0, sizeof(globbuf));
 
-	// Use glob to discover the uio device name.
-	for (i = 0 ; glob_fmts[i] ; ++i) {
-		int glob_res;
+	// Check for uio string in dfl_device
+	ptr = strstr(dfl_device, "uio");
+	if (ptr != dfl_device) {
 
-		if (snprintf(path_expr, sizeof(path_expr),
-			     glob_fmts[i], dfl_device) < 0) {
-			ERR("snprintf() failed\n");
-			return 1;
+		// Use glob to discover the uio device name.
+		for (i = 0; glob_fmts[i]; ++i) {
+			glob_res = 0;
+
+			if (snprintf(path_expr, sizeof(path_expr),
+				glob_fmts[i], dfl_device) < 0) {
+				ERR("snprintf() failed\n");
+				return 1;
+			}
+
+			glob_res = opae_glob(path_expr, GLOB_NOSORT, NULL, &globbuf);
+			if (glob_res || !globbuf.gl_pathc) {
+				opae_globfree(&globbuf);
+				continue;
+			}
+
+			if (globbuf.gl_pathc > 1) {
+				ERR("Found more than one possible UIO device!\n");
+				res = 2;
+				goto out_glob_free;
+			}
+
+			len = strlen(globbuf.gl_pathv[0]);
+			if (len >= OPAE_UIO_PATH_MAX) {
+				ERR("len: %lu is too large. Increase the size of "
+					"OPAE_UIO_PATH_MAX\n", len);
+				res = 3;
+				goto out_glob_free;
+			}
+
+			p = strrchr(globbuf.gl_pathv[0], '/');
+			ptr = p + 1;
+			if (!p) {
+				ERR("bad glob path: \"%s\"\n", globbuf.gl_pathv[0]);
+				res = 4;
+				goto out_glob_free;
+			}
+
+			if (snprintf(u->device_path, sizeof(u->device_path),
+				"/dev/%s", ptr) < 0) {
+				ERR("snprintf() failed\n");
+				res = 5;
+				goto out_glob_free;
+			}
+
+			break;
 		}
 
-		glob_res = opae_glob(path_expr, GLOB_NOSORT, NULL, &globbuf);
-		if (glob_res || !globbuf.gl_pathc) {
-			opae_globfree(&globbuf);
-			continue;
-		}
-
-		if (globbuf.gl_pathc > 1) {
-			ERR("Found more than one possible UIO device!\n");
-			res = 2;
+		if (!glob_fmts[i]) {
+			ERR("failed to find UIO device for %s\n", dfl_device);
+			res = 6;
 			goto out_glob_free;
 		}
 
-		len = strlen(globbuf.gl_pathv[0]);
-		if (len >= OPAE_UIO_PATH_MAX) {
-			ERR("len: %lu is too large. Increase the size of "
-			    "OPAE_UIO_PATH_MAX\n", len);
-			res = 3;
-			goto out_glob_free;
-		}
-
-		p = strrchr(globbuf.gl_pathv[0], '/');
-		if (!p) {
-			ERR("bad glob path: \"%s\"\n", globbuf.gl_pathv[0]);
-			res = 4;
-			goto out_glob_free;
-		}
-
+	} else {
 		if (snprintf(u->device_path, sizeof(u->device_path),
-			     "/dev/%s", p + 1) < 0) {
+			"/dev/%s", ptr) < 0) {
 			ERR("snprintf() failed\n");
-			res = 5;
-			goto out_glob_free;
+			res = 7;
 		}
-
-		break;
-	}
-
-	if (!glob_fmts[i]) {
-		ERR("failed to find UIO device for %s\n", dfl_device);
-		res = 6;
-		goto out_glob_free;
 	}
 
 	u->device_fd = opae_open(u->device_path, O_RDWR);
 	if (u->device_fd < 0) {
 		ERR("failed to open(\"%s\")\n", u->device_path);
-		res = 7;
+		res = 8;
 		goto out_destroy;
 	}
 
 	// Walk /sys/class/uio/uioX/maps to discover the regions.
 	if (snprintf(path_expr, sizeof(path_expr),
-		     "/sys/class/uio/%s/maps", p + 1) < 0) {
+		     "/sys/class/uio/%s/maps", ptr) < 0) {
 		ERR("snprintf() failed\n");
-		res = 8;
+		res = 9;
 		goto out_destroy;
 	}
 
