@@ -35,6 +35,7 @@ import mmap
 import binascii
 import struct
 from ctypes import c_uint64, Structure, Union, c_uint32
+from pyopaeuio import pyopaeuio
 
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE-1
@@ -69,33 +70,34 @@ def verify_pcie_address(pcie_address):
     return True
 
 
-class verify_hex_list(argparse.Action):
+class verify_input_hex(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        regx = re.compile("0[xX][0-9a-fA-F]")
-        for value in values:
+        regx = re.compile("0[xX][0-9a-fA-F]+")
+        # hex single value
+        if isinstance(values, str):
             try:
-                if re.search(regx, value) or int(value, 16):
-                    continue
-                else:
-                    parser.error(f"Please enter a valid. Got: {values}")
+                if re.fullmatch(regx, values) is None:
+                    parser.error(f"Invalid input: {values}")
+                setattr(namespace, self.dest, int(values, 16))
             except ValueError:
-                parser.error(f"Please enter a valid. Got: {values}")
-        setattr(namespace, self.dest, values)
+                parser.error(f"Invalid input: {values}")
+        # input hex list
+        elif isinstance(values, list):
+            for value in values:
+                try:
+                    if re.fullmatch(regx, value) is None:
+                        parser.error(f"Invalid input: {values}")
+                except ValueError:
+                    parser.error(f"Invalid input: {values}")
+            setattr(namespace, self.dest, values)
 
-
-def verify_hex(str):
-    regx = re.compile("0[xX][0-9a-fA-F]")
-    try:
-        if re.search(regx, str) or int(str, 16):
-            return int(str, 16)
         else:
-            raise argparse.ArgumentTypeError('Invalid input:', str)
-    except ValueError:
-        raise argparse.ArgumentTypeError('Invalid input:', str)
+            parser.error(f"Invalid input: {values}")
+            setattr(namespace, self.dest, values)
 
 
 def verify_uio(str):
-    regx = re.compile("uio[0-9]")
+    regx = re.compile("uio[0-9]+")
     try:
         if re.search(regx, str) is not None:
             return str
@@ -142,7 +144,7 @@ class FpgaFinder(object):
 
     def enum(self):
         if not self.all_devs:
-            print('No FPGA device find at {}'.format(FPGA_ROOT_PATH))
+            print('No FPGA device found at {}'.format(FPGA_ROOT_PATH))
         for dev in self.all_devs:
             self.match_dev.append(dev)
         return self.match_dev
@@ -170,8 +172,6 @@ class FpgaFinder(object):
                 continue
 
             uio_path = glob.glob(os.path.join(path, "uio/uio*"))
-            # print(uio_path)
-            # print(uio_path[0].rsplit('/', 1)[1])
             if len(uio_path) == 0:
                 continue
             m = re.search('dfl_dev(.*)', path)
@@ -182,7 +182,7 @@ class FpgaFinder(object):
 
 class mailbox_cmd_sts_bits(Structure):
     """
-    Mainbox Command/Status CSR bits
+    Mailbox Command/Status CSR bits
     """
     _fields_ = [
                    ("read_cmd", c_uint64, 1),
@@ -236,7 +236,7 @@ class mailbox_cmd_sts(Union):
 
 class mailbox_data_bits(Structure):
     """
-    Mainbox read/write CSR bits
+    Mailbox read/write CSR bits
     """
     _fields_ = [
                    ("read_data", c_uint64, 32),
@@ -276,9 +276,7 @@ class UIO(object):
     """
     def __init__(self, uio, bit_size, region_index, mailbox_cmdcsr):
         self.uio = uio
-        self.dev_uio = "/dev/" + uio
-        self.file_uio = None
-        self.mm = None
+        self.pyopaeuio_inst = pyopaeuio()
         self.num_regions = 0
         self.region = []
         self.bit_size = bit_size
@@ -289,7 +287,6 @@ class UIO(object):
 
     def verify_uio(self):
         uio_path = os.path.join("/sys/class/uio/", self.uio)
-        # print("uio_path:",uio_path)
         if os.path.exists(uio_path):
             with open(os.path.join(uio_path, 'name'), 'r') as fd:
                 print("UIO Name:", fd.read().strip())
@@ -300,7 +297,6 @@ class UIO(object):
         uio_maps = glob.glob(os.path.join("/sys/class/uio/",
                                           self.uio,
                                           "maps/map*"))
-        # print("uio_maps:",uio_maps)
         self.num_regions = len(uio_maps)
         if self.num_regions == 0:
             print("Invalid memory regions", self.num_regions)
@@ -326,78 +322,65 @@ class UIO(object):
         return True
 
     def open(self):
-        try:
-            mapsize = self.region[self.region_index]['size']
-            reg_offset = self.region[self.region_index]['offset']
-            self.file_uio = open(self.dev_uio, "r+b", 0)
-            self.mm = mmap.mmap(self.file_uio.fileno(), mapsize, mmap.MAP_SHARED,
-                                mmap.PROT_READ | mmap.PROT_WRITE, 0,
-                                offset=reg_offset * MAPSIZE)
-        except Exception as e:
-            print(e)
-            raise Exception("Failed to open/mmap", self.dev_uio)
-        return 0
+        ret = self.pyopaeuio_inst.open(self.uio)
+        return ret
 
     def close(self):
-        self.mm.close()
-        self.file_uio.close()
-        return True
+        ret = self.pyopaeuio_inst.close()
+        return ret
 
     def read8(self, region_index, offset):
+
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data_be = self.mm[offset:offset+1]
-        value = binascii.hexlify(data_be[::-1])
-        return int(value, 16)
+        value = self.pyopaeuio_inst.read8(region_index, offset)
+        return value
 
     def read16(self, region_index, offset):
+
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data_be = self.mm[offset:offset+2]
-        value = binascii.hexlify(data_be[::-1])
-        return int(value, 16)
+        value = self.pyopaeuio_inst.read16(region_index, offset)
+        return value
 
     def read32(self, region_index, offset):
+
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data_be = self.mm[offset:offset+4]
-        value = binascii.hexlify(data_be[::-1])
-        return int(value, 16)
+        value = self.pyopaeuio_inst.read32(region_index, offset)
+        return value
 
     def read64(self, region_index, offset):
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data_be = self.mm[offset:offset+8]
-        value = binascii.hexlify(data_be[::-1])
-        return int(value, 16)
+        value = self.pyopaeuio_inst.read64(region_index, offset)
+        return value
 
     def write8(self, region_index, offset, value):
+
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data = struct.pack("<Q", value)
-        self.mm[offset:offset+4] = data[0:1]
-        return 0
+        ret = self.pyopaeuio_inst.write8(region_index, offset, value)
+        return ret
 
     def write16(self, region_index, offset, value):
+
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data = struct.pack("<Q", value)
-        self.mm[offset:offset+4] = data[0:2]
-        return 0
+        ret = self.pyopaeuio_inst.write16(region_index, offset, value)
+        return ret
 
     def write32(self, region_index, offset, value):
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data = struct.pack("<Q", value)
-        self.mm[offset:offset+4] = data[0:4]
-        return 0
+        ret = self.pyopaeuio_inst.write32(region_index, offset, value)
+        return ret
 
     def write64(self, region_index, offset, value):
         if offset >= self.region[region_index]['size']:
             raise Exception("Invalid Input offset", hex(offset))
-        data = struct.pack("<Q", value)
-        self.mm[offset:offset+8] = data[0:8]
-        return 0
+        ret = self.pyopaeuio_inst.write64(region_index, offset, value)
+        return ret
 
     def register_field_set(self, reg_data, idx, width, value):
         mask = 0
@@ -440,21 +423,21 @@ class UIO(object):
     def mailbox_read(self, region_index, address):
         """
         clear cmd sts csr
-        Set read bit and wirte cmd address
+        Set read bit and write cmd address
         poll ack bits
         read data
         clear cmd sts csr
         """
+
         # clear cmd sts csr
         self.write64(region_index, MAILBOX_CMD_CSR, 0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
 
-        # Set read bit and wirte cmd address
+        # Set read bit and write cmd address
         mbox_cmd_sts = mailbox_cmd_sts(0x1)
         mbox_cmd_sts.cmd_addr = address
-        # print("mbox_cmd_sts.cmd_addr:",hex(mbox_cmd_sts.cmd_addr))
         self.write64(region_index, MAILBOX_CMD_CSR, mbox_cmd_sts.value)
-        # print("mbox_cmd_sts.value:",hex(mbox_cmd_sts.value))
+
         # Poll for ACK_TRANS bit index 2, wdith 2
         if not self.read_poll_timeout(region_index,
                                       MAILBOX_CMD_CSR,
@@ -462,7 +445,6 @@ class UIO(object):
             print("MailBox cmd sts fails to update ACK")
             return False, -1
 
-        # print("MAILBOX_CMD_CSR:",hex(self.read64(region_index, MAILBOX_CMD_CSR)))
         # Read data
         value = self.read32(region_index, MAILBOX_RD_DATA_CSR)
         # clear cmd sts csr
@@ -473,7 +455,7 @@ class UIO(object):
     def mailbox_write(self, region_index, address, value):
         """
         clear cmd sts csr
-        Set write bit and wirte cmd address
+        Set write bit and write cmd address
         poll ack bits
         write data
         clear cmd sts csr
@@ -483,7 +465,7 @@ class UIO(object):
         self.write64(region_index, MAILBOX_CMD_CSR, 0x0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
 
-        # Set write bit and wirte cmd address
+        # Set write bit and write cmd address
         mbox_cmd_sts = mailbox_cmd_sts(0x2)
         mbox_cmd_sts.cmd_addr = address
         self.write64(region_index, MAILBOX_CMD_CSR, mbox_cmd_sts.value)
@@ -497,7 +479,7 @@ class UIO(object):
                                       2):
             print("MailBox cmd sts fails to update ACK")
             return False
-        # print("MAILBOX_CMD_CSR:",hex(self.read64(region_index, MAILBOX_CMD_CSR)))
+
         # clear cmd sts csr
         self.write64(region_index, MAILBOX_CMD_CSR, 0x0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
@@ -548,7 +530,7 @@ def parse_args():
 
     feature_id_help = 'DFL UIO Feature id\
                        (e.g.--feature-id 0x20 --peek 0x8 )'
-    parser.add_argument('--feature-id', '-f', type=verify_hex,
+    parser.add_argument('--feature-id', '-f', action=verify_input_hex,
                         default=PCIESS_FEATURE_ID,
                         help=feature_id_help)
 
@@ -561,7 +543,7 @@ def parse_args():
     mailbox_cmd_csr_help = 'Mailbox command CSR offset \
                             (e.g.--mailbox-cmdcsr 0x40 --mailbox-read 0x8 ).\
                             (e.g.--mailbox-cmdcsr 0x40 --mailbox-write 0x8 0x123)'
-    parser.add_argument('--mailbox-cmdcsr', type=verify_hex,
+    parser.add_argument('--mailbox-cmdcsr', action=verify_input_hex,
                         default=MAILBOX_CMD_CSR, metavar='offset',
                         help=mailbox_cmd_csr_help)
 
@@ -574,32 +556,32 @@ def parse_args():
 
     poke_help = 'Peek CSR offset \
                  (e.g.--peek 0x8).'
-    parser.add_argument('--peek', type=verify_hex,
+    parser.add_argument('--peek', action=verify_input_hex,
                         default=None, metavar='offset',
                         help=poke_help)
 
     peek_help = 'Poke CSR offset value \
                  (e.g.--poke 0x8 0xabcd).'
-    parser.add_argument('--poke', action=verify_hex_list,
-                        default=None, nargs=2,
+    parser.add_argument('--poke', action=verify_input_hex,
+                        default=None, nargs=2, metavar=('offset', 'value'),
                         help=peek_help)
 
     mailbox_read_help = 'Read Mailbox CSR address \
                         (e.g.--mailbox-read 0x8).'
-    parser.add_argument('--mailbox-read', type=verify_hex,
+    parser.add_argument('--mailbox-read', action=verify_input_hex,
                         default=None, metavar='offset',
                         help=mailbox_read_help)
 
     mailbox_dump_help = 'Reads Mailbox CSR start address size \
                         (e.g.--mailbox-dump 0x0 0x20).'
-    parser.add_argument('--mailbox-dump', action=verify_hex_list,
-                        default=None, nargs=2,
+    parser.add_argument('--mailbox-dump', action=verify_input_hex,
+                        default=None, nargs=2, metavar=('address', 'size'),
                         help=mailbox_dump_help)
 
     mailbox_write_help = 'Write Mailbox CSR address Value \
                         (e.g.--mailbox-write 0x8 0x1234).'
-    parser.add_argument('--mailbox-write', action=verify_hex_list,
-                        default=None, nargs=2,
+    parser.add_argument('--mailbox-write', action=verify_input_hex,
+                        default=None, nargs=2, metavar=('address', 'value'),
                         help=mailbox_write_help)
 
     return parser, parser.parse_args()
@@ -616,7 +598,7 @@ def main():
     print('args:', args)
     if all(arg is None for arg in [args.peek, args.poke, args.mailbox_read,
                                    args.mailbox_write, args.mailbox_dump]):
-        print('Error: please pass arguemnts\n')
+        print('Error: please pass the proper arguments\n\n')
         parser.print_help(sys.stderr)
         sys.exit(1)
 
@@ -639,16 +621,14 @@ def main():
     if args.uio is None:
         for d in devs:
             print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
-            # print('FPGA dev:', d)
             args.uio_grps += f.find_uio_feature(d['pcie_address'], args.feature_id)
-        # print("args.uio_grps{}:".format(args.uio_grps))
         if len(args.uio_grps) == 0:
             print("Failed to find HSSI feature")
             sys.exit(1)
         if len(args.uio_grps) > 1:
             print('{} FPGAs UIO feature matchs are found: {}'
                   .format(len(args.uio_grps), [d[0] for d in args.uio_grps]))
-            #sys.exit(1)
+            sys.exit(1)
 
     try:
         # open uio
@@ -664,36 +644,31 @@ def main():
             sys.exit(1)
         print("*****************************\n")
         uio.open()
-
         # peek/read csr
         if args.peek is not None:
-            value = uio.peek(0, args.bit_size, args.peek)
+            value = uio.peek(args.region_index, args.bit_size, args.peek)
             print('peek({}): {}'.format(hex(args.peek), hex(value)))
 
         # mailbox read
-        if args.mailbox_read is not None:
-            status, value = uio.mailbox_read(0, args.mailbox_read)
+        elif args.mailbox_read is not None:
+            status, value = uio.mailbox_read(args.region_index, args.mailbox_read)
             if not status:
                 print('Failed to Read Mailbox CSR address {}'
-                      .format(args.mailbox_read))
+                      .format(hex(args.mailbox_read)))
             else:
                 print('MailboxRead({}): {}'
                       .format(hex(args.mailbox_read), hex(value)))
 
         # poke/write csr
-        if args.poke is not None:
-            for value in args.poke:
-                verify_hex(value)
-            uio.poke(0, args.bit_size, int(args.poke[0], 16),
+        elif args.poke is not None:
+            uio.poke(args.region_index, args.bit_size, int(args.poke[0], 16),
                      int(args.poke[1], 16))
             value = uio.read64(0, int(args.poke[0], 16))
             print('poke({}):{}'.format(args.poke[0], hex(value)))
 
         # mailbox write
-        if args.mailbox_write is not None:
-            for value in args.mailbox_write:
-                verify_hex(value)
-            if not uio.mailbox_write(0, int(args.mailbox_write[0], 16),
+        elif args.mailbox_write is not None:
+            if not uio.mailbox_write(args.region_index, int(args.mailbox_write[0], 16),
                                      int(args.mailbox_write[1], 16)):
                 print('Failed to write Mailbox CSR address {}'
                       .format(int(args.mailbox_write[0], 16)))
@@ -704,12 +679,10 @@ def main():
                       .format(int(args.mailbox_write[0], 16), hex(value)))
 
         # mailbox dump
-        if args.mailbox_dump is not None:
-            for value in args.mailbox_dump:
-                verify_hex(value)
+        elif args.mailbox_dump is not None:
             for i in range(int(args.mailbox_dump[1], 16)):
                 addr = int(args.mailbox_dump[0], 16) + i * 0x4
-                status, value = uio.mailbox_read(0, addr)
+                status, value = uio.mailbox_read(args.region_index, addr)
                 if not status:
                     print('Failed to Dump Mailbox CSR address {}'
                           .format(addr))
