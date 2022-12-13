@@ -82,27 +82,26 @@ uint8_t *pyopae_uio::get_region(uint32_t region_index, uint32_t offset) {
 
 // read 8 bit value
 uint8_t pyopae_uio::read8(uint32_t region_index, uint32_t offset) {
-    uint8_t value = 0;
-    uint8_t* ptr = get_region(region_index, offset);
-    if (!ptr) {
-        throw std::invalid_argument("Failed to get uio region");
-    }
+  uint8_t value = 0;
+  uint8_t *ptr = get_region(region_index, offset);
+  if (!ptr) {
+    throw std::invalid_argument("Failed to get uio region");
+  }
 
-    value = *reinterpret_cast<uint8_t*>(ptr);
-    return value;
+  value = *reinterpret_cast<uint8_t *>(ptr);
+  return value;
 }
-
 
 // read 16 bit value
 uint16_t pyopae_uio::read16(uint32_t region_index, uint32_t offset) {
-    uint16_t value = 0;
-    uint8_t* ptr = get_region(region_index, offset);
-    if (!ptr) {
-        throw std::invalid_argument("Failed to get uio region");
-    }
+  uint16_t value = 0;
+  uint8_t *ptr = get_region(region_index, offset);
+  if (!ptr) {
+    throw std::invalid_argument("Failed to get uio region");
+  }
 
-    value = *reinterpret_cast<uint16_t*>(ptr);
-    return value;
+  value = *reinterpret_cast<uint16_t *>(ptr);
+  return value;
 }
 
 // read 32 bit value
@@ -129,29 +128,28 @@ uint64_t pyopae_uio::read64(uint32_t region_index, uint32_t offset) {
   return value;
 }
 
-
 // write 8 bit value
 uint64_t pyopae_uio::write8(uint32_t region_index, uint32_t offset,
-    uint8_t value) {
-    uint8_t* ptr = get_region(region_index, offset);
-    if (!ptr) {
-        throw std::invalid_argument("Failed to get uio region");
-    }
+                            uint8_t value) {
+  uint8_t *ptr = get_region(region_index, offset);
+  if (!ptr) {
+    throw std::invalid_argument("Failed to get uio region");
+  }
 
-    *reinterpret_cast<uint8_t*>(ptr) = value;
-    return 0;
+  *reinterpret_cast<uint8_t *>(ptr) = value;
+  return 0;
 }
 
 // write 16 bit value
 uint64_t pyopae_uio::write16(uint32_t region_index, uint32_t offset,
-    uint16_t value) {
-    uint8_t* ptr = get_region(region_index, offset);
-    if (!ptr) {
-        throw std::invalid_argument("Failed to get uio region");
-    }
+                             uint16_t value) {
+  uint8_t *ptr = get_region(region_index, offset);
+  if (!ptr) {
+    throw std::invalid_argument("Failed to get uio region");
+  }
 
-    *reinterpret_cast<uint16_t*>(ptr) = value;
-    return 0;
+  *reinterpret_cast<uint16_t *>(ptr) = value;
+  return 0;
 }
 
 // write 32 bit value
@@ -180,13 +178,12 @@ uint64_t pyopae_uio::write64(uint32_t region_index, uint32_t offset,
 
 // get uio region size
 size_t pyopae_uio::get_size(uint32_t region_index) {
-    size_t size = 0;
-    uint8_t* vptr = nullptr;
-    if (opae_uio_region_get(&uio_, region_index, &vptr, &size)) {
-        std::cout << "failed to get uio region size:"<< vptr 
-            << size << std::endl;
-     }
-    return size;
+  size_t size = 0;
+  uint8_t *vptr = nullptr;
+  if (opae_uio_region_get(&uio_, region_index, &vptr, &size)) {
+    std::cout << "failed to get uio region size:" << vptr << size << std::endl;
+  }
+  return size;
 }
 
 namespace py = pybind11;
@@ -198,30 +195,33 @@ PYBIND11_MODULE(pyopaeuio, m) {
            (int (pyopae_uio::*)(const std::string &)) & pyopae_uio::open)
       .def("close", (void (pyopae_uio::*)(void)) & pyopae_uio::close)
       .def("read8",
-          (uint8_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
-          pyopae_uio::read8)
+           (uint8_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
+               pyopae_uio::read8)
       .def("read16",
-          (uint16_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
-          pyopae_uio::read16)
+           (uint16_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
+               pyopae_uio::read16)
       .def("read32",
            (uint32_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
                pyopae_uio::read32)
       .def("read64",
-          (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
-          pyopae_uio::read64)
-      .def("write8",
-          (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset,
-           uint8_t value)) & pyopae_uio::write8)
+           (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
+               pyopae_uio::read64)
+      .def("write8", (uint64_t(pyopae_uio::*)(uint32_t region_index,
+                                              uint32_t offset, uint8_t value)) &
+                         pyopae_uio::write8)
       .def("write16",
-          (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset,
-           uint16_t value)) & pyopae_uio::write16)
+           (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset,
+                                    uint16_t value)) &
+               pyopae_uio::write16)
       .def("write32",
-          (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset,
-           uint32_t value)) & pyopae_uio::write32)
+           (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset,
+                                    uint32_t value)) &
+               pyopae_uio::write32)
       .def("write64",
            (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset,
-            uint64_t value)) & pyopae_uio::write64)
-      .def("getsize",
-          (size_t(pyopae_uio::*)(uint32_t region_index)) & pyopae_uio::get_size)
+                                    uint64_t value)) &
+               pyopae_uio::write64)
+      .def("getsize", (size_t(pyopae_uio::*)(uint32_t region_index)) &
+                          pyopae_uio::get_size)
       .def_readonly("numregions", &pyopae_uio::num_regions);
 }
