@@ -31,7 +31,7 @@ setup(
     packages=find_namespace_packages(include=['*']),
     entry_points={
         'console_scripts': [
-            'ofs.uio = uio.ofs.uio:main',
+            'ofs.uio = uio.ofs_uio:main',
         ]
     },
     description="ofs uio tool to peek/poke and mailbox read/write csr",
