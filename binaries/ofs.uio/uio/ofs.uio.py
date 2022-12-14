@@ -189,8 +189,7 @@ class mailbox_cmd_sts_bits(Structure):
                    ("write_cmd", c_uint64, 1),
                    ("ack_trans", c_uint64, 1),
                    ("reserved", c_uint64, 29),
-                   ("cmd_addr", c_uint64, 18),
-                   ("reserved1", c_uint64, 14)
+                   ("cmd_addr", c_uint64, 32)
     ]
 
 
