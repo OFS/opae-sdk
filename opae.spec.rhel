@@ -116,6 +116,7 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples/host_exerciser
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hssi
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/ofs.uio/uio
 
 cp libraries/afu-test/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/afu-test/
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
@@ -128,6 +129,7 @@ cp samples/hssi/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/hssi/
 cp binaries/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
+cp binaries/ofs.uio/uio/*.py %{buildroot}%{_usr}/src/opae/samples/ofs.uio/uio
 
 %if 0%{rhel} > 8
   %cmake_install
@@ -155,6 +157,10 @@ for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,
 done
 # ethernet
 for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hssimac,hssistats}.py; do
+   chmod a+x $file
+done
+# ofs.uio
+for file in %{buildroot}%{python3_sitelib}/ofs.uio/uio/{ofs.uio}.py; do
    chmod a+x $file
 done
 
@@ -263,6 +269,9 @@ done
 %{_usr}/src/opae/samples/opae.io/scripts/nlb_walk.py
 %{_usr}/src/opae/samples/opae.io/scripts/port.py
 %{_usr}/src/opae/samples/opae.io/scripts/walk.py
+%{_usr}/src/opae/samples/ofs.uio/uio/__init__.py
+%{_usr}/src/opae/samples/ofs.uio/uio/ofs.uio.py
+
 
 %{_libdir}/libfpgad-api.so
 %{_libdir}/libopae-c++-nlb.so
@@ -314,12 +323,14 @@ done
 %{_bindir}/nlb3
 %{_bindir}/nlb7
 %{_bindir}/vabtool
+%{_bindir}/ofs.uio
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
 %{python3_sitelib}/hssi_ethernet*
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
+%{python3_sitelib}/ofs.uio*
 
 
 %changelog
