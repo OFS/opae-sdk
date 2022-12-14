@@ -220,15 +220,15 @@ class FPGAREG(object):
             print("\ndfh:{}   :{}".format(hex(dfh_offset),
                                           hex(fpga_dfh.value)))
 
-            if fpga_dfh.bits.eol or not fpga_dfh.bits.next_header_offset:
-                self.mm.close()
-                return True
-
             for x in range(PCIE_DFH_CSR_LEN):
                 offset = 0x8 * x
                 reg = int(self.reg64(offset), 16)
                 print("{}       :{}".format(hex(dfh_offset + offset),
                                             hex(reg)))
+
+            if fpga_dfh.bits.eol or not fpga_dfh.bits.next_header_offset:
+                self.mm.close()
+                return True
 
             dfh_offset += fpga_dfh.next_header_offset
             self.mm.close()
