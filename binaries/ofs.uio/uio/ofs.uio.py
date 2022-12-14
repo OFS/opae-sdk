@@ -430,25 +430,25 @@ class UIO(object):
         """
 
         # clear cmd sts csr
-        self.write64(region_index, MAILBOX_CMD_CSR, 0)
+        self.write64(region_index, self.MAILBOX_CMD_CSR, 0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
 
         # Set read bit and write cmd address
         mbox_cmd_sts = mailbox_cmd_sts(0x1)
         mbox_cmd_sts.cmd_addr = address
-        self.write64(region_index, MAILBOX_CMD_CSR, mbox_cmd_sts.value)
+        self.write64(region_index, self.MAILBOX_CMD_CSR, mbox_cmd_sts.value)
 
         # Poll for ACK_TRANS bit index 2, wdith 2
         if not self.read_poll_timeout(region_index,
-                                      MAILBOX_CMD_CSR,
+                                      self.MAILBOX_CMD_CSR,
                                       2):
             print("MailBox cmd sts fails to update ACK")
             return False, -1
 
         # Read data
-        value = self.read32(region_index, MAILBOX_RD_DATA_CSR)
+        value = self.read32(region_index, self.MAILBOX_RD_DATA_CSR)
         # clear cmd sts csr
-        self.write64(region_index, MAILBOX_CMD_CSR, 0)
+        self.write64(region_index, self.MAILBOX_CMD_CSR, 0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
         return True, value
 
@@ -462,26 +462,26 @@ class UIO(object):
         """
 
         # clear cmd sts csr
-        self.write64(region_index, MAILBOX_CMD_CSR, 0x0)
+        self.write64(region_index, self.MAILBOX_CMD_CSR, 0x0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
 
         # Set write bit and write cmd address
         mbox_cmd_sts = mailbox_cmd_sts(0x2)
         mbox_cmd_sts.cmd_addr = address
-        self.write64(region_index, MAILBOX_CMD_CSR, mbox_cmd_sts.value)
+        self.write64(region_index, self.MAILBOX_CMD_CSR, mbox_cmd_sts.value)
 
         # write value
-        self.write32(region_index, MAILBOX_WR_DATA_CSR, value)
+        self.write32(region_index, self.MAILBOX_WR_DATA_CSR, value)
 
         # Poll for ACK_TRANS bit index 2, wdith 2
         if not self.read_poll_timeout(region_index,
-                                      MAILBOX_CMD_CSR,
+                                      self.MAILBOX_CMD_CSR,
                                       2):
             print("MailBox cmd sts fails to update ACK")
             return False
 
         # clear cmd sts csr
-        self.write64(region_index, MAILBOX_CMD_CSR, 0x0)
+        self.write64(region_index, self.MAILBOX_CMD_CSR, 0x0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
         return True
 
