@@ -36,7 +36,9 @@
 // opae uio python binding class
 class pyopae_uio {
  public:
-  pyopae_uio() : num_regions(0), uio_mmap_ptr_(nullptr) {}
+  pyopae_uio() : num_regions(0), uio_mmap_ptr_(nullptr) {
+    memset(&uio_, 0, sizeof(uio_));
+  }
   virtual ~pyopae_uio() {}
 
   int open(const std::string &uio_str);
