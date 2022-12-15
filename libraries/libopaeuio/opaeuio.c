@@ -251,7 +251,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 	int res = 0;
 	size_t len;
 	char *p = NULL;
-	char *ptr = NULL;
+	char *ptr;
 	int glob_res = 0;
 	const char *glob_fmts[] = {
 		"/sys/bus/dfl/devices/%s/uio/uio*",
@@ -267,7 +267,14 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 	// Check for uio string in dfl_device
 	ptr = strstr(dfl_device, "uio");
-	if (ptr != dfl_device) {
+	if (ptr == dfl_device) {
+		if (snprintf(u->device_path, sizeof(u->device_path),
+			"/dev/%s", ptr) < 0) {
+			ERR("snprintf() failed\n");
+			return 1;
+		}
+	} else {
+		ptr = NULL;
 
 		// Use glob to discover the uio device name.
 		for (i = 0; glob_fmts[i]; ++i) {
@@ -276,7 +283,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 			if (snprintf(path_expr, sizeof(path_expr),
 				glob_fmts[i], dfl_device) < 0) {
 				ERR("snprintf() failed\n");
-				return 1;
+				return 2;
 			}
 
 			glob_res = opae_glob(path_expr, GLOB_NOSORT, NULL, &globbuf);
@@ -287,7 +294,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 			if (globbuf.gl_pathc > 1) {
 				ERR("Found more than one possible UIO device!\n");
-				res = 2;
+				res = 3;
 				goto out_glob_free;
 			}
 
@@ -295,40 +302,35 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 			if (len >= OPAE_UIO_PATH_MAX) {
 				ERR("len: %lu is too large. Increase the size of "
 					"OPAE_UIO_PATH_MAX\n", len);
-				res = 3;
-				goto out_glob_free;
-			}
-
-			p = strrchr(globbuf.gl_pathv[0], '/');
-			ptr = p + 1;
-			if (!p) {
-				ERR("bad glob path: \"%s\"\n", globbuf.gl_pathv[0]);
 				res = 4;
 				goto out_glob_free;
 			}
 
-			if (snprintf(u->device_path, sizeof(u->device_path),
-				"/dev/%s", ptr) < 0) {
-				ERR("snprintf() failed\n");
+			p = strrchr(globbuf.gl_pathv[0], '/');
+			if (!p) {
+				ERR("bad glob path: \"%s\"\n", globbuf.gl_pathv[0]);
 				res = 5;
 				goto out_glob_free;
 			}
 
+			if (snprintf(u->device_path, sizeof(u->device_path),
+				"/dev/%s", p + 1) < 0) {
+				ERR("snprintf() failed\n");
+				res = 6;
+				goto out_glob_free;
+			}
+
+			ptr = p + 1;
+
 			break;
 		}
 
-		if (!glob_fmts[i]) {
+		if (!glob_fmts[i] || !ptr) {
 			ERR("failed to find UIO device for %s\n", dfl_device);
-			res = 6;
+			res = 7;
 			goto out_glob_free;
 		}
 
-	} else {
-		if (snprintf(u->device_path, sizeof(u->device_path),
-			"/dev/%s", ptr) < 0) {
-			ERR("snprintf() failed\n");
-			res = 7;
-		}
 	}
 
 	u->device_fd = opae_open(u->device_path, O_RDWR);
