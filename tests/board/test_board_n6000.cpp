@@ -222,7 +222,7 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_6) {
 * @details    Validates fpga phy group info  <br>
 */
 TEST_P(board_dfl_n6000_c_p, board_n6000_8) {
-  EXPECT_EQ(print_phy_info(device_token_), FPGA_NOT_SUPPORTED);
+  EXPECT_NE(print_phy_info(device_token_), FPGA_OK);
 }
 
 /**

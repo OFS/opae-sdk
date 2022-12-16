@@ -221,7 +221,7 @@ for file in %{buildroot}%{python3_sitelib}/packager/tools/{afu_json_mgr,packager
 done
 
 # opae.uio
-for file in %{buildroot}%{python3_sitelib}/ofs.uio/uio/{ofs.uio}.py; do
+for file in %{buildroot}%{python3_sitelib}/uio/ofs_uio.py; do
    chmod a+x $file
 done
 
@@ -393,8 +393,8 @@ done
 %{python3_sitearch}/opae.io*
 %{python3_sitearch}/opae/io*
 %{python3_sitearch}/pyopaeuio*
-%{python3_sitearch}/ofs.uio*
-%{python3_sitearch}/ofs.uio/uio*
+%{python3_sitelib}/ofs.uio*
+%{python3_sitelib}/uio*
 
 
 %changelog
