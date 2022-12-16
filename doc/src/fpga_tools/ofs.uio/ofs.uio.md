@@ -37,17 +37,17 @@ Poke/Write value to UIO CSR offset<br>
 `ofs.uio [--pcie-address PCIE_ADDRESS] [--feature-id FEATURE_ID] [--poke offset value] `<br>
 
 #### Mailbox Read ####
-Reads CSR address offset using CSR using mailbox<br>
+Read CSR address using mailbox<br>
 `ofs.uio [--uio uio] [--mailbox-read address] `<br>
 `ofs.uio [--pcie-address PCIE_ADDRESS] [--feature-id FEATURE_ID] [--mailbox-read address] `<br>
 
 #### Mailbox Write ####
-Writes value to CSR address offset using CSR using mailbox <br>
+Write value to CSR address using mailbox <br>
 `ofs.uio [--uio uio] [--mailbox-write address value] `<br>
 `ofs.uio [--pcie-address PCIE_ADDRESS] [--feature-id FEATURE_ID] [--mailbox-write address value] `<br>
 
 #### Mailbox Dump ####
-Reads/Dumps block size of CSR address offset using CSR using mailbox<br>
+Reads/Dumps block size of CSR address using mailbox<br>
 `ofs.uio [--uio uio] [--mailbox-dump address size] `<br>
 `ofs.uio [--pcie-address PCIE_ADDRESS] [--feature-id FEATURE_ID] [--mailbox-dump address size] `<br>
 
@@ -66,7 +66,8 @@ UIO region index, default region index is 0 <br>
 `ofs.uio [--uio uio] --region-index 1 [--peek offset]`<br>
 
 #### Mailbox command status csr offset ####
-mailbox command status csr address offset, default value PCIe SS mailbox offset 0x28 <br> 
+Mailbox command status csr offset, 
+default value set to dfl pcie subsystem system feature mailbox command status register offset 0x28 <br> 
 `ofs.uio [--uio uio] --mailbox-cmdcsr 0xa8 [--mailbox-read address] `<br>
 `ofs.uio [--pcie-address PCIE_ADDRESS] [--feature-id FEATURE_ID] --mailbox-cmdcsr 0xa8  [--mailbox-read address] `<br>
 
@@ -103,7 +104,7 @@ Mailbox Read
 ```
 ofs.uio --uio uio6 --mailbox-read 0x0
 MailboxRead(0x0): 0x1000000
-ofs.uio --uio uio6 -mailbox-read 0x8
+ofs.uio --uio uio6 --mailbox-read 0x8
 MailboxRead(0x8): 0x110c000
 
 ofs.uio --pcie-address 0000:b1:00.0 --feature-id 0x20 --mailbox-read 0x0
