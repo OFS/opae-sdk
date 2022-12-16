@@ -298,7 +298,7 @@ class UIO(object):
                                           "maps/map*"))
         self.num_regions = len(uio_maps)
         if self.num_regions == 0:
-            print("No found uio memory regions")
+            print("No uio memory regions found")
             return False
 
         for map in uio_maps:
