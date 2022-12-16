@@ -670,10 +670,10 @@ def main():
             if not uio.mailbox_write(args.region_index, int(args.mailbox_write[0], 16),
                                      int(args.mailbox_write[1], 16)):
                 print('Failed to write Mailbox CSR address {}'
-                      .format(int(args.mailbox_write[0], 16)))
+                      .format(args.mailbox_write[0]))
             else:
                 print('MailboxWrite({}):{}'
-                      .format(hex(args.mailbox_write[0]), args.mailbox_write[1]))
+                      .format(args.mailbox_write[0], args.mailbox_write[1]))
 
         # mailbox dump
         elif args.mailbox_dump is not None:
