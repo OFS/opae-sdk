@@ -28,13 +28,19 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <json-c/json.h>
 #include <opae/types.h>
 #include <opae/log.h>
 
+#include "opae_int.h"
 #include "mock/opae_std.h"
 #include "remote.h"
 #include "request.h"
 #include "response.h"
+#include "action.h"
+
+#include "hash_map.h"
+#include "pollsrv.h"
 
 enum request_type { REGISTER_EVENT = 0, UNREGISTER_EVENT = 1 };
 
@@ -47,12 +53,19 @@ struct event_request {
 struct _remote_event_handle *
 opae_create_remote_event_handle(void)
 {
-	return (struct _remote_event_handle *)
-		opae_calloc(1, sizeof(struct _remote_event_handle));
+	struct _remote_event_handle *p =
+		(struct _remote_event_handle *)
+			opae_calloc(1, sizeof(*p));
+	if (p) {
+		p->client_event_fd = -1;
+	}
+	return p;
 }
 
 void opae_destroy_remote_event_handle(struct _remote_event_handle *eh)
 {
+	if (eh->client_event_fd >= 0)
+		close(eh->client_event_fd);
 	opae_free(eh);
 }
 
@@ -131,14 +144,14 @@ remote_fpgaGetOSObjectFromEventHandle(
 	const fpga_event_handle event_handle,
 	int *fd)
 {
-	opae_fpgaGetOSObjectFromEventHandle_request req;
-	opae_fpgaGetOSObjectFromEventHandle_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
+//	opae_fpgaGetOSObjectFromEventHandle_request req;
+//	opae_fpgaGetOSObjectFromEventHandle_response resp;
+//	struct _remote_token *tok;
+//	struct _remote_handle *h;
 	struct _remote_event_handle *eh;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
+//	char *req_json;
+//	char *resp_json = NULL;
+//	fpga_result res;
 
 	if (!event_handle) {
 		OPAE_ERR("NULL event_handle");
@@ -152,12 +165,16 @@ remote_fpgaGetOSObjectFromEventHandle(
 
 	eh = (struct _remote_event_handle *)event_handle;
 
-	if (!eh->handle) {
+	if (!eh->handle || (eh->client_event_fd < 0)) {
 		OPAE_ERR("You must call fpgaRegisterEvent() prior "
 			 "to requesting the OS Object.");
 		return FPGA_INVALID_PARAM;
 	}
 
+	*fd = eh->client_event_fd;
+
+	return FPGA_OK;
+#if 0
 	h = eh->handle;
 	tok = h->token;
 
@@ -178,7 +195,163 @@ remote_fpgaGetOSObjectFromEventHandle(
 		*fd = resp.fd;
 
 	return resp.result;
+#endif
 }
+
+/******************************************************************************/
+
+STATIC void * events_srv_thr_fn(void *arg)
+{
+	opae_poll_server *psrv =
+		(opae_poll_server *)arg;
+
+	psrv->handle_client_message = opae_poll_server_handle_events_client;
+	psrv->init_client =
+		opae_poll_server_init_remote_events_client;
+	psrv->release_client =
+		opae_poll_server_release_remote_events_client;
+
+	psrv->handle_event = NULL;
+	psrv->init_event = NULL;
+	psrv->release_event = NULL;
+
+	psrv->running = true;
+	opae_poll_server_loop(psrv);
+
+	psrv->release_server(psrv);
+
+	return NULL;
+}
+
+STATIC fpga_result
+opae_add_client_event_registration(opae_comms_channel *comms)
+{
+	opae_poll_server *psrv = NULL;
+	fpga_result res = FPGA_OK;
+	int ires;
+	uint32_t timeout = 10000;
+
+	opae_mutex_lock(ires, &comms->events_srv_lock);
+
+	++comms->events_srv_registrations;
+
+	if (!comms->events_srv) {
+
+		if (comms->client.type == OPAE_CLIENT_UDS) {
+			opae_uds_server *events_srv;
+			opae_events_uds_data *uds_data =
+				(opae_events_uds_data *)comms->events_data;
+
+			events_srv = opae_calloc(1, sizeof(opae_uds_server));
+			if (!events_srv) {
+				OPAE_ERR("calloc() failed");
+				res = FPGA_NO_MEMORY;
+				goto out_err;
+			}
+
+			ires = opae_uds_server_init(events_srv,
+						    uds_data->events_socket);
+			if (ires) {
+				OPAE_ERR("uds server init failed");
+				res = FPGA_EXCEPTION;
+				goto out_err;
+			}
+
+			events_srv->psrv.running = false;
+			events_srv->psrv.release_server =
+				opae_uds_server_release_free;
+
+			comms->events_srv = events_srv;
+			psrv = &events_srv->psrv;
+
+		} else if (comms->client.type == OPAE_CLIENT_INET) {
+			opae_inet_server *events_srv;
+			opae_events_inet_data *inet_data =
+				(opae_events_inet_data *)comms->events_data;
+
+			events_srv = opae_calloc(1, sizeof(opae_inet_server));
+			if (!events_srv) {
+				OPAE_ERR("calloc() failed");
+				res = FPGA_NO_MEMORY;
+				goto out_err;
+			}
+
+			ires = opae_inet_server_init(events_srv,
+						     inet_data->events_ip,
+						     (in_port_t)inet_data->events_port);
+			if (ires) {
+				OPAE_ERR("inet server init failed");
+				res = FPGA_EXCEPTION;
+				goto out_err;
+
+			}
+
+			events_srv->psrv.running = false;
+			events_srv->psrv.release_server =
+				opae_inet_server_release_free;
+
+			comms->events_srv = events_srv;
+			psrv = &events_srv->psrv;
+		}
+
+		ires = pthread_create(&comms->events_srv_thr,
+				      NULL,
+				      events_srv_thr_fn,
+				      comms->events_srv);
+		if (ires) {
+			OPAE_ERR("failed to create events server thread");
+			res = FPGA_EXCEPTION;
+			goto out_err;
+		}
+
+		while (!psrv->running) {
+			usleep(100);
+			if (--timeout == 0) {
+				OPAE_ERR("events server thread "
+					 "failed to start");
+				res = FPGA_EXCEPTION;
+				goto out_err;
+			}
+		}
+
+	}
+
+	opae_mutex_unlock(ires, &comms->events_srv_lock);
+	return res;
+
+out_err:
+	--comms->events_srv_registrations;
+	opae_mutex_unlock(ires, &comms->events_srv_lock);
+	return res;
+}
+
+STATIC fpga_result
+opae_remove_client_event_registration(opae_comms_channel *comms)
+{
+	opae_poll_server *psrv = NULL;
+	int ires;
+
+	opae_mutex_lock(ires, &comms->events_srv_lock);
+
+	if (comms->events_srv_registrations > 0) {
+		--comms->events_srv_registrations;
+
+		if (comms->events_srv_registrations == 0) {
+			psrv = (opae_poll_server *)comms->events_srv;
+
+			psrv->running = false;
+			pthread_join(comms->events_srv_thr, NULL);
+
+			comms->events_srv = NULL;
+		}
+
+	}
+
+	opae_mutex_unlock(ires, &comms->events_srv_lock);
+	return FPGA_OK;
+}
+
+/******************************************************************************/
 
 fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,
 						 fpga_event_type event_type,
@@ -236,10 +409,18 @@ fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,
 		eh->eh_id = create_resp.eh_id;
 	}
 
+	// Check to see whether our server thread is running,
+	// and start it if it isn't.
+	res = opae_add_client_event_registration(tok->comms);
+	if (res)
+		return res;
+
 	req.handle_id = h->hdr.handle_id;
 	req.event_type = event_type;
 	req.eh_id = eh->eh_id;
 	req.flags = flags;
+	req.client_type = tok->comms->client.type;
+	req.events_data = tok->comms->events_data;
 
 	req_json = opae_encode_fpgaRegisterEvent_request_48(
 		&req, tok->json_to_string_flags);
@@ -250,6 +431,8 @@ fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,
 
 	if (!opae_decode_fpgaRegisterEvent_response_48(resp_json, &resp))
 		return FPGA_EXCEPTION;
+
+	eh->client_event_fd = resp.client_event_fd;
 
 	return resp.result;
 }
@@ -305,6 +488,12 @@ remote_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 
 	if (!opae_decode_fpgaUnregisterEvent_response_49(resp_json, &resp))
 		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		// Decrement our event registration count, and see if we need
+		// to stop the server thread, releasing the server.
+		opae_remove_client_event_registration(tok->comms);
+	}
 
 	return resp.result;
 }

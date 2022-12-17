@@ -25,6 +25,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #ifndef __OPAE_POLLSRV_H__
 #define __OPAE_POLLSRV_H__
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif // _GNU_SOURCE
+#include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -40,6 +44,11 @@
 
 #include <opae/log.h>
 
+typedef enum {
+	OPAE_SERVER_UDS = 0,
+	OPAE_SERVER_INET
+} opae_server_type;
+
 #define OPAE_POLLSRV_MAX_CLIENTS         511
 #define OPAE_POLLSRV_SRV_SOCKET            0
 #define OPAE_POLLSRV_FIRST_CLIENT_SOCKET   1
@@ -47,28 +56,62 @@
 #define OPAE_POLLSRV_LISTEN_BACKLOG       16
 #define OPAE_POLLSRV_POLL_TIMEOUT        100
 
+struct _opae_poll_server;
+struct _opae_poll_server_handler;
+
+typedef int (*opae_handle_client_or_event)(
+	struct _opae_poll_server *,
+	void *,
+	int);
+
+typedef int (*opae_release_client_or_event)(
+	struct _opae_poll_server *,
+	struct _opae_poll_server_handler *,
+	nfds_t);
+
+typedef struct _opae_poll_server_handler {
+	opae_handle_client_or_event client_or_event_handler;
+	opae_release_client_or_event client_or_event_release;
+	void *client_or_event_context;
+} opae_poll_server_handler;
+
+typedef int (*opae_init_client_or_event)(
+	struct _opae_poll_server *,
+	opae_poll_server_handler *,
+	nfds_t,
+	void *,
+	socklen_t);
+
 typedef struct _opae_poll_server {
+	opae_server_type type;
 	volatile bool running;
 
-	void *remote_context[OPAE_POLLSRV_MAX_CLIENTS + 1];
+	opae_poll_server_handler handlers[OPAE_POLLSRV_MAX_CLIENTS + 1];
 	struct pollfd pollfds[OPAE_POLLSRV_MAX_CLIENTS + 1];
 	nfds_t num_fds;
 	int poll_timeout;
 
 	int (*on_poll_timeout)(struct _opae_poll_server *);
-	int (*handle_client_message)(struct _opae_poll_server *,
-				     void *,
-				     int);
-	int (*init_remote_context)(struct _opae_poll_server *, nfds_t);
-	int (*release_remote_context)(struct _opae_poll_server *, nfds_t);
+
+	opae_handle_client_or_event handle_client_message;
+	opae_handle_client_or_event handle_event;
+
+	opae_init_client_or_event init_client;
+	opae_release_client_or_event release_client;
+
+	opae_init_client_or_event init_event;
+	opae_release_client_or_event release_event;
+
 	void (*release_server)(void *);
 } opae_poll_server;
 
-void opae_poll_server_init(opae_poll_server *psrv, int server_socket);
+void opae_poll_server_init(opae_poll_server *psrv,
+			   opae_server_type type,
+			   int server_socket);
 
 int opae_poll_server_loop(opae_poll_server *psrv);
 
-void opae_poll_server_close_client(opae_poll_server *psrv, int client_sock);
+void opae_poll_server_close_client(opae_poll_server *psrv, int client_socket);
 
 void opae_poll_server_release(opae_poll_server *psrv);
 

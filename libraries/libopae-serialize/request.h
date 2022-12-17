@@ -666,6 +666,9 @@ typedef struct {
 	fpga_event_type event_type;
 	fpga_remote_id eh_id;
 	uint32_t flags;
+
+	opae_client_type client_type;
+	void *events_data;
 } opae_fpgaRegisterEvent_request;
 
 char *opae_encode_fpgaRegisterEvent_request_48(
@@ -712,6 +715,43 @@ char *opae_encode_fpgaDestroyEventHandle_request_51(
 bool opae_decode_fpgaDestroyEventHandle_request_51(
 	const char *json,
 	opae_fpgaDestroyEventHandle_request *req);
+
+/******************************************************************************/
+
+typedef struct {
+	opae_request_header header;
+} opae_get_remote_event_id_request;
+
+char *opae_encode_get_remote_event_id_request_0(
+	opae_get_remote_event_id_request *req,
+	int json_flags);
+bool opae_decode_get_remote_event_id_request_0(
+	const char *json,
+	opae_get_remote_event_id_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id event_id;
+} opae_signal_remote_event_request;
+
+char *opae_encode_signal_remote_event_request_1(
+	opae_signal_remote_event_request *req,
+	int json_flags);
+bool opae_decode_signal_remote_event_request_1(
+	const char *json,
+	opae_signal_remote_event_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id event_id;
+} opae_release_remote_event_request;
+
+char *opae_encode_release_remote_event_request_2(
+	opae_release_remote_event_request *req,
+	int json_flags);
+bool opae_decode_release_remote_event_request_2(
+	const char *json,
+	opae_release_remote_event_request *req);
 
 #ifdef __cplusplus
 }

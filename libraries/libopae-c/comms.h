@@ -25,19 +25,37 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #ifndef __OPAE_COMMS_H__
 #define __OPAE_COMMS_H__
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif // _GNU_SOURCE
+#include <pthread.h>
+
 #include "rmt-ifc.h"
 #include "uds-ifc.h"
 #include "inet-ifc.h"
-#include "pollsrv.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
+typedef struct _opae_events_uds_data {
+	char events_socket[OPAE_SOCKET_NAME_MAX];
+} opae_events_uds_data;
+
+typedef struct _opae_events_inet_data {
+	char events_ip[INET_ADDRSTRLEN];
+	int events_port;
+} opae_events_inet_data;
+
 typedef struct _opae_comms_channel {
 	bool valid;
 	opae_remote_client_ifc client;
-	opae_poll_server *server;
+
+	void *events_data;
+	void *events_srv;
+	volatile uint64_t events_srv_registrations;
+	pthread_t events_srv_thr;
+	pthread_mutex_t events_srv_lock;
 } opae_comms_channel;
 
 #ifdef __cplusplus

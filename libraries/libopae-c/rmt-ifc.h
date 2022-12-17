@@ -33,6 +33,11 @@
 extern "C" {
 #endif // __cplusplus
 
+typedef enum {
+	OPAE_CLIENT_UDS = 0,
+	OPAE_CLIENT_INET
+} opae_client_type;
+
 typedef int (*open_connection)(void *con);
 typedef int (*close_connection)(void *con);
 typedef int (*release_connection)(void *con);
@@ -41,6 +46,7 @@ typedef ssize_t (*send_data)(void *con, const void *buf, size_t len);
 typedef ssize_t (*receive_data)(void *con, void *buf, size_t len);
 
 typedef struct _opae_remote_client_ifc {
+	opae_client_type type;
 	open_connection open;
 	close_connection close;
 	release_connection release;

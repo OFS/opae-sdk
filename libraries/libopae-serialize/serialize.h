@@ -32,6 +32,8 @@
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 
+#include "comms.h"
+
 #define OPAE_RECEIVE_BUF_MAX (32 * 1024)
 
 #ifdef __cplusplus
@@ -110,6 +112,29 @@ bool opae_ser_event_type_to_json_obj(const fpga_event_type type,
 				     struct json_object *parent);
 bool opae_ser_json_to_event_type_obj(struct json_object *jobj,
 				     fpga_event_type *type);
+
+
+bool opae_ser_opae_events_uds_data_to_json_obj(
+	const opae_events_uds_data *d,
+	struct json_object *parent);
+bool opae_ser_json_to_opae_events_uds_data_obj(
+	struct json_object *jobj,
+	opae_events_uds_data *d);
+
+
+bool opae_ser_opae_events_inet_data_to_json_obj(
+	const opae_events_inet_data *d,
+	struct json_object *parent);
+bool opae_ser_json_to_opae_events_inet_data_obj(
+	struct json_object *jobj,
+	opae_events_inet_data *d);
+
+
+bool opae_ser_client_type_to_json_obj(const opae_client_type type,
+				      struct json_object *parent);
+bool opae_ser_json_to_client_type_obj(struct json_object *jobj,
+				      opae_client_type *type);
+
 
 
 

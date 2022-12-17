@@ -191,6 +191,7 @@ int opae_inet_ifc_init(opae_remote_client_ifc *i,
 	con->send_flags = send_flags;
 	con->receive_flags = receive_flags;
 
+	i->type = OPAE_CLIENT_INET;
 	i->open = opae_inet_client_open;
 	i->close = opae_inet_client_close;
 	i->release = opae_inet_client_release;

@@ -2220,3 +2220,155 @@ bool opae_ser_json_to_event_type_obj(struct json_object *jobj,
 
 	return true;
 }
+
+bool opae_ser_opae_events_uds_data_to_json_obj(
+	const opae_events_uds_data *d,
+	struct json_object *parent)
+{
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("opae_events_uds_data"));
+
+	json_object_object_add(parent, "events_socket",
+			json_object_new_string(d->events_socket));
+
+	return true;
+}
+
+bool opae_ser_json_to_opae_events_uds_data_obj(
+	struct json_object *jobj,
+	opae_events_uds_data *d)
+{
+	struct json_object *serialized_type;
+	char *str;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "opae_events_uds_data")) {
+		OPAE_ERR("opae_events_uds_data de-serialize failed");
+		return false;
+	}
+
+	memset(d->events_socket, 0, sizeof(d->events_socket));
+
+	str = NULL;
+	if (!parse_json_string(jobj, "events_socket", &str))
+		return false;
+
+	len = strnlen(str, OPAE_SOCKET_NAME_MAX - 1);
+	memcpy(d->events_socket, str, len + 1);
+
+	return true;
+}
+
+bool opae_ser_opae_events_inet_data_to_json_obj(
+	const opae_events_inet_data *d,
+	struct json_object *parent)
+{
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("opae_events_inet_data"));
+
+	json_object_object_add(parent, "events_ip",
+			json_object_new_string(d->events_ip));
+
+	json_object_object_add(parent, "events_port",
+			json_object_new_int(d->events_port));
+
+	return true;
+}
+
+bool opae_ser_json_to_opae_events_inet_data_obj(
+	struct json_object *jobj,
+	opae_events_inet_data *d)
+{
+	struct json_object *serialized_type;
+	char *str;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "opae_events_inet_data")) {
+		OPAE_ERR("opae_events_inet_data de-serialize failed");
+		return false;
+	}
+
+	memset(d->events_ip, 0, sizeof(d->events_ip));
+
+	str = NULL;
+	if (!parse_json_string(jobj, "events_ip", &str))
+		return false;
+
+	len = strnlen(str, INET_ADDRSTRLEN - 1);
+	memcpy(d->events_ip, str, len + 1);
+
+	if (!parse_json_int(jobj, "events_port", &d->events_port))
+		return false;
+
+	return true;
+}
+
+#define NUM_CLIENT_TYPES 2
+STATIC struct {
+	opae_client_type type;
+	const char *str;
+} client_type_table[NUM_CLIENT_TYPES] = {
+	{ OPAE_CLIENT_UDS,  "OPAE_CLIENT_UDS"  },
+	{ OPAE_CLIENT_INET, "OPAE_CLIENT_INET" }
+};
+
+STATIC const char *
+opae_client_type_to_str(opae_client_type t)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_CLIENT_TYPES ; ++i) {
+		if (t == client_type_table[i].type)
+			return client_type_table[i].str;
+	}
+
+	return "<unknown>";
+}
+
+STATIC opae_client_type
+opae_str_to_client_type(const char *s)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_CLIENT_TYPES ; ++i) {
+		if (!strcmp(s, client_type_table[i].str))
+			return client_type_table[i].type;
+	}
+
+	return (opae_client_type)-1;
+}
+
+bool opae_ser_client_type_to_json_obj(const opae_client_type type,
+				      struct json_object *parent)
+{
+	const char *str;
+
+	str = opae_client_type_to_str(type);
+	json_object_object_add(parent, "client_type",
+		json_object_new_string(str));
+
+	return true;
+}
+
+bool opae_ser_json_to_client_type_obj(struct json_object *jobj,
+				      opae_client_type *type)
+{
+	char *str = NULL;
+	struct json_object *obj;
+
+	obj = parse_json_string(jobj, "client_type", &str);
+	if (!obj)
+		return false;
+
+	*type = opae_str_to_client_type(str);
+
+	return true;
+}

@@ -71,8 +71,13 @@ int main(int argc, char *argv[])
 		return 2;
 
 	srv.psrv.handle_client_message = opae_poll_server_handle_client;
-	srv.psrv.init_remote_context = opae_poll_server_init_remote_context;
-	srv.psrv.release_remote_context = opae_poll_server_release_remote_context;
+	srv.psrv.handle_event = opae_poll_server_handle_event;
+
+	srv.psrv.init_client = opae_poll_server_init_client;
+	srv.psrv.release_client = opae_poll_server_release_client;
+
+	srv.psrv.init_event = opae_poll_server_init_event;
+	srv.psrv.release_event = opae_poll_server_release_event;
 
 	opae_poll_server_loop(&srv.psrv);
 

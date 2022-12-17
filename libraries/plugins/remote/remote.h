@@ -204,6 +204,7 @@ void opae_destroy_remote_sysobject(struct _remote_sysobject *s);
 struct _remote_event_handle {
 	fpga_remote_id eh_id;
 	struct _remote_handle *handle;
+	int client_event_fd;
 };
 
 struct _remote_event_handle *

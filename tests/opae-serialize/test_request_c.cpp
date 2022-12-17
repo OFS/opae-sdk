@@ -376,7 +376,7 @@ int main(int argc, char *argv[])
 	(void) argc;
 	(void) argv;
 
-	opae_init_remote_context(&remote_context);
+	opae_init_remote_context(&remote_context, NULL);
 
 	test_fpgaEnumerate_request_0();
 	test_fpgaDestroyToken_request_1();

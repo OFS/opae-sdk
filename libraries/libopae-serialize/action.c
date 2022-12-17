@@ -27,12 +27,10 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#define _GNU_SOURCE
-#include <pthread.h>
+#include <sys/eventfd.h>
 
 #include <opae/fpga.h>
 
-#include "rmt-ifc.h"
 #include "props.h"
 #include "mock/opae_std.h"
 
@@ -122,8 +120,10 @@ STATIC char *opae_remote_id_to_hash_key_alloc(const fpga_remote_id *rid)
 	return opae_strdup(buf);
 }
 
-fpga_result opae_init_remote_context(opae_remote_context *c)
+fpga_result opae_init_remote_context(opae_remote_context *c,
+				     opae_poll_server *psrv)
 {
+	pthread_mutexattr_t mattr;
 	fpga_result res;
 
 	c->json_to_string_flags = JSON_C_TO_STRING_SPACED |
@@ -189,6 +189,16 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 	if (res)
 		return res;
 
+	c->psrv = psrv;
+
+	pthread_mutexattr_init(&mattr);
+	pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&c->events_client_lock, &mattr);
+	pthread_mutexattr_destroy(&mattr);
+
+	c->client_initialized = false;
+	c->events_client_registrations = 0;
+
 	return FPGA_OK;
 }
 
@@ -200,6 +210,9 @@ fpga_result opae_release_remote_context(opae_remote_context *c)
 	opae_hash_map_destroy(&c->remote_id_to_buf_info_map);
 	opae_hash_map_destroy(&c->remote_id_to_sysobject_map);
 	opae_hash_map_destroy(&c->remote_id_to_event_handle_map);
+
+	pthread_mutex_destroy(&c->events_client_lock);
+
 	return FPGA_OK;
 }
 
@@ -3095,6 +3108,42 @@ out_respond:
 	return res;
 }
 
+fpga_result opae_server_send_and_receive(
+	opae_remote_context *c,
+	char *req_json,
+	char **resp_json)
+{
+	static char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	size_t len;
+	ssize_t slen;
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = c->events_client_ifc.send(c->events_client_ifc.connection,
+					 req_json,
+					 len + 1);
+
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = c->events_client_ifc.receive(c->events_client_ifc.connection,
+					    recvbuf,
+					    sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+	*resp_json = recvbuf;
+
+	return FPGA_OK;
+}
+
 bool opae_handle_fpgaRegisterEvent_request_48(
 	opae_remote_context *c,
 	const char *req_json,
@@ -3106,6 +3155,15 @@ bool opae_handle_fpgaRegisterEvent_request_48(
 	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
 	fpga_handle handle = NULL;
 	fpga_event_handle event_handle = NULL;
+	int server_event_fd = -1;
+
+	fpga_result result;
+	char *events_req_json;
+	char *events_resp_json = NULL;
+	opae_get_remote_event_id_request events_req;
+	opae_get_remote_event_id_response events_resp;
+
+	req.events_data = NULL;
 
 	if (!opae_decode_fpgaRegisterEvent_request_48(req_json,
 		&req)) {
@@ -3120,6 +3178,7 @@ bool opae_handle_fpgaRegisterEvent_request_48(
 		"fpgaRegisterEvent_response_48");
 
 	resp.result = FPGA_EXCEPTION;
+	resp.client_event_fd = -1;
 
 	opae_remote_id_to_hash_key(&req.handle_id,
 				   hash_key_buf,
@@ -3152,9 +3211,132 @@ bool opae_handle_fpgaRegisterEvent_request_48(
 					event_handle,
 					req.flags);
 
+	fpgaGetOSObjectFromEventHandle(event_handle, &server_event_fd);
+
+	if (resp.result == FPGA_OK) {
+		// Initialize and open our client connection to the
+		// events server, if it has not already been.
+		int ires = 0;
+
+		opae_mutex_lock(ires, &c->events_client_lock);
+
+		if (!c->client_initialized) {
+
+			if (req.client_type == OPAE_CLIENT_UDS) {
+				opae_events_uds_data *uds_data =
+					(opae_events_uds_data *)req.events_data;
+
+				ires = opae_uds_ifc_init(&c->events_client_ifc,
+							 uds_data->events_socket,
+							 0,
+							 0);
+
+				if (ires) {
+					OPAE_ERR("failed to initialize "
+						 "connection to events server");
+				} else {
+					ires = c->events_client_ifc.open(
+						c->events_client_ifc.connection);
+					if (ires) {
+						OPAE_ERR("failed to open "
+							 "connection to "
+							 "events server");
+					} else {
+						c->client_initialized = true;
+					}
+
+				}
+			} else if (req.client_type == OPAE_CLIENT_INET) {
+				opae_events_inet_data *inet_data =
+					(opae_events_inet_data *)req.events_data;
+				char ip_addr[INET_ADDRSTRLEN];
+				struct sockaddr_in sain;
+
+				memset(&sain, 0, sizeof(sain));
+
+				sain.sin_addr.s_addr = c->client_address;
+				sain.sin_port = htons(inet_data->events_port);
+
+				inet_ntop(AF_INET, &sain.sin_addr, ip_addr, sizeof(ip_addr));
+
+				ires = opae_inet_ifc_init(&c->events_client_ifc,
+							  ip_addr,
+							  inet_data->events_port,
+							  0,
+							  0);
+							
+				if (ires) {
+					OPAE_ERR("failed to initialize "
+						 "connection to events server");
+				} else {
+					ires = c->events_client_ifc.open(
+						c->events_client_ifc.connection);
+					if (ires) {
+						OPAE_ERR("failed to open "
+							 "connection to "
+							 "events server");
+					} else {
+						c->client_initialized = true;
+					}
+
+				}
+			}
+
+		}
+
+		c->events_client_registrations++;
+		opae_mutex_unlock(ires, &c->events_client_lock);
+
+		events_req_json = opae_encode_get_remote_event_id_request_0(
+					&events_req, 
+					c->json_to_string_flags);
+
+		result = opae_server_send_and_receive(c,
+						      events_req_json,
+						      &events_resp_json);
+		if (result)
+			goto out_respond;
+
+		if (!opae_decode_get_remote_event_id_response_0(
+			events_resp_json, &events_resp))
+			goto out_respond;
+
+		if (events_resp.result == FPGA_OK) {
+			opae_server_event_context *event_context;
+			nfds_t i;
+
+			resp.client_event_fd = events_resp.client_event_fd;
+
+			event_context = opae_malloc(sizeof(*event_context));
+			if (!event_context) {
+				OPAE_ERR("malloc() failed");
+				goto out_respond;
+			}
+
+			event_context->remote_context = c;
+			event_context->event_id = events_resp.event_id;
+
+			i = c->psrv->num_fds;
+
+			c->psrv->pollfds[i].fd = server_event_fd;
+			c->psrv->pollfds[i].events = POLLIN | POLLPRI;
+
+			c->psrv->init_event(c->psrv,
+					    &c->psrv->handlers[i],
+					    i,
+					    event_context,
+					    sizeof(opae_server_event_context));
+
+			++c->psrv->num_fds;
+		}
+	}
+
 	res = true;
 
 out_respond:
+	if (req.events_data)
+		opae_free(req.events_data);
+
 	*resp_json = opae_encode_fpgaRegisterEvent_response_48(
 			&resp,
 			c->json_to_string_flags);
@@ -3173,6 +3355,16 @@ bool opae_handle_fpgaUnregisterEvent_request_49(
 	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
 	fpga_handle handle = NULL;
 	fpga_event_handle event_handle = NULL;
+
+	int server_event_fd = -1;
+	nfds_t i;
+	fpga_result result;
+	char *events_req_json;
+	char *events_resp_json = NULL;
+	opae_release_remote_event_request events_req;
+	opae_release_remote_event_response events_resp;
+	opae_server_event_context *event_context = NULL;
+	int ires;
 
 	if (!opae_decode_fpgaUnregisterEvent_request_49(req_json,
 		&req)) {
@@ -3214,6 +3406,70 @@ bool opae_handle_fpgaUnregisterEvent_request_49(
 		goto out_respond;
 	}
 
+	// Find the server-side event fd.
+
+	result = fpgaGetOSObjectFromEventHandle(event_handle, &server_event_fd);
+	if ((result != FPGA_OK) || (server_event_fd < 0))
+		goto unregister; // no fd.
+
+	for (i = OPAE_POLLSRV_FIRST_CLIENT_SOCKET ;
+		i < c->psrv->num_fds ;
+			++i) {
+		if (c->psrv->pollfds[i].fd == server_event_fd)
+			break; // found it
+	}
+
+	if (i == c->psrv->num_fds)
+		goto unregister; // not found
+
+	event_context = (opae_server_event_context *)
+		c->psrv->handlers[i].client_or_event_context;
+
+	if (!event_context) // strange..
+		goto unregister;
+
+	// Tell the events server side to remove its tracking for
+	// the requested event.
+	events_req.event_id = event_context->event_id;
+
+	events_req_json = opae_encode_release_remote_event_request_2(
+				&events_req,
+				c->json_to_string_flags);
+
+	result = opae_server_send_and_receive(c,
+					      events_req_json,
+					      &events_resp_json);
+
+	if (result)
+		goto unregister;
+
+	if (!opae_decode_release_remote_event_response_2(
+		events_resp_json, &events_resp))
+		goto unregister;
+
+	// Remove the client side event.
+	opae_poll_server_close_client(c->psrv, server_event_fd);
+
+	opae_mutex_lock(ires, &c->events_client_lock);
+
+	if (c->events_client_registrations > 0) {
+		--c->events_client_registrations;
+
+		if (!c->events_client_registrations) {
+			c->events_client_ifc.close(
+				c->events_client_ifc.connection);
+			c->events_client_ifc.release(
+				c->events_client_ifc.connection);
+
+			c->events_client_ifc.connection = NULL;
+
+			c->client_initialized = false;
+		}
+	}
+
+	opae_mutex_unlock(ires, &c->events_client_lock);
+
+unregister:
 	resp.result = fpgaUnregisterEvent(handle,
 					  req.event_type,
 					  event_handle);
@@ -3432,19 +3688,19 @@ bool opae_remote_handle_client_request(opae_remote_context *c,
 /******************************************************************************/
 
 int opae_poll_server_handle_client(opae_poll_server *psrv,
-				   void *remote_ctx,
-				   int client_sock)
+				   void *client_ctx,
+				   int client_socket)
 {
 	char buf[OPAE_RECEIVE_BUF_MAX];
 	ssize_t n;
-	opae_remote_context *remc = (opae_remote_context *)remote_ctx;
+	opae_remote_context *remc = (opae_remote_context *)client_ctx;
 	char *response_json = NULL;
 	bool res;
 
-	n = chunked_recv(client_sock, buf, sizeof(buf), 0);
+	n = chunked_recv(client_socket, buf, sizeof(buf), 0);
 	if (n == -2) {
 		OPAE_DBG("peer closed connection");
-		opae_poll_server_close_client(psrv, client_sock);
+		opae_poll_server_close_client(psrv, client_socket);
 		return 0;
 	} else if (n < 0) {
 		OPAE_ERR("recv() failed: %s", strerror(errno));
@@ -3453,7 +3709,7 @@ int opae_poll_server_handle_client(opae_poll_server *psrv,
 
 	res = opae_remote_handle_client_request(remc, buf, &response_json);
 	if (res && response_json) {
-		chunked_send(client_sock,
+		chunked_send(client_socket,
 			     response_json,
 			     strlen(response_json) + 1,
 			     0);
@@ -3467,8 +3723,15 @@ int opae_poll_server_handle_client(opae_poll_server *psrv,
 	return 1;
 }
 
-int opae_poll_server_init_remote_context(opae_poll_server *psrv, nfds_t i)
+int opae_poll_server_init_client(opae_poll_server *psrv,
+				 opae_poll_server_handler *handler,
+				 nfds_t i,
+				 void *extra,
+				 socklen_t len)
 {
+	UNUSED_PARAM(i);
+	UNUSED_PARAM(extra);
+	UNUSED_PARAM(len);
 	fpga_result res;
 	opae_remote_context *remc;
 
@@ -3478,25 +3741,510 @@ int opae_poll_server_init_remote_context(opae_poll_server *psrv, nfds_t i)
 		return 1;
 	}
 
-	res = opae_init_remote_context(remc);
+	res = opae_init_remote_context(remc, psrv);
 	if (res) {
 		OPAE_ERR("failed to init remote context");
 		return 2;
 	}
 
-	psrv->remote_context[i] = remc;
+	remc->client_address = INADDR_ANY;
+	remc->client_port = 0;
+
+	if (psrv->type == OPAE_SERVER_INET) {
+		struct sockaddr *sa =
+			(struct sockaddr *)extra;
+
+		if (sa->sa_family == AF_INET) {
+			struct sockaddr_in *sain =
+				(struct sockaddr_in *)sa;
+			char addr[INET_ADDRSTRLEN];
+			uint16_t port;
+
+			remc->client_address = sain->sin_addr.s_addr;
+			remc->client_port = 0;
+
+			inet_ntop(AF_INET, &sain->sin_addr, addr, sizeof(addr));
+			port = ntohs(sain->sin_port);
+
+			printf("accepting connection from %s:%u\n", addr, port);
+		}
+	}
+
+	handler->client_or_event_handler = psrv->handle_client_message;
+	handler->client_or_event_release = psrv->release_client;
+	handler->client_or_event_context = remc;
 
 	return 0;
 }
 
-int opae_poll_server_release_remote_context(opae_poll_server *psrv, nfds_t i)
+int opae_poll_server_release_client(opae_poll_server *psrv,
+				    opae_poll_server_handler *handler,
+				    nfds_t i)
 {
+	UNUSED_PARAM(psrv);
+	UNUSED_PARAM(i);
 	opae_remote_context *remc =
-		(opae_remote_context *)psrv->remote_context[i];
+		(opae_remote_context *)handler->client_or_event_context;
 
 	opae_release_remote_context(remc);
 
 	opae_free(remc);
 
+	memset(handler, 0, sizeof(*handler));
+
 	return 0;
+}
+
+int opae_poll_server_handle_event(opae_poll_server *psrv,
+                                  void *event_ctx,
+                                  int event_socket)
+{
+	UNUSED_PARAM(psrv);
+	UNUSED_PARAM(event_socket);
+	int ires = 0;
+	opae_server_event_context *event_context =
+		(opae_server_event_context *)event_ctx;
+	opae_signal_remote_event_request req;
+	opae_signal_remote_event_response resp;
+	uint64_t event_count = 0;
+	ssize_t slen;
+
+	// Consume the server-side event.
+	slen = read(event_socket, &event_count, sizeof(uint64_t));
+	if (slen == sizeof(uint64_t)) {
+		// Signal the client that an event occurred.
+		char *req_json;
+		char *resp_json = NULL;
+		fpga_result res;
+
+		req.event_id = event_context->event_id;
+
+		req_json = opae_encode_signal_remote_event_request_1(
+				&req,
+				event_context->remote_context->json_to_string_flags);
+
+		res = opae_server_send_and_receive(
+			event_context->remote_context,
+			req_json,
+			&resp_json);
+		if (res != FPGA_OK) {
+			ires = 1;
+			goto out;
+		} 
+
+		if (!opae_decode_signal_remote_event_response_1(
+			resp_json, &resp)) {
+			ires = 2;
+			goto out;
+		}
+
+		if (resp.result != FPGA_OK)
+			ires = 3;
+	}
+out:
+	return ires;
+}
+
+int opae_poll_server_init_event(opae_poll_server *psrv,
+				opae_poll_server_handler *handler,
+				nfds_t i,
+				void *extra,
+				socklen_t len)
+{
+	UNUSED_PARAM(psrv);
+	UNUSED_PARAM(i);
+	UNUSED_PARAM(len);
+
+	handler->client_or_event_handler = psrv->handle_event;
+	handler->client_or_event_release = psrv->release_event;
+	handler->client_or_event_context = extra;
+
+	return 0;
+}
+
+int opae_poll_server_release_event(opae_poll_server *psrv,
+				   opae_poll_server_handler *handler,
+				   nfds_t i)
+{
+	UNUSED_PARAM(psrv);
+	UNUSED_PARAM(i);
+
+	opae_free(handler->client_or_event_context);
+	memset(handler, 0, sizeof(*handler));
+
+	return 1;
+}
+
+/******************************************************************************/
+
+fpga_result opae_init_remote_events_context(opae_remote_events_context *c,
+					    opae_server_type type)
+{
+	fpga_result res;
+
+	c->json_to_string_flags = JSON_C_TO_STRING_SPACED |
+				  JSON_C_TO_STRING_PRETTY;
+
+	res = opae_hash_map_init(&c->remote_id_to_eventreg_map,
+				 1024, /* num_buckets   */
+				 0,    /* hash_seed     */
+				 murmur3_32_string_hash,
+				 opae_str_key_compare,
+				 opae_str_key_cleanup,
+				 NULL  /* value_cleanup */);
+	if (res)
+		return res;
+
+	c->type = type;
+
+	return FPGA_OK;
+}
+
+fpga_result opae_release_remote_events_context(opae_remote_events_context *c)
+{
+	opae_hash_map_destroy(&c->remote_id_to_eventreg_map);
+	return FPGA_OK;
+}
+
+int opae_poll_server_init_remote_events_client(
+	struct _opae_poll_server *psrv,
+	opae_poll_server_handler *handler,
+	nfds_t i,
+	void *extra,
+	socklen_t len)
+{
+	UNUSED_PARAM(i);
+	UNUSED_PARAM(extra);
+	UNUSED_PARAM(len);
+	fpga_result res;
+	opae_remote_events_context *remec;
+
+	remec = opae_malloc(sizeof(opae_remote_events_context));
+	if (!remec) {
+		OPAE_ERR("malloc() failed");
+		return 1;
+	}
+
+	res = opae_init_remote_events_context(remec, psrv->type);
+	if (res) {
+		OPAE_ERR("failed to init remote events context");
+		return 2;
+	}
+
+	handler->client_or_event_handler = psrv->handle_client_message;
+	handler->client_or_event_release = psrv->release_client;
+	handler->client_or_event_context = remec;
+
+	return 0;
+}
+
+int opae_poll_server_release_remote_events_client(
+	struct _opae_poll_server *psrv,
+	opae_poll_server_handler *handler,
+	nfds_t i)
+{
+	UNUSED_PARAM(psrv);
+	UNUSED_PARAM(i);
+	opae_remote_events_context *remec =
+		(opae_remote_events_context *)handler->client_or_event_context;
+
+	opae_release_remote_events_context(remec);
+
+	opae_free(remec);
+
+	memset(handler, 0, sizeof(*handler));
+
+	return 0;
+}
+
+typedef struct _opae_client_event_registration {
+	int client_event_fd;
+	uint64_t event_count;
+} opae_client_event_registration;
+
+STATIC opae_client_event_registration *
+opae_client_event_registration_alloc(int client_event_fd,
+				     uint64_t event_count)
+{
+	opae_client_event_registration *r =
+		opae_malloc(sizeof(*r));
+	if (r) {
+		r->client_event_fd = client_event_fd;
+		r->event_count = event_count;
+	}
+	return r;
+}
+
+STATIC void opae_client_event_registration_free(
+	opae_client_event_registration *r)
+{
+	close(r->client_event_fd);
+	opae_free(r);
+}
+
+bool opae_handle_get_remote_event_id_request_0(
+	opae_remote_events_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_get_remote_event_id_request req;
+	opae_get_remote_event_id_response resp;
+	char *hash_key;
+	fpga_result result;
+	opae_client_event_registration *reg;
+
+	if (!opae_decode_get_remote_event_id_request_0(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "get_remote_event_id request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"get_remote_event_id_response_0");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.client_event_fd = eventfd(0, 0);
+
+	// Allocate a new remote ID for the server-side event.
+	opae_get_remote_id(&resp.event_id);
+
+	hash_key = opae_remote_id_to_hash_key_alloc(&resp.event_id);
+	if (!hash_key) {
+		OPAE_ERR("strdup failed");
+		close(resp.client_event_fd);
+		resp.client_event_fd = -1;
+		resp.result = FPGA_NO_MEMORY;
+		goto out_respond;
+	}
+
+	reg = opae_client_event_registration_alloc(resp.client_event_fd, 1);
+	if (!reg) {
+		OPAE_ERR("malloc() failed");
+		close(resp.client_event_fd);
+		resp.client_event_fd = -1;
+		resp.result = FPGA_NO_MEMORY;
+		goto out_respond;
+	}
+
+	// Store the client event registration in our hash map.
+	result = opae_hash_map_add(&c->remote_id_to_eventreg_map,
+				   hash_key,
+				   reg);
+	if (result) {
+		resp.result = FPGA_EXCEPTION;
+		resp.client_event_fd = -1;
+		opae_client_event_registration_free(reg);
+		opae_str_key_cleanup(hash_key);
+		goto out_respond;
+	}
+
+	resp.result = FPGA_OK;
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_get_remote_event_id_response_0(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
+
+bool opae_handle_signal_remote_event_request_1(
+	opae_remote_events_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_signal_remote_event_request req;
+	opae_signal_remote_event_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	opae_client_event_registration *reg = NULL;
+	ssize_t slen;
+
+	if (!opae_decode_signal_remote_event_request_1(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "signal_remote_event request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"signal_remote_event_response_1");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.event_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the client event registration in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_eventreg_map,
+				hash_key_buf,
+				(void **)&reg) != FPGA_OK) {
+		OPAE_ERR("client_event_registration "
+			 "lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	// Signal the client-side event.
+	slen = write(reg->client_event_fd, &reg->event_count, sizeof(uint64_t));
+	if (slen == sizeof(uint64_t)) {
+		++reg->event_count;
+		if (reg->event_count == 0xfffffffffffffffe)
+			reg->event_count = 1;
+		resp.result = FPGA_OK;
+	}
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_signal_remote_event_response_1(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
+
+bool opae_handle_release_remote_event_request_2(
+	opae_remote_events_context *c,
+	const char *req_json,
+	char **resp_json)
+{
+	bool res = false;
+	opae_release_remote_event_request req;
+	opae_release_remote_event_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	opae_client_event_registration *reg = NULL;
+
+	if (!opae_decode_release_remote_event_request_2(req_json,
+		&req)) {
+		OPAE_ERR("failed to decode "
+			 "release_remote_event request");
+		return false;
+	}
+
+	request_header_to_response_header(
+		&req.header,
+		&resp.header,
+		"release_remote_event_response_2");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.event_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the client event registration in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_eventreg_map,
+				hash_key_buf,
+				(void **)&reg) != FPGA_OK) {
+		OPAE_ERR("client_event_registration "
+			 "lookup failed for %s", hash_key_buf);
+		resp.result = FPGA_NOT_FOUND;
+		goto out_respond;
+	}
+
+	// Remove the client event registration from our remote context object.
+	opae_hash_map_remove(&c->remote_id_to_eventreg_map, hash_key_buf);
+
+	opae_client_event_registration_free(reg);
+
+	resp.result = FPGA_OK;
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_release_remote_event_response_2(
+			&resp,
+			c->json_to_string_flags);
+
+	return res;
+}
+
+typedef bool (*events_handler)(opae_remote_events_context *c,
+			       const char *req_json,
+			       char **resp_json);
+
+STATIC events_handler events_handlers[] = {
+	opae_handle_get_remote_event_id_request_0,
+	opae_handle_signal_remote_event_request_1,
+	opae_handle_release_remote_event_request_2
+};
+
+bool opae_remote_handle_events_client_request(opae_remote_events_context *c,
+					      const char *req_json,
+					      char **resp_json)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	opae_request_header header;
+
+	root = json_tokener_parse_verbose(req_json, &j_err);
+	if (!root) {
+		OPAE_ERR("JSON parse failed: %s",
+			 json_tokener_error_desc(j_err));
+		return false;
+	}
+
+	if (!opae_decode_request_header_obj(root, &header)) {
+		OPAE_ERR("request header decode failed");
+		json_object_put(root);
+		return false;
+	}
+
+	json_object_put(root);
+
+	if (header.request_id >=
+		(sizeof(events_handlers) / sizeof(events_handlers[0]))) {
+		// Deal with out-of-bounds request_id.
+
+		return false;
+	}
+
+	return events_handlers[header.request_id](c, req_json, resp_json);
+}
+
+int opae_poll_server_handle_events_client(opae_poll_server *psrv,
+					  void *client_ctx,
+					  int client_socket)
+{
+	char buf[OPAE_RECEIVE_BUF_MAX];
+	ssize_t n;
+	opae_remote_events_context *remec =
+		(opae_remote_events_context *)client_ctx;
+	char *response_json = NULL;
+	bool res;
+
+	n = chunked_recv(client_socket, buf, sizeof(buf), 0);
+	if (n == -2) {
+		OPAE_DBG("peer closed connection");
+		opae_poll_server_close_client(psrv, client_socket);
+		return 0;
+	} else if (n < 0) {
+		OPAE_ERR("recv() failed: %s", strerror(errno));
+		return (int)n;
+	}
+
+	res = opae_remote_handle_events_client_request(remec,
+						       buf,
+						       &response_json);
+	if (res && response_json) {
+		chunked_send(client_socket,
+			     response_json,
+			     strlen(response_json) + 1,
+			     0);
+		opae_free(response_json);
+		return 0;
+	}
+
+	if (response_json)
+		opae_free(response_json);
+
+	return 1;
 }

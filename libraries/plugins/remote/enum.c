@@ -133,14 +133,6 @@ static int remote_enumerate(opae_comms_channel *comms, void *context)
 	ssize_t slen;
 	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
-	// Now that we have libopae-serialize, finish up the comms
-	// channel's sever initialization.
-	comms->server->handle_client_message = opae_poll_server_handle_client;
-	comms->server->init_remote_context =
-		opae_poll_server_init_remote_context;
-	comms->server->release_remote_context =
-		opae_poll_server_release_remote_context;
-
 	space_remaining = ctx->max_tokens - ctx->num_tokens;
 
 	if (ctx->tokens && !space_remaining)

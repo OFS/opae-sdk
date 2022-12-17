@@ -38,9 +38,11 @@
 STATIC int parse_remote_unix_domain_socket(json_object *j_remote_i,
 					   opae_comms_channel *comms)
 {
-	opae_uds_server *server;
+	opae_events_uds_data *events_data;
+	pthread_mutexattr_t mattr;
 	char *socket = NULL;
 	char *events_socket = NULL;
+	size_t len;
 	int res;
 
 	if (!parse_json_string(j_remote_i, "socket", &socket)) {
@@ -58,18 +60,23 @@ STATIC int parse_remote_unix_domain_socket(json_object *j_remote_i,
 	if (res)
 		return res;
 
-	server = opae_malloc(sizeof(opae_uds_server));
-	if (!server) {
-		OPAE_ERR("malloc() failed");
+	events_data = opae_calloc(1, sizeof(opae_events_uds_data));
+	if (!events_data) {
+		OPAE_ERR("calloc() failed");
 		return 3;
 	}
 
-	if (opae_uds_server_init(server, events_socket))
-		return 4;
+	len = strnlen(events_socket, OPAE_SOCKET_NAME_MAX - 1);
+	memcpy(events_data->events_socket, events_socket, len + 1);
+	comms->events_data = events_data;
 
-	server->psrv.release_server = opae_uds_server_release_free;
+	comms->events_srv = NULL;
 
-	comms->server = (opae_poll_server *)server;
+	pthread_mutexattr_init(&mattr);
+	pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&comms->events_srv_lock, &mattr);
+	pthread_mutexattr_destroy(&mattr);
+
 	comms->valid = true;
 
 	return 0;
@@ -78,10 +85,14 @@ STATIC int parse_remote_unix_domain_socket(json_object *j_remote_i,
 STATIC int parse_remote_inet_socket(json_object *j_remote_i,
 				    opae_comms_channel *comms)
 {
-	opae_inet_server *server;
+	opae_events_inet_data *events_data;
+	pthread_mutexattr_t mattr;
 	char *ip_or_host = NULL;
 	int port = 0;
+	char *events_server = NULL;
+	int events_port = 0;
 	int res;
+	size_t len;
 
 	if (!parse_json_string(j_remote_i, "server", &ip_or_host)) {
 		OPAE_ERR("INET_SOCK_STREAM remote missing \"server\" key");
@@ -93,23 +104,39 @@ STATIC int parse_remote_inet_socket(json_object *j_remote_i,
 		return 2;
 	}
 
+	if (!parse_json_string(j_remote_i, "events_server", &events_server)) {
+		OPAE_ERR("INET_SOCK_STREAM remote missing \"events_server\" key");
+		return 3;
+	}
+
+	if (!parse_json_int(j_remote_i, "events_port", &events_port)) {
+		OPAE_ERR("INET_SOCK_STREAM remote missing \"events_port\" key");
+		return 4;
+	}
+
 	res = opae_inet_ifc_init(&comms->client, ip_or_host, port, 0, 0);
 	if (res)
 		return res;
 
-	server = opae_malloc(sizeof(opae_inet_server));
-	if (!server) {
+	events_data = opae_malloc(sizeof(opae_events_inet_data));
+	if (!events_data) {
 		OPAE_ERR("malloc() failed");
-		return 3;
+		return 5;
 	}
 
+	len = strnlen(events_server, INET_ADDRSTRLEN - 1);
+	memcpy(events_data->events_ip, events_server, len + 1);
 
-//TODO	if (opae_inet_server_init(server,
+	events_data->events_port = events_port;
+	comms->events_data = events_data;
 
+	comms->events_srv = NULL;
 
-	server->psrv.release_server = opae_inet_server_release_free;
+	pthread_mutexattr_init(&mattr);
+	pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&comms->events_srv_lock, &mattr);
+	pthread_mutexattr_destroy(&mattr);
 
-	comms->server = (opae_poll_server *)server;
 	comms->valid = true;
 
 	return 0;

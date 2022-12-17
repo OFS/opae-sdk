@@ -33,10 +33,13 @@
 
 #include "pollsrv.h"
 
-void opae_poll_server_init(opae_poll_server *psrv, int server_socket)
+void opae_poll_server_init(opae_poll_server *psrv,
+			   opae_server_type type,
+			   int server_socket)
 {
 	memset(psrv, 0, sizeof(*psrv));
 
+	psrv->type = type;
 	psrv->pollfds[OPAE_POLLSRV_SRV_SOCKET].fd = server_socket;
 	psrv->pollfds[OPAE_POLLSRV_SRV_SOCKET].events = POLLIN | POLLPRI;
 	psrv->num_fds = 1;
@@ -84,7 +87,7 @@ int opae_uds_server_init(opae_uds_server *srv,
 		return 3;
 	}
 
-	opae_poll_server_init(&srv->psrv, server_socket);
+	opae_poll_server_init(&srv->psrv, OPAE_SERVER_UDS, server_socket);
 
 	return 0;
 }
@@ -149,7 +152,7 @@ int opae_inet_server_init(opae_inet_server *srv,
 		return 4;
 	}
 
-	opae_poll_server_init(&srv->psrv, server_socket);
+	opae_poll_server_init(&srv->psrv, OPAE_SERVER_INET, server_socket);
 
 	return 0;
 }
@@ -194,15 +197,21 @@ int opae_poll_server_loop(opae_poll_server *psrv)
 		// Handle requests arriving from existing clients.
 		for (i = OPAE_POLLSRV_FIRST_CLIENT_SOCKET ; i < psrv->num_fds ; ++i) {
 			if (psrv->pollfds[i].revents) {
-				psrv->handle_client_message(psrv,
-							    psrv->remote_context[i],
-							    psrv->pollfds[i].fd);
+				opae_poll_server_handler *handler =
+					&psrv->handlers[i];
+
+				handler->client_or_event_handler(
+					psrv,
+					handler->client_or_event_context,
+					psrv->pollfds[i].fd);
 			}
 		}
 
 		// Handle new client connection requests.
 		if (psrv->pollfds[OPAE_POLLSRV_SRV_SOCKET].revents) {
-			int client_sock;
+			int client_socket;
+			struct sockaddr addr;
+			socklen_t addrlen = sizeof(struct sockaddr);
 
 			if (psrv->num_fds > OPAE_POLLSRV_MAX_CLIENTS) {
 				OPAE_ERR("server exceeded max connections. "
@@ -210,21 +219,26 @@ int opae_poll_server_loop(opae_poll_server *psrv)
 				continue;
 			}
 
-			client_sock = accept(
+			client_socket = accept(
 				psrv->pollfds[OPAE_POLLSRV_SRV_SOCKET].fd,
-				NULL,
-				NULL);
+				&addr,
+				&addrlen);
 
-			if (client_sock < 0) {
+			if (client_socket < 0) {
 				OPAE_ERR("accept() failed: %s", strerror(errno));
 			} else {
 				OPAE_DBG("accepting new connection");
 
-				psrv->pollfds[psrv->num_fds].fd = client_sock;
+				psrv->pollfds[psrv->num_fds].fd = client_socket;
 				psrv->pollfds[psrv->num_fds].events = POLLIN | POLLPRI;
 
-				if (psrv->init_remote_context)
-					psrv->init_remote_context(psrv, psrv->num_fds);
+				if (psrv->init_client) {
+					psrv->init_client(psrv,
+							  &psrv->handlers[psrv->num_fds],
+							  psrv->num_fds,
+							  &addr,
+							  addrlen);
+				}
 
 				++psrv->num_fds;
 			}
@@ -235,26 +249,32 @@ int opae_poll_server_loop(opae_poll_server *psrv)
 	return 0;
 }
 
-void opae_poll_server_close_client(opae_poll_server *psrv, int client_sock)
+void opae_poll_server_close_client(opae_poll_server *psrv, int client_socket)
 {
 	nfds_t i;
 	nfds_t j;
 	nfds_t removed = 0;
+	int res = 0;
 
 	for (i = j = OPAE_POLLSRV_FIRST_CLIENT_SOCKET ; i < psrv->num_fds ; ++i) {
-		if (client_sock != psrv->pollfds[i].fd) {
+		if (client_socket != psrv->pollfds[i].fd) {
 			if (j != i)
 				psrv->pollfds[j] = psrv->pollfds[i];
 			++j;
 		} else {
-			if (psrv->release_remote_context)
-				psrv->release_remote_context(psrv, i);
+			opae_poll_server_handler *handler = &psrv->handlers[i];
+
+			if (handler->client_or_event_release)
+				res = handler->client_or_event_release(psrv,
+								       handler,
+								       i);
 			++removed;
 		}
 
 	}
 
-	close(client_sock);
+	if (!res)
+		close(client_socket);
 	psrv->num_fds -= removed;
 }
 

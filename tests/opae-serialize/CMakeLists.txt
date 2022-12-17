@@ -26,10 +26,10 @@
 
 opae_test_add_static_lib(TARGET opae-serialize-static
     SOURCE
+        ${OPAE_LIB_SOURCE}/libopae-serialize/serialize.c
         ${OPAE_LIB_SOURCE}/libopae-serialize/action.c
         ${OPAE_LIB_SOURCE}/libopae-serialize/request.c
         ${OPAE_LIB_SOURCE}/libopae-serialize/response.c
-        ${OPAE_LIB_SOURCE}/libopae-serialize/serialize.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         ${libjson-c_LIBRARIES}

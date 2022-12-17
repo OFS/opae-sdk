@@ -586,19 +586,8 @@ void opae_free_fpgad_config(fpgad_config_data *cfg)
 
 #ifdef OPAE_BUILD_REMOTE
 
-STATIC opae_comms_channel default_comms_channels[] = {
-	{
-		false,
-		{
-			.open = NULL,
-			.close = NULL,
-			.release = NULL,
-			.send = NULL,
-			.receive = NULL,
-			.connection = NULL
-		},
-		NULL
-	}
+STATIC char default_comms_channels[sizeof(opae_comms_channel)] = {
+	0,
 };
 
 opae_comms_channel *
@@ -612,7 +601,7 @@ opae_parse_remote_config(const char *json_input)
 	if (json_input)
 		c = opae_parse_remote_json(json_input);
 
-	return c ? c : default_comms_channels;
+	return c ? c : (opae_comms_channel *)default_comms_channels;
 }
 
 #endif // OPAE_BUILD_REMOTE
