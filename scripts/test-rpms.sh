@@ -1,5 +1,6 @@
 #!/bin/bash
-rpmdir=$(realpath ${1:-/opae-sdk/packaging/opae/rpm})
+rpmdir=$(realpath ${1:-$PWD})
+rpmdir="${rpmdir}/packaging/opae/rpm"
 
 dnf install -y $rpmdir/opae*.rpm
 if [ $? -ne 0 ]; then
