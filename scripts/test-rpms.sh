@@ -1,11 +1,12 @@
-#! /bin/bash
-#
+#!/bin/bash
 rpmdir=$(realpath ${1:-$PWD})
-yum install -y $rpmdir/opae*.rpm
-if [ $? == 1 ]; then
+
+dnf install -y $rpmdir/opae*.rpm
+if [ $? -ne 0 ]; then
 	echo "Could not install OPAE RPMs"
 	exit 1
 fi
+
 failures=0
 test_exit_code(){
 	expected_code=$1
