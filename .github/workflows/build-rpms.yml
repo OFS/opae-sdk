@@ -13,14 +13,14 @@ jobs:
   RPM:
     strategy:
       matrix:
-        distro: [centos7.6, fedora32, fedora33, fedora35]
+        distro: [centos7.6, fedora32, fedora33, fedora35, fedora36]
     runs-on: ubuntu-latest
     name: Build ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v2
-      - name: Build Docker image
+      - name: Build Docker Image
         run: docker build . -f docker/${{ matrix.distro }}/Dockerfile -t opae-${{ matrix.distro }}
-      - name: Build RPM
+      - name: Build RPMs
         run: |
           docker run --rm -v ${{ github.workspace }}:/opae-sdk opae-${{ matrix.distro }} /opae-sdk/${{ matrix.distro }} /opae-sdk
       - name: Install and Test RPMs
