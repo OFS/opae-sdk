@@ -200,7 +200,7 @@ remote_fpgaGetOSObjectFromEventHandle(
 
 /******************************************************************************/
 
-STATIC void * events_srv_thr_fn(void *arg)
+STATIC void *events_srv_thr_fn(void *arg)
 {
 	opae_poll_server *psrv =
 		(opae_poll_server *)arg;
