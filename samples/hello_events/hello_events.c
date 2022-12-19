@@ -321,10 +321,11 @@ int main(int argc, char *argv[])
 out_join:
 	pthread_join(errthr, NULL);
 
-	res1 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
-	ON_ERR_GOTO(res1, out_destroy_eh, "unregistering an FME event");
+	res2 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
+	ON_ERR_GOTO(res2, out_destroy_eh, "unregistering an FME event");
 
-	printf("Successfully tested Register/Unregister for FME events!\n");
+	if (res1 == FPGA_OK)
+		printf("Successfully tested Register/Unregister for FME events!\n");
 
 out_destroy_eh:
 	res2 = fpgaDestroyEventHandle(&eh);
