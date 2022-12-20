@@ -42,7 +42,7 @@ jobs:
       matrix:
         lang-type: [c, cpp]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
     - name: Get Packages
@@ -57,7 +57,7 @@ jobs:
       matrix:
         build-type: [Debug, Release, RelWithDebInfo]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
     - name: Get Packages
@@ -73,7 +73,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
     - name: Get Packages
@@ -92,7 +92,7 @@ jobs:
   build-doc:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
     - name: Build Docker image
