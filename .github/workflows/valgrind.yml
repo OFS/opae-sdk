@@ -30,7 +30,7 @@ jobs:
         OPAE_EXPLICIT_INITIALIZE: 1
         LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
     - name: Archive Results
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: valgrind
         path: ${{ github.workspace }}/.build/valgrind

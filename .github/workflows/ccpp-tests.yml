@@ -108,7 +108,7 @@ jobs:
       working-directory: ${{ github.workspace }}/mybuild_docs
       run: ${{ github.workspace }}/scripts/push-documentation.sh "${GITHUB_TAG##*/}"
     - name: Archive html docs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: docs
         path: mybuild_docs/sphinx/html
@@ -117,7 +117,7 @@ jobs:
       with:
         args: -v -r mybuild_docs/sphinx/html
     - name: Archive link-checker result
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: link-checker
         path: link-checker
