@@ -1,10 +1,10 @@
 #!/bin/bash
-rpmdir=$(realpath ${1:-$PWD})
-rpmdir="${rpmdir}/packaging/opae/rpm"
+debdir=$(realpath ${1:-$PWD})
+debdir="${debdir}/packaging/opae/deb"
 
-dnf install -y $rpmdir/opae-*.x86_64.rpm
+apt-get install -y $debdir/opae*.deb
 if [ $? -ne 0 ]; then
-	echo "Could not install OPAE RPMs"
+	echo "Could not install OPAE DEBs"
 	exit 1
 fi
 

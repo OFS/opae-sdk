@@ -28,7 +28,7 @@ from setuptools import setup, find_namespace_packages
 setup(
     name='ofs.uio',
     version="1.0",
-    packages=find_namespace_packages(include=['*']),
+    packages=find_namespace_packages(include=['uio*']),
     entry_points={
         'console_scripts': [
             'ofs.uio = uio.ofs_uio:main',

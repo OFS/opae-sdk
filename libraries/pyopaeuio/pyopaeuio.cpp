@@ -191,9 +191,8 @@ PYBIND11_MODULE(pyopaeuio, m) {
   m.doc() = "pybind11 pyopaeuio plugin";
   py::class_<pyopae_uio>(m, "pyopaeuio")
       .def(py::init<>())
-      .def("open",
-           (int (pyopae_uio::*)(const std::string &)) & pyopae_uio::open)
-      .def("close", (void (pyopae_uio::*)(void)) & pyopae_uio::close)
+      .def("open", (int(pyopae_uio::*)(const std::string &)) & pyopae_uio::open)
+      .def("close", (void(pyopae_uio::*)(void)) & pyopae_uio::close)
       .def("read8",
            (uint8_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset)) &
                pyopae_uio::read8)

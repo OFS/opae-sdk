@@ -236,7 +236,7 @@ TEST_P(board_dfl_c6100_c_p, board_c6100_6) {
  * @details    Validates fpga phy group info  <br>
  */
 TEST_P(board_dfl_c6100_c_p, board_c6100_8) {
-  EXPECT_EQ(print_phy_info(device_token_), FPGA_NOT_SUPPORTED);
+  EXPECT_NE(print_phy_info(device_token_), FPGA_OK);
 }
 
 /**

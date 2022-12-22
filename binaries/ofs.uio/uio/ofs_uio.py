@@ -99,7 +99,7 @@ class verify_input_hex(argparse.Action):
 def verify_uio(str):
     regx = re.compile("uio[0-9]+")
     try:
-        if re.search(regx, str) is not None:
+        if re.fullmatch(regx, str) is not None:
             return str
         else:
             raise argparse.ArgumentTypeError('Invalid input:', str)
@@ -290,7 +290,7 @@ class UIO(object):
             with open(os.path.join(uio_path, 'name'), 'r') as fd:
                 print("UIO Name:", fd.read().strip())
         else:
-            print("Invalid input", self.uio)
+            print("Invalid input UIO:", self.uio)
             return False
 
         uio_maps = glob.glob(os.path.join("/sys/class/uio/",
@@ -298,7 +298,7 @@ class UIO(object):
                                           "maps/map*"))
         self.num_regions = len(uio_maps)
         if self.num_regions == 0:
-            print("Invalid memory regions", self.num_regions)
+            print("No uio memory regions found")
             return False
 
         for map in uio_maps:
@@ -525,7 +525,7 @@ def parse_args():
 
     parser.add_argument('--uio', default=None, type=verify_uio,
                         help='uio dev name (e.g.--uio uio0 --peek 0x8 )',
-                        metavar='uio')
+                        metavar='uiox')
 
     feature_id_help = 'DFL UIO Feature id\
                        (e.g.--feature-id 0x20 --peek 0x8 )'
@@ -568,7 +568,7 @@ def parse_args():
     mailbox_read_help = 'Read Mailbox CSR address \
                         (e.g.--mailbox-read 0x8).'
     parser.add_argument('--mailbox-read', action=verify_input_hex,
-                        default=None, metavar='offset',
+                        default=None, metavar='address',
                         help=mailbox_read_help)
 
     mailbox_dump_help = 'Reads Mailbox CSR start address size \
@@ -605,24 +605,25 @@ def main():
         sys.exit(1)
 
     args.uio_grps = []
-    # enum FPGA
-    f = FpgaFinder(args.pcie_address.lower() if args.pcie_address else None)
-    devs = f.enum()
-    if not devs:
-        print('no FPGA found')
-        sys.exit(1)
-
-    if len(devs) > 1:
-        s = '{} FPGAs are found\nplease choose one FPGA'.format(len(devs))
-        sys.exit(1)
-
-    # enum FPGA UIO Features if args.uio is none
     if args.uio is None:
+        # enum FPGA
+        f = FpgaFinder(args.pcie_address.lower() if args.pcie_address else None)
+        devs = f.enum()
+        if not devs:
+            print('no FPGA found')
+            sys.exit(1)
+
+        if len(devs) > 1:
+            s = '{} FPGAs are found\nplease choose one FPGA'.format(len(devs))
+            print(s)
+            sys.exit(1)
+
+        # enum FPGA UIO Features if args.uio is none
         for d in devs:
             print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
             args.uio_grps += f.find_uio_feature(d['pcie_address'], args.feature_id)
         if len(args.uio_grps) == 0:
-            print("Failed to find HSSI feature")
+            print("Failed to find uiox feature:", hex(args.feature_id))
             sys.exit(1)
         if len(args.uio_grps) > 1:
             print('{} FPGAs UIO feature matchs are found: {}'
@@ -634,12 +635,12 @@ def main():
         if args.uio is not None:
             uio = args.uio
         else:
-            uio = args.uio_grps[1][2]
+            uio = args.uio_grps[0][2]
         # create UIO instance
         uio = UIO(uio, args.bit_size, args.region_index,
                   args.mailbox_cmdcsr)
         if not uio.verify_uio():
-            print('Invalid input')
+            print('Error: please pass the proper arguments')
             sys.exit(1)
         print("*****************************\n")
         uio.open()
@@ -662,20 +663,17 @@ def main():
         elif args.poke is not None:
             uio.poke(args.region_index, args.bit_size, int(args.poke[0], 16),
                      int(args.poke[1], 16))
-            value = uio.read64(0, int(args.poke[0], 16))
-            print('poke({}):{}'.format(args.poke[0], hex(value)))
+            print('poke({}):{}'.format(args.poke[0], args.poke[1]))
 
         # mailbox write
         elif args.mailbox_write is not None:
             if not uio.mailbox_write(args.region_index, int(args.mailbox_write[0], 16),
                                      int(args.mailbox_write[1], 16)):
                 print('Failed to write Mailbox CSR address {}'
-                      .format(int(args.mailbox_write[0], 16)))
+                      .format(args.mailbox_write[0]))
             else:
-                status, value = uio.mailbox_read(0,
-                                                 int(args.mailbox_write[0], 16))
                 print('MailboxWrite({}):{}'
-                      .format(int(args.mailbox_write[0], 16), hex(value)))
+                      .format(args.mailbox_write[0], args.mailbox_write[1]))
 
         # mailbox dump
         elif args.mailbox_dump is not None:
