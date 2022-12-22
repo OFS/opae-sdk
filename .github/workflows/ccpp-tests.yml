@@ -112,12 +112,13 @@ jobs:
       with:
         name: docs
         path: mybuild_docs/sphinx/html
-    - name: Link Checker
-      uses: peter-evans/link-checker@v1
+    - name: (lychee) Link Checker
+      uses: lycheeverse/lychee-action@v1
       with:
-        args: -v -r mybuild_docs/sphinx/html
-    - name: Archive link-checker result
+        args: --verbose --no-progress mybuild_docs/sphinx/html
+        output: ${{ github.workspace }}/lychee
+    - name: Archive lychee results
       uses: actions/upload-artifact@v3
       with:
         name: link-checker
-        path: link-checker
+        path: ${{ github.workspace }}/lychee
