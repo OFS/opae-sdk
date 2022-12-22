@@ -117,7 +117,7 @@ Mailbox Write
 ```
 ofs.uio --uio uio6 --mailbox-write 0x0 0x1234
 MailboxWrite(0x0):0x1234
-ofs.uio --uio uio6 -mailbox-read 0x0
+ofs.uio --uio uio6 --mailbox-read 0x0
 MailboxRead(0x0):0x1234
 
 ofs.uio --pcie-address 0000:b1:00.0 --feature-id 0x20 --mailbox-write 0x0 0x1234
