@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,27 +23,3 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-from setuptools import find_namespace_packages
-from distutils.core import Extension, setup
-
-setup(
-    name="opae.io",
-    version="0.2.5",
-    packages=find_namespace_packages(include=['opae.*']),
-    entry_points={
-        'console_scripts': []
-    },
-    ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
-    ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
-    license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
-    url="https://01.org/OPAE",
-)

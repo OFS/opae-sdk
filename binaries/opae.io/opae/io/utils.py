@@ -132,14 +132,32 @@ def vfio_init(pci_addr, new_owner='', force=False):
     load_driver('vfio-pci')
 
     print('Binding {} to vfio-pci'.format(msg))
-    new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
-    try:
-        with open(new_id, 'w') as outf:
-            outf.write('{} {}'.format(vid_did[0], vid_did[1]))
-    except OSError as exc:
-        if exc.errno != errno.EEXIST:
-            LOG.error(f'Cannot write new_id to vfio-pci for: {msg}')
+
+    # On Linux kernel >= 3.16, use driver_override to specify the
+    # driver that may bind to the function with the given address.
+    # On older kernels, fall back to new_id which matches the vendor
+    # and device ID to determine whether a driver may bind to a
+    # device, which has the disadvantage that the driver may bind
+    # to multiple functions with the same vendor and device ID.
+    #
+    # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=782a985d7af26db39e86070d28f987cad21313c0
+    driver_override = '/sys/bus/pci/devices/{}/driver_override'.format(pci_addr)
+    if os.path.exists(driver_override):
+        try:
+            with open(driver_override, 'w') as outf:
+                outf.write('vfio-pci')
+        except OSError as exc:
+            LOG.error('Cannot write driver_override to vfio-pci for: {}'.format(msg, exc))
             return
+    else:
+        new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
+        try:
+            with open(new_id, 'w') as outf:
+                outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                LOG.error(f'Cannot write new_id to vfio-pci for: {msg}')
+                return
 
     time.sleep(0.50)
 
@@ -186,6 +204,19 @@ def vfio_release(pci_addr):
         return
 
     print('Releasing {} from vfio-pci'.format(msg))
+
+    # On Linux kernel >= 3.16, clear driver_override before
+    # unbinding vfio-pci driver, which ensures subsequent
+    # binding to another, previously bound driver succeeds.
+    driver_override = '/sys/bus/pci/devices/{}/driver_override'.format(pci_addr)
+    if os.path.exists(driver_override):
+        try:
+            with open(driver_override, 'w') as outf:
+                outf.write('\n')
+        except OSError as exc:
+            LOG.error('Cannot clear driver_override for {}: {}'.format(msg, exc))
+            return
+
     unbind_driver(driver, pci_addr)
 
     dev_dict = get_dev_dict(PICKLE_FILE)

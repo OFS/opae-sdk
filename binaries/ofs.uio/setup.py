@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,27 +23,20 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-from setuptools import find_namespace_packages
-from distutils.core import Extension, setup
+from setuptools import setup, find_namespace_packages
 
 setup(
-    name="opae.io",
-    version="0.2.5",
-    packages=find_namespace_packages(include=['opae.*']),
+    name='ofs.uio',
+    version="1.0",
+    packages=find_namespace_packages(include=['uio*']),
     entry_points={
-        'console_scripts': []
+        'console_scripts': [
+            'ofs.uio = uio.ofs_uio:main',
+        ]
     },
-    ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
-    ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
+    description="ofs uio tool to peek/poke and mailbox read/write csr",
     license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
+    keywords="ofs uio tools ",
     url="https://01.org/OPAE",
+    include_package_data=True,
 )

@@ -197,6 +197,10 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/ofs.uio
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
 # Make rpmlint happy about install permissions
 # admin tools
 for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device,fpgareg}.py; do
@@ -213,6 +217,11 @@ done
 
 # packager
 for file in %{buildroot}%{python3_sitelib}/packager/tools/{afu_json_mgr,packager}.py; do
+   chmod a+x $file
+done
+
+# opae.uio
+for file in %{buildroot}%{python3_sitelib}/uio/ofs_uio.py; do
    chmod a+x $file
 done
 
@@ -377,13 +386,15 @@ done
 %{_bindir}/hssi
 %{_bindir}/opae.io
 %{_bindir}/mem_tg
+%{_bindir}/ofs.uio
 
 %{python3_sitearch}/opae.diag*
 %{python3_sitearch}/opae/diag*
 %{python3_sitearch}/opae.io*
 %{python3_sitearch}/opae/io*
 %{python3_sitearch}/pyopaeuio*
-
+%{python3_sitelib}/ofs.uio*
+%{python3_sitelib}/uio*
 
 
 %changelog

@@ -172,6 +172,8 @@ man_pages = [
     ("docs/fpga_tools/hssi_ethernet/hssiloopback", 'hssiloopback', u'High Speed Serial Interface ethernet loopback', [author], 8),
     ("docs/fpga_tools/rsu/rsu", 'rsu', u'FPGA remote system update', [author], 8),
     ("docs/fpga_tools/mem_tg/mem_tg", 'mem_tg', u'FPGA Memory traffic generator', [author], 8),
+    ("docs/fpga_tools/vabtool/vabtool", 'vabtool', u'Vendor Authenticated Boot script', [author], 8),
+    ("docs/fpga_tools/ofs.uio/ofs.uio", 'ofs.uio', u'User space access to DFL UIO device', [author], 8),
     ("docs/fpga_api/fpga_api", 'fpga_api', u'OPAE C API', [author], 8),
     ("docs/fpga_api/fpga_cxx_api", 'fpga_cxx_api', u'OPAE C++ API', [author], 8),
     ("docs/fpga_api/fpga_python_api", 'fpga_python_api', u'OPAE Python API', [author], 8),

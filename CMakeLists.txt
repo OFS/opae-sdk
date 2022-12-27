@@ -78,6 +78,19 @@ if (OPAE_MINIMAL_BUILD)
 endif(OPAE_MINIMAL_BUILD)
 
 ############################################################################
+## CMAKE_INSTALL_PREFIX check ##############################################
+############################################################################
+
+string(LENGTH ${CMAKE_INSTALL_PREFIX} INSTALL_PREFIX_LEN)
+if (${INSTALL_PREFIX_LEN} GREATER 127)
+    message(FATAL_ERROR "The length of CMAKE_INSTALL_PREFIX (${INSTALL_PREFIX_LEN})"
+                        " has exceeded a limit mandated by the Linux kernel"
+                        " regarding the length of a script shebang. As a result,"
+                        " the build has been stopped. Please choose a more suitable"
+                        " CMAKE_INSTALL_PREFIX and try again.")
+endif ()
+
+############################################################################
 ## Other setup and dependencies ############################################
 ############################################################################
 find_package(Doxygen)
@@ -208,7 +221,7 @@ if (OPAE_BUILD_LIBOPAEVFIO)
         set(PLATFORM_SUPPORTS_VFIO FALSE CACHE BOOL "Platform supports vfio driver" FORCE)
         message(WARNING
             "Could not compile VFIO.
-            This most likely means that kernel( version >= 4.6) headers aren't installed.
+            This most likely means that kernel( version >= 5.4) headers aren't installed.
             See errors in platform_vfio_errors.txt")
         file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
     endif(VFIO_CHECK)
