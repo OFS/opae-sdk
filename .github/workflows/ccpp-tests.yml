@@ -37,33 +37,33 @@ on:
 
 jobs:
   coding-style:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         lang-type: [c, cpp]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
-    - name: Get Packages
-      uses: mstksg/get-package@v1
-      with:
-        apt-get: clang-format
+    - name: upgrade
+      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+    - name: install
+      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y clang-format
     - name: test ${{ matrix.lang-type }}
       run: ${{ github.workspace }}/scripts/test-codingstyle-all.sh ${{ matrix.lang-type }}
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         build-type: [Debug, Release, RelWithDebInfo]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
-    - name: Get Packages
-      uses: mstksg/get-package@v1
-      with:
-        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev linux-headers-generic libedit-dev libudev-dev libcap-dev
+    - name: upgrade
+      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+    - name: install
+      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev linux-headers-generic libedit-dev libudev-dev libcap-dev
     - name: Get Python packages
       run: python3 -m pip install setuptools --user
     - name: configure ${{ matrix.build-type }}
@@ -71,15 +71,15 @@ jobs:
     - name: make ${{ matrix.build-type }}
       run: cd ${{ github.workspace }}/.build && make -j
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
-    - name: Get Packages
-      uses: mstksg/get-package@v1
-      with:
-        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev libedit-dev libudev-dev libcap-dev
+    - name: upgrade
+      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+    - name: install
+      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev libedit-dev libudev-dev libcap-dev
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: run unit tests
@@ -90,9 +90,9 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: unittests/coverage.info.cleaned
   build-doc:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: update
       run: sudo apt-get update -y
     - name: Build Docker image
@@ -108,17 +108,17 @@ jobs:
       working-directory: ${{ github.workspace }}/mybuild_docs
       run: ${{ github.workspace }}/scripts/push-documentation.sh "${GITHUB_TAG##*/}"
     - name: Archive html docs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: docs
         path: mybuild_docs/sphinx/html
-    - name: Link Checker
-      uses: peter-evans/link-checker@v1
+    - name: (lychee) Link Checker
+      uses: lycheeverse/lychee-action@v1
       with:
-        args: -v -r mybuild_docs/sphinx/html
-    - name: Archive link-checker result
-      uses: actions/upload-artifact@v1
+        args: --verbose --no-progress mybuild_docs/sphinx/html
+        output: ${{ github.workspace }}/lychee
+    - name: Archive lychee results
+      uses: actions/upload-artifact@v3
       with:
         name: link-checker
-        path: link-checker
-
+        path: ${{ github.workspace }}/lychee

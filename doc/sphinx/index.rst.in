@@ -67,3 +67,5 @@ The main documentation for the site is organized into following sections:
    docs/fpga_tools/hssi_ethernet/hssiloopback
    docs/fpga_tools/rsu/rsu
    docs/fpga_tools/mem_tg/mem_tg
+   docs/fpga_tools/vabtool/vabtool
+   docs/fpga_tools/ofs.uio/ofs.uio

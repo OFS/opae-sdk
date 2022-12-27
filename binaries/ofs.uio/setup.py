@@ -1,5 +1,4 @@
-#!/bin/bash
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,5 +23,20 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-PROJECT_VERSION='2.3.0'
-PROJECT_RELEASE='1'
+from setuptools import setup, find_namespace_packages
+
+setup(
+    name='ofs.uio',
+    version="1.0",
+    packages=find_namespace_packages(include=['uio*']),
+    entry_points={
+        'console_scripts': [
+            'ofs.uio = uio.ofs_uio:main',
+        ]
+    },
+    description="ofs uio tool to peek/poke and mailbox read/write csr",
+    license="BSD3",
+    keywords="ofs uio tools ",
+    url="https://01.org/OPAE",
+    include_package_data=True,
+)

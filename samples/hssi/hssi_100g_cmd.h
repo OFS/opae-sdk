@@ -375,6 +375,9 @@ public:
       return test_afu::error;
     }
 
+    if (port_.empty())
+        port_.push_back(0);
+
     hssi_afu *hafu = dynamic_cast<hssi_afu *>(afu);
 
     uint64_t bin_src_addr = mac_bits_for(src_addr_);

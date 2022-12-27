@@ -1,4 +1,4 @@
-name: Build RPMs
+name: Build DEBs
 
 on:
   push:
@@ -10,29 +10,28 @@ on:
   schedule:
     - cron: '0 0 * * *'
 jobs:
-  RPM:
+  DEB:
     strategy:
       matrix:
-        #distro: [centos7.6, fedora35, fedora36]
-        distro: [fedora35, fedora36]
+        distro: [ubuntu22]
     runs-on: ubuntu-latest
     name: Build ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v3
       - name: Build Docker Image
         run: docker build . -f docker/${{ matrix.distro }}/Dockerfile -t opae-${{ matrix.distro }}
-      - name: Build RPMs
+      - name: Build DEBs
         run: |
           docker run --rm -v ${{ github.workspace }}:/opae-${{ matrix.distro }}/opae-sdk opae-${{ matrix.distro }} /opae-${{ matrix.distro }}/opae-sdk
-      - name: Install and Test RPMs
+      - name: Install and Test DEBs
         if: ${{ github.event_name != 'pull_request'}}
         run: |
-          docker run --rm -v ${{ github.workspace }}:/opae-${{ matrix.distro }}/opae-sdk --workdir /opae-${{ matrix.distro }}/opae-sdk --entrypoint /bin/bash opae-${{ matrix.distro }} -c "/scripts/test-rpms.sh"
+          docker run --rm -v ${{ github.workspace }}:/opae-${{ matrix.distro }}/opae-sdk --workdir /opae-${{ matrix.distro }}/opae-sdk --entrypoint /bin/bash opae-${{ matrix.distro }} -c "/scripts/test-debs.sh"
       - name: Upload Artifact
         if: ${{ github.event_name != 'pull_request'}}
         uses: actions/upload-artifact@v3
         with:
           name: OPAE-${{ matrix.distro }}
           path:
-            ${{ matrix.distro }}/opae-sdk/packaging/opae/rpm/*.rpm
+            ${{ matrix.distro }}/opae-sdk/packaging/opae/deb/*.deb
 

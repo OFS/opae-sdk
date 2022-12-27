@@ -158,6 +158,7 @@ for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hss
    chmod a+x $file
 done
 
+
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
@@ -257,11 +258,13 @@ done
 %{_usr}/src/opae/samples/opae.io/opae/io/__init__.py
 %{_usr}/src/opae/samples/opae.io/opae/io/utils.py
 %{_usr}/src/opae/samples/opae.io/opae/io/pci.py
+%{_usr}/src/opae/samples/opae.io/opae/io/config.py
 %{_usr}/src/opae/samples/opae.io/scripts/args.py
 %{_usr}/src/opae/samples/opae.io/scripts/nlb0.py
 %{_usr}/src/opae/samples/opae.io/scripts/nlb_walk.py
 %{_usr}/src/opae/samples/opae.io/scripts/port.py
 %{_usr}/src/opae/samples/opae.io/scripts/walk.py
+
 
 %{_libdir}/libfpgad-api.so
 %{_libdir}/libopae-c++-nlb.so

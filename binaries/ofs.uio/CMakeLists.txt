@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,52 +24,32 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_subdirectory(fpgaconf)
-opae_add_subdirectory(fpgainfo)
-opae_add_subdirectory(fpgametrics)
+# Build and install ofs.uio Python package
 
-option(OPAE_BUILD_USERCLK "Enable building extra tool userclk" ON)
-mark_as_advanced(OPAE_BUILD_USERCLK)
+set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
+file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/uio/*)
 
-option(OPAE_BUILD_FPGADIAG "Enable building extra tool fpgadiag" ON)
-mark_as_advanced(OPAE_BUILD_FPGADIAG)
+set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
 
-option(OPAE_BUILD_MMLINK "Enable building extra tool mmlink" ON)
-mark_as_advanced(OPAE_BUILD_MMLINK)
+add_custom_command(
+    OUTPUT ${OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -L ${LINK_DIRS}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build
+    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS setup.py ${PKG_FILES}
+)
 
-option(OPAE_BUILD_PAC_HSSI_CONFIG  "Enable building extra tool pac_hssi_config" ON)
-mark_as_advanced(OPAE_BUILD_PAC_HSSI_CONFIG)
+set_property(DIRECTORY PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/build"
+        "${CMAKE_CURRENT_SOURCE_DIR}/dist"
+)
 
-option(OPAE_BUILD_FPGABIST "Enable building extra tool fpgabist" OFF)
-mark_as_advanced(OPAE_BUILD_FPGABIST)
-
-option(OPAE_BUILD_OPAEIO "Enable building extra tool opae.io" ON)
-mark_as_advanced(OPAE_BUILD_OPAEIO)
-
-opae_add_subdirectory(hssi)
-
-if(OPAE_BUILD_EXTRA_TOOLS)
-  if(OPAE_BUILD_USERCLK)
-    opae_add_subdirectory(userclk)
-  endif()
-  if(OPAE_BUILD_FPGADIAG)
-    set(OPAE_BUILD_CXXUTILS ON)
-    opae_add_subdirectory(fpgadiag)
-  endif()
-  if(OPAE_BUILD_MMLINK)
-    opae_add_subdirectory(mmlink)
-  endif()
-  if(OPAE_BUILD_PAC_HSSI_CONFIG)
-    opae_add_subdirectory(pac_hssi_config)
-  endif()
-  if(OPAE_BUILD_FPGABIST)
-    opae_add_subdirectory(fpgabist)
-  endif()
-  if(OPAE_BUILD_OPAEIO)
-    opae_add_subdirectory(opae.io)
-  endif()
-endif()
-
-opae_add_subdirectory(ofs.uio)
-opae_add_subdirectory(vabtool)
-opae_add_subdirectory(fpgad)
+add_custom_target(ofs.uio-build ALL DEPENDS  ${OUTPUT})
+opae_python_install(
+    COMPONENT ofs.uio
+    RECORD_FILE ofs.uio-install.txt
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    RPM_PACKAGE tools-extra
+)

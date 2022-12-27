@@ -57,6 +57,7 @@ public:
           he_lpbk_ctl_.value = 0;
           he_lpbk_api_ver_ = 0;
           he_lpbk_atomics_supported_ = false;
+          is_ase_sim_ = false;
     }
     virtual ~host_exerciser_cmd() {}
 
@@ -187,7 +188,12 @@ public:
     bool he_wait_test_completion()
     {
         /* Wait for test completion */
-        uint32_t           timeout = HELPBK_TEST_TIMEOUT;
+        uint32_t timeout = HELPBK_TEST_TIMEOUT;
+        if (is_ase_sim_) {
+            // Much longer timeout when running HW simulation
+            timeout *= 100;
+        }
+
         volatile uint8_t* status_ptr = dsm_->c_type();
 
         while (0 == ((*status_ptr) & 0x1)) {
@@ -377,6 +383,15 @@ public:
         if (!host_exe_)
             return -1;
 
+        // ASE simulation?
+        auto afu_props = fpga::properties::get(token_);
+        uint32_t vendor_id = afu_props->vendor_id;
+        uint32_t device_id = afu_props->device_id;
+        is_ase_sim_ = (vendor_id == 0x8086) && (device_id == 0xa5e);
+        if (is_ase_sim_) {
+            std::cout << "Simulation: ASE mode" << std::endl;
+        }
+
         // Host Exerciser Mode
         he_lpbk_cfg_.TestMode = host_exe_->he_modes_;
 
@@ -397,7 +412,6 @@ public:
         }
 
         // Set Interrupt test mode
-        auto afu_props = fpga::properties::get(token_);
         if (host_exe_->option_passed("--interrupt")) {
             if (host_exe_->he_interrupt_ < afu_props->num_interrupts) {
                 he_lpbk_cfg_.IntrTestMode = 1;
@@ -759,6 +773,7 @@ protected:
     token::ptr_t token_;
     uint8_t he_lpbk_api_ver_;
     bool he_lpbk_atomics_supported_;
+    bool is_ase_sim_;
 };
 
 } // end of namespace host_exerciser
