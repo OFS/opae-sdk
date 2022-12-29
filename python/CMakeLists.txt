@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2021, Intel Corporation
+## Copyright(c) 2019-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
+cmake_minimum_required(VERSION 3.11)
 
 project(python)
 
@@ -36,8 +36,6 @@ set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
 
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
-
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
 
 add_subdirectory(opae.admin)
 add_subdirectory(pacsign)

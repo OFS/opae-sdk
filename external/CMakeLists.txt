@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-cmake_minimum_required(VERSION  3.10)
+cmake_minimum_required(VERSION 3.11)
 
 if(OPAE_WITH_PYBIND11)
 
@@ -37,12 +37,16 @@ if(OPAE_WITH_PYBIND11)
         # Otherwise, pull recent pybind11 tag to enable Python 3.9 support.
             set(PYBIND11_TAG "v2.10.0")
         endif()
-        message(STATUS "Using pybind11 ${PYBIND11_TAG}")
-        opae_external_project_add(PROJECT_NAME pybind11
-                                  GIT_URL https://github.com/pybind/pybind11.git
-                                  GIT_TAG "${PYBIND11_TAG}"
-                                  PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-    )
+        message(STATUS "Fetching pybind11 ${PYBIND11_TAG}")
+
+        set(pybind11_ROOT ${FETCHCONTENT_BASE_DIR}/pybind11-src CACHE PATH "base dir for pybind11" FORCE)
+
+        FetchContent_Declare(pybind11
+            GIT_REPOSITORY https://github.com/pybind/pybind11.git
+            GIT_TAG ${PYBIND11_TAG}
+        )
+
+        FetchContent_MakeAvailable(pybind11)
     endif(NOT pybind11_FOUND)
 
 endif(OPAE_WITH_PYBIND11)
@@ -60,13 +64,15 @@ if (OPAE_WITH_CLI11)
             v2.1.2
             CACHE STRING "Tag for CLI11")
 
-        opae_external_project_add(PROJECT_NAME CLI11
-                                  GIT_URL ${CLI11_URL}
-                                  GIT_TAG ${CLI11_TAG}
-                                  PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                                  NO_ADD_SUBDIRECTORY
-                                  DEFER
+        set(CLI11_ROOT ${FETCHCONTENT_BASE_DIR}/cli11-src CACHE PATH "base dir for cli11" FORCE)
+
+        FetchContent_Declare(CLI11
+            GIT_REPOSITORY ${CLI11_URL}
+            GIT_TAG ${CLI11_TAG}
         )
+
+        FetchContent_MakeAvailable(CLI11)
+
         set(CLI11_INCLUDE_DIRS ${CLI11_ROOT}/include
             CACHE STRING "Path to external CLI11" FORCE)
         set(CLI11_LIBRARIES ""
@@ -90,13 +96,15 @@ if (OPAE_WITH_SPDLOG)
             v1.8.0
             CACHE STRING "Tag for spdlog")
 
-        opae_external_project_add(PROJECT_NAME spdlog
-                                  GIT_URL ${SPDLOG_URL}
-                                  GIT_TAG ${SPDLOG_TAG}
-                                  PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                                  NO_ADD_SUBDIRECTORY
-                                  DEFER
+        set(spdlog_ROOT ${FETCHCONTENT_BASE_DIR}/spdlog-src CACHE PATH "base dir for spdlog" FORCE)
+
+        FetchContent_Declare(spdlog
+            GIT_REPOSITORY ${SPDLOG_URL}
+            GIT_TAG ${SPDLOG_TAG}
         )
+
+        FetchContent_MakeAvailable(spdlog)
+
         set(spdlog_INCLUDE_DIRS ${spdlog_ROOT}/include
             CACHE STRING "Path to external spdlog" FORCE)
         set(spdlog_LIBRARIES ""
@@ -115,17 +123,13 @@ if (OPAE_WITH_SPDLOG)
     endif(NOT spdlog_FOUND)
 endif(OPAE_WITH_SPDLOG)
 
-#if(OPAE_BUILD_TESTS)
-#    opae_external_project_add(PROJECT_NAME opae-test
-#                              GIT_URL https://github.com/OPAE/opae-test.git
-#                              GIT_TAG ${OPAE_TEST_TAG}
-#                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
-#endif(OPAE_BUILD_TESTS)
-
 if(OPAE_BUILD_LEGACY)
-    opae_external_project_add(PROJECT_NAME opae-legacy
-                              GIT_URL https://github.com/OPAE/opae-legacy.git
-                              GIT_TAG ${OPAE_LEGACY_TAG}
-                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
+    set(opae-legacy_ROOT ${FETCHCONTENT_BASE_DIR}/opae-legacy-src CACHE PATH "base dir for opae-legacy" FORCE)
 
+    FetchContent_Declare(opae-legacy
+        GIT_REPOSITORY https://github.com/OFS/opae-legacy.git
+        GIT_TAG ${OPAE_LEGACY_TAG}
+    )
+
+    FetchContent_MakeAvailable(opae-legacy)
 endif(OPAE_BUILD_LEGACY)

@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 project(opae)
 
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
@@ -34,6 +34,18 @@ set(OPAE_INCLUDE_PATH ${OPAE_SDK_SOURCE}/include CACHE PATH "Include directory f
 set(opae-test_ROOT ${OPAE_SDK_SOURCE}/tests CACHE PATH "Test directory for opae-sdk")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
+
+set(GTEST_VERSION "1.11.0" CACHE STRING "googletest version in use" FORCE)
+
+############################################################################
+## Place all executables and libraries under the same directories ##########
+############################################################################
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE PATH "Exe Build directory" FORCE)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory" FORCE)
+
+include(FetchContent)
+set(FETCHCONTENT_QUIET OFF)
+
 include(OPAE)
 
 ############################################################################
@@ -104,8 +116,6 @@ endif()
 ## Sub-projects ############################################################
 ############################################################################
 
-set(GTEST_VERSION "1.11.0" CACHE STRING "googletest version in use" FORCE)
-
 # begin opae-libs
 
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
@@ -130,13 +140,11 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 set(PYBIND11_VERSION "2.10.0" CACHE STRING "pybind11 version" FORCE)
 find_package(pybind11 ${PYBIND11_VERSION} QUIET)
 message(STATUS "pybind11_FOUND ${pybind11_FOUND}")
-message(STATUS "pybind11_VERSION ${pybind11_VERSION}")
 
 
 option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
 mark_as_advanced(OPAE_BUILD_TESTS)
 
-include(OPAE)
 include(OFS)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
@@ -158,12 +166,6 @@ if(OPAE_INSTALL_RPATH)
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
-
-############################################################################
-## Place all executables and libraries under the same directories ##########
-############################################################################
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE PATH "Exe Build directory" FORCE)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory" FORCE)
 
 ############################################################################
 ## Conditional Build Steps and Features ####################################
@@ -189,16 +191,8 @@ mark_as_advanced(OPAE_BUILD_PLUGIN_VFIO)
 option(OPAE_BUILD_LIBOPAEUIO "Enable building of the opaeuio library" ON)
 mark_as_advanced(OPAE_BUILD_LIBOPAEUIO)
 
-option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
-mark_as_advanced(OPAE_PRESERVE_REPOS)
-
 option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
 mark_as_advanced(OPAE_BUILD_LIBOFS)
-
-if(OPAE_BUILD_TESTS)
-    set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
-    mark_as_advanced(OPAE_TEST_TAG)
-endif(OPAE_BUILD_TESTS)
 
 if (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
     message(STATUS
@@ -234,7 +228,6 @@ endif(NOT DEFINED OPAE_MINIMAL_BUILD)
 
 if (OPAE_MINIMAL_BUILD)
     set(OPAE_WITH_PYBIND11 OFF CACHE BOOL "Enable use of pybind11" FORCE)
-    set(OPAE_PRESERVE_REPOS ON CACHE BOOL "Disable refresh of external repos" FORCE)
 endif(OPAE_MINIMAL_BUILD)
 
 ############################################################################
