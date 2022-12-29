@@ -90,7 +90,8 @@ Additional OPAE tools
 
 %build
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
-       -DOPAE_PRESERVE_REPOS=ON \
+       -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+       -DFETCHCONTENT_BASE_DIR=_build/_deps \
        -DOPAE_BUILD_PYTHON_DIST=ON \
        -DOPAE_BUILD_FPGABIST=ON 
 
@@ -129,7 +130,6 @@ for s in \
     OFS.cmake \
     OPAE.cmake \
     OPAECompiler.cmake \
-    OPAEExternal.cmake \
     OPAEGit.cmake \
     OPAEPlugin.cmake \
     OPAEPackaging.cmake \

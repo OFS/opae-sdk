@@ -119,11 +119,10 @@ mkdir ${CMAKE_BUILD_DIR}
 cd ${CMAKE_BUILD_DIR}
 
 if [ "${WHICH_RPM}" = 'rhel' ]; then
-cmake ${SDK_DIR}  \
+cmake ${SDK_DIR} \
   -DOPAE_MINIMAL_BUILD=ON 
 else
-cmake ${SDK_DIR}   \
-  -DOPAE_PRESERVE_REPOS=ON \
+cmake ${SDK_DIR} \
   -DOPAE_BUILD_PYTHON_DIST=ON \
   -DOPAE_BUILD_FPGABIST=ON 
 fi
