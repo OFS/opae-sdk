@@ -397,11 +397,10 @@ if(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")
         '*/bin/mmlink/**'
         '*/bin/fpgabist/**'
         '*/bin/fpgadiag/**'
+        '*/cli11/**'
+        '*/gtest/**'
         '*/pybind11/**'
-        '*/external/opae-test/**'
-        '*/external/gtest/**'
-        '*/external/CLI11/**'
-        '*/external/spdlog/**'
+        '*/spdlog/**'
     )
     add_custom_target(lcov
         COMMAND lcov --directory .  --zerocounters

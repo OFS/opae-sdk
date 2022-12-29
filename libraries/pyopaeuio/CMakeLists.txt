@@ -42,6 +42,7 @@ if (OPAE_WITH_PYBIND11)
             "${CMAKE_CURRENT_SOURCE_DIR}/build"
             "${CMAKE_CURRENT_SOURCE_DIR}/dist"
     )
+
     pybind11_add_module(pyopaeuio THIN_LTO pyopaeuio.cpp)
     target_link_libraries(pyopaeuio PRIVATE opaeuio)
 

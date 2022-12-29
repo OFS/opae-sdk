@@ -42,7 +42,6 @@ lcov --remove coverage.total \
     '*binaries/mmlink/**' \
     '*binaries/fpgabist/**' \
     '*binaries/fpgadiag/**' \
-    '*external/**' \
     '*samples/host_exerciser/**' \
     '*samples/hssi/**' \
     '*samples/n5010-ctl/**' \

@@ -67,7 +67,9 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DOPAE_MINIMAL_BUILD=ON
+%cmake -DOPAE_MINIMAL_BUILD=ON \
+       -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+       -DFETCHCONTENT_BASE_DIR=_build/_deps
 %if 0%{rhel} > 8
   %cmake_build
 %else
@@ -95,7 +97,6 @@ for s in \
     OFS.cmake \
     OPAE.cmake \
     OPAECompiler.cmake \
-    OPAEExternal.cmake \
     OPAEGit.cmake \
     OPAEPlugin.cmake \
     OPAEPackaging.cmake \

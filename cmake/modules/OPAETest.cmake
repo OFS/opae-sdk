@@ -25,17 +25,22 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
+cmake_minimum_required(VERSION 3.11)
+
 check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
 
 set(OPAE_TEST_LIBRARIES test_system fpga_db
     CACHE INTERNAL "OPAE test libs." FORCE)
 
 function(opae_load_gtest)
-    message(STATUS "Trying to fetch gtest through git...")
-    opae_external_project_add(PROJECT_NAME gtest
-                              GIT_URL https://github.com/google/googletest
-                              GIT_TAG release-${GTEST_VERSION}
-                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
+    FetchContent_Declare(gtest
+        GIT_REPOSITORY https://github.com/google/googletest
+        GIT_TAG release-${GTEST_VERSION}
+    )
+
+    FetchContent_MakeAvailable(gtest)
+
+    set(gtest_ROOT ${FETCHCONTENT_BASE_DIR}/gtest-src CACHE PATH "gtest root directory" FORCE)
 
     set(GTEST_INCLUDE_DIR ${gtest_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
     set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)

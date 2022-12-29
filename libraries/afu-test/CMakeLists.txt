@@ -23,14 +23,14 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 
 if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
     project(afu-test)
     add_library(afu-test INTERFACE)
 
     if (fmt_LIBRARIES)
-        # if we found fmt before (from external/CMakeLists.txt)
+        # if we found fmt before (from CMakeLists.txt)
         # then we need to find it again from this directory
         # so we can "import" the fmt::fmt link target
         find_package(fmt)
@@ -56,7 +56,4 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
     target_compile_definitions(afu-test INTERFACE
         ${spdlog_DEFINITIONS}
     )
-
-    opae_target_depends_external(afu-test spdlog)
-    opae_target_depends_external(afu-test CLI11)
 endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)

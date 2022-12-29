@@ -67,10 +67,6 @@ set_target_properties(_opae
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
 )
 
-if(NOT pybind11_FOUND)
-    opae_target_depends_external(_opae pybind11)
-endif(NOT pybind11_FOUND)
-
 add_custom_command(TARGET _opae
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -94,7 +90,7 @@ if (OPAE_BUILD_PYTHON_DIST)
         test_pyopae.py
         )
 
-    set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+    set(PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
     configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
     foreach(pyfile ${PYFILES})
