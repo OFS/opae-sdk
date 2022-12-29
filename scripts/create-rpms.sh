@@ -30,7 +30,6 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
   --exclude=opae.spec \
-  --exclude=external \
   --exclude=platforms \
   --exclude=samples/base \
   --exclude=samples/hello_afu \

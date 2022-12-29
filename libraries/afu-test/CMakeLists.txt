@@ -30,7 +30,7 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
     add_library(afu-test INTERFACE)
 
     if (fmt_LIBRARIES)
-        # if we found fmt before (from external/CMakeLists.txt)
+        # if we found fmt before (from CMakeLists.txt)
         # then we need to find it again from this directory
         # so we can "import" the fmt::fmt link target
         find_package(fmt)
