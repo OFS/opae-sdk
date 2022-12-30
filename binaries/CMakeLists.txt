@@ -70,6 +70,9 @@ if(OPAE_BUILD_EXTRA_TOOLS)
   endif()
 endif()
 
-opae_add_subdirectory(ofs.uio)
+if (OPAE_WITH_PYBIND11)
+  opae_add_subdirectory(ofs.uio)
+endif()
+
 opae_add_subdirectory(vabtool)
 opae_add_subdirectory(fpgad)
