@@ -267,7 +267,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 	// Check for uio string in dfl_device
 	ptr = strstr(dfl_device, "uio");
-	if (ptr == dfl_device) {
+	if (ptr && (ptr == dfl_device)) {
 		if (snprintf(u->device_path, sizeof(u->device_path),
 			"/dev/%s", ptr) < 0) {
 			ERR("snprintf() failed\n");
