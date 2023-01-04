@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,6 @@
 if (OPAE_WITH_HWLOC AND OPAE_WITH_TBB)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
         "${OPAE_SDK_SOURCE}/cmake/modules")
-    include(FindHwloc)
 
     #TODO: Edit the code dependencies here
     set(PYTHON_SRC
@@ -39,12 +38,12 @@ if (OPAE_WITH_HWLOC AND OPAE_WITH_TBB)
          bist_nlb3.py
          fpgabist)
 
-    if(TBB_FOUND)
+    if(tbb_FOUND)
       add_subdirectory(dma)
       add_subdirectory(dma_N3000)
-    else(TBB_FOUND)
+    else(tbb_FOUND)
       message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
-    endif(TBB_FOUND)
+    endif(tbb_FOUND)
 
     add_subdirectory(bist)
 

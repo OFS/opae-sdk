@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 project(opae)
 
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
@@ -35,8 +35,6 @@ set(opae-test_ROOT ${OPAE_SDK_SOURCE}/tests CACHE PATH "Test directory for opae-
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 
-set(GTEST_VERSION "1.11.0" CACHE STRING "googletest version in use" FORCE)
-
 ############################################################################
 ## Place all executables and libraries under the same directories ##########
 ############################################################################
@@ -46,10 +44,8 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory"
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
-include(OPAE)
-
 ############################################################################
-## Whether to use external projects ########################################
+## External projects #######################################################
 ############################################################################
 option(OPAE_WITH_CLI11 "Enable use of CLI11" ON)
 mark_as_advanced(OPAE_WITH_CLI11)
@@ -60,6 +56,9 @@ mark_as_advanced(OPAE_WITH_SPDLOG)
 option(OPAE_WITH_LIBEDIT "Enable use of libedit" ON)
 mark_as_advanced(OPAE_WITH_LIBEDIT)
 
+option(OPAE_WITH_PYBIND11 "Enable use of pybind11." ON)
+mark_as_advanced(OPAE_WITH_PYBIND11)
+
 option(OPAE_WITH_HWLOC "Enable use of hwloc" ON)
 mark_as_advanced(OPAE_WITH_HWLOC)
 
@@ -69,21 +68,502 @@ mark_as_advanced(OPAE_WITH_TBB)
 option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
 mark_as_advanced(OPAE_MINIMAL_BUILD)
 
+option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
+mark_as_advanced(OPAE_BUILD_TESTS)
+
+############################################################################
+## Python Interpreter/Build Env  ###########################################
+############################################################################
+set(OPAE_PYTHON_VERSION 3 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 3 3.6 3.7 3.8 3.9 3.10 3.11)
+find_package(PythonInterp ${OPAE_PYTHON_VERSION})
+find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+
+################################################################################
+# util-linux/libuuid
+################################################################################
+
+set(UTIL_LINUX_URL
+        https://github.com/util-linux/util-linux
+        CACHE STRING "URL for util-linux")
+set(UTIL_LINUX_VERSION
+        2.38
+        CACHE STRING "Version for util-linux")
+set(UTIL_LINUX_TAG
+        v${UTIL_LINUX_VERSION}
+        CACHE STRING "Tag for util-linux")
+
+if (NOT uuid_FOUND)
+    find_package(uuid)
+endif(NOT uuid_FOUND)
+
+if (NOT uuid_FOUND)
+    include(ExternalProject)
+
+    message(WARNING "Building libuuid.so from source is experimental. "
+                    "Be sure to install all prerequisite packages, eg bison. "
+                    "To avoid this build path, please install "
+                    "the util-linux package, which provides libuuid.so.")
+
+    ExternalProject_Add(uuid
+        GIT_REPOSITORY ${UTIL_LINUX_URL}
+        GIT_TAG ${UTIL_LINUX_TAG}
+        CONFIGURE_COMMAND ./autogen.sh && ./configure --disable-all-programs --enable-libuuid
+        BUILD_COMMAND make libuuid.la
+        INSTALL_COMMAND ""
+        BUILD_IN_SOURCE ON
+    )
+
+    add_custom_target(uuid_symlink ALL
+        ln -sf ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/src ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/uuid
+        COMMENT "Creating include symlink for uuid")
+    add_dependencies(uuid_symlink uuid)
+
+    set(uuid_ROOT ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid CACHE PATH "base dir for uuid" FORCE)
+
+    set(uuid_INCLUDE_DIRS ${uuid_ROOT}
+        CACHE STRING "Path to uuid" FORCE)
+    set(uuid_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/.libs/libuuid.so
+        CACHE STRING "Path to uuid libraries" FORCE)
+    set(uuid_DEFINITIONS "" CACHE STRING "uuid built from source" FORCE)
+    set(uuid_FOUND TRUE CACHE BOOL "uuid built from source" FORCE)
+endif(NOT uuid_FOUND)
+
+message(STATUS "uuid_ROOT ${uuid_ROOT}")
+message(STATUS "uuid_INCLUDE_DIRS ${uuid_INCLUDE_DIRS}")
+message(STATUS "uuid_LIBRARIES ${uuid_LIBRARIES}")
+message(STATUS "uuid_DEFINITIONS ${uuid_DEFINITIONS}")
+
+################################################################################
+# json-c
+################################################################################
+
+set(JSON_C_URL
+        https://github.com/json-c/json-c
+        CACHE STRING "URL for json-c")
+set(JSON_C_TAG
+        json-c-0.16-20220414
+        CACHE STRING "Tag for json-c")
+
+FetchContent_Declare(json-c
+    GIT_REPOSITORY ${JSON_C_URL}
+    GIT_TAG ${JSON_C_TAG}
+)
+
+if (NOT json-c_FOUND)
+    find_package(json-c)
+endif(NOT json-c_FOUND)
+
+if (NOT json-c_FOUND)
+    set(json-c_ROOT ${FETCHCONTENT_BASE_DIR} CACHE PATH "base dir for json-c" FORCE)
+
+    FetchContent_MakeAvailable(json-c)
+
+    add_custom_target(json-c_symlink ALL
+        ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-src ${FETCHCONTENT_BASE_DIR}/json-c
+        COMMENT "Creating include symlink for json-c")
+    add_custom_target(json_h_symlink ALL
+        ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json.h ${FETCHCONTENT_BASE_DIR}/json-c/json.h
+        COMMENT "Creating symlink for json.h")
+    add_custom_target(json_config_h_symlink ALL
+        ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json_config.h ${FETCHCONTENT_BASE_DIR}/json-c/json_config.h
+        COMMENT "Creating symlink for json_config.h")
+
+    set(json-c_INCLUDE_DIRS ${json-c_ROOT}
+        CACHE STRING "Path to FetchContent json-c" FORCE)
+    set(json-c_LIBRARIES json-c
+        CACHE STRING "Path to json-c libraries" FORCE)
+    set(json-c_DEFINITIONS ""
+        CACHE STRING "json-c preprocessor definitions" FORCE)
+    set(json-c_FOUND TRUE CACHE BOOL "json-c found by FetchContent" FORCE)
+endif(NOT json-c_FOUND)
+
+message(STATUS "json-c_ROOT ${json-c_ROOT}")
+message(STATUS "json-c_INCLUDE_DIRS ${json-c_INCLUDE_DIRS}")
+message(STATUS "json-c_LIBRARIES ${json-c_LIBRARIES}")
+message(STATUS "json-c_DEFINITIONS ${json-c_DEFINITIONS}")
+
+################################################################################
+# CLI11
+################################################################################
+
+set(CLI11_URL
+        https://github.com/CLIUtils/CLI11.git
+        CACHE STRING "URL for CLI11")
+set(CLI11_VERSION
+        2.1.2
+        CACHE STRING "Version for CLI11")
+set(CLI11_TAG
+        v${CLI11_VERSION}
+        CACHE STRING "Tag for CLI11")
+
+FetchContent_Declare(CLI11
+    GIT_REPOSITORY ${CLI11_URL}
+    GIT_TAG ${CLI11_TAG}
+)
+
+if (OPAE_WITH_CLI11)
+
+    if (NOT CLI11_FOUND)
+        find_package(CLI11 ${CLI11_VERSION})
+    endif(NOT CLI11_FOUND)
+
+    if (NOT CLI11_FOUND)
+        set(CLI11_ROOT ${FETCHCONTENT_BASE_DIR}/cli11-src CACHE PATH "base dir for CLI11" FORCE)
+
+        FetchContent_MakeAvailable(CLI11)
+
+        set(CLI11_INCLUDE_DIRS ${CLI11_ROOT}/include
+            CACHE STRING "Path to FetchContent CLI11" FORCE)
+        set(CLI11_LIBRARIES ""
+            CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+        set(CLI11_DEFINITIONS ""
+            CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+        set(CLI11_FOUND TRUE CACHE BOOL "CLI11 found by FetchContent" FORCE)
+    endif(NOT CLI11_FOUND)
+
+    message(STATUS "CLI11_ROOT ${CLI11_ROOT}")
+    message(STATUS "CLI11_INCLUDE_DIRS ${CLI11_INCLUDE_DIRS}")
+    #message(STATUS "CLI11_LIBRARIES ${CLI11_LIBRARIES}")
+    #message(STATUS "CLI11_DEFINITIONS ${CLI11_DEFINITIONS}")
+
+endif(OPAE_WITH_CLI11)
+
+################################################################################
+# spdlog
+################################################################################
+
+set(SPDLOG_URL
+        https://github.com/gabime/spdlog.git
+        CACHE STRING "URL for spdlog")
+set(SPDLOG_VERSION
+        1.8.0
+        CACHE STRING "Version for spdlog")
+set(SPDLOG_TAG
+        v${SPDLOG_VERSION}
+        CACHE STRING "Tag for spdlog")
+
+FetchContent_Declare(spdlog
+    GIT_REPOSITORY ${SPDLOG_URL}
+    GIT_TAG ${SPDLOG_TAG}
+)
+
+if (OPAE_WITH_SPDLOG)
+
+    if (NOT spdlog_FOUND)
+        find_package(spdlog ${SPDLOG_VERSION})
+    endif(NOT spdlog_FOUND)
+
+    if (NOT spdlog_FOUND)
+        set(spdlog_ROOT ${FETCHCONTENT_BASE_DIR}/spdlog-src CACHE PATH "base dir for spdlog" FORCE)
+
+        FetchContent_MakeAvailable(spdlog)
+
+        set(spdlog_INCLUDE_DIRS ${spdlog_ROOT}/include
+            CACHE STRING "Path to external spdlog" FORCE)
+        set(spdlog_LIBRARIES ""
+            CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
+        set(spdlog_DEFINITIONS ""
+            CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
+        set(spdlog_FOUND TRUE CACHE BOOL "spdlog found by FetchContent" FORCE)
+    else(NOT spdlog_FOUND)
+        if(spdlog_DEFINITIONS)
+            string(REGEX MATCH "-DSPDLOG_FMT_EXTERNAL" HAVE_FMT ${spdlog_DEFINITIONS})
+            if (HAVE_FMT)
+                find_package(fmt)
+                set(fmt_LIBRARIES "fmt::fmt" CACHE STRING "fmt library link interface")
+            endif (HAVE_FMT)
+        endif(spdlog_DEFINITIONS)
+    endif(NOT spdlog_FOUND)
+
+    message(STATUS "spdlog_ROOT ${spdlog_ROOT}")
+    message(STATUS "spdlog_INCLUDE_DIRS ${spdlog_INCLUDE_DIRS}")
+    message(STATUS "spdlog_LIBRARIES ${spdlog_LIBRARIES}")
+    message(STATUS "spdlog_DEFINITIONS ${spdlog_DEFINITIONS}")
+
+endif(OPAE_WITH_SPDLOG)
+
+################################################################################
+# libedit
+################################################################################
+
+set(LIBEDIT_URL
+        https://www.thrysoee.dk/editline/libedit-20221030-3.1.tar.gz
+        CACHE STRING "URL for libedit")
+set(LIBEDIT_VERSION
+        3.1
+        CACHE STRING "Version of libedit")
+
+if (OPAE_WITH_LIBEDIT)
+
+    if (NOT libedit_FOUND)
+        find_package(libedit ${LIBEDIT_VERSION})
+    endif(NOT libedit_FOUND)
+
+    if (NOT libedit_FOUND)
+        include(ExternalProject)
+
+        message(WARNING "Building libedit.so from source is experimental. "
+                        "Be sure to install all prerequisite packages, eg libncurses5-dev. "
+                        "To avoid this build path, please install the libedit-dev / "
+                        "libedit-devel package, which provides libedit.so.")
+
+        ExternalProject_Add(libedit
+            URL ${LIBEDIT_URL}
+            CONFIGURE_COMMAND ./configure
+            BUILD_COMMAND make
+            INSTALL_COMMAND ""
+            BUILD_IN_SOURCE ON
+        )
+
+        set(libedit_ROOT ${CMAKE_CURRENT_BINARY_DIR}/libedit-prefix/src/libedit
+            CACHE PATH "base dir for libedit" FORCE)
+        set(libedit_INCLUDE_DIRS ${libedit_ROOT}/src
+            CACHE STRING "Path to libedit" FORCE)
+        set(libedit_LIBRARIES ${libedit_ROOT}/src/.libs/libedit.so
+            CACHE STRING "Path to libedit libraries" FORCE)
+        set(libedit_DEFINITIONS "" CACHE STRING "libedit built from source" FORCE)
+        set(libedit_FOUND TRUE CACHE BOOL "libedit built from source" FORCE)
+    endif(NOT libedit_FOUND)
+
+    message(STATUS "libedit_ROOT ${libedit_ROOT}")
+    message(STATUS "libedit_INCLUDE_DIRS ${libedit_INCLUDE_DIRS}")
+    message(STATUS "libedit_LIBRARIES ${libedit_LIBRARIES}")
+    message(STATUS "libedit_DEFINITIONS ${libedit_DEFINITIONS}")
+
+endif(OPAE_WITH_LIBEDIT)
+
+################################################################################
+# pybind11
+################################################################################
+
+set(PYBIND11_URL
+        https://github.com/pybind/pybind11.git
+        CACHE STRING "URL for pybind11")
+
+if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${PYTHONLIBS_VERSION_STRING} VERSION_LESS "3.9.0")
+    set(PYBIND11_VERSION
+        2.4.3
+        CACHE STRING "Version for pybind11")
+else()
+    # Otherwise, pull recent pybind11 tag to enable Python 3.9 support.
+    set(PYBIND11_VERSION
+        2.10.2
+        CACHE STRING "Version for pybind11")
+endif()
+
+set(PYBIND11_TAG
+        v${PYBIND11_VERSION}
+        CACHE STRING "Tag for pybind11")
+
+FetchContent_Declare(pybind11
+    GIT_REPOSITORY ${PYBIND11_URL}
+    GIT_TAG ${PYBIND11_TAG}
+)
+
+if (OPAE_WITH_PYBIND11)
+
+    if (NOT pybind11_FOUND)
+        find_package(pybind11 CONFIG)
+    endif(NOT pybind11_FOUND)
+
+    if (NOT pybind11_FOUND)
+        set(pybind11_ROOT ${FETCHCONTENT_BASE_DIR}/pybind11-src CACHE PATH "base dir for pybind11" FORCE)
+
+        FetchContent_MakeAvailable(pybind11)
+
+        set(pybind11_INCLUDE_DIRS ${pybind11_ROOT}/include
+            CACHE STRING "Path to external pybind11" FORCE)
+        set(pybind11_DEFINITIONS ""
+            CACHE STRING "Do not link against pybind11 library, using header-only" FORCE)
+        set(pybind11_FOUND TRUE CACHE BOOL "pybind11 found by FetchContent" FORCE)
+    endif(NOT pybind11_FOUND)
+
+    message(STATUS "pybind11_ROOT ${pybind11_ROOT}")
+    message(STATUS "pybind11_INCLUDE_DIRS ${pybind11_INCLUDE_DIRS}")
+    message(STATUS "pybind11_DEFINITIONS ${pybind11_DEFINITIONS}")
+
+endif(OPAE_WITH_PYBIND11)
+
+################################################################################
+# hwloc
+################################################################################
+
+set(HWLOC_URL
+        https://github.com/open-mpi/hwloc.git
+        CACHE STRING "URL for hwloc")
+set(HWLOC_VERSION
+        2.8.0
+        CACHE STRING "Version for hwloc")
+set(HWLOC_TAG
+        hwloc-${HWLOC_VERSION}
+        CACHE STRING "Tag for hwloc")
+
+if (OPAE_WITH_HWLOC)
+
+    if (NOT hwloc_FOUND)
+        find_package(hwloc ${HWLOC_VERSION})
+    endif(NOT hwloc_FOUND)
+
+    if (NOT hwloc_FOUND)
+        include(ExternalProject)
+
+        message(WARNING "Building libhwloc.so from source is experimental. "
+                        "To avoid this build path, please install the libhwloc-dev "
+                        "/ hwloc-devel package, which provides libhwloc.so.")
+
+        ExternalProject_Add(hwloc
+            GIT_REPOSITORY ${HWLOC_URL}
+            GIT_TAG ${HWLOC_TAG}
+            CONFIGURE_COMMAND ./autogen.sh && ./configure
+            BUILD_COMMAND make
+            INSTALL_COMMAND ""
+            BUILD_IN_SOURCE ON
+        )
+
+        set(hwloc_ROOT ${CMAKE_CURRENT_BINARY_DIR}/hwloc-prefix/src/hwloc CACHE PATH "base dir for hwloc" FORCE)
+        set(hwloc_INCLUDE_DIRS ${hwloc_ROOT}/include
+            CACHE STRING "Path to hwloc" FORCE)
+        set(hwloc_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/hwloc-prefix/src/hwloc/hwloc/.libs/libhwloc.so
+            CACHE STRING "Path to hwloc libraries" FORCE)
+        set(hwloc_DEFINITIONS "" CACHE STRING "hwloc built from source" FORCE)
+        set(hwloc_FOUND TRUE CACHE BOOL "hwloc built from source" FORCE)
+    endif(NOT hwloc_FOUND)
+
+    message(STATUS "hwloc_ROOT ${hwloc_ROOT}")
+    message(STATUS "hwloc_INCLUDE_DIRS ${hwloc_INCLUDE_DIRS}")
+    message(STATUS "hwloc_LIBRARIES ${hwloc_LIBRARIES}")
+    message(STATUS "hwloc_DEFINITIONS ${hwloc_DEFINITIONS}")
+
+endif(OPAE_WITH_HWLOC)
+
+################################################################################
+# tbb
+################################################################################
+
+set(TBB_URL
+        https://github.com/oneapi-src/oneTBB.git
+        CACHE STRING "URL for tbb")
+set(TBB_TAG
+        v2021.7.0
+        CACHE STRING "Tag for tbb")
+
+FetchContent_Declare(tbb
+    GIT_REPOSITORY ${TBB_URL}
+    GIT_TAG ${TBB_TAG}
+)
+
+if (OPAE_WITH_TBB)
+
+    if (NOT tbb_FOUND)
+        find_package(tbb)
+    endif(NOT tbb_FOUND)
+
+    if (NOT tbb_FOUND)
+        set(tbb_ROOT ${FETCHCONTENT_BASE_DIR} CACHE PATH "base dir for tbb" FORCE)
+        set(TBB_TEST OFF CACHE BOOL "skip building tests" FORCE)
+
+        FetchContent_MakeAvailable(tbb)
+
+        set(tbb_INCLUDE_DIRS ${tbb_ROOT}/tbb-src/include
+            CACHE STRING "Path to FetchContent tbb" FORCE)
+        set(tbb_LIBRARIES tbb
+            CACHE STRING "Path to tbb libraries" FORCE)
+        set(tbb_DEFINITIONS ""
+            CACHE STRING "tbb preprocessor definitions" FORCE)
+        set(tbb_FOUND TRUE CACHE BOOL "tbb found by FetchContent" FORCE)
+    endif(NOT tbb_FOUND)
+
+    message(STATUS "tbb_ROOT ${tbb_ROOT}")
+    message(STATUS "tbb_INCLUDE_DIRS ${tbb_INCLUDE_DIRS}")
+    message(STATUS "tbb_LIBRARIES ${tbb_LIBRARIES}")
+    message(STATUS "tbb_DEFINITIONS ${tbb_DEFINITIONS}")
+
+endif(OPAE_WITH_TBB)
+
+################################################################################
+# googletest
+################################################################################
+
+set(GTEST_URL
+        https://github.com/google/googletest
+        CACHE STRING "URL for googletest")
+set(GTEST_VERSION
+        1.11.0
+        CACHE STRING "Version for googletest")
+set(GTEST_TAG
+        release-${GTEST_VERSION}
+        CACHE STRING "Tag for googletest")
+
+FetchContent_Declare(gtest
+    GIT_REPOSITORY ${GTEST_URL}
+    GIT_TAG ${GTEST_TAG}
+)
+
+if (OPAE_BUILD_TESTS)
+    enable_testing()
+
+    if (NOT GTest_FOUND)
+        find_package(GTest ${GTEST_VERSION})
+    endif(NOT GTest_FOUND)
+
+    if (NOT GTest_FOUND)
+        set(GTEST_ROOT ${FETCHCONTENT_BASE_DIR}/gtest-src CACHE PATH "gtest root directory" FORCE)
+
+        FetchContent_MakeAvailable(gtest)
+
+        set(GTEST_INCLUDE_DIR ${GTEST_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
+        set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)
+        set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.a CACHE PATH "path to gtest main library" FORCE)
+        set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.a CACHE PATH "path to (debug) gtest library" FORCE)
+        set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.a CACHE PATH "path to (debug) gtest main library" FORCE)
+        set(GTest_FOUND TRUE CACHE BOOL "GTest found by FetchContent" FORCE)
+    endif(NOT GTest_FOUND)
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(GTEST_LIBRARIES ${GTEST_LIBRARY_DEBUG} ${GTEST_MAIN_LIBRARY_DEBUG}
+            CACHE STRING "gtest link libraries" FORCE)
+    else()
+        set(GTEST_LIBRARIES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY}
+            CACHE STRING "gtest link libraries" FORCE)
+    endif()
+
+    message(STATUS "GTEST_INCLUDE_DIR: ${GTEST_INCLUDE_DIR}")
+    message(STATUS "GTEST_LIBRARY: ${GTEST_LIBRARY}")
+    message(STATUS "GTEST_MAIN_LIBRARY: ${GTEST_MAIN_LIBRARY}")
+    message(STATUS "GTEST_LIBRARY_DEBUG: ${GTEST_LIBRARY_DEBUG}")
+    message(STATUS "GTEST_MAIN_LIBRARY_DEBUG: ${GTEST_MAIN_LIBRARY_DEBUG}")
+
+endif(OPAE_BUILD_TESTS)
+
+include(OPAE)
+
 ############################################################################
 ## Whether to build opae-legacy ############################################
 ############################################################################
 option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
 mark_as_advanced(OPAE_BUILD_LEGACY)
 
-if(OPAE_BUILD_LEGACY)
-    set(OPAE_LEGACY_TAG "master" CACHE STRING "Desired branch for opae-legacy")
-    mark_as_advanced(OPAE_LEGACY_TAG)
+set(OPAE_LEGACY_TAG "master" CACHE STRING "Desired branch for opae-legacy")
+mark_as_advanced(OPAE_LEGACY_TAG)
+
+FetchContent_Declare(opae-legacy
+    GIT_REPOSITORY https://github.com/OFS/opae-legacy.git
+    GIT_TAG ${OPAE_LEGACY_TAG}
+)
+
+if (OPAE_BUILD_LEGACY)
+    set(opae-legacy_ROOT ${FETCHCONTENT_BASE_DIR}/opae-legacy-src
+        CACHE PATH "base dir for opae-legacy" FORCE)
+    FetchContent_MakeAvailable(opae-legacy)
 endif(OPAE_BUILD_LEGACY)
+
 
 if (OPAE_MINIMAL_BUILD)
     set(OPAE_WITH_CLI11 OFF CACHE BOOL "Enable use of CLI11" FORCE)
     set(OPAE_WITH_SPDLOG OFF CACHE BOOL "Enable use of spdlog" FORCE)
     set(OPAE_WITH_LIBEDIT OFF CACHE BOOL "Enable use of libedit" FORCE)
+    set(OPAE_WITH_PYBIND11 OFF CACHE BOOL "Enable use of pybind11" FORCE)
     set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
     set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
     set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "" FORCE)
@@ -128,23 +608,6 @@ set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVI
 set(SYSFS_PATH_MAX 256 CACHE STRING "Maximum size of sysfs paths")
 set(DEV_PATH_MAX 256 CACHE STRING "Maximum size of device paths")
 
-############################################################################
-## Python Interpreter/Build Env  ###########################################
-############################################################################
-set(OPAE_PYTHON_VERSION 3 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3 3.6 3.7 3.8 3.9)
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
-
-
-set(PYBIND11_VERSION "2.10.0" CACHE STRING "pybind11 version" FORCE)
-find_package(pybind11 ${PYBIND11_VERSION} QUIET)
-message(STATUS "pybind11_FOUND ${pybind11_FOUND}")
-
-
-option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
-mark_as_advanced(OPAE_BUILD_TESTS)
-
 include(OFS)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
@@ -172,9 +635,6 @@ endif()
 ############################################################################
 option(OPAE_BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
 mark_as_advanced(OPAE_BUILD_LIBOPAE_CXX)
-
-option(OPAE_WITH_PYBIND11 "Enable use of pybind11." ON)
-mark_as_advanced(OPAE_WITH_PYBIND11)
 
 option(OPAE_BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
@@ -226,10 +686,6 @@ if (NOT DEFINED OPAE_MINIMAL_BUILD)
     mark_as_advanced(OPAE_MINIMAL_BUILD)
 endif(NOT DEFINED OPAE_MINIMAL_BUILD)
 
-if (OPAE_MINIMAL_BUILD)
-    set(OPAE_WITH_PYBIND11 OFF CACHE BOOL "Enable use of pybind11" FORCE)
-endif(OPAE_MINIMAL_BUILD)
-
 ############################################################################
 ## Install headers #########################################################
 ############################################################################
@@ -257,7 +713,6 @@ endif()
 install(DIRECTORY cmake/modules
     DESTINATION src/opae/cmake)
 
-opae_add_subdirectory(external)
 opae_add_subdirectory(libraries)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(binaries)
@@ -273,7 +728,6 @@ if(OPAE_BUILD_SAMPLES)
 endif()
 
 if(OPAE_BUILD_TESTS)
-    enable_testing()
     opae_add_subdirectory(tests)
 endif()
 

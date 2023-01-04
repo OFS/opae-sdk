@@ -28,41 +28,66 @@
 # - Try to find libedit
 # Once done, this will define
 #
+#  libedit_ROOT - root dir for libedit
 #  libedit_FOUND - system has libedit
 #  libedit_INCLUDE_DIRS - the libedit include directories
 #  libedit_LIBRARIES - link these to use libedit
+#  libedit_DEFINITIONS - preprocessor definitions for libedit
 
 find_package(PkgConfig)
 pkg_check_modules(PC_LIBEDIT QUIET libedit)
 
-execute_process(COMMAND pkg-config --cflags libedit --silence-errors
+execute_process(COMMAND pkg-config --cflags-only-I libedit --silence-errors
     COMMAND cut -d I -f 2
-    OUTPUT_VARIABLE EDIT_PKG_CONFIG_INCLUDE_DIRS
+    OUTPUT_VARIABLE LIBEDIT_PKG_CONFIG_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-set(EDIT_PKG_CONFIG_INCLUDE_DIRS "${EDIT_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for libedit")
+
+execute_process(COMMAND pkg-config --cflags-only-other libedit --silence-errors
+    OUTPUT_VARIABLE LIBEDIT_PKG_CONFIG_DEFINITIONS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if (LIBEDIT_PKG_CONFIG_DEFINITIONS)
+    set(libedit_DEFINITIONS ${LIBEDIT_PKG_CONFIG_DEFINITIONS})
+else(LIBEDIT_PKG_CONFIG_DEFINITIONS)
+    set(libedit_DEFINITIONS "")
+endif(LIBEDIT_PKG_CONFIG_DEFINITIONS)
+
+find_path(libedit_ROOT NAMES include/editline/readline.h)
 
 find_path(libedit_INCLUDE_DIRS
     NAMES editline/readline.h
-    PATHS ${LIBEDIT_ROOT}/include
-    ${EDIT_PKG_CONFIG_INCLUDE_DIRS}
+    HINTS ${libedit_ROOT}/include
+    PATHS ${libedit_ROOT}/include
+    ${LIBEDIT_PKG_CONFIG_INCLUDE_DIRS}
     /usr/local/include
     /usr/include
-    ${CMAKE_EXTRA_INCLUDES})
+    ${CMAKE_EXTRA_INCLUDES}
+)
 
-find_library(libedit_LIBRARIES
-    NAMES edit libedit
-    PATHS ${LIBEDIT_ROOT}/lib
-    ${PC_LIBEDIT_LIBDIR}
-    ${PC_LIBEDIT_LIBRARY_DIRS}
-    /usr/local/lib
-    /usr/lib
-    /lib
-    /usr/lib/x86_64-linux-gnu
-    ${CMAKE_EXTRA_LIBS})
-
-if(libedit_LIBRARIES AND libedit_INCLUDE_DIRS)
-    set(libedit_FOUND true)
-endif(libedit_LIBRARIES AND libedit_INCLUDE_DIRS)
+if (pkgcfg_lib_PC_LIBEDIT_libedit)
+    set(libedit_LIBRARIES ${pkgcfg_lib_PC_LIBEDIT_libedit})
+else (pkgcfg_lib_PC_LIBEDIT_libedit)
+    find_library(libedit_LIBRARIES
+        NAMES edit libedit
+        PATHS ${LIBEDIT_ROOT}/lib
+        /usr/local/lib
+        /usr/lib
+        /lib
+        /usr/lib/x86_64-linux-gnu
+        ${CMAKE_EXTRA_LIBS}
+    )
+endif (pkgcfg_lib_PC_LIBEDIT_libedit)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(libedit REQUIRED_VARS libedit_INCLUDE_DIRS libedit_LIBRARIES)
+find_package_handle_standard_args(libedit
+    FOUND_VAR
+        libedit_FOUND
+    REQUIRED_VARS
+        libedit_ROOT libedit_INCLUDE_DIRS libedit_LIBRARIES
+)
+
+set(libedit_FOUND ${libedit_FOUND} CACHE BOOL "libedit status" FORCE)
+set(libedit_ROOT ${libedit_ROOT} CACHE PATH "base dir for libedit" FORCE)
+set(libedit_INCLUDE_DIRS ${libedit_INCLUDE_DIRS} CACHE STRING "libedit include dirs" FORCE)
+set(libedit_LIBRARIES ${libedit_LIBRARIES} CACHE STRING "libedit libraries" FORCE)
+set(libedit_DEFINITIONS ${libedit_DEFINITIONS} CACHE STRING "libedit preprocessor defines" FORCE)

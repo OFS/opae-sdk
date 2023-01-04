@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,20 +24,14 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 project(testing)
 
-if(${GTest_FOUND})
-    message(STATUS Found GTest)
+if(GTest_FOUND)
+    message(STATUS "Found GTest")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
-
-message(STATUS "GTEST_INCLUDE_DIR: ${GTEST_INCLUDE_DIR}")
-message(STATUS "GTEST_LIBRARY: ${GTEST_LIBRARY}")
-message(STATUS "GTEST_MAIN_LIBRARY: ${GTEST_MAIN_LIBRARY}")
-message(STATUS "GTEST_LIBRARY_DEBUG: ${GTEST_LIBRARY_DEBUG}")
-message(STATUS "GTEST_MAIN_LIBRARY_DEBUG: ${GTEST_MAIN_LIBRARY_DEBUG}")
 
 # Disable some warnings that fire during gtest compilation
 check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)

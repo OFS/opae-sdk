@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2019-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,71 +23,71 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-# - Try to find json-c
+# - Try to find tbb
 # Once done, this will define
 #
-#  json-c_ROOT - root of libjson-c files
-#  json-c_FOUND - system has libjson-c
-#  json-c_INCLUDE_DIRS - the libjson-c include directories
-#  json-c_LIBRARIES - link these to use libjson-c
-#  json-c_DEFINITIONS - preprocessor definitions for libjson-c
+#  tbb_FOUND - system has tbb
+#  tbb_ROOT - base dir for tbb
+#  tbb_INCLUDE_DIRS - the tbb include directories
+#  tbb_DEFINITIONS - preprocessor defines for tbb
+#  tbb_LIBRARIES - link these to use tbb
 
 find_package(PkgConfig)
-pkg_check_modules(PC_JSON_C QUIET json-c)
+pkg_check_modules(PC_TBB QUIET tbb)
 
-execute_process(COMMAND pkg-config --cflags-only-I json-c --silence-errors
+execute_process(COMMAND pkg-config --cflags-only-I tbb --silence-errors
     COMMAND cut -d I -f 2
-    OUTPUT_VARIABLE JSON_C_PKG_CONFIG_INCLUDE_DIRS
+    OUTPUT_VARIABLE TBB_PKG_CONFIG_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND pkg-config --cflags-only-other json-c --silence-errors
-    OUTPUT_VARIABLE JSON_C_PKG_CONFIG_DEFINITIONS
+execute_process(COMMAND pkg-config --cflags-only-other tbb --silence-errors
+    OUTPUT_VARIABLE TBB_PKG_CONFIG_DEFINITIONS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if (JSON_C_PKG_CONFIG_DEFINITIONS)
-    set(json-c_DEFINITIONS ${JSON_C_PKG_CONFIG_DEFINITIONS})
-else(JSON_C_PKG_CONFIG_DEFINITIONS)
-    set(json-c_DEFINITIONS "")
-endif(JSON_C_PKG_CONFIG_DEFINITIONS)
+if (TBB_PKG_CONFIG_DEFINITIONS)
+    set(tbb_DEFINITIONS ${TBB_PKG_CONFIG_DEFINITIONS})
+else(TBB_PKG_CONFIG_DEFINITIONS)
+    set(tbb_DEFINITIONS "")
+endif(TBB_PKG_CONFIG_DEFINITIONS)
 
-find_path(json-c_ROOT NAMES include/json-c/json.h)
+find_path(tbb_ROOT NAMES include/tbb/tbb.h)
 
-find_path(json-c_INCLUDE_DIRS
-    NAMES json-c/json.h
-    HINTS ${json-c_ROOT}/include
-    PATHS ${json-c_ROOT}/include
-    ${JSON_C_PKG_CONFIG_INCLUDE_DIRS}
+find_path(tbb_INCLUDE_DIRS
+    NAMES tbb/tbb.h
+    HINTS ${tbb_ROOT}/include
+    PATHS ${tbb_ROOT}/include
+    ${TBB_PKG_CONFIG_INCLUDE_DIRS}
     /usr/local/include
     /usr/include
     ${CMAKE_EXTRA_INCLUDES}
 )
 
-if (pkgcfg_lib_PC_JSON_C_json-c)
-    set(json-c_LIBRARIES ${pkgcfg_lib_PC_JSON_C_json-c})
-else (pkgcfg_lib_PC_JSON_C_json-c)
-    find_library(json-c_LIBRARIES
-        NAMES json-c
-        PATHS ${json-c_ROOT}/lib
+if (pkgcfg_lib_PC_TBB_tbb)
+    set(tbb_LIBRARIES ${pkgcfg_lib_PC_TBB_tbb})
+else (pkgcfg_lib_PC_TBB_tbb)
+    find_library(tbb_LIBRARIES
+        NAMES tbb
+        PATHS ${tbb_ROOT}/lib
         /usr/local/lib
         /usr/lib
         /lib
         /usr/lib/x86_64-linux-gnu
         ${CMAKE_EXTRA_LIBS}
     )
-endif (pkgcfg_lib_PC_JSON_C_json-c)
+endif (pkgcfg_lib_PC_TBB_tbb)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(json-c
+find_package_handle_standard_args(tbb
     FOUND_VAR
-        json-c_FOUND
+        tbb_FOUND
     REQUIRED_VARS
-        json-c_ROOT json-c_INCLUDE_DIRS json-c_LIBRARIES
+        tbb_ROOT tbb_INCLUDE_DIRS tbb_LIBRARIES
 )
 
-set(json-c_FOUND ${json-c_FOUND} CACHE BOOL "json-c status" FORCE)
-set(json-c_ROOT ${json-c_ROOT} CACHE PATH "base dir for json-c" FORCE)
-set(json-c_INCLUDE_DIRS ${json-c_INCLUDE_DIRS} CACHE STRING "json-c include dirs" FORCE)
-set(json-c_LIBRARIES ${json-c_LIBRARIES} CACHE STRING "json-c libraries" FORCE)
-set(json-c_DEFINITIONS ${json-c_DEFINITIONS} CACHE STRING "json-c preprocessor defines" FORCE)
+set(tbb_FOUND ${tbb_FOUND} CACHE BOOL "tbb status" FORCE)
+set(tbb_ROOT ${tbb_ROOT} CACHE PATH "base dir for tbb" FORCE)
+set(tbb_INCLUDE_DIRS ${tbb_INCLUDE_DIRS} CACHE STRING "tbb include dirs" FORCE)
+set(tbb_LIBRARIES ${tbb_LIBRARIES} CACHE STRING "tbb libraries" FORCE)
+set(tbb_DEFINITIONS ${tbb_DEFINITIONS} CACHE STRING "tbb preprocessor defines" FORCE)

@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2021, Intel Corporation
+## Copyright(c) 2021-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,9 @@
 # Once done, this will define
 #
 #  spdlog_FOUND - system has spdlog
+#  spdlog_ROOT - base dir for spdlog
 #  spdlog_INCLUDE_DIRS - the spdlog include directories
+#  spdlog_DEFINITIONS - preprocessor defines for spdlog
 #  spdlog_LIBRARIES - link these to use spdlog
 
 find_package(PkgConfig)
@@ -44,27 +46,36 @@ execute_process(COMMAND pkg-config --cflags-only-other spdlog --silence-errors
     OUTPUT_VARIABLE SPDLOG_PKG_CONFIG_DEFINITIONS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+if (SPDLOG_PKG_CONFIG_DEFINITIONS)
+    set(spdlog_DEFINITIONS ${SPDLOG_PKG_CONFIG_DEFINITIONS})
+else(SPDLOG_PKG_CONFIG_DEFINITIONS)
+    set(spdlog_DEFINITIONS "")
+endif(SPDLOG_PKG_CONFIG_DEFINITIONS)
+
+find_path(spdlog_ROOT NAMES include/spdlog/spdlog.h)
+
 find_path(spdlog_INCLUDE_DIRS
     NAMES spdlog/spdlog.h
-    PATHS ${SPDLOG_ROOT}/include
+    HINTS ${spdlog_ROOT}/include
+    PATHS ${spdlog_ROOT}/include
     ${SPDLOG_PKG_CONFIG_INCLUDE_DIRS}
     /usr/local/include
     /usr/include
-    ${CMAKE_EXTRA_INCLUDES})
+    ${CMAKE_EXTRA_INCLUDES}
+)
 
 if (pkgcfg_lib_PC_SPDLOG_spdlog)
     set(spdlog_LIBRARIES ${pkgcfg_lib_PC_SPDLOG_spdlog})
 else (pkgcfg_lib_PC_SPDLOG_spdlog)
     find_library(spdlog_LIBRARIES
         NAMES spdlog
-        PATHS ${SPDLOG_ROOT}/lib
-        ${PC_SPDLOG_LIBDIR}
-        ${PC_SPDLOG_LIBRARY_DIRS}
+        PATHS ${spdlog_ROOT}/lib
         /usr/local/lib
         /usr/lib
         /lib
         /usr/lib/x86_64-linux-gnu
-        ${CMAKE_EXTRA_LIBS})
+        ${CMAKE_EXTRA_LIBS}
+    )
 endif (pkgcfg_lib_PC_SPDLOG_spdlog)
 
 # some distros require linking to libfmt.so, pkg-config can tell us if so
@@ -72,13 +83,16 @@ if(pkgcfg_lib_PC_SPDLOG_fmt)
     set(spdlog_LIBRARIES ${spdlog_LIBRARIES} ${pkgcfg_lib_PC_SPDLOG_fmt})
 endif(pkgcfg_lib_PC_SPDLOG_fmt)
 
-set(spdlog_LIBRARIES ${spdlog_LIBRARIES} CACHE STRING "Paths to spdlog libraries and dependencies")
-if(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
-    set(spdlog_FOUND TRUE)
-    set(spdlog_DEFINITIONS
-        ${SPDLOG_PKG_CONFIG_DEFINITIONS} CACHE STRING "Compile definitions of spdlog")
-endif(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(spdlog
-    REQUIRED_VARS spdlog_INCLUDE_DIRS spdlog_LIBRARIES spdlog_DEFINITIONS)
+    FOUND_VAR
+        spdlog_FOUND
+    REQUIRED_VARS
+        spdlog_ROOT spdlog_INCLUDE_DIRS
+)
+
+set(spdlog_FOUND ${spdlog_FOUND} CACHE BOOL "spdlog status" FORCE)
+set(spdlog_ROOT ${spdlog_ROOT} CACHE PATH "base dir for spdlog" FORCE)
+set(spdlog_INCLUDE_DIRS ${spdlog_INCLUDE_DIRS} CACHE STRING "spdlog include dirs" FORCE)
+set(spdlog_LIBRARIES ${spdlog_LIBRARIES} CACHE STRING "spdlog libraries" FORCE)
+set(spdlog_DEFINITIONS ${spdlog_DEFINITIONS} CACHE STRING "spdlog preprocessor defines" FORCE)

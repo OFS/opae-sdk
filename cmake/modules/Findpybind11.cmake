@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2021-2022, Intel Corporation
+## Copyright(c) 2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,69 +25,53 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-# - Try to find CLI11
+# - Try to find pybind11
 # Once done, this will define
 #
-#  CLI11_FOUND - system has CLI11
-#  CLI11_ROOT - base dir for CLI11
-#  CLI11_INCLUDE_DIRS - the CLI11 include directories
-#  CLI11_LIBRARIES - libraries for CLI11
-#  CLI11_DEFINITIONS - preprocessor definitions for CLI11
+#  pybind11_FOUND - system has pybind11
+#  pybind11_ROOT - base dir for pybind11
+#  pybind11_INCLUDE_DIRS - the pybind11 include directories
+#  pybind11_DEFINITIONS - preprocessor defines for pybind11
 
 find_package(PkgConfig)
-pkg_check_modules(PC_CLI11 QUIET CLI11)
+pkg_check_modules(PC_PYBIND11 QUIET pybind11)
 
-execute_process(COMMAND pkg-config --cflags-only-I CLI11 --silence-errors
+execute_process(COMMAND pkg-config --cflags-only-I pybind11 --silence-errors
     COMMAND cut -d I -f 2
-    OUTPUT_VARIABLE CLI11_PKG_CONFIG_INCLUDE_DIRS
+    OUTPUT_VARIABLE PYBIND11_PKG_CONFIG_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND pkg-config --cflags-only-other CLI11 --silence-errors
-    OUTPUT_VARIABLE CLI11_PKG_CONFIG_DEFINITIONS
+execute_process(COMMAND pkg-config --cflags-only-other pybind11 --silence-errors
+    OUTPUT_VARIABLE PYBIND11_PKG_CONFIG_DEFINITIONS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if (CLI11_PKG_CONFIG_DEFINITIONS)
-    set(CLI11_DEFINITIONS ${CLI11_PKG_CONFIG_DEFINITIONS})
-else(CLI11_PKG_CONFIG_DEFINITIONS)
-    set(CLI11_DEFINITIONS "")
-endif(CLI11_PKG_CONFIG_DEFINITIONS)
+if (PYBIND11_PKG_CONFIG_DEFINITIONS)
+    set(pybind11_DEFINITIONS ${PYBIND11_PKG_CONFIG_DEFINITIONS})
+else(PYBIND11_PKG_CONFIG_DEFINITIONS)
+    set(pybind11_DEFINITIONS "")
+endif(PYBIND11_PKG_CONFIG_DEFINITIONS)
 
-find_path(CLI11_ROOT NAMES include/CLI/CLI.hpp)
+find_path(pybind11_ROOT NAMES include/pybind11/pybind11.h)
 
-find_path(CLI11_INCLUDE_DIRS
-    NAMES CLI/CLI.hpp
-    HINTS ${CLI11_ROOT}/include
-    PATHS ${CLI11_ROOT}/include
-    ${CLI11_PKG_CONFIG_INCLUDE_DIRS}
+find_path(pybind11_INCLUDE_DIRS
+    NAMES pybind11/pybind11.h
+    HINTS ${pybind11_ROOT}/include
+    PATHS ${pybind11_ROOT}/include
+    ${PYBIND11_PKG_CONFIG_INCLUDE_DIRS}
     /usr/local/include
     /usr/include
     ${CMAKE_EXTRA_INCLUDES}
 )
 
-if (pkgcfg_lib_PC_CLI11_CLI11)
-    set(CLI11_LIBRARIES ${pkgcfg_lib_PC_CLI11_CLI11})
-else (pkgcfg_lib_PC_CLI11_CLI11)
-    find_library(CLI11_LIBRARIES
-        NAMES CLI11
-	PATHS ${CLI11_ROOT}/lib
-        /usr/local/lib
-        /usr/lib
-        /lib
-        /usr/lib/x86_64-linux-gnu
-        ${CMAKE_EXTRA_LIBS}
-    )
-endif (pkgcfg_lib_PC_CLI11_CLI11)
-
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(CLI11
+find_package_handle_standard_args(pybind11
     FOUND_VAR
-        CLI11_FOUND
+        pybind11_FOUND
     REQUIRED_VARS
-    CLI11_ROOT CLI11_INCLUDE_DIRS
+        pybind11_ROOT pybind11_INCLUDE_DIRS
 )
 
-set(CLI11_FOUND ${CLI11_FOUND} CACHE BOOL "CLI11 status" FORCE)
-set(CLI11_ROOT ${CLI11_ROOT} CACHE PATH "base dir for CLI11" FORCE)
-set(CLI11_INCLUDE_DIRS ${CLI11_INCLUDE_DIRS} CACHE STRING "CLI11 include dirs" FORCE)
-set(CLI11_LIBRARIES ${CLI11_LIBRARIES} CACHE STRING "CLI11 libraries" FORCE)
-set(CLI11_DEFINITIONS ${CLI11_DEFINITIONS} CACHE STRING "CLI11 preprocessor defines" FORCE)
+set(pybind11_FOUND ${pybind11_FOUND} CACHE BOOL "pybind11 status" FORCE)
+set(pybind11_ROOT ${pybind11_ROOT} CACHE PATH "base dir for pybind11" FORCE)
+set(pybind11_INCLUDE_DIRS ${pybind11_INCLUDE_DIRS} CACHE STRING "pybind11 include dirs" FORCE)
+set(pybind11_DEFINITIONS ${pybind11_DEFINITIONS} CACHE STRING "pybind11 preprocessor defines" FORCE)

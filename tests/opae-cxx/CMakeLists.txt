@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ opae_test_add_static_lib(TARGET opae-cxx-core-static
 	${OPAE_LIB_SOURCE}/libopaecxx/src/version.cpp
     LIBS
         opae-c
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
 )
 
 opae_test_add(TARGET test_opae_handle_cxx_core

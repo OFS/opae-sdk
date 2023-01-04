@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -31,8 +31,8 @@ opae_test_add_static_lib(TARGET bitstream-static
 	${OPAE_LIB_SOURCE}/libbitstream/metadatav1.c
     LIBS
         opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
 )
 
 opae_test_add(TARGET test_bitstream_bitstream_c

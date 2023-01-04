@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -182,8 +182,8 @@ function(opae_add_executable)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} PROPERTY C_STANDARD 99)
     target_compile_definitions(${OPAE_ADD_EXECUTABLE_TARGET}
@@ -236,8 +236,8 @@ function(opae_add_shared_library)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     target_compile_definitions(${OPAE_ADD_SHARED_LIBRARY_TARGET}
@@ -293,12 +293,12 @@ function(opae_add_module_library)
 
     target_include_directories(${OPAE_ADD_MODULE_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
+        $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     target_compile_definitions(${OPAE_ADD_MODULE_LIBRARY_TARGET}
@@ -344,8 +344,8 @@ function(opae_add_static_library)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET}

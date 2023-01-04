@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,47 +26,6 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include(OPAEGit)
-
-include(Findjson-c)
-
-if(NOT libjson-c_FOUND)
-    message("-- json-c not found. Please install json-c package for you respective distribution:
-    DEB: apt install libjson-c-dev
-    RPM: yum install json-c-devel
-   If you have already installed this package in a non-standard location
-   please specify the location by defining the variable LIBJSON-C_ROOT in
-   your cmake command as follows: cmake <path to clone dir> -DLIBJSON-C_ROOT=<path to json-c install location>")
-   set(REQUIRED_DEPENDENCIES "libjson-c ${REQUIRED_DEPENDENCIES}")
-endif()
-
-include(FindUUID)
-
-if(NOT libuuid_FOUND)
-    message("-- uuid not found. Please install uuid package for your respective distribution:
-    DEB: apt install uuid-dev
-    RPM: yum install libuuid-devel
-   If you have already installed this package in a non-standard location
-   please specify the location by defining the variable LIBUUID_ROOT in
-   your cmake command as follows: cmake <path to clone dir> -DLIBUUID_ROOT=<path to uuid install location>")
-   set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
-endif()
-
-include(FindTbb)
-include(FindCap)
-include(FindUdev)
-
 include(OPAECompiler)
 include(OPAETest)
-if(OPAE_BUILD_TESTS)
-    find_package(GTest ${GTEST_VERSION})
-    if(NOT ${GTest_FOUND})
-        opae_load_gtest()
-    endif()
-
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(GTEST_LIBRARIES ${GTEST_LIBRARY_DEBUG} ${GTEST_MAIN_LIBRARY_DEBUG} CACHE STRING "gtest link libraries" FORCE)
-    else()
-        set(GTEST_LIBRARIES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} CACHE STRING "gtest link libraries" FORCE)
-    endif()
-endif(OPAE_BUILD_TESTS)
 include(OPAEPackaging)
