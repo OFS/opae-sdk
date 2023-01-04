@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,7 @@
 try_compile(SUPPORTS_EMBEDDED_PYTHON
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/test_embed.cpp
     CMAKE_FLAGS
-    "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}"
+    "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${pybind11_INCLUDE_DIRS}"
     LINK_LIBRARIES ${PYTHON_LIBRARIES}
     OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
 )
@@ -63,7 +63,7 @@ if (SUPPORTS_EMBEDDED_PYTHON)
     target_compile_definitions(test_pyopae PRIVATE
         OPAE_EMBEDDED)
     target_include_directories(test_pyopae
-        PRIVATE ${PYBIND11_INCLUDE_DIR}
+        PRIVATE ${pybind11_INCLUDE_DIRS}
         PRIVATE ${PYTHON_INCLUDE_DIRS}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework)
@@ -73,7 +73,7 @@ if (SUPPORTS_EMBEDDED_PYTHON)
             opae-c
             opae-cxx-core
             ${OPAE_TEST_LIBRARIES}
-            ${libjson-c_LIBRARIES}
+            ${json-c_LIBRARIES}
             ${PYTHON_LIBRARIES})
 
     macro(add_pyopae_test pytest)

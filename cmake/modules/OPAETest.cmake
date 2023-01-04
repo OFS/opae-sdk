@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,29 +25,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 
 check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
 
 set(OPAE_TEST_LIBRARIES test_system fpga_db
     CACHE INTERNAL "OPAE test libs." FORCE)
-
-function(opae_load_gtest)
-    FetchContent_Declare(gtest
-        GIT_REPOSITORY https://github.com/google/googletest
-        GIT_TAG release-${GTEST_VERSION}
-    )
-
-    FetchContent_MakeAvailable(gtest)
-
-    set(gtest_ROOT ${FETCHCONTENT_BASE_DIR}/gtest-src CACHE PATH "gtest root directory" FORCE)
-
-    set(GTEST_INCLUDE_DIR ${gtest_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
-    set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)
-    set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.a CACHE PATH "path to gtest main library" FORCE)
-    set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.a CACHE PATH "path to (debug) gtest library" FORCE)
-    set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.a CACHE PATH "path to (debug) gtest main library" FORCE)
-endfunction()
 
 function(opae_test_add)
     set(options TEST_FPGAD)
@@ -105,8 +88,8 @@ function(opae_test_add)
     target_link_libraries(${OPAE_TEST_ADD_TARGET}
         ${CMAKE_THREAD_LIBS_INIT}
         ${OPAE_TEST_LIBRARIES}
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
         ${GTEST_LIBRARIES}
         ${OPAE_TEST_ADD_LIBS})
 

@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@ opae_test_add_static_lib(TARGET xfpga-static
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/vector.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/threshold.c
     LIBS
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
         opaeuio
         opae-c
 )
@@ -169,7 +169,7 @@ opae_test_add(TARGET test_xfpga_events_c
     LIBS
         test-fpgad-static
         bmc-static
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
         xfpga-static
     TEST_FPGAD
 )

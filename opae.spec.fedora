@@ -119,10 +119,10 @@ mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
 for s in \
     FindCLI11.cmake \
     FindCap.cmake \
-    FindHwloc.cmake \
+    Findhwloc.cmake \
     FindSphinx.cmake \
-    FindTbb.cmake \
-    FindUUID.cmake \
+    Findtbb.cmake \
+    Finduuid.cmake \
     FindUdev.cmake \
     Findlibedit.cmake \
     Findjson-c.cmake \

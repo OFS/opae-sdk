@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -36,8 +36,8 @@ opae_test_add_static_lib(TARGET fpgad-static
 	${OPAE_BIN_SOURCE}/fpgad/monitor_thread.c
     LIBS
         bitstream-static
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
 )
 
 target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
@@ -56,7 +56,7 @@ opae_test_add_static_lib(TARGET fpgad-api-static
 	${OPAE_BIN_SOURCE}/fpgad/api/sysfs.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
 )
 
 target_include_directories(fpgad-api-static

@@ -1,4 +1,4 @@
-## Copyright(c) 2022, Intel Corporation
+## Copyright(c) 2022-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -31,8 +31,8 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
             opae-c
             opae-cxx-core
             afu-test
-            ${libjson-c_LIBRARIES}
-            ${libuuid_LIBRARIES}
+            ${json-c_LIBRARIES}
+            ${uuid_LIBRARIES}
         COMPONENT samplebin
     )
 endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
