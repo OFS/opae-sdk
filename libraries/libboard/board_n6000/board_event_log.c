@@ -186,7 +186,7 @@ static struct pwron_status pwron_status_info[] = {
 	{.value = 3, .str = "Failed" },
 	{.value = 9, .str = "Repower cycle under progress" },
 	{.value = 0xa, .str = "Repower cycle success" },
-	{.value = 0xb, .str = "Repower cycle failede" }
+	{.value = 0xb, .str = "Repower cycle failed" }
 };
 
 static void bel_print_bool(const char *label, uint32_t value, size_t offset, const char *one, const char *zero)
