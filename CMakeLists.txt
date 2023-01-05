@@ -510,13 +510,18 @@ if (OPAE_BUILD_TESTS)
     if (NOT GTest_FOUND)
         set(GTEST_ROOT ${FETCHCONTENT_BASE_DIR}/gtest-src CACHE PATH "gtest root directory" FORCE)
 
+        set(BUILD_SHARED_LIBS_ORIG ${BUILD_SHARED_LIBS})
+        set(BUILD_SHARED_LIBS ON)
+
         FetchContent_MakeAvailable(gtest)
 
+        set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_ORIG})
+
         set(GTEST_INCLUDE_DIR ${GTEST_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
-        set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)
-        set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.a CACHE PATH "path to gtest main library" FORCE)
-        set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.a CACHE PATH "path to (debug) gtest library" FORCE)
-        set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.a CACHE PATH "path to (debug) gtest main library" FORCE)
+        set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.so CACHE PATH "path to gtest library" FORCE)
+        set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.so CACHE PATH "path to gtest main library" FORCE)
+        set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.so CACHE PATH "path to (debug) gtest library" FORCE)
+        set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.so CACHE PATH "path to (debug) gtest main library" FORCE)
         set(GTest_FOUND TRUE CACHE BOOL "GTest found by FetchContent" FORCE)
     endif(NOT GTest_FOUND)
 
