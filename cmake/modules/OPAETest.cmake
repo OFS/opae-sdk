@@ -125,9 +125,11 @@ function(opae_test_add_static_lib)
             $<INSTALL_INTERFACE:include>
         PRIVATE
             ${OPAE_LIB_SOURCE}
-	    ${OPAE_LIB_SOURCE}/plugins/xfpga
-	    ${OPAE_LIB_SOURCE}/libopae-c
+            ${OPAE_LIB_SOURCE}/plugins/xfpga
+            ${OPAE_LIB_SOURCE}/libopae-c
             ${opae-test_ROOT}/framework
+            $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+            $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>
     )
 
     set_property(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}

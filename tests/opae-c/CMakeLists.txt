@@ -185,8 +185,10 @@ add_library(dummy_plugin MODULE dummy_plugin.c)
 target_include_directories(dummy_plugin
     PRIVATE
         ${OPAE_INCLUDE_PATH}
-	${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/libopae-c
         ${opae-test_ROOT}/framework
+        ${json-c_INCLUDE_DIRS}
+        ${uuid_INCLUDE_DIRS}
 )
 
 target_link_libraries(dummy_plugin ${json-c_LIBRARIES})
