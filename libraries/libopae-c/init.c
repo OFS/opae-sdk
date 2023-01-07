@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -60,10 +60,12 @@ STATIC const char _ase_home_cfg_files[HOME_CFG_PATHS][CFG_PATH_MAX] = {
 	{ "/.local/opae/opae_ase.cfg" },
 	{ "/.config/opae/opae_ase.cfg" },
 };
-#define SYS_CFG_PATHS 2
+#define SYS_CFG_PATHS 4
 STATIC const char _ase_sys_cfg_files[SYS_CFG_PATHS][CFG_PATH_MAX] = {
-	{ "/usr/local/etc/opae/opae_ase.cfg" },
-	{ "/etc/opae/opae_ase.cfg" },
+	{ "/usr/share/opae/ase/opae_ase.cfg"       },
+	{ "/usr/local/share/opae/ase/opae_ase.cfg" },
+	{ "/usr/local/etc/opae/opae_ase.cfg"       },
+	{ "/etc/opae/opae_ase.cfg"                 },
 };
 
 void opae_print(int loglevel, const char *fmt, ...)
@@ -112,13 +114,17 @@ STATIC char *find_ase_cfg(void)
 
 	// first look in the OPAE source directory
 	file_name = opae_canonicalize_file_name(OPAE_ASE_CFG_SRC_PATH);
-	if (file_name)
+	if (file_name) {
+		OPAE_DBG("Found ASE config file: %s", file_name);
 		return file_name;
+	}
 
 	// second look in OPAE installation directory
 	file_name = opae_canonicalize_file_name(OPAE_ASE_CFG_INST_PATH);
-	if (file_name)
+	if (file_name) {
+		OPAE_DBG("Found ASE config file: %s", file_name);
 		return file_name;
+	}
 
 	// third look in the release directory
 	opae_path = getenv("OPAE_PLATFORM_ROOT");
@@ -129,8 +135,10 @@ STATIC char *find_ase_cfg(void)
 			OPAE_ERR("snprintf buffer overflow");
 		} else {
 			file_name = opae_canonicalize_file_name(cfg_path);
-			if (file_name)
+			if (file_name) {
+				OPAE_DBG("Found ASE config file: %s", file_name);
 				return file_name;
+			}
 		}
 	}
 
@@ -143,8 +151,11 @@ STATIC char *find_ase_cfg(void)
 				OPAE_ERR("snprintf buffer overflow");
 			} else {
 				file_name = opae_canonicalize_file_name(home_cfg);
-				if (file_name)
+				if (file_name) {
+					OPAE_DBG("Found ASE config file: %s",
+						 file_name);
 					return file_name;
+				}
 			}
 		}
 	}
@@ -155,8 +166,10 @@ STATIC char *find_ase_cfg(void)
 		memcpy(home_cfg, _ase_sys_cfg_files[i], len);
 		home_cfg[len] = '\0';
 		file_name = opae_canonicalize_file_name(home_cfg);
-		if (file_name)
+		if (file_name) {
+			OPAE_DBG("Found ASE config file: %s", file_name);
 			return file_name;
+		}
 	}
 
 	return NULL;
