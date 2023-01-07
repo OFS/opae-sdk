@@ -297,15 +297,15 @@ STATIC libopae_config_data default_libopae_config_table[] = {
 };
 
 libopae_config_data *
-opae_parse_libopae_json(const char *json_input);
+opae_parse_libopae_json(const char *cfgfile, const char *json_input);
 
 libopae_config_data *
-opae_parse_libopae_config(const char *json_input)
+opae_parse_libopae_config(const char *cfgfile, const char *json_input)
 {
 	libopae_config_data *c = NULL;
 
 	if (json_input)
-		c = opae_parse_libopae_json(json_input);
+		c = opae_parse_libopae_json(cfgfile, json_input);
 
 	return c ? c : default_libopae_config_table;
 }

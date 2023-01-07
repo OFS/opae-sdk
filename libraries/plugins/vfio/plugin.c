@@ -50,13 +50,15 @@ int __VFIO_API__ vfio_plugin_initialize(void)
 	char *cfg_file;
 
 	cfg_file = opae_find_cfg_file();
-	if (cfg_file) {
+	if (cfg_file)
 		raw_cfg = opae_read_cfg_file(cfg_file);
+
+	opae_v_supported_devices = opae_parse_libopae_config(cfg_file, raw_cfg);
+
+	if (cfg_file) {
 		opae_free(cfg_file);
 		cfg_file = NULL;
 	}
-
-	opae_v_supported_devices = opae_parse_libopae_config(raw_cfg);
 
 	res = pci_discover();
 	if (res) {

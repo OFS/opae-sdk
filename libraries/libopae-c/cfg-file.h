@@ -80,7 +80,8 @@ typedef struct _libopae_config_data {
 } libopae_config_data;
 
 libopae_config_data *
-opae_parse_libopae_config(const char *json_input);
+opae_parse_libopae_config(const char *cfgfile,
+			  const char *json_input);
 
 void opae_print_libopae_config(libopae_config_data *cfg);
 
