@@ -62,8 +62,8 @@ STATIC const char _ase_home_cfg_files[HOME_CFG_PATHS][CFG_PATH_MAX] = {
 };
 #define SYS_CFG_PATHS 4
 STATIC const char _ase_sys_cfg_files[SYS_CFG_PATHS][CFG_PATH_MAX] = {
-	{ "/usr/share/opae/ase/opae_ase.cfg"       },
 	{ "/usr/local/share/opae/ase/opae_ase.cfg" },
+	{ "/usr/share/opae/ase/opae_ase.cfg"       },
 	{ "/usr/local/etc/opae/opae_ase.cfg"       },
 	{ "/etc/opae/opae_ase.cfg"                 },
 };
