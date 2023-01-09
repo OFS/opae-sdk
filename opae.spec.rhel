@@ -81,30 +81,6 @@ cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
 cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
-for s in \
-    FindCLI11.cmake \
-    FindCap.cmake \
-    FindHwloc.cmake \
-    FindSphinx.cmake \
-    FindTbb.cmake \
-    FindUUID.cmake \
-    FindUdev.cmake \
-    Findlibedit.cmake \
-    Findjson-c.cmake \
-    Findspdlog.cmake \
-    OFS.cmake \
-    OPAE.cmake \
-    OPAECompiler.cmake \
-    OPAEExternal.cmake \
-    OPAEGit.cmake \
-    OPAEPlugin.cmake \
-    OPAEPackaging.cmake \
-    OPAETest.cmake
-do
-  cp "cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
-  chmod a+x %{buildroot}%{_usr}/src/opae/cmake/modules/$s
-done
-
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/afu-test
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga
@@ -135,6 +111,15 @@ cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/sc
   %make_install
 %endif
 
+#cmake
+for file in %{buildroot}%{_usr}/lib/opae*/modules/*; do
+   chmod a+x $file
+done
+
+for file in %{buildroot}%{_usr}/src/opae/cmake/modules/*; do
+   chmod a+x $file
+done
+
 prev=$PWD
 pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
 %{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
@@ -158,6 +143,10 @@ for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hss
    chmod a+x $file
 done
 
+# packager
+for file in %{buildroot}%{python3_sitelib}/packager/tools/{afu_json_mgr,packager}.py; do
+   chmod a+x $file
+done
 
 %files
 %dir %{_datadir}/opae
