@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,7 @@
 #define OFS_PRIMITIVES_H
 
 #include <stdint.h>
+#include <errno.h>
 #include <time.h>
 
 #define SEC2NSEC 1000000000
@@ -48,11 +49,14 @@
 ({                                                                          \
 	int _status = 0;                                                    \
 	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
-	struct timespec begin, now;                                         \
+	struct timespec begin, now, rem;                                    \
 	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
 	while(_bit != _value) {                                             \
-		if (_sleep_usec)                                            \
-			nanosleep(&ts, NULL);                               \
+		if (_sleep_usec) {                                          \
+			while ((nanosleep(&ts, &rem) == -1) &&              \
+			       (errno == EINTR))                            \
+				ts = rem;                                   \
+		}                                                           \
 		clock_gettime(CLOCK_MONOTONIC, &now);                       \
 		struct timespec delta;                                      \
 		ofs_diff_timespec(&delta, &now, &begin);                    \
@@ -69,11 +73,14 @@
 ({                                                                          \
 	int _status = 0;                                                    \
 	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
-	struct timespec begin, now;                                         \
+	struct timespec begin, now, rem;                                    \
 	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
 	while(_bit == _value) {                                             \
-		if (_sleep_usec)                                            \
-			nanosleep(&ts, NULL);                               \
+		if (_sleep_usec) {                                          \
+			while ((nanosleep(&ts, &rem) == -1) &&              \
+			       (errno == EINTR))                            \
+				ts = rem;                                   \
+		}                                                           \
 		clock_gettime(CLOCK_MONOTONIC, &now);                       \
 		struct timespec delta;                                      \
 		ofs_diff_timespec(&delta, &now, &begin);                    \
@@ -144,15 +151,18 @@ inline int ofs_diff_timespec(struct timespec *result,
  *  @param[in] sleep_usec   Time (in usec) to sleep while waiting
  *  @returns 0 if variable changed to value while waiting, 1 otherwise
  */
-inline int ofs_wait_for_eq32(uint32_t *var, uint32_t value,
+inline int ofs_wait_for_eq32(volatile uint32_t *var, uint32_t value,
 			     uint64_t timeout_usec, uint32_t sleep_usec)
 {
 	OFS_TIMESPEC_USEC(ts, sleep_usec);
-	struct timespec begin, now;
+	struct timespec begin, now, rem;
 	clock_gettime(CLOCK_MONOTONIC, &begin);
 	while(*var != value) {
-		if (sleep_usec)
-			nanosleep(&ts, NULL);
+		if (sleep_usec) {
+			while((nanosleep(&ts, &rem) == -1) &&
+			      (errno == EINTR))
+				ts = rem;
+		}
 		clock_gettime(CLOCK_MONOTONIC, &now);
 		struct timespec delta;
 		ofs_diff_timespec(&delta, &now, &begin);
@@ -177,15 +187,18 @@ inline int ofs_wait_for_eq32(uint32_t *var, uint32_t value,
  *  @param[in] sleep_usec   Time (in usec) to sleep while waiting
  *  @returns 0 if variable changed to value while waiting, 1 otherwise
  */
-inline int ofs_wait_for_eq64(uint64_t *var, uint64_t value,
+inline int ofs_wait_for_eq64(volatile uint64_t *var, uint64_t value,
 			     uint64_t timeout_usec, uint32_t sleep_usec)
 {
 	OFS_TIMESPEC_USEC(ts, sleep_usec);
-	struct timespec begin, now;
+	struct timespec begin, now, rem;
 	clock_gettime(CLOCK_MONOTONIC, &begin);
 	while(*var != value) {
-		if (sleep_usec)
-			nanosleep(&ts, NULL);
+		if (sleep_usec) {
+			while ((nanosleep(&ts, &rem) == -1) &&
+			       (errno == EINTR))
+				ts = rem;
+		}
 		clock_gettime(CLOCK_MONOTONIC, &now);
 		struct timespec delta;
 		ofs_diff_timespec(&delta, &now, &begin);
