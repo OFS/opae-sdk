@@ -49,10 +49,12 @@
 ({                                                                          \
 	int _status = 0;                                                    \
 	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
-	struct timespec begin, now, rem;                                    \
+	struct timespec begin, now, save, rem;                              \
+	save = ts;                                                          \
 	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
 	while(_bit != _value) {                                             \
 		if (_sleep_usec) {                                          \
+			ts = save;                                          \
 			while ((nanosleep(&ts, &rem) == -1) &&              \
 			       (errno == EINTR))                            \
 				ts = rem;                                   \
@@ -66,17 +68,19 @@
 			break;                                              \
 		}                                                           \
 	}                                                                   \
-        _status;                                                            \
+	_status;                                                            \
 })                                                                          \
 
 #define OFS_WAIT_FOR_NE(_bit, _value, _timeout_usec, _sleep_usec)           \
 ({                                                                          \
 	int _status = 0;                                                    \
 	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
-	struct timespec begin, now, rem;                                    \
+	struct timespec begin, now, save, rem;                              \
+	save = ts;                                                          \
 	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
 	while(_bit == _value) {                                             \
 		if (_sleep_usec) {                                          \
+			ts = save;                                          \
 			while ((nanosleep(&ts, &rem) == -1) &&              \
 			       (errno == EINTR))                            \
 				ts = rem;                                   \
@@ -90,7 +94,7 @@
 			break;                                              \
 		}                                                           \
 	}                                                                   \
-        _status;                                                            \
+	_status;                                                            \
 })                                                                          \
 
 #ifdef __cplusplus
@@ -155,10 +159,12 @@ inline int ofs_wait_for_eq32(volatile uint32_t *var, uint32_t value,
 			     uint64_t timeout_usec, uint32_t sleep_usec)
 {
 	OFS_TIMESPEC_USEC(ts, sleep_usec);
-	struct timespec begin, now, rem;
+	struct timespec begin, now, save, rem;
+	save = ts;
 	clock_gettime(CLOCK_MONOTONIC, &begin);
 	while(*var != value) {
 		if (sleep_usec) {
+			ts = save;
 			while((nanosleep(&ts, &rem) == -1) &&
 			      (errno == EINTR))
 				ts = rem;
@@ -191,10 +197,12 @@ inline int ofs_wait_for_eq64(volatile uint64_t *var, uint64_t value,
 			     uint64_t timeout_usec, uint32_t sleep_usec)
 {
 	OFS_TIMESPEC_USEC(ts, sleep_usec);
-	struct timespec begin, now, rem;
+	struct timespec begin, now, save, rem;
+	save = ts;
 	clock_gettime(CLOCK_MONOTONIC, &begin);
 	while(*var != value) {
 		if (sleep_usec) {
+			ts = save;
 			while ((nanosleep(&ts, &rem) == -1) &&
 			       (errno == EINTR))
 				ts = rem;
