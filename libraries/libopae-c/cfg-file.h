@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2022-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,8 @@ typedef struct _libopae_config_data {
 } libopae_config_data;
 
 libopae_config_data *
-opae_parse_libopae_config(const char *json_input);
+opae_parse_libopae_config(const char *cfgfile,
+			  const char *json_input);
 
 void opae_print_libopae_config(libopae_config_data *cfg);
 

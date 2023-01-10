@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2022-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -339,7 +339,7 @@ out_free:
 }
 
 libopae_config_data *
-opae_parse_libopae_json(const char *json_input)
+opae_parse_libopae_json(const char *cfgfile, const char *json_input)
 {
 	enum json_tokener_error j_err = json_tokener_success;
 	json_object *root = NULL;
@@ -358,8 +358,12 @@ opae_parse_libopae_json(const char *json_input)
 	}
 
 	j_configs = parse_json_array(root, "configs", &num_configs);
-	if (!j_configs)
+	if (!j_configs) {
+		OPAE_ERR("Failed to find \"configs\" in \"%s\".",
+			 cfgfile ? cfgfile : "<unknown>");
+		OPAE_ERR("You may have encountered an old config file.");
 		goto out_free;
+	}
 
 	for (i = 0 ; i < num_configs ; ++i) {
 		json_object *j_config_i =
