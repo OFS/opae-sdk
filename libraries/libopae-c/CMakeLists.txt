@@ -49,7 +49,7 @@ opae_add_shared_library(TARGET opae-c
     COMPONENT opaeclib
 )
 
-opae_add_static_library(TARGET opae-c-archive
+opae_add_shared_library(TARGET opae-c-archive
     EXPORT opae-targets
     SOURCE ${SRC}
     LIBS
@@ -57,6 +57,8 @@ opae_add_static_library(TARGET opae-c-archive
         ${CMAKE_THREAD_LIBS_INIT}
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+        VERSION ${OPAE_VERSION}
+        SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaeclib
 )
 

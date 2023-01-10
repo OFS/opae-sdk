@@ -230,6 +230,7 @@ done
 %{_libdir}/libopaeuio.so.*
 %{_libdir}/libopaevfio.so.*
 %{_libdir}/libofs_cpeng.so.*
+%{_libdir}/libopae-c-archive.so*
 
 %{_libdir}/opae/libxfpga.so
 %{_libdir}/opae/libopae-v.so
@@ -289,7 +290,7 @@ done
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
-%{_libdir}/libopae-c-archive.a
+%{_libdir}/libopae-c-archive.so
 %{_libdir}/libbitstream.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
