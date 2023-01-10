@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2022-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ int parse_plugin_config(json_object *root,
                         const char *cfg_name,
                         libopae_parse_context *ctx);
 libopae_config_data *
-opae_parse_libopae_json(const char *json_input);
+opae_parse_libopae_json(const char *cfgfile, const char *json_input);
 
 }
 
@@ -1029,7 +1029,7 @@ TEST(opae_cfg, parse_config_err12) {
  */
 TEST(opae_cfg, parse_libopae_err0) {
   char *json = opae_strdup("This is not JSON");
-  EXPECT_EQ((libopae_config_data *)NULL, opae_parse_libopae_json(json));
+  EXPECT_EQ((libopae_config_data *)NULL, opae_parse_libopae_json(NULL, json));
 }
 
 /**
@@ -1071,7 +1071,7 @@ TEST(opae_cfg, parse_libopae_err1) {
 )json";
 
   char *json_dup = opae_strdup(json);
-  EXPECT_EQ((libopae_config_data *)NULL, opae_parse_libopae_json(json_dup));
+  EXPECT_EQ((libopae_config_data *)NULL, opae_parse_libopae_json(NULL, json_dup));
 }
 
 /**
@@ -1124,7 +1124,7 @@ TEST(opae_cfg, parse_libopae_0) {
   char *json_dup = opae_strdup(json);
   libopae_config_data *cfg, *c;
 
-  cfg = c = opae_parse_libopae_json(json_dup);
+  cfg = c = opae_parse_libopae_json(NULL, json_dup);
   ASSERT_NE((libopae_config_data *)NULL, cfg);
 
   // ofs0_pf / libxfpga.so
