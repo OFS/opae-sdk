@@ -115,30 +115,6 @@ cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
 cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
-for s in \
-    FindCLI11.cmake \
-    FindCap.cmake \
-    FindHwloc.cmake \
-    FindSphinx.cmake \
-    FindTbb.cmake \
-    FindUUID.cmake \
-    FindUdev.cmake \
-    Findlibedit.cmake \
-    Findjson-c.cmake \
-    Findspdlog.cmake \
-    OFS.cmake \
-    OPAE.cmake \
-    OPAECompiler.cmake \
-    OPAEExternal.cmake \
-    OPAEGit.cmake \
-    OPAEPlugin.cmake \
-    OPAEPackaging.cmake \
-    OPAETest.cmake
-do
-  cp "cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
-  chmod a+x %{buildroot}%{_usr}/src/opae/cmake/modules/$s
-done
-
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
@@ -163,6 +139,15 @@ cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-te
   echo "Installing for non-RHEL"
   %cmake_install
 %endif
+
+#cmake
+for file in %{buildroot}%{_usr}/lib/opae*/modules/*; do
+   chmod a+x $file
+done
+
+for file in %{buildroot}%{_usr}/src/opae/cmake/modules/*; do
+   chmod a+x $file
+done
 
 prev=$PWD
 pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/opae.io
