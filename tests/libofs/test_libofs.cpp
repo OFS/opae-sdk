@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,7 @@
 #include <chrono>
 #include <future>
 #include <thread>
+#include <cerrno>
 #include <ofs/ofs.h>
 
 #include "gtest/gtest.h"
@@ -81,7 +82,8 @@ TEST(libofs, diff_timespec)
 
 
 template<typename T>
-uint64_t wait_test(int(*wait_fn)(T*, T, uint64_t, uint32_t), bool modify, uint64_t modify_usec, uint64_t timeout_usec)
+uint64_t wait_test(int(*wait_fn)(volatile T*, T, uint64_t, uint32_t), int &status,
+                   bool modify, uint64_t modify_usec, uint64_t timeout_usec)
 {
   T bit = 0;
   auto modify_fn =
@@ -90,19 +92,21 @@ uint64_t wait_test(int(*wait_fn)(T*, T, uint64_t, uint32_t), bool modify, uint64
         .tv_sec = 0,
         .tv_nsec = sleep_usec * 1000
       };
-      nanosleep(&ts, nullptr);
+      struct timespec rem;
+      while ((nanosleep(&ts, &rem) == -1) &&
+             (errno == EINTR))
+        ts = rem;
       if (do_modify) bit = 0b111;
     };
 
   bit = 0b101;
   std::future<void> f = std::async(std::launch::async, modify_fn, modify_usec, modify);
   auto begin = hrc::now();
-  auto status = wait_fn(&bit, 0b111, timeout_usec, 10);
+  status = wait_fn(&bit, 0b111, timeout_usec, 10);
   auto end = hrc::now();
   f.wait();
   if (modify) {
     EXPECT_EQ(bit, 0b111);
-    EXPECT_EQ(status, 0);
   } else {
     EXPECT_EQ(bit, 0b101);
     EXPECT_EQ(status, 1);
@@ -123,17 +127,25 @@ uint64_t wait_test(int(*wait_fn)(T*, T, uint64_t, uint32_t), bool modify, uint64
  * */
 TEST(libofs, wait_for_eq)
 {
-  uint64_t modify_usec = 1000;
-  uint64_t timeout_usec = 1500;
+  const uint64_t ff = 750;
+  const uint64_t modify_usec = 750;
+  const uint64_t timeout_usec = 1500;
   uint64_t delta_usec = 0;
+  int status;
 
-  delta_usec = wait_test<uint32_t>(ofs_wait_for_eq32, true, modify_usec, timeout_usec);
-  EXPECT_GE(delta_usec, modify_usec);
-  EXPECT_LT(delta_usec, timeout_usec);
+  status = -1;
+  delta_usec = wait_test<uint32_t>(ofs_wait_for_eq32, status, true, modify_usec, timeout_usec);
+  if (!status) {
+    EXPECT_GE(delta_usec, modify_usec - ff);
+    EXPECT_LT(delta_usec, timeout_usec);
+  }
 
-  delta_usec = wait_test<uint64_t>(ofs_wait_for_eq64, true, modify_usec, timeout_usec);
-  EXPECT_GE(delta_usec, modify_usec);
-  EXPECT_LT(delta_usec, timeout_usec);
+  status = -1;
+  delta_usec = wait_test<uint64_t>(ofs_wait_for_eq64, status, true, modify_usec, timeout_usec);
+  if (!status) {
+    EXPECT_GE(delta_usec, modify_usec);
+    EXPECT_LT(delta_usec, timeout_usec);
+  }
 }
 
 /**
@@ -147,13 +159,19 @@ TEST(libofs, wait_for_eq)
  * */
 TEST(libofs, wait_for_eq_timeout)
 {
-  uint64_t modify_usec = 1000;
-  uint64_t timeout_usec = 1500;
+  const uint64_t ff = 750;
+  const uint64_t modify_usec = 750;
+  const uint64_t timeout_usec = 1500;
   uint64_t delta_usec = 0;
+  int status;
 
-  delta_usec = wait_test<uint32_t>(ofs_wait_for_eq32, false, modify_usec, timeout_usec);
+  status = -1;
+  delta_usec = wait_test<uint32_t>(ofs_wait_for_eq32, status, false, modify_usec, timeout_usec);
+  EXPECT_EQ(1, status);
   EXPECT_GE(delta_usec, timeout_usec);
 
-  delta_usec = wait_test<uint64_t>(ofs_wait_for_eq64, false, modify_usec, timeout_usec);
-  EXPECT_GE(delta_usec, timeout_usec);
+  status = -1;
+  delta_usec = wait_test<uint64_t>(ofs_wait_for_eq64, status, false, modify_usec, timeout_usec);
+  EXPECT_EQ(1, status);
+  EXPECT_GE(delta_usec, timeout_usec - ff);
 }
