@@ -34,6 +34,7 @@ opae_add_shared_library(TARGET fpgad-api
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT toolfpgad_api

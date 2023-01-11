@@ -34,6 +34,8 @@ opae_add_shared_library(TARGET bitstream
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaeclib

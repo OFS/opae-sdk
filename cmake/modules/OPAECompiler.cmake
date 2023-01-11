@@ -197,6 +197,34 @@ function(opae_add_executable)
 
     target_link_libraries(${OPAE_ADD_EXECUTABLE_TARGET} ${OPAE_ADD_EXECUTABLE_LIBS})
 
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_ADD_EXECUTABLE_LIBS}")
+	if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} libedit_IMPORT)
+	endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
+
     opae_coverage_build(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} SOURCE ${OPAE_ADD_EXECUTABLE_SOURCE})
     set_install_rpath(${OPAE_ADD_EXECUTABLE_TARGET})
 
@@ -257,6 +285,34 @@ function(opae_add_shared_library)
 
     target_link_libraries(${OPAE_ADD_SHARED_LIBRARY_TARGET} ${OPAE_ADD_SHARED_LIBRARY_LIBS})
 
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} libedit_IMPORT)
+        endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
+
     opae_coverage_build(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} SOURCE ${OPAE_ADD_SHARED_LIBRARY_SOURCE})
     set_install_rpath(${OPAE_ADD_SHARED_LIBRARY_TARGET})
 
@@ -311,6 +367,34 @@ function(opae_add_module_library)
     endif()
 
     target_link_libraries(${OPAE_ADD_MODULE_LIBRARY_TARGET} ${OPAE_ADD_MODULE_LIBRARY_LIBS})
+
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} libedit_IMPORT)
+        endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
 
     opae_coverage_build(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} SOURCE ${OPAE_ADD_MODULE_LIBRARY_SOURCE})
 
