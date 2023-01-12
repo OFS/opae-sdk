@@ -41,6 +41,8 @@ set(OPAECXXCORE_SRC
 opae_add_shared_library(TARGET opae-cxx-core
     EXPORT opae-targets
     SOURCE ${OPAECXXCORE_SRC}
+    LIBS
+        ${uuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaecxxcorelib
