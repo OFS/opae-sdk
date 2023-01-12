@@ -126,6 +126,17 @@ Set the RHEL version and install packages. Set proxy name and port number
 # python3 -m pip install --user jsonschema virtualenv pudb pyyaml
 ```
 
+Install the latest version of cmake on top of the outdated cmake package from the package manager
+
+```console
+# cd cmake-3.25.1/
+# ./bootstrap --prefix=/usr
+# make
+# make install
+# which cmake
+/usr/bin/cmake
+```
+
 ### Create opae-sdk packages ###
 
 Download the OPAE-SDK source code from github. For example, download from Master branch.
