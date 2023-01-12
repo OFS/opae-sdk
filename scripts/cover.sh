@@ -17,7 +17,7 @@ fi
 mkdir -p coverage_files
 rm -rf coverage_files/*
 
-make -j 4
+make -j $(nproc)
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base 2> /dev/null

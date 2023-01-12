@@ -149,6 +149,34 @@ function(opae_test_add_static_lib)
     target_link_libraries(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         ${OPAE_TEST_ADD_STATIC_LIB_LIBS})
 
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+	if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} libedit_IMPORT)
+	endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
+
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         SOURCE ${OPAE_TEST_ADD_STATIC_LIB_SOURCE})
 endfunction()

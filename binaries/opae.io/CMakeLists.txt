@@ -37,6 +37,10 @@ if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
         target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
     endif()
 
+    if (libedit_IMPORTED)
+        add_dependencies(opae.io libedit_IMPORT)
+    endif(libedit_IMPORTED)
+
     target_include_directories(opae.io
         PUBLIC ${OPAE_INCLUDE_DIR}
         PRIVATE ${PYTHON_INCLUDE_DIRS}

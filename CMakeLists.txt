@@ -114,9 +114,19 @@ if (NOT uuid_FOUND)
         BUILD_IN_SOURCE ON
     )
 
-    add_custom_target(uuid_symlink ALL
-        ln -sf ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/src ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/uuid
-        COMMENT "Creating include symlink for uuid")
+    add_custom_command(
+        OUTPUT
+            ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/uuid
+        COMMAND
+            ln -sf ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/src ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/uuid
+        DEPENDS
+            ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/src
+    )
+
+    add_custom_target(uuid_symlink
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid/uuid
+        COMMENT "Creating include symlink for uuid"
+    )
     add_dependencies(uuid_symlink uuid)
 
     set(uuid_ROOT ${CMAKE_CURRENT_BINARY_DIR}/uuid-prefix/src/uuid/libuuid CACHE PATH "base dir for uuid" FORCE)
@@ -127,6 +137,20 @@ if (NOT uuid_FOUND)
         CACHE STRING "Path to uuid libraries" FORCE)
     set(uuid_DEFINITIONS "" CACHE STRING "uuid built from source" FORCE)
     set(uuid_FOUND TRUE CACHE BOOL "uuid built from source" FORCE)
+
+    add_library(uuid_IMPORT SHARED IMPORTED)
+    target_include_directories(uuid_IMPORT
+        INTERFACE
+            ${uuid_INCLUDE_DIRS}
+    )
+    set_property(
+        TARGET uuid_IMPORT
+        PROPERTY
+            IMPORTED_LOCATION "${uuid_LIBRARIES}"
+    )
+    add_dependencies(uuid_IMPORT uuid_symlink)
+    set(uuid_IMPORTED TRUE CACHE BOOL "uuid imported from source" FORCE)
+
 endif(NOT uuid_FOUND)
 
 message(STATUS "uuid_ROOT ${uuid_ROOT}")
@@ -159,15 +183,55 @@ if (NOT json-c_FOUND)
 
     FetchContent_MakeAvailable(json-c)
 
-    add_custom_target(json-c_symlink ALL
-        ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-src ${FETCHCONTENT_BASE_DIR}/json-c
-        COMMENT "Creating include symlink for json-c")
-    add_custom_target(json_h_symlink ALL
-        ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json.h ${FETCHCONTENT_BASE_DIR}/json-c/json.h
-        COMMENT "Creating symlink for json.h")
-    add_custom_target(json_config_h_symlink ALL
-        ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json_config.h ${FETCHCONTENT_BASE_DIR}/json-c/json_config.h
-        COMMENT "Creating symlink for json_config.h")
+    add_custom_command(
+        OUTPUT
+            ${FETCHCONTENT_BASE_DIR}/json-c-src/json.h
+        COMMAND
+            ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json.h ${FETCHCONTENT_BASE_DIR}/json-c-src/json.h
+        DEPENDS
+            ${FETCHCONTENT_BASE_DIR}/json-c-build/json.h
+    )
+
+    add_custom_target(json_h
+        DEPENDS ${FETCHCONTENT_BASE_DIR}/json-c-src/json.h
+        COMMENT "Creating json-c-src/json.h"
+    )
+
+    add_custom_command(
+        OUTPUT
+            ${FETCHCONTENT_BASE_DIR}/json-c
+        COMMAND
+            ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-src ${FETCHCONTENT_BASE_DIR}/json-c
+        DEPENDS
+            ${FETCHCONTENT_BASE_DIR}/json-c-src
+            ${FETCHCONTENT_BASE_DIR}/json-c-src/json.h
+    )
+
+    add_custom_target(json_c_symlink
+        DEPENDS ${FETCHCONTENT_BASE_DIR}/json-c
+        COMMENT "Creating symlink for json-c include dir"
+    )
+
+    add_custom_command(
+        OUTPUT
+            ${FETCHCONTENT_BASE_DIR}/json-c/json.h
+            ${FETCHCONTENT_BASE_DIR}/json-c/json_config.h
+        COMMAND
+            ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json.h ${FETCHCONTENT_BASE_DIR}/json-c/json.h
+        COMMAND
+            ln -sf ${FETCHCONTENT_BASE_DIR}/json-c-build/json_config.h ${FETCHCONTENT_BASE_DIR}/json-c/json_config.h
+        DEPENDS
+            ${FETCHCONTENT_BASE_DIR}/json-c-build/json.h
+            ${FETCHCONTENT_BASE_DIR}/json-c-build/json_config.h
+            ${FETCHCONTENT_BASE_DIR}/json-c
+    )
+
+    add_custom_target(json_c_headers
+        DEPENDS
+            ${FETCHCONTENT_BASE_DIR}/json-c/json.h
+            ${FETCHCONTENT_BASE_DIR}/json-c/json_config.h
+        COMMENT "Creating symlinks for json-c headers"
+    )
 
     set(json-c_INCLUDE_DIRS ${json-c_ROOT}
         CACHE STRING "Path to FetchContent json-c" FORCE)
@@ -176,6 +240,7 @@ if (NOT json-c_FOUND)
     set(json-c_DEFINITIONS ""
         CACHE STRING "json-c preprocessor definitions" FORCE)
     set(json-c_FOUND TRUE CACHE BOOL "json-c found by FetchContent" FORCE)
+    set(json-c_IMPORTED TRUE CACHE BOOL "json-c imported from source" FORCE)
 endif(NOT json-c_FOUND)
 
 message(STATUS "json-c_ROOT ${json-c_ROOT}")
@@ -324,6 +389,16 @@ if (OPAE_WITH_LIBEDIT)
             CACHE STRING "Path to libedit libraries" FORCE)
         set(libedit_DEFINITIONS "" CACHE STRING "libedit built from source" FORCE)
         set(libedit_FOUND TRUE CACHE BOOL "libedit built from source" FORCE)
+
+        add_library(libedit_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET libedit_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${libedit_LIBRARIES}"
+        )
+        set(libedit_IMPORTED TRUE CACHE BOOL "libedit imported from source" FORCE)
+        add_dependencies(libedit_IMPORT libedit)
+
     endif(NOT libedit_FOUND)
 
     message(STATUS "libedit_ROOT ${libedit_ROOT}")
@@ -428,6 +503,16 @@ if (OPAE_WITH_HWLOC)
             CACHE STRING "Path to hwloc libraries" FORCE)
         set(hwloc_DEFINITIONS "" CACHE STRING "hwloc built from source" FORCE)
         set(hwloc_FOUND TRUE CACHE BOOL "hwloc built from source" FORCE)
+
+        add_library(hwloc_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET hwloc_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${hwloc_LIBRARIES}"
+        )
+        set(hwloc_IMPORTED TRUE CACHE BOOL "hwloc imported from source" FORCE)
+        add_dependencies(hwloc_IMPORT hwloc)
+
     endif(NOT hwloc_FOUND)
 
     message(STATUS "hwloc_ROOT ${hwloc_ROOT}")
