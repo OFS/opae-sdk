@@ -112,7 +112,7 @@ Register and enable Red Hat subscription to install any packages on the system.
 # subscription-manager register --proxy=PROXY --username=USER --password=PASSWORD --auto-attach
 ```
 
-Set the RHEL version and install packages. Set proxy name and port number 
+Set the RHEL version and install packages. Set proxy name and port number.
 
 ```console
 # subscription-manager release --set=8.2 --proxy proxy-name.com:port number
@@ -126,7 +126,7 @@ Set the RHEL version and install packages. Set proxy name and port number
 # python3 -m pip install --user jsonschema virtualenv pudb pyyaml
 ```
 
-Install the latest version of cmake on top of the outdated cmake package from the package manager
+Install the latest version of [cmake](https://github.com/Kitware) on top of the outdated cmake package from the package manager.
 
 ```console
 # cd cmake-3.25.1/
