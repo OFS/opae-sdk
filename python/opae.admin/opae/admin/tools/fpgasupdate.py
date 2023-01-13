@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2019-2022, Intel Corporation
+# Copyright(c) 2019-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -672,7 +672,7 @@ def update_fw_sysfs(infile, pac):
     retries = 0
     max_retries = 60 * 60 * 2
     with progress(bytes=payload_size, **progress_cfg) as prg:
-        while int(size.value) > 0:
+        while int(size.value) > 0 and status.value != 'idle':
             time.sleep(timeout)
             retries += 1
             if retries >= max_retries:
