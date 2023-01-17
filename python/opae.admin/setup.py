@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2022, Intel Corporation
+# Copyright(c) 2019-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,11 +24,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from setuptools import setup, find_namespace_packages
-from opae.admin.version import pretty_version
 
 setup(
     name="opae.admin",
-    version=pretty_version(),
+    version='1.4.3',
     packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': [
