@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -208,6 +208,7 @@ struct vfio_device {
     if (opae_vfio_buffer_allocate(v_, &b->size, &b->buf, &b->iova)) {
       delete b;
       b = nullptr;
+      return b;
     }
 
     b->vfio = v_;
