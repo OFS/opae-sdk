@@ -608,6 +608,41 @@ if (OPAE_BUILD_TESTS)
         set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.so CACHE PATH "path to (debug) gtest library" FORCE)
         set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.so CACHE PATH "path to (debug) gtest main library" FORCE)
         set(GTest_FOUND TRUE CACHE BOOL "GTest found by FetchContent" FORCE)
+
+        add_library(gtest_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET gtest_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_LIBRARY}"
+        )
+        add_dependencies(gtest_IMPORT gtest)
+
+        add_library(gtest_MAIN_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET gtest_MAIN_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_MAIN_LIBRARY}"
+        )
+        add_dependencies(gtest_MAIN_IMPORT gtest)
+
+        add_library(gtest_IMPORT_DEBUG SHARED IMPORTED)
+        set_property(
+            TARGET gtest_IMPORT_DEBUG
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_LIBRARY_DEBUG}"
+        )
+        add_dependencies(gtest_IMPORT_DEBUG gtest)
+
+        add_library(gtest_MAIN_IMPORT_DEBUG SHARED IMPORTED)
+        set_property(
+            TARGET gtest_MAIN_IMPORT_DEBUG
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_MAIN_LIBRARY_DEBUG}"
+        )
+        add_dependencies(gtest_MAIN_IMPORT_DEBUG gtest)
+
+        set(GTEST_IMPORTED TRUE CACHE BOOL "gtest imported from source" FORCE)
+
     endif(NOT GTest_FOUND)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
