@@ -704,6 +704,7 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 out_attr_destroy:
 	pthread_mutexattr_destroy(&mattr);
 	if (res && _handle) {
+		pthread_mutex_destroy(&_handle->lock);
 		if (_handle->vfio_pair) {
 			close_vfio_pair(&_handle->vfio_pair);
 		}
