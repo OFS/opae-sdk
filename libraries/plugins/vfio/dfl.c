@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -70,6 +70,11 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 {
 	// walk_port
 	vfio_token *port = get_token(parent->device, region, FPGA_ACCELERATOR);
+	if (!port) {
+		OPAE_ERR("Failed to get port token");
+		return -1;
+	}
+
 	port_next_afu_ptr next_afu = (port_next_afu_ptr)(mmio + PORT_NEXT_AFU);
 	port_capability_ptr cap = (port_capability_ptr)(mmio + PORT_CAPABILITY);
 
@@ -99,6 +104,10 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio,
 	     int region)
 {
 	vfio_token *fme = get_token(p, region, FPGA_DEVICE);
+	if(!fme){
+		OPAE_ERR("Failed to get fme token");
+		return -1;
+	}
 
 	get_guid(1 + (uint64_t *)mmio, fme->hdr.guid);
 	fme->bitstream_id = *(uint64_t *)(mmio + BITSTREAM_ID);
