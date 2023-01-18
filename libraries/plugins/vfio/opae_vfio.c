@@ -351,6 +351,7 @@ int pci_discover(void)
 
 	if (gres) {
 		OPAE_MSG("vfio-pci not bound to any PCIe enpoint");
+		res = 0;
 		goto free;
 	}
 	if (!pg.gl_pathc) {
