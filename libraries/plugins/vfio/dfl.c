@@ -104,7 +104,7 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio,
 	     int region)
 {
 	vfio_token *fme = get_token(p, region, FPGA_DEVICE);
-	if(!fme){
+	if(!fme) {
 		OPAE_ERR("Failed to get fme token");
 		return -1;
 	}
