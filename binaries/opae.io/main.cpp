@@ -230,10 +230,10 @@ char * prompt(void)
   }
 
   len = ss.str().length();
-  if (len > sizeof(pstr))
-    len = sizeof(pstr);
+  if (len > sizeof(pstr) - 1)
+    len = sizeof(pstr) - 1;
 
-  return (char *)memcpy(pstr, ss.str().c_str(), len);
+  return reinterpret_cast<char *>(memcpy(pstr, ss.str().c_str(), len));
 }
 
 void help(void)
