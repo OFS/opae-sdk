@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -218,6 +218,7 @@ char * prompt(void)
 {
   static char pstr[256];
   std::stringstream ss;
+  size_t len;
 
   if (!the_device) {
     ss << "opae.io>> ";
@@ -228,7 +229,11 @@ char * prompt(void)
     ss << ">> ";
   }
 
-  return strcpy(pstr, ss.str().c_str());
+  len = ss.str().length();
+  if (len > sizeof(pstr))
+    len = sizeof(pstr);
+
+  return (char *)memcpy(pstr, ss.str().c_str(), len);
 }
 
 void help(void)
