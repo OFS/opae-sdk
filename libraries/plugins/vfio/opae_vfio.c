@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -503,6 +503,8 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	}
 	memset(pair->device, 0, sizeof(struct opae_vfio));
 
+	memset(phys_device, 0, sizeof(phys_device));
+	memset(phys_driver, 0, sizeof(phys_driver));
 	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX) &&
 	    !read_pci_link(phys_device, "driver", phys_driver,
 			   sizeof(phys_driver)) &&
@@ -614,6 +616,11 @@ int vfio_walk(pci_device_t *p)
 
 	// treat all of BAR0 as an FPGA_ACCELERATOR
 	vfio_token *t = get_token(p, 0, FPGA_ACCELERATOR);
+	if (!t) {
+		OPAE_ERR("failed to find token during walk");
+		res = -1;
+		goto close;
+	}
 
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
