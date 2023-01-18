@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -73,7 +73,7 @@ static bool gEnableIRQ = false;
 
 static void get_path(const std::string object_type, fpga_handle handle){
   auto h = (struct _fpga_handle*)handle; 
-  auto tok = (struct _fpga_token*)h->token; 
+  auto tok = (struct _fpga_token*)h->token;
   if (object_type.compare("fme") == 0)
   {
      sysfs_fme = tok->sysfspath;
@@ -328,7 +328,7 @@ TEST(events, event_03) {
 
   memset(&_h, 0, sizeof(_h));
   _h.token = &_t;
-  _h.magic = FPGA_INVALID_MAGIC;
+  _h.hdr.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
   free_error_list(_t.errors);
@@ -336,7 +336,7 @@ TEST(events, event_03) {
 
   // handle with bad token.
   _t.hdr.magic = FPGA_INVALID_MAGIC;
-  _h.magic = FPGA_HANDLE_MAGIC;
+  _h.hdr.magic = FPGA_HANDLE_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
   // token/event mismatch.
@@ -390,7 +390,7 @@ TEST(events, event_04) {
 
   memset(&_h, 0, sizeof(_h));
   _h.token = &_t;
-  _h.magic = FPGA_INVALID_MAGIC;
+  _h.hdr.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
   free_error_list(_t.errors);
@@ -398,7 +398,7 @@ TEST(events, event_04) {
 
   // handle with bad token.
   _t.hdr.magic = FPGA_INVALID_MAGIC;
-  _h.magic = FPGA_HANDLE_MAGIC;
+  _h.hdr.magic = FPGA_HANDLE_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
   // token/event mismatch.

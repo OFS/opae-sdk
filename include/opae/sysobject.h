@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -153,6 +153,19 @@ fpga_result fpgaObjectGetObjectAt(fpga_object parent, size_t idx,
  * parameters are null or invalid
  */
 fpga_result fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type);
+
+/**
+ * @brief Get the sysobject name
+ *
+ * @param[in] obj An fpga_object instance
+ * @param[out] name The name of the object
+ * @param[in] max_len The max number of bytes to write to name
+ *
+ * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
+ * parameters are null or invalid
+ */
+fpga_result fpgaObjectGetName(fpga_object obj, char *name,
+			      size_t max_len);
 
 /**
  * @brief Free memory used for the fpga_object data structure

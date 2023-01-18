@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2023, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,67 +28,76 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/access.h>
-#include "common_int.h"
-#include "wsid_list_int.h"
-#include "metrics/metrics_int.h"
+#include <opae/types.h>
+
+#include "remote.h"
+#include "request.h"
+#include "response.h"
+
 #include "mock/opae_std.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-STATIC void unmap_mmio_region(struct wsid_map *wm)
+fpga_result __REMOTE_API__
+remote_fpgaReconfigureSlot(fpga_handle fpga,
+			   uint32_t slot,
+			   const uint8_t *bitstream,
+			   size_t bitstream_len,
+			   int flags)
 {
-	if (munmap((void *)wm->offset, wm->len)) {
-		OPAE_MSG("munmap failed: %s",
-			 strerror(errno));
-	}
+	OPAE_MSG("remote_fpgaReconfigureSlot not supported");
+	UNUSED_PARAM(fpga);
+	UNUSED_PARAM(slot);
+	UNUSED_PARAM(bitstream);
+	UNUSED_PARAM(bitstream_len);
+	UNUSED_PARAM(flags);
+	return FPGA_NOT_SUPPORTED;
 }
 
-fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
+fpga_result __REMOTE_API__
+remote_fpgaReconfigureSlotByName(fpga_handle fpga,
+				 uint32_t slot,
+				 const char *path,
+				 int flags)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result = FPGA_OK;
-	int err = 0;
+	opae_fpgaReconfigureSlotByName_request req;
+	opae_fpgaReconfigureSlotByName_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	char *resp_json = NULL;
+	fpga_result res;
+	size_t len;
 
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	if (-1 == _handle->fddev) {
-		OPAE_ERR("Invalid handle file descriptor");
-		err = pthread_mutex_unlock(&_handle->lock);
-		if (err) {
-			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
+	if (!fpga) {
+		OPAE_ERR("NULL handle");
 		return FPGA_INVALID_PARAM;
 	}
 
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
-	free_umsg_buffer(handle);
-
-	// free metric enum vector
-	free_fpga_enum_metrics_vector(_handle);
-
-	opae_close(_handle->fddev);
-	if (_handle->fdfpgad >= 0)
-		opae_close(_handle->fdfpgad);
-
-	// invalidate magic (just in case)
-	_handle->hdr.magic = FPGA_INVALID_MAGIC;
-
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-	err = pthread_mutex_destroy(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	if (!path) {
+		OPAE_ERR("NULL path");
+		return FPGA_INVALID_PARAM;
 	}
 
-	opae_free(_handle);
+	h = (struct _remote_handle *)fpga;
+	tok = h->token;
 
-	return FPGA_OK;
+	req.handle_id = h->hdr.handle_id;
+	req.slot = slot;
+
+	len = strnlen(path, PATH_MAX - 1);
+	memcpy(req.path, path, len + 1);
+
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaReconfigureSlotByName_request_41(
+		&req, tok->json_to_string_flags);
+
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
+
+	if (!opae_decode_fpgaReconfigureSlotByName_response_41(
+		resp_json, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }

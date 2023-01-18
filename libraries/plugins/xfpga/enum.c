@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -200,6 +200,15 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_HOSTNAME)) {
+		if (strncmp(_filter->hostname,
+			    attr->hdr.token_id.hostname,
+			    HOST_NAME_MAX)) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 	    && (FPGA_DEVICE == _filter->objtype)) {
 
@@ -344,6 +353,8 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->hdr.function = parent->hdr.function;
 	pdev->hdr.interface = FPGA_IFC_DFL;
 	pdev->hdr.objtype = FPGA_DEVICE;
+
+	opae_get_remote_id(&pdev->hdr.token_id);
 
 	parent->fme = pdev->fme = pdev;
 
@@ -520,6 +531,8 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->hdr.function = parent->hdr.function;
 	pdev->hdr.interface = FPGA_IFC_DFL;
 	pdev->hdr.objtype = FPGA_ACCELERATOR;
+
+	opae_get_remote_id(&pdev->hdr.token_id);
 
 	pdev->fme = parent->fme;
 
@@ -817,6 +830,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	}
 
 	_dst->hdr = _src->hdr;
+	// The new token gets a unique remote id.
+	opae_get_remote_id(&_dst->hdr.token_id);
 
 	_dst->device_instance = _src->device_instance;
 	_dst->subdev_instance = _src->subdev_instance;

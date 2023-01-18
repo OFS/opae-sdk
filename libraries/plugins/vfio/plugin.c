@@ -121,6 +121,16 @@ int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaReleaseBuffer");
 	adapter->fpgaGetIOAddress =
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaGetIOAddress");
+	adapter->fpgaBufMemSet =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaBufMemSet");
+	adapter->fpgaBufMemCpyToRemote =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaBufMemCpyToRemote");
+	adapter->fpgaBufPoll =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaBufPoll");
+	adapter->fpgaBufMemCmp =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaBufMemCmp");
+	adapter->fpgaBufWritePattern =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaBufWritePattern");
 	adapter->fpgaCreateEventHandle =
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaCreateEventHandle");
 	adapter->fpgaDestroyEventHandle =

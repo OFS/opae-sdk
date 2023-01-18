@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+#include <netdb.h>
 
 #include <opae/enum.h>
 
@@ -82,6 +84,86 @@ out_destroy_attr:
 out_free:
 	opae_free(props);
 	return NULL;
+}
+
+STATIC char opae_hostname[HOST_NAME_MAX + 1];
+STATIC bool opae_hostname_initialized;
+STATIC uint64_t next_unique_id = 1;
+static pthread_mutex_t remote_id_lock =
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+int opae_get_host_name_buf(char *name, size_t len)
+{
+	int res;
+
+	opae_mutex_lock(res, &remote_id_lock);
+
+	if (!opae_hostname_initialized) {
+		struct hostent *he;
+		char nm[HOST_NAME_MAX + 1];
+
+		memset(opae_hostname, 0, sizeof(opae_hostname));
+		memset(nm, 0, sizeof(nm));
+
+		errno = 0;
+		res = gethostname(nm, HOST_NAME_MAX);
+		if (res < 0) {
+			opae_mutex_unlock(res, &remote_id_lock);
+			return errno;
+		}
+
+		h_errno = 0;
+		he = gethostbyname(nm);
+		if (!he) {
+			opae_mutex_unlock(res, &remote_id_lock);
+			return h_errno;
+		}
+
+		memcpy(opae_hostname, he->h_name, HOST_NAME_MAX);
+		opae_hostname_initialized = true;
+	}
+
+	opae_mutex_unlock(res, &remote_id_lock);
+
+	if (name)
+		memcpy(name, opae_hostname, len);
+
+	return 0;
+}
+
+const char *opae_get_host_name(void)
+{
+	int res;
+
+	opae_mutex_lock(res, &remote_id_lock);
+
+	if (!opae_hostname_initialized)
+		opae_get_host_name_buf(NULL, 0);
+
+	opae_mutex_unlock(res, &remote_id_lock);
+
+	return opae_hostname;
+}
+
+void opae_get_remote_id(fpga_remote_id *rid)
+{
+	int res;
+
+	memset(rid, 0, sizeof(*rid));
+
+	opae_mutex_lock(res, &remote_id_lock);
+
+	opae_get_host_name_buf(rid->hostname, HOST_NAME_MAX);
+	rid->unique_id = next_unique_id++;
+
+	opae_mutex_unlock(res, &remote_id_lock);
+}
+
+bool opae_remote_ids_match(const fpga_remote_id *lhs,
+			   const fpga_remote_id *rhs)
+{
+	return (lhs->unique_id == rhs->unique_id) &&
+		!strcmp(lhs->hostname, rhs->hostname);
 }
 
 fpga_result __OPAE_API__ fpgaDestroyProperties(fpga_properties *prop)
@@ -1228,6 +1310,55 @@ fpga_result __OPAE_API__ fpgaPropertiesSetSubsystemDeviceID(
 
 	SET_FIELD_VALID(p, FPGA_PROPERTY_SUB_DEVICEID);
 	p->subsystem_device_id = subsystem_device_id;
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result fpgaPropertiesGetHostname(const fpga_properties prop,
+				      char *name,
+				      size_t len)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p;
+
+	ASSERT_NOT_NULL(name);
+
+	p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_HOSTNAME)) {
+		if (len > HOST_NAME_MAX)
+			len = HOST_NAME_MAX;
+		memcpy(name, p->hostname, len);
+	} else {
+		OPAE_MSG("No hostname");
+		res = FPGA_NOT_FOUND;
+	}
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result fpgaPropertiesSetHostname(fpga_properties prop,
+				      const char *name,
+				      size_t len)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	SET_FIELD_VALID(p, FPGA_PROPERTY_HOSTNAME);
+	if (len > HOST_NAME_MAX)
+		len = HOST_NAME_MAX;
+	memcpy(p->hostname, name, len);
+	p->hostname[len] = '\0';
 
 	opae_mutex_unlock(err, &p->lock);
 

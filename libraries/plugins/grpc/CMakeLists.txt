@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,60 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(xfpga)
-add_subdirectory(xfpga/metrics/bmc)
+#set(SRC
+#  enum.c
+#  buffer.c
+#  plugin.c
+#  close.c
+#  error.c
+#  event.c
+#  hostif.c
+#  manage.c
+#  metrics.c
+#  mmio.c
+#  open.c
+#  properties.c
+#  reconf.c
+#  reset.c
+#  sysobject.c
+#  userclk.c
+#  version.c
+#  ${opae-test_ROOT}/framework/mock/opae_std.c)
 
-if (OPAE_BUILD_PLUGIN_VFIO AND PLATFORM_SUPPORTS_VFIO)
-    if (OPAE_BUILD_LIBOPAEVFIO)
-        add_subdirectory(vfio)
-    else()
-        message(WARNING
-            "Must enable 'OPAE_BUILD_LIBOPAEVFIO' to build vfio plugin")
-    endif()
-endif()
+set(SRC
+    enum.cpp
+    buffer.cpp
+    plugin.c
+    close.cpp
+    error.cpp
+    ${opae-test_ROOT}/framework/mock/opae_std.c
+    opae.proto
+)
 
-if (OPAE_WITH_gRPC)
-    add_subdirectory(grpc)
-endif(OPAE_WITH_gRPC)
+opae_add_module_library(TARGET opae-grpc
+    SOURCE ${SRC}
+    LIBS
+        dl
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+        ${gRPC_LIBRARIES}
+    COMPONENT opaeclib
+)
+
+target_include_directories(opae-grpc
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${gRPC_INCLUDE_DIRS}
+)
+
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(TARGET opae-grpc
+    LANGUAGE cpp
+)
+protobuf_generate(TARGET opae-grpc
+    LANGUAGE grpc
+    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+    PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
+)

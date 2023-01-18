@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -66,6 +66,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <limits.h>
 #include <opae/types_enum.h>
 
 /**
@@ -252,6 +253,11 @@ typedef struct metric_threshold {
 	threshold hysteresis;                          // Hysteresis
 } metric_threshold;
 
+typedef struct _fpga_remote_id {
+	char hostname[HOST_NAME_MAX + 1];
+	uint64_t unique_id;
+} fpga_remote_id;
+
 /** Internal token type header
  *
  * Each plugin (dfl: libxfpga.so, vfio: libopae-v.so) implements its own
@@ -275,6 +281,7 @@ typedef struct _fpga_token_header {
 	fpga_guid guid;
 	uint16_t subsystem_vendor_id;
 	uint16_t subsystem_device_id;
+	fpga_remote_id token_id;
 } fpga_token_header;
 
 /** Determine token parent/child relationship
@@ -290,6 +297,14 @@ typedef struct _fpga_token_header {
  ((__child_hdr)->objtype == FPGA_ACCELERATOR) && \
  ((__parent_hdr)->segment == (__child_hdr)->segment) && \
  ((__parent_hdr)->bus == (__child_hdr)->bus) && \
- ((__parent_hdr)->device == (__child_hdr)->device))
+ ((__parent_hdr)->device == (__child_hdr)->device) && \
+ !strcmp((__parent_hdr)->token_id.hostname, \
+         (__child_hdr)->token_id.hostname))
+
+typedef struct _fpga_handle_header {
+	uint64_t magic;
+	fpga_remote_id token_id;
+	fpga_remote_id handle_id;
+} fpga_handle_header;
 
 #endif // __FPGA_TYPES_H__

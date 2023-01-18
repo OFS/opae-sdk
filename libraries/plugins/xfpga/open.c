@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -80,10 +80,11 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	memset(_handle, 0, sizeof(*_handle));
 
 	// mark data structure as valid
-	_handle->magic = FPGA_HANDLE_MAGIC;
+	_handle->hdr.magic = FPGA_HANDLE_MAGIC;
+	_handle->hdr.token_id = ((fpga_token_header *)token)->token_id;
+	opae_get_remote_id(&_handle->hdr.handle_id);
 
 	_handle->token = token;
-
 	_handle->fdfpgad = -1;
 
 	// Init MMIO table

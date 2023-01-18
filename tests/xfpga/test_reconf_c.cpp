@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -198,7 +198,7 @@ TEST_P(reconf_c, open_accel_01) {
 
   // Invalid object type
   struct _fpga_handle *handle = (struct _fpga_handle *)device_;
-  struct _fpga_token *token = (struct _fpga_token *)&handle->token;
+  struct _fpga_token *token = (struct _fpga_token *)handle->token;
 
   handle->token = NULL;
 

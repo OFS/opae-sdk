@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -320,18 +320,19 @@ int main(int argc, char *argv[])
 	uint32_t           use_ase;
 
 	volatile uint64_t *dsm_ptr    = NULL;
-	volatile uint64_t *status_ptr = NULL;
+	//volatile uint64_t *status_ptr = NULL;
 	volatile uint64_t *input_ptr  = NULL;
 	volatile uint64_t *output_ptr = NULL;
 
 	uint64_t           dsm_wsid;
 	uint64_t           input_wsid;
 	uint64_t           output_wsid;
-	uint32_t           i;
-	uint32_t           timeout;
+	//uint32_t           i;
+	//uint32_t           timeout;
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
 	fpga_properties    device_filter = NULL;
+	int		   cmp_result;
 
 	res1 = fpgaGetProperties(NULL, &device_filter);
 	if (res1 != FPGA_OK) {
@@ -411,16 +412,39 @@ int main(int argc, char *argv[])
 
 	printf("Running Test\n");
 
-	/* Initialize buffers */
+	/* Initialize buffers
 	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
 	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
 	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+	*/
+	fpgaBufMemSet(accelerator_handle, dsm_wsid, 0, 0, LPBK1_DSM_SIZE);
+	fpgaBufMemSet(accelerator_handle, input_wsid, 0, 0xAF, LPBK1_BUFFER_SIZE);
+	fpgaBufMemSet(accelerator_handle, output_wsid, 0, 0xBE, LPBK1_BUFFER_SIZE);
 
+	/*
 	cache_line *cl_ptr = (cache_line *)input_ptr;
 	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
-		cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
+		cl_ptr[i].uint[15] = i+1; // set the last uint in every cacheline
 	}
+	*/
+	/*
+	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+		/ *
+		** Set the last uint32_t in every cacheline to
+		** its 1-based index.
+		* /
+		uint32_t cl = i + 1;
+		size_t offset = CL(cl) - sizeof(uint32_t);
 
+		res1 = fpgaBufMemCpyToRemote(accelerator_handle, input_wsid,
+					     offset, &cl, sizeof(cl));
+		ON_ERR_GOTO(res1, out_free_output, "initializing input buffer");
+	}
+	*/
+	res1 = fpgaBufWritePattern(accelerator_handle,
+				   input_wsid,
+				   "cl_index_end");
+	ON_ERR_GOTO(res1, out_free_output, "initializing input buffer");
 
 	/* Reset accelerator */
 	res1 = fpgaReset(accelerator_handle);
@@ -461,7 +485,7 @@ int main(int argc, char *argv[])
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CFG, 0x42000);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
-	status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/sizeof(uint64_t);
+	//status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/sizeof(uint64_t);
 
 
 	/* Start the test */
@@ -469,6 +493,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for test completion */
+	/*
 	timeout = TEST_TIMEOUT;
 	while (0 == ((*status_ptr) & 0x1)) {
 		usleep(100);
@@ -477,6 +502,14 @@ int main(int argc, char *argv[])
 			ON_ERR_GOTO(res1, out_free_output, "test timed out");
 		}
 	}
+	*/
+
+	res1 = fpgaBufPoll(accelerator_handle, dsm_wsid, DSM_STATUS_TEST_COMPLETE,
+			   sizeof(uint64_t), 0x1, 1, 100, TEST_TIMEOUT);
+	if (res1 == FPGA_NOT_FOUND) // fpgaBufPoll() returns FPGA_NOT_FOUND on timeout.
+		res1 = FPGA_EXCEPTION;
+	ON_ERR_GOTO(res1, out_free_output, "test timed out");
+
 
 	/* Stop the device */
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CTL, 7);
@@ -501,6 +534,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Check output buffer contents */
+	/*
 	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
 		if (((uint8_t *)output_ptr)[i] != ((uint8_t *)input_ptr)[i]) {
 			fprintf(stderr, "Output does NOT match input "
@@ -508,6 +542,16 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+	*/
+
+	cmp_result = 999;
+	res1 = fpgaBufMemCmp(accelerator_handle,
+			     input_wsid, 0, output_wsid, 0,
+			     LPBK1_BUFFER_SIZE, &cmp_result);
+	ON_ERR_GOTO(res1, out_free_output, "comparing buffers");
+
+	if (cmp_result)
+		fprintf(stderr, "Output does NOT match input\n");
 
 	printf("Done Running Test\n");
 

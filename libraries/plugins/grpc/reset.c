@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2023, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,67 +28,42 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/access.h>
-#include "common_int.h"
-#include "wsid_list_int.h"
-#include "metrics/metrics_int.h"
+#include <opae/types.h>
+
 #include "mock/opae_std.h"
+#include "remote.h"
+#include "request.h"
+#include "response.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-STATIC void unmap_mmio_region(struct wsid_map *wm)
+fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle)
 {
-	if (munmap((void *)wm->offset, wm->len)) {
-		OPAE_MSG("munmap failed: %s",
-			 strerror(errno));
-	}
-}
+	opae_fpgaReset_request req;
+	opae_fpgaReset_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	char *req_json;
+	char *resp_json = NULL;
+	fpga_result res;
 
-fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
-{
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result = FPGA_OK;
-	int err = 0;
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	if (-1 == _handle->fddev) {
-		OPAE_ERR("Invalid handle file descriptor");
-		err = pthread_mutex_unlock(&_handle->lock);
-		if (err) {
-			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
+	if (!handle) {
+		OPAE_ERR("NULL handle");
 		return FPGA_INVALID_PARAM;
 	}
 
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
-	free_umsg_buffer(handle);
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
 
-	// free metric enum vector
-	free_fpga_enum_metrics_vector(_handle);
+	req.handle_id = h->hdr.handle_id;
 
-	opae_close(_handle->fddev);
-	if (_handle->fdfpgad >= 0)
-		opae_close(_handle->fdfpgad);
+	req_json = opae_encode_fpgaReset_request_7(
+		&req, tok->json_to_string_flags);
 
-	// invalidate magic (just in case)
-	_handle->hdr.magic = FPGA_INVALID_MAGIC;
+	res = opae_client_send_and_receive(tok, req_json, &resp_json);
+	if (res)
+		return res;
 
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-	err = pthread_mutex_destroy(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
+	if (!opae_decode_fpgaReset_response_7(resp_json, &resp))
+		return FPGA_EXCEPTION;
 
-	opae_free(_handle);
-
-	return FPGA_OK;
+	return resp.result;
 }

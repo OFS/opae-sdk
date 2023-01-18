@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -106,6 +106,17 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReleaseBuffer");
 	adapter->fpgaGetIOAddress =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetIOAddress");
+	adapter->fpgaBufMemSet =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufMemSet");
+	adapter->fpgaBufMemCpyToRemote =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufMemCpyToRemote");
+	adapter->fpgaBufPoll =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufPoll");
+	adapter->fpgaBufMemCmp =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufMemCmp");
+	adapter->fpgaBufWritePattern =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaBufWritePattern");
+
 	/*
 	**	adapter->fpgaGetOPAECVersion = dlsym(adapter->plugin.dl_handle,
 	*"xfpga_fpgaGetOPAECVersion");
@@ -141,6 +152,8 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		adapter->plugin.dl_handle, "xfpga_fpgaReleaseFromInterface");
 	adapter->fpgaReconfigureSlot =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlot");
+	adapter->fpgaReconfigureSlotByName =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaReconfigureSlotByName");
 	adapter->fpgaTokenGetObject =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTokenGetObject");
 	adapter->fpgaHandleGetObject =
@@ -159,6 +172,8 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetSize");
 	adapter->fpgaObjectGetType =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetType");
+	adapter->fpgaObjectGetName =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetName");
 	adapter->fpgaObjectWrite64 =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectWrite64");
 	adapter->fpgaSetUserClock =

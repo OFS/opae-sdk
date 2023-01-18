@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -398,7 +398,7 @@ fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (_handle->magic != FPGA_HANDLE_MAGIC) {
+	if (_handle->hdr.magic != FPGA_HANDLE_MAGIC) {
 		OPAE_MSG("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}

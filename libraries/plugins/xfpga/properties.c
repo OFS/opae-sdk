@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -329,13 +329,17 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	_iprop.num_errors = count_error_files(errpath);
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
 
+	_iprop.interface = FPGA_IFC_DFL;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_INTERFACE);
+
+	if (!opae_get_host_name_buf(_iprop.hostname, HOST_NAME_MAX)) {
+		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_HOSTNAME);
+	}
+
 	if (pthread_mutex_lock(&_prop->lock)) {
 		OPAE_MSG("Failed to lock properties mutex");
 		return FPGA_EXCEPTION;
 	}
-
-	_iprop.interface = FPGA_IFC_DFL;
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_INTERFACE);
 
 	lock = _prop->lock;
 	*_prop = _iprop;

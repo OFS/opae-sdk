@@ -31,6 +31,10 @@
 #include <opae/log.h>
 #include <json-c/json.h>
 
+#ifdef OPAE_WITH_gRPC
+#include "comms.h"
+#endif // OPAE_WITH_gRPC
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -129,6 +133,13 @@ void opae_print_fpgad_config(fpgad_config_data *cfg);
 void opae_free_fpgad_config(fpgad_config_data *cfg);
 
 
+#ifdef OPAE_WITH_gRPC
+
+opae_comms_channel *
+opae_parse_remote_config(const char *json_input);
+
+#endif // OPAE_WITH_gRPC
+
 
 static inline json_object *
 parse_json_array(json_object *parent, const char *name, int *len)
@@ -189,6 +200,27 @@ parse_json_string(json_object *parent, const char *name, char **value)
 
 	if (value)
 		*value = (char *)json_object_get_string(jname);
+
+	return jname;
+}
+
+static inline json_object *
+parse_json_int(json_object *parent, const char *name, int *value)
+{
+	json_object *jname = NULL;
+
+	if (!json_object_object_get_ex(parent, name, &jname)) {
+		OPAE_DBG("Error parsing JSON: missing '%s'", name);
+		return NULL;
+	}
+
+	if (!json_object_is_type(jname, json_type_int)) {
+		OPAE_DBG("'%s' JSON object not int", name);
+		return NULL;
+	}
+
+	if (value)
+		*value = json_object_get_int(jname);
 
 	return jname;
 }

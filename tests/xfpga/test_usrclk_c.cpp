@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -163,12 +163,14 @@ TEST_P(usrclk_c, get_user_clock_neg) {
 
   // Valid object type
   struct _fpga_handle  *_handle = (struct _fpga_handle *)accel_;
+  fpga_token save_token = _handle->token;
   int fddev = _handle->fddev;
 
   // Token not found
   _handle->token = NULL;
   result = xfpga_fpgaGetUserClock(accel_, &high, &low, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
+  _handle->token = save_token;
 
   // Invalid file handle descriptor
   _handle->fddev = -1;

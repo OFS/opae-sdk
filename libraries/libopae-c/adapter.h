@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -102,6 +102,29 @@ typedef struct _opae_api_adapter_table {
 
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
 					uint64_t *ioaddr);
+
+	fpga_result (*fpgaBufMemSet)(fpga_handle handle, uint64_t wsid,
+				     size_t offset, int c, size_t n);
+
+	fpga_result (*fpgaBufMemCpyToRemote)(fpga_handle, uint64_t dest_wsid,
+					     size_t dest_offset, void *src,
+					     size_t n);
+
+	fpga_result (*fpgaBufPoll)(fpga_handle handle, uint64_t wsid,
+				   size_t offset, int width, uint64_t mask,
+				   uint64_t expected_value,
+				   uint64_t sleep_interval,
+				   uint64_t loops_timeout);
+
+	fpga_result (*fpgaBufMemCmp)(fpga_handle handle,
+				     uint64_t bufa_wsid, size_t bufa_offset,
+				     uint64_t bufb_wsid, size_t bufb_offset,
+				     size_t n, int *result);
+
+	fpga_result (*fpgaBufWritePattern)(fpga_handle handle,
+					   uint64_t wsid,
+					   const char *pattern_name);
+
 	/*
 	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);
 	**
@@ -158,6 +181,11 @@ typedef struct _opae_api_adapter_table {
 					   const uint8_t *bitstream,
 					   size_t bitstream_len, int flags);
 
+	fpga_result (*fpgaReconfigureSlotByName)(fpga_handle fpga,
+						 uint32_t slot,
+						 const char *path,
+						 int flags);
+
 	fpga_result (*fpgaTokenGetObject)(fpga_token token, const char *name,
 					  fpga_object *object, int flags);
 
@@ -183,6 +211,9 @@ typedef struct _opae_api_adapter_table {
 
 	fpga_result (*fpgaObjectGetType)(fpga_object obj,
 					 enum fpga_sysobject_type *type);
+
+	fpga_result (*fpgaObjectGetName)(fpga_object obj, char *name,
+					 size_t max_len);
 
 	fpga_result (*fpgaObjectWrite64)(fpga_object obj, uint64_t value,
 					 int flags);
@@ -219,5 +250,14 @@ typedef struct _opae_api_adapter_table {
 
 } opae_api_adapter_table;
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 int opae_plugin_mgr_register_plugin(const char *name, const char *cfg);
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+
 #endif /* __OPAE_ADAPTER_H__ */

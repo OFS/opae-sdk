@@ -36,6 +36,12 @@ set(SRC
     ${opae-test_ROOT}/framework/mock/opae_std.c
 )
 
+if (OPAE_WITH_gRPC)
+    list(APPEND SRC
+            rmt-cfg.c
+    )
+endif(OPAE_WITH_gRPC)
+
 opae_add_shared_library(TARGET opae-c
     EXPORT opae-targets
     SOURCE ${SRC}
@@ -59,6 +65,18 @@ opae_add_static_library(TARGET opae-c-archive
         ${uuid_LIBRARIES}
     COMPONENT opaeclib
 )
+
+if (OPAE_WITH_gRPC)
+target_compile_definitions(opae-c
+    PRIVATE
+        OPAE_WITH_gRPC=1
+)
+
+target_compile_definitions(opae-c-archive
+    PRIVATE
+        OPAE_WITH_gRPC=1
+)
+endif(OPAE_WITH_gRPC)
 
 install(FILES adapter.h props.h opae_int.h
     DESTINATION include/opae/plugin

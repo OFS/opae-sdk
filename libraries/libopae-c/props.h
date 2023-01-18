@@ -32,6 +32,7 @@
 #define __USE_GNU 1
 #endif
 #include <pthread.h>
+#include <limits.h>
 
 #include <opae/types.h>
 #include <opae/types_enum.h>
@@ -57,14 +58,12 @@
 #define FPGA_PROPERTY_INTERFACE 12
 #define FPGA_PROPERTY_SUB_VENDORID 13
 #define FPGA_PROPERTY_SUB_DEVICEID 14
+#define FPGA_PROPERTY_HOSTNAME 15
 
 /** Fields for FPGA objects */
 #define FPGA_PROPERTY_NUM_SLOTS 32
 #define FPGA_PROPERTY_BBSID 33
 #define FPGA_PROPERTY_BBSVERSION 34
-#define FPGA_PROPERTY_MODEL 35
-#define FPGA_PROPERTY_LOCAL_MEMORY 36
-#define FPGA_PROPERTY_CAPABILITIES 37
 
 /** Fields for accelerator objects */
 #define FPGA_PROPERTY_ACCELERATOR_STATE 32
@@ -92,7 +91,7 @@ struct _fpga_properties {
 	// bit 0x02 - segment field is valid
 	// ...
 	// up to bit 0x1F
-	fpga_guid guid; // Applies only to accelerator types
+	fpga_guid guid;
 	fpga_token parent;
 	fpga_objtype objtype;
 	uint16_t segment;
@@ -107,6 +106,7 @@ struct _fpga_properties {
 	fpga_interface interface;
 	uint16_t subsystem_vendor_id;
 	uint16_t subsystem_device_id;
+	char hostname[HOST_NAME_MAX + 1];
 
 	/* Object-specific properties
 	 * bitfields start as 0x20
@@ -119,10 +119,6 @@ struct _fpga_properties {
 			uint32_t num_slots;
 			uint64_t bbs_id;
 			fpga_version bbs_version;
-			// TODO char model[FPGA_MODEL_LENGTH];
-			// TODO uint64_t local_memory_size;
-			// TODO uint64_t capabilities; #<{(| bitfield (HSSI,
-			// iommu, ...) |)}>#
 		} fpga;
 
 		/* accelerator object properties
@@ -157,5 +153,12 @@ opae_validate_and_lock_properties(fpga_properties props)
 }
 
 struct _fpga_properties *opae_properties_create(void);
+
+int opae_get_host_name_buf(char *name, size_t len);
+const char *opae_get_host_name(void);
+
+void opae_get_remote_id(fpga_remote_id *rid);
+bool opae_remote_ids_match(const fpga_remote_id *lhs,
+			   const fpga_remote_id *rhs);
 
 #endif // ___OPAE_PROPS_H__

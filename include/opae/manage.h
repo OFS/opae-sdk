@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -139,6 +139,12 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga,
 				uint32_t slot,
 				const uint8_t *bitstream,
 				size_t bitstream_len, int flags);
+
+
+fpga_result fpgaReconfigureSlotByName(fpga_handle fpga,
+				      uint32_t slot,
+				      const char *path,
+				      int flags);
 
 #ifdef __cplusplus
 } // extern "C"

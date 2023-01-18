@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -816,6 +816,35 @@ fpga_result fpgaPropertiesGetSubsystemDeviceID(const fpga_properties prop,
  */
 fpga_result fpgaPropertiesSetSubsystemDeviceID(fpga_properties prop,
 					       uint16_t subsystem_device_id);
+
+/**
+ * Get the hostname of a resource
+ *
+ * Returns the hostname of the queried resource.
+ *
+ * @param[in]  prop     Properties object to query
+ * @param[out] name     Buffer to receive the hostname
+ * @param[in]  len      Maximum number of bytes to transfer to name
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetHostname(const fpga_properties prop,
+				      char *name,
+				      size_t len);
+
+/**
+ * Set the PCI function number of a resource
+ *
+ * Enforces the limitation on the number of functions as specified in the
+ * PCI spec.
+ *
+ * @param[in]  prop     Properties object to modify
+ * @param[in]  name     Buffer that contains the hostname
+ * @param[in]  len      Maximum number of bytes to transfer from name
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetHostname(fpga_properties prop,
+				      const char *name,
+				      size_t len);
 
 #ifdef __cplusplus
 } // extern "C"

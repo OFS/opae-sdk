@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -179,12 +179,12 @@ TEST_P(DISABLED_umsg_c_p, test_umsg_drv_02) {
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(NULL, &Umsg_num));
 
   struct _fpga_handle* _handle = (struct _fpga_handle*)accel_;
-  _handle->magic = 0x123;
+  _handle->hdr.magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(_handle, &Umsg_num));
 
   // Reset handle magic 
-  _handle->magic = FPGA_HANDLE_MAGIC;
+  _handle->hdr.magic = FPGA_HANDLE_MAGIC;
 }
 
 /**
@@ -232,12 +232,12 @@ TEST_P(DISABLED_umsg_c_p, test_umsg_drv_05) {
 
   // Invalid handle magic
   struct _fpga_handle* _handle = (struct _fpga_handle*)accel_;
-  _handle->magic = 0x123;
+  _handle->hdr.magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(accel_, Umsghit_Disble));
 
   // Valid handle magic
-  _handle->magic = FPGA_HANDLE_MAGIC;
+  _handle->hdr.magic = FPGA_HANDLE_MAGIC;
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(accel_));
 
   // Invalid Driver handle
@@ -275,12 +275,12 @@ TEST_P(DISABLED_umsg_c_p, test_umsg_drv_07) {
 
   // Invalid handle magic
   struct _fpga_handle* _handle = (struct _fpga_handle*)accel_;
-  _handle->magic = 0x123;
+  _handle->hdr.magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(accel_, &umsg_ptr));
 
   // Valid handle magic
-  _handle->magic = FPGA_HANDLE_MAGIC;
+  _handle->hdr.magic = FPGA_HANDLE_MAGIC;
   ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(accel_));
 
   // Invalid Driver handle

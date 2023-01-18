@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -75,7 +75,7 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 	}
 
 
-	if (handle->magic != FPGA_HANDLE_MAGIC) {
+	if (handle->hdr.magic != FPGA_HANDLE_MAGIC) {
 		OPAE_MSG("Invalid handle object");
 		int err = pthread_mutex_unlock(&handle->lock);
 		if (err) {

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -289,16 +289,15 @@ int main(int argc, char *argv[])
 
 	printf("Waiting for interrupts now...\n");
 
+	res1 = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
+	ON_ERR_GOTO(res1, out_join, "getting file descriptor");
+
 	res = pthread_create(&errthr, NULL, error_thread, fpga_device_token);
 	if (res) {
 		printf("Failed to create error_thread.\n");
 		res1 = FPGA_EXCEPTION;
 		goto out_destroy_eh;
 	}
-
-
-	res1 = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
-	ON_ERR_GOTO(res1, out_join, "getting file descriptor");
 
 	pfd.events = POLLIN;
 	poll_ret = poll(&pfd, 1, timeout);
@@ -319,13 +318,14 @@ int main(int argc, char *argv[])
 					 bytes_read < 0 ? strerror(errno) : "zero bytes read");
 	}
 
-	res1 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
-	ON_ERR_GOTO(res1, out_join, "unregistering an FME event");
-
-	printf("Successfully tested Register/Unregister for FME events!\n");
-
 out_join:
 	pthread_join(errthr, NULL);
+
+	res2 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
+	ON_ERR_GOTO(res2, out_destroy_eh, "unregistering an FME event");
+
+	if (res1 == FPGA_OK)
+		printf("Successfully tested Register/Unregister for FME events!\n");
 
 out_destroy_eh:
 	res2 = fpgaDestroyEventHandle(&eh);

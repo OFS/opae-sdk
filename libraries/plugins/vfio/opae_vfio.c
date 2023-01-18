@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -414,7 +414,7 @@ vfio_handle *handle_check(fpga_handle handle)
 	ASSERT_NOT_NULL_RESULT(handle, NULL);
 	vfio_handle *h = (vfio_handle *)handle;
 
-	if (h->magic != VFIO_HANDLE_MAGIC) {
+	if (h->hdr.magic != VFIO_HANDLE_MAGIC) {
 		OPAE_ERR("invalid handle magic");
 		return NULL;
 	}
@@ -668,8 +668,12 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 		goto out_attr_destroy;
 	}
 
-	_handle->magic = VFIO_HANDLE_MAGIC;
+	_handle->hdr.magic = VFIO_HANDLE_MAGIC;
+	_handle->hdr.token_id = _token->hdr.token_id;
+	opae_get_remote_id(&_handle->hdr.handle_id);
+
 	_handle->token = clone_token(_token);
+
 	res = open_vfio_pair(_token->device->addr, &_handle->vfio_pair);
 	if (res) {
 		OPAE_DBG("error opening vfio device");
@@ -812,6 +816,10 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_prop->interface = FPGA_IFC_VFIO;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE);
 
+	if (!opae_get_host_name_buf(_prop->hostname, HOST_NAME_MAX)) {
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_HOSTNAME);
+	}
+
 	if (t->hdr.objtype == FPGA_ACCELERATOR) {
 		vfio_pair_t *pair = NULL;
 		fpga_result res;
@@ -900,7 +908,8 @@ static inline volatile uint8_t *get_user_offset(vfio_handle *h,
 						uint32_t mmio_num,
 						uint32_t offset)
 {
-	uint32_t user_mmio = h->token->user_mmio[mmio_num];
+	vfio_token *t = h->token;
+	uint32_t user_mmio = t->user_mmio[mmio_num];
 
 	return h->mmio_base + user_mmio + offset;
 }
@@ -1123,9 +1132,12 @@ vfio_token *get_token(pci_device_t *p, uint32_t region, int type)
 	}
 	memset(t, 0, sizeof(vfio_token));
 	t->hdr.magic = VFIO_TOKEN_MAGIC;
+	opae_get_remote_id(&t->hdr.token_id);
+
 	t->device = p;
 	t->region = region;
 	t->hdr.objtype = type;
+
 	t->next = p->tokens;
 	p->tokens = t;
 	return t;
@@ -1222,6 +1234,12 @@ bool matches_filter(const fpga_properties *filter, vfio_token *t)
 	}
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE))
 		if (_prop->interface != FPGA_IFC_VFIO)
+			return false;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_HOSTNAME))
+		if (strncmp(_prop->hostname,
+			    t->hdr.token_id.hostname,
+			    HOST_NAME_MAX))
 			return false;
 
 	return true;
@@ -1368,6 +1386,8 @@ fpga_result vfio_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		return FPGA_NO_MEMORY;
 	}
 	memcpy(_dst, _src, sizeof(vfio_token));
+	// The new token gets a unique remote id.
+	opae_get_remote_id(&_dst->hdr.token_id);
 	*dst = _dst;
 	return FPGA_OK;
 }
@@ -1536,6 +1556,312 @@ fpga_result vfio_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		ptr = ptr->next;
 	}
 	res = FPGA_NOT_FOUND;
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+fpga_result vfio_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+			       size_t offset, int c, size_t n)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if ((virt + offset + n) > end_virt) {
+				OPAE_ERR("buffer overflow detected");
+				res = FPGA_EXCEPTION;
+				goto out_unlock;
+			}
+
+			memset(virt + offset, c, n);
+
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_NOT_FOUND;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+fpga_result vfio_fpgaBufMemCpyToRemote(fpga_handle handle,
+				       uint64_t dest_wsid,
+				       size_t dest_offset,
+				       void *src,
+				       size_t n)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == dest_wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if ((virt + dest_offset + n) > end_virt) {
+				OPAE_ERR("buffer overflow detected");
+				res = FPGA_EXCEPTION;
+				goto out_unlock;
+			}
+
+			memcpy(virt + dest_offset, src, n);
+
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_NOT_FOUND;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+STATIC fpga_result buffer_poll(uint8_t *virt, int width, uint64_t mask,
+	uint64_t expected_value, uint64_t sleep_interval,
+	uint64_t loops_timeout)
+{
+	fpga_result result = FPGA_OK;
+	uint64_t loops = 0;
+	uint64_t expected = expected_value & mask;
+
+	switch (width) {
+	case 1: {
+		volatile uint8_t *p8 = (volatile uint8_t *)virt;
+
+		do {
+			if ((*p8 & (uint8_t)mask) == (uint8_t)expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 2: {
+		volatile uint16_t *p16 = (volatile uint16_t *)virt;
+
+		do {
+			if ((*p16 & (uint16_t)mask) == (uint16_t)expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 4: {
+		volatile uint32_t *p32 = (volatile uint32_t *)virt;
+
+		do {
+			if ((*p32 & (uint32_t)mask) == (uint32_t)expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 8: {
+		volatile uint64_t *p64 = (volatile uint64_t *)virt;
+
+		do {
+			if ((*p64 & mask) == expected)
+				goto out_exit;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	default:
+		OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
+		result = FPGA_INVALID_PARAM;
+	}
+
+out_exit:
+	return result;
+}
+
+fpga_result vfio_fpgaBufPoll(fpga_handle handle,
+	uint64_t wsid, size_t offset,
+	int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if ((virt + offset + width) > end_virt) {
+				OPAE_ERR("buffer overflow detected");
+				res = FPGA_EXCEPTION;
+				goto out_unlock;
+			}
+
+			res = buffer_poll(virt + offset, width, mask,
+					  expected_value, sleep_interval,
+					  loops_timeout);
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_INVALID_PARAM;
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+fpga_result vfio_fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *cmp_result)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+	uint8_t *virt_a = NULL;
+	uint8_t *end_virt_a = NULL;
+	uint8_t *virt_b = NULL;
+	uint8_t *end_virt_b = NULL;
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == bufa_wsid) {
+			virt_a = ptr->virtual;
+			end_virt_a = virt_a + ptr->size;
+		} else if (ptr->wsid == bufb_wsid) {
+			virt_b = ptr->virtual;
+			end_virt_b = virt_b + ptr->size;
+		}
+
+		if (virt_a && virt_b)
+			break;
+
+		ptr = ptr->next;
+	}
+
+	if (!virt_a || !virt_b) {
+		res = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	if ((virt_a + bufa_offset + n) > end_virt_a) {
+		OPAE_ERR("buffer (bufa) overflow detected");
+		res = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	if ((virt_b + bufb_offset + n) > end_virt_b) {
+		OPAE_ERR("buffer (bufb) overflow detected");
+		res = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	*cmp_result = memcmp(virt_a + bufa_offset,
+			     virt_b + bufb_offset,
+			     n);
+
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
+}
+
+#ifndef CL
+#define CL(x) ((x) * 64)
+#endif // CL
+
+fpga_result vfio_fpgaBufWritePattern(fpga_handle handle,
+				     uint64_t wsid,
+				     const char *pattern_name)
+{
+	UNUSED_PARAM(handle);
+	vfio_buffer *ptr;
+	fpga_result res = FPGA_OK;
+
+	if (!pattern_name) {
+		OPAE_ERR("NULL pattern_name");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	ptr = _vfio_buffers;
+	while (ptr) {
+		if (ptr->wsid == wsid) {
+			uint8_t *virt = ptr->virtual;
+			uint8_t *end_virt = virt + ptr->size;
+
+			if (!strcmp(pattern_name, "cl_index_end")) {
+				uint32_t cl = 1;
+				while (virt < end_virt) {
+					uint32_t *p = (uint32_t *)
+					(virt + CL(1) - sizeof(uint32_t));
+					*p = cl++;
+					virt += CL(1);
+				}
+			}
+
+			goto out_unlock;
+		}
+		ptr = ptr->next;
+	}
+
+	res = FPGA_NOT_FOUND;
+
 out_unlock:
 	if (pthread_mutex_unlock(&_buffers_mutex)) {
 		OPAE_MSG("error unlocking buffers mutex");

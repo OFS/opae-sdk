@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -68,8 +68,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char 
 }
 
 fpga_result __XFPGA_API__
-xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
-						   fpga_object *object, int flags)
+xfpga_fpgaHandleGetObject(fpga_handle handle, const char *name,
+			  fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
 	fpga_result res = FPGA_EXCEPTION;

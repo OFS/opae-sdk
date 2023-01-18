@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -69,6 +69,21 @@ fpga_result xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 fpga_result xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
 fpga_result xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 				   uint64_t *ioaddr);
+fpga_result xfpga_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+				size_t offset, int c, size_t n);
+fpga_result xfpga_fpgaBufMemCpyToRemote(fpga_handle, uint64_t dest_wsid,
+					size_t dest_offset, void *src,
+					size_t n);
+fpga_result xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
+	size_t offset, int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout);
+fpga_result xfpga_fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *result);
+fpga_result xfpga_fpgaBufWritePattern(fpga_handle handle,
+				      uint64_t wsid,
+				      const char *pattern_name);
 fpga_result xfpga_fpgaGetOPAECVersion(fpga_version *version);
 fpga_result xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len);
 fpga_result xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len);
@@ -100,9 +115,11 @@ fpga_result xfpga_fpgaReleaseFromInterface(fpga_handle fpga,
 fpga_result xfpga_fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				      const uint8_t *bitstream,
 				      size_t bitstream_len, int flags);
+fpga_result xfpga_fpgaReconfigureSlotByName(fpga_handle fpga, uint32_t slot,
+					    const char *path, int flags);
 fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 				     fpga_object *object, int flags);
-fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
+fpga_result xfpga_fpgaHandleGetObject(fpga_handle handle, const char *name,
 				      fpga_object *object, int flags);
 fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 				      fpga_object *object, int flags);
@@ -119,10 +136,10 @@ fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 				 size_t offset, size_t len, int flags);
 fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
 fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
-fpga_result xfpga_fpgaSetUserClock(fpga_handle handle, uint64_t low_clk,
-				   uint64_t high_clk, int flags);
-fpga_result xfpga_fpgaGetUserClock(fpga_handle handle, uint64_t *low_clk,
-				   uint64_t *high_clk, int flags);
+fpga_result xfpga_fpgaSetUserClock(fpga_handle handle, uint64_t high_clk,
+				   uint64_t low_clk, int flags);
+fpga_result xfpga_fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
+				   uint64_t *low_clk, int flags);
 
 fpga_result xfpga_fpgaGetNumMetrics(fpga_handle handle,
 				   uint64_t *num_metrics);

@@ -953,6 +953,87 @@ fpga_result __OPAE_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		wrapped_handle->opae_handle, wsid, ioaddr);
 }
 
+fpga_result __OPAE_API__ fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+				       size_t offset, int c, size_t n)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufMemSet,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufMemSet(
+		wrapped_handle->opae_handle, wsid, offset, c, n);
+}
+
+fpga_result __OPAE_API__ fpgaBufMemCpyToRemote(fpga_handle handle,
+	uint64_t dest_wsid, size_t dest_offset,
+	void *src, size_t n)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(src);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufMemCpyToRemote,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufMemCpyToRemote(
+		wrapped_handle->opae_handle, dest_wsid, dest_offset,
+		src, n);
+}
+
+fpga_result __OPAE_API__ fpgaBufPoll(fpga_handle handle, uint64_t wsid,
+	size_t offset, int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufPoll,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufPoll(
+		wrapped_handle->opae_handle, wsid, offset, width,
+		mask, expected_value, sleep_interval, loops_timeout);
+}
+
+fpga_result __OPAE_API__ fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *result)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(result);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufMemCmp,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufMemCmp(
+		wrapped_handle->opae_handle, bufa_wsid, bufa_offset,
+		bufb_wsid, bufb_offset, n, result);
+}
+
+fpga_result __OPAE_API__ fpgaBufWritePattern(fpga_handle handle,
+					     uint64_t wsid,
+					     const char *pattern_name)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(pattern_name);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaBufWritePattern,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaBufWritePattern(
+		wrapped_handle->opae_handle, wsid, pattern_name);
+}
+
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);
@@ -1327,6 +1408,23 @@ fpga_result __OPAE_API__ fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 		flags);
 }
 
+fpga_result __OPAE_API__ fpgaReconfigureSlotByName(fpga_handle fpga,
+				uint32_t slot, const char *path,
+				int flags)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(fpga);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(path);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_handle->adapter_table->fpgaReconfigureSlotByName,
+		FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaReconfigureSlotByName(
+		wrapped_handle->opae_handle, slot, path, flags);
+}
+
 fpga_result __OPAE_API__ fpgaTokenGetObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags)
 {
@@ -1538,6 +1636,21 @@ fpga_result __OPAE_API__ fpgaObjectGetType(fpga_object obj,
 
 	return wrapped_object->adapter_table->fpgaObjectGetType(
 		wrapped_object->opae_object, type);
+}
+
+fpga_result __OPAE_API__ fpgaObjectGetName(fpga_object obj,
+					   char *name,
+					   size_t max_len)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectGetName,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectGetName(
+		wrapped_object->opae_object, name, max_len);
 }
 
 fpga_result __OPAE_API__ fpgaObjectRead64(fpga_object obj, uint64_t *value,

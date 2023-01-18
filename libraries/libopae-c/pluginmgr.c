@@ -57,6 +57,12 @@ STATIC opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
+#ifdef OPAE_WITH_gRPC
+opae_comms_channel *comms_channels;
+static pthread_mutex_t comms_channels_lock =
+      PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif // OPAE_WITH_gRPC
+
 STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
 {
 	char plugin_path[PATH_MAX];
@@ -559,6 +565,15 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 		raw_config = opae_read_cfg_file(cfg_file);
 	}
 
+#ifdef OPAE_WITH_gRPC
+	comms_channels = opae_parse_remote_config(raw_config);
+
+	if (comms_channels && comms_channels[0].valid) {
+		errors += opae_plugin_mgr_register_plugin("libopae-grpc.so",
+							  NULL);
+	}
+#endif // OPAE_WITH_gRPC
+
 	// Parse the config file content, allocating and initializing
 	// our configuration table. If raw_config is non-NULL, then
 	// this function will delete it.
@@ -567,7 +582,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	// Print the config table for debug builds.
 	opae_print_libopae_config(platform_data_table);
 
-	errors = opae_plugin_mgr_load_plugins(&platforms_detected);
+	errors += opae_plugin_mgr_load_plugins(&platforms_detected);
 	if (errors) {
 		initialized = 0;
 		goto out_unlock;
@@ -577,8 +592,13 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	errors += opae_plugin_mgr_initialize_all();
 
 	initialized = 0;
+#ifdef OPAE_WITH_gRPC
+	if (!errors && adapter_list)
+		initialized = 1;
+#else
 	if (!errors && platforms_detected)
 		initialized = 1;
+#endif // OPAE_WITH_gRPC
 
 out_unlock:
 	if (!initialized) {
@@ -623,6 +643,33 @@ out_unlock:
 
 	return cb_res;
 }
+
+#ifdef OPAE_WITH_gRPC
+int opae_plugin_mgr_for_each_remote
+	(int (*callback)(opae_comms_channel *, void *), void *context)
+{
+	int res;
+	int cb_res = 0;
+	opae_comms_channel *cptr;
+
+	if (!callback) {
+		OPAE_ERR("NULL callback passed to %s()", __func__);
+		return 1;
+	}
+
+	opae_mutex_lock(res, &comms_channels_lock);
+
+	for (cptr = comms_channels ; cptr->valid ; ++cptr) {
+		cb_res = callback(cptr, context);
+		if (cb_res)
+			break;
+	}
+
+	opae_mutex_unlock(res, &comms_channels_lock);
+
+	return cb_res;
+}
+#endif // OPAE_WITH_gRPC
 
 int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
 {

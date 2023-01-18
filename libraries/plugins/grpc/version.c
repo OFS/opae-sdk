@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2023, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,67 +28,58 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/access.h>
-#include "common_int.h"
-#include "wsid_list_int.h"
-#include "metrics/metrics_int.h"
-#include "mock/opae_std.h"
+#include <opae/types.h>
+#include <opae/log.h>
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
-STATIC void unmap_mmio_region(struct wsid_map *wm)
+//#include "common_int.h"
+//#include "types_int.h"
+
+fpga_result __REMOTE_API__ remote_fpgaGetOPAECVersion(fpga_version *version)
 {
-	if (munmap((void *)wm->offset, wm->len)) {
-		OPAE_MSG("munmap failed: %s",
-			 strerror(errno));
-	}
+(void) version;
+
+
+
+	return FPGA_OK;
 }
 
-fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
+fpga_result __REMOTE_API__
+remote_fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result = FPGA_OK;
-	int err = 0;
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	if (-1 == _handle->fddev) {
-		OPAE_ERR("Invalid handle file descriptor");
-		err = pthread_mutex_unlock(&_handle->lock);
-		if (err) {
-			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
+	if (!version_str) {
+		OPAE_ERR("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
-	free_umsg_buffer(handle);
-
-	// free metric enum vector
-	free_fpga_enum_metrics_vector(_handle);
-
-	opae_close(_handle->fddev);
-	if (_handle->fdfpgad >= 0)
-		opae_close(_handle->fdfpgad);
-
-	// invalidate magic (just in case)
-	_handle->hdr.magic = FPGA_INVALID_MAGIC;
-
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-	err = pthread_mutex_destroy(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	if (len < sizeof(OPAE_VERSION)) {
+		OPAE_ERR("insufficient buffer size");
+		return FPGA_INVALID_PARAM;
 	}
 
-	opae_free(_handle);
+
+
+
+
+	return FPGA_OK;
+}
+
+fpga_result __REMOTE_API__
+remote_fpgaGetOPAECBuildString(char *build_str, size_t len)
+{
+	if (!build_str) {
+		OPAE_ERR("build_str is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (len < sizeof(OPAE_GIT_COMMIT_HASH)) {
+		OPAE_ERR("insufficient buffer size");
+		return FPGA_INVALID_PARAM;
+	}
+
+
+
+
 
 	return FPGA_OK;
 }

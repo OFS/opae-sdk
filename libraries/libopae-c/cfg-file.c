@@ -580,3 +580,25 @@ void opae_free_fpgad_config(fpgad_config_data *cfg)
 
 	opae_free(base);
 }
+
+#ifdef OPAE_WITH_gRPC
+
+STATIC char default_comms_channels[sizeof(opae_comms_channel)] = {
+	0,
+};
+
+opae_comms_channel *
+opae_parse_remote_json(const char *json_input);
+
+opae_comms_channel *
+opae_parse_remote_config(const char *json_input)
+{
+	opae_comms_channel *c = NULL;
+
+	if (json_input)
+		c = opae_parse_remote_json(json_input);
+
+	return c ? c : (opae_comms_channel *)default_comms_channels;
+}
+
+#endif // OPAE_WITH_gRPC

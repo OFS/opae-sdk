@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -335,6 +335,307 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t ws
 		*ioaddr = wm->phys;
 	}
 
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
+					      size_t offset, int c, size_t n)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if ((virt + offset + n) > end_virt) {
+		OPAE_ERR("buffer overflow detected");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	memset(virt + offset, c, n);
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufMemCpyToRemote(fpga_handle handle, uint64_t dest_wsid,
+						      size_t dest_offset, void *src,
+						      size_t n)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+
+	if (!src) {
+		OPAE_ERR("NULL src pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, dest_wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if ((virt + dest_offset + n) > end_virt) {
+		OPAE_ERR("buffer overflow detected");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	memcpy(virt + dest_offset, src, n);
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
+	size_t offset, int width, uint64_t mask, uint64_t expected_value,
+	uint64_t sleep_interval, uint64_t loops_timeout)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+	uint64_t expected = expected_value & mask;
+	uint64_t loops = 0;
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if ((virt + offset + width) > end_virt) {
+		OPAE_ERR("buffer overflow detected");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	switch (width) {
+	case 1: {
+		volatile uint8_t *p8 = (volatile uint8_t *)(virt + offset);
+
+		do {
+			if ((*p8 & (uint8_t)mask) == (uint8_t)expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 2: {
+		volatile uint16_t *p16 = (volatile uint16_t *)(virt + offset);
+
+		do {
+			if ((*p16 & (uint16_t)mask) == (uint16_t)expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 4: {
+		volatile uint32_t *p32 = (volatile uint32_t *)(virt + offset);
+
+		do {
+			if ((*p32 & (uint32_t)mask) == (uint32_t)expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	case 8: {
+		volatile uint64_t *p64 = (volatile uint64_t *)(virt + offset);
+
+		do {
+			if ((*p64 & mask) == expected)
+				goto out_unlock;
+			usleep(sleep_interval);
+		} while (loops++ < loops_timeout);
+
+		result = FPGA_NOT_FOUND; // timeout
+	} break;
+
+	default:
+		OPAE_ERR("invalid poll width: %d. Use 1, 2, 4, or 8", width);
+		result = FPGA_INVALID_PARAM;
+	}
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufMemCmp(fpga_handle handle,
+	uint64_t bufa_wsid, size_t bufa_offset,
+	uint64_t bufb_wsid, size_t bufb_offset,
+	size_t n, int *cmp_result)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm_a;
+	struct wsid_map *wm_b;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt_a;
+	uint8_t *end_virt_a;
+	uint8_t *virt_b;
+	uint8_t *end_virt_b;
+
+	if (!cmp_result) {
+		OPAE_ERR("NULL cmp_result pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm_a = wsid_find(_handle->wsid_root, bufa_wsid);
+	if (!wm_a) {
+		OPAE_MSG("bufa WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	wm_b = wsid_find(_handle->wsid_root, bufb_wsid);
+	if (!wm_b) {
+		OPAE_MSG("bufb WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt_a = (uint8_t *)wm_a->addr;
+	end_virt_a = virt_a + wm_a->len;
+
+	virt_b = (uint8_t *)wm_b->addr;
+	end_virt_b = virt_b + wm_b->len;
+
+	if ((virt_a + bufa_offset + n) > end_virt_a) {
+		OPAE_ERR("buffer overflow detected (bufa)");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	if ((virt_b + bufb_offset + n) > end_virt_b) {
+		OPAE_ERR("buffer overflow detected (bufb)");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	*cmp_result = memcmp(virt_a + bufa_offset,
+			     virt_b + bufb_offset,
+			     n);
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
+#ifndef CL
+#define CL(x) ((x) * 64)
+#endif // CL
+
+fpga_result __XFPGA_API__ xfpga_fpgaBufWritePattern(fpga_handle handle,
+						    uint64_t wsid,
+						    const char *pattern_name)
+{
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct wsid_map *wm;
+	fpga_result result = FPGA_OK;
+	int err;
+	uint8_t *virt;
+	uint8_t *end_virt;
+
+	if (!pattern_name) {
+		OPAE_ERR("NULL pattern_name");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	wm = wsid_find(_handle->wsid_root, wsid);
+	if (!wm) {
+		OPAE_MSG("WSID not found");
+		result = FPGA_NOT_FOUND;
+		goto out_unlock;
+	}
+
+	virt = (uint8_t *)wm->addr;
+	end_virt = virt + wm->len;
+
+	if (!strcmp(pattern_name, "cl_index_end")) {
+		uint32_t cl = 1;
+		while (virt < end_virt) {
+			uint32_t *p = (uint32_t *)
+				(virt + CL(1) - sizeof(uint32_t));
+			*p = cl++;
+			virt += CL(1);
+		}
+	}
+
+out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
 		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));

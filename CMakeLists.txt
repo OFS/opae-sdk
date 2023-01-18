@@ -65,6 +65,9 @@ mark_as_advanced(OPAE_WITH_HWLOC)
 option(OPAE_WITH_TBB "Enable use of tbb" ON)
 mark_as_advanced(OPAE_WITH_TBB)
 
+option(OPAE_WITH_gRPC "Enable use of gRPC" OFF)
+mark_as_advanced(OPAE_WITH_gRPC)
+
 option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
 mark_as_advanced(OPAE_MINIMAL_BUILD)
 
@@ -567,6 +570,85 @@ if (OPAE_WITH_TBB)
 endif(OPAE_WITH_TBB)
 
 ################################################################################
+# Protobuf + gRPC
+################################################################################
+
+set(gRPC_URL
+        https://github.com/grpc/grpc
+        CACHE STRING "URL for gRPC")
+set(gRPC_VERSION
+        1.50.0
+        CACHE STRING "Version for gRPC")
+set(gRPC_TAG
+        v${gRPC_VERSION}
+        CACHE STRING "Tag for gRPC")
+
+FetchContent_Declare(gRPC
+    GIT_REPOSITORY ${gRPC_URL}
+    GIT_TAG ${gRPC_TAG}
+    GIT_SHALLOW TRUE
+)
+
+if (OPAE_WITH_gRPC)
+
+    if (NOT gRPC_FOUND)
+        if (DEFINED gRPC_INSTALL_DIR)
+            list(APPEND CMAKE_PREFIX_PATH "${gRPC_INSTALL_DIR}")
+            list(APPEND CMAKE_MODULE_PATH "${gRPC_INSTALL_DIR}/lib")
+        endif(DEFINED gRPC_INSTALL_DIR)
+        find_package(Protobuf CONFIG)
+        find_package(gRPC CONFIG)
+
+        if (gRPC_FOUND)
+            get_target_property(grpc_location gRPC::grpc LOCATION)
+            get_filename_component(gRPC_ROOT "${grpc_location}" DIRECTORY)
+            get_filename_component(gRPC_ROOT "${gRPC_ROOT}" DIRECTORY)
+
+            set(gRPC_INCLUDE_DIRS "${gRPC_ROOT}/include"
+                CACHE STRING "Path for gRPC includes" FORCE)
+
+            list(APPEND gRPC_LIBRARIES protobuf::libprotobuf)
+            list(APPEND gRPC_LIBRARIES gRPC::grpc)
+            list(APPEND gRPC_LIBRARIES gRPC::grpc++)
+        endif(gRPC_FOUND)
+    endif(NOT gRPC_FOUND)
+
+    if (NOT gRPC_FOUND)
+        set(gRPC_ROOT ${FETCHCONTENT_BASE_DIR}/grpc-src CACHE PATH "base dir for gRPC" FORCE)
+        set(gRPC_INSTALL OFF CACHE BOOL "not installing gRPC" FORCE)
+        set(gRPC_BUILD_TESTS OFF CACHE BOOL "not building gRPC tests" FORCE)
+        set(gRPC_BUILD_CSHARP_EXT OFF CACHE BOOL "not using C#" FORCE)
+        set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF CACHE BOOL "not using C# plugin" FORCE)
+        set(gRPC_BUILD_GRPC_NODE_PLUGIN OFF CACHE BOOL "not using node.js plugin" FORCE)
+        set(gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN OFF CACHE BOOL "not using Objective-C plugin" FORCE)
+        set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF CACHE BOOL "not using PHP plugin" FORCE)
+        set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF CACHE BOOL "not using Ruby plugin" FORCE)
+
+        FetchContent_MakeAvailable(gRPC)
+
+        set(gRPC_INCLUDE_DIRS ${gRPC_ROOT}/include
+            CACHE STRING "Path to FetchContent gRPC includes" FORCE)
+
+        list(APPEND gRPC_LIBRARIES libprotobuf)
+        list(APPEND gRPC_LIBRARIES grpc)
+        list(APPEND gRPC_LIBRARIES grpc++)
+
+        set(gRPC_DEFINITIONS ""
+            CACHE STRING "gRPC preprocessor definitions" FORCE)
+        set(gRPC_FOUND TRUE CACHE BOOL "gRPC found by FetchContent" FORCE)
+        set(gRPC_IMPORTED TRUE CACHE BOOL "gRPC imported from source" FORCE)
+    endif(NOT gRPC_FOUND)
+
+    set(Protobuf_IMPORT_DIRS ${OPAE_SDK_SOURCE}/protos)
+
+    message(STATUS "gRPC_ROOT ${gRPC_ROOT}")
+    message(STATUS "gRPC_INCLUDE_DIRS ${gRPC_INCLUDE_DIRS}")
+    message(STATUS "gRPC_LIBRARIES ${gRPC_LIBRARIES}")
+    message(STATUS "gRPC_DEFINITIONS ${gRPC_DEFINITIONS}")
+
+endif(OPAE_WITH_gRPC)
+
+################################################################################
 # googletest
 ################################################################################
 
@@ -608,6 +690,41 @@ if (OPAE_BUILD_TESTS)
         set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.so CACHE PATH "path to (debug) gtest library" FORCE)
         set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.so CACHE PATH "path to (debug) gtest main library" FORCE)
         set(GTest_FOUND TRUE CACHE BOOL "GTest found by FetchContent" FORCE)
+
+        add_library(gtest_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET gtest_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_LIBRARY}"
+        )
+        add_dependencies(gtest_IMPORT gtest)
+
+        add_library(gtest_MAIN_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET gtest_MAIN_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_MAIN_LIBRARY}"
+        )
+        add_dependencies(gtest_MAIN_IMPORT gtest)
+
+        add_library(gtest_IMPORT_DEBUG SHARED IMPORTED)
+        set_property(
+            TARGET gtest_IMPORT_DEBUG
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_LIBRARY_DEBUG}"
+        )
+        add_dependencies(gtest_IMPORT_DEBUG gtest)
+
+        add_library(gtest_MAIN_IMPORT_DEBUG SHARED IMPORTED)
+        set_property(
+            TARGET gtest_MAIN_IMPORT_DEBUG
+            PROPERTY
+                IMPORTED_LOCATION "${GTEST_MAIN_LIBRARY_DEBUG}"
+        )
+        add_dependencies(gtest_MAIN_IMPORT_DEBUG gtest)
+
+        set(GTEST_IMPORTED TRUE CACHE BOOL "gtest imported from source" FORCE)
+
     endif(NOT GTest_FOUND)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
