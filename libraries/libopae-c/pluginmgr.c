@@ -562,11 +562,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	// Parse the config file content, allocating and initializing
 	// our configuration table. If raw_config is non-NULL, then
 	// this function will delete it.
-<<<<<<< HEAD
-	platform_data_table = opae_parse_libopae_config(raw_config);
-=======
 	platform_data_table = opae_parse_libopae_config(cfg_file, raw_config);
->>>>>>> master
 
 	// Print the config table for debug builds.
 	opae_print_libopae_config(platform_data_table);
