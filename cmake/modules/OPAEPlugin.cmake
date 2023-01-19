@@ -58,6 +58,6 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${register_c}.c ${source_code})
         ${OPAE_ADD_SHARED_PLUGIN_SOURCE}
     )
     target_link_libraries(${OPAE_ADD_SHARED_PLUGIN_TARGET}
-        PUBLIC opae-c-archive
+        PUBLIC opae-c
     )
 endfunction()
