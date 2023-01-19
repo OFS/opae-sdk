@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,6 @@
 #include <opae/fpga.h>
 #ifndef _WIN32
 #include <unistd.h>
-#include <uuid/uuid.h>
 #endif
 #include <fcntl.h>
 #include <sys/types.h>

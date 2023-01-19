@@ -174,6 +174,21 @@ static struct bel_sensor_info bel_power_regulator_info[] = {
 	[BEL_PWR_REG_ISL68220_TEMP] = { .label = "ISL68220 Input",       .unit = "mV", .resolution = 1 }
 };
 
+struct pwron_status {
+	uint64_t value;
+	char str[256];
+};
+
+static struct pwron_status pwron_status_info[] = {
+	{.value = 0, .str = "Default(not attempted)" },
+	{.value = 1, .str = "Under progress" },
+	{.value = 2, .str = "Success"},
+	{.value = 3, .str = "Failed" },
+	{.value = 9, .str = "Repower cycle under progress" },
+	{.value = 0xa, .str = "Repower cycle success" },
+	{.value = 0xb, .str = "Repower cycle failed" }
+};
+
 static void bel_print_bool(const char *label, uint32_t value, size_t offset, const char *one, const char *zero)
 {
 	bool bit = (value >> offset) & 0x1;
@@ -202,6 +217,20 @@ static void bel_print_field(const char *label, uint32_t value, size_t first, siz
 	uint32_t field = (value >> first) & mask;
 
 	printf("      " BEL_LABEL_FMT "0x%x\n", 46, label, field);
+}
+
+static void bel_print_pwr_on_sts(const char *label, uint32_t value, size_t first, size_t last)
+{
+	uint32_t mask = UINT_MAX >> (32 - (last - first));
+	uint32_t field = (value >> first) & mask;
+	size_t i = 0;
+	for (i = 0; i < ARRAY_SIZE(pwron_status_info); i++) {
+		if (pwron_status_info[i].value == field) {
+			printf("      " BEL_LABEL_FMT "%s(0x%x)\n", 46, label, pwron_status_info[i].str, field);
+			return;
+		}
+	}
+	printf("      " BEL_LABEL_FMT "(%s)0x%x\n", 46, label, "reserved", field);
 }
 
 static void bel_print_value(const char *label, uint32_t value)
@@ -288,8 +317,8 @@ static void bel_print_power_on_status(struct bel_power_on_status *status, struct
 	reserved_field(NULL,                    status->status,  0, 24);
 	reserved_field(NULL,                    0xFF,  0, 24);
 	reserved_bit(NULL,                      ~0,  22);
-	bel_print_field("Power On Code FPGA",   status->status, 24, 28);
-	bel_print_field("Power On Code CVL",    status->status, 28, 32);
+	bel_print_pwr_on_sts("Power On Code FPGA", status->status, 24, 28);
+	bel_print_pwr_on_sts("Power On Code CVL", status->status, 28, 32);
 
 	/* Register 0xa0 */
 	bel_print_value("FPGA_Status (0xA0)",   status->fpga_status);
@@ -824,7 +853,7 @@ void bel_timespan(struct bel_event *event, uint32_t idx)
 	struct bel_header *header_off = &event->power_off_status.header;
 	time_t off_sec = (((uint64_t)header_off->timespamp_high << 32) |
 		header_off->timestamp_low) /1000UL;
-	char off_str[26] = { '\0' };
+	char off_str[26] = { 'N', '/', 'A', '\0' };
 	char on_str[26] = { '\0' };
 	time_t on_sec = 0;
 
@@ -864,7 +893,14 @@ void bel_timespan(struct bel_event *event, uint32_t idx)
 		off_str[24] = '\0';
 	}
 
-	printf("Boot %u: %s — %s\n", idx, on_str, off_str);
+	if (idx == 0) {
+		printf("%-15s : %-25s : %-25s\n", "Boot Index", "Power-ON Timestamp", "Power-OFF Timestamp");
+		printf("-------------------------------------------------------------------------\n");
+		printf("%-15s - %-20s  - %-20s\n", "Current Boot", on_str, off_str);
+	} else {
+		printf("Boot %-10u - %-20s  - %-20s\n", idx, on_str, off_str);
+	}
+
 }
 
 bool bel_empty(struct bel_event *event)

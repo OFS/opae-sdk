@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -182,8 +182,8 @@ function(opae_add_executable)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} PROPERTY C_STANDARD 99)
     target_compile_definitions(${OPAE_ADD_EXECUTABLE_TARGET}
@@ -196,6 +196,34 @@ function(opae_add_executable)
     endif()
 
     target_link_libraries(${OPAE_ADD_EXECUTABLE_TARGET} ${OPAE_ADD_EXECUTABLE_LIBS})
+
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_ADD_EXECUTABLE_LIBS}")
+	if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} libedit_IMPORT)
+	endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
 
     opae_coverage_build(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} SOURCE ${OPAE_ADD_EXECUTABLE_SOURCE})
     set_install_rpath(${OPAE_ADD_EXECUTABLE_TARGET})
@@ -236,8 +264,8 @@ function(opae_add_shared_library)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     target_compile_definitions(${OPAE_ADD_SHARED_LIBRARY_TARGET}
@@ -256,6 +284,34 @@ function(opae_add_shared_library)
     endif()
 
     target_link_libraries(${OPAE_ADD_SHARED_LIBRARY_TARGET} ${OPAE_ADD_SHARED_LIBRARY_LIBS})
+
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} libedit_IMPORT)
+        endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
 
     opae_coverage_build(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} SOURCE ${OPAE_ADD_SHARED_LIBRARY_SOURCE})
     set_install_rpath(${OPAE_ADD_SHARED_LIBRARY_TARGET})
@@ -293,12 +349,12 @@ function(opae_add_module_library)
 
     target_include_directories(${OPAE_ADD_MODULE_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
+        $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     target_compile_definitions(${OPAE_ADD_MODULE_LIBRARY_TARGET}
@@ -311,6 +367,34 @@ function(opae_add_module_library)
     endif()
 
     target_link_libraries(${OPAE_ADD_MODULE_LIBRARY_TARGET} ${OPAE_ADD_MODULE_LIBRARY_LIBS})
+
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} libedit_IMPORT)
+        endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
 
     opae_coverage_build(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} SOURCE ${OPAE_ADD_MODULE_LIBRARY_SOURCE})
 
@@ -344,8 +428,8 @@ function(opae_add_static_library)
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PUBLIC ${libjson-c_INCLUDE_DIRS}
-        PUBLIC ${libuuid_INCLUDE_DIRS})
+        PUBLIC $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+        PUBLIC $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>)
 
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET}
@@ -397,11 +481,10 @@ if(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")
         '*/bin/mmlink/**'
         '*/bin/fpgabist/**'
         '*/bin/fpgadiag/**'
+        '*/cli11/**'
+        '*/gtest/**'
         '*/pybind11/**'
-        '*/external/opae-test/**'
-        '*/external/gtest/**'
-        '*/external/CLI11/**'
-        '*/external/spdlog/**'
+        '*/spdlog/**'
     )
     add_custom_target(lcov
         COMMAND lcov --directory .  --zerocounters

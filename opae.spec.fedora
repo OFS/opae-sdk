@@ -90,7 +90,8 @@ Additional OPAE tools
 
 %build
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
-       -DOPAE_PRESERVE_REPOS=ON \
+       -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+       -DFETCHCONTENT_BASE_DIR=_build/_deps \
        -DOPAE_BUILD_PYTHON_DIST=ON \
        -DOPAE_BUILD_FPGABIST=ON 
 
@@ -289,7 +290,7 @@ done
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
-%{_libdir}/libopae-c-archive.a
+
 %{_libdir}/libbitstream.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so

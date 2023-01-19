@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2022, Intel Corporation
+## Copyright(c) 2018-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -29,13 +29,14 @@ opae_add_module_library(TARGET fpgad-xfpga
     LIBS
         opae-c
         fpgad-api
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
     COMPONENT toolfpgad_xfpga
 )
 
 target_include_directories(fpgad-xfpga
     PRIVATE
         ${OPAE_BIN_SOURCE}
-	${OPAE_LIB_SOURCE}/libopae-c
-	${OPAE_LIB_SOURCE}/libbitstream
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/libbitstream
+        ${json-c_INCLUDE_DIRS}
 )

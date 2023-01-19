@@ -1,4 +1,4 @@
-## Copyright(c) 2021-2022, Intel Corporation
+## Copyright(c) 2021-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -42,6 +42,7 @@ if (OPAE_WITH_PYBIND11)
             "${CMAKE_CURRENT_SOURCE_DIR}/build"
             "${CMAKE_CURRENT_SOURCE_DIR}/dist"
     )
+
     pybind11_add_module(pyopaeuio THIN_LTO pyopaeuio.cpp)
     target_link_libraries(pyopaeuio PRIVATE opaeuio)
 

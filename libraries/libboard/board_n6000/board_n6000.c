@@ -841,9 +841,16 @@ fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 		if (print_list) {
 			bel_timespan(&event, i - 1);
 		} else if (bel_empty(&event)) {
-			printf("Boot %i: Empty\n", i - 1);
+			if ((i - 1) == 0)
+				printf("Current Boot / Boot %i: Empty\n", i - 1);
+			else
+				printf("Boot %i: Empty\n", i - 1);
+
 		} else {
-			printf("Boot %i\n", i - 1);
+			if ((i - 1) == 0)
+				printf("Current Boot / Boot %i\n", i - 1);
+			else
+				printf("Boot %i\n", i - 1);
 			bel_print(&event, print_sensors, print_bits);
 		}
 

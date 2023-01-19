@@ -7,7 +7,6 @@ cat > .gitattributes << EOF
 .travis.yml export-ignore
 opae.spec.in export-ignore
 opae.spec export-ignore
-external export-ignore
 platforms export-ignore
 samples/base export-ignore
 samples/hello_afu export-ignore

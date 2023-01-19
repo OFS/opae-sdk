@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -29,8 +29,8 @@ opae_add_executable(TARGET bist_app
     LIBS
         rt
         opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
     COMPONENT toolbist_app
 )
 
@@ -39,7 +39,7 @@ opae_add_executable(TARGET bist
     LIBS
         rt
         opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
     COMPONENT toolbist
 )

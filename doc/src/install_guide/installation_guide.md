@@ -112,7 +112,7 @@ Register and enable Red Hat subscription to install any packages on the system.
 # subscription-manager register --proxy=PROXY --username=USER --password=PASSWORD --auto-attach
 ```
 
-Set the RHEL version and install packages. Set proxy name and port number 
+Set the RHEL version and install packages. Set proxy name and port number.
 
 ```console
 # subscription-manager release --set=8.2 --proxy proxy-name.com:port number
@@ -124,6 +124,17 @@ Set the RHEL version and install packages. Set proxy name and port number
 # dnf check-update || true
 # dnf install -y spdlog-devel cli11-devel python3-pyyaml python3-pybind11 hwloc-devel libedit-devel
 # python3 -m pip install --user jsonschema virtualenv pudb pyyaml
+```
+
+Install the latest version of [cmake](https://github.com/Kitware) on top of the outdated cmake package from the package manager.
+
+```console
+# cd cmake-3.25.1/
+# ./bootstrap --prefix=/usr
+# make
+# make install
+# which cmake
+/usr/bin/cmake
 ```
 
 ### Create opae-sdk packages ###

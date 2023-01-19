@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2022, Intel Corporation
+## Copyright(c) 2018-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,8 @@ opae_add_shared_library(TARGET fpgad-api
         ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT toolfpgad_api

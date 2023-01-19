@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ opae_add_shared_library(TARGET mml-srv
         legacy_dbg.cpp
     LIBS
         opae-c
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
     COMPONENT toolmmlink
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}

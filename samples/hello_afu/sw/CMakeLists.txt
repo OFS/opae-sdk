@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2018, Intel Corporation
+## Copyright(c) 2014-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -37,9 +37,9 @@ include_directories(${OPAE_INCLUDE_DIR}
 add_executable(hello_afu
   hello_afu.c)
 if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
+  target_link_libraries(hello_afu ${json-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
 else()
-  target_link_libraries(hello_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
+  target_link_libraries(hello_afu ${json-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
 endif()
 
 install(FILES hello_afu.c

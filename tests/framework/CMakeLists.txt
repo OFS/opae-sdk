@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 # projectname is the same as the main-executable
 project(framework)
@@ -52,6 +52,16 @@ opae_add_shared_library(TARGET test_system
         dl
 	${GTEST_LIB}
 )
+
+if (GTEST_IMPORTED)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_dependencies(test_system gtest_IMPORT_DEBUG)
+        add_dependencies(test_system gtest_MAIN_IMPORT_DEBUG)
+    else()
+        add_dependencies(test_system gtest_IMPORT)
+        add_dependencies(test_system gtest_MAIN_IMPORT)
+    endif()
+endif(GTEST_IMPORTED)
 
 if (CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
   set_target_properties(test_system PROPERTIES COMPILE_FLAGS "-Wno-error=frame-address")
@@ -82,7 +92,7 @@ opae_test_add_static_lib(TARGET test-fpgad-static
         mock/test_fpgad/device_monitoring.c
     LIBS
         opae-c
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
 )
 
 target_include_directories(test-fpgad-static

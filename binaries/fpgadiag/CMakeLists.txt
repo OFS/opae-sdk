@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -68,8 +68,8 @@ function(add_fpgadiag_app target source comp)
             opae-cxx-core
             opae-c++-utils
             opae-c++-nlb
-            ${libjson-c_LIBRARIES}
-            ${libuuid_LIBRARIES}
+            ${json-c_LIBRARIES}
+            ${uuid_LIBRARIES}
         COMPONENT ${comp}
     )
     set_target_properties(${target}

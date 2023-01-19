@@ -29,8 +29,8 @@ opae_add_executable(TARGET n5010-test
     LIBS
         argsfilter
         opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
     COMPONENT samplebin
 )
 

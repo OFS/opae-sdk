@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2022, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,24 +25,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
+cmake_minimum_required(VERSION 3.14)
+
 check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
 
 set(OPAE_TEST_LIBRARIES test_system fpga_db
     CACHE INTERNAL "OPAE test libs." FORCE)
-
-function(opae_load_gtest)
-    message(STATUS "Trying to fetch gtest through git...")
-    opae_external_project_add(PROJECT_NAME gtest
-                              GIT_URL https://github.com/google/googletest
-                              GIT_TAG release-${GTEST_VERSION}
-                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
-
-    set(GTEST_INCLUDE_DIR ${gtest_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
-    set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)
-    set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.a CACHE PATH "path to gtest main library" FORCE)
-    set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.a CACHE PATH "path to (debug) gtest library" FORCE)
-    set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.a CACHE PATH "path to (debug) gtest main library" FORCE)
-endfunction()
 
 function(opae_test_add)
     set(options TEST_FPGAD)
@@ -100,8 +88,8 @@ function(opae_test_add)
     target_link_libraries(${OPAE_TEST_ADD_TARGET}
         ${CMAKE_THREAD_LIBS_INIT}
         ${OPAE_TEST_LIBRARIES}
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
         ${GTEST_LIBRARIES}
         ${OPAE_TEST_ADD_LIBS})
 
@@ -137,9 +125,11 @@ function(opae_test_add_static_lib)
             $<INSTALL_INTERFACE:include>
         PRIVATE
             ${OPAE_LIB_SOURCE}
-	    ${OPAE_LIB_SOURCE}/plugins/xfpga
-	    ${OPAE_LIB_SOURCE}/libopae-c
+            ${OPAE_LIB_SOURCE}/plugins/xfpga
+            ${OPAE_LIB_SOURCE}/libopae-c
             ${opae-test_ROOT}/framework
+            $<BUILD_INTERFACE:${json-c_INCLUDE_DIRS}>
+            $<BUILD_INTERFACE:${uuid_INCLUDE_DIRS}>
     )
 
     set_property(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
@@ -158,6 +148,34 @@ function(opae_test_add_static_lib)
 
     target_link_libraries(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         ${OPAE_TEST_ADD_STATIC_LIB_LIBS})
+
+    if (uuid_IMPORTED)
+        string(REGEX MATCH "${uuid_LIBRARIES}" NEED_EXTERNAL_UUID "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_UUID)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} uuid_IMPORT)
+        endif(NEED_EXTERNAL_UUID)
+    endif(uuid_IMPORTED)
+
+    if (json-c_IMPORTED)
+        string(REGEX MATCH "${json-c_LIBRARIES}" NEED_EXTERNAL_JSON_C "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_JSON_C)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} json_c_headers)
+        endif(NEED_EXTERNAL_JSON_C)
+    endif(json-c_IMPORTED)
+
+    if (libedit_IMPORTED)
+        string(REGEX MATCH "${libedit_LIBRARIES}" NEED_EXTERNAL_LIBEDIT "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+	if (NEED_EXTERNAL_LIBEDIT)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} libedit_IMPORT)
+	endif(NEED_EXTERNAL_LIBEDIT)
+    endif(libedit_IMPORTED)
+
+    if (hwloc_IMPORTED)
+        string(REGEX MATCH "${hwloc_LIBRARIES}" NEED_EXTERNAL_HWLOC "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_HWLOC)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} hwloc_IMPORT)
+        endif(NEED_EXTERNAL_HWLOC)
+    endif(hwloc_IMPORTED)
 
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         SOURCE ${OPAE_TEST_ADD_STATIC_LIB_SOURCE})

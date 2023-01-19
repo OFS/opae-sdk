@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -46,5 +46,4 @@ opae_test_add(TARGET test_dummy_afu
 target_include_directories(test_dummy_afu
     PRIVATE
         ${CMAKE_SOURCE_DIR}/samples/dummy_afu
-        ${CMAKE_SOURCE_DIR}/external/opae-test/framework/mock/test_fpgad
 )

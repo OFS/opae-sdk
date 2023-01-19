@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2022, Intel Corporation
+## Copyright(c) 2019-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,12 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 # projectname is the same as the main-executable
 project(opae.admin)
 set(OPAE_ADMIN_RPM_RELEASE 3)
-set (ADMIN_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+set(ADMIN_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
 configure_file(tox.ini ${ADMIN_STAGE_DIR}/tox.ini @ONLY)
 configure_file(py27-nose2.cfg ${ADMIN_STAGE_DIR}/py27-nose2.cfg @ONLY)

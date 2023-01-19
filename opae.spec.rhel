@@ -67,7 +67,9 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DOPAE_MINIMAL_BUILD=ON
+%cmake -DOPAE_MINIMAL_BUILD=ON \
+       -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+       -DFETCHCONTENT_BASE_DIR=_build/_deps
 %if 0%{rhel} > 8
   %cmake_build
 %else
@@ -260,7 +262,6 @@ done
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
-%{_libdir}/libopae-c-archive.a
 %{_libdir}/libbitstream.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
