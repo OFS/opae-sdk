@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,104 +29,85 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/types.h>
+#include <opae/log.h>
+
+#include "remote.h"
+//#include "request.h"
+//#include "response.h"
 
 #include "mock/opae_std.h"
 
-#include "remote.h"
-#include "request.h"
-#include "response.h"
-
 fpga_result __REMOTE_API__
-remote_fpgaSetUserClock(fpga_handle handle,
-			uint64_t high_clk,
-			uint64_t low_clk,
-			int flags)
+remote_fpgaReconfigureSlot(fpga_handle fpga,
+			   uint32_t slot,
+			   const uint8_t *bitstream,
+			   size_t bitstream_len,
+			   int flags)
 {
-	opae_fpgaSetUserClock_request req;
-	opae_fpgaSetUserClock_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
-
-	if (!handle) {
-		OPAE_ERR("NULL handle");
-		return FPGA_INVALID_PARAM;
-	}
-
-	h = (struct _remote_handle *)handle;
-
-	tok = h->token;
-
-	req.handle_id = h->hdr.handle_id;
-	req.high_clk = high_clk;
-	req.low_clk = low_clk;
-	req.flags = flags;
-
-	req_json = opae_encode_fpgaSetUserClock_request_34(
-		&req, tok->json_to_string_flags);
-
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
-
-	if (!opae_decode_fpgaSetUserClock_response_34(resp_json, &resp))
-		return FPGA_EXCEPTION;
-
-	return resp.result;
+	OPAE_MSG("remote_fpgaReconfigureSlot not supported");
+	UNUSED_PARAM(fpga);
+	UNUSED_PARAM(slot);
+	UNUSED_PARAM(bitstream);
+	UNUSED_PARAM(bitstream_len);
+	UNUSED_PARAM(flags);
+	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __REMOTE_API__
-remote_fpgaGetUserClock(fpga_handle handle,
-			uint64_t *high_clk,
-			uint64_t *low_clk,
-			int flags)
+remote_fpgaReconfigureSlotByName(fpga_handle fpga,
+				 uint32_t slot,
+				 const char *path,
+				 int flags)
 {
-	opae_fpgaGetUserClock_request req;
-	opae_fpgaGetUserClock_response resp;
-	struct _remote_token *tok;
+#if 1
+(void) fpga;
+(void) slot;
+(void) path;
+(void) flags;		
+
+return FPGA_OK;
+#else	
+	opae_fpgaReconfigureSlotByName_request req;
+	opae_fpgaReconfigureSlotByName_response resp;
 	struct _remote_handle *h;
+	struct _remote_token *tok;
 	char *req_json;
 	char *resp_json = NULL;
 	fpga_result res;
+	size_t len;
 
-	if (!handle) {
+	if (!fpga) {
 		OPAE_ERR("NULL handle");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (!high_clk) {
-		OPAE_ERR("NULL high_clk pointer");
+	if (!path) {
+		OPAE_ERR("NULL path");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (!low_clk) {
-		OPAE_ERR("NULL low_clk pointer");
-		return FPGA_INVALID_PARAM;
-	}
-
-	h = (struct _remote_handle *)handle;
-
+	h = (struct _remote_handle *)fpga;
 	tok = h->token;
 
 	req.handle_id = h->hdr.handle_id;
+	req.slot = slot;
+
+	len = strnlen(path, PATH_MAX - 1);
+	memcpy(req.path, path, len + 1);
+
 	req.flags = flags;
 
-	req_json = opae_encode_fpgaGetUserClock_request_35(
+	req_json = opae_encode_fpgaReconfigureSlotByName_request_41(
 		&req, tok->json_to_string_flags);
 
 	res = opae_client_send_and_receive(tok, req_json, &resp_json);
 	if (res)
 		return res;
 
-	if (!opae_decode_fpgaGetUserClock_response_35(resp_json, &resp))
+	if (!opae_decode_fpgaReconfigureSlotByName_response_41(
+		resp_json, &resp))
 		return FPGA_EXCEPTION;
 
-	if (resp.result == FPGA_OK) {
-		*high_clk = resp.high_clk;
-		*low_clk = resp.low_clk;
-	}
-
 	return resp.result;
+#endif
 }

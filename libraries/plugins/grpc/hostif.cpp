@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,55 +31,23 @@
 #include <opae/types.h>
 #include <opae/log.h>
 
+#include "remote.h"
 
-//#include "common_int.h"
-//#include "types_int.h"
+//Assign Port to PF from Interface
+#define ASSIGN_PORT_TO_PF           0
 
-fpga_result __REMOTE_API__ remote_fpgaGetOPAECVersion(fpga_version *version)
+//Release Port from PF and Assign to Interface
+#define ASSIGN_PORT_TO_HOST         1
+
+fpga_result __REMOTE_API__ remote_fpgaAssignPortToInterface(fpga_handle fpga,
+						uint32_t interface_num,
+						uint32_t slot_num,
+						int flags)
 {
-(void) version;
-
-
-
-	return FPGA_OK;
-}
-
-fpga_result __REMOTE_API__
-remote_fpgaGetOPAECVersionString(char *version_str, size_t len)
-{
-	if (!version_str) {
-		OPAE_ERR("version_str is NULL");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if (len < sizeof(OPAE_VERSION)) {
-		OPAE_ERR("insufficient buffer size");
-		return FPGA_INVALID_PARAM;
-	}
-
-
-
-
-
-	return FPGA_OK;
-}
-
-fpga_result __REMOTE_API__
-remote_fpgaGetOPAECBuildString(char *build_str, size_t len)
-{
-	if (!build_str) {
-		OPAE_ERR("build_str is NULL");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if (len < sizeof(OPAE_GIT_COMMIT_HASH)) {
-		OPAE_ERR("insufficient buffer size");
-		return FPGA_INVALID_PARAM;
-	}
-
-
-
-
-
-	return FPGA_OK;
+	OPAE_MSG("remote_fpgaAssignPortToInterface not supported");
+	UNUSED_PARAM(fpga);
+	UNUSED_PARAM(interface_num);
+	UNUSED_PARAM(slot_num);
+	UNUSED_PARAM(flags);
+	return FPGA_NOT_SUPPORTED;
 }

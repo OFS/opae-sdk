@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,8 +33,8 @@
 
 #include "props.h"
 
-#include "request.h"
-#include "response.h"
+//#include "request.h"
+//#include "response.h"
 #include "remote.h"
 
 #include "mock/opae_std.h"
@@ -42,6 +42,12 @@
 fpga_result __REMOTE_API__
 remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 {
+#if 1
+(void) handle;
+(void) prop;
+
+return FPGA_OK;
+#else	
 	opae_fpgaGetPropertiesFromHandle_request req;
 	opae_fpgaGetPropertiesFromHandle_response resp;
 	struct _remote_handle *h;
@@ -80,11 +86,18 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 		*prop = resp.properties;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
+#if 1
+(void) token;
+(void) prop;
+
+return FPGA_OK;
+#else
 	fpga_result result = FPGA_OK;
 	struct _fpga_properties *_prop = NULL;
 
@@ -106,11 +119,18 @@ remote_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 out_free:
 	opae_free(_prop);
 	return result;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
+#if 1
+(void) token;
+(void) prop;
+		
+return FPGA_OK;
+#else
 	opae_fpgaUpdateProperties_request req;
 	opae_fpgaUpdateProperties_response resp;
 	struct _remote_token *tok;
@@ -162,4 +182,5 @@ remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	}
 
 	return resp.result;
+#endif
 }

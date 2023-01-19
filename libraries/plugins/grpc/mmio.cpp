@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,9 +33,9 @@
 #include "mock/opae_std.h"
 
 #include "remote.h"
-#include "serialize.h"
-#include "request.h"
-#include "response.h"
+//#include "serialize.h"
+//#include "request.h"
+//#include "response.h"
 
 fpga_result __REMOTE_API__
 remote_fpgaWriteMMIO32(fpga_handle handle,
@@ -43,6 +43,14 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 		       uint64_t offset,
 		       uint32_t value)
 {
+#if 1
+(void) handle;
+(void) mmio_num;
+(void) offset;
+(void) value;
+
+return FPGA_OK;
+#else
 	opae_fpgaWriteMMIO32_request req;
 	opae_fpgaWriteMMIO32_response resp;
 	struct _remote_handle *h;
@@ -86,6 +94,7 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 		return FPGA_EXCEPTION;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -94,6 +103,14 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 		      uint64_t offset,
 		      uint32_t *value)
 {
+#if 1
+(void) handle;
+(void) mmio_num;
+(void) offset;
+(void) value;
+
+return FPGA_OK;
+#else	
 	opae_fpgaReadMMIO32_request req;
 	opae_fpgaReadMMIO32_response resp;
 	struct _remote_handle *h;
@@ -144,6 +161,7 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 		*value = resp.value;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -152,6 +170,14 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 		       uint64_t offset,
 		       uint64_t value)
 {
+#if 1
+(void) handle;
+(void) mmio_num;
+(void) offset;
+(void) value;
+
+return FPGA_OK;
+#else
 	opae_fpgaWriteMMIO64_request req;
 	opae_fpgaWriteMMIO64_response resp;
 	struct _remote_handle *h;
@@ -195,6 +221,7 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 		return FPGA_EXCEPTION;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -203,7 +230,15 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 		      uint64_t offset,
 		      uint64_t *value)
 {
-	opae_fpgaReadMMIO64_request req;
+#if 1
+(void) handle;
+(void) mmio_num;
+(void) offset;
+(void) value;
+
+return FPGA_OK;
+#else
+		opae_fpgaReadMMIO64_request req;
 	opae_fpgaReadMMIO64_response resp;
 	struct _remote_handle *h;
 	struct _remote_token *tok;
@@ -253,6 +288,7 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 		*value = resp.value;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -261,6 +297,14 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 			uint64_t offset,
 			const void *value)
 {
+#if 1
+(void) handle;
+(void) mmio_num;
+(void) offset;
+(void) value;
+
+return FPGA_OK;
+#else
 	opae_fpgaWriteMMIO512_request req;
 	opae_fpgaWriteMMIO512_response resp;
 	struct _remote_handle *h;
@@ -304,6 +348,7 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 		return FPGA_EXCEPTION;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -311,6 +356,13 @@ remote_fpgaMapMMIO(fpga_handle handle,
 		   uint32_t mmio_num,
 		   uint64_t **mmio_ptr)
 {
+#if 1
+(void) handle;
+(void) mmio_num;
+(void) mmio_ptr;
+
+return FPGA_OK;
+#else
 	opae_fpgaMapMMIO_request req;
 	opae_fpgaMapMMIO_response resp;
 	struct _remote_handle *h;
@@ -372,11 +424,18 @@ remote_fpgaMapMMIO(fpga_handle handle,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 {
+#if 1
+(void) handle;
+(void) mmio_num;
+	
+return FPGA_OK;
+#else
 	opae_fpgaUnmapMMIO_request req;
 	opae_fpgaUnmapMMIO_response resp;
 	struct _remote_handle *h;
@@ -427,4 +486,5 @@ remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 	}
 
 	return resp.result;
+#endif
 }

@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,11 +32,12 @@
 #include <opae/log.h>
 
 #include "remote.h"
-#include "request.h"
-#include "response.h"
+//#include "request.h"
+//#include "response.h"
 
 #include "mock/opae_std.h"
 
+#if 0
 struct _remote_sysobject *
 opae_create_remote_sysobject(struct _remote_token *token,
 			     fpga_remote_id *rid)
@@ -54,6 +55,7 @@ void opae_destroy_remote_sysobject(struct _remote_sysobject *s)
 {
 	opae_free(s);
 }
+#endif
 
 fpga_result __REMOTE_API__
 remote_fpgaTokenGetObject(fpga_token token,
@@ -61,6 +63,14 @@ remote_fpgaTokenGetObject(fpga_token token,
 			  fpga_object *object,
 			  int flags)
 {
+#if 1
+(void) token;
+(void) name;
+(void) object;
+(void) flags;
+
+return FPGA_OK;
+#else
 	opae_fpgaTokenGetObject_request req;
 	opae_fpgaTokenGetObject_response resp;
 	struct _remote_token *tok;
@@ -117,6 +127,7 @@ remote_fpgaTokenGetObject(fpga_token token,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -125,6 +136,14 @@ remote_fpgaHandleGetObject(fpga_handle handle,
 			   fpga_object *object,
 			   int flags)
 {
+#if 1
+(void) handle;
+(void) name;
+(void) object;
+(void) flags;
+
+return FPGA_OK;
+#else
 	opae_fpgaHandleGetObject_request req;
 	opae_fpgaHandleGetObject_response resp;
 	struct _remote_handle *h;
@@ -184,6 +203,7 @@ remote_fpgaHandleGetObject(fpga_handle handle,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -192,6 +212,14 @@ remote_fpgaObjectGetObject(fpga_object parent,
 			   fpga_object *object,
 			   int flags)
 {
+#if 1
+(void) parent;
+(void) name;
+(void) object;
+(void) flags;
+
+return FPGA_OK;
+#else	
 	opae_fpgaObjectGetObject_request req;
 	opae_fpgaObjectGetObject_response resp;
 	struct _remote_sysobject *par;
@@ -251,6 +279,7 @@ remote_fpgaObjectGetObject(fpga_object parent,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -258,6 +287,13 @@ remote_fpgaObjectGetObjectAt(fpga_object parent,
 			     size_t idx,
 			     fpga_object *object)
 {
+#if 1
+(void) parent;
+(void) idx;
+(void) object;
+
+return FPGA_OK;
+#else	
 	opae_fpgaObjectGetObjectAt_request req;
 	opae_fpgaObjectGetObjectAt_response resp;
 	struct _remote_sysobject *par;
@@ -306,10 +342,16 @@ remote_fpgaObjectGetObjectAt(fpga_object parent,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj)
 {
+#if 1
+(void) obj;
+
+return FPGA_OK;
+#else	
 	opae_fpgaDestroyObject_request req;
 	opae_fpgaDestroyObject_response resp;
 	struct _remote_sysobject *o;
@@ -344,6 +386,7 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj)
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -351,6 +394,13 @@ remote_fpgaObjectGetSize(fpga_object obj,
 			 uint32_t *size,
 			 int flags)
 {
+#if 1
+(void) obj;
+(void) size;
+(void) flags;
+
+return FPGA_OK;
+#else	
 	opae_fpgaObjectGetSize_request req;
 	opae_fpgaObjectGetSize_response resp;
 	struct _remote_sysobject *o;
@@ -389,6 +439,7 @@ remote_fpgaObjectGetSize(fpga_object obj,
 		*size = resp.value;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -396,6 +447,13 @@ remote_fpgaObjectRead64(fpga_object obj,
 			uint64_t *value,
 			int flags)
 {
+#if 1
+(void) obj;
+(void) value;
+(void) flags;
+
+return FPGA_OK;
+#else
 	opae_fpgaObjectRead64_request req;
 	opae_fpgaObjectRead64_response resp;
 	struct _remote_sysobject *o;
@@ -434,6 +492,7 @@ remote_fpgaObjectRead64(fpga_object obj,
 		*value = resp.value;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -443,6 +502,15 @@ remote_fpgaObjectRead(fpga_object obj,
 		      size_t blen,
 		      int flags)
 {
+#if 1
+(void) obj;
+(void) buffer;
+(void) offset;
+(void) blen;
+(void) flags;
+
+return FPGA_OK;
+#else
 	opae_fpgaObjectRead_request req;
 	opae_fpgaObjectRead_response resp;
 	struct _remote_sysobject *o;
@@ -491,6 +559,7 @@ remote_fpgaObjectRead(fpga_object obj,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -498,6 +567,13 @@ remote_fpgaObjectWrite64(fpga_object obj,
 			 uint64_t value,
 			 int flags)
 {
+#if 1
+(void) obj;
+(void) value;
+(void) flags;
+
+return FPGA_OK;
+#else
 	opae_fpgaObjectWrite64_request req;
 	opae_fpgaObjectWrite64_response resp;
 	struct _remote_sysobject *o;
@@ -529,11 +605,18 @@ remote_fpgaObjectWrite64(fpga_object obj,
 		return FPGA_EXCEPTION;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type)
 {
+#if 1
+(void) obj;
+(void) type;
+
+return FPGA_OK;
+#else
 	opae_fpgaObjectGetType_request req;
 	opae_fpgaObjectGetType_response resp;
 	struct _remote_sysobject *o;
@@ -571,11 +654,19 @@ remote_fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type)
 		*type = resp.type;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaObjectGetName(fpga_object obj, char *name, size_t max_len)
 {
+#if 1
+(void) obj;
+(void) name;
+(void) max_len;
+
+return FPGA_OK;	
+#else
 	opae_fpgaObjectGetName_request req;
 	opae_fpgaObjectGetName_response resp;
 	struct _remote_sysobject *o;
@@ -616,4 +707,5 @@ remote_fpgaObjectGetName(fpga_object obj, char *name, size_t max_len)
 	}
 
 	return resp.result;
+#endif
 }

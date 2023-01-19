@@ -24,32 +24,24 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-#set(SRC
-#  enum.c
-#  buffer.c
-#  plugin.c
-#  close.c
-#  error.c
-#  event.c
-#  hostif.c
-#  manage.c
-#  metrics.c
-#  mmio.c
-#  open.c
-#  properties.c
-#  reconf.c
-#  reset.c
-#  sysobject.c
-#  userclk.c
-#  version.c
-#  ${opae-test_ROOT}/framework/mock/opae_std.c)
-
 set(SRC
     enum.cpp
     buffer.cpp
     plugin.c
     close.cpp
     error.cpp
+    event.cpp
+    hostif.cpp
+    manage.cpp
+    metrics.cpp
+    mmio.cpp
+    open.cpp
+    properties.cpp
+    reconf.cpp
+    reset.cpp
+    sysobject.cpp
+    userclk.cpp
+    version.cpp
     ${opae-test_ROOT}/framework/mock/opae_std.c
     opae.proto
 )

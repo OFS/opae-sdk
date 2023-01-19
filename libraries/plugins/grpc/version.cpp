@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,75 +29,57 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/types.h>
+#include <opae/log.h>
 
-#include "remote.h"
-#include "request.h"
-#include "response.h"
 
-#include "mock/opae_std.h"
+//#include "common_int.h"
+//#include "types_int.h"
 
-fpga_result __REMOTE_API__
-remote_fpgaReconfigureSlot(fpga_handle fpga,
-			   uint32_t slot,
-			   const uint8_t *bitstream,
-			   size_t bitstream_len,
-			   int flags)
+fpga_result __REMOTE_API__ remote_fpgaGetOPAECVersion(fpga_version *version)
 {
-	OPAE_MSG("remote_fpgaReconfigureSlot not supported");
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(slot);
-	UNUSED_PARAM(bitstream);
-	UNUSED_PARAM(bitstream_len);
-	UNUSED_PARAM(flags);
-	return FPGA_NOT_SUPPORTED;
+(void) version;
+
+
+
+	return FPGA_OK;
 }
 
 fpga_result __REMOTE_API__
-remote_fpgaReconfigureSlotByName(fpga_handle fpga,
-				 uint32_t slot,
-				 const char *path,
-				 int flags)
+remote_fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
-	opae_fpgaReconfigureSlotByName_request req;
-	opae_fpgaReconfigureSlotByName_response resp;
-	struct _remote_handle *h;
-	struct _remote_token *tok;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
-	size_t len;
-
-	if (!fpga) {
-		OPAE_ERR("NULL handle");
+	if (!version_str) {
+		OPAE_ERR("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (!path) {
-		OPAE_ERR("NULL path");
+	if (len < sizeof(OPAE_VERSION)) {
+		OPAE_ERR("insufficient buffer size");
 		return FPGA_INVALID_PARAM;
 	}
 
-	h = (struct _remote_handle *)fpga;
-	tok = h->token;
 
-	req.handle_id = h->hdr.handle_id;
-	req.slot = slot;
 
-	len = strnlen(path, PATH_MAX - 1);
-	memcpy(req.path, path, len + 1);
 
-	req.flags = flags;
 
-	req_json = opae_encode_fpgaReconfigureSlotByName_request_41(
-		&req, tok->json_to_string_flags);
+	return FPGA_OK;
+}
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
+fpga_result __REMOTE_API__
+remote_fpgaGetOPAECBuildString(char *build_str, size_t len)
+{
+	if (!build_str) {
+		OPAE_ERR("build_str is NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
-	if (!opae_decode_fpgaReconfigureSlotByName_response_41(
-		resp_json, &resp))
-		return FPGA_EXCEPTION;
+	if (len < sizeof(OPAE_GIT_COMMIT_HASH)) {
+		OPAE_ERR("insufficient buffer size");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return resp.result;
+
+
+
+
+	return FPGA_OK;
 }

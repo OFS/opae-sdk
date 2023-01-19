@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,12 +35,12 @@
 #include "opae_int.h"
 #include "mock/opae_std.h"
 #include "remote.h"
-#include "request.h"
-#include "response.h"
-#include "action.h"
+//#include "request.h"
+//#include "response.h"
+//#include "action.h"
 
-#include "hash_map.h"
-#include "pollsrv.h"
+//#include "hash_map.h"
+//#include "pollsrv.h"
 
 enum request_type { REGISTER_EVENT = 0, UNREGISTER_EVENT = 1 };
 
@@ -50,6 +50,7 @@ struct event_request {
 	uint64_t object_id;
 };
 
+#if 0
 struct _remote_event_handle *
 opae_create_remote_event_handle(void)
 {
@@ -69,9 +70,18 @@ void opae_destroy_remote_event_handle(struct _remote_event_handle *eh)
 	opae_free(eh);
 }
 
+#endif
+
 fpga_result __REMOTE_API__
 remote_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
+#if 1
+(void) event_handle;
+
+return FPGA_OK;
+
+#else
+
 	if (!event_handle) {
 		OPAE_ERR("NULL event_handle pointer");
 		return FPGA_INVALID_PARAM;
@@ -88,11 +98,18 @@ remote_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 	}
 
 	return FPGA_OK;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
+#if 1
+(void) event_handle;
+
+return FPGA_OK;
+
+#else
 	struct _remote_event_handle *eh;
 	fpga_result res = FPGA_OK;
 
@@ -137,6 +154,7 @@ out_destroy:
 	*event_handle = NULL;
 
 	return res;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -144,6 +162,12 @@ remote_fpgaGetOSObjectFromEventHandle(
 	const fpga_event_handle event_handle,
 	int *fd)
 {
+#if 1
+(void) event_handle;
+(void) fd;
+return FPGA_OK;
+#else
+	
 //	opae_fpgaGetOSObjectFromEventHandle_request req;
 //	opae_fpgaGetOSObjectFromEventHandle_response resp;
 //	struct _remote_token *tok;
@@ -174,6 +198,8 @@ remote_fpgaGetOSObjectFromEventHandle(
 	*fd = eh->client_event_fd;
 
 	return FPGA_OK;
+#endif
+
 #if 0
 	h = eh->handle;
 	tok = h->token;
@@ -200,6 +226,7 @@ remote_fpgaGetOSObjectFromEventHandle(
 
 /******************************************************************************/
 
+#if 0
 STATIC void *events_srv_thr_fn(void *arg)
 {
 	opae_poll_server *psrv =
@@ -222,7 +249,9 @@ STATIC void *events_srv_thr_fn(void *arg)
 
 	return NULL;
 }
+#endif
 
+#if 0
 STATIC fpga_result
 opae_add_client_event_registration(opae_comms_channel *comms)
 {
@@ -324,7 +353,9 @@ out_err:
 	opae_mutex_unlock(ires, &comms->events_srv_lock);
 	return res;
 }
+#endif
 
+#if 0
 STATIC fpga_result
 opae_remove_client_event_registration(opae_comms_channel *comms)
 {
@@ -350,6 +381,7 @@ opae_remove_client_event_registration(opae_comms_channel *comms)
 	opae_mutex_unlock(ires, &comms->events_srv_lock);
 	return FPGA_OK;
 }
+#endif
 
 /******************************************************************************/
 
@@ -358,6 +390,14 @@ fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,
 						 fpga_event_handle event_handle,
 						 uint32_t flags)
 {
+#if 1
+(void) handle;
+(void) event_type;
+(void) event_handle;
+(void) flags;
+
+return FPGA_OK;
+#else
 	opae_fpgaRegisterEvent_request req;
 	opae_fpgaRegisterEvent_response resp;
 	struct _remote_token *tok;
@@ -435,12 +475,20 @@ fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,
 	eh->client_event_fd = resp.client_event_fd;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 			   fpga_event_handle event_handle)
 {
+#if 1
+(void) handle;
+(void) event_type;	
+(void) event_handle;
+
+return FPGA_OK;
+#else
 	opae_fpgaUnregisterEvent_request req;
 	opae_fpgaUnregisterEvent_response resp;
 	struct _remote_token *tok;
@@ -496,4 +544,5 @@ remote_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 	}
 
 	return resp.result;
+#endif
 }

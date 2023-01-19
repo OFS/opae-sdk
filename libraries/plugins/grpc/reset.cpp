@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,14 +29,21 @@
 #endif // HAVE_CONFIG_H
 
 #include <opae/types.h>
+#include <opae/log.h>
 
 #include "mock/opae_std.h"
 #include "remote.h"
-#include "request.h"
-#include "response.h"
+
+//#include "request.h"
+//#include "response.h"
 
 fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle)
 {
+#if 1
+(void) handle;
+
+return FPGA_OK;
+#else
 	opae_fpgaReset_request req;
 	opae_fpgaReset_response resp;
 	struct _remote_token *tok;
@@ -66,4 +73,5 @@ fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle)
 		return FPGA_EXCEPTION;
 
 	return resp.result;
+#endif
 }

@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,12 +34,18 @@
 #include "mock/opae_std.h"
 
 #include "remote.h"
-#include "request.h"
-#include "response.h"
+//#include "request.h"
+//#include "response.h"
 
 fpga_result __REMOTE_API__
 remote_fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
 {
+#if 1
+(void) handle;
+(void) num_metrics;	
+
+return FPGA_OK;
+#else
 	opae_fpgaGetNumMetrics_request req;
 	opae_fpgaGetNumMetrics_response resp;
 	struct _remote_token *tok;
@@ -78,6 +84,7 @@ remote_fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
 		*num_metrics = resp.num_metrics;
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -85,6 +92,13 @@ remote_fpgaGetMetricsInfo(fpga_handle handle,
 			  fpga_metric_info *metric_info,
 			  uint64_t *num_metrics)
 {
+#if 1
+(void) handle;
+(void) metric_info;
+(void) num_metrics;
+
+return FPGA_OK;
+#else	
 	opae_fpgaGetMetricsInfo_request req;
 	opae_fpgaGetMetricsInfo_response resp;
 	struct _remote_token *tok;
@@ -136,6 +150,7 @@ remote_fpgaGetMetricsInfo(fpga_handle handle,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -144,6 +159,14 @@ remote_fpgaGetMetricsByIndex(fpga_handle handle,
 			     uint64_t num_metric_indexes,
 			     fpga_metric *metrics)
 {
+#if 1
+(void) handle;
+(void) metric_num;
+(void) num_metric_indexes;
+(void) metrics;
+
+return FPGA_OK;
+#else
 	opae_fpgaGetMetricsByIndex_request req;
 	opae_fpgaGetMetricsByIndex_response resp;
 	struct _remote_token *tok;
@@ -195,6 +218,7 @@ remote_fpgaGetMetricsByIndex(fpga_handle handle,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -203,6 +227,14 @@ remote_fpgaGetMetricsByName(fpga_handle handle,
 			    uint64_t num_metric_names,
 			    fpga_metric *metrics)
 {
+#if 1
+(void) handle;
+(void) metrics_names;
+(void) num_metric_names;
+(void) metrics;
+
+return FPGA_OK;
+#else
 	opae_fpgaGetMetricsByName_request req;
 	opae_fpgaGetMetricsByName_response resp;
 	struct _remote_token *tok;
@@ -254,6 +286,7 @@ remote_fpgaGetMetricsByName(fpga_handle handle,
 	}
 
 	return resp.result;
+#endif
 }
 
 fpga_result __REMOTE_API__
@@ -261,6 +294,13 @@ remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 				   metric_threshold *metric_thresholds,
 				   uint32_t *num_thresholds)
 {
+#if 1
+(void) handle;
+(void) metric_thresholds;
+(void) num_thresholds;
+
+return FPGA_OK;
+#else
 	opae_fpgaGetMetricsThresholdInfo_request req;
 	opae_fpgaGetMetricsThresholdInfo_response resp;
 	struct _remote_token *tok;
@@ -314,4 +354,5 @@ remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	}
 
 	return resp.result;
+#endif
 }
