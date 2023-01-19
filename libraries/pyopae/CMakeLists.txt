@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2022, Intel Corporation
+## Copyright(c) 2018-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@ opae_add_module_library(TARGET _opae
 )
 
 target_include_directories(_opae
-    PRIVATE ${PYBIND11_INCLUDE_DIR}
+    PRIVATE ${pybind11_INCLUDE_DIRS}
     PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 set_target_properties(_opae
@@ -66,10 +66,6 @@ set_target_properties(_opae
     LIBRARY_OUTPUT_DIRECTORY
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
 )
-
-if(NOT pybind11_FOUND)
-    opae_target_depends_external(_opae pybind11)
-endif(NOT pybind11_FOUND)
 
 add_custom_command(TARGET _opae
     POST_BUILD
@@ -86,7 +82,7 @@ add_custom_command(TARGET _opae
     COMMENT "Copying Python test files")
 
 if (OPAE_BUILD_PYTHON_DIST)
-    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${PYBIND_INCLUDE_DIR}")
+    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_INCLUDE_DIRS}")
 
     set(PYFILES
         setup.py
@@ -94,7 +90,7 @@ if (OPAE_BUILD_PYTHON_DIST)
         test_pyopae.py
         )
 
-    set (PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+    set(PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
     configure_file(README.md ${PYDIST_STAGE_DIR}/README.md @ONLY)
     foreach(pyfile ${PYFILES})

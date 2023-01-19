@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2022, Intel Corporation
+## Copyright(c) 2018-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ opae_add_executable(TARGET fpgainfo
         argsfilter
         opae-c
         board_common
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
     COMPONENT toolfpgainfo
 )
 

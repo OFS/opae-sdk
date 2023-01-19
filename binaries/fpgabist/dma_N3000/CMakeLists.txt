@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -35,9 +35,9 @@ opae_add_executable(TARGET fpga_dma_N3000_test
     LIBS
         rt
         opae-c
-        ${TBB_LIBRARIES}
-        ${HWLOC_LIBRARIES}
-        ${libjson-c_LIBRARIES}
+        ${tbb_LIBRARIES}
+        ${hwloc_LIBRARIES}
+        ${json-c_LIBRARIES}
     COMPONENT toolfpga_dma_N3000_test
 )
 

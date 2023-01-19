@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2022, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@ opae_test_add_static_lib(TARGET opae-c-static
         ${OPAE_LIB_SOURCE}/libopae-c/opae-cfg.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
 )
 
 opae_test_add(TARGET self_test
@@ -185,9 +185,11 @@ add_library(dummy_plugin MODULE dummy_plugin.c)
 target_include_directories(dummy_plugin
     PRIVATE
         ${OPAE_INCLUDE_PATH}
-	${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/libopae-c
         ${opae-test_ROOT}/framework
+        ${json-c_INCLUDE_DIRS}
+        ${uuid_INCLUDE_DIRS}
 )
 
-target_link_libraries(dummy_plugin ${libjson-c_LIBRARIES})
+target_link_libraries(dummy_plugin ${json-c_LIBRARIES})
 add_dependencies(test_opae_pluginmgr_c dummy_plugin)

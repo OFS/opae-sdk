@@ -69,7 +69,7 @@ jobs:
     - name: configure ${{ matrix.build-type }}
       run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
     - name: make ${{ matrix.build-type }}
-      run: cd ${{ github.workspace }}/.build && make -j
+      run: cd ${{ github.workspace }}/.build && make -j $(nproc)
   test:
     runs-on: ubuntu-latest
     steps:

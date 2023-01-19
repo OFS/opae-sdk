@@ -17,7 +17,7 @@ fi
 mkdir -p coverage_files
 rm -rf coverage_files/*
 
-make -j 4
+make -j $(nproc)
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base 2> /dev/null
@@ -42,7 +42,6 @@ lcov --remove coverage.total \
     '*binaries/mmlink/**' \
     '*binaries/fpgabist/**' \
     '*binaries/fpgadiag/**' \
-    '*external/**' \
     '*samples/host_exerciser/**' \
     '*samples/hssi/**' \
     '*samples/n5010-ctl/**' \

@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2020, Intel Corporation
+## Copyright(c) 2018-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,8 @@ set(OPAECXXCORE_SRC
 opae_add_shared_library(TARGET opae-cxx-core
     EXPORT opae-targets
     SOURCE ${OPAECXXCORE_SRC}
+    LIBS
+        ${uuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaecxxcorelib
@@ -51,6 +53,6 @@ opae_add_executable(TARGET hello_cxxcore
     LIBS
         opae-c
         opae-cxx-core
-        ${libjson-c_LIBRARIES}
+        ${json-c_LIBRARIES}
     COMPONENT samples
 )
