@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -112,7 +112,11 @@ public:
 				group_id(0), speed(0),
 				df_id(0), eth_lwmac(0),
 				ptr_(NULL),
-				mmap_ptr(NULL) { }
+				mmap_ptr(NULL) {
+		memset(&uio, 0, sizeof(uio));
+		memset(&eth_info, 0, sizeof(eth_info));
+		memset(&eth_dfh, 0, sizeof(eth_dfh));
+	}
 
 	~eth_group() {}
 
