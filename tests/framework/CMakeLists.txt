@@ -53,6 +53,16 @@ opae_add_shared_library(TARGET test_system
 	${GTEST_LIB}
 )
 
+if (GTEST_IMPORTED)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_dependencies(test_system gtest_IMPORT_DEBUG)
+        add_dependencies(test_system gtest_MAIN_IMPORT_DEBUG)
+    else()
+        add_dependencies(test_system gtest_IMPORT)
+        add_dependencies(test_system gtest_MAIN_IMPORT)
+    endif()
+endif(GTEST_IMPORTED)
+
 if (CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
   set_target_properties(test_system PROPERTIES COMPILE_FLAGS "-Wno-error=frame-address")
 endif()
