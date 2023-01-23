@@ -494,9 +494,9 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 
 	memset(phys_device, 0, sizeof(phys_device));
 	memset(phys_driver, 0, sizeof(phys_driver));
-	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX) &&
+	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX-1) &&
 	    !read_pci_link(phys_device, "driver", phys_driver,
-			   sizeof(phys_driver)) &&
+				PATH_MAX-1) &&
 	    strstr(phys_driver, "vfio-pci")) {
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
