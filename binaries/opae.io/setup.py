@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -45,5 +45,5 @@ setup(
                 "VFIO API",
     license="BSD3",
     keywords="OPAE accelerator vfio bindings",
-    url="https://01.org/OPAE",
+    url="https://opae.github.io",
 )

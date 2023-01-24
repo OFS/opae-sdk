@@ -14,7 +14,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: UNKNOWN <UNKNOWN>
-Url: https://01.org/OPAE
+Url: https://opae.github.io
 
 %description
 file: CHANGELOG

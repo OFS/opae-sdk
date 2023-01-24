@@ -51,5 +51,5 @@ setup(
     keywords="OPAE accelerator fpga kernel sysfs",
     data_files=[('share/doc/opae.admin',
                  ['LICENSE'])],
-    url="https://01.org/OPAE",
+    url="https://opae.github.io",
 )

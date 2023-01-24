@@ -15,7 +15,7 @@ GIT_REFS_PATTERN = r'(?:\s*tag:)(?:\s+(?P<tag>.*))'
 GIT_REFS_RE = re.compile(GIT_REFS_PATTERN)
 
 CHANGELOG_HDR_FMT = 'opae.admin ({}) stable; urgency=medium\n\n'
-CHANGELOG_FTR_FMT = ' -- The OPAE Dev Team <opae@lists.01.org>  {}\n'
+CHANGELOG_FTR_FMT = ' -- The OPAE Dev Team <opae@lists.linuxfoundation.org>  {}\n'
 
 
 def parse_args():

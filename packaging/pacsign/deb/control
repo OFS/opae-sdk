@@ -1,6 +1,6 @@
 Source: pacsign
 Priority: optional
-Maintainer: OPAE Dev Team, <opae@lists.01.org>
+Maintainer: OPAE Dev Team, <opae@lists.linuxfoundation.org>
 Build-Depends: debhelper (>= 10), python3, dh-python
 Standards-Version: 4.1.2
 Section: python
