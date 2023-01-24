@@ -1,4 +1,4 @@
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,6 @@ setup(
     description="hssi ethernet tools",
     license="BSD3",
     keywords="OPAE hssi tools ",
-    url="https://01.org/OPAE",
+    url="https://opae.github.io",
     include_package_data=True,
 )

@@ -1,6 +1,6 @@
 Source: opae
 Priority: optional
-Maintainer: OPAE Dev Team <opae@lists.01.org>
+Maintainer: OPAE Dev Team <opae@lists.linuxfoundation.org>
 Build-Depends: debhelper (>= 10),
                gcc, g++,
                make, cmake,

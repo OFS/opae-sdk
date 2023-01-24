@@ -15,7 +15,7 @@ OPAE SDK is a collection of libraries and tools to facilitate the development of
 OPAE\'s goal is to accelerate FPGA adoption. It is a community effort to simplify the development and deployment of FPGA applications, so we explicitly welcome discussions and contributions! The OPAE SDK source, unless otherwise noted, is released under a BSD 3-clause license.
 
 More information about OPAE can be found
-at http://01.org/OPAE.
+at https://opae.github.io/.
 
 Open Programmable Acceleration Engine (OPAE) 1.4.0 Release Notes
 -----------------------------------------------------------------

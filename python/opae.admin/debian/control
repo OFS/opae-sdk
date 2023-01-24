@@ -1,5 +1,5 @@
 Source: opae.admin
-Maintainer: The OPAE Development Team, <opae@lists.01.org>
+Maintainer: The OPAE Development Team, <opae@lists.linuxfoundation.org>
 Section: python
 Priority: optional
 Standards-Version: 4.1.4

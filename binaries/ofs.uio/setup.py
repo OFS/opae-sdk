@@ -1,4 +1,4 @@
-# Copyright(c) 2022, Intel Corporation
+# Copyright(c) 2022-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,6 @@ setup(
     description="ofs uio tool to peek/poke and mailbox read/write csr",
     license="BSD3",
     keywords="ofs uio tools ",
-    url="https://01.org/OPAE",
+    url="https://opae.github.io",
     include_package_data=True,
 )

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -189,7 +189,7 @@ def parse_args():
                         help='Project urgency [%(default)s]')
     parser.add_argument('--author', default='The OPAE Dev Team',
                         help='Project author [%(default)s]')
-    parser.add_argument('--email', default='opae@lists.01.org',
+    parser.add_argument('--email', default='opae@lists.linuxfoundation.org',
                         help='Project email [%(default)s]')
     return parser.parse_args()
 

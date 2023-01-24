@@ -11,7 +11,7 @@ managing and accessing programmable accelerators (FPGAs).
 The OPAE SDK is a collection of libraries and tools to facilitate the
 development of software applications and accelerators using OPAE.
 
-General documentation on OPAE can be found at <http://01.org/OPAE>.
+General documentation on OPAE can be found at <https://opae.github.io/>.
 
 The OPAE mailing list is available at
 <https://lists.linuxfoundation.org/mailman/listinfo/opae>.

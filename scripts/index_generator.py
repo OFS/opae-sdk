@@ -62,7 +62,7 @@ are:</p>
 </p>
 
 <p>More information about OPAE can be found at
-<a href="http://01.org/OPAE">http://01.org/OPAE.</a></p>
+<a href="https://opae.github.io">https://opae.github.io.</a></p>
 <hr/>
 <h3>Please select one of the links below to browse the online OPAE
 documentation:</h3>

@@ -384,7 +384,7 @@ done
 
 
 %changelog
-* Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
+* Mon Dec 14 2020 The OPAE Dev Team <opae@lists.linuxfoundation.org> - 2.0.0-2
 - Update OPAE spec file and tarball generation script
 - Fix build errors
 

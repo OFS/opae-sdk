@@ -1,4 +1,4 @@
-# Copyright(c) 2018-2022, Intel Corporation
+# Copyright(c) 2018-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -93,5 +93,5 @@ setup(
                 "OPAE C API",
     license="BSD3",
     keywords="OPAE accelerator fpga bindings",
-    url="https://01.org/OPAE",
+    url="https://opae.github.io",
 )
