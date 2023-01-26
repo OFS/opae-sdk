@@ -67,9 +67,9 @@ STATIC int parse_remote_grpc(json_object *j_remote_i,
 		return 4;
 	}
 
-//	res = opae_inet_ifc_init(&comms->client, ip_or_host, port, 0, 0);
-//	if (res)
-//		return res;
+  len = strnlen(ip_or_host, HOST_NAME_MAX);
+  memcpy(comms->server_host, ip_or_host, len + 1);
+  comms->server_port = (in_port_t)port;
 
 	events_data = opae_malloc(sizeof(opae_events_inet_data));
 	if (!events_data) {

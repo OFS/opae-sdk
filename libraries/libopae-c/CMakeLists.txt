@@ -55,24 +55,8 @@ opae_add_shared_library(TARGET opae-c
     COMPONENT opaeclib
 )
 
-opae_add_static_library(TARGET opae-c-archive
-    EXPORT opae-targets
-    SOURCE ${SRC}
-    LIBS
-        dl
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${json-c_LIBRARIES}
-        ${uuid_LIBRARIES}
-    COMPONENT opaeclib
-)
-
 if (OPAE_WITH_gRPC)
 target_compile_definitions(opae-c
-    PRIVATE
-        OPAE_WITH_gRPC=1
-)
-
-target_compile_definitions(opae-c-archive
     PRIVATE
         OPAE_WITH_gRPC=1
 )

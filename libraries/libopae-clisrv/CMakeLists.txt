@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,59 +24,61 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_subdirectory(fpgaconf)
-opae_add_subdirectory(fpgainfo)
-opae_add_subdirectory(fpgametrics)
+set(SRC
+    opae.proto
+    grpc_client.cpp
+    grpc_server.cpp
+    convert.cpp
+    ${opae-test_ROOT}/framework/mock/opae_std.c
+)
 
-option(OPAE_BUILD_USERCLK "Enable building extra tool userclk" ON)
-mark_as_advanced(OPAE_BUILD_USERCLK)
+opae_add_shared_library(TARGET opae-clisrv
+    SOURCE ${SRC}
+    LIBS
+        opae-c
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
+        ${gRPC_LIBRARIES}
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaeremote
+)
 
-option(OPAE_BUILD_FPGADIAG "Enable building extra tool fpgadiag" ON)
-mark_as_advanced(OPAE_BUILD_FPGADIAG)
+target_include_directories(opae-clisrv
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/plugins/grpc
+        ${gRPC_INCLUDE_DIRS}
+        ${CMAKE_BINARY_DIR}/protos
+)
 
-option(OPAE_BUILD_MMLINK "Enable building extra tool mmlink" ON)
-mark_as_advanced(OPAE_BUILD_MMLINK)
+add_custom_command(
+    OUTPUT
+        ${CMAKE_BINARY_DIR}/protos
+    COMMAND
+        mkdir -p ${CMAKE_BINARY_DIR}/protos
+    DEPENDS
+        ${CMAKE_BINARY_DIR}
+)
 
-option(OPAE_BUILD_PAC_HSSI_CONFIG  "Enable building extra tool pac_hssi_config" ON)
-mark_as_advanced(OPAE_BUILD_PAC_HSSI_CONFIG)
+add_custom_target(bin_protos
+    DEPENDS
+        ${CMAKE_BINARY_DIR}/protos
+    COMMENT
+        "Creating protos output directory"
+)
 
-option(OPAE_BUILD_FPGABIST "Enable building extra tool fpgabist" OFF)
-mark_as_advanced(OPAE_BUILD_FPGABIST)
+add_dependencies(opae-clisrv bin_protos)
 
-option(OPAE_BUILD_OPAEIO "Enable building extra tool opae.io" ON)
-mark_as_advanced(OPAE_BUILD_OPAEIO)
-
-opae_add_subdirectory(hssi)
-
-if(OPAE_BUILD_EXTRA_TOOLS)
-  if(OPAE_BUILD_USERCLK)
-    opae_add_subdirectory(userclk)
-  endif()
-  if(OPAE_BUILD_FPGADIAG)
-    set(OPAE_BUILD_CXXUTILS ON)
-    opae_add_subdirectory(fpgadiag)
-  endif()
-  if(OPAE_BUILD_MMLINK)
-    opae_add_subdirectory(mmlink)
-  endif()
-  if(OPAE_BUILD_PAC_HSSI_CONFIG)
-    opae_add_subdirectory(pac_hssi_config)
-  endif()
-  if(OPAE_BUILD_FPGABIST)
-    opae_add_subdirectory(fpgabist)
-  endif()
-  if(OPAE_BUILD_OPAEIO)
-    opae_add_subdirectory(opae.io)
-  endif()
-endif()
-
-if (OPAE_WITH_PYBIND11)
-  opae_add_subdirectory(ofs.uio)
-endif()
-
-opae_add_subdirectory(vabtool)
-opae_add_subdirectory(fpgad)
-
-if (OPAE_WITH_gRPC)
-  opae_add_subdirectory(grpcserver)
-endif(OPAE_WITH_gRPC)
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(TARGET opae-clisrv
+    LANGUAGE cpp
+    PROTOC_OUT_DIR ${CMAKE_BINARY_DIR}/protos
+)
+protobuf_generate(TARGET opae-clisrv
+    LANGUAGE grpc
+    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+    PROTOC_OUT_DIR ${CMAKE_BINARY_DIR}/protos
+    PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
+)

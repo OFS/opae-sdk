@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,59 +24,20 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_subdirectory(fpgaconf)
-opae_add_subdirectory(fpgainfo)
-opae_add_subdirectory(fpgametrics)
+opae_add_executable(TARGET grpcserver
+    SOURCE
+        main.cpp
+    LIBS
+      opae-c
+      opae-clisrv
+      gRPC::grpc++_reflection
+)
 
-option(OPAE_BUILD_USERCLK "Enable building extra tool userclk" ON)
-mark_as_advanced(OPAE_BUILD_USERCLK)
-
-option(OPAE_BUILD_FPGADIAG "Enable building extra tool fpgadiag" ON)
-mark_as_advanced(OPAE_BUILD_FPGADIAG)
-
-option(OPAE_BUILD_MMLINK "Enable building extra tool mmlink" ON)
-mark_as_advanced(OPAE_BUILD_MMLINK)
-
-option(OPAE_BUILD_PAC_HSSI_CONFIG  "Enable building extra tool pac_hssi_config" ON)
-mark_as_advanced(OPAE_BUILD_PAC_HSSI_CONFIG)
-
-option(OPAE_BUILD_FPGABIST "Enable building extra tool fpgabist" OFF)
-mark_as_advanced(OPAE_BUILD_FPGABIST)
-
-option(OPAE_BUILD_OPAEIO "Enable building extra tool opae.io" ON)
-mark_as_advanced(OPAE_BUILD_OPAEIO)
-
-opae_add_subdirectory(hssi)
-
-if(OPAE_BUILD_EXTRA_TOOLS)
-  if(OPAE_BUILD_USERCLK)
-    opae_add_subdirectory(userclk)
-  endif()
-  if(OPAE_BUILD_FPGADIAG)
-    set(OPAE_BUILD_CXXUTILS ON)
-    opae_add_subdirectory(fpgadiag)
-  endif()
-  if(OPAE_BUILD_MMLINK)
-    opae_add_subdirectory(mmlink)
-  endif()
-  if(OPAE_BUILD_PAC_HSSI_CONFIG)
-    opae_add_subdirectory(pac_hssi_config)
-  endif()
-  if(OPAE_BUILD_FPGABIST)
-    opae_add_subdirectory(fpgabist)
-  endif()
-  if(OPAE_BUILD_OPAEIO)
-    opae_add_subdirectory(opae.io)
-  endif()
-endif()
-
-if (OPAE_WITH_PYBIND11)
-  opae_add_subdirectory(ofs.uio)
-endif()
-
-opae_add_subdirectory(vabtool)
-opae_add_subdirectory(fpgad)
-
-if (OPAE_WITH_gRPC)
-  opae_add_subdirectory(grpcserver)
-endif(OPAE_WITH_gRPC)
+target_include_directories(grpcserver
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${gRPC_INCLUDE_DIRS}
+        ${OPAE_LIB_SOURCE}/libopae-clisrv
+        ${OPAE_LIB_SOURCE}/plugins/grpc
+        ${CMAKE_BINARY_DIR}/protos
+)

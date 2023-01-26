@@ -23,43 +23,51 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_COMMS_H__
-#define __OPAE_COMMS_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
-#endif // _GNU_SOURCE
-#include <pthread.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-typedef struct _opae_events_inet_data {
-	char events_ip[INET_ADDRSTRLEN];
-	int events_port;
-} opae_events_inet_data;
+#include <iostream>
+#include <string>
+#include <algorithm>
 
-typedef struct _opae_comms_channel {
-	bool valid;
-	char server_host[HOST_NAME_MAX + 1];
-	in_port_t server_port;
-	void *client;
+#include "convert.hpp"
+#include "grpc_client.hpp"
 
-	void *events_data;
-	void *events_srv;
-	volatile uint64_t events_srv_registrations;
-	pthread_t events_srv_thr;
-	pthread_mutex_t events_srv_lock;
-} opae_comms_channel;
+fpga_result OPAEClient::fpgaEnumerate(const std::vector<fpga_properties> &filters, uint32_t num_filters,
+                                      uint32_t max_tokens, uint32_t &num_matches,
+	                                    std::vector<fpga_token_header> &tokens)
+{
+  opaegrpc::EnumerateRequest request;
 
-#ifdef __cplusplus
+  for (auto f : filters) {
+    _fpga_properties *p = reinterpret_cast<_fpga_properties *>(f);
+    opaegrpc::fpga_properties *gprops = request.add_filters();
+    to_grpc_fpga_properties(this, gprops, p);
+  }
+  request.set_num_filters(num_filters);
+  request.set_max_tokens(max_tokens);
+
+  opaegrpc::EnumerateReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaEnumerate(&context, request, &reply);
+	if (!status.ok()) {
+    OPAE_ERR("gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+		return FPGA_EXCEPTION;
+	}
+
+std::cout << reply << std::endl;
+
+  num_matches = reply.num_matches();
+	const size_t toks = std::min(num_matches, reply.max_tokens());
+
+  tokens.reserve(toks);
+  tokens.resize(toks);
+  std::transform(reply.tokens().cbegin(), reply.tokens().cbegin() + toks,
+                 tokens.begin(), to_opae_token_header);
+
+  return FPGA_OK;
 }
-#endif // __cplusplus
-
-#endif // __OPAE_COMMS_H__

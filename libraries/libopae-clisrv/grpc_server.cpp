@@ -1,0 +1,103 @@
+// Copyright(c) 2023, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+
+#include "convert.hpp"
+#include "grpc_server.hpp"
+
+Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context, const EnumerateRequest *request, EnumerateReply *reply)
+{
+std::cout << *request << std::endl;
+
+
+  UNUSED_PARAM(context);
+  std::vector<fpga_properties> req_filters;
+  fpga_properties *pfilters = nullptr;
+  uint32_t req_num_filters;
+  uint32_t req_max_tokens;
+
+  req_filters.reserve(request->filters().size());
+  for (const auto &f : request->filters()) {
+    req_filters.push_back(to_opae_fpga_properties(this, f));
+  }
+  if (req_filters.size() > 0)
+    pfilters = req_filters.data();
+
+  req_num_filters = request->num_filters();
+  req_max_tokens = request->max_tokens();
+
+  fpga_token *tokens = nullptr;
+
+  if (req_max_tokens) {
+    tokens = new fpga_token[req_max_tokens];
+    memset(tokens, 0, req_max_tokens * sizeof(fpga_token));
+  }
+
+  uint32_t resp_max_tokens = 0;
+  uint32_t resp_num_matches = 0;
+  fpga_result result;
+
+  result = ::fpgaEnumerate(pfilters,
+                           req_num_filters,
+                           tokens,
+                           req_max_tokens,
+                           &resp_num_matches);
+  resp_max_tokens = req_max_tokens;
+
+  if (tokens) {
+    uint32_t i;
+    const uint32_t num_tokens = std::min(resp_num_matches, req_max_tokens);
+
+    // Walk through the tokens, opening each and grabbing its header.
+    for (i = 0 ; i < num_tokens ; ++i) {
+      opae_wrapped_token *wt = reinterpret_cast<opae_wrapped_token *>(tokens[i]);
+      fpga_token_header *hdr = reinterpret_cast<fpga_token_header *>(wt->opae_token);
+
+      // If we're not already tracking this token_id, then add it.
+      if (!find_token(hdr->token_id))
+        add_token(hdr->token_id, tokens[i]);
+
+      // Add the token header to our outbound reply.
+      to_grpc_token_header(*hdr, reply->add_tokens());
+    }
+  }
+
+  reply->set_max_tokens(resp_max_tokens);
+  reply->set_num_matches(resp_num_matches);
+  reply->set_result(to_grpc_fpga_result[result]);
+
+  if (tokens)
+    delete[] tokens;
+
+  return Status::OK;
+}

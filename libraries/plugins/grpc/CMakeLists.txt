@@ -43,7 +43,6 @@ set(SRC
     userclk.cpp
     version.cpp
     ${opae-test_ROOT}/framework/mock/opae_std.c
-    opae.proto
 )
 
 opae_add_module_library(TARGET opae-grpc
@@ -52,6 +51,7 @@ opae_add_module_library(TARGET opae-grpc
         dl
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
+        opae-clisrv
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
         ${gRPC_LIBRARIES}
@@ -61,15 +61,7 @@ opae_add_module_library(TARGET opae-grpc
 target_include_directories(opae-grpc
     PRIVATE
         ${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/libopae-clisrv
         ${gRPC_INCLUDE_DIRS}
-)
-
-get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
-protobuf_generate(TARGET opae-grpc
-    LANGUAGE cpp
-)
-protobuf_generate(TARGET opae-grpc
-    LANGUAGE grpc
-    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
-    PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
+        ${CMAKE_BINARY_DIR}/protos
 )

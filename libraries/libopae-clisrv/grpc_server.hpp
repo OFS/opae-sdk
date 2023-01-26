@@ -23,43 +23,51 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_COMMS_H__
-#define __OPAE_COMMS_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
-#endif // _GNU_SOURCE
-#include <pthread.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <map>
 
-typedef struct _opae_events_inet_data {
-	char events_ip[INET_ADDRSTRLEN];
-	int events_port;
-} opae_events_inet_data;
+#include <opae/fpga.h>
 
-typedef struct _opae_comms_channel {
-	bool valid;
-	char server_host[HOST_NAME_MAX + 1];
-	in_port_t server_port;
-	void *client;
+#include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/health_check_service_interface.h>
 
-	void *events_data;
-	void *events_srv;
-	volatile uint64_t events_srv_registrations;
-	pthread_t events_srv_thr;
-	pthread_mutex_t events_srv_lock;
-} opae_comms_channel;
+#include "convert.hpp"
 
-#ifdef __cplusplus
-}
-#endif // __cplusplus
+#include "opae.grpc.pb.h"
+#include "opae.pb.h"
 
-#endif // __OPAE_COMMS_H__
+using grpc::ServerContext;
+using grpc::Status;
+using opaegrpc::OPAEService;
+using opaegrpc::EnumerateRequest;
+using opaegrpc::EnumerateReply;
+
+class OPAEServiceImpl final : public OPAEService::Service
+{
+  public:
+    typedef std::map<fpga_remote_id, fpga_token> token_map_t;
+
+    Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request, EnumerateReply *reply) override;
+
+    fpga_token find_token(const fpga_remote_id &rid) const
+    {
+      token_map_t::const_iterator it = token_map_.find(rid);
+      return (it == token_map_.end()) ? nullptr : it->second;
+    }
+
+    bool add_token(const fpga_remote_id &rid, fpga_token token)
+    {
+      std::pair<token_map_t::iterator, bool> res =
+        token_map_.insert(std::make_pair(rid, token));
+      return res.second;
+    }
+
+  private:
+    token_map_t token_map_;
+};

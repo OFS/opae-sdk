@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -152,6 +152,10 @@ opae_validate_and_lock_properties(fpga_properties props)
 	return p;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 struct _fpga_properties *opae_properties_create(void);
 
 int opae_get_host_name_buf(char *name, size_t len);
@@ -160,5 +164,9 @@ const char *opae_get_host_name(void);
 void opae_get_remote_id(fpga_remote_id *rid);
 bool opae_remote_ids_match(const fpga_remote_id *lhs,
 			   const fpga_remote_id *rhs);
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // ___OPAE_PROPS_H__

@@ -28,39 +28,40 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
+#include <vector>
+#include <algorithm>
+#include <sstream>
 
 #include <opae/types.h>
 #include <opae/log.h>
 
+#include "comms.h"
 #include "remote.h"
 #include "mock/opae_std.h"
 
-//#include "request.h"
-//#include "response.h"
-//#include "action.h"
+#include "grpc_client.hpp"
+
 
 #define OPAE_ENUM_STOP 1
 #define OPAE_ENUM_CONTINUE 0
 
-#if 0
-
+extern "C" {
 int opae_plugin_mgr_for_each_remote
 	(int (*callback)(opae_comms_channel *, void *),
 	void *context);
+}
 
 struct _remote_token *
 opae_create_remote_token(fpga_token_header *hdr,
-			 opae_comms_channel *comms,
-			 int json_to_string_flags)
+			 opae_comms_channel *comms)
 {
 	struct _remote_token *t =
 		(struct _remote_token *)opae_calloc(1, sizeof(*t));
 	if (t) {
 		t->hdr = *hdr;
 		t->comms = comms;
-		t->json_to_string_flags = json_to_string_flags;
 	}
 	return t;
 }
@@ -70,45 +71,9 @@ void opae_destroy_remote_token(struct _remote_token *t)
 	opae_free(t);
 }
 
-fpga_result opae_client_send_and_receive(
-	struct _remote_token *tok,
-	char *req_json,
-	char **resp_json)
-{
-	static char recvbuf[OPAE_RECEIVE_BUF_MAX];
-	size_t len;
-	ssize_t slen;
-
-	if (!req_json)
-		return FPGA_NO_MEMORY;
-
-	len = strlen(req_json);
-
-	slen = tok->comms->client.send(tok->comms->client.connection,
-				       req_json,
-				       len + 1);
-
-	if (slen < 0) {
-		opae_free(req_json);
-		return FPGA_EXCEPTION;
-	}
-
-	opae_free(req_json);
-
-	slen = tok->comms->client.receive(tok->comms->client.connection,
-					  recvbuf,
-					  sizeof(recvbuf));
-	if (slen < 0)
-		return FPGA_EXCEPTION;
-
-	*resp_json = recvbuf;
-
-	return FPGA_OK;
-}
-
 typedef struct _remote_enumeration_context {
 	// <verbatim from fpgaEnumerate>
-	fpga_properties *filters;
+	std::vector<fpga_properties> filters;
 	uint32_t num_filters;
 	fpga_token *tokens;
 	uint32_t max_tokens;
@@ -117,7 +82,6 @@ typedef struct _remote_enumeration_context {
 
 	uint32_t num_tokens;
 	uint32_t errors;
-	int json_to_string_flags;
 } remote_enumeration_context;
 
 static int remote_enumerate(opae_comms_channel *comms, void *context)
@@ -125,114 +89,69 @@ static int remote_enumerate(opae_comms_channel *comms, void *context)
 	remote_enumeration_context *ctx =
 		(remote_enumeration_context *)context;
 
-	opae_fpgaEnumerate_request req;
-	opae_fpgaEnumerate_response resp;
-
-	uint32_t i;
 	uint32_t space_remaining;
-	int res;
-	char *req_json;
-	size_t len;
-	ssize_t slen;
-	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+  uint32_t num_matches = 0;
+  uint32_t i;
 
-	space_remaining = ctx->max_tokens - ctx->num_tokens;
+  space_remaining = ctx->max_tokens - ctx->num_tokens;
 
 	if (ctx->tokens && !space_remaining)
 		return OPAE_ENUM_STOP;
 
 	// Establish the remote connection.
-	res = comms->client.open(comms->client.connection);
-	if (res) {
-		++ctx->errors;
-		return res;
-	}
+	std::ostringstream target;
+	target << comms->server_host << ':' << comms->server_port;
 
-	req.filters = ctx->filters;
-	req.num_filters = ctx->num_filters;
-	req.max_tokens = space_remaining;
+  OPAEClient *client = new OPAEClient(grpc::CreateChannel(
+			target.str(), grpc::InsecureChannelCredentials()));
 
-	req_json = opae_encode_fpgaEnumerate_request_0(&req,
-			ctx->json_to_string_flags);
-	if (!req_json) {
-		++ctx->errors;
-		return OPAE_ENUM_STOP;
-	}
+  comms->client = client;
 
-	len = strlen(req_json);
+  std::vector<fpga_token_header> token_hdrs;
 
-	slen = comms->client.send(comms->client.connection, req_json, len + 1);
-	if (slen < 0) {
-		++ctx->errors;
-		return OPAE_ENUM_STOP;
-	}
-	opae_free(req_json);
-
-	slen = comms->client.receive(comms->client.connection,
-				     recvbuf,
-				     sizeof(recvbuf));
-	if (slen < 0) {
+  if (client->fpgaEnumerate(ctx->filters, ctx->num_filters,
+	                          space_remaining, num_matches,
+                            token_hdrs)) {
 		++ctx->errors;
 		return OPAE_ENUM_STOP;
 	}
 
-	if (!opae_decode_fpgaEnumerate_response_0(recvbuf, &resp)) {
-		++ctx->errors;
-		return OPAE_ENUM_STOP;
-	}
-
-	*ctx->num_matches += resp.num_matches;
+	*ctx->num_matches += num_matches;
 
 	if (!ctx->tokens) {
 		// requesting token count only.
-		if (resp.tokens)
-			opae_free(resp.tokens);
 		return OPAE_ENUM_CONTINUE;
 	}
 
-	if (space_remaining > resp.num_matches)
-		space_remaining = resp.num_matches;
+	if (space_remaining > num_matches)
+		space_remaining = num_matches;
 
 	for (i = 0 ; i < space_remaining ; ++i) {
 		struct _remote_token *token =
-			opae_create_remote_token(&resp.tokens[i],
-						 comms,
-						 ctx->json_to_string_flags);
+			opae_create_remote_token(&token_hdrs[i], comms);
 
 		if (!token) {
-			opae_free(resp.tokens);
 			++ctx->errors;
 			return OPAE_ENUM_STOP;
 		}
 
+    if (!client->find_token(token_hdrs[i].token_id))
+		  client->add_token(token_hdrs[i].token_id, token);
+
 		ctx->tokens[ctx->num_tokens++] = token;
 	}
-
-	opae_free(resp.tokens);
 
 	return ctx->num_tokens == ctx->max_tokens
 			? OPAE_ENUM_STOP
 			: OPAE_ENUM_CONTINUE;
 }
 
-#endif
-
 fpga_result __REMOTE_API__ remote_fpgaEnumerate(const fpga_properties *filters,
 				       uint32_t num_filters, fpga_token *tokens,
 				       uint32_t max_tokens,
 				       uint32_t *num_matches)
 {
-#if 1
-(void) filters;
-(void) num_filters;
-(void) tokens;
-(void) max_tokens;
-(void) num_matches;
-
-return FPGA_OK;
-#else
 	fpga_result result = FPGA_NOT_FOUND;
-
 	remote_enumeration_context enum_context;
 
 	if (NULL == num_matches) {
@@ -259,15 +178,15 @@ return FPGA_OK;
 
 	*num_matches = 0;
 
-	enum_context.filters = (fpga_properties *)filters;
+  enum_context.filters.reserve(num_filters);
+	enum_context.filters.resize(num_filters);
+  std::copy(filters, filters + num_filters, enum_context.filters.begin());
 	enum_context.num_filters = num_filters;
 	enum_context.tokens = tokens;
 	enum_context.max_tokens = max_tokens;
 	enum_context.num_matches = num_matches;
 	enum_context.num_tokens = 0;
 	enum_context.errors = 0;
-	enum_context.json_to_string_flags = JSON_C_TO_STRING_SPACED |
-					    JSON_C_TO_STRING_PRETTY;
 
 	// perform the enumeration.
 	opae_plugin_mgr_for_each_remote(remote_enumerate, &enum_context);
@@ -275,7 +194,6 @@ return FPGA_OK;
 	result = (enum_context.errors > 0) ? FPGA_EXCEPTION : FPGA_OK;
 
 	return result;
-#endif
 }
 
 fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src, fpga_token *dst)

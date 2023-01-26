@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package opaegrpc;
+
+enum fpga_result {
+  FPGA_OK = 0;
+  FPGA_INVALID_PARAM = 1;
+  FPGA_BUSY = 2;
+  FPGA_EXCEPTION = 3;
+  FPGA_NOT_FOUND = 4;
+  FPGA_NO_MEMORY = 5;
+  FPGA_NOT_SUPPORTED = 6;
+  FPGA_NO_DRIVER = 7;
+  FPGA_NO_DAEMON = 8;
+  FPGA_NO_ACCESS = 9;
+  FPGA_RECONF_ERROR = 10;
+}
+
+enum fpga_event_type {
+  FPGA_EVENT_INTERRUPT = 0;
+  FPGA_EVENT_ERROR = 1;
+  FPGA_EVENT_POWER_THERMAL = 2;
+}
+
+enum fpga_accelerator_state {
+  FPGA_ACCELERATOR_ASSIGNED = 0;
+  FPGA_ACCELERATOR_UNASSIGNED = 1;
+}
+
+enum fpga_objtype {
+  FPGA_DEVICE = 0;
+  FPGA_ACCELERATOR = 1;
+}
+
+enum fpga_interface {
+  FPGA_IFC_DFL = 0;
+  FPGA_IFC_VFIO = 1;
+  FPGA_IFC_SIM_DFL = 2;
+  FPGA_IFC_SIM_VFIO = 3;
+}
+
+// enum fpga_buffer_flags {}
+// enum fpga_open_flags {}
+// enum fpga_reconf_flags {}
+// enum fpga_sysobject_flags {}
+// enum fpga_sysobject_type {}
+
+enum fpga_metric_type {
+  FPGA_METRIC_TYPE_POWER = 0;
+  FPGA_METRIC_TYPE_THERMAL = 1;
+  FPGA_METRIC_TYPE_PERFORMANCE_CTR = 2;
+  FPGA_METRIC_TYPE_AFU = 3;
+  FPGA_METRIC_TYPE_UNKNOWN = 4;
+}
+
+enum fpga_metric_datatype {
+  FPGA_METRIC_DATATYPE_INT = 0;
+  FPGA_METRIC_DATATYPE_FLOAT = 1;
+  FPGA_METRIC_DATATYPE_DOUBLE = 2;
+  FPGA_METRIC_DATATYPE_BOOL = 3;
+  FPGA_METRIC_DATATYPE_UNKNOWN = 4;
+}
+
+message fpga_version {
+  uint32 major = 1; // uint8_t
+  uint32 minor = 2; // uint8_t
+  uint32 patch = 3; // uint16_t
+}
+
+message fpga_error_info {
+  string name = 1;
+  bool can_clear = 2;
+}
+
+message metric_value {
+  oneof v {
+    uint64 ivalue = 1;
+    double dvalue = 2;
+    float fvalue = 3;
+    bool bvalue = 4;
+  }
+}
+
+message fpga_metric_info {
+  uint64 metric_num = 1;
+  string metric_guid = 2;
+  string qualifier_name = 3;
+  string group_name = 4;
+  string metric_name = 5;
+  string metric_units = 6;
+  fpga_metric_datatype metric_datatype = 7;
+  fpga_metric_type metric_type = 8;
+}
+
+message fpga_metric {
+  uint64 metric_num = 1;
+  metric_value value = 2;
+  bool isvalid = 3;
+}
+
+message threshold {
+  string threshold_name = 1;
+  uint32 is_valid = 2;
+  double value = 3;
+}
+
+message metric_threshold {
+  string metric_name = 1;
+  threshold upper_nr_threshold = 2;
+  threshold upper_c_threshold = 3;
+  threshold upper_nc_threshold = 4;
+  threshold lower_nr_threshold = 5;
+  threshold lower_c_threshold = 6;
+  threshold lower_nc_threshold = 7;
+  threshold hysteresis = 8;
+}
+
+message fpga_remote_id {
+  string hostname = 1;
+  uint64 unique_id = 2;
+}
+
+message fpga_token_header {
+  uint64 magic = 1;
+  uint32 vendor_id = 2; // uint16_t
+  uint32 device_id = 3; // uint16_t
+  uint32 segment = 4; // uint16_t
+  uint32 bus = 5; // uint8_t
+  uint32 device = 6; // uint8_t
+  uint32 function = 7; // uint8_t
+  fpga_interface interface = 8;
+  fpga_objtype objtype = 9;
+  uint64 object_id = 10;
+  string guid = 11;
+  uint32 subsystem_vendor_id = 12; // uint16_t
+  uint32 subsystem_device_id = 13; // uint16_t
+  fpga_remote_id token_id = 14;
+}
+
+message fpga_handle_header {
+  uint64 magic = 1;
+  fpga_remote_id token_id = 2;
+  fpga_remote_id handle_id = 3;
+}
+
+message fpga_properties {
+  uint64 magic = 1;
+  uint64 valid_fields = 2;
+  optional string guid = 3;
+  optional fpga_remote_id parent = 4;
+  optional fpga_objtype objtype = 5;
+  optional uint32 segment = 6; // uint16_t
+  optional uint32 bus = 7; // uint8_t
+  optional uint32 device = 8; // uint8_t
+  optional uint32 function = 9; // uint8_t
+  optional uint32 socket_id = 10; // uint8_t
+  optional uint64 object_id = 11;
+  optional uint32 vendor_id = 12; // uint16_t
+  optional uint32 device_id = 13; // uint16_t
+  optional uint32 num_errors = 14;
+  optional fpga_interface interface = 15;
+  optional uint32 subsystem_vendor_id = 16;
+  optional uint32 subsystem_device_id = 17;
+  optional string hostname = 18;
+  message fpga_fields {
+    optional uint32 num_slots = 1;
+    optional uint64 bbs_id = 2;
+    optional fpga_version bbs_version = 3;
+  }
+  message accelerator_fields {
+    optional fpga_accelerator_state state = 1;
+    optional uint32 num_mmio = 2;
+    optional uint32 num_interrupts = 3;
+  }
+  oneof u {
+    fpga_fields fpga = 19;
+    accelerator_fields accelerator = 20;
+  }
+}
+
+service OPAEService {
+  rpc fpgaEnumerate(EnumerateRequest) returns (EnumerateReply) {}
+}
+
+message EnumerateRequest {
+  repeated fpga_properties filters = 1;
+  uint32 num_filters = 2;
+  uint32 max_tokens = 3;
+}
+
+message EnumerateReply {
+  repeated fpga_token_header tokens = 1;
+  uint32 max_tokens = 2;
+  uint32 num_matches = 3;
+  fpga_result result = 4;
+}

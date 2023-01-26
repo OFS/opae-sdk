@@ -26,7 +26,7 @@
 #ifndef __OPAE_REMOTE_PLUGIN_H__
 #define __OPAE_REMOTE_PLUGIN_H__
 #include <opae/types.h>
-//#include "comms.h"
+#include "comms.h"
 
 #ifndef UNUSED_PARAM
 #define UNUSED_PARAM(x) ((void)x)
@@ -163,20 +163,19 @@ fpga_result remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 			metric_threshold *metric_threshold,
 			uint32_t *num_thresholds);
 
-#if 0
 
 struct _remote_token {
 	fpga_token_header hdr; //< Must appear at offset 0!
 	opae_comms_channel *comms;
-	int json_to_string_flags;
 };
 
 struct _remote_token *
 opae_create_remote_token(fpga_token_header *hdr,
-			 opae_comms_channel *comms,
-			 int json_to_string_flags);
+			 opae_comms_channel *comms);
 
 void opae_destroy_remote_token(struct _remote_token *t);
+
+#if 0
 
 #define OPAE_MMIO_REGIONS_MAX 6
 struct _remote_handle {

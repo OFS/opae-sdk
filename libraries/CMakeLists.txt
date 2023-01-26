@@ -58,6 +58,10 @@ if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)
 endif()
 
 opae_add_subdirectory(libbitstream)
+
+if (OPAE_WITH_gRPC)
+    opae_add_subdirectory(libopae-clisrv)
+endif(OPAE_WITH_gRPC)
 opae_add_subdirectory(plugins)
 
 if(OPAE_BUILD_LIBOPAE_CXX)
