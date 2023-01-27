@@ -59,7 +59,7 @@ fpga_result OPAEClient::fpgaEnumerate(const std::vector<fpga_properties> &filter
 		return FPGA_EXCEPTION;
 	}
 
-std::cout << reply << std::endl;
+std::cout << "fpgaEnumerate reply " << reply << std::endl;
 
   num_matches = reply.num_matches();
 	const size_t toks = std::min(num_matches, reply.max_tokens());
@@ -69,5 +69,49 @@ std::cout << reply << std::endl;
   std::transform(reply.tokens().cbegin(), reply.tokens().cbegin() + toks,
                  tokens.begin(), to_opae_token_header);
 
-  return FPGA_OK;
+  return to_opae_fpga_result[reply.result()];
 }
+
+fpga_result OPAEClient::fpgaDestroyToken(const fpga_remote_id &token_id)
+{
+  opaegrpc::DestroyTokenRequest request;
+  request.set_allocated_token_id(to_grpc_fpga_remote_id(token_id));
+
+  opaegrpc::DestroyTokenReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaDestroyToken(&context, request, &reply);
+	if (!status.ok()) {
+    OPAE_ERR("gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+		return FPGA_EXCEPTION;
+	}
+
+std::cout << "fpgaDestroyToken reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaCloneToken(const fpga_remote_id &src_token_id,
+                                       fpga_token_header &dest_token_hdr)
+{
+  opaegrpc::CloneTokenRequest request;
+  request.set_allocated_src_token_id(to_grpc_fpga_remote_id(src_token_id));
+
+  opaegrpc::CloneTokenReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaCloneToken(&context, request, &reply);
+	if (!status.ok()) {
+    OPAE_ERR("gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+		return FPGA_EXCEPTION;
+	}
+
+std::cout << "fpgaCloneToken reply " << reply << std::endl;
+
+  dest_token_hdr = to_opae_token_header(reply.dest_token());
+
+  return to_opae_fpga_result[reply.result()];
+}
+

@@ -623,6 +623,7 @@ if (OPAE_WITH_gRPC)
         set(gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN OFF CACHE BOOL "not using Objective-C plugin" FORCE)
         set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF CACHE BOOL "not using PHP plugin" FORCE)
         set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF CACHE BOOL "not using Ruby plugin" FORCE)
+        set(protobuf_MODULE_COMPATIBLE TRUE)
 
         FetchContent_MakeAvailable(gRPC)
 
@@ -639,7 +640,7 @@ if (OPAE_WITH_gRPC)
         set(gRPC_IMPORTED TRUE CACHE BOOL "gRPC imported from source" FORCE)
     endif(NOT gRPC_FOUND)
 
-    set(Protobuf_IMPORT_DIRS ${OPAE_SDK_SOURCE}/protos)
+    set(Protobuf_IMPORT_DIRS ${OPAE_LIB_SOURCE}/libopae-clisrv)
 
     message(STATUS "gRPC_ROOT ${gRPC_ROOT}")
     message(STATUS "gRPC_INCLUDE_DIRS ${gRPC_INCLUDE_DIRS}")

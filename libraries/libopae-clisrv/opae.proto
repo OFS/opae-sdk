@@ -180,6 +180,8 @@ message fpga_properties {
 
 service OPAEService {
   rpc fpgaEnumerate(EnumerateRequest) returns (EnumerateReply) {}
+  rpc fpgaDestroyToken(DestroyTokenRequest) returns (DestroyTokenReply) {}
+  rpc fpgaCloneToken(CloneTokenRequest) returns (CloneTokenReply) {}
 }
 
 message EnumerateRequest {
@@ -194,3 +196,21 @@ message EnumerateReply {
   uint32 num_matches = 3;
   fpga_result result = 4;
 }
+
+message DestroyTokenRequest {
+  fpga_remote_id token_id = 1;
+}
+
+message DestroyTokenReply {
+  fpga_result result = 1;
+}
+
+message CloneTokenRequest {
+  fpga_remote_id src_token_id = 1;
+}
+
+message CloneTokenReply {
+  fpga_token_header dest_token = 1;
+  fpga_result result = 2;
+}
+

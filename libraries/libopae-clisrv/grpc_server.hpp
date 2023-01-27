@@ -47,6 +47,10 @@ using grpc::Status;
 using opaegrpc::OPAEService;
 using opaegrpc::EnumerateRequest;
 using opaegrpc::EnumerateReply;
+using opaegrpc::DestroyTokenRequest;
+using opaegrpc::DestroyTokenReply;
+using opaegrpc::CloneTokenRequest;
+using opaegrpc::CloneTokenReply;
 
 class OPAEServiceImpl final : public OPAEService::Service
 {
@@ -54,6 +58,9 @@ class OPAEServiceImpl final : public OPAEService::Service
     typedef std::map<fpga_remote_id, fpga_token> token_map_t;
 
     Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request, EnumerateReply *reply) override;
+    Status fpgaDestroyToken(ServerContext *context, const DestroyTokenRequest *request, DestroyTokenReply *reply) override;
+    Status fpgaCloneToken(ServerContext *context, const CloneTokenRequest *request, CloneTokenReply *reply) override;
+
 
     fpga_token find_token(const fpga_remote_id &rid) const
     {
@@ -66,6 +73,18 @@ class OPAEServiceImpl final : public OPAEService::Service
       std::pair<token_map_t::iterator, bool> res =
         token_map_.insert(std::make_pair(rid, token));
       return res.second;
+    }
+
+    bool remove_token(const fpga_remote_id &rid)
+    {
+      token_map_t::iterator it = token_map_.find(rid);
+
+      if (it == token_map_.end())
+        return false;
+
+      token_map_.erase(it);
+
+      return true;
     }
 
   private:

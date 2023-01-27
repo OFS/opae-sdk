@@ -80,6 +80,13 @@ class OPAEClient final
                               uint32_t max_tokens, uint32_t &num_matches,
                               std::vector<fpga_token_header> &tokens);
 
+    fpga_result fpgaDestroyToken(const fpga_remote_id &token_id);
+
+    fpga_result fpgaCloneToken(const fpga_remote_id &src_token_id,
+                               fpga_token_header &dest_token_hdr);
+
+  
+
     _remote_token *find_token(const fpga_remote_id &rid) const
     {
       token_map_t::const_iterator it = token_map_.find(rid);
@@ -91,6 +98,18 @@ class OPAEClient final
       std::pair<token_map_t::iterator, bool> res =
         token_map_.insert(std::make_pair(rid, tok));
       return res.second;
+    }
+
+    bool remove_token(const fpga_remote_id &rid)
+    {
+      token_map_t::iterator it = token_map_.find(rid);
+
+      if (it == token_map_.end())
+        return false;
+    
+      token_map_.erase(it);
+
+      return true;
     }
 
   private:

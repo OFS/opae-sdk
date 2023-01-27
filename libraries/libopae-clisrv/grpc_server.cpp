@@ -37,8 +37,7 @@
 
 Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context, const EnumerateRequest *request, EnumerateReply *reply)
 {
-std::cout << *request << std::endl;
-
+std::cout << "fpgaEnumerate request " << *request << std::endl;
 
   UNUSED_PARAM(context);
   std::vector<fpga_properties> req_filters;
@@ -99,5 +98,67 @@ std::cout << *request << std::endl;
   if (tokens)
     delete[] tokens;
 
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaDestroyToken(ServerContext *context, const DestroyTokenRequest *request, DestroyTokenReply *reply)
+{
+  UNUSED_PARAM(context);
+  fpga_remote_id req_token_id;
+  fpga_token token;
+  fpga_result res;
+
+std::cout << "fpgaDestroyToken request " << *request << std::endl;
+
+  req_token_id = to_opae_fpga_remote_id(request->token_id());
+  token = find_token(req_token_id);
+
+  if (!token) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  remove_token(req_token_id);
+
+  res = ::fpgaDestroyToken(&token);
+  reply->set_result(to_grpc_fpga_result[res]);
+
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context, const CloneTokenRequest *request, CloneTokenReply *reply)
+{
+  UNUSED_PARAM(context);
+  fpga_remote_id req_src_token_id;
+  fpga_token src_token;
+  fpga_token dest_token = NULL;
+  fpga_token_header resp_token_hdr;
+  fpga_result res;
+
+std::cout << "fpgaCloneToken request " << *request << std::endl;
+
+  req_src_token_id = to_opae_fpga_remote_id(request->src_token_id());
+  src_token = find_token(req_src_token_id);
+
+  if (!src_token) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaCloneToken(src_token, &dest_token);
+  if (res == FPGA_OK) {
+    opae_wrapped_token *wt = reinterpret_cast<opae_wrapped_token *>(dest_token);
+    fpga_token_header *hdr = reinterpret_cast<fpga_token_header *>(wt->opae_token);
+
+    resp_token_hdr = *hdr;
+    add_token(resp_token_hdr.token_id, dest_token);
+
+    opaegrpc::fpga_token_header *ghdr = new opaegrpc::fpga_token_header();
+    to_grpc_token_header(resp_token_hdr, ghdr);
+
+    reply->set_allocated_dest_token(ghdr);
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }

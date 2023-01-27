@@ -198,66 +198,38 @@ fpga_result __REMOTE_API__ remote_fpgaEnumerate(const fpga_properties *filters,
 
 fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
-#if 1
-(void) src;
-(void) dst;
-
-return FPGA_OK;
-#else
-	opae_fpgaCloneToken_request req;
-	opae_fpgaCloneToken_response resp;
-	struct _remote_token *tok;
-	char *req_json;
-	struct _remote_token *_dst;
-	char *resp_json = NULL;
-	fpga_result res;
+  _remote_token *tok;
+	OPAEClient *client;
+	_remote_token *_dst;
+	fpga_token_header dst_hdr;
+  fpga_result res;
 
 	if (!src || !dst) {
 		OPAE_ERR("src or dst token is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	tok = (struct _remote_token *)src;
+  tok = reinterpret_cast<_remote_token *>(src);
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-	req.src_token_id = tok->hdr.token_id;
+  res = client->fpgaCloneToken(tok->hdr.token_id, dst_hdr);
+  if (res == FPGA_OK) {
+		_dst = opae_create_remote_token(&dst_hdr, tok->comms);
 
-	req_json = opae_encode_fpgaCloneToken_request_2(
-		&req, tok->json_to_string_flags);
+    if (!_dst)
+      return FPGA_NO_MEMORY;
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
-
-	if (!opae_decode_fpgaCloneToken_response_2(resp_json, &resp))
-		return FPGA_EXCEPTION;
-
-	if (resp.result == FPGA_OK) {
-		_dst = opae_create_remote_token(&resp.dest_token,
-						tok->comms,
-						tok->json_to_string_flags);
-
-		if (!_dst)
-			return FPGA_NO_MEMORY;
-
-		*dst = _dst;
+    client->add_token(_dst->hdr.token_id, _dst);
+    *dst = _dst;
 	}
 
-	return resp.result;
-#endif
+  return res;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token)
 {
-#if 1
-(void) token;
-
-return FPGA_OK;
-#else
-	opae_fpgaDestroyToken_request req;
-	opae_fpgaDestroyToken_response resp;
-	struct _remote_token *tok;
-	char *req_json;
-	char *resp_json = NULL;
+	_remote_token *tok;
+  OPAEClient *client;
 	fpga_result res;
 
 	if (!token || !(*token)) {
@@ -265,25 +237,16 @@ return FPGA_OK;
 		return FPGA_INVALID_PARAM;
 	}
 
-	tok = (struct _remote_token *)*token;
+  tok = reinterpret_cast<_remote_token *>(*token);
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-	req.token_id = tok->hdr.token_id;
+  res = client->fpgaDestroyToken(tok->hdr.token_id);
 
-	req_json = opae_encode_fpgaDestroyToken_request_1(
-		&req, tok->json_to_string_flags);
-
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
-
-	if (!opae_decode_fpgaDestroyToken_response_1(resp_json, &resp))
-		return FPGA_EXCEPTION;
-
-	if (resp.result == FPGA_OK) {
+	if (res == FPGA_OK) {
+		client->remove_token(tok->hdr.token_id);
 		opae_destroy_remote_token(tok);
 		*token = NULL;
 	}
 
-	return resp.result;
-#endif
+  return res;
 }
