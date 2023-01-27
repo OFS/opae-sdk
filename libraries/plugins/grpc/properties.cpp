@@ -26,161 +26,152 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
-#include <opae/types.h>
 #include <opae/properties.h>
+#include <opae/types.h>
 
 #include "props.h"
 
 //#include "request.h"
 //#include "response.h"
+#include "mock/opae_std.h"
 #include "remote.h"
 
-#include "mock/opae_std.h"
-
 fpga_result __REMOTE_API__
-remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
-{
+remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop) {
 #if 1
-(void) handle;
-(void) prop;
+  (void)handle;
+  (void)prop;
 
-return FPGA_OK;
-#else	
-	opae_fpgaGetPropertiesFromHandle_request req;
-	opae_fpgaGetPropertiesFromHandle_response resp;
-	struct _remote_handle *h;
-	struct _remote_token *tok;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
+  return FPGA_OK;
+#else
+  opae_fpgaGetPropertiesFromHandle_request req;
+  opae_fpgaGetPropertiesFromHandle_response resp;
+  struct _remote_handle *h;
+  struct _remote_token *tok;
+  char *req_json;
+  char *resp_json = NULL;
+  fpga_result res;
 
-	if (!handle) {
-		OPAE_ERR("NULL handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!handle) {
+    OPAE_ERR("NULL handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (!prop) {
-		OPAE_ERR("NULL properties pointer");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!prop) {
+    OPAE_ERR("NULL properties pointer");
+    return FPGA_INVALID_PARAM;
+  }
 
-	h = (struct _remote_handle *)handle;
-	tok = h->token;
+  h = (struct _remote_handle *)handle;
+  tok = h->token;
 
-	req.handle_id = h->hdr.handle_id;
+  req.handle_id = h->hdr.handle_id;
 
-	req_json = opae_encode_fpgaGetPropertiesFromHandle_request_8(
-		&req, tok->json_to_string_flags);
+  req_json = opae_encode_fpgaGetPropertiesFromHandle_request_8(
+      &req, tok->json_to_string_flags);
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
+  res = opae_client_send_and_receive(tok, req_json, &resp_json);
+  if (res) return res;
 
-	if (!opae_decode_fpgaGetPropertiesFromHandle_response_8(
-		resp_json, &resp))
-		return FPGA_EXCEPTION;
+  if (!opae_decode_fpgaGetPropertiesFromHandle_response_8(resp_json, &resp))
+    return FPGA_EXCEPTION;
 
-	if (resp.result == FPGA_OK)
-		*prop = resp.properties;
+  if (resp.result == FPGA_OK) *prop = resp.properties;
 
-	return resp.result;
+  return resp.result;
 #endif
 }
 
-fpga_result __REMOTE_API__
-remote_fpgaGetProperties(fpga_token token, fpga_properties *prop)
-{
+fpga_result __REMOTE_API__ remote_fpgaGetProperties(fpga_token token,
+                                                    fpga_properties *prop) {
 #if 1
-(void) token;
-(void) prop;
+  (void)token;
+  (void)prop;
 
-return FPGA_OK;
+  return FPGA_OK;
 #else
-	fpga_result result = FPGA_OK;
-	struct _fpga_properties *_prop = NULL;
+  fpga_result result = FPGA_OK;
+  struct _fpga_properties *_prop = NULL;
 
-	ASSERT_NOT_NULL(prop);
+  ASSERT_NOT_NULL(prop);
 
-	result = fpgaGetProperties(NULL, (fpga_properties *)&_prop);
+  result = fpgaGetProperties(NULL, (fpga_properties *)&_prop);
 
-	ASSERT_RESULT(result);
+  ASSERT_RESULT(result);
 
-	if (token) {
-		result = remote_fpgaUpdateProperties(token, _prop);
-		if (result != FPGA_OK)
-			goto out_free;
-	}
+  if (token) {
+    result = remote_fpgaUpdateProperties(token, _prop);
+    if (result != FPGA_OK) goto out_free;
+  }
 
-	*prop = (fpga_properties)_prop;
-	return result;
+  *prop = (fpga_properties)_prop;
+  return result;
 
 out_free:
-	opae_free(_prop);
-	return result;
+  opae_free(_prop);
+  return result;
 #endif
 }
 
-fpga_result __REMOTE_API__
-remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
-{
+fpga_result __REMOTE_API__ remote_fpgaUpdateProperties(fpga_token token,
+                                                       fpga_properties prop) {
 #if 1
-(void) token;
-(void) prop;
-		
-return FPGA_OK;
+  (void)token;
+  (void)prop;
+
+  return FPGA_OK;
 #else
-	opae_fpgaUpdateProperties_request req;
-	opae_fpgaUpdateProperties_response resp;
-	struct _remote_token *tok;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result result;
-	struct _fpga_properties *p;
-	int res;
-	pthread_mutex_t save_lock;
+  opae_fpgaUpdateProperties_request req;
+  opae_fpgaUpdateProperties_response resp;
+  struct _remote_token *tok;
+  char *req_json;
+  char *resp_json = NULL;
+  fpga_result result;
+  struct _fpga_properties *p;
+  int res;
+  pthread_mutex_t save_lock;
 
-	if (!token) {
-		OPAE_MSG("Invalid token");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!token) {
+    OPAE_MSG("Invalid token");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (!prop) {
-		OPAE_MSG("Invalid properties object");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!prop) {
+    OPAE_MSG("Invalid properties object");
+    return FPGA_INVALID_PARAM;
+  }
 
-	tok = (struct _remote_token *)token;
+  tok = (struct _remote_token *)token;
 
-	req.token_id = tok->hdr.token_id;
+  req.token_id = tok->hdr.token_id;
 
-	req_json = opae_encode_fpgaUpdateProperties_request_4(
-		&req, tok->json_to_string_flags);
+  req_json = opae_encode_fpgaUpdateProperties_request_4(
+      &req, tok->json_to_string_flags);
 
-	result = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (result)
-		return result;
+  result = opae_client_send_and_receive(tok, req_json, &resp_json);
+  if (result) return result;
 
-	if (!opae_decode_fpgaUpdateProperties_response_4(resp_json, &resp))
-		return FPGA_EXCEPTION;
+  if (!opae_decode_fpgaUpdateProperties_response_4(resp_json, &resp))
+    return FPGA_EXCEPTION;
 
-	if (resp.result == FPGA_OK) {
-		p = opae_validate_and_lock_properties(prop);
-		if (!p) {
-			fpgaDestroyProperties(&resp.properties);
-			return FPGA_INVALID_PARAM;
-		}
+  if (resp.result == FPGA_OK) {
+    p = opae_validate_and_lock_properties(prop);
+    if (!p) {
+      fpgaDestroyProperties(&resp.properties);
+      return FPGA_INVALID_PARAM;
+    }
 
-		save_lock = p->lock;
+    save_lock = p->lock;
 
-		*p = *(struct _fpga_properties *)resp.properties;
+    *p = *(struct _fpga_properties *)resp.properties;
 
-		p->lock = save_lock;
+    p->lock = save_lock;
 
-		opae_mutex_unlock(res, &p->lock);
-	}
+    opae_mutex_unlock(res, &p->lock);
+  }
 
-	return resp.result;
+  return resp.result;
 #endif
 }

@@ -25,42 +25,34 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <grpcpp/grpcpp.h>
+#include <opae/fpga.h>
+
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
-
-#include <opae/fpga.h>
-
-#include "remote.h"
-
-#include <grpcpp/grpcpp.h>
 
 #include "convert.hpp"
 #include "opae.grpc.pb.h"
 #include "opae.pb.h"
+#include "remote.h"
 
-class pthread_lock_guard
-{
-  public:
-    pthread_lock_guard(pthread_mutex_t *lock)
-    : lock_(lock)
-    {
-      int res = pthread_mutex_lock(lock_);
-      if (res)
-        OPAE_ERR("pthread_mutex_lock() failed");
-    }
+class pthread_lock_guard {
+ public:
+  pthread_lock_guard(pthread_mutex_t *lock) : lock_(lock) {
+    int res = pthread_mutex_lock(lock_);
+    if (res) OPAE_ERR("pthread_mutex_lock() failed");
+  }
 
-    virtual ~pthread_lock_guard()
-    {
-      int res = pthread_mutex_unlock(lock_);
-      if (res)
-        OPAE_ERR("pthread_mutex_unlock() failed");
-    }
+  virtual ~pthread_lock_guard() {
+    int res = pthread_mutex_unlock(lock_);
+    if (res) OPAE_ERR("pthread_mutex_unlock() failed");
+  }
 
-  private:
-    pthread_mutex_t *lock_;
+ private:
+  pthread_mutex_t *lock_;
 };
 
 using grpc::Channel;
@@ -68,52 +60,46 @@ using grpc::ClientContext;
 using grpc::Status;
 using opaegrpc::OPAEService;
 
-class OPAEClient final
-{
-  public:
-    typedef std::map<fpga_remote_id, _remote_token *> token_map_t;
+class OPAEClient final {
+ public:
+  typedef std::map<fpga_remote_id, _remote_token *> token_map_t;
 
-    OPAEClient(std::shared_ptr<Channel> channel)
+  OPAEClient(std::shared_ptr<Channel> channel)
       : stub_(OPAEService::NewStub(channel)) {}
 
-    fpga_result fpgaEnumerate(const std::vector<fpga_properties> &filters, uint32_t num_filters,
-                              uint32_t max_tokens, uint32_t &num_matches,
-                              std::vector<fpga_token_header> &tokens);
+  fpga_result fpgaEnumerate(const std::vector<fpga_properties> &filters,
+                            uint32_t num_filters, uint32_t max_tokens,
+                            uint32_t &num_matches,
+                            std::vector<fpga_token_header> &tokens);
 
-    fpga_result fpgaDestroyToken(const fpga_remote_id &token_id);
+  fpga_result fpgaDestroyToken(const fpga_remote_id &token_id);
 
-    fpga_result fpgaCloneToken(const fpga_remote_id &src_token_id,
-                               fpga_token_header &dest_token_hdr);
+  fpga_result fpgaCloneToken(const fpga_remote_id &src_token_id,
+                             fpga_token_header &dest_token_hdr);
 
-  
+  _remote_token *find_token(const fpga_remote_id &rid) const {
+    token_map_t::const_iterator it = token_map_.find(rid);
+    return (it == token_map_.end()) ? nullptr : it->second;
+  }
 
-    _remote_token *find_token(const fpga_remote_id &rid) const
-    {
-      token_map_t::const_iterator it = token_map_.find(rid);
-      return (it == token_map_.end()) ? nullptr : it->second;
-    }
-
-    bool add_token(const fpga_remote_id &rid, _remote_token *tok)
-    {
-      std::pair<token_map_t::iterator, bool> res =
+  bool add_token(const fpga_remote_id &rid, _remote_token *tok) {
+    std::pair<token_map_t::iterator, bool> res =
         token_map_.insert(std::make_pair(rid, tok));
-      return res.second;
-    }
+    return res.second;
+  }
 
-    bool remove_token(const fpga_remote_id &rid)
-    {
-      token_map_t::iterator it = token_map_.find(rid);
+  bool remove_token(const fpga_remote_id &rid) {
+    token_map_t::iterator it = token_map_.find(rid);
 
-      if (it == token_map_.end())
-        return false;
-    
-      token_map_.erase(it);
+    if (it == token_map_.end()) return false;
 
-      return true;
-    }
+    token_map_.erase(it);
 
-  private:
-    std::unique_ptr<OPAEService::Stub> stub_;
+    return true;
+  }
 
-    token_map_t token_map_;
+ private:
+  std::unique_ptr<OPAEService::Stub> stub_;
+
+  token_map_t token_map_;
 };

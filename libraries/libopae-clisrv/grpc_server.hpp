@@ -25,68 +25,65 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <cstring>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <map>
-
-#include <opae/fpga.h>
-
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
+#include <opae/fpga.h>
+
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
 
 #include "convert.hpp"
-
 #include "opae.grpc.pb.h"
 #include "opae.pb.h"
 
 using grpc::ServerContext;
 using grpc::Status;
-using opaegrpc::OPAEService;
-using opaegrpc::EnumerateRequest;
-using opaegrpc::EnumerateReply;
-using opaegrpc::DestroyTokenRequest;
-using opaegrpc::DestroyTokenReply;
-using opaegrpc::CloneTokenRequest;
 using opaegrpc::CloneTokenReply;
+using opaegrpc::CloneTokenRequest;
+using opaegrpc::DestroyTokenReply;
+using opaegrpc::DestroyTokenRequest;
+using opaegrpc::EnumerateReply;
+using opaegrpc::EnumerateRequest;
+using opaegrpc::OPAEService;
 
-class OPAEServiceImpl final : public OPAEService::Service
-{
-  public:
-    typedef std::map<fpga_remote_id, fpga_token> token_map_t;
+class OPAEServiceImpl final : public OPAEService::Service {
+ public:
+  typedef std::map<fpga_remote_id, fpga_token> token_map_t;
 
-    Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request, EnumerateReply *reply) override;
-    Status fpgaDestroyToken(ServerContext *context, const DestroyTokenRequest *request, DestroyTokenReply *reply) override;
-    Status fpgaCloneToken(ServerContext *context, const CloneTokenRequest *request, CloneTokenReply *reply) override;
+  Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
+                       EnumerateReply *reply) override;
+  Status fpgaDestroyToken(ServerContext *context,
+                          const DestroyTokenRequest *request,
+                          DestroyTokenReply *reply) override;
+  Status fpgaCloneToken(ServerContext *context,
+                        const CloneTokenRequest *request,
+                        CloneTokenReply *reply) override;
 
+  fpga_token find_token(const fpga_remote_id &rid) const {
+    token_map_t::const_iterator it = token_map_.find(rid);
+    return (it == token_map_.end()) ? nullptr : it->second;
+  }
 
-    fpga_token find_token(const fpga_remote_id &rid) const
-    {
-      token_map_t::const_iterator it = token_map_.find(rid);
-      return (it == token_map_.end()) ? nullptr : it->second;
-    }
-
-    bool add_token(const fpga_remote_id &rid, fpga_token token)
-    {
-      std::pair<token_map_t::iterator, bool> res =
+  bool add_token(const fpga_remote_id &rid, fpga_token token) {
+    std::pair<token_map_t::iterator, bool> res =
         token_map_.insert(std::make_pair(rid, token));
-      return res.second;
-    }
+    return res.second;
+  }
 
-    bool remove_token(const fpga_remote_id &rid)
-    {
-      token_map_t::iterator it = token_map_.find(rid);
+  bool remove_token(const fpga_remote_id &rid) {
+    token_map_t::iterator it = token_map_.find(rid);
 
-      if (it == token_map_.end())
-        return false;
+    if (it == token_map_.end()) return false;
 
-      token_map_.erase(it);
+    token_map_.erase(it);
 
-      return true;
-    }
+    return true;
+  }
 
-  private:
-    token_map_t token_map_;
+ private:
+  token_map_t token_map_;
 };

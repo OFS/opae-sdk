@@ -26,60 +26,46 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
-#include <opae/types.h>
 #include <opae/log.h>
-
+#include <opae/types.h>
 
 //#include "common_int.h"
 //#include "types_int.h"
 
-fpga_result __REMOTE_API__ remote_fpgaGetOPAECVersion(fpga_version *version)
-{
-(void) version;
+fpga_result __REMOTE_API__ remote_fpgaGetOPAECVersion(fpga_version *version) {
+  (void)version;
 
-
-
-	return FPGA_OK;
+  return FPGA_OK;
 }
 
-fpga_result __REMOTE_API__
-remote_fpgaGetOPAECVersionString(char *version_str, size_t len)
-{
-	if (!version_str) {
-		OPAE_ERR("version_str is NULL");
-		return FPGA_INVALID_PARAM;
-	}
+fpga_result __REMOTE_API__ remote_fpgaGetOPAECVersionString(char *version_str,
+                                                            size_t len) {
+  if (!version_str) {
+    OPAE_ERR("version_str is NULL");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (len < sizeof(OPAE_VERSION)) {
-		OPAE_ERR("insufficient buffer size");
-		return FPGA_INVALID_PARAM;
-	}
+  if (len < sizeof(OPAE_VERSION)) {
+    OPAE_ERR("insufficient buffer size");
+    return FPGA_INVALID_PARAM;
+  }
 
-
-
-
-
-	return FPGA_OK;
+  return FPGA_OK;
 }
 
-fpga_result __REMOTE_API__
-remote_fpgaGetOPAECBuildString(char *build_str, size_t len)
-{
-	if (!build_str) {
-		OPAE_ERR("build_str is NULL");
-		return FPGA_INVALID_PARAM;
-	}
+fpga_result __REMOTE_API__ remote_fpgaGetOPAECBuildString(char *build_str,
+                                                          size_t len) {
+  if (!build_str) {
+    OPAE_ERR("build_str is NULL");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (len < sizeof(OPAE_GIT_COMMIT_HASH)) {
-		OPAE_ERR("insufficient buffer size");
-		return FPGA_INVALID_PARAM;
-	}
+  if (len < sizeof(OPAE_GIT_COMMIT_HASH)) {
+    OPAE_ERR("insufficient buffer size");
+    return FPGA_INVALID_PARAM;
+  }
 
-
-
-
-
-	return FPGA_OK;
+  return FPGA_OK;
 }

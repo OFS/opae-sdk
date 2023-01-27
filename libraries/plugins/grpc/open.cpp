@@ -26,7 +26,7 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
 #include <opae/types.h>
 
@@ -56,58 +56,54 @@ void opae_destroy_remote_handle(struct _remote_handle *h)
 }
 #endif
 
-fpga_result __REMOTE_API__
-remote_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
-{
+fpga_result __REMOTE_API__ remote_fpgaOpen(fpga_token token,
+                                           fpga_handle *handle, int flags) {
 #if 1
-(void) token;
-(void) handle;
-(void) flags;
+  (void)token;
+  (void)handle;
+  (void)flags;
 
-return FPGA_OK;
+  return FPGA_OK;
 #else
-	opae_fpgaOpen_request req;
-	opae_fpgaOpen_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
+  opae_fpgaOpen_request req;
+  opae_fpgaOpen_response resp;
+  struct _remote_token *tok;
+  struct _remote_handle *h;
+  char *req_json;
+  char *resp_json = NULL;
+  fpga_result res;
 
-	if (!token) {
-		OPAE_ERR("NULL token");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!token) {
+    OPAE_ERR("NULL token");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (!handle) {
-		OPAE_ERR("NULL handle pointer");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!handle) {
+    OPAE_ERR("NULL handle pointer");
+    return FPGA_INVALID_PARAM;
+  }
 
-	tok = (struct _remote_token *)token;
-	req.token_id = tok->hdr.token_id;
-	req.flags = flags;
+  tok = (struct _remote_token *)token;
+  req.token_id = tok->hdr.token_id;
+  req.flags = flags;
 
-	req_json = opae_encode_fpgaOpen_request_5(
-		&req, tok->json_to_string_flags);
+  req_json = opae_encode_fpgaOpen_request_5(&req, tok->json_to_string_flags);
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
+  res = opae_client_send_and_receive(tok, req_json, &resp_json);
+  if (res) return res;
 
-	if (!opae_decode_fpgaOpen_response_5(resp_json, &resp))
-		return FPGA_EXCEPTION;
+  if (!opae_decode_fpgaOpen_response_5(resp_json, &resp)) return FPGA_EXCEPTION;
 
-	if (resp.result == FPGA_OK) {
-		h = opae_create_remote_handle(tok, &resp.handle);
-		if (!h) {
-			OPAE_ERR("calloc failed");
-			return FPGA_NO_MEMORY;
-		}
+  if (resp.result == FPGA_OK) {
+    h = opae_create_remote_handle(tok, &resp.handle);
+    if (!h) {
+      OPAE_ERR("calloc failed");
+      return FPGA_NO_MEMORY;
+    }
 
-		*handle = h;
-	}
+    *handle = h;
+  }
 
-	return resp.result;
+  return resp.result;
 #endif
 }

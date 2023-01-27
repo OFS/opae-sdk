@@ -26,36 +26,35 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
-#include <opae/types.h>
 #include <opae/log.h>
+#include <opae/types.h>
 
 #include "remote.h"
 
-fpga_result __REMOTE_API__
-remote_fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-			     uint32_t host_interface, int flags)
-{
-	OPAE_MSG("remote_fpgaAssignToInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
+fpga_result __REMOTE_API__ remote_fpgaAssignToInterface(fpga_handle fpga,
+                                                        fpga_token accelerator,
+                                                        uint32_t host_interface,
+                                                        int flags) {
+  OPAE_MSG("remote_fpgaAssignToInterface not supported");
+  fpga_result result = FPGA_NOT_SUPPORTED;
 
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(accelerator);
-	UNUSED_PARAM(host_interface);
-	UNUSED_PARAM(flags);
+  UNUSED_PARAM(fpga);
+  UNUSED_PARAM(accelerator);
+  UNUSED_PARAM(host_interface);
+  UNUSED_PARAM(flags);
 
-	return result;
+  return result;
 }
 
 fpga_result __REMOTE_API__
-remote_fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
-{
-	OPAE_MSG("remote_fpgaReleaseFromInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
+remote_fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator) {
+  OPAE_MSG("remote_fpgaReleaseFromInterface not supported");
+  fpga_result result = FPGA_NOT_SUPPORTED;
 
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(accelerator);
+  UNUSED_PARAM(fpga);
+  UNUSED_PARAM(accelerator);
 
-	return result;
+  return result;
 }

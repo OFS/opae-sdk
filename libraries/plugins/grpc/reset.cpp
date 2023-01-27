@@ -26,10 +26,10 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
-#include <opae/types.h>
 #include <opae/log.h>
+#include <opae/types.h>
 
 #include "mock/opae_std.h"
 #include "remote.h"
@@ -37,41 +37,38 @@
 //#include "request.h"
 //#include "response.h"
 
-fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle)
-{
+fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle) {
 #if 1
-(void) handle;
+  (void)handle;
 
-return FPGA_OK;
+  return FPGA_OK;
 #else
-	opae_fpgaReset_request req;
-	opae_fpgaReset_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
+  opae_fpgaReset_request req;
+  opae_fpgaReset_response resp;
+  struct _remote_token *tok;
+  struct _remote_handle *h;
+  char *req_json;
+  char *resp_json = NULL;
+  fpga_result res;
 
-	if (!handle) {
-		OPAE_ERR("NULL handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!handle) {
+    OPAE_ERR("NULL handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	h = (struct _remote_handle *)handle;
-	tok = h->token;
+  h = (struct _remote_handle *)handle;
+  tok = h->token;
 
-	req.handle_id = h->hdr.handle_id;
+  req.handle_id = h->hdr.handle_id;
 
-	req_json = opae_encode_fpgaReset_request_7(
-		&req, tok->json_to_string_flags);
+  req_json = opae_encode_fpgaReset_request_7(&req, tok->json_to_string_flags);
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
+  res = opae_client_send_and_receive(tok, req_json, &resp_json);
+  if (res) return res;
 
-	if (!opae_decode_fpgaReset_response_7(resp_json, &resp))
-		return FPGA_EXCEPTION;
+  if (!opae_decode_fpgaReset_response_7(resp_json, &resp))
+    return FPGA_EXCEPTION;
 
-	return resp.result;
+  return resp.result;
 #endif
 }

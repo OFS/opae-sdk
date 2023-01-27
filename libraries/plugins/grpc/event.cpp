@@ -26,14 +26,14 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
 #include <json-c/json.h>
-#include <opae/types.h>
 #include <opae/log.h>
+#include <opae/types.h>
 
-#include "opae_int.h"
 #include "mock/opae_std.h"
+#include "opae_int.h"
 #include "remote.h"
 //#include "request.h"
 //#include "response.h"
@@ -45,9 +45,9 @@
 enum request_type { REGISTER_EVENT = 0, UNREGISTER_EVENT = 1 };
 
 struct event_request {
-	enum request_type type;
-	fpga_event_type event;
-	uint64_t object_id;
+  enum request_type type;
+  fpga_event_type event;
+  uint64_t object_id;
 };
 
 #if 0
@@ -73,131 +73,125 @@ void opae_destroy_remote_event_handle(struct _remote_event_handle *eh)
 #endif
 
 fpga_result __REMOTE_API__
-remote_fpgaCreateEventHandle(fpga_event_handle *event_handle)
-{
+remote_fpgaCreateEventHandle(fpga_event_handle *event_handle) {
 #if 1
-(void) event_handle;
+  (void)event_handle;
 
-return FPGA_OK;
+  return FPGA_OK;
 
 #else
 
-	if (!event_handle) {
-		OPAE_ERR("NULL event_handle pointer");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!event_handle) {
+    OPAE_ERR("NULL event_handle pointer");
+    return FPGA_INVALID_PARAM;
+  }
 
-	// We don't have a token, nor a remoting interface
-	// at this point. Just create and return an empty
-	// _remote_event_handle struct.
+  // We don't have a token, nor a remoting interface
+  // at this point. Just create and return an empty
+  // _remote_event_handle struct.
 
-	*event_handle = opae_create_remote_event_handle();
-	if (!*event_handle) {
-		OPAE_ERR("calloc() failed");
-		return FPGA_NO_MEMORY;
-	}
+  *event_handle = opae_create_remote_event_handle();
+  if (!*event_handle) {
+    OPAE_ERR("calloc() failed");
+    return FPGA_NO_MEMORY;
+  }
 
-	return FPGA_OK;
+  return FPGA_OK;
 #endif
 }
 
 fpga_result __REMOTE_API__
-remote_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
-{
+remote_fpgaDestroyEventHandle(fpga_event_handle *event_handle) {
 #if 1
-(void) event_handle;
+  (void)event_handle;
 
-return FPGA_OK;
+  return FPGA_OK;
 
 #else
-	struct _remote_event_handle *eh;
-	fpga_result res = FPGA_OK;
+  struct _remote_event_handle *eh;
+  fpga_result res = FPGA_OK;
 
-	if (!event_handle || !*event_handle) {
-		OPAE_ERR("NULL event_handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!event_handle || !*event_handle) {
+    OPAE_ERR("NULL event_handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	eh = *event_handle;
+  eh = *event_handle;
 
-	if (eh->handle) {
-		opae_fpgaDestroyEventHandle_request req;
-		opae_fpgaDestroyEventHandle_response resp;
-		struct _remote_token *tok;
-		struct _remote_handle *h;
-		char *req_json;
-		char *resp_json = NULL;
+  if (eh->handle) {
+    opae_fpgaDestroyEventHandle_request req;
+    opae_fpgaDestroyEventHandle_response resp;
+    struct _remote_token *tok;
+    struct _remote_handle *h;
+    char *req_json;
+    char *resp_json = NULL;
 
-		h = eh->handle;
-		tok = h->token;
+    h = eh->handle;
+    tok = h->token;
 
-		req.eh_id = eh->eh_id;
+    req.eh_id = eh->eh_id;
 
-		req_json = opae_encode_fpgaDestroyEventHandle_request_51(
-			&req, tok->json_to_string_flags);
+    req_json = opae_encode_fpgaDestroyEventHandle_request_51(
+        &req, tok->json_to_string_flags);
 
-		res = opae_client_send_and_receive(tok, req_json, &resp_json);
-		if (res)
-			goto out_destroy;
+    res = opae_client_send_and_receive(tok, req_json, &resp_json);
+    if (res) goto out_destroy;
 
-		if (!opae_decode_fpgaDestroyEventHandle_response_51(
-			resp_json, &resp)) {
-			res = FPGA_EXCEPTION;
-			goto out_destroy;
-		}
+    if (!opae_decode_fpgaDestroyEventHandle_response_51(resp_json, &resp)) {
+      res = FPGA_EXCEPTION;
+      goto out_destroy;
+    }
 
-		res = resp.result;
-	}
+    res = resp.result;
+  }
 
 out_destroy:
-	opae_destroy_remote_event_handle(eh);
-	*event_handle = NULL;
+  opae_destroy_remote_event_handle(eh);
+  *event_handle = NULL;
 
-	return res;
+  return res;
 #endif
 }
 
-fpga_result __REMOTE_API__
-remote_fpgaGetOSObjectFromEventHandle(
-	const fpga_event_handle event_handle,
-	int *fd)
-{
+fpga_result __REMOTE_API__ remote_fpgaGetOSObjectFromEventHandle(
+    const fpga_event_handle event_handle, int *fd) {
 #if 1
-(void) event_handle;
-(void) fd;
-return FPGA_OK;
+  (void)event_handle;
+  (void)fd;
+  return FPGA_OK;
 #else
-	
-//	opae_fpgaGetOSObjectFromEventHandle_request req;
-//	opae_fpgaGetOSObjectFromEventHandle_response resp;
-//	struct _remote_token *tok;
-//	struct _remote_handle *h;
-	struct _remote_event_handle *eh;
-//	char *req_json;
-//	char *resp_json = NULL;
-//	fpga_result res;
 
-	if (!event_handle) {
-		OPAE_ERR("NULL event_handle");
-		return FPGA_INVALID_PARAM;
-	}
+  //	opae_fpgaGetOSObjectFromEventHandle_request req;
+  //	opae_fpgaGetOSObjectFromEventHandle_response resp;
+  //	struct _remote_token *tok;
+  //	struct _remote_handle *h;
+  struct _remote_event_handle *eh;
+  //	char *req_json;
+  //	char *resp_json = NULL;
+  //	fpga_result res;
 
-	if (!fd) {
-		OPAE_ERR("NULL fd pointer");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!event_handle) {
+    OPAE_ERR("NULL event_handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	eh = (struct _remote_event_handle *)event_handle;
+  if (!fd) {
+    OPAE_ERR("NULL fd pointer");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (!eh->handle || (eh->client_event_fd < 0)) {
-		OPAE_ERR("You must call fpgaRegisterEvent() prior "
-			 "to requesting the OS Object.");
-		return FPGA_INVALID_PARAM;
-	}
+  eh = (struct _remote_event_handle *)event_handle;
 
-	*fd = eh->client_event_fd;
+  if (!eh->handle || (eh->client_event_fd < 0)) {
+    OPAE_ERR(
+        "You must call fpgaRegisterEvent() prior "
+        "to requesting the OS Object.");
+    return FPGA_INVALID_PARAM;
+  }
 
-	return FPGA_OK;
+  *fd = eh->client_event_fd;
+
+  return FPGA_OK;
 #endif
 
 #if 0
@@ -385,164 +379,155 @@ opae_remove_client_event_registration(opae_comms_channel *comms)
 
 /******************************************************************************/
 
-fpga_result __REMOTE_API__ remote_fpgaRegisterEvent(fpga_handle handle,
-						 fpga_event_type event_type,
-						 fpga_event_handle event_handle,
-						 uint32_t flags)
-{
+fpga_result __REMOTE_API__
+remote_fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
+                         fpga_event_handle event_handle, uint32_t flags) {
 #if 1
-(void) handle;
-(void) event_type;
-(void) event_handle;
-(void) flags;
+  (void)handle;
+  (void)event_type;
+  (void)event_handle;
+  (void)flags;
 
-return FPGA_OK;
+  return FPGA_OK;
 #else
-	opae_fpgaRegisterEvent_request req;
-	opae_fpgaRegisterEvent_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
-	struct _remote_event_handle *eh;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
+  opae_fpgaRegisterEvent_request req;
+  opae_fpgaRegisterEvent_response resp;
+  struct _remote_token *tok;
+  struct _remote_handle *h;
+  struct _remote_event_handle *eh;
+  char *req_json;
+  char *resp_json = NULL;
+  fpga_result res;
 
-	if (!handle) {
-		OPAE_ERR("NULL handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!handle) {
+    OPAE_ERR("NULL handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (!event_handle) {
-		OPAE_ERR("NULL event_handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!event_handle) {
+    OPAE_ERR("NULL event_handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	h = (struct _remote_handle *)handle;
-	tok = h->token;
+  h = (struct _remote_handle *)handle;
+  tok = h->token;
 
-	eh = (struct _remote_event_handle *)event_handle;
+  eh = (struct _remote_event_handle *)event_handle;
 
-	if (!eh->handle) {
-		// We were created by fpgaCreateEventHandle(), but
-		// that function has no handle/token nor a remoting
-		// interface. Do what fpgaCreateEventHandle() would
-		// have done, if it had a remoting interface.
-		opae_fpgaCreateEventHandle_request create_req;
-		opae_fpgaCreateEventHandle_response create_resp;
+  if (!eh->handle) {
+    // We were created by fpgaCreateEventHandle(), but
+    // that function has no handle/token nor a remoting
+    // interface. Do what fpgaCreateEventHandle() would
+    // have done, if it had a remoting interface.
+    opae_fpgaCreateEventHandle_request create_req;
+    opae_fpgaCreateEventHandle_response create_resp;
 
-		eh->handle = h;
+    eh->handle = h;
 
-		req_json = opae_encode_fpgaCreateEventHandle_request_47(
-				&create_req, tok->json_to_string_flags);
+    req_json = opae_encode_fpgaCreateEventHandle_request_47(
+        &create_req, tok->json_to_string_flags);
 
-		res = opae_client_send_and_receive(tok, req_json, &resp_json);
-		if (res)
-			return res;
+    res = opae_client_send_and_receive(tok, req_json, &resp_json);
+    if (res) return res;
 
-		if (!opae_decode_fpgaCreateEventHandle_response_47(
-			resp_json, &create_resp))
-			return FPGA_EXCEPTION;
+    if (!opae_decode_fpgaCreateEventHandle_response_47(resp_json, &create_resp))
+      return FPGA_EXCEPTION;
 
-		if (create_resp.result != FPGA_OK)
-			return create_resp.result;
+    if (create_resp.result != FPGA_OK) return create_resp.result;
 
-		eh->eh_id = create_resp.eh_id;
-	}
+    eh->eh_id = create_resp.eh_id;
+  }
 
-	// Check to see whether our server thread is running,
-	// and start it if it isn't.
-	res = opae_add_client_event_registration(tok->comms);
-	if (res)
-		return res;
+  // Check to see whether our server thread is running,
+  // and start it if it isn't.
+  res = opae_add_client_event_registration(tok->comms);
+  if (res) return res;
 
-	req.handle_id = h->hdr.handle_id;
-	req.event_type = event_type;
-	req.eh_id = eh->eh_id;
-	req.flags = flags;
-	req.client_type = tok->comms->client.type;
-	req.events_data = tok->comms->events_data;
+  req.handle_id = h->hdr.handle_id;
+  req.event_type = event_type;
+  req.eh_id = eh->eh_id;
+  req.flags = flags;
+  req.client_type = tok->comms->client.type;
+  req.events_data = tok->comms->events_data;
 
-	req_json = opae_encode_fpgaRegisterEvent_request_48(
-		&req, tok->json_to_string_flags);
+  req_json =
+      opae_encode_fpgaRegisterEvent_request_48(&req, tok->json_to_string_flags);
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
+  res = opae_client_send_and_receive(tok, req_json, &resp_json);
+  if (res) return res;
 
-	if (!opae_decode_fpgaRegisterEvent_response_48(resp_json, &resp))
-		return FPGA_EXCEPTION;
+  if (!opae_decode_fpgaRegisterEvent_response_48(resp_json, &resp))
+    return FPGA_EXCEPTION;
 
-	eh->client_event_fd = resp.client_event_fd;
+  eh->client_event_fd = resp.client_event_fd;
 
-	return resp.result;
+  return resp.result;
 #endif
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
-			   fpga_event_handle event_handle)
-{
+                           fpga_event_handle event_handle) {
 #if 1
-(void) handle;
-(void) event_type;	
-(void) event_handle;
+  (void)handle;
+  (void)event_type;
+  (void)event_handle;
 
-return FPGA_OK;
+  return FPGA_OK;
 #else
-	opae_fpgaUnregisterEvent_request req;
-	opae_fpgaUnregisterEvent_response resp;
-	struct _remote_token *tok;
-	struct _remote_handle *h;
-	struct _remote_event_handle *eh;
-	char *req_json;
-	char *resp_json = NULL;
-	fpga_result res;
+  opae_fpgaUnregisterEvent_request req;
+  opae_fpgaUnregisterEvent_response resp;
+  struct _remote_token *tok;
+  struct _remote_handle *h;
+  struct _remote_event_handle *eh;
+  char *req_json;
+  char *resp_json = NULL;
+  fpga_result res;
 
-	if (!handle) {
-		OPAE_ERR("NULL handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!handle) {
+    OPAE_ERR("NULL handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (!event_handle) {
-		OPAE_ERR("NULL event_handle");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!event_handle) {
+    OPAE_ERR("NULL event_handle");
+    return FPGA_INVALID_PARAM;
+  }
 
-	h = (struct _remote_handle *)handle;
-	tok = h->token;
+  h = (struct _remote_handle *)handle;
+  tok = h->token;
 
-	eh = (struct _remote_event_handle *)event_handle;
+  eh = (struct _remote_event_handle *)event_handle;
 
-	if (!eh->handle) {
-		OPAE_ERR("no event registered");
-		return FPGA_INVALID_PARAM;
-	}
+  if (!eh->handle) {
+    OPAE_ERR("no event registered");
+    return FPGA_INVALID_PARAM;
+  }
 
-	if (eh->handle != h) {
-		OPAE_ERR("handle / event_handle mismatch");
-		return FPGA_INVALID_PARAM;
-	}
+  if (eh->handle != h) {
+    OPAE_ERR("handle / event_handle mismatch");
+    return FPGA_INVALID_PARAM;
+  }
 
-	req.handle_id = h->hdr.handle_id;
-	req.event_type = event_type;
-	req.eh_id = eh->eh_id;
+  req.handle_id = h->hdr.handle_id;
+  req.event_type = event_type;
+  req.eh_id = eh->eh_id;
 
-	req_json = opae_encode_fpgaUnregisterEvent_request_49(
-		&req, tok->json_to_string_flags);
+  req_json = opae_encode_fpgaUnregisterEvent_request_49(
+      &req, tok->json_to_string_flags);
 
-	res = opae_client_send_and_receive(tok, req_json, &resp_json);
-	if (res)
-		return res;
+  res = opae_client_send_and_receive(tok, req_json, &resp_json);
+  if (res) return res;
 
-	if (!opae_decode_fpgaUnregisterEvent_response_49(resp_json, &resp))
-		return FPGA_EXCEPTION;
+  if (!opae_decode_fpgaUnregisterEvent_response_49(resp_json, &resp))
+    return FPGA_EXCEPTION;
 
-	if (resp.result == FPGA_OK) {
-		// Decrement our event registration count, and see if we need
-		// to stop the server thread, releasing the server.
-		opae_remove_client_event_registration(tok->comms);
-	}
+  if (resp.result == FPGA_OK) {
+    // Decrement our event registration count, and see if we need
+    // to stop the server thread, releasing the server.
+    opae_remove_client_event_registration(tok->comms);
+  }
 
-	return resp.result;
+  return resp.result;
 #endif
 }

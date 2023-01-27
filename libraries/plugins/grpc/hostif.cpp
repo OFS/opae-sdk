@@ -26,28 +26,25 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
-#include <opae/types.h>
 #include <opae/log.h>
+#include <opae/types.h>
 
 #include "remote.h"
 
-//Assign Port to PF from Interface
-#define ASSIGN_PORT_TO_PF           0
+// Assign Port to PF from Interface
+#define ASSIGN_PORT_TO_PF 0
 
-//Release Port from PF and Assign to Interface
-#define ASSIGN_PORT_TO_HOST         1
+// Release Port from PF and Assign to Interface
+#define ASSIGN_PORT_TO_HOST 1
 
-fpga_result __REMOTE_API__ remote_fpgaAssignPortToInterface(fpga_handle fpga,
-						uint32_t interface_num,
-						uint32_t slot_num,
-						int flags)
-{
-	OPAE_MSG("remote_fpgaAssignPortToInterface not supported");
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(interface_num);
-	UNUSED_PARAM(slot_num);
-	UNUSED_PARAM(flags);
-	return FPGA_NOT_SUPPORTED;
+fpga_result __REMOTE_API__ remote_fpgaAssignPortToInterface(
+    fpga_handle fpga, uint32_t interface_num, uint32_t slot_num, int flags) {
+  OPAE_MSG("remote_fpgaAssignPortToInterface not supported");
+  UNUSED_PARAM(fpga);
+  UNUSED_PARAM(interface_num);
+  UNUSED_PARAM(slot_num);
+  UNUSED_PARAM(flags);
+  return FPGA_NOT_SUPPORTED;
 }

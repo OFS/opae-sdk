@@ -26,18 +26,19 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif  // HAVE_CONFIG_H
 
-#include <iostream>
-#include <cstring>
 #include <algorithm>
+#include <cstring>
+#include <iostream>
 
 #include "convert.hpp"
 #include "grpc_server.hpp"
 
-Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context, const EnumerateRequest *request, EnumerateReply *reply)
-{
-std::cout << "fpgaEnumerate request " << *request << std::endl;
+Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context,
+                                      const EnumerateRequest *request,
+                                      EnumerateReply *reply) {
+  std::cout << "fpgaEnumerate request " << *request << std::endl;
 
   UNUSED_PARAM(context);
   std::vector<fpga_properties> req_filters;
@@ -49,8 +50,7 @@ std::cout << "fpgaEnumerate request " << *request << std::endl;
   for (const auto &f : request->filters()) {
     req_filters.push_back(to_opae_fpga_properties(this, f));
   }
-  if (req_filters.size() > 0)
-    pfilters = req_filters.data();
+  if (req_filters.size() > 0) pfilters = req_filters.data();
 
   req_num_filters = request->num_filters();
   req_max_tokens = request->max_tokens();
@@ -66,10 +66,7 @@ std::cout << "fpgaEnumerate request " << *request << std::endl;
   uint32_t resp_num_matches = 0;
   fpga_result result;
 
-  result = ::fpgaEnumerate(pfilters,
-                           req_num_filters,
-                           tokens,
-                           req_max_tokens,
+  result = ::fpgaEnumerate(pfilters, req_num_filters, tokens, req_max_tokens,
                            &resp_num_matches);
   resp_max_tokens = req_max_tokens;
 
@@ -78,13 +75,14 @@ std::cout << "fpgaEnumerate request " << *request << std::endl;
     const uint32_t num_tokens = std::min(resp_num_matches, req_max_tokens);
 
     // Walk through the tokens, opening each and grabbing its header.
-    for (i = 0 ; i < num_tokens ; ++i) {
-      opae_wrapped_token *wt = reinterpret_cast<opae_wrapped_token *>(tokens[i]);
-      fpga_token_header *hdr = reinterpret_cast<fpga_token_header *>(wt->opae_token);
+    for (i = 0; i < num_tokens; ++i) {
+      opae_wrapped_token *wt =
+          reinterpret_cast<opae_wrapped_token *>(tokens[i]);
+      fpga_token_header *hdr =
+          reinterpret_cast<fpga_token_header *>(wt->opae_token);
 
       // If we're not already tracking this token_id, then add it.
-      if (!find_token(hdr->token_id))
-        add_token(hdr->token_id, tokens[i]);
+      if (!find_token(hdr->token_id)) add_token(hdr->token_id, tokens[i]);
 
       // Add the token header to our outbound reply.
       to_grpc_token_header(*hdr, reply->add_tokens());
@@ -95,20 +93,20 @@ std::cout << "fpgaEnumerate request " << *request << std::endl;
   reply->set_num_matches(resp_num_matches);
   reply->set_result(to_grpc_fpga_result[result]);
 
-  if (tokens)
-    delete[] tokens;
+  if (tokens) delete[] tokens;
 
   return Status::OK;
 }
 
-Status OPAEServiceImpl::fpgaDestroyToken(ServerContext *context, const DestroyTokenRequest *request, DestroyTokenReply *reply)
-{
+Status OPAEServiceImpl::fpgaDestroyToken(ServerContext *context,
+                                         const DestroyTokenRequest *request,
+                                         DestroyTokenReply *reply) {
   UNUSED_PARAM(context);
   fpga_remote_id req_token_id;
   fpga_token token;
   fpga_result res;
 
-std::cout << "fpgaDestroyToken request " << *request << std::endl;
+  std::cout << "fpgaDestroyToken request " << *request << std::endl;
 
   req_token_id = to_opae_fpga_remote_id(request->token_id());
   token = find_token(req_token_id);
@@ -126,8 +124,9 @@ std::cout << "fpgaDestroyToken request " << *request << std::endl;
   return Status::OK;
 }
 
-Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context, const CloneTokenRequest *request, CloneTokenReply *reply)
-{
+Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context,
+                                       const CloneTokenRequest *request,
+                                       CloneTokenReply *reply) {
   UNUSED_PARAM(context);
   fpga_remote_id req_src_token_id;
   fpga_token src_token;
@@ -135,7 +134,7 @@ Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context, const CloneTokenR
   fpga_token_header resp_token_hdr;
   fpga_result res;
 
-std::cout << "fpgaCloneToken request " << *request << std::endl;
+  std::cout << "fpgaCloneToken request " << *request << std::endl;
 
   req_src_token_id = to_opae_fpga_remote_id(request->src_token_id());
   src_token = find_token(req_src_token_id);
@@ -148,7 +147,8 @@ std::cout << "fpgaCloneToken request " << *request << std::endl;
   res = ::fpgaCloneToken(src_token, &dest_token);
   if (res == FPGA_OK) {
     opae_wrapped_token *wt = reinterpret_cast<opae_wrapped_token *>(dest_token);
-    fpga_token_header *hdr = reinterpret_cast<fpga_token_header *>(wt->opae_token);
+    fpga_token_header *hdr =
+        reinterpret_cast<fpga_token_header *>(wt->opae_token);
 
     resp_token_hdr = *hdr;
     add_token(resp_token_hdr.token_id, dest_token);
