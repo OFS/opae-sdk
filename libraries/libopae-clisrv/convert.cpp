@@ -801,9 +801,11 @@ fpga_properties to_opae_fpga_properties(
     _remote_token *rtok = client->find_token(rid);
     if (rtok)
       p->parent = rtok;
-    else
+    else {
+      p->parent = nullptr;
       OPAE_ERR("client failed to find token (%llu@%s)", rid.unique_id,
                rid.hostname);
+    }
   }
 
   return p;
@@ -823,9 +825,11 @@ fpga_properties to_opae_fpga_properties(
     fpga_token tok = server->find_token(rid);
     if (tok)
       p->parent = tok;
-    else
+    else {
+      p->parent = nullptr;
       OPAE_ERR("server failed to find token (%llu@%s)", rid.unique_id,
                rid.hostname);
+    }
   }
 
   return p;

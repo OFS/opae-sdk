@@ -132,6 +132,10 @@ struct _fpga_properties {
 	} u;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 // returns NULL on error, locked _fpga_properties object on success.
 static inline struct _fpga_properties *
 opae_validate_and_lock_properties(fpga_properties props)
@@ -151,10 +155,6 @@ opae_validate_and_lock_properties(fpga_properties props)
 
 	return p;
 }
-
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
 
 struct _fpga_properties *opae_properties_create(void);
 

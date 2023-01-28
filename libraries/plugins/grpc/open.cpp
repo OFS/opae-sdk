@@ -30,47 +30,29 @@
 
 #include <opae/types.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
-
-//#include "request.h"
-//#include "response.h"
 #include "remote.h"
 
-#if 0
-struct _remote_handle *
-opae_create_remote_handle(struct _remote_token *token,
-			  fpga_handle_header *hdr)
-{
-	struct _remote_handle *h =
-		(struct _remote_handle *)opae_calloc(1, sizeof(*h));
-	if (h) {
-		h->hdr = *hdr;
-		h->token = token;
-	}
-	return h;
+struct _remote_handle *opae_create_remote_handle(struct _remote_token *token,
+                                                 fpga_handle_header *hdr) {
+  struct _remote_handle *h =
+      (struct _remote_handle *)opae_calloc(1, sizeof(*h));
+  if (h) {
+    h->hdr = *hdr;
+    h->token = token;
+  }
+  return h;
 }
 
-void opae_destroy_remote_handle(struct _remote_handle *h)
-{
-	opae_free(h);
-}
-#endif
+void opae_destroy_remote_handle(struct _remote_handle *h) { opae_free(h); }
 
 fpga_result __REMOTE_API__ remote_fpgaOpen(fpga_token token,
                                            fpga_handle *handle, int flags) {
-#if 1
-  (void)token;
-  (void)handle;
-  (void)flags;
-
-  return FPGA_OK;
-#else
-  opae_fpgaOpen_request req;
-  opae_fpgaOpen_response resp;
   struct _remote_token *tok;
+  OPAEClient *client;
+  fpga_handle_header hdr;
   struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
   fpga_result res;
 
   if (!token) {
@@ -83,19 +65,12 @@ fpga_result __REMOTE_API__ remote_fpgaOpen(fpga_token token,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = (struct _remote_token *)token;
-  req.token_id = tok->hdr.token_id;
-  req.flags = flags;
+  tok = reinterpret_cast<_remote_token *>(token);
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req_json = opae_encode_fpgaOpen_request_5(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaOpen_response_5(resp_json, &resp)) return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
-    h = opae_create_remote_handle(tok, &resp.handle);
+  res = client->fpgaOpen(tok->hdr.token_id, flags, hdr);
+  if (res == FPGA_OK) {
+    h = opae_create_remote_handle(tok, &hdr);
     if (!h) {
       OPAE_ERR("calloc failed");
       return FPGA_NO_MEMORY;
@@ -104,6 +79,5 @@ fpga_result __REMOTE_API__ remote_fpgaOpen(fpga_token token,
     *handle = h;
   }
 
-  return resp.result;
-#endif
+  return res;
 }

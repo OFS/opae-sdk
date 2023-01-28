@@ -77,6 +77,17 @@ class OPAEClient final {
   fpga_result fpgaCloneToken(const fpga_remote_id &src_token_id,
                              fpga_token_header &dest_token_hdr);
 
+  fpga_result fpgaGetProperties(const fpga_remote_id &token_id,
+                                fpga_properties &properties);
+
+  fpga_result fpgaUpdateProperties(const fpga_remote_id &token_id,
+                                   fpga_properties &properties);
+
+  fpga_result fpgaOpen(const fpga_remote_id &token_id, int flags,
+                       fpga_handle_header &header);
+
+  fpga_result fpgaClose(const fpga_remote_id &handle_id);
+
   _remote_token *find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
     return (it == token_map_.end()) ? nullptr : it->second;

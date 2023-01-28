@@ -44,15 +44,24 @@ using grpc::ServerContext;
 using grpc::Status;
 using opaegrpc::CloneTokenReply;
 using opaegrpc::CloneTokenRequest;
+using opaegrpc::CloseReply;
+using opaegrpc::CloseRequest;
 using opaegrpc::DestroyTokenReply;
 using opaegrpc::DestroyTokenRequest;
 using opaegrpc::EnumerateReply;
 using opaegrpc::EnumerateRequest;
+using opaegrpc::GetPropertiesReply;
+using opaegrpc::GetPropertiesRequest;
 using opaegrpc::OPAEService;
+using opaegrpc::OpenReply;
+using opaegrpc::OpenRequest;
+using opaegrpc::UpdatePropertiesReply;
+using opaegrpc::UpdatePropertiesRequest;
 
 class OPAEServiceImpl final : public OPAEService::Service {
  public:
   typedef std::map<fpga_remote_id, fpga_token> token_map_t;
+  typedef std::map<fpga_remote_id, fpga_handle> handle_map_t;
 
   Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
                        EnumerateReply *reply) override;
@@ -62,6 +71,20 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaCloneToken(ServerContext *context,
                         const CloneTokenRequest *request,
                         CloneTokenReply *reply) override;
+
+  Status fpgaGetProperties(ServerContext *context,
+                           const GetPropertiesRequest *request,
+                           GetPropertiesReply *reply) override;
+
+  Status fpgaUpdateProperties(ServerContext *context,
+                              const UpdatePropertiesRequest *request,
+                              UpdatePropertiesReply *reply) override;
+
+  Status fpgaOpen(ServerContext *context, const OpenRequest *request,
+                  OpenReply *reply) override;
+
+  Status fpgaClose(ServerContext *context, const CloseRequest *request,
+                   CloseReply *reply) override;
 
   fpga_token find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
@@ -76,14 +99,30 @@ class OPAEServiceImpl final : public OPAEService::Service {
 
   bool remove_token(const fpga_remote_id &rid) {
     token_map_t::iterator it = token_map_.find(rid);
-
     if (it == token_map_.end()) return false;
-
     token_map_.erase(it);
+    return true;
+  }
 
+  fpga_handle find_handle(const fpga_remote_id &rid) const {
+    handle_map_t::const_iterator it = handle_map_.find(rid);
+    return (it == handle_map_.end()) ? nullptr : it->second;
+  }
+
+  bool add_handle(const fpga_remote_id &rid, fpga_handle handle) {
+    std::pair<handle_map_t::iterator, bool> res =
+        handle_map_.insert(std::make_pair(rid, handle));
+    return res.second;
+  }
+
+  bool remove_handle(const fpga_remote_id &rid) {
+    handle_map_t::iterator it = handle_map_.find(rid);
+    if (it == handle_map_.end()) return false;
+    handle_map_.erase(it);
     return true;
   }
 
  private:
   token_map_t token_map_;
+  handle_map_t handle_map_;
 };

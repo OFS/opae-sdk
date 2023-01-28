@@ -162,3 +162,146 @@ Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context,
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaGetProperties(ServerContext *context,
+                                          const GetPropertiesRequest *request,
+                                          GetPropertiesReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id token_id;
+  fpga_token token;
+  _fpga_properties *_props = nullptr;
+  fpga_result res;
+
+  std::cout << "fpgaGetProperties request " << *request << std::endl;
+
+  token_id = to_opae_fpga_remote_id(request->token_id());
+  token = find_token(token_id);
+
+  if (!token) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res =
+      ::fpgaGetProperties(token, reinterpret_cast<fpga_properties *>(&_props));
+  if (!_props) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NO_MEMORY]);
+    return Status::OK;
+  }
+
+  opaegrpc::fpga_properties *gprops = new opaegrpc::fpga_properties();
+  to_grpc_fpga_properties(this, gprops, _props);
+
+  reply->set_allocated_properties(gprops);
+
+  ::fpgaDestroyProperties(reinterpret_cast<fpga_properties *>(&_props));
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaUpdateProperties(
+    ServerContext *context, const UpdatePropertiesRequest *request,
+    UpdatePropertiesReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id token_id;
+  fpga_token token;
+  fpga_properties resp_props = nullptr;
+  fpga_result res;
+
+  std::cout << "fpgaUpdateProperties request " << *request << std::endl;
+
+  token_id = to_opae_fpga_remote_id(request->token_id());
+  token = find_token(token_id);
+  if (!token) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaGetProperties(nullptr, &resp_props);
+  if (res) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  res = ::fpgaUpdateProperties(token, resp_props);
+  if (res) {
+    ::fpgaDestroyProperties(&resp_props);
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  opaegrpc::fpga_properties *gprops = new opaegrpc::fpga_properties();
+  to_grpc_fpga_properties(
+      this, gprops, reinterpret_cast<const _fpga_properties *>(resp_props));
+  reply->set_allocated_properties(gprops);
+
+  ::fpgaDestroyProperties(&resp_props);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaOpen(ServerContext *context,
+                                 const OpenRequest *request, OpenReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id token_id;
+  fpga_token token;
+  fpga_handle handle = nullptr;
+  int flags;
+  fpga_result res;
+
+  std::cout << "fpgaOpen request " << *request << std::endl;
+
+  token_id = to_opae_fpga_remote_id(request->token_id());
+  token = find_token(token_id);
+
+  if (!token) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  flags = request->flags();
+
+  res = ::fpgaOpen(token, &handle, flags);
+  if (res) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  opae_wrapped_handle *wh = reinterpret_cast<opae_wrapped_handle *>(handle);
+  fpga_handle_header *hdr =
+      reinterpret_cast<fpga_handle_header *>(wh->opae_handle);
+
+  if (!find_handle(hdr->handle_id)) add_handle(hdr->handle_id, handle);
+
+  reply->set_allocated_handle(to_grpc_handle_header(*hdr));
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaClose(ServerContext *context,
+                                  const CloseRequest *request,
+                                  CloseReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_result res;
+
+  std::cout << "fpgaClose request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaClose(handle);
+  if (res == FPGA_OK) remove_handle(handle_id);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}

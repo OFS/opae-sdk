@@ -175,14 +175,11 @@ opae_create_remote_token(fpga_token_header *hdr,
 
 void opae_destroy_remote_token(struct _remote_token *t);
 
-#if 0
-
 #define OPAE_MMIO_REGIONS_MAX 6
 struct _remote_handle {
 	fpga_handle_header hdr; //< Must appear at offset 0!
 	struct _remote_token *token;
 	fpga_remote_id *mmio_regions[OPAE_MMIO_REGIONS_MAX];
-
 };
 
 struct _remote_handle *
@@ -191,6 +188,7 @@ opae_create_remote_handle(struct _remote_token *token,
 
 void opae_destroy_remote_handle(struct _remote_handle *h);
 
+#if 0
 struct _remote_sysobject {
 	fpga_remote_id object_id;
 	struct _remote_token *token;

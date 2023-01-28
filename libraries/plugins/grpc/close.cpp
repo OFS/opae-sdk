@@ -33,24 +33,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "remote.h"
-//#include "request.h"
-//#include "response.h"
-
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
+#include "remote.h"
 
 fpga_result __REMOTE_API__ remote_fpgaClose(fpga_handle handle) {
-#if 1
-  (void)handle;
-
-  return FPGA_OK;
-#else
-  opae_fpgaClose_request req;
-  opae_fpgaClose_response resp;
   struct _remote_token *tok;
+  OPAEClient *client;
   struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
   fpga_result res;
 
   if (!handle) {
@@ -58,21 +48,12 @@ fpga_result __REMOTE_API__ remote_fpgaClose(fpga_handle handle) {
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
+  res = client->fpgaClose(h->hdr.handle_id);
+  if (res == FPGA_OK) opae_destroy_remote_handle(h);
 
-  req_json = opae_encode_fpgaClose_request_6(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaClose_response_6(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) opae_destroy_remote_handle(h);
-
-  return resp.result;
-#endif
+  return res;
 }
