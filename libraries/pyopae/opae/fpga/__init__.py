@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ from ._opae import (
 from ._opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
                     EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED,
                     ACCELERATOR_UNASSIGNED, RECONF_FORCE, SYSOBJECT_GLOB,
-                    IFC_DFL, IFC_VFIO, IFC_SIM)
+                    IFC_DFL, IFC_VFIO, IFC_SIM_DFL, IFC_SIM_VFIO)
 __all__ = ['properties',
            'token',
            'handle',
@@ -70,5 +70,6 @@ __all__ = ['properties',
            'SYSOBJECT_GLOB',
            'IFC_DFL',
            'IFC_VFIO',
-           'IFC_SIM'
+           'IFC_SIM_DFL',
+           'IFC_SIM_VFIO'
            ]
