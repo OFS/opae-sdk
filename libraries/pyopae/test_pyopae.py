@@ -218,9 +218,9 @@ class TestProperties(unittest.TestCase):
     def test_set_interface_accelerator(self):
         props = opae.fpga.properties(interface=opae.fpga.IFC_DFL)
         assert props.type == opae.fpga.IFC_DFL
-        props = opae.fpga.properties(interface=opae.fpga.IFC_VFIO)
-        props.interface = opae.fpga.IFC_SIM
-        assert props.type == opae.fpga.IFC_SIM
+        props = opae.fpga.properties(interface=opae.fpga.IFC_VFIO_DFL)
+        props.interface = opae.fpga.IFC_SIM_DFL
+        assert props.type == opae.fpga.IFC_SIM_DFL
 
 
 class TestToken(unittest.TestCase):

@@ -126,7 +126,7 @@ PYBIND11_MODULE(_opae, m) {
   py::enum_<fpga_interface>(m, "fpga_interface", py::arithmetic(),
                             "OPAE interfaces")
       .value("IFC_DFL", FPGA_IFC_DFL)
-      .value("IFC_VFIO", FPGA_IFC_VFIO)
+      .value("IFC_VFIO_DFL", FPGA_IFC_VFIO)
       .value("IFC_SIM_DFL", FPGA_IFC_SIM_DFL)
       .value("IFC_SIM_VFIO", FPGA_IFC_SIM_VFIO)
       .export_values();

@@ -100,7 +100,7 @@ const char *properties_doc_get() {
 
       object_id (uint64_t): The 64-bit number unique within a single node or system.
 
-      interface (fpga_interface): The interface type - IFC_DFL, IFC_VFIO, or IFC_SIM.
+      interface (fpga_interface): The interface type - IFC_DFL, IFC_VFIO_DFL, or IFC_SIM_DFL.
 
    )opaedoc";
 }
@@ -558,7 +558,7 @@ void properties_set_accelerator_state(properties::ptr_t props,
 const char *properties_doc_interface() {
   return R"opaedoc(
     Get or set the interface property of a resource. The interface
-    must be either IFC_DFL, IFC_VFIO, or IFC_SIM
+    must be either IFC_DFL, IFC_VFIO_DFL, or IFC_SIM_DFL
    )opaedoc";
 }
 
