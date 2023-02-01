@@ -42,7 +42,7 @@ from ._opae import (
 from ._opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
                     EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED,
                     ACCELERATOR_UNASSIGNED, RECONF_FORCE, SYSOBJECT_GLOB,
-                    IFC_DFL, IFC_VFIO_DFL, IFC_SIM_DFL)
+                    IFC_DFL, IFC_VFIO, IFC_SIM)
 __all__ = ['properties',
            'token',
            'handle',
@@ -69,6 +69,6 @@ __all__ = ['properties',
            'RECONF_FORCE',
            'SYSOBJECT_GLOB',
            'IFC_DFL',
-           'IFC_VFIO_DFL',
-           'IFC_SIM_DFL'
+           'IFC_VFIO',
+           'IFC_SIM'
            ]
