@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -269,8 +269,8 @@ class opae_register(Union):
         if value is not None:
             self.value = value
         if ACCESS_MODE == 32 and self.width == 64:
-            self.region.write32(self.offset, self._upper_mask & value)
-            self.region.write32(self.offset + 4, value >> 32)
+            self.region.write32(self.offset, self._upper_mask & self.value)
+            self.region.write32(self.offset + 4, self.value >> 32)
         else:
             self.wr(self.offset, self.value)
 
