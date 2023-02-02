@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -213,6 +213,7 @@ def get_sbdf_upl_mapping(sbdf):
 
     pci_dev_path = '/sys/bus/pci/devices/{}/resource2'.format(sbdf)
     addr = 0
+    next_afu_offset = 0
     while True:
         header = pci_read(pci_dev_path, addr)
         feature_type = (header >> DFH_TYPE_SHIFT) & DFH_TYPE_MASK
