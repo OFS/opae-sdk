@@ -219,8 +219,8 @@ class TestProperties(unittest.TestCase):
         props = opae.fpga.properties(interface=opae.fpga.IFC_DFL)
         assert props.type == opae.fpga.IFC_DFL
         props = opae.fpga.properties(interface=opae.fpga.IFC_VFIO)
-        props.interface = opae.fpga.IFC_SIM
-        assert props.type == opae.fpga.IFC_SIM
+        props.interface = opae.fpga.IFC_SIM_DFL
+        assert props.type == opae.fpga.IFC_SIM_DFL
 
 
 class TestToken(unittest.TestCase):
