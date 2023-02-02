@@ -24,18 +24,29 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+
 if (OPAE_WITH_PYBIND11)
     set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
     set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
 
+    set(PYUIOFILES "setup.py")
+    set(PYOPAEUIO_DIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+
+    foreach(pyfile ${PYUIOFILES})
+        configure_file(${pyfile} ${PYOPAEUIO_DIST_STAGE_DIR}/${pyfile} @ONLY)
+    endforeach(pyfile ${PYUIOFILES})
+
+    file(COPY pyopaeuio.cpp DESTINATION ${PYOPAEUIO_DIST_STAGE_DIR})
+    file(COPY pyopaeuio.h DESTINATION ${PYOPAEUIO_DIST_STAGE_DIR})
+
     add_custom_command(
         OUTPUT ${OUTPUT}
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS}  -L ${LINK_DIRS}
         COMMAND ${PYTHON_EXECUTABLE} setup.py build
         COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS setup.py ${PKG_FILES}
+        WORKING_DIRECTORY ${PYOPAEUIO_DIST_STAGE_DIR}
+        DEPENDS ${SETUP_PY}  ${PKG_FILES}
     )
     set_property(DIRECTORY PROPERTY
         ADDITIONAL_MAKE_CLEAN_FILES
@@ -50,6 +61,6 @@ if (OPAE_WITH_PYBIND11)
     opae_python_install(
         COMPONENT pyopaeuio
         RECORD_FILE pyopaeuio-install.txt
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        SOURCE_DIR ${PYOPAEUIO_DIST_STAGE_DIR}
         RPM_PACKAGE devel)
 endif(OPAE_WITH_PYBIND11)

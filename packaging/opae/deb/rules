@@ -32,7 +32,7 @@ override_dh_auto_install:
 	cd $(CURDIR)/binaries/ofs.uio && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/binaries/fpgadiag && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/obj-x86_64-linux-gnu/libraries/pyopae/stage && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
-	cd $(CURDIR)/libraries/pyopaeuio && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/obj-x86_64-linux-gnu/libraries/pyopaeuio/stage && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/python/opae.admin && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/python/pacsign && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/python/packager && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)

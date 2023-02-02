@@ -167,7 +167,7 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/%__cmake_builddir/libr
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/libraries/pyopaeuio
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/%__cmake_builddir/libraries/pyopaeuio/stage
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
