@@ -73,7 +73,7 @@ setup(
         ]
     },
     ext_modules=extensions,
-    install_requires=['pybind11>=@PYOPAE_PYBIND11_VERSION@'],
+    install_requires=['pybind11>=@PYBIND11_VERSION@'],
     description="pyopaeuio provides Python bindings around the "
                 "opaeuio",
     license="BSD3",
