@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2022, Intel Corporation
+# Copyright(c) 2022-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -689,7 +689,7 @@ def deb_expand_variables(line, args):
 DEB_FILE_THEN_PATH_PATTERN = r'(?P<file>(\w|\.)+)\s+(?P<path>.*)'
 DEB_FILE_THEN_PATH_RE = re.compile(DEB_FILE_THEN_PATH_PATTERN, re.IGNORECASE)
 
-DEB_LIBRARY_FILE_GLOB_PATTERN = r'(?P<glob>(\w|[/])+lib(\w|[-+])+\.so\.\*)'
+DEB_LIBRARY_FILE_GLOB_PATTERN = r'^(?P<glob>(\w|[/])+lib(\w|[-+])+\.so\.\*)'
 DEB_LIBRARY_FILE_GLOB_RE = re.compile(DEB_LIBRARY_FILE_GLOB_PATTERN, re.IGNORECASE)
 
 DEB_LIBRARY_FILE_PATTERN = r'(?P<file>(\w|[/])+lib(\w|[-+])+\.(so|a))'
