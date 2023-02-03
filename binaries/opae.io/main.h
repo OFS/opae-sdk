@@ -48,6 +48,26 @@ struct mmio_region {
   uint8_t *ptr;
   size_t size;
 
+  uint8_t read8(uint64_t offset)
+  {
+    return *reinterpret_cast<uint8_t *>(ptr + offset);
+  }
+
+  void write8(uint64_t offset, uint8_t value)
+  {
+    *reinterpret_cast<uint8_t *>(ptr + offset) = value;
+  }
+
+  uint16_t read16(uint64_t offset)
+  {
+    return *reinterpret_cast<uint16_t *>(ptr + offset);
+  }
+
+  void write16(uint64_t offset, uint16_t value)
+  {
+    *reinterpret_cast<uint16_t *>(ptr + offset) = value;
+  }
+
   uint32_t read32(uint64_t offset)
   {
     return *reinterpret_cast<uint32_t *>(ptr + offset);

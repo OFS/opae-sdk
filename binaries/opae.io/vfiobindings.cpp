@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -61,8 +61,12 @@ PYBIND11_MODULE(libvfio, m)
           .def_property_readonly("regions", &vfio_device::regions);
 
   py::class_<mmio_region> pyregion(m, "region", "");
-  pyregion.def("write32", &mmio_region::write32)
+  pyregion.def("write8", &mmio_region::write8)
+          .def("write16", &mmio_region::write16)
+          .def("write32", &mmio_region::write32)
           .def("write64", &mmio_region::write64)
+          .def("read8", &mmio_region::read8)
+          .def("read16", &mmio_region::read16)
           .def("read32", &mmio_region::read32)
           .def("read64", &mmio_region::read64)
           .def("index", [](mmio_region *r) { return r->index; })

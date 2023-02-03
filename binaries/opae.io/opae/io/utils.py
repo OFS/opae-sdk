@@ -256,9 +256,16 @@ class opae_register(Union):
         bits_class = type('{name}_bits'.format(**locals()),
                           (LittleEndianStructure, ),
                           dict(_fields_=bits))
-        if width not in [64, 32]:
-            raise ValueError('width must be 64 or 32')
-        int_t = c_uint64 if width == 64 else c_uint32
+        if width not in [64, 32, 16, 8]:
+            raise ValueError('width must be 64, 32, 16, or 8')
+        if width == 8:
+            int_t = c_uint8
+        elif width == 16:
+            int_t = c_uint16
+        elif width == 32:
+            int_t = c_uint32
+        else:
+            int_t = c_uint64
         return type(name,
                     (cls,),
                     dict(_fields_=[('bits', bits_class),
@@ -268,16 +275,57 @@ class opae_register(Union):
     def commit(self, value=None):
         if value is not None:
             self.value = value
-        if ACCESS_MODE == 32 and self.width == 64:
-            self.region.write32(self.offset, self._upper_mask & self.value)
-            self.region.write32(self.offset + 4, self.value >> 32)
+        if self.width != 64:
+            raise OSError(os.EX_OSERR, 'only 64-bit registers are supported currently.')
+        value = self.value
+        offset = 0
+        if ACCESS_MODE == 8:
+            for i in range(8):
+                self.region.write8(self.offset + offset, value & 0xff)
+                value = value >> 8
+                offset += 1
+        elif ACCESS_MODE == 16:
+            for i in range(4):
+                self.region.write16(self.offset + offset, value & 0xffff)
+                value = value >> 16
+                offset += 2
+        elif ACCESS_MODE == 32:
+            for i in range(2):
+                self.region.write32(self.offset + offset, value & 0xffffffff)
+                value = value >> 32
+                offset += 4
         else:
             self.wr(self.offset, self.value)
 
     def update(self):
         if self.region is None:
             raise OSError(os.EX_OSERR, 'no region open')
-        if ACCESS_MODE == 32 and self.width == 64:
+        if self.width != 64:
+            raise OSError(os.EX_OSERR, 'only 64-bit registers are supported currently.')
+        if ACCESS_MODE == 8:
+            value0 = self.region.read8(self.offset + 0)
+            value1 = self.region.read8(self.offset + 1)
+            value2 = self.region.read8(self.offset + 2)
+            value3 = self.region.read8(self.offset + 3)
+            value4 = self.region.read8(self.offset + 4)
+            value5 = self.region.read8(self.offset + 5)
+            value6 = self.region.read8(self.offset + 6)
+            value7 = self.region.read8(self.offset + 7)
+            self.value = value0 |
+                         (value1 << 8) |
+                         (value2 << 16) |
+                         (value3 << 24) |
+                         (value4 << 32) |
+                         (value5 << 40) |
+                         (value6 << 48) |
+                         (value7 << 56)
+        elif ACCESS_MODE == 16:
+            value0 = self.region.read16(self.offset + 0)
+            value1 = self.region.read16(self.offset + 2)
+            value2 = self.region.read16(self.offset + 4)
+            value3 = self.region.read16(self.offset + 8)
+            self.value = value0 | (value1 << 16) | (value2 << 32) | (value3 << 48)
+        elif ACCESS_MODE == 32:
             lo = self.region.read32(self.offset)
             self.value = self.region.read32(self.offset+4) << 32
             self.value |= lo
@@ -360,7 +408,14 @@ def dfh_walk(region, offset=0, header=None, guid=None):
 
 
 def w_aligned(offset: int):
-    mask = 0b11 if ACCESS_MODE == 32 else 0b111
+    if ACCESS_MODE == 8:
+        return True
+    elif ACCESS_MODE == 16:
+        mask = 0b1
+    elif ACCESS_MODE == 32:
+        mask = 0b11
+    else:
+        mask = 0b111
     return (offset & mask) == 0
 
 
@@ -395,9 +450,15 @@ def dump(region, start=0, output=sys.stdout, fmt='hex', count=None):
     if ACCESS_MODE == 64:
         rd = region.read64
         byte_length = 8
-    else:
+    elif ACCESS_MODE == 32:
         rd = region.read32
         byte_length = 4
+    elif ACCESS_MODE == 16:
+        rd = region.read16
+        byte_length = 2
+    elif ACCESS_MODE == 8:
+        rd = region.read8
+        byte_length = 1
     while offset < stop_at:
         value = rd(offset)
         if fmt == 'hex':

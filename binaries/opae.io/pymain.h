@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -128,7 +128,16 @@ class peek_action(base_action):
             raise SystemExit('Need device for peek.')
         if not self.region:
             raise SystemExit('Need region for peek.')
-        rd = self.region.read64 if utils.ACCESS_MODE == 64 else self.region.read32
+        if utils.ACCESS_MODE == 8:
+            rd = self.region.read8
+        elif utils.ACCESS_MODE == 16:
+            rd = self.region.read16
+        elif utils.ACCESS_MODE == 32:
+            rd = self.region.read32
+        elif utils.ACCESS_MODE == 64:
+            rd = self.region.read64
+        else:
+            raise SystemExit(f'Invalid access mode: {utils.ACCESS_MODE}')
         print('0x{:0x}'.format(rd(args.offset)))
         raise SystemExit(0)
 
@@ -144,7 +153,16 @@ class poke_action(base_action):
             raise SystemExit('Need device for poke.')
         if not self.region:
             raise SystemExit('Need region for poke.')
-        wr = self.region.write64 if utils.ACCESS_MODE == 64 else self.region.write32
+        if utils.ACCESS_MODE == 8:
+            wr = self.region.write8
+        elif utils.ACCESS_MODE == 16:
+            wr = self.region.write16
+        elif utils.ACCESS_MODE == 32:
+            wr = self.region.write32
+        elif utils.ACCESS_MODE == 64:
+            wr = self.region.write64
+        else:
+            raise SystemExit(f'Invalid access mode: {utils.ACCESS_MODE}')
         wr(args.offset, args.value)
         raise SystemExit(0)
 
