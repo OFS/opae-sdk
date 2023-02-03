@@ -775,7 +775,7 @@ fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 	if (fpga_event_log) {
 		res = fpga_event_log(token, first, last, print_list, print_sensors, print_bits);
 	} else {
-		OPAE_MSG("Event is not supported by this board");
+		printf("Event is not supported by this board\n");
 	}
 
 out:
