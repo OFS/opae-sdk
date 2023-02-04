@@ -38,19 +38,9 @@
 
 fpga_result __REMOTE_API__
 remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop) {
-#if 1
-  (void)handle;
-  (void)prop;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetPropertiesFromHandle_request req;
-  opae_fpgaGetPropertiesFromHandle_response resp;
   struct _remote_handle *h;
   struct _remote_token *tok;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  OPAEClient *client;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
@@ -62,24 +52,11 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop) {
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-
-  req_json = opae_encode_fpgaGetPropertiesFromHandle_request_8(
-      &req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaGetPropertiesFromHandle_response_8(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) *prop = resp.properties;
-
-  return resp.result;
-#endif
+  return client->fpgaGetPropertiesFromHandle(h->hdr.handle_id, *prop);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetProperties(fpga_token token,

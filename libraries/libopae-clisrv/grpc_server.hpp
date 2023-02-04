@@ -50,11 +50,15 @@ using opaegrpc::DestroyTokenReply;
 using opaegrpc::DestroyTokenRequest;
 using opaegrpc::EnumerateReply;
 using opaegrpc::EnumerateRequest;
+using opaegrpc::GetPropertiesFromHandleReply;
+using opaegrpc::GetPropertiesFromHandleRequest;
 using opaegrpc::GetPropertiesReply;
 using opaegrpc::GetPropertiesRequest;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
+using opaegrpc::ResetReply;
+using opaegrpc::ResetRequest;
 using opaegrpc::UpdatePropertiesReply;
 using opaegrpc::UpdatePropertiesRequest;
 
@@ -85,6 +89,13 @@ class OPAEServiceImpl final : public OPAEService::Service {
 
   Status fpgaClose(ServerContext *context, const CloseRequest *request,
                    CloseReply *reply) override;
+
+  Status fpgaReset(ServerContext *context, const ResetRequest *request,
+                   ResetReply *reply) override;
+
+  Status fpgaGetPropertiesFromHandle(
+      ServerContext *context, const GetPropertiesFromHandleRequest *request,
+      GetPropertiesFromHandleReply *reply) override;
 
   fpga_token find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);

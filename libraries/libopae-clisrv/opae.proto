@@ -186,6 +186,9 @@ service OPAEService {
   rpc fpgaUpdateProperties(UpdatePropertiesRequest) returns (UpdatePropertiesReply) {}
   rpc fpgaOpen(OpenRequest) returns (OpenReply) {}
   rpc fpgaClose(CloseRequest) returns (CloseReply) {}
+  rpc fpgaReset(ResetRequest) returns (ResetReply) {}
+  rpc fpgaGetPropertiesFromHandle(GetPropertiesFromHandleRequest) returns (GetPropertiesFromHandleReply) {}
+
 }
 
 message EnumerateRequest {
@@ -252,4 +255,21 @@ message CloseRequest {
 
 message CloseReply {
   fpga_result result = 1;
+}
+
+message ResetRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message ResetReply {
+  fpga_result result = 1;
+}
+
+message GetPropertiesFromHandleRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message GetPropertiesFromHandleReply {
+  optional fpga_properties properties = 1;
+  fpga_result result = 2;
 }

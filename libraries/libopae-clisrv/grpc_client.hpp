@@ -88,6 +88,11 @@ class OPAEClient final {
 
   fpga_result fpgaClose(const fpga_remote_id &handle_id);
 
+  fpga_result fpgaReset(const fpga_remote_id &handle_id);
+
+  fpga_result fpgaGetPropertiesFromHandle(const fpga_remote_id &handle_id,
+                                          fpga_properties &properties);
+
   _remote_token *find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
     return (it == token_map_.end()) ? nullptr : it->second;

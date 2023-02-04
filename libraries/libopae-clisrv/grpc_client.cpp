@@ -205,3 +205,47 @@ fpga_result OPAEClient::fpgaClose(const fpga_remote_id &handle_id) {
 
   return to_opae_fpga_result[reply.result()];
 }
+
+fpga_result OPAEClient::fpgaReset(const fpga_remote_id &handle_id) {
+  opaegrpc::ResetRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+
+  opaegrpc::ResetReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaReset(&context, request, &reply);
+
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReset() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaReset reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaGetPropertiesFromHandle(
+    const fpga_remote_id &handle_id, fpga_properties &properties) {
+  opaegrpc::GetPropertiesFromHandleRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+
+  opaegrpc::GetPropertiesFromHandleReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaGetPropertiesFromHandle(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaGetPropertiesFromHandle() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaGetPropertiesFromHandle reply " << reply << std::endl;
+
+  if (reply.has_properties())
+    properties = to_opae_fpga_properties(this, reply.properties());
+
+  return to_opae_fpga_result[reply.result()];
+}

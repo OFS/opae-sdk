@@ -31,44 +31,23 @@
 #include <opae/log.h>
 #include <opae/types.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
 #include "remote.h"
 
-//#include "request.h"
-//#include "response.h"
-
 fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle) {
-#if 1
-  (void)handle;
-
-  return FPGA_OK;
-#else
-  opae_fpgaReset_request req;
-  opae_fpgaReset_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_token *tok;
+  _remote_handle *h;
+  OPAEClient *client;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-
-  req_json = opae_encode_fpgaReset_request_7(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaReset_response_7(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaReset(h->hdr.handle_id);
 }

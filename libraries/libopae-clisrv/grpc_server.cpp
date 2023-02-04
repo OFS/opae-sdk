@@ -305,3 +305,70 @@ Status OPAEServiceImpl::fpgaClose(ServerContext *context,
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaReset(ServerContext *context,
+                                  const ResetRequest *request,
+                                  ResetReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_result res;
+
+  std::cout << "fpgaReset request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaReset(handle);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetPropertiesFromHandle(
+    ServerContext *context, const GetPropertiesFromHandleRequest *request,
+    GetPropertiesFromHandleReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_properties resp_props = nullptr;
+  fpga_result res;
+
+  std::cout << "fpgaGetPropertiesFromHandle request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaGetProperties(nullptr, &resp_props);
+  if (res) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  res = ::fpgaGetPropertiesFromHandle(handle, &resp_props);
+  if (res) {
+    ::fpgaDestroyProperties(&resp_props);
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  opaegrpc::fpga_properties *gprops = new opaegrpc::fpga_properties();
+  to_grpc_fpga_properties(
+      this, gprops, reinterpret_cast<const _fpga_properties *>(resp_props));
+  reply->set_allocated_properties(gprops);
+
+  ::fpgaDestroyProperties(&resp_props);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
