@@ -93,6 +93,12 @@ class OPAEClient final {
   fpga_result fpgaGetPropertiesFromHandle(const fpga_remote_id &handle_id,
                                           fpga_properties &properties);
 
+  fpga_result fpgaMapMMIO(const fpga_remote_id &handle_id, uint32_t mmio_num,
+                          fpga_remote_id &mmio_id);
+
+  fpga_result fpgaUnmapMMIO(const fpga_remote_id &handle_id,
+                            const fpga_remote_id &mmio_id, uint32_t mmio_num);
+
   _remote_token *find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
     return (it == token_map_.end()) ? nullptr : it->second;

@@ -372,3 +372,75 @@ Status OPAEServiceImpl::fpgaGetPropertiesFromHandle(
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaMapMMIO(ServerContext *context,
+                                    const MapMMIORequest *request,
+                                    MapMMIOReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  uint64_t *mmio_ptr = nullptr;
+  fpga_remote_id mmio_id;
+  fpga_result res;
+
+  std::cout << "fpgaMapMMIO request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+  res = ::fpgaMapMMIO(handle, mmio_num, &mmio_ptr);
+
+  if (res) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  opae_get_remote_id(&mmio_id);
+  add_mmio(mmio_id, mmio_ptr);
+
+  reply->set_allocated_mmio_id(to_grpc_fpga_remote_id(mmio_id));
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaUnmapMMIO(ServerContext *context,
+                                      const UnmapMMIORequest *request,
+                                      UnmapMMIOReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_remote_id mmio_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  fpga_result res;
+
+  std::cout << "fpgaUnmapMMIO request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+
+  res = ::fpgaUnmapMMIO(handle, mmio_num);
+  if (res) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  mmio_id = to_opae_fpga_remote_id(request->mmio_id());
+  remove_mmio(mmio_id);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}

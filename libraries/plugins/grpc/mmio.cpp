@@ -30,11 +30,9 @@
 
 #include <opae/types.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
 #include "remote.h"
-//#include "serialize.h"
-//#include "request.h"
-//#include "response.h"
 
 fpga_result __REMOTE_API__ remote_fpgaWriteMMIO32(fpga_handle handle,
                                                   uint32_t mmio_num,
@@ -331,19 +329,9 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO512(fpga_handle handle,
 fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
                                               uint32_t mmio_num,
                                               uint64_t **mmio_ptr) {
-#if 1
-  (void)handle;
-  (void)mmio_num;
-  (void)mmio_ptr;
-
-  return FPGA_OK;
-#else
-  opae_fpgaMapMMIO_request req;
-  opae_fpgaMapMMIO_response resp;
-  struct _remote_handle *h;
-  struct _remote_token *tok;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_result res;
   fpga_remote_id *mmio_id;
 
@@ -357,8 +345,9 @@ fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
   if (h->mmio_regions[mmio_num]) {
     OPAE_MSG(
@@ -369,25 +358,15 @@ fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
     h->mmio_regions[mmio_num] = NULL;
   }
 
-  req.handle_id = h->hdr.handle_id;
-  req.mmio_num = mmio_num;
+  mmio_id = reinterpret_cast<fpga_remote_id *>(
+      opae_calloc(1, sizeof(fpga_remote_id)));
+  if (!mmio_id) {
+    OPAE_ERR("calloc failed");
+    return FPGA_NO_MEMORY;
+  }
 
-  req_json = opae_encode_fpgaMapMMIO_request_9(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaMapMMIO_response_9(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
-    mmio_id = opae_calloc(1, sizeof(fpga_remote_id));
-    if (!mmio_id) {
-      OPAE_ERR("calloc failed");
-      return FPGA_NO_MEMORY;
-    }
-
-    *mmio_id = resp.mmio_id;
+  res = client->fpgaMapMMIO(h->hdr.handle_id, mmio_num, *mmio_id);
+  if (res == FPGA_OK) {
     h->mmio_regions[mmio_num] = mmio_id;
 
     if (mmio_ptr) {
@@ -396,26 +375,18 @@ fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
           "Access to the raw MMIO pointer "
           "is not provided by this plugin.");
     }
+  } else {
+    opae_free(mmio_id);
   }
 
-  return resp.result;
-#endif
+  return res;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaUnmapMMIO(fpga_handle handle,
                                                 uint32_t mmio_num) {
-#if 1
-  (void)handle;
-  (void)mmio_num;
-
-  return FPGA_OK;
-#else
-  opae_fpgaUnmapMMIO_request req;
-  opae_fpgaUnmapMMIO_response resp;
-  struct _remote_handle *h;
-  struct _remote_token *tok;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_result res;
   fpga_remote_id *mmio_id;
 
@@ -429,34 +400,21 @@ fpga_result __REMOTE_API__ remote_fpgaUnmapMMIO(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-  tok = h->token;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   if (!h->mmio_regions[mmio_num]) {
     OPAE_ERR("MMIO %u is not mapped.", mmio_num);
     return FPGA_INVALID_PARAM;
   }
 
   mmio_id = h->mmio_regions[mmio_num];
+  tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.mmio_id = *mmio_id;
-  req.mmio_num = mmio_num;
-
-  req_json =
-      opae_encode_fpgaUnmapMMIO_request_10(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaUnmapMMIO_response_10(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
+  res = client->fpgaUnmapMMIO(h->hdr.handle_id, *mmio_id, mmio_num);
+  if (res == FPGA_OK) {
     opae_free(mmio_id);
     h->mmio_regions[mmio_num] = NULL;
   }
 
-  return resp.result;
-#endif
+  return res;
 }

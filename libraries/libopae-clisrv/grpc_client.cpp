@@ -249,3 +249,50 @@ fpga_result OPAEClient::fpgaGetPropertiesFromHandle(
 
   return to_opae_fpga_result[reply.result()];
 }
+
+fpga_result OPAEClient::fpgaMapMMIO(const fpga_remote_id &handle_id,
+                                    uint32_t mmio_num,
+                                    fpga_remote_id &mmio_id) {
+  opaegrpc::MapMMIORequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_mmio_num(mmio_num);
+
+  opaegrpc::MapMMIOReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaMapMMIO(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaMapMMIO() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaMapMMIO reply " << reply << std::endl;
+
+  mmio_id = to_opae_fpga_remote_id(reply.mmio_id());
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaUnmapMMIO(const fpga_remote_id &handle_id,
+                                      const fpga_remote_id &mmio_id,
+                                      uint32_t mmio_num) {
+  opaegrpc::UnmapMMIORequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_mmio_id(to_grpc_fpga_remote_id(mmio_id));
+  request.set_mmio_num(mmio_num);
+
+  opaegrpc::UnmapMMIOReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaUnmapMMIO(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaUnmapMMIO() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaUnmapMMIO reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}

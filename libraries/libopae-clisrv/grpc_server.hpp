@@ -54,11 +54,15 @@ using opaegrpc::GetPropertiesFromHandleReply;
 using opaegrpc::GetPropertiesFromHandleRequest;
 using opaegrpc::GetPropertiesReply;
 using opaegrpc::GetPropertiesRequest;
+using opaegrpc::MapMMIOReply;
+using opaegrpc::MapMMIORequest;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
 using opaegrpc::ResetReply;
 using opaegrpc::ResetRequest;
+using opaegrpc::UnmapMMIOReply;
+using opaegrpc::UnmapMMIORequest;
 using opaegrpc::UpdatePropertiesReply;
 using opaegrpc::UpdatePropertiesRequest;
 
@@ -66,6 +70,7 @@ class OPAEServiceImpl final : public OPAEService::Service {
  public:
   typedef std::map<fpga_remote_id, fpga_token> token_map_t;
   typedef std::map<fpga_remote_id, fpga_handle> handle_map_t;
+  typedef std::map<fpga_remote_id, uint64_t *> mmio_map_t;
 
   Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
                        EnumerateReply *reply) override;
@@ -96,6 +101,12 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaGetPropertiesFromHandle(
       ServerContext *context, const GetPropertiesFromHandleRequest *request,
       GetPropertiesFromHandleReply *reply) override;
+
+  Status fpgaMapMMIO(ServerContext *context, const MapMMIORequest *request,
+                     MapMMIOReply *reply) override;
+
+  Status fpgaUnmapMMIO(ServerContext *context, const UnmapMMIORequest *request,
+                       UnmapMMIOReply *reply) override;
 
   fpga_token find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
@@ -133,7 +144,26 @@ class OPAEServiceImpl final : public OPAEService::Service {
     return true;
   }
 
+  uint64_t *find_mmio(const fpga_remote_id &rid) const {
+    mmio_map_t::const_iterator it = mmio_map_.find(rid);
+    return (it == mmio_map_.end()) ? nullptr : it->second;
+  }
+
+  bool add_mmio(const fpga_remote_id &rid, uint64_t *mmio_ptr) {
+    std::pair<mmio_map_t::iterator, bool> res =
+        mmio_map_.insert(std::make_pair(rid, mmio_ptr));
+    return res.second;
+  }
+
+  bool remove_mmio(const fpga_remote_id &rid) {
+    mmio_map_t::iterator it = mmio_map_.find(rid);
+    if (it == mmio_map_.end()) return false;
+    mmio_map_.erase(it);
+    return true;
+  }
+
  private:
   token_map_t token_map_;
   handle_map_t handle_map_;
+  mmio_map_t mmio_map_;
 };

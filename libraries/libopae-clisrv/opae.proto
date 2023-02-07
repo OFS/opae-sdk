@@ -188,7 +188,8 @@ service OPAEService {
   rpc fpgaClose(CloseRequest) returns (CloseReply) {}
   rpc fpgaReset(ResetRequest) returns (ResetReply) {}
   rpc fpgaGetPropertiesFromHandle(GetPropertiesFromHandleRequest) returns (GetPropertiesFromHandleReply) {}
-
+  rpc fpgaMapMMIO(MapMMIORequest) returns (MapMMIOReply) {}
+  rpc fpgaUnmapMMIO(UnmapMMIORequest) returns (UnmapMMIOReply) {}
 }
 
 message EnumerateRequest {
@@ -272,4 +273,24 @@ message GetPropertiesFromHandleRequest {
 message GetPropertiesFromHandleReply {
   optional fpga_properties properties = 1;
   fpga_result result = 2;
+}
+
+message MapMMIORequest {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+}
+
+message MapMMIOReply {
+  fpga_remote_id mmio_id = 1;
+  fpga_result result = 2;
+}
+
+message UnmapMMIORequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id mmio_id = 2;
+  uint32 mmio_num = 3;
+}
+
+message UnmapMMIOReply {
+  fpga_result result = 1;
 }
