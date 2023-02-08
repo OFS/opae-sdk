@@ -59,12 +59,22 @@ using opaegrpc::MapMMIORequest;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
+using opaegrpc::ReadMMIO32Reply;
+using opaegrpc::ReadMMIO32Request;
+using opaegrpc::ReadMMIO64Reply;
+using opaegrpc::ReadMMIO64Request;
 using opaegrpc::ResetReply;
 using opaegrpc::ResetRequest;
 using opaegrpc::UnmapMMIOReply;
 using opaegrpc::UnmapMMIORequest;
 using opaegrpc::UpdatePropertiesReply;
 using opaegrpc::UpdatePropertiesRequest;
+using opaegrpc::WriteMMIO32Reply;
+using opaegrpc::WriteMMIO32Request;
+using opaegrpc::WriteMMIO512Reply;
+using opaegrpc::WriteMMIO512Request;
+using opaegrpc::WriteMMIO64Reply;
+using opaegrpc::WriteMMIO64Request;
 
 class OPAEServiceImpl final : public OPAEService::Service {
  public:
@@ -107,6 +117,26 @@ class OPAEServiceImpl final : public OPAEService::Service {
 
   Status fpgaUnmapMMIO(ServerContext *context, const UnmapMMIORequest *request,
                        UnmapMMIOReply *reply) override;
+
+  Status fpgaReadMMIO32(ServerContext *context,
+                        const ReadMMIO32Request *request,
+                        ReadMMIO32Reply *reply) override;
+
+  Status fpgaWriteMMIO32(ServerContext *context,
+                         const WriteMMIO32Request *request,
+                         WriteMMIO32Reply *reply) override;
+
+  Status fpgaReadMMIO64(ServerContext *context,
+                        const ReadMMIO64Request *request,
+                        ReadMMIO64Reply *reply) override;
+
+  Status fpgaWriteMMIO64(ServerContext *context,
+                         const WriteMMIO64Request *request,
+                         WriteMMIO64Reply *reply) override;
+
+  Status fpgaWriteMMIO512(ServerContext *context,
+                          const WriteMMIO512Request *request,
+                          WriteMMIO512Reply *reply) override;
 
   fpga_token find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);

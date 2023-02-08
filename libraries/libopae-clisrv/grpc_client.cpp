@@ -296,3 +296,133 @@ fpga_result OPAEClient::fpgaUnmapMMIO(const fpga_remote_id &handle_id,
 
   return to_opae_fpga_result[reply.result()];
 }
+
+fpga_result OPAEClient::fpgaReadMMIO32(const fpga_remote_id &handle_id,
+                                       uint32_t mmio_num, uint64_t offset,
+                                       uint32_t &value) {
+  opaegrpc::ReadMMIO32Request request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_mmio_num(mmio_num);
+  request.set_offset(offset);
+
+  opaegrpc::ReadMMIO32Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaReadMMIO32(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReadMMIO32() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaReadMMIO32 reply " << reply << std::endl;
+
+  value = reply.value();
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaWriteMMIO32(const fpga_remote_id &handle_id,
+                                        uint32_t mmio_num, uint64_t offset,
+                                        uint32_t value) {
+  opaegrpc::WriteMMIO32Request request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_mmio_num(mmio_num);
+  request.set_offset(offset);
+  request.set_value(value);
+
+  opaegrpc::WriteMMIO32Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaWriteMMIO32(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaWriteMMIO32() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaWriteMMIO32 reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaReadMMIO64(const fpga_remote_id &handle_id,
+                                       uint32_t mmio_num, uint64_t offset,
+                                       uint64_t &value) {
+  opaegrpc::ReadMMIO64Request request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_mmio_num(mmio_num);
+  request.set_offset(offset);
+
+  opaegrpc::ReadMMIO64Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaReadMMIO64(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReadMMIO64() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaReadMMIO64 reply " << reply << std::endl;
+
+  value = reply.value();
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaWriteMMIO64(const fpga_remote_id &handle_id,
+                                        uint32_t mmio_num, uint64_t offset,
+                                        uint64_t value) {
+  opaegrpc::WriteMMIO64Request request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_mmio_num(mmio_num);
+  request.set_offset(offset);
+  request.set_value(value);
+
+  opaegrpc::WriteMMIO64Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaWriteMMIO64(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaWriteMMIO64() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaWriteMMIO64 reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+constexpr size_t bits_to_bytes(size_t bits) { return bits / 8; }
+
+fpga_result OPAEClient::fpgaWriteMMIO512(const fpga_remote_id &handle_id,
+                                         uint32_t mmio_num, uint64_t offset,
+                                         const void *value) {
+  opaegrpc::WriteMMIO512Request request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_mmio_num(mmio_num);
+  request.set_offset(offset);
+
+  const char *pvals = (const char *)value;
+  std::string *alloced_str = new std::string(pvals, bits_to_bytes(512));
+  request.set_allocated_values(alloced_str);
+
+  opaegrpc::WriteMMIO512Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaWriteMMIO512(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaWriteMMIO512() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaWriteMMIO512 reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}

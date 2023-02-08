@@ -444,3 +444,164 @@ Status OPAEServiceImpl::fpgaUnmapMMIO(ServerContext *context,
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaReadMMIO32(ServerContext *context,
+                                       const ReadMMIO32Request *request,
+                                       ReadMMIO32Reply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  uint64_t offset;
+  uint32_t value = 0;
+  fpga_result res;
+
+  std::cout << "fpgaReadMMIO32 request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+  offset = request->offset();
+
+  res = ::fpgaReadMMIO32(handle, mmio_num, offset, &value);
+
+  reply->set_value(value);
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaWriteMMIO32(ServerContext *context,
+                                        const WriteMMIO32Request *request,
+                                        WriteMMIO32Reply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  uint64_t offset;
+  uint32_t value;
+  fpga_result res;
+
+  std::cout << "fpgaWriteMMIO32 request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+  offset = request->offset();
+  value = request->value();
+
+  res = ::fpgaWriteMMIO32(handle, mmio_num, offset, value);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaReadMMIO64(ServerContext *context,
+                                       const ReadMMIO64Request *request,
+                                       ReadMMIO64Reply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  uint64_t offset;
+  uint64_t value = 0;
+  fpga_result res;
+
+  std::cout << "fpgaReadMMIO64 request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+  offset = request->offset();
+
+  res = ::fpgaReadMMIO64(handle, mmio_num, offset, &value);
+
+  reply->set_value(value);
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaWriteMMIO64(ServerContext *context,
+                                        const WriteMMIO64Request *request,
+                                        WriteMMIO64Reply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  uint64_t offset;
+  uint64_t value;
+  fpga_result res;
+
+  std::cout << "fpgaWriteMMIO64 request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+  offset = request->offset();
+  value = request->value();
+
+  res = ::fpgaWriteMMIO64(handle, mmio_num, offset, value);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+constexpr size_t bits_to_bytes(size_t bits) { return bits / 8; }
+
+Status OPAEServiceImpl::fpgaWriteMMIO512(ServerContext *context,
+                                         const WriteMMIO512Request *request,
+                                         WriteMMIO512Reply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t mmio_num;
+  uint64_t offset;
+  fpga_result res;
+
+  std::cout << "fpgaWriteMMIO512 request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  mmio_num = request->mmio_num();
+  offset = request->offset();
+  const std::string &values = request->values();
+
+  if (values.length() < bits_to_bytes(512)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaWriteMMIO512(handle, mmio_num, offset, values.c_str());
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}

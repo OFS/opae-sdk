@@ -190,6 +190,11 @@ service OPAEService {
   rpc fpgaGetPropertiesFromHandle(GetPropertiesFromHandleRequest) returns (GetPropertiesFromHandleReply) {}
   rpc fpgaMapMMIO(MapMMIORequest) returns (MapMMIOReply) {}
   rpc fpgaUnmapMMIO(UnmapMMIORequest) returns (UnmapMMIOReply) {}
+  rpc fpgaReadMMIO32(ReadMMIO32Request) returns (ReadMMIO32Reply) {}
+  rpc fpgaWriteMMIO32(WriteMMIO32Request) returns (WriteMMIO32Reply) {}
+  rpc fpgaReadMMIO64(ReadMMIO64Request) returns (ReadMMIO64Reply) {}
+  rpc fpgaWriteMMIO64(WriteMMIO64Request) returns (WriteMMIO64Reply) {}
+  rpc fpgaWriteMMIO512(WriteMMIO512Request) returns (WriteMMIO512Reply) {}
 }
 
 message EnumerateRequest {
@@ -292,5 +297,60 @@ message UnmapMMIORequest {
 }
 
 message UnmapMMIOReply {
+  fpga_result result = 1;
+}
+
+message ReadMMIO32Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+}
+
+message ReadMMIO32Reply {
+  uint32 value = 1;
+  fpga_result result = 2;
+}
+
+message WriteMMIO32Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+  uint32 value = 4;
+}
+
+message WriteMMIO32Reply {
+  fpga_result result = 1;
+}
+
+message ReadMMIO64Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+}
+
+message ReadMMIO64Reply {
+  uint64 value = 1;
+  fpga_result result = 2;
+}
+
+message WriteMMIO64Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+  uint64 value = 4;
+}
+
+message WriteMMIO64Reply {
+  fpga_result result = 1;
+}
+
+message WriteMMIO512Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+  bytes values = 4;
+}
+
+message WriteMMIO512Reply {
   fpga_result result = 1;
 }
