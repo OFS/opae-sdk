@@ -140,8 +140,9 @@ void bel_print_sensors_status(struct bel_sensors_status *status);
 void bel_print_sensors_state(struct bel_sensors_state *state);
 void bel_print_power_off_status(struct bel_power_off_status *status,
                                 bool print_bits);
-void bel_print_power_on_status(struct bel_power_on_status *status,
-                               bool print_bits);
+void bel_print_power_on_status(struct bel_power_on_status* status,
+                            struct bel_timeof_day* timeof_day,
+                            bool print_bits);
 void bel_print(struct bel_event *event, bool print_sensors, bool print_bits);
 }
 
@@ -392,7 +393,7 @@ TEST_P(board_dfl_c6100_c_p, board_c6100_13) {
   struct bel_power_on_status power_on_status;
   memset(&power_on_status, 0x0, sizeof(power_on_status));
   power_on_status.header.magic = 0x53696C12;
-  EXPECT_NO_THROW(bel_print_power_on_status(&power_on_status, true));
+  EXPECT_NO_THROW(bel_print_power_on_status(&power_on_status, &timeof_day, true));
 
   struct bel_sensors_status sensors_status;
   memset(&sensors_status, 0x0, sizeof(sensors_status));

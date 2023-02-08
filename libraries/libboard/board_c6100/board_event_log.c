@@ -127,6 +127,21 @@ static struct bel_sensor_info bel_power_regulator_info[] = {
 	[BEL_PWR_REG_ISL68220_TEMP] = { .label = "ISL68220 Input",       .unit = "mV", .resolution = 1 }
 };
 
+struct pwron_status {
+	uint64_t value;
+	char str[256];
+};
+
+static struct pwron_status pwron_status_info[] = {
+	{.value = 0, .str = "Default(not attempted)" },
+	{.value = 1, .str = "Under progress" },
+	{.value = 2, .str = "Success"},
+	{.value = 3, .str = "Failed" },
+	{.value = 9, .str = "Repower cycle under progress" },
+	{.value = 0xa, .str = "Repower cycle success" },
+	{.value = 0xb, .str = "Repower cycle failed" }
+};
+
 static void bel_print_bool(const char *label, uint32_t value, size_t offset, const char *one, const char *zero)
 {
 	bool bit = (value >> offset) & 0x1;
@@ -157,12 +172,26 @@ static void bel_print_field(const char *label, uint32_t value, size_t first, siz
 	printf("      " BEL_LABEL_FMT "0x%x\n", 46, label, field);
 }
 
+static void bel_print_pwr_on_sts(const char *label, uint32_t value, size_t first, size_t last)
+{
+	uint32_t mask = UINT_MAX >> (32 - (last - first));
+	uint32_t field = (value >> first) & mask;
+	size_t i = 0;
+	for (i = 0; i < ARRAY_SIZE(pwron_status_info); i++) {
+		if (pwron_status_info[i].value == field) {
+			printf("      " BEL_LABEL_FMT "%s(0x%x)\n", 46, label, pwron_status_info[i].str, field);
+			return;
+		}
+	}
+	printf("      " BEL_LABEL_FMT "(%s)0x%x\n", 46, label, "reserved", field);
+}
+
 static void bel_print_value(const char *label, uint32_t value)
 {
 	printf("    " BEL_LABEL_FMT "0x%08x\n", 48, label, value);
 }
 
-static void bel_print_timeofday(struct bel_timeof_day *time_of_day)
+static void bel_print_timeofday(const char *label, struct bel_timeof_day *time_of_day)
 {
 	char time_str[26] = { 0 };
 	time_t time_sec = 0;
@@ -184,7 +213,7 @@ static void bel_print_timeofday(struct bel_timeof_day *time_of_day)
 		OPAE_ERR("Failed to format time: %s", strerror(errno));
 		return;
 	}
-	printf("  " BEL_LABEL_FMT "%s", 50, "Time of day offset", time_str);
+	printf("  " BEL_LABEL_FMT "%s", 50, label, time_str);
 }
 
 static void bel_print_header(const char *label, struct bel_header *header)
@@ -224,20 +253,27 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
 }
 
-void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bits)
+void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_ON_STATUS)
 		return;
 
-	bel_print_header("Power On Status Time", &status->header);
+	if (timeof_day->header.magic != BEL_TIMEOF_DAY_STATUS)
+		return;
+
+	/* Power on status is logged immediately after power on.
+	Time of the day information is written by SW into a BMC register.
+	This write will take some time after power on and hence with Power
+	on log there is no timestamp value available.*/
+	bel_print_timeofday("Power On Status Time", timeof_day);
 
 	/* Register 0x80 */
 	bel_print_value("Status (0x80)",        status->status);
 	reserved_field(NULL,                    status->status,  0, 24);
 	reserved_field(NULL,                    0xFF,  0, 24);
 	reserved_bit(NULL,                      ~0,  22);
-	bel_print_field("Power On Code FPGA",   status->status, 24, 28);
-	bel_print_field("Power On Code ICXD",    status->status, 28, 32);
+	bel_print_pwr_on_sts("Power On Code FPGA",   status->status, 24, 28);
+	bel_print_pwr_on_sts("Power On Code ICXD",    status->status, 28, 32);
 
 	/* Register 0xa0 */
 	bel_print_value("FPGA Config Status (0xA0)",   status->fpga_status);
@@ -615,7 +651,7 @@ void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
 		return;
 
 	bel_print_header("Time of day", &timeof_day->header);
-	bel_print_timeofday(timeof_day);
+	bel_print_timeofday("Time of day offset", timeof_day);
 
 	bel_print_value("TimeOfDay offset low", timeof_day->timeofday_offset_low);
 	bel_print_value("TimeOfDay offset high", timeof_day->timeofday_offset_high);
@@ -727,7 +763,7 @@ fpga_result bel_read(fpga_object fpga_object, uint32_t ptr, struct bel_event *ev
 
 void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 {
-	bel_print_power_on_status(&event->power_on_status, print_bits);
+	bel_print_power_on_status(&event->power_on_status, &event->timeof_day, print_bits);
 	bel_print_timeof_day(&event->timeof_day);
 	bel_print_max10_seu(&event->max10_seu);
 	bel_print_fpga_seu(&event->fpga_seu);
@@ -745,16 +781,31 @@ void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 void bel_timespan(struct bel_event *event, uint32_t idx)
 {
 	struct bel_header *header_off = &event->power_off_status.header;
-	struct bel_header *header_on = &event->power_on_status.header;
 	time_t off_sec = (((uint64_t)header_off->timespamp_high << 32) |
-		header_off->timestamp_low) / 1000UL;
-	time_t on_sec = (((uint64_t)header_on->timespamp_high << 32) |
-		header_on->timestamp_low) / 1000UL;
-	char off_str[26] = { '\0' };
+		header_off->timestamp_low) /1000UL;
+	char off_str[26] = { 'N', '/', 'A', '\0' };
 	char on_str[26] = { '\0' };
+	time_t on_sec = 0;
 
-	if (header_on->magic != BEL_POWER_ON_STATUS)
+	/* Power on status is logged immediately after power on.
+	Time of the day information is written by SW into a BMC register.
+	This write will take some time after power on and hence with Power
+	on log there is no timestamp value available.*/
+	if (event->timeof_day.header.magic != BEL_TIMEOF_DAY_STATUS)
 		return;
+
+	// Timestamps are 64-bit milliseconds:
+	uint64_t correct_time = ((uint64_t)event->timeof_day.header.timespamp_high << 32) +
+		event->timeof_day.header.timestamp_low;
+
+	if (event->timeof_day.header.timespamp_high == 0) {
+		uint64_t offset = ((uint64_t)event->timeof_day.timeofday_offset_high << 32) +
+			event->timeof_day.timeofday_offset_low;
+		correct_time += offset;
+	}
+
+	// Convert milliseconds to seconds; no rounding up from 500 milliseconds!
+	on_sec = correct_time / 1000UL;
 
 	if (ctime_r(&on_sec, on_str) == NULL) {
 		OPAE_ERR("Failed to format time: %s", strerror(errno));
@@ -772,7 +823,14 @@ void bel_timespan(struct bel_event *event, uint32_t idx)
 		off_str[24] = '\0';
 	}
 
-	printf("Boot %u: %s — %s\n", idx, on_str, off_str);
+	if (idx == 0) {
+		printf("%-15s : %-25s : %-25s\n", "Boot Index", "Power-ON Timestamp", "Power-OFF Timestamp");
+		printf("-------------------------------------------------------------------------\n");
+		printf("%-15s - %-20s  - %-20s\n", "Current Boot", on_str, off_str);
+	} else {
+		printf("Boot %-10u - %-20s  - %-20s\n", idx, on_str, off_str);
+	}
+
 }
 
 bool bel_empty(struct bel_event *event)
