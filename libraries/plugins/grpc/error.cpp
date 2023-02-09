@@ -30,27 +30,15 @@
 
 #include <opae/types.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
 #include "remote.h"
-//#include "request.h"
-//#include "response.h"
 
 fpga_result __REMOTE_API__ remote_fpgaReadError(fpga_token token,
                                                 uint32_t error_num,
                                                 uint64_t *value) {
-#if 1
-  (void)token;
-  (void)error_num;
-  (void)value;
-
-  return FPGA_OK;
-#else
-  opae_fpgaReadError_request req;
-  opae_fpgaReadError_response resp;
-  struct _remote_token *tok;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_token *tok;
+  OPAEClient *client;
 
   if (!token) {
     OPAE_ERR("NULL token");
@@ -62,23 +50,10 @@ fpga_result __REMOTE_API__ remote_fpgaReadError(fpga_token token,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = (struct _remote_token *)token;
-  req.token_id = tok->hdr.token_id;
-  req.error_num = error_num;
+  tok = reinterpret_cast<_remote_token *>(token);
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req_json =
-      opae_encode_fpgaReadError_request_19(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaReadError_response_19(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) *value = resp.value;
-
-  return resp.result;
-#endif
+  return client->fpgaReadError(tok->hdr.token_id, error_num, *value);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaClearError(fpga_token token,

@@ -426,3 +426,106 @@ fpga_result OPAEClient::fpgaWriteMMIO512(const fpga_remote_id &handle_id,
 
   return to_opae_fpga_result[reply.result()];
 }
+
+fpga_result OPAEClient::fpgaPrepareBuffer(const fpga_remote_id &handle_id,
+                                          uint64_t length, void **buf_addr,
+                                          int flags, fpga_remote_id &buf_id) {
+  opaegrpc::PrepareBufferRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_length(length);
+  request.set_have_buf_addr(false);
+  request.set_pre_allocated_addr(0);
+
+  if (buf_addr) {
+    request.set_have_buf_addr(true);
+    request.set_pre_allocated_addr((uint64_t)*buf_addr);
+  }
+
+  request.set_flags(flags);
+
+  opaegrpc::PrepareBufferReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaPrepareBuffer(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaPrepareBuffer() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaPrepareBuffer reply " << reply << std::endl;
+
+  buf_id = to_opae_fpga_remote_id(reply.buf_id());
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaReleaseBuffer(const fpga_remote_id &handle_id,
+                                          const fpga_remote_id &buf_id) {
+  opaegrpc::ReleaseBufferRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
+
+  opaegrpc::ReleaseBufferReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaReleaseBuffer(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReleaseBuffer() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaReleaseBuffer reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaGetIOAddress(const fpga_remote_id &handle_id,
+                                         const fpga_remote_id &buf_id,
+                                         uint64_t &ioaddr) {
+  opaegrpc::GetIOAddressRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
+
+  opaegrpc::GetIOAddressReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaGetIOAddress(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaGetIOAddress() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaGetIOAddress reply " << reply << std::endl;
+
+  ioaddr = reply.ioaddr();
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaReadError(const fpga_remote_id &token_id,
+                                      uint32_t error_num, uint64_t &value) {
+  opaegrpc::ReadErrorRequest request;
+  request.set_allocated_token_id(to_grpc_fpga_remote_id(token_id));
+  request.set_error_num(error_num);
+
+  opaegrpc::ReadErrorReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaReadError(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReadError() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaReadError reply " << reply << std::endl;
+
+  value = reply.value();
+
+  return to_opae_fpga_result[reply.result()];
+}

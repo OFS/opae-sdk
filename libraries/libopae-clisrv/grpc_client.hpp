@@ -117,6 +117,19 @@ class OPAEClient final {
                                uint32_t mmio_num, uint64_t offset,
                                const void *value);
 
+  fpga_result fpgaPrepareBuffer(const fpga_remote_id &handle_id,
+                                uint64_t length, void **buf_addr, int flags,
+                                fpga_remote_id &buf_id);
+
+  fpga_result fpgaReleaseBuffer(const fpga_remote_id &handle_id,
+                                const fpga_remote_id &buf_id);
+
+  fpga_result fpgaGetIOAddress(const fpga_remote_id &handle_id,
+                               const fpga_remote_id &buf_id, uint64_t &ioaddr);
+
+  fpga_result fpgaReadError(const fpga_remote_id &token_id, uint32_t error_num,
+                            uint64_t &value);
+
   _remote_token *find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
     return (it == token_map_.end()) ? nullptr : it->second;

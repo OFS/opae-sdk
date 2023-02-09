@@ -605,3 +605,165 @@ Status OPAEServiceImpl::fpgaWriteMMIO512(ServerContext *context,
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaPrepareBuffer(ServerContext *context,
+                                          const PrepareBufferRequest *request,
+                                          PrepareBufferReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint64_t length;
+  bool have_buf_addr;
+  void **buf_addr = nullptr;
+  void *addr = nullptr;
+  int flags;
+  uint64_t wsid = 0;
+  fpga_remote_id buf_id;
+  fpga_result res;
+
+  std::cout << "fpgaPrepareBuffer request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  length = request->length();
+  have_buf_addr = request->have_buf_addr();
+
+  if (have_buf_addr) {
+    buf_addr = &addr;
+    addr = (void *)request->pre_allocated_addr();
+  }
+
+  flags = request->flags();
+
+  res = ::fpgaPrepareBuffer(handle, length, buf_addr, &wsid, flags);
+
+  if ((res == FPGA_OK) && buf_addr) {
+    // Allocate a new remote ID for the buffer.
+    opae_get_remote_id(&buf_id);
+
+    OPAEBufferInfo *binfo =
+        new OPAEBufferInfo(handle_id, length, *buf_addr, wsid, flags);
+    add_binfo(buf_id, binfo);
+
+    reply->set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaReleaseBuffer(ServerContext *context,
+                                          const ReleaseBufferRequest *request,
+                                          ReleaseBufferReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id buf_id;
+  OPAEBufferInfo *binfo;
+  fpga_result res;
+
+  std::cout << "fpgaReleaseBuffer request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  buf_id = to_opae_fpga_remote_id(request->buf_id());
+  binfo = find_binfo(buf_id);
+
+  if (!binfo) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  res = ::fpgaReleaseBuffer(handle, binfo->wsid_);
+  if (res == FPGA_OK) remove_binfo(buf_id);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetIOAddress(ServerContext *context,
+                                         const GetIOAddressRequest *request,
+                                         GetIOAddressReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id buf_id;
+  OPAEBufferInfo *binfo;
+  uint64_t ioaddr = 0;
+  fpga_result res;
+
+  std::cout << "fpgaGetIOAddress request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = find_handle(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  buf_id = to_opae_fpga_remote_id(request->buf_id());
+  binfo = find_binfo(buf_id);
+
+  if (!binfo) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  res = ::fpgaGetIOAddress(handle, binfo->wsid_, &ioaddr);
+
+  reply->set_ioaddr(ioaddr);
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaReadError(ServerContext *context,
+                                      const ReadErrorRequest *request,
+                                      ReadErrorReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id token_id;
+  fpga_token token;
+  uint32_t error_num;
+  uint64_t value = 0;
+  fpga_result res;
+
+  std::cout << "fpgaReadError request " << *request << std::endl;
+
+  token_id = to_opae_fpga_remote_id(request->token_id());
+  token = find_token(token_id);
+
+  if (!token) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  error_num = request->error_num();
+
+  res = ::fpgaReadError(token, error_num, &value);
+
+  reply->set_value(value);
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}

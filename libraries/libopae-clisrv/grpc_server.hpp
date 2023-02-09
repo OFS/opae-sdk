@@ -50,6 +50,8 @@ using opaegrpc::DestroyTokenReply;
 using opaegrpc::DestroyTokenRequest;
 using opaegrpc::EnumerateReply;
 using opaegrpc::EnumerateRequest;
+using opaegrpc::GetIOAddressReply;
+using opaegrpc::GetIOAddressRequest;
 using opaegrpc::GetPropertiesFromHandleReply;
 using opaegrpc::GetPropertiesFromHandleRequest;
 using opaegrpc::GetPropertiesReply;
@@ -59,10 +61,16 @@ using opaegrpc::MapMMIORequest;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
+using opaegrpc::PrepareBufferReply;
+using opaegrpc::PrepareBufferRequest;
+using opaegrpc::ReadErrorReply;
+using opaegrpc::ReadErrorRequest;
 using opaegrpc::ReadMMIO32Reply;
 using opaegrpc::ReadMMIO32Request;
 using opaegrpc::ReadMMIO64Reply;
 using opaegrpc::ReadMMIO64Request;
+using opaegrpc::ReleaseBufferReply;
+using opaegrpc::ReleaseBufferRequest;
 using opaegrpc::ResetReply;
 using opaegrpc::ResetRequest;
 using opaegrpc::UnmapMMIOReply;
@@ -76,11 +84,28 @@ using opaegrpc::WriteMMIO512Request;
 using opaegrpc::WriteMMIO64Reply;
 using opaegrpc::WriteMMIO64Request;
 
+struct OPAEBufferInfo {
+  OPAEBufferInfo(const fpga_remote_id &handle_id, uint64_t length,
+                 void *buf_addr, uint64_t wsid, int flags)
+      : handle_id_(handle_id),
+        length_(length),
+        buf_addr_(buf_addr),
+        wsid_(wsid),
+        flags_(flags) {}
+
+  fpga_remote_id handle_id_;
+  uint64_t length_;
+  void *buf_addr_;
+  uint64_t wsid_;
+  int flags_;
+};
+
 class OPAEServiceImpl final : public OPAEService::Service {
  public:
   typedef std::map<fpga_remote_id, fpga_token> token_map_t;
   typedef std::map<fpga_remote_id, fpga_handle> handle_map_t;
   typedef std::map<fpga_remote_id, uint64_t *> mmio_map_t;
+  typedef std::map<fpga_remote_id, OPAEBufferInfo *> binfo_map_t;
 
   Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
                        EnumerateReply *reply) override;
@@ -138,6 +163,21 @@ class OPAEServiceImpl final : public OPAEService::Service {
                           const WriteMMIO512Request *request,
                           WriteMMIO512Reply *reply) override;
 
+  Status fpgaPrepareBuffer(ServerContext *context,
+                           const PrepareBufferRequest *request,
+                           PrepareBufferReply *reply) override;
+
+  Status fpgaReleaseBuffer(ServerContext *context,
+                           const ReleaseBufferRequest *request,
+                           ReleaseBufferReply *reply) override;
+
+  Status fpgaGetIOAddress(ServerContext *context,
+                          const GetIOAddressRequest *request,
+                          GetIOAddressReply *reply) override;
+
+  Status fpgaReadError(ServerContext *context, const ReadErrorRequest *request,
+                       ReadErrorReply *reply) override;
+
   fpga_token find_token(const fpga_remote_id &rid) const {
     token_map_t::const_iterator it = token_map_.find(rid);
     return (it == token_map_.end()) ? nullptr : it->second;
@@ -192,8 +232,27 @@ class OPAEServiceImpl final : public OPAEService::Service {
     return true;
   }
 
+  OPAEBufferInfo *find_binfo(const fpga_remote_id &rid) const {
+    binfo_map_t::const_iterator it = binfo_map_.find(rid);
+    return (it == binfo_map_.end()) ? nullptr : it->second;
+  }
+
+  bool add_binfo(const fpga_remote_id &rid, OPAEBufferInfo *binfo) {
+    std::pair<binfo_map_t::iterator, bool> res =
+        binfo_map_.insert(std::make_pair(rid, binfo));
+    return res.second;
+  }
+
+  bool remove_binfo(const fpga_remote_id &rid) {
+    binfo_map_t::iterator it = binfo_map_.find(rid);
+    if (it == binfo_map_.end()) return false;
+    binfo_map_.erase(it);
+    return true;
+  }
+
  private:
   token_map_t token_map_;
   handle_map_t handle_map_;
   mmio_map_t mmio_map_;
+  binfo_map_t binfo_map_;
 };

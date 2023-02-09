@@ -34,30 +34,18 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
 #include "remote.h"
-//#include "request.h"
-//#include "response.h"
 
 fpga_result __REMOTE_API__ remote_fpgaPrepareBuffer(fpga_handle handle,
                                                     uint64_t blen,
                                                     void **buf_addr,
                                                     uint64_t *wsid, int flags) {
-#if 1
-  (void)handle;
-  (void)blen;
-  (void)buf_addr;
-  (void)wsid;
-  (void)flags;
-
-  return FPGA_OK;
-#else
-  opae_fpgaPrepareBuffer_request req;
-  opae_fpgaPrepareBuffer_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  fpga_remote_id buf_id;
   fpga_result res;
 
   if (!handle) {
@@ -70,33 +58,13 @@ fpga_result __REMOTE_API__ remote_fpgaPrepareBuffer(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.len = blen;
-  req.have_buf_addr = false;
-  req.pre_allocated_addr = NULL;
-
-  if (buf_addr) {
-    req.have_buf_addr = true;
-    req.pre_allocated_addr = *buf_addr;
-  }
-
-  req.flags = flags;
-
-  req_json =
-      opae_encode_fpgaPrepareBuffer_request_16(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaPrepareBuffer_response_16(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
-    fpga_remote_id *rid;
-
+  res = client->fpgaPrepareBuffer(h->hdr.handle_id, blen, buf_addr, flags,
+                                  buf_id);
+  if (res == FPGA_OK) {
     /*
     ** Special case: when flags contains FPGA_BUF_PREALLOCATED,
     ** and when buf_addr and blen are NULL and 0, then an FPGA_OK
@@ -104,38 +72,20 @@ fpga_result __REMOTE_API__ remote_fpgaPrepareBuffer(fpga_handle handle,
     */
     if ((flags & FPGA_BUF_PREALLOCATED) && !buf_addr && !blen) return FPGA_OK;
 
-    if (buf_addr) *buf_addr = NULL;
+    if (buf_addr) *buf_addr = nullptr;
 
-    rid = (fpga_remote_id *)opae_malloc(sizeof(*rid));
-    if (!rid) {
-      OPAE_ERR("malloc failed");
-      *wsid = 0;
-      return FPGA_NO_MEMORY;
-    }
-
-    *rid = resp.buf_id;
+    fpga_remote_id *rid = new fpga_remote_id(buf_id);
     *wsid = (uint64_t)rid;
   }
 
-  return resp.result;
-#endif
+  return res;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaReleaseBuffer(fpga_handle handle,
                                                     uint64_t wsid) {
-#if 1
-  (void)handle;
-  (void)wsid;
-
-  return FPGA_OK;
-#else
-  opae_fpgaReleaseBuffer_request req;
-  opae_fpgaReleaseBuffer_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_remote_id *rid;
 
   if (!handle) {
@@ -143,44 +93,20 @@ fpga_result __REMOTE_API__ remote_fpgaReleaseBuffer(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  rid = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
-  rid = (fpga_remote_id *)(void *)wsid;
-
-  req.handle_id = h->hdr.handle_id;
-  req.buf_id = *rid;
-
-  req_json =
-      opae_encode_fpgaReleaseBuffer_request_17(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaReleaseBuffer_response_17(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaReleaseBuffer(h->hdr.handle_id, *rid);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetIOAddress(fpga_handle handle,
                                                    uint64_t wsid,
                                                    uint64_t *ioaddr) {
-#if 1
-  (void)handle;
-  (void)wsid;
-  (void)ioaddr;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetIOAddress_request req;
-  opae_fpgaGetIOAddress_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_remote_id *rid;
 
   if (!handle) {
@@ -193,27 +119,12 @@ fpga_result __REMOTE_API__ remote_fpgaGetIOAddress(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  rid = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
-  rid = (fpga_remote_id *)(void *)wsid;
-
-  req.handle_id = h->hdr.handle_id;
-  req.buf_id = *rid;
-
-  req_json =
-      opae_encode_fpgaGetIOAddress_request_18(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaGetIOAddress_response_18(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) *ioaddr = resp.ioaddr;
-
-  return resp.result;
-#endif
+  return client->fpgaGetIOAddress(h->hdr.handle_id, *rid, *ioaddr);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaBufMemSet(fpga_handle handle,
