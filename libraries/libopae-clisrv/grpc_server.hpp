@@ -32,7 +32,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <string>
 
@@ -42,14 +41,22 @@
 
 using grpc::ServerContext;
 using grpc::Status;
+using opaegrpc::ClearAllErrorsReply;
+using opaegrpc::ClearAllErrorsRequest;
+using opaegrpc::ClearErrorReply;
+using opaegrpc::ClearErrorRequest;
 using opaegrpc::CloneTokenReply;
 using opaegrpc::CloneTokenRequest;
 using opaegrpc::CloseReply;
 using opaegrpc::CloseRequest;
+using opaegrpc::DestroyObjectReply;
+using opaegrpc::DestroyObjectRequest;
 using opaegrpc::DestroyTokenReply;
 using opaegrpc::DestroyTokenRequest;
 using opaegrpc::EnumerateReply;
 using opaegrpc::EnumerateRequest;
+using opaegrpc::GetErrorInfoReply;
+using opaegrpc::GetErrorInfoRequest;
 using opaegrpc::GetIOAddressReply;
 using opaegrpc::GetIOAddressRequest;
 using opaegrpc::GetPropertiesFromHandleReply;
@@ -58,6 +65,16 @@ using opaegrpc::GetPropertiesReply;
 using opaegrpc::GetPropertiesRequest;
 using opaegrpc::MapMMIOReply;
 using opaegrpc::MapMMIORequest;
+using opaegrpc::ObjectGetNameReply;
+using opaegrpc::ObjectGetNameRequest;
+using opaegrpc::ObjectGetSizeReply;
+using opaegrpc::ObjectGetSizeRequest;
+using opaegrpc::ObjectGetTypeReply;
+using opaegrpc::ObjectGetTypeRequest;
+using opaegrpc::ObjectRead64Reply;
+using opaegrpc::ObjectRead64Request;
+using opaegrpc::ObjectReadReply;
+using opaegrpc::ObjectReadRequest;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
@@ -73,6 +90,8 @@ using opaegrpc::ReleaseBufferReply;
 using opaegrpc::ReleaseBufferRequest;
 using opaegrpc::ResetReply;
 using opaegrpc::ResetRequest;
+using opaegrpc::TokenGetObjectReply;
+using opaegrpc::TokenGetObjectRequest;
 using opaegrpc::UnmapMMIOReply;
 using opaegrpc::UnmapMMIORequest;
 using opaegrpc::UpdatePropertiesReply;
@@ -102,10 +121,12 @@ struct OPAEBufferInfo {
 
 class OPAEServiceImpl final : public OPAEService::Service {
  public:
-  typedef std::map<fpga_remote_id, fpga_token> token_map_t;
-  typedef std::map<fpga_remote_id, fpga_handle> handle_map_t;
-  typedef std::map<fpga_remote_id, uint64_t *> mmio_map_t;
-  typedef std::map<fpga_remote_id, OPAEBufferInfo *> binfo_map_t;
+  OPAEServiceImpl()
+      : token_map_(nullptr),
+        handle_map_(nullptr),
+        mmio_map_(nullptr),
+        binfo_map_(nullptr),
+        sysobj_map_(nullptr) {}
 
   Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
                        EnumerateReply *reply) override;
@@ -178,81 +199,59 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaReadError(ServerContext *context, const ReadErrorRequest *request,
                        ReadErrorReply *reply) override;
 
-  fpga_token find_token(const fpga_remote_id &rid) const {
-    token_map_t::const_iterator it = token_map_.find(rid);
-    return (it == token_map_.end()) ? nullptr : it->second;
-  }
+  Status fpgaGetErrorInfo(ServerContext *context,
+                          const GetErrorInfoRequest *request,
+                          GetErrorInfoReply *reply) override;
 
-  bool add_token(const fpga_remote_id &rid, fpga_token token) {
-    std::pair<token_map_t::iterator, bool> res =
-        token_map_.insert(std::make_pair(rid, token));
-    return res.second;
-  }
+  Status fpgaClearError(ServerContext *context,
+                        const ClearErrorRequest *request,
+                        ClearErrorReply *reply) override;
 
-  bool remove_token(const fpga_remote_id &rid) {
-    token_map_t::iterator it = token_map_.find(rid);
-    if (it == token_map_.end()) return false;
-    token_map_.erase(it);
-    return true;
-  }
+  Status fpgaClearAllErrors(ServerContext *context,
+                            const ClearAllErrorsRequest *request,
+                            ClearAllErrorsReply *reply) override;
 
-  fpga_handle find_handle(const fpga_remote_id &rid) const {
-    handle_map_t::const_iterator it = handle_map_.find(rid);
-    return (it == handle_map_.end()) ? nullptr : it->second;
-  }
+  Status fpgaTokenGetObject(ServerContext *context,
+                            const TokenGetObjectRequest *request,
+                            TokenGetObjectReply *reply) override;
 
-  bool add_handle(const fpga_remote_id &rid, fpga_handle handle) {
-    std::pair<handle_map_t::iterator, bool> res =
-        handle_map_.insert(std::make_pair(rid, handle));
-    return res.second;
-  }
+  Status fpgaDestroyObject(ServerContext *context,
+                           const DestroyObjectRequest *request,
+                           DestroyObjectReply *reply) override;
 
-  bool remove_handle(const fpga_remote_id &rid) {
-    handle_map_t::iterator it = handle_map_.find(rid);
-    if (it == handle_map_.end()) return false;
-    handle_map_.erase(it);
-    return true;
-  }
+  Status fpgaObjectGetType(ServerContext *context,
+                           const ObjectGetTypeRequest *request,
+                           ObjectGetTypeReply *reply) override;
 
-  uint64_t *find_mmio(const fpga_remote_id &rid) const {
-    mmio_map_t::const_iterator it = mmio_map_.find(rid);
-    return (it == mmio_map_.end()) ? nullptr : it->second;
-  }
+  Status fpgaObjectGetName(ServerContext *context,
+                           const ObjectGetNameRequest *request,
+                           ObjectGetNameReply *reply) override;
 
-  bool add_mmio(const fpga_remote_id &rid, uint64_t *mmio_ptr) {
-    std::pair<mmio_map_t::iterator, bool> res =
-        mmio_map_.insert(std::make_pair(rid, mmio_ptr));
-    return res.second;
-  }
+  Status fpgaObjectGetSize(ServerContext *context,
+                           const ObjectGetSizeRequest *request,
+                           ObjectGetSizeReply *reply) override;
 
-  bool remove_mmio(const fpga_remote_id &rid) {
-    mmio_map_t::iterator it = mmio_map_.find(rid);
-    if (it == mmio_map_.end()) return false;
-    mmio_map_.erase(it);
-    return true;
-  }
+  Status fpgaObjectRead(ServerContext *context,
+                        const ObjectReadRequest *request,
+                        ObjectReadReply *reply) override;
 
-  OPAEBufferInfo *find_binfo(const fpga_remote_id &rid) const {
-    binfo_map_t::const_iterator it = binfo_map_.find(rid);
-    return (it == binfo_map_.end()) ? nullptr : it->second;
-  }
+  Status fpgaObjectRead64(ServerContext *context,
+                          const ObjectRead64Request *request,
+                          ObjectRead64Reply *reply) override;
 
-  bool add_binfo(const fpga_remote_id &rid, OPAEBufferInfo *binfo) {
-    std::pair<binfo_map_t::iterator, bool> res =
-        binfo_map_.insert(std::make_pair(rid, binfo));
-    return res.second;
-  }
+ public:
+  typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;
 
-  bool remove_binfo(const fpga_remote_id &rid) {
-    binfo_map_t::iterator it = binfo_map_.find(rid);
-    if (it == binfo_map_.end()) return false;
-    binfo_map_.erase(it);
-    return true;
-  }
+  token_map_t token_map_;
 
  private:
-  token_map_t token_map_;
+  typedef opae_map_helper<fpga_remote_id, fpga_handle> handle_map_t;
+  typedef opae_map_helper<fpga_remote_id, uint64_t *> mmio_map_t;
+  typedef opae_map_helper<fpga_remote_id, OPAEBufferInfo *> binfo_map_t;
+  typedef opae_map_helper<fpga_remote_id, fpga_object> sysobj_map_t;
+
   handle_map_t handle_map_;
   mmio_map_t mmio_map_;
   binfo_map_t binfo_map_;
+  sysobj_map_t sysobj_map_;
 };

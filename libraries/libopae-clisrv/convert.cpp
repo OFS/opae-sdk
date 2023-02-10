@@ -121,6 +121,15 @@ const fpga_interface
     to_opae_fpga_interface[opaegrpc::fpga_interface_ARRAYSIZE] = {
         FPGA_IFC_DFL, FPGA_IFC_VFIO, FPGA_IFC_SIM_DFL, FPGA_IFC_SIM_VFIO};
 
+const opaegrpc::fpga_sysobject_type
+    to_grpc_fpga_sysobject_type[opaegrpc::fpga_sysobject_type_ARRAYSIZE] = {
+        (opaegrpc::fpga_sysobject_type)0, opaegrpc::FPGA_OBJECT_CONTAINER,
+        opaegrpc::FPGA_OBJECT_ATTRIBUTE};
+
+const fpga_sysobject_type
+    to_opae_fpga_sysobject_type[opaegrpc::fpga_sysobject_type_ARRAYSIZE] = {
+        (fpga_sysobject_type)0, FPGA_OBJECT_CONTAINER, FPGA_OBJECT_ATTRIBUTE};
+
 const opaegrpc::fpga_metric_type
     to_grpc_fpga_metric_type[opaegrpc::fpga_metric_type_ARRAYSIZE] = {
         opaegrpc::FPGA_METRIC_TYPE_POWER, opaegrpc::FPGA_METRIC_TYPE_THERMAL,
@@ -798,7 +807,7 @@ fpga_properties to_opae_fpga_properties(
     // On the client side, we translate from fpga_remote_id to
     // the corresponding _remote_token *.
     fpga_remote_id rid = to_opae_fpga_remote_id(gprops.parent());
-    _remote_token *rtok = client->find_token(rid);
+    _remote_token *rtok = client->token_map_.find(rid);
     if (rtok)
       p->parent = rtok;
     else {
@@ -822,7 +831,7 @@ fpga_properties to_opae_fpga_properties(
     // On the server side, we translate from fpga_remote_id to
     // the corresponding fpga_token.
     fpga_remote_id rid = to_opae_fpga_remote_id(gprops.parent());
-    fpga_token tok = server->find_token(rid);
+    fpga_token tok = server->token_map_.find(rid);
     if (tok)
       p->parent = tok;
     else {

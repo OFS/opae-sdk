@@ -62,10 +62,8 @@ using opaegrpc::OPAEService;
 
 class OPAEClient final {
  public:
-  typedef std::map<fpga_remote_id, _remote_token *> token_map_t;
-
   OPAEClient(std::shared_ptr<Channel> channel)
-      : stub_(OPAEService::NewStub(channel)) {}
+      : stub_(OPAEService::NewStub(channel)), token_map_(nullptr) {}
 
   fpga_result fpgaEnumerate(const std::vector<fpga_properties> &filters,
                             uint32_t num_filters, uint32_t max_tokens,
@@ -130,29 +128,39 @@ class OPAEClient final {
   fpga_result fpgaReadError(const fpga_remote_id &token_id, uint32_t error_num,
                             uint64_t &value);
 
-  _remote_token *find_token(const fpga_remote_id &rid) const {
-    token_map_t::const_iterator it = token_map_.find(rid);
-    return (it == token_map_.end()) ? nullptr : it->second;
-  }
+  fpga_result fpgaGetErrorInfo(const fpga_remote_id &token_id,
+                               uint32_t error_num, fpga_error_info &error_info);
 
-  bool add_token(const fpga_remote_id &rid, _remote_token *tok) {
-    std::pair<token_map_t::iterator, bool> res =
-        token_map_.insert(std::make_pair(rid, tok));
-    return res.second;
-  }
+  fpga_result fpgaClearError(const fpga_remote_id &token_id,
+                             uint32_t error_num);
 
-  bool remove_token(const fpga_remote_id &rid) {
-    token_map_t::iterator it = token_map_.find(rid);
+  fpga_result fpgaClearAllErrors(const fpga_remote_id &token_id);
 
-    if (it == token_map_.end()) return false;
+  fpga_result fpgaTokenGetObject(const fpga_remote_id &token_id,
+                                 const char *name, int flags,
+                                 fpga_remote_id &object_id);
 
-    token_map_.erase(it);
+  fpga_result fpgaDestroyObject(const fpga_remote_id &object_id);
 
-    return true;
-  }
+  fpga_result fpgaObjectGetType(const fpga_remote_id &object_id,
+                                fpga_sysobject_type &type);
+
+  fpga_result fpgaObjectGetName(const fpga_remote_id &object_id, char *name,
+                                size_t max_len);
+
+  fpga_result fpgaObjectGetSize(const fpga_remote_id &object_id, int flags,
+                                uint32_t &value);
+
+  fpga_result fpgaObjectRead(const fpga_remote_id &object_id, uint8_t *buffer,
+                             size_t offset, size_t length, int flags);
+
+  fpga_result fpgaObjectRead64(const fpga_remote_id &object_id, int flags,
+                               uint64_t &value);
 
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 
+ public:
+  typedef opae_map_helper<fpga_remote_id, _remote_token *> token_map_t;
   token_map_t token_map_;
 };

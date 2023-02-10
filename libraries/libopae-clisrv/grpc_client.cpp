@@ -111,9 +111,11 @@ fpga_result OPAEClient::fpgaCloneToken(const fpga_remote_id &src_token_id,
 
   std::cout << "fpgaCloneToken reply " << reply << std::endl;
 
-  dest_token_hdr = to_opae_token_header(reply.dest_token());
+  fpga_result res = to_opae_fpga_result[reply.result()];
 
-  return to_opae_fpga_result[reply.result()];
+  if (res == FPGA_OK) dest_token_hdr = to_opae_token_header(reply.dest_token());
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaGetProperties(const fpga_remote_id &token_id,
@@ -134,10 +136,12 @@ fpga_result OPAEClient::fpgaGetProperties(const fpga_remote_id &token_id,
 
   std::cout << "fpgaGetProperties reply " << reply << std::endl;
 
-  if (reply.has_properties())
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK)
     properties = to_opae_fpga_properties(this, reply.properties());
 
-  return to_opae_fpga_result[reply.result()];
+  return res;
 }
 
 fpga_result OPAEClient::fpgaUpdateProperties(const fpga_remote_id &token_id,
@@ -158,10 +162,12 @@ fpga_result OPAEClient::fpgaUpdateProperties(const fpga_remote_id &token_id,
 
   std::cout << "fpgaUpdateProperties reply " << reply << std::endl;
 
-  if (reply.has_properties())
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK)
     properties = to_opae_fpga_properties(this, reply.properties());
 
-  return to_opae_fpga_result[reply.result()];
+  return res;
 }
 
 fpga_result OPAEClient::fpgaOpen(const fpga_remote_id &token_id, int flags,
@@ -182,9 +188,11 @@ fpga_result OPAEClient::fpgaOpen(const fpga_remote_id &token_id, int flags,
 
   std::cout << "fpgaOpen reply " << reply << std::endl;
 
-  if (reply.has_handle()) header = to_opae_handle_header(reply.handle());
+  fpga_result res = to_opae_fpga_result[reply.result()];
 
-  return to_opae_fpga_result[reply.result()];
+  if (res == FPGA_OK) header = to_opae_handle_header(reply.handle());
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaClose(const fpga_remote_id &handle_id) {
@@ -244,10 +252,12 @@ fpga_result OPAEClient::fpgaGetPropertiesFromHandle(
 
   std::cout << "fpgaGetPropertiesFromHandle reply " << reply << std::endl;
 
-  if (reply.has_properties())
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK)
     properties = to_opae_fpga_properties(this, reply.properties());
 
-  return to_opae_fpga_result[reply.result()];
+  return res;
 }
 
 fpga_result OPAEClient::fpgaMapMMIO(const fpga_remote_id &handle_id,
@@ -269,9 +279,11 @@ fpga_result OPAEClient::fpgaMapMMIO(const fpga_remote_id &handle_id,
 
   std::cout << "fpgaMapMMIO reply " << reply << std::endl;
 
-  mmio_id = to_opae_fpga_remote_id(reply.mmio_id());
+  fpga_result res = to_opae_fpga_result[reply.result()];
 
-  return to_opae_fpga_result[reply.result()];
+  if (res == FPGA_OK) mmio_id = to_opae_fpga_remote_id(reply.mmio_id());
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaUnmapMMIO(const fpga_remote_id &handle_id,
@@ -318,8 +330,11 @@ fpga_result OPAEClient::fpgaReadMMIO32(const fpga_remote_id &handle_id,
 
   std::cout << "fpgaReadMMIO32 reply " << reply << std::endl;
 
-  value = reply.value();
-  return to_opae_fpga_result[reply.result()];
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) value = reply.value();
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaWriteMMIO32(const fpga_remote_id &handle_id,
@@ -368,8 +383,11 @@ fpga_result OPAEClient::fpgaReadMMIO64(const fpga_remote_id &handle_id,
 
   std::cout << "fpgaReadMMIO64 reply " << reply << std::endl;
 
-  value = reply.value();
-  return to_opae_fpga_result[reply.result()];
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) value = reply.value();
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaWriteMMIO64(const fpga_remote_id &handle_id,
@@ -456,8 +474,11 @@ fpga_result OPAEClient::fpgaPrepareBuffer(const fpga_remote_id &handle_id,
 
   std::cout << "fpgaPrepareBuffer reply " << reply << std::endl;
 
-  buf_id = to_opae_fpga_remote_id(reply.buf_id());
-  return to_opae_fpga_result[reply.result()];
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) buf_id = to_opae_fpga_remote_id(reply.buf_id());
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaReleaseBuffer(const fpga_remote_id &handle_id,
@@ -502,9 +523,11 @@ fpga_result OPAEClient::fpgaGetIOAddress(const fpga_remote_id &handle_id,
 
   std::cout << "fpgaGetIOAddress reply " << reply << std::endl;
 
-  ioaddr = reply.ioaddr();
+  fpga_result res = to_opae_fpga_result[reply.result()];
 
-  return to_opae_fpga_result[reply.result()];
+  if (res == FPGA_OK) ioaddr = reply.ioaddr();
+
+  return res;
 }
 
 fpga_result OPAEClient::fpgaReadError(const fpga_remote_id &token_id,
@@ -525,7 +548,265 @@ fpga_result OPAEClient::fpgaReadError(const fpga_remote_id &token_id,
 
   std::cout << "fpgaReadError reply " << reply << std::endl;
 
-  value = reply.value();
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) value = reply.value();
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaGetErrorInfo(const fpga_remote_id &token_id,
+                                         uint32_t error_num,
+                                         fpga_error_info &error_info) {
+  opaegrpc::GetErrorInfoRequest request;
+  request.set_allocated_token_id(to_grpc_fpga_remote_id(token_id));
+  request.set_error_num(error_num);
+
+  opaegrpc::GetErrorInfoReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaGetErrorInfo(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaGetErrorInfo() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaGetErrorInfo reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) error_info = to_opae_fpga_error_info(reply.error_info());
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaClearError(const fpga_remote_id &token_id,
+                                       uint32_t error_num) {
+  opaegrpc::ClearErrorRequest request;
+  request.set_allocated_token_id(to_grpc_fpga_remote_id(token_id));
+  request.set_error_num(error_num);
+
+  opaegrpc::ClearErrorReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaClearError(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaClearError() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaClearError reply " << reply << std::endl;
 
   return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaClearAllErrors(const fpga_remote_id &token_id) {
+  opaegrpc::ClearAllErrorsRequest request;
+  request.set_allocated_token_id(to_grpc_fpga_remote_id(token_id));
+
+  opaegrpc::ClearAllErrorsReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaClearAllErrors(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaClearAllErrors() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaClearAllErrors reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaTokenGetObject(const fpga_remote_id &token_id,
+                                           const char *name, int flags,
+                                           fpga_remote_id &object_id) {
+  opaegrpc::TokenGetObjectRequest request;
+  request.set_allocated_token_id(to_grpc_fpga_remote_id(token_id));
+  request.set_allocated_name(new std::string(name));
+  request.set_flags(flags);
+
+  opaegrpc::TokenGetObjectReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaTokenGetObject(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaTokenGetObject() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaTokenGetObject reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) object_id = to_opae_fpga_remote_id(reply.object_id());
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaDestroyObject(const fpga_remote_id &object_id) {
+  opaegrpc::DestroyObjectRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+
+  opaegrpc::DestroyObjectReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaDestroyObject(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaDestroyObject() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaDestroyObject reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaObjectGetType(const fpga_remote_id &object_id,
+                                          fpga_sysobject_type &type) {
+  opaegrpc::ObjectGetTypeRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+
+  opaegrpc::ObjectGetTypeReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectGetType(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectGetType() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectGetType reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) type = to_opae_fpga_sysobject_type[reply.type()];
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaObjectGetName(const fpga_remote_id &object_id,
+                                          char *name, size_t max_len) {
+  opaegrpc::ObjectGetNameRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+
+  opaegrpc::ObjectGetNameReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectGetName(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectGetName() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectGetName reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) {
+    const std::string &n = reply.name();
+    size_t len = std::min(max_len - 1, n.length());
+    std::copy(n.c_str(), n.c_str() + len + 1, name);
+  }
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaObjectGetSize(const fpga_remote_id &object_id,
+                                          int flags, uint32_t &value) {
+  opaegrpc::ObjectGetSizeRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+  request.set_flags(flags);
+
+  opaegrpc::ObjectGetSizeReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectGetSize(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectGetSize() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectGetSize reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) value = reply.value();
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaObjectRead(const fpga_remote_id &object_id,
+                                       uint8_t *buffer, size_t offset,
+                                       size_t length, int flags) {
+  opaegrpc::ObjectReadRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+  request.set_offset(offset);
+  request.set_length(length - 1);
+  request.set_flags(flags);
+
+  opaegrpc::ObjectReadReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectRead(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectRead() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectRead reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) {
+    const std::string &value(reply.value());
+    size_t len = std::min(length - 1, value.length());
+    std::copy(value.c_str(), value.c_str() + len + 1, buffer);
+  }
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaObjectRead64(const fpga_remote_id &object_id,
+                                         int flags, uint64_t &value) {
+  opaegrpc::ObjectRead64Request request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+  request.set_flags(flags);
+
+  opaegrpc::ObjectRead64Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectRead64(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectRead64() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectRead64 reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) value = reply.value();
+
+  return res;
 }

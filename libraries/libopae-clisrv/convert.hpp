@@ -29,6 +29,7 @@
 #include <uuid/uuid.h>
 
 #include <iostream>
+#include <map>
 #include <string>
 
 #include "opae.grpc.pb.h"
@@ -76,6 +77,11 @@ extern const opaegrpc::fpga_interface
     to_grpc_fpga_interface[opaegrpc::fpga_interface_ARRAYSIZE];
 extern const fpga_interface
     to_opae_fpga_interface[opaegrpc::fpga_interface_ARRAYSIZE];
+
+extern const opaegrpc::fpga_sysobject_type
+    to_grpc_fpga_sysobject_type[opaegrpc::fpga_sysobject_type_ARRAYSIZE];
+extern const fpga_sysobject_type
+    to_opae_fpga_sysobject_type[opaegrpc::fpga_sysobject_type_ARRAYSIZE];
 
 extern const opaegrpc::fpga_metric_type
     to_grpc_fpga_metric_type[opaegrpc::fpga_metric_type_ARRAYSIZE];
@@ -142,3 +148,31 @@ fpga_properties to_opae_fpga_properties(
     OPAEClient *client, const opaegrpc::fpga_properties &gprops);
 fpga_properties to_opae_fpga_properties(
     OPAEServiceImpl *server, const opaegrpc::fpga_properties &gprops);
+
+template <typename K, typename V>
+class opae_map_helper {
+ public:
+  opae_map_helper(V none) : none_(none) {}
+
+  V find(const K &key) const {
+    typename std::map<K, V>::const_iterator it = map_.find(key);
+    return (it == map_.end()) ? none_ : it->second;
+  }
+
+  bool add(const K &key, V value) {
+    typename std::pair<typename std::map<K, V>::iterator, bool> res =
+        map_.insert(std::make_pair(key, value));
+    return res.second;
+  }
+
+  bool remove(const K &key) {
+    typename std::map<K, V>::iterator it = map_.find(key);
+    if (it == map_.end()) return false;
+    map_.erase(it);
+    return true;
+  }
+
+ private:
+  V none_;
+  std::map<K, V> map_;
+};

@@ -69,7 +69,12 @@ enum fpga_interface {
 // enum fpga_open_flags {}
 // enum fpga_reconf_flags {}
 // enum fpga_sysobject_flags {}
-// enum fpga_sysobject_type {}
+
+enum fpga_sysobject_type {
+  __UNUSED = 0;
+  FPGA_OBJECT_CONTAINER = 1;
+  FPGA_OBJECT_ATTRIBUTE = 2;
+}
 
 enum fpga_metric_type {
   FPGA_METRIC_TYPE_POWER = 0;
@@ -225,6 +230,17 @@ service OPAEService {
   rpc fpgaReleaseBuffer(ReleaseBufferRequest) returns (ReleaseBufferReply) {}
   rpc fpgaGetIOAddress(GetIOAddressRequest) returns (GetIOAddressReply) {}
   rpc fpgaReadError(ReadErrorRequest) returns (ReadErrorReply) {}
+  rpc fpgaGetErrorInfo(GetErrorInfoRequest) returns (GetErrorInfoReply) {}
+  rpc fpgaClearError(ClearErrorRequest) returns (ClearErrorReply) {}
+  rpc fpgaClearAllErrors(ClearAllErrorsRequest) returns (ClearAllErrorsReply) {}
+  rpc fpgaTokenGetObject(TokenGetObjectRequest) returns (TokenGetObjectReply) {}
+  rpc fpgaDestroyObject(DestroyObjectRequest) returns (DestroyObjectReply) {}
+  rpc fpgaObjectGetType(ObjectGetTypeRequest) returns (ObjectGetTypeReply) {}
+  rpc fpgaObjectGetName(ObjectGetNameRequest) returns (ObjectGetNameReply) {}
+  rpc fpgaObjectGetSize(ObjectGetSizeRequest) returns (ObjectGetSizeReply) {}
+  rpc fpgaObjectRead(ObjectReadRequest) returns (ObjectReadReply) {}
+  rpc fpgaObjectRead64(ObjectRead64Request) returns (ObjectRead64Reply) {}
+  rpc fpgaObjectWrite64(ObjectWrite64Request) returns (ObjectWrite64Reply) {}
 }
 
 message EnumerateRequest {
@@ -425,4 +441,110 @@ message ReadErrorRequest {
 message ReadErrorReply {
   uint64 value = 1;
   fpga_result result = 2;
+}
+
+message GetErrorInfoRequest {
+  fpga_remote_id token_id = 1;
+  uint32 error_num = 2;
+}
+
+message GetErrorInfoReply {
+  fpga_error_info error_info = 1;
+  fpga_result result = 2;
+}
+
+message ClearErrorRequest {
+  fpga_remote_id token_id = 1;
+  uint32 error_num = 2;
+}
+
+message ClearErrorReply {
+  fpga_result result = 1;
+}
+
+message ClearAllErrorsRequest {
+  fpga_remote_id token_id = 1;
+}
+
+message ClearAllErrorsReply {
+  fpga_result result = 1;
+}
+
+message TokenGetObjectRequest {
+  fpga_remote_id token_id = 1;
+  string name = 2;
+  int32 flags = 3;
+}
+
+message TokenGetObjectReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message DestroyObjectRequest {
+  fpga_remote_id object_id = 1;
+}
+
+message DestroyObjectReply {
+  fpga_result result = 1;
+}
+
+message ObjectGetTypeRequest {
+  fpga_remote_id object_id = 1;
+}
+
+message ObjectGetTypeReply {
+  fpga_sysobject_type type = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetNameRequest {
+  fpga_remote_id object_id = 1;
+}
+
+message ObjectGetNameReply {
+  string name = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetSizeRequest {
+  fpga_remote_id object_id = 1;
+  int32 flags = 2;
+}
+
+message ObjectGetSizeReply {
+  uint32 value = 1;
+  fpga_result result = 2;
+}
+
+message ObjectReadRequest {
+  fpga_remote_id object_id = 1;
+  uint64 offset = 2;
+  uint64 length = 3;
+  int32 flags = 4;
+}
+
+message ObjectReadReply {
+  string value = 1;
+  fpga_result result = 2;
+}
+
+message ObjectRead64Request {
+  fpga_remote_id object_id = 1;
+  int32 flags = 2;
+}
+
+message ObjectRead64Reply {
+  uint64 value = 1;
+  fpga_result result = 2;
+}
+
+message ObjectWrite64Request {
+  fpga_remote_id object_id = 1;
+  uint64 value = 2;
+  int32 flags = 3;
+}
+
+message ObjectWrite64Reply {
+  fpga_result result = 1;
 }

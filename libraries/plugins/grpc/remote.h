@@ -188,7 +188,6 @@ opae_create_remote_handle(struct _remote_token *token,
 
 void opae_destroy_remote_handle(struct _remote_handle *h);
 
-#if 0
 struct _remote_sysobject {
 	fpga_remote_id object_id;
 	struct _remote_token *token;
@@ -200,6 +199,7 @@ opae_create_remote_sysobject(struct _remote_token *token,
 
 void opae_destroy_remote_sysobject(struct _remote_sysobject *s);
 
+#if 0
 struct _remote_event_handle {
 	fpga_remote_id eh_id;
 	struct _remote_handle *handle;
