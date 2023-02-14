@@ -320,7 +320,8 @@ class openssl:
 
             if (c_version == vers or
                 m.group('version') == vers or
-                m.group('version')[:-1] == vers):
+                m.group('version')[:-1] == vers or
+                vers == ''):
                 log.info('OpenSSL version "%s" matches "%s"', c_version, vers)
                 return dll
 
@@ -331,7 +332,7 @@ class openssl:
 
     def __init__(self, versions=[('libcrypto.so.1.1', '1.1.1'),
                                  ('libcrypto.so.1.1', 'OpenSSL 1.1.1k  FIPS 25 Mar 2021'),
-                                 ('libcrypto.so.3', 'OpenSSL 3.0.2 15 Mar 2022')]):
+                                 ('libcrypto.so.3', '')]):
         self.nanotime = None
 
         if _platform == "win32" or _platform == "win64":
