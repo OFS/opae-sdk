@@ -241,6 +241,9 @@ service OPAEService {
   rpc fpgaObjectRead(ObjectReadRequest) returns (ObjectReadReply) {}
   rpc fpgaObjectRead64(ObjectRead64Request) returns (ObjectRead64Reply) {}
   rpc fpgaObjectWrite64(ObjectWrite64Request) returns (ObjectWrite64Reply) {}
+  rpc fpgaHandleGetObject(HandleGetObjectRequest) returns (HandleGetObjectReply) {}
+  rpc fpgaObjectGetObject(ObjectGetObjectRequest) returns (ObjectGetObjectReply) {}
+  rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {}
 }
 
 message EnumerateRequest {
@@ -547,4 +550,36 @@ message ObjectWrite64Request {
 
 message ObjectWrite64Reply {
   fpga_result result = 1;
+}
+
+message HandleGetObjectRequest {
+  fpga_remote_id handle_id = 1;
+  string name = 2;
+  int32 flags = 3;
+}
+
+message HandleGetObjectReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetObjectRequest {
+  fpga_remote_id object_id = 1;
+  string name = 2;
+  int32 flags = 3;
+}
+
+message ObjectGetObjectReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetObjectAtRequest {
+  fpga_remote_id object_id = 1;
+  uint64 index = 2;
+}
+
+message ObjectGetObjectAtReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
 }

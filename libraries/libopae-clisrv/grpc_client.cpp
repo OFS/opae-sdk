@@ -810,3 +810,109 @@ fpga_result OPAEClient::fpgaObjectRead64(const fpga_remote_id &object_id,
 
   return res;
 }
+
+fpga_result OPAEClient::fpgaObjectWrite64(const fpga_remote_id &object_id,
+                                          uint64_t value, int flags) {
+  opaegrpc::ObjectWrite64Request request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+  request.set_value(value);
+  request.set_flags(flags);
+
+  opaegrpc::ObjectWrite64Reply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectWrite64(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectWrite64() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectWrite64 reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaHandleGetObject(const fpga_remote_id &handle_id,
+                                            const char *name, int flags,
+                                            fpga_remote_id &object_id) {
+  opaegrpc::HandleGetObjectRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_name(new std::string(name));
+  request.set_flags(flags);
+
+  opaegrpc::HandleGetObjectReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaHandleGetObject(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaHandleGetObject() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaHandleGetObject reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) object_id = to_opae_fpga_remote_id(reply.object_id());
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaObjectGetObject(const fpga_remote_id &parent_id,
+                                            const char *name, int flags,
+                                            fpga_remote_id &child_id) {
+  opaegrpc::ObjectGetObjectRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(parent_id));
+  request.set_allocated_name(new std::string(name));
+  request.set_flags(flags);
+
+  opaegrpc::ObjectGetObjectReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectGetObject(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectGetObject() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectGetObject reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) child_id = to_opae_fpga_remote_id(reply.object_id());
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaObjectGetObjectAt(const fpga_remote_id &parent_id,
+                                              size_t index,
+                                              fpga_remote_id &child_id) {
+  opaegrpc::ObjectGetObjectAtRequest request;
+  request.set_allocated_object_id(to_grpc_fpga_remote_id(parent_id));
+  request.set_index(index);
+
+  opaegrpc::ObjectGetObjectAtReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaObjectGetObjectAt(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaObjectGetObjectAt() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaObjectGetObjectAt reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) child_id = to_opae_fpga_remote_id(reply.object_id());
+
+  return res;
+}

@@ -63,10 +63,16 @@ using opaegrpc::GetPropertiesFromHandleReply;
 using opaegrpc::GetPropertiesFromHandleRequest;
 using opaegrpc::GetPropertiesReply;
 using opaegrpc::GetPropertiesRequest;
+using opaegrpc::HandleGetObjectReply;
+using opaegrpc::HandleGetObjectRequest;
 using opaegrpc::MapMMIOReply;
 using opaegrpc::MapMMIORequest;
 using opaegrpc::ObjectGetNameReply;
 using opaegrpc::ObjectGetNameRequest;
+using opaegrpc::ObjectGetObjectAtReply;
+using opaegrpc::ObjectGetObjectAtRequest;
+using opaegrpc::ObjectGetObjectReply;
+using opaegrpc::ObjectGetObjectRequest;
 using opaegrpc::ObjectGetSizeReply;
 using opaegrpc::ObjectGetSizeRequest;
 using opaegrpc::ObjectGetTypeReply;
@@ -75,6 +81,8 @@ using opaegrpc::ObjectRead64Reply;
 using opaegrpc::ObjectRead64Request;
 using opaegrpc::ObjectReadReply;
 using opaegrpc::ObjectReadRequest;
+using opaegrpc::ObjectWrite64Reply;
+using opaegrpc::ObjectWrite64Request;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
@@ -238,6 +246,22 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaObjectRead64(ServerContext *context,
                           const ObjectRead64Request *request,
                           ObjectRead64Reply *reply) override;
+
+  Status fpgaObjectWrite64(ServerContext *context,
+                           const ObjectWrite64Request *request,
+                           ObjectWrite64Reply *reply) override;
+
+  Status fpgaHandleGetObject(ServerContext *context,
+                             const HandleGetObjectRequest *request,
+                             HandleGetObjectReply *reply) override;
+
+  Status fpgaObjectGetObject(ServerContext *context,
+                             const ObjectGetObjectRequest *request,
+                             ObjectGetObjectReply *reply) override;
+
+  Status fpgaObjectGetObjectAt(ServerContext *context,
+                               const ObjectGetObjectAtRequest *request,
+                               ObjectGetObjectAtReply *reply) override;
 
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;

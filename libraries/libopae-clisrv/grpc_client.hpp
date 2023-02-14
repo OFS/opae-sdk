@@ -157,6 +157,20 @@ class OPAEClient final {
   fpga_result fpgaObjectRead64(const fpga_remote_id &object_id, int flags,
                                uint64_t &value);
 
+  fpga_result fpgaObjectWrite64(const fpga_remote_id &object_id, uint64_t value,
+                                int flags);
+
+  fpga_result fpgaHandleGetObject(const fpga_remote_id &handle_id,
+                                  const char *name, int flags,
+                                  fpga_remote_id &object_id);
+
+  fpga_result fpgaObjectGetObject(const fpga_remote_id &parent_id,
+                                  const char *name, int flags,
+                                  fpga_remote_id &child_id);
+
+  fpga_result fpgaObjectGetObjectAt(const fpga_remote_id &parent_id,
+                                    size_t index, fpga_remote_id &child_id);
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 

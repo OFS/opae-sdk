@@ -1066,3 +1066,149 @@ Status OPAEServiceImpl::fpgaObjectRead64(ServerContext *context,
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaObjectWrite64(ServerContext *context,
+                                          const ObjectWrite64Request *request,
+                                          ObjectWrite64Reply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id object_id;
+  fpga_object sysobj;
+  uint64_t value;
+  int flags;
+  fpga_result res;
+
+  std::cout << "fpgaObjectWrite64 request " << *request << std::endl;
+
+  object_id = to_opae_fpga_remote_id(request->object_id());
+  sysobj = sysobj_map_.find(object_id);
+
+  if (!sysobj) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  value = request->value();
+  flags = request->flags();
+
+  res = ::fpgaObjectWrite64(sysobj, value, flags);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaHandleGetObject(
+    ServerContext *context, const HandleGetObjectRequest *request,
+    HandleGetObjectReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  int flags;
+  fpga_object sysobj = nullptr;
+  fpga_result res;
+
+  std::cout << "fpgaHandleGetObject request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  const std::string &name = request->name();
+  flags = request->flags();
+
+  res = ::fpgaHandleGetObject(handle, name.c_str(), &sysobj, flags);
+  if (res == FPGA_OK) {
+    fpga_remote_id object_id;
+
+    // Allocate a new remote ID for the object.
+    opae_get_remote_id(&object_id);
+
+    sysobj_map_.add(object_id, sysobj);
+
+    reply->set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaObjectGetObject(
+    ServerContext *context, const ObjectGetObjectRequest *request,
+    ObjectGetObjectReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id parent_id;
+  fpga_object parent;
+  fpga_object child = nullptr;
+  int flags;
+  fpga_result res;
+
+  std::cout << "fpgaObjectGetObject request " << *request << std::endl;
+
+  parent_id = to_opae_fpga_remote_id(request->object_id());
+  parent = sysobj_map_.find(parent_id);
+
+  if (!parent) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  const std::string &name = request->name();
+  flags = request->flags();
+
+  res = ::fpgaObjectGetObject(parent, name.c_str(), &child, flags);
+  if (res == FPGA_OK) {
+    fpga_remote_id child_id;
+
+    // Allocate a new remote ID for the child object.
+    opae_get_remote_id(&child_id);
+
+    sysobj_map_.add(child_id, child);
+
+    reply->set_allocated_object_id(to_grpc_fpga_remote_id(child_id));
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaObjectGetObjectAt(
+    ServerContext *context, const ObjectGetObjectAtRequest *request,
+    ObjectGetObjectAtReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id parent_id;
+  fpga_object parent;
+  uint64_t index;
+  fpga_object child = nullptr;
+  fpga_result res;
+
+  std::cout << "fpgaObjectGetObjectAt request " << *request << std::endl;
+
+  parent_id = to_opae_fpga_remote_id(request->object_id());
+  parent = sysobj_map_.find(parent_id);
+
+  if (!parent) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  index = request->index();
+
+  res = ::fpgaObjectGetObjectAt(parent, index, &child);
+
+  if (res == FPGA_OK) {
+    fpga_remote_id child_id;
+
+    // Allocate a new remote ID for the child object.
+    opae_get_remote_id(&child_id);
+
+    sysobj_map_.add(child_id, child);
+
+    reply->set_allocated_object_id(to_grpc_fpga_remote_id(child_id));
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
