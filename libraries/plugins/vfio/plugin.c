@@ -70,7 +70,6 @@ int __VFIO_API__ vfio_plugin_initialize(void)
 
 int __VFIO_API__ vfio_plugin_finalize(void)
 {
-	free_buffer_list();
 	free_device_list();
 
 	opae_free_libopae_config(opae_v_supported_devices);
