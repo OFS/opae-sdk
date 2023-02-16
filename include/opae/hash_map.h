@@ -29,6 +29,10 @@
 #include <stdbool.h>
 #include <opae/types_enum.h>
 
+#ifndef UNUSED_PARAM
+#define UNUSED_PARAM(x) ((void)(x))
+#endif // UNUSED_PARAM
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -83,11 +87,29 @@ fpga_result opae_hash_map_destroy(opae_hash_map *hm);
 
 bool opae_hash_map_is_empty(opae_hash_map *hm);
 
+static inline
 uint32_t opae_u64_key_hash(uint32_t num_buckets,
 			   uint32_t hash_seed,
-			   void *key);
+			   void *key)
+{
+	UNUSED_PARAM(hash_seed);
+	uint64_t ukey = (uint64_t)key;
+	return (uint32_t)(ukey % num_buckets);
+}
 
-int opae_u64_key_compare(void *keya, void *keyb);
+static inline
+int opae_u64_key_compare(void *keya, void *keyb)
+{
+	uint64_t a = (uint64_t)keya;
+	uint64_t b = (uint64_t)keyb;
+
+	if (a < b)
+		return -1;
+	else if (a > b)
+		return 1;
+	else
+		return 0;
+}
 
 #ifdef __cplusplus
 }

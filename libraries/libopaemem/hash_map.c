@@ -31,10 +31,6 @@
 #include <opae/hash_map.h>
 #include "mock/opae_std.h"
 
-#ifndef UNUSED_PARAM
-#define UNUSED_PARAM(x) ((void)(x))
-#endif // UNUSED_PARAM
-
 #define __SHORT_FILE__                                    \
 ({                                                        \
 	const char *file = __FILE__;                      \
@@ -123,9 +119,15 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 		return FPGA_NO_MEMORY;
 	}
 
-	key_hash = hm->key_hash(hm->num_buckets,
-				hm->hash_seed,
-				key);
+	if (hm->key_hash == opae_u64_key_hash)
+		key_hash = opae_u64_key_hash(hm->num_buckets,
+					     hm->hash_seed,
+					     key);
+	else
+		key_hash = hm->key_hash(hm->num_buckets,
+					hm->hash_seed,
+					key);
+
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
 		    "greater or equal num_buckets(%u)\n",
@@ -151,7 +153,14 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 		// Bucket not empty. Do we have a key collision?
 		prev = NULL;
 		while (list) {
-			if (!hm->key_compare(key, list->key)) {
+			int res;
+
+			if (hm->key_compare == opae_u64_key_compare)
+				res = opae_u64_key_compare(key, list->key);
+			else
+				res = hm->key_compare(key, list->key);
+
+			if (!res) {
 				// Key collision.
 				opae_free(item);
 				if (hm->value_cleanup)
@@ -183,9 +192,15 @@ fpga_result opae_hash_map_find(opae_hash_map *hm,
 		return FPGA_INVALID_PARAM;
 	}
 
-	key_hash = hm->key_hash(hm->num_buckets,
-				hm->hash_seed,
-				key);
+	if (hm->key_hash == opae_u64_key_hash)
+		key_hash = opae_u64_key_hash(hm->num_buckets,
+					     hm->hash_seed,
+					     key);
+	else
+		key_hash = hm->key_hash(hm->num_buckets,
+					hm->hash_seed,
+					key);
+
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
 		    "greater or equal num_buckets(%u)\n",
@@ -196,7 +211,14 @@ fpga_result opae_hash_map_find(opae_hash_map *hm,
 	list = hm->buckets[key_hash];
 
 	while (list) {
-		if (!hm->key_compare(key, list->key)) {
+		int res;
+
+		if (hm->key_compare == opae_u64_key_compare)
+			res = opae_u64_key_compare(key, list->key);
+		else
+			res = hm->key_compare(key, list->key);
+
+		if (!res) {
 			if (value)
 				*value = list->value;
 			return FPGA_OK;
@@ -219,9 +241,15 @@ fpga_result opae_hash_map_remove(opae_hash_map *hm,
 		return FPGA_INVALID_PARAM;
 	}
 
-	key_hash = hm->key_hash(hm->num_buckets,
-				hm->hash_seed,
-				key);
+	if (hm->key_hash == opae_u64_key_hash)
+		key_hash = opae_u64_key_hash(hm->num_buckets,
+					     hm->hash_seed,
+					     key);
+	else
+		key_hash = hm->key_hash(hm->num_buckets,
+					hm->hash_seed,
+					key);
+
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
 		    "greater or equal num_buckets(%u)\n",
@@ -234,7 +262,14 @@ fpga_result opae_hash_map_remove(opae_hash_map *hm,
 		return FPGA_NOT_FOUND;
 
 	while (list) {
-		if (!hm->key_compare(key, list->key))
+		int res;
+
+		if (hm->key_compare == opae_u64_key_compare)
+			res = opae_u64_key_compare(key, list->key);
+		else
+			res = hm->key_compare(key, list->key);
+
+		if (!res)
 			break;
 		prev = list;
 		list = list->next;
@@ -299,25 +334,4 @@ bool opae_hash_map_is_empty(opae_hash_map *hm)
 	}
 
 	return true;
-}
-
-uint32_t opae_u64_key_hash(uint32_t num_buckets, uint32_t hash_seed, void *key)
-{
-	UNUSED_PARAM(hash_seed);
-	uint64_t remote_id = (uint64_t)key;
-	uint64_t hash = remote_id % 17659;
-	return (uint32_t)(hash % num_buckets);
-}
-
-int opae_u64_key_compare(void *keya, void *keyb)
-{
-	uint64_t a = (uint64_t)keya;
-	uint64_t b = (uint64_t)keyb;
-
-	if (a < b)
-		return -1;
-	else if (a > b)
-		return 1;
-	else
-		return 0;
 }
