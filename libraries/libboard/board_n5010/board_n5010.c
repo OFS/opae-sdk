@@ -55,6 +55,7 @@
 #define DFL_SYSFS_MACADDR_PATH                  "dfl*/**/spi_master/spi*/spi*.*/mac_address"
 #define DFL_SYSFS_MACCNT_PATH                   "dfl*/**/spi_master/spi*/spi*.*/mac_count"
 
+#define DFL_SYSFS_N5014_BOARD_INFO		"dfl*/**/spi_master/spi*/spi*.*/n5010bmc-phy*/board_info"
 
 // Read BMC firmware version
 fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
@@ -169,6 +170,21 @@ fpga_result read_mac_addr(fpga_token token, struct ether_addr *mac_addr)
 	return res;
 }
 
+// Read board info
+fpga_result read_n5014_board_info(fpga_token token, char *board_info)
+{
+	fpga_result res                = FPGA_OK;
+
+	if (board_info == NULL) {
+		OPAE_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	res = read_sysfs(token, DFL_SYSFS_N5014_BOARD_INFO, board_info, FPGA_VAR_BUF_LEN - 1);
+
+	return res;
+}
+
 // print BOM info
 fpga_result print_bom_info(const fpga_token token)
 {
@@ -180,7 +196,7 @@ fpga_result print_bom_info(const fpga_token token)
 		return res;
 	}
 
-	// print card serial if Silicom Denmark MAC
+	// print card serial and board info if Silicom Denmark MAC
 	if ((mac_addr.ether_addr_octet[0] == 0x00) &&
 		(mac_addr.ether_addr_octet[1] == 0x21) &&
 		(mac_addr.ether_addr_octet[2] == 0xb2) &&
@@ -189,7 +205,12 @@ fpga_result print_bom_info(const fpga_token token)
 		if (mac_addr.ether_addr_octet[3] == 0x2d)
 			serial_name[16] = '0';  //N5013
 		uint32_t number = (mac_addr.ether_addr_octet[4] << 4) + (mac_addr.ether_addr_octet[5] >> 4);
-		printf("%-32s : %s.%04u\n", "Board Serial", serial_name, number);
+		char board_info[FPGA_VAR_BUF_LEN] = { 0 };
+		res = read_n5014_board_info(token, board_info);
+		printf("%-32s : %s.%04u", "Board Serial", serial_name, number);
+		if (res == FPGA_OK)
+			printf(" (%s)", board_info);
+		printf("\n");
 	}
 
 	return res;
