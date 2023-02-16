@@ -1145,7 +1145,7 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 	mem_alloc_init(&v->iova_alloc);
 
 	result = opae_hash_map_init(&v->cont_buffers,
-				    16384, // num_buckets
+				    19441, // num_buckets
 				    0,     // hash_seed
 				    OPAE_HASH_MAP_UNIQUE_KEYSPACE,
 				    opae_u64_key_hash,
