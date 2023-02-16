@@ -31,6 +31,10 @@
 #include <opae/hash_map.h>
 #include "mock/opae_std.h"
 
+#ifndef UNUSED_PARAM
+#define UNUSED_PARAM(x) ((void)(x))
+#endif // UNUSED_PARAM
+
 #define __SHORT_FILE__                                    \
 ({                                                        \
 	const char *file = __FILE__;                      \
@@ -119,14 +123,9 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 		return FPGA_NO_MEMORY;
 	}
 
-	if (hm->key_hash == opae_u64_key_hash)
-		key_hash = opae_u64_key_hash(hm->num_buckets,
-					     hm->hash_seed,
-					     key);
-	else
-		key_hash = hm->key_hash(hm->num_buckets,
-					hm->hash_seed,
-					key);
+	key_hash = hm->key_hash(hm->num_buckets,
+				hm->hash_seed,
+				key);
 
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
@@ -192,14 +191,9 @@ fpga_result opae_hash_map_find(opae_hash_map *hm,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (hm->key_hash == opae_u64_key_hash)
-		key_hash = opae_u64_key_hash(hm->num_buckets,
-					     hm->hash_seed,
-					     key);
-	else
-		key_hash = hm->key_hash(hm->num_buckets,
-					hm->hash_seed,
-					key);
+	key_hash = hm->key_hash(hm->num_buckets,
+				hm->hash_seed,
+				key);
 
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
@@ -241,14 +235,9 @@ fpga_result opae_hash_map_remove(opae_hash_map *hm,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (hm->key_hash == opae_u64_key_hash)
-		key_hash = opae_u64_key_hash(hm->num_buckets,
-					     hm->hash_seed,
-					     key);
-	else
-		key_hash = hm->key_hash(hm->num_buckets,
-					hm->hash_seed,
-					key);
+	key_hash = hm->key_hash(hm->num_buckets,
+				hm->hash_seed,
+				key);
 
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
@@ -334,4 +323,26 @@ bool opae_hash_map_is_empty(opae_hash_map *hm)
 	}
 
 	return true;
+}
+
+uint32_t opae_u64_key_hash(uint32_t num_buckets,
+			   uint32_t hash_seed,
+			   void *key)
+{
+	UNUSED_PARAM(hash_seed);
+	uint64_t ukey = (uint64_t)key;
+	return (uint32_t)(ukey % num_buckets);
+}
+
+inline int opae_u64_key_compare(void *keya, void *keyb)
+{
+	uint64_t a = (uint64_t)keya;
+	uint64_t b = (uint64_t)keyb;
+
+	if (a < b)
+		return -1;
+	else if (a > b)
+		return 1;
+	else
+		return 0;
 }
