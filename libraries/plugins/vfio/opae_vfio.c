@@ -606,6 +606,11 @@ int vfio_walk(pci_device_t *p)
 
 	// treat all of BAR0 as an FPGA_ACCELERATOR
 	vfio_token *t = get_token(p, 0, FPGA_ACCELERATOR);
+	if (!t) {
+		OPAE_ERR("failed to find token during walk");
+		res = -1;
+		goto close;
+	}
 
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
