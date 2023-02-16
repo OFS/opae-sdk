@@ -110,7 +110,7 @@ typedef struct _opae_hash_map {
  *                           value will be the hash_seed parameter to the key hash
  *                           function.
  * @param[in]  flags         Initialization flags. See opae_hash_map_flags.
- * @param[in]  key_hash      A pointer to a function that produces the has value,
+ * @param[in]  key_hash      A pointer to a function that produces the hash value,
  *                           given the number of buckets, the hash seed, and the key.
  *                           Valid values are between 0 and num_buckets - 1, inclusively.
  * @param[in]  key_compare   A pointer to a function that compares two keys. The return
@@ -204,7 +204,7 @@ fpga_result opae_hash_map_destroy(opae_hash_map *hm);
  * Determine whether a hash map is empty
  *
  * @param[in] hm A pointer to the storage for the hash map object.
- * @returns true if there are not key/value mappings present, false
+ * @returns true if there are no key/value mappings present, false
  *          otherwise.
  */
 bool opae_hash_map_is_empty(opae_hash_map *hm);
@@ -213,7 +213,7 @@ bool opae_hash_map_is_empty(opae_hash_map *hm);
  * Convenience hash function for arbitrary pointers/64-bit values.
  *
  * Simply converts the key to a uint64_t and then performs the
- * modulus operation on the configured num_buckets. hash_seed is
+ * modulus operation with the configured num_buckets. hash_seed is
  * unused.
  */
 uint32_t opae_u64_key_hash(uint32_t num_buckets,
