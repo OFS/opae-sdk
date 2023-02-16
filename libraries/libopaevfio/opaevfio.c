@@ -812,7 +812,7 @@ int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
 }
 
 struct opae_vfio_buffer *opae_vfio_buffer_info(struct opae_vfio *v,
-                                               uint8_t *vaddr)
+					       uint8_t *vaddr)
 {
 	struct opae_vfio_buffer *binfo = NULL;
 
@@ -826,9 +826,9 @@ struct opae_vfio_buffer *opae_vfio_buffer_info(struct opae_vfio *v,
 		return NULL;
 	}
 
-	if(opae_hash_map_find(&v->cont_buffers,
-			      vaddr,
-			      (void **)&binfo))
+	if (opae_hash_map_find(&v->cont_buffers,
+			       vaddr,
+			       (void **)&binfo))
 		ERR("opae_vfio_buffer_info() failed for key %p\n", vaddr);
 
 	if (pthread_mutex_unlock(&v->lock))
