@@ -123,6 +123,12 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 	key_hash = hm->key_hash(hm->num_buckets,
 				hm->hash_seed,
 				key);
+	if (key_hash >= hm->num_buckets) {
+		ERR("key hash returned %u which is "
+		    "greater than num_buckets(%u)\n",
+		    key_hash, hm->num_buckets);
+		return FPGA_INVALID_PARAM;
+	}
 
 	list = hm->buckets[key_hash];
 	if (!list) {
