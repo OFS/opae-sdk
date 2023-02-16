@@ -108,6 +108,7 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 	uint32_t key_hash;
 	opae_hash_map_item *item;
 	opae_hash_map_item *list;
+	opae_hash_map_item *prev;
 
 	if (!hm) {
 		ERR("NULL pointer");
@@ -138,6 +139,7 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 	}
 
 	// Bucket not empty. Do we have a key collision?
+	prev = NULL;
 	while (list) {
 		if (!hm->key_compare(key, list->key)) {
 			// Key collision.
@@ -147,12 +149,12 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 			list->value = value; // Replace value only.
 			return FPGA_OK;
 		}
+		prev = list;
 		list = list->next;
 	}
 
-	// No key collision. Add item to the list.
-	item->next = hm->buckets[key_hash];
-	hm->buckets[key_hash] = item;
+	// No key collision. Add item to the end of list.
+	prev->next = item;
 
 	return FPGA_OK;
 }
