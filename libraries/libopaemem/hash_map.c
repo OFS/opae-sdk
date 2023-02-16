@@ -55,6 +55,7 @@ fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 fpga_result opae_hash_map_init(opae_hash_map *hm,
 			       uint32_t num_buckets,
 			       uint32_t hash_seed,
+			       int flags,
 			       uint32_t (*key_hash)(uint32_t num_buckets,
 						    uint32_t hash_seed,
 						    void *key),
@@ -79,6 +80,7 @@ fpga_result opae_hash_map_init(opae_hash_map *hm,
 
 	hm->num_buckets = num_buckets;
 	hm->hash_seed = hash_seed;
+	hm->flags = flags;
 	hm->key_hash = key_hash;
 	hm->key_compare = key_compare;
 	hm->key_cleanup = key_cleanup;
@@ -126,7 +128,7 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 				key);
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
-		    "greater than num_buckets(%u)\n",
+		    "greater or equal num_buckets(%u)\n",
 		    key_hash, hm->num_buckets);
 		return FPGA_INVALID_PARAM;
 	}
@@ -138,23 +140,33 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 		return FPGA_OK;
 	}
 
-	// Bucket not empty. Do we have a key collision?
-	prev = NULL;
-	while (list) {
-		if (!hm->key_compare(key, list->key)) {
-			// Key collision.
-			opae_free(item);
-			if (hm->value_cleanup)
-				hm->value_cleanup(list->value, hm->cleanup_context);
-			list->value = value; // Replace value only.
-			return FPGA_OK;
+	if (hm->flags & OPAE_HASH_MAP_UNIQUE_KEYSPACE) {
+		// The user has guaranteed us a unique keyspace.
+		// In this case, we are sure that no key collisions
+		// will occur on add. As an optimization, just add new
+		// entries to the head of the list.
+		item->next = hm->buckets[key_hash];
+		hm->buckets[key_hash] = item;
+	} else {
+		// Bucket not empty. Do we have a key collision?
+		prev = NULL;
+		while (list) {
+			if (!hm->key_compare(key, list->key)) {
+				// Key collision.
+				opae_free(item);
+				if (hm->value_cleanup)
+					hm->value_cleanup(list->value,
+							  hm->cleanup_context);
+				list->value = value; // Replace value only.
+				return FPGA_OK;
+			}
+			prev = list;
+			list = list->next;
 		}
-		prev = list;
-		list = list->next;
-	}
 
-	// No key collision. Add item to the end of list.
-	prev->next = item;
+		// No key collision. Add item to the end of list.
+		prev->next = item;
+	}
 
 	return FPGA_OK;
 }
@@ -176,7 +188,7 @@ fpga_result opae_hash_map_find(opae_hash_map *hm,
 				key);
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
-		    "greater than num_buckets(%u)\n",
+		    "greater or equal num_buckets(%u)\n",
 		    key_hash, hm->num_buckets);
 		return FPGA_INVALID_PARAM;
 	}
@@ -212,7 +224,7 @@ fpga_result opae_hash_map_remove(opae_hash_map *hm,
 				key);
 	if (key_hash >= hm->num_buckets) {
 		ERR("key hash returned %u which is "
-		    "greater than num_buckets(%u)\n",
+		    "greater or equal num_buckets(%u)\n",
 		    key_hash, hm->num_buckets);
 		return FPGA_INVALID_PARAM;
 	}

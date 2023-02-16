@@ -33,18 +33,21 @@
 extern "C" {
 #endif // __cplusplus
 
+typedef enum _opae_hash_map_flags {
+	OPAE_HASH_MAP_UNIQUE_KEYSPACE = (1u << 0)
+} opae_hash_map_flags;
+
 typedef struct _opae_hash_map_item {
 	void *key;
 	void *value;
 	struct _opae_hash_map_item *next;
 } opae_hash_map_item;
 
-typedef int (*opae_hash_map_key_compare)(void *, void *);
-
 typedef struct _opae_hash_map {
 	uint32_t num_buckets;
 	uint32_t hash_seed;
 	opae_hash_map_item **buckets;
+	int flags;
 	void *cleanup_context;
 	uint32_t (*key_hash)(uint32_t num_buckets,	   ///< required
 			     uint32_t hash_seed,
@@ -57,6 +60,7 @@ typedef struct _opae_hash_map {
 fpga_result opae_hash_map_init(opae_hash_map *hm,
 			       uint32_t num_buckets,
 			       uint32_t hash_seed,
+			       int flags,
 			       uint32_t (*key_hash)(uint32_t num_buckets,
 						    uint32_t hash_seed,
 						    void *key),
