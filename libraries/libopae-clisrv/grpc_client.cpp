@@ -916,3 +916,58 @@ fpga_result OPAEClient::fpgaObjectGetObjectAt(const fpga_remote_id &parent_id,
 
   return res;
 }
+
+fpga_result OPAEClient::fpgaSetUserClock(const fpga_remote_id &handle_id,
+                                         uint64_t high_clk, uint64_t low_clk,
+                                         int flags) {
+  opaegrpc::SetUserClockRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_high_clk(high_clk);
+  request.set_low_clk(low_clk);
+  request.set_flags(flags);
+
+  opaegrpc::SetUserClockReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaSetUserClock(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaSetUserClock() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaSetUserClock reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaGetUserClock(const fpga_remote_id &handle_id,
+                                         int flags, uint64_t &high_clk,
+                                         uint64_t &low_clk) {
+  opaegrpc::GetUserClockRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_flags(flags);
+
+  opaegrpc::GetUserClockReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaGetUserClock(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaGetUserClock() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  std::cout << "fpgaGetUserClock reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) {
+    high_clk = reply.high_clk();
+    low_clk = reply.low_clk();
+  }
+
+  return res;
+}

@@ -244,6 +244,8 @@ service OPAEService {
   rpc fpgaHandleGetObject(HandleGetObjectRequest) returns (HandleGetObjectReply) {}
   rpc fpgaObjectGetObject(ObjectGetObjectRequest) returns (ObjectGetObjectReply) {}
   rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {}
+  rpc fpgaSetUserClock(SetUserClockRequest) returns (SetUserClockReply) {}
+  rpc fpgaGetUserClock(GetUserClockRequest) returns (GetUserClockReply) {}
 }
 
 message EnumerateRequest {
@@ -582,4 +584,26 @@ message ObjectGetObjectAtRequest {
 message ObjectGetObjectAtReply {
   fpga_remote_id object_id = 1;
   fpga_result result = 2;
+}
+
+message SetUserClockRequest {
+  fpga_remote_id handle_id = 1;
+  uint64 high_clk = 2;
+  uint64 low_clk = 3;
+  int32 flags = 4;
+}
+
+message SetUserClockReply {
+  fpga_result result = 1;
+}
+
+message GetUserClockRequest {
+  fpga_remote_id handle_id = 1;
+  int32 flags = 2;
+}
+
+message GetUserClockReply {
+  uint64 high_clk = 1;
+  uint64 low_clk = 2;
+  fpga_result result = 3;
 }

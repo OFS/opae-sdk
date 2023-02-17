@@ -171,6 +171,12 @@ class OPAEClient final {
   fpga_result fpgaObjectGetObjectAt(const fpga_remote_id &parent_id,
                                     size_t index, fpga_remote_id &child_id);
 
+  fpga_result fpgaSetUserClock(const fpga_remote_id &handle_id,
+                               uint64_t high_clk, uint64_t low_clk, int flags);
+
+  fpga_result fpgaGetUserClock(const fpga_remote_id &handle_id, int flags,
+                               uint64_t &high_clk, uint64_t &low_clk);
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 

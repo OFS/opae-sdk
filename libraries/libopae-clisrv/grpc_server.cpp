@@ -1212,3 +1212,68 @@ Status OPAEServiceImpl::fpgaObjectGetObjectAt(
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaSetUserClock(ServerContext *context,
+                                         const SetUserClockRequest *request,
+                                         SetUserClockReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint64_t high_clk;
+  uint64_t low_clk;
+  int flags;
+  fpga_result res;
+
+  std::cout << "fpgaSetUserClock request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  high_clk = request->high_clk();
+  low_clk = request->low_clk();
+  flags = request->flags();
+
+  res = ::fpgaSetUserClock(handle, high_clk, low_clk, flags);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetUserClock(ServerContext *context,
+                                         const GetUserClockRequest *request,
+                                         GetUserClockReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  int flags;
+  uint64_t high_clk = 0;
+  uint64_t low_clk = 0;
+  fpga_result res;
+
+  std::cout << "fpgaGetUserClock request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  flags = request->flags();
+
+  res = ::fpgaGetUserClock(handle, &high_clk, &low_clk, flags);
+
+  if (res == FPGA_OK) {
+    reply->set_high_clk(high_clk);
+    reply->set_low_clk(low_clk);
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}

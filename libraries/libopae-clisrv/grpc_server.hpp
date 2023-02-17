@@ -63,6 +63,8 @@ using opaegrpc::GetPropertiesFromHandleReply;
 using opaegrpc::GetPropertiesFromHandleRequest;
 using opaegrpc::GetPropertiesReply;
 using opaegrpc::GetPropertiesRequest;
+using opaegrpc::GetUserClockReply;
+using opaegrpc::GetUserClockRequest;
 using opaegrpc::HandleGetObjectReply;
 using opaegrpc::HandleGetObjectRequest;
 using opaegrpc::MapMMIOReply;
@@ -98,6 +100,8 @@ using opaegrpc::ReleaseBufferReply;
 using opaegrpc::ReleaseBufferRequest;
 using opaegrpc::ResetReply;
 using opaegrpc::ResetRequest;
+using opaegrpc::SetUserClockReply;
+using opaegrpc::SetUserClockRequest;
 using opaegrpc::TokenGetObjectReply;
 using opaegrpc::TokenGetObjectRequest;
 using opaegrpc::UnmapMMIOReply;
@@ -262,6 +266,14 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaObjectGetObjectAt(ServerContext *context,
                                const ObjectGetObjectAtRequest *request,
                                ObjectGetObjectAtReply *reply) override;
+
+  Status fpgaSetUserClock(ServerContext *context,
+                          const SetUserClockRequest *request,
+                          SetUserClockReply *reply) override;
+
+  Status fpgaGetUserClock(ServerContext *context,
+                          const GetUserClockRequest *request,
+                          GetUserClockReply *reply) override;
 
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;

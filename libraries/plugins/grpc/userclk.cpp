@@ -31,77 +31,37 @@
 #include <opae/log.h>
 #include <opae/types.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
 #include "remote.h"
-//#include "request.h"
-//#include "response.h"
 
 fpga_result __REMOTE_API__ remote_fpgaSetUserClock(fpga_handle handle,
                                                    uint64_t high_clk,
                                                    uint64_t low_clk,
                                                    int flags) {
-#if 1
-  (void)handle;
-  (void)high_clk;
-  (void)low_clk;
-  (void)flags;
-
-  return FPGA_OK;
-#else
-  opae_fpgaSetUserClock_request req;
-  opae_fpgaSetUserClock_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.high_clk = high_clk;
-  req.low_clk = low_clk;
-  req.flags = flags;
-
-  req_json =
-      opae_encode_fpgaSetUserClock_request_34(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaSetUserClock_response_34(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaSetUserClock(h->hdr.handle_id, high_clk, low_clk, flags);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetUserClock(fpga_handle handle,
                                                    uint64_t *high_clk,
                                                    uint64_t *low_clk,
                                                    int flags) {
-#if 1
-  (void)handle;
-  (void)high_clk;
-  (void)low_clk;
-  (void)flags;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetUserClock_request req;
-  opae_fpgaGetUserClock_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
@@ -118,27 +78,9 @@ fpga_result __REMOTE_API__ remote_fpgaGetUserClock(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.flags = flags;
-
-  req_json =
-      opae_encode_fpgaGetUserClock_request_35(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaGetUserClock_response_35(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
-    *high_clk = resp.high_clk;
-    *low_clk = resp.low_clk;
-  }
-
-  return resp.result;
-#endif
+  return client->fpgaGetUserClock(h->hdr.handle_id, flags, *high_clk, *low_clk);
 }
