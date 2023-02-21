@@ -557,12 +557,14 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 
 			ret = opae_uio_open(uio, dfl_dev_str);
 			if (ret) {
+				res = FPGA_EXCEPTION;
 				OPAE_ERR("Failed to open uio");
 				break;
 			}
 
 			ret = opae_uio_region_get(uio, 0, (uint8_t **)uio_ptr, NULL);
 			if (ret) {
+				res = FPGA_EXCEPTION;
 				OPAE_ERR("Failed to get uio region");
 				opae_uio_close(uio);
 				break;
