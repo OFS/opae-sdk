@@ -28,6 +28,7 @@ opae_add_shared_library(TARGET opaemem
     EXPORT opae-targets
     SOURCE
         mem_alloc.c
+	hash_map.c
         ${opae-test_ROOT}/framework/mock/opae_std.c
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}

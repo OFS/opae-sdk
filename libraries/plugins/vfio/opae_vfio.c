@@ -79,19 +79,7 @@ const char *fme_drivers[] = {
 	0
 };
 
-typedef struct _vfio_buffer {
-	uint8_t *virtual;
-	uint64_t iova;
-	uint64_t wsid;
-	size_t size;
-	struct opae_vfio *vfio_device;
-	struct _vfio_buffer *next;
-} vfio_buffer;
-
-
 static pci_device_t *_pci_devices;
-static vfio_buffer *_vfio_buffers;
-static pthread_mutex_t _buffers_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 STATIC int read_pci_link(const char *addr, const char *link, char *value, size_t max)
 {
@@ -205,19 +193,6 @@ void free_device_list(void)
 		free(p);
 	}
 }
-
-void free_buffer_list(void)
-{
-	vfio_buffer *ptr = _vfio_buffers;
-	vfio_buffer *tmp = NULL;
-
-	while (ptr) {
-		tmp = ptr;
-		ptr = tmp->next;
-		free(tmp);
-	}
-}
-
 
 pci_device_t *find_pci_device(char addr[PCIADDR_MAX])
 {
@@ -1406,6 +1381,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 {
 	vfio_handle *h;
 	uint8_t *virt = NULL;
+	struct opae_vfio_buffer *binfo = NULL;
 
 	if (flags & FPGA_BUF_PREALLOCATED) {
 		if (!buf_addr && !len) {
@@ -1443,9 +1419,9 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		OPAE_DBG("could not allocate buffer");
 		return FPGA_EXCEPTION;
 	}
-	vfio_buffer *buffer = (vfio_buffer *)malloc(sizeof(vfio_buffer));
+	binfo = opae_vfio_buffer_info(v, virt);
 
-	if (!buffer) {
+	if (!binfo) {
 		OPAE_ERR("error allocating buffer metadata");
 		if (opae_vfio_buffer_free(v, virt)) {
 			OPAE_ERR("error freeing vfio buffer");
@@ -1453,33 +1429,15 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		res = FPGA_NO_MEMORY;
 		goto out_free;
 	}
-	memset(buffer, 0, sizeof(vfio_buffer));
-	buffer->vfio_device = v;
-	buffer->virtual = virt;
-	buffer->iova = iova;
-	buffer->size = sz;
-	if (pthread_mutex_lock(&_buffers_mutex)) {
-		OPAE_MSG("error locking buffer mutex");
-		res = FPGA_EXCEPTION;
-		goto out_free;
-	}
-	buffer->next = _vfio_buffers;
-	buffer->wsid = buffer->next ? buffer->next->wsid+1 : 0;
-	_vfio_buffers = buffer;
+
 	*buf_addr = virt;
-	*wsid = buffer->wsid;
+	*wsid = (uint64_t)binfo;
+
 	res = FPGA_OK;
-	if (pthread_mutex_unlock(&_buffers_mutex)) {
-		OPAE_MSG("error unlocking buffers");
-		res = FPGA_EXCEPTION;
-	}
 out_free:
 	if (res) {
-		if (buffer) {
-			free(buffer);
-			if (virt && opae_vfio_buffer_free(v, virt)) {
-				OPAE_ERR("error freeing vfio buffer");
-			}
+		if (virt && opae_vfio_buffer_free(v, virt)) {
+			OPAE_ERR("error freeing vfio buffer");
 		}
 	}
 	return res;
@@ -1492,64 +1450,33 @@ fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	ASSERT_NOT_NULL(h);
 
 	struct opae_vfio *v = h->vfio_pair->device;
+	struct opae_vfio_buffer *binfo = (struct opae_vfio_buffer *)wsid;
+	fpga_result res = FPGA_OK;
 
-	vfio_buffer *ptr = _vfio_buffers;
-	vfio_buffer *prev = NULL;
+	ASSERT_NOT_NULL(binfo);
 
-	if (pthread_mutex_lock(&_buffers_mutex)) {
-		OPAE_MSG("error locking buffer mutex");
-		return FPGA_EXCEPTION;
+	if (opae_vfio_buffer_free(v, binfo->buffer_ptr)) {
+		OPAE_ERR("error freeing vfio buffer");
+		res = FPGA_NOT_FOUND;
 	}
-	fpga_result res = FPGA_NOT_FOUND;
 
-	while (ptr) {
-		if (ptr->wsid == wsid) {
-			if (opae_vfio_buffer_free(v, ptr->virtual)) {
-				OPAE_ERR("error freeing vfio buffer");
-			}
-			if (prev) {
-				prev->next = ptr->next;
-			} else {
-				_vfio_buffers = ptr->next;
-			}
-			free(ptr);
-			res = FPGA_OK;
-			goto out_unlock;
-		}
-		prev = ptr;
-		ptr = ptr->next;
-	}
-out_unlock:
-	if (pthread_mutex_unlock(&_buffers_mutex)) {
-		OPAE_MSG("error unlocking buffers mutex");
-	}
 	return res;
 }
 
 fpga_result vfio_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 				  uint64_t *ioaddr)
 {
-	(void)handle;
-	if (pthread_mutex_lock(&_buffers_mutex)) {
-		OPAE_MSG("error locking buffer mutex");
-		return FPGA_EXCEPTION;
-	}
-	vfio_buffer *ptr = _vfio_buffers;
-	fpga_result res = FPGA_OK;
+	UNUSED_PARAM(handle);
 
-	while (ptr) {
-		if (ptr->wsid == wsid) {
-			*ioaddr = ptr->iova;
-			goto out_unlock;
-		}
-		ptr = ptr->next;
-	}
-	res = FPGA_NOT_FOUND;
-out_unlock:
-	if (pthread_mutex_unlock(&_buffers_mutex)) {
-		OPAE_MSG("error unlocking buffers mutex");
-	}
-	return res;
+	ASSERT_NOT_NULL(ioaddr);
+
+	struct opae_vfio_buffer *binfo = (struct opae_vfio_buffer *)wsid;
+
+	ASSERT_NOT_NULL(binfo);
+
+	*ioaddr = binfo->buffer_iova;
+
+	return FPGA_OK;
 }
 
 fpga_result vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)

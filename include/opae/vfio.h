@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -47,6 +47,7 @@
 
 #include <linux/vfio.h>
 #include <opae/mem_alloc.h>
+#include <opae/hash_map.h>
 
 /**
  * IO Virtual Address Range
@@ -136,7 +137,6 @@ struct opae_vfio_buffer {
 	size_t buffer_size;		/**< Buffer size. */
 	uint64_t buffer_iova;		/**< Buffer IOVA address. */
 	int flags;			/**< See opae_vfio_buffer_flags. */
-	struct opae_vfio_buffer *next;	/**< Pointer to next in list. */
 };
 
 /**
@@ -155,7 +155,7 @@ struct opae_vfio {
 	struct mem_alloc iova_alloc;			/**< Allocator for IOVA space. */
 	struct opae_vfio_group group;			/**< The VFIO device group. */
 	struct opae_vfio_device device;			/**< The VFIO device. */
-	struct opae_vfio_buffer *cont_buffers;		/**< List of allocated DMA buffers. */
+	opae_hash_map cont_buffers;		/**< Map of allocated DMA buffers. */
 };
 
 #ifdef __cplusplus
@@ -396,6 +396,21 @@ int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
 				 uint8_t **buf,
 				 uint64_t *iova,
 				 int flags);
+
+/**
+ * Extract the internal data structure pointer for the given vaddr
+ *
+ * The virtual address vaddr must correspond to a buffer previously
+ * allocated by opae_vfio_buffer_allocate() or
+ * opae_vfio_buffer_allocate_ex().
+ *
+ * @param[in]  v     The open OPAE VFIO device.
+ * @param[in]  vaddr The user virtual address of the desired buffer
+ *                   info struct.
+ * @returns NULL on lookup error.
+ */
+struct opae_vfio_buffer *opae_vfio_buffer_info(struct opae_vfio *v,
+					       uint8_t *vaddr);
 
 /**
  * Unmap and free a system buffer

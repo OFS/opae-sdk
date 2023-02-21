@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -483,8 +483,7 @@ opae_vfio_destroy_buffer(struct opae_vfio *, struct opae_vfio_buffer *);
 STATIC void opae_vfio_destroy(struct opae_vfio *v)
 {
 	// destroy buffers before we close any FDs
-	opae_vfio_destroy_buffer(v, v->cont_buffers);
-	v->cont_buffers = NULL;
+	opae_hash_map_destroy(&v->cont_buffers);
 
 	opae_vfio_device_destroy(&v->device);
 	opae_vfio_group_destroy(&v->group);
@@ -629,7 +628,6 @@ opae_vfio_create_buffer(uint8_t *vaddr,
 		b->buffer_size = size;
 		b->buffer_iova = iova;
 		b->flags = flags;
-		b->next = NULL;
 	}
 	return b;
 }
@@ -640,30 +638,25 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 {
 	struct vfio_iommu_type1_dma_unmap dma_unmap;
 
-	while (b) {
-		struct opae_vfio_buffer *trash = b;
-		b = b->next;
+	memset(&dma_unmap, 0, sizeof(dma_unmap));
+	dma_unmap.argsz = sizeof(dma_unmap);
+	dma_unmap.iova = b->buffer_iova;
+	dma_unmap.size = b->buffer_size;
 
-		memset(&dma_unmap, 0, sizeof(dma_unmap));
-		dma_unmap.argsz = sizeof(dma_unmap);
-		dma_unmap.iova = trash->buffer_iova;
-		dma_unmap.size = trash->buffer_size;
+	if (opae_ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap) < 0)
+		ERR("ioctl(%d, VFIO_IOMMU_UNMAP_DMA, &dma_unmap)\n",
+		    v->cont_fd);
 
-		if (opae_ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap) < 0)
-			ERR("ioctl(%d, VFIO_IOMMU_UNMAP_DMA, &dma_unmap)\n",
-			    v->cont_fd);
+	if (!(b->flags & OPAE_VFIO_BUF_PREALLOCATED) &&
+	    munmap(b->buffer_ptr, b->buffer_size) < 0)
+		ERR("munmap(%p, %lu) failed\n",
+		    b->buffer_ptr, b->buffer_size);
 
-		if (!(trash->flags & OPAE_VFIO_BUF_PREALLOCATED) &&
-		    munmap(trash->buffer_ptr, trash->buffer_size) < 0)
-			ERR("munmap(%p, %lu) failed\n",
-			    trash->buffer_ptr, trash->buffer_size);
+	if (mem_alloc_put(&v->iova_alloc, b->buffer_iova))
+		ERR("mem_alloc_put(..., 0x%lx) failed\n",
+		    b->buffer_iova);
 
-		if (mem_alloc_put(&v->iova_alloc, trash->buffer_iova))
-			ERR("mem_alloc_put(..., 0x%lx) failed\n",
-			    trash->buffer_iova);
-
-		opae_free(trash);
-	}
+	opae_free(b);
 }
 
 #ifndef MAP_HUGETLB
@@ -779,6 +772,7 @@ int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
 				 int flags)
 {
 	struct opae_vfio_buffer *node = NULL;
+	int res = 0;
 
 	if (!v || !size) {
 		ERR("NULL param\n");
@@ -806,13 +800,41 @@ int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
 		return 4;
 	}
 
-	node->next = v->cont_buffers;
-	v->cont_buffers = node;
+	if (opae_hash_map_add(&v->cont_buffers, *buf, node)) {
+		ERR("opae_hash_map_add() failed\n");
+		res = 5;
+	}
 
 	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
-	return 0;
+	return res;
+}
+
+struct opae_vfio_buffer *opae_vfio_buffer_info(struct opae_vfio *v,
+					       uint8_t *vaddr)
+{
+	struct opae_vfio_buffer *binfo = NULL;
+
+	if (!v || !vaddr) {
+		ERR("NULL param\n");
+		return NULL;
+	}
+
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return NULL;
+	}
+
+	if (opae_hash_map_find(&v->cont_buffers,
+			       vaddr,
+			       (void **)&binfo))
+		ERR("opae_vfio_buffer_info() failed for key %p\n", vaddr);
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return binfo;
 }
 
 int opae_vfio_buffer_allocate(struct opae_vfio *v,
@@ -830,8 +852,6 @@ int opae_vfio_buffer_allocate(struct opae_vfio *v,
 int opae_vfio_buffer_free(struct opae_vfio *v,
 			  uint8_t *buf)
 {
-	struct opae_vfio_buffer *b;
-	struct opae_vfio_buffer *prev = NULL;
 	int res = 0;
 
 	if (!v) {
@@ -844,22 +864,11 @@ int opae_vfio_buffer_free(struct opae_vfio *v,
 		return 2;
 	}
 
-	for (b = v->cont_buffers ; b ; prev = b, b = b->next) {
-		if (b->buffer_ptr == buf) {
-			if (!prev) { // b == v->cont_buffers
-				v->cont_buffers = b->next;
-			} else {
-				prev->next = b->next;
-			}
-			b->next = NULL;
-			opae_vfio_destroy_buffer(v, b);
-			goto out_unlock;
-		}
+	if (opae_hash_map_remove(&v->cont_buffers, buf)) {
+		ERR("hash key %p not found\n", buf);
+		res = 3;
 	}
 
-	res = 3;
-
-out_unlock:
 	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
@@ -1108,6 +1117,17 @@ STATIC char *opae_vfio_group_for(const char *pciaddr)
 	return opae_strdup(path);
 }
 
+STATIC
+void opae_vfio_value_cleanup(void *value, void *context)
+{
+	struct opae_vfio_buffer *b =
+		(struct opae_vfio_buffer *)value;
+	struct opae_vfio *v =
+		(struct opae_vfio *)context;
+
+	opae_vfio_destroy_buffer(v, b);
+}
+
 STATIC int opae_vfio_init(struct opae_vfio *v,
 			  const char *pciaddr,
 			  const char *token)
@@ -1115,6 +1135,7 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 	int res = 0;
 	pthread_mutexattr_t mattr;
 	int cont_fd;
+	fpga_result result;
 
 	memset(v, 0, sizeof(*v));
 	v->cont_fd = -1;
@@ -1122,6 +1143,20 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 	v->device.device_fd = -1;
 
 	mem_alloc_init(&v->iova_alloc);
+
+	result = opae_hash_map_init(&v->cont_buffers,
+				    19441, // num_buckets
+				    0,     // hash_seed
+				    OPAE_HASH_MAP_UNIQUE_KEYSPACE,
+				    opae_u64_key_hash,
+				    opae_u64_key_compare,
+				    NULL,  // key_cleanup
+				    opae_vfio_value_cleanup);
+	if (result) {
+		ERR("opae_hash_map_init()\n");
+		return 11;
+	}
+	v->cont_buffers.cleanup_context = v;
 
 	if (pthread_mutexattr_init(&mattr)) {
 		ERR("pthread_mutexattr_init()\n");
