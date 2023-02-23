@@ -1,6 +1,6 @@
 %define name opae.admin
-%define version 2.0.0
-%define unmangled_version 2.0.0
+%define version @VERSION@
+%define unmangled_version @VERSION@
 %define release 3
 
 Summary: opae.admin provides Python class for interacting with OPAE kernel drivers
