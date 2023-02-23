@@ -37,7 +37,7 @@ on:
 
 jobs:
   coding-style:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         lang-type: [c, cpp]
@@ -52,7 +52,7 @@ jobs:
     - name: test ${{ matrix.lang-type }}
       run: ${{ github.workspace }}/scripts/test-codingstyle-all.sh ${{ matrix.lang-type }}
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         build-type: [Debug, Release, RelWithDebInfo]
@@ -71,7 +71,7 @@ jobs:
     - name: make ${{ matrix.build-type }}
       run: cd ${{ github.workspace }}/.build && make -j $(nproc)
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     - name: update
@@ -90,7 +90,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: unittests/coverage.info.cleaned
   build-doc:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     - name: update
