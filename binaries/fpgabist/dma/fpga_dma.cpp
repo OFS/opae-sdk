@@ -437,8 +437,8 @@ static void dump_hw_desc_log(int i, msgdma_hw_desc_t *desc, ofstream &f)
 static void *dispatcherWorker(void* dma_handle) {
 	uint64_t desc_count = 1;
 	msgdma_sw_desc_t *sw_desc[FPGA_DMA_BLOCK_SIZE+1];
-	msgdma_sw_desc_t *first_sw_desc;
-	msgdma_hw_descp_t *hw_descp;
+	msgdma_sw_desc_t *first_sw_desc = NULL ;
+	msgdma_hw_descp_t *hw_descp = NULL;
 	bool is_owned_by_hw;
 	uint8_t block_size = 0;
 	uint8_t format;

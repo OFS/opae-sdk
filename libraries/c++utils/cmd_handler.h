@@ -30,6 +30,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <cstdint>
 
 namespace intel
 {
