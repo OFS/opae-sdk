@@ -30,12 +30,12 @@ if (OPAE_WITH_PYBIND11)
     set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
 
-    set(PYUIOFILES "setup.py")
+    set(SETUP_PY "setup.py")
     set(PYOPAEUIO_DIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
-    foreach(pyfile ${PYUIOFILES})
+    foreach(pyfile ${SETUP_PY})
         configure_file(${pyfile} ${PYOPAEUIO_DIST_STAGE_DIR}/${pyfile} @ONLY)
-    endforeach(pyfile ${PYUIOFILES})
+    endforeach(pyfile ${SETUP_PY})
 
     file(COPY pyopaeuio.cpp DESTINATION ${PYOPAEUIO_DIST_STAGE_DIR})
     file(COPY pyopaeuio.h DESTINATION ${PYOPAEUIO_DIST_STAGE_DIR})
