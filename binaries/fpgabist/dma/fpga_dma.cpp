@@ -475,8 +475,7 @@ static void *dispatcherWorker(void* dma_handle) {
 
 			// make a note of the first block descriptor
 			// mark it valid only after packing rest of the block
-			if (desc_count == 1)
-				first_sw_desc = sw_desc[desc_count];
+			first_sw_desc = sw_desc[1];
 			is_owned_by_hw = (desc_count == 1)  ? false:true;
 
 			// refer prefetcher spec
