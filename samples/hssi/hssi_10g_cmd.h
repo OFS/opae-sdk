@@ -170,8 +170,10 @@ public:
     if (eth_ifc_ == "none")
         eth_ifc = hafu->ethernet_interface();
 
-    if (port_ != INVALID_PORT)
+    if (port_ != INVALID_PORT) {
+        std::cout << "--port is overriding --src-port and --dst-port" << std::endl;
         src_port_ = dst_port_ = port_;
+    }
 
     std::cout << "10G loopback test" << std::endl
               << "  Tx/Rx port: " << port_ << std::endl
