@@ -53,11 +53,14 @@
 
 #define CSR_MAC_LOOP          0x3e00
 
+#define INVALID_PORT 99
+
 class hssi_10g_cmd : public hssi_cmd
 {
 public:
   hssi_10g_cmd()
-    : dst_port_(0)
+    : port_(INVALID_PORT)
+    , dst_port_(0)
     , src_port_(0)
     , eth_loopback_("on")
     , he_loopback_("none")
@@ -85,7 +88,10 @@ public:
 
   virtual void add_options(CLI::App *app) override
   {
-    auto opt = app->add_option("--dst-port", dst_port_,
+    auto opt = app->add_option("--port", port_, "QSFP Tx/Rx ports");
+    opt->check(CLI::Range(0, 7))->default_str(std::to_string(port_));
+
+    opt = app->add_option("--dst-port", dst_port_,
                           "QSFP Rx port");
     opt->check(CLI::Range(0, 7))->default_str(std::to_string(dst_port_));
 
@@ -164,7 +170,11 @@ public:
     if (eth_ifc_ == "none")
         eth_ifc = hafu->ethernet_interface();
 
+    if (port_ != INVALID_PORT)
+        src_port_ = dst_port_ = port_;
+
     std::cout << "10G loopback test" << std::endl
+              << "  Tx/Rx port: " << port_ << std::endl
               << "  Tx port: " << src_port_ << std::endl
               << "  Rx port: " << dst_port_ << std::endl
               << "  eth_loopback: " << eth_loopback_ << std::endl
@@ -378,6 +388,7 @@ public:
   }
 
 protected:
+  uint32_t port_;
   uint32_t dst_port_;
   uint32_t src_port_;
   std::string eth_loopback_;
