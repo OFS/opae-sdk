@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2022, Intel Corporation
+# Copyright(c) 2019-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -610,7 +610,7 @@ class pci_node(sysfs_node):
             self.log.error(msg)
             raise AttributeError(msg)
         if value > self.sriov_totalvfs:
-            msg = 'does not support VFs creater than: {}'.format(
+            msg = 'does not support VFs greater than: {}'.format(
                 self.sriov_totalvfs)
             self.log.warning(msg)
             raise ValueError(msg)
