@@ -161,7 +161,7 @@ def parse_args():
     parser.add_argument('-d', '--debug', action='store_true',
                         help='log debug statements')
     parser.add_argument('--force', action='store_true', default=False,
-                        help='perform operation without disabling AER')
+                        help='perform operation if AER not supported or disable AER even DPC supported')
 
     parser.add_argument('-w', '--wait', nargs='?', type=float, default=10.0, action=WaitAction,
                              help='number of seconds to wait for update to complete')
