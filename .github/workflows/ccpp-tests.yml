@@ -45,6 +45,11 @@ jobs:
     - uses: actions/checkout@v3
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
+    - name: disable_snap
+      run: sudo apt-get autopurge -y snapd
+      run: sudo echo 'Package: snapd' > /etc/apt/preferences.d/nosnap.pref
+      run: sudo echo 'Pin: release a=*' >> /etc/apt/preferences.d/nosnap.pref
+      run: sudo echo 'Pin-Priority: -10' >> /etc/apt/preferences.d/nosnap.pref
     - name: update
       run: sudo apt-get update -y
     - name: upgrade
