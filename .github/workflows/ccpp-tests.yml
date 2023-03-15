@@ -68,6 +68,12 @@ jobs:
     - uses: actions/checkout@v3
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
+    - name: disable_snap
+      run: |
+        echo 'Package: snapd' | sudo tee /etc/apt/preferences.d/nosnap.pref
+        echo 'Pin: release a=*' | sudo tee -a /etc/apt/preferences.d/nosnap.pref
+        echo 'Pin-Priority: -10' | sudo tee -a /etc/apt/preferences.d/nosnap.pref
+        sudo -E DEBIAN_FRONTEND=noninteractive apt-get autopurge -y snapd
     - name: update
       run: sudo apt-get update -y
     - name: upgrade
@@ -86,6 +92,12 @@ jobs:
     - uses: actions/checkout@v3
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
+    - name: disable_snap
+      run: |
+        echo 'Package: snapd' | sudo tee /etc/apt/preferences.d/nosnap.pref
+        echo 'Pin: release a=*' | sudo tee -a /etc/apt/preferences.d/nosnap.pref
+        echo 'Pin-Priority: -10' | sudo tee -a /etc/apt/preferences.d/nosnap.pref
+        sudo -E DEBIAN_FRONTEND=noninteractive apt-get autopurge -y snapd
     - name: update
       run: sudo apt-get update -y
     - name: upgrade
