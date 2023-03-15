@@ -47,9 +47,9 @@ jobs:
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
       run: |
-        sudo echo 'Package: snapd' > /etc/apt/preferences.d/nosnap.pref
-        sudo echo 'Pin: release a=*' >> /etc/apt/preferences.d/nosnap.pref
-        sudo echo 'Pin-Priority: -10' >> /etc/apt/preferences.d/nosnap.pref
+        echo 'Package: snapd' | sudo tee /etc/apt/preferences.d/nosnap.pref
+        echo 'Pin: release a=*' | sudo tee -a /etc/apt/preferences.d/nosnap.pref
+        echo 'Pin-Priority: -10' | sudo tee -a /etc/apt/preferences.d/nosnap.pref
         sudo -E DEBIAN_FRONTEND=noninteractive apt-get autopurge -y snapd
     - name: update
       run: sudo apt-get update -y
