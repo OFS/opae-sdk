@@ -28,6 +28,7 @@
 shopt -o -s nounset
 
 source fuzz-fpgaconf.sh
+source fuzz_fpgainfo.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -37,7 +38,7 @@ fuzz_all() {
   local -i iters=$1
 
   fuzz_fpgaconf ${iters}
-
+  fuzz_fpgainfo ${iters}
 }
 
 declare -i iters=1
