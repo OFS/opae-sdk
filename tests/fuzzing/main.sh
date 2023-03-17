@@ -28,6 +28,7 @@
 shopt -o -s nounset
 
 source fuzz-fpgaconf.sh
+source fuzz-fpgad.sh
 source fuzz-mmlink.sh
 
 fuzz_all() {
@@ -38,7 +39,9 @@ fuzz_all() {
   local -i iters=$1
 
   fuzz_fpgaconf ${iters}
+  fuzz_fpgad ${iters}
   fuzz_mmlink ${iters}
+
 }
 
 declare -i iters=1
