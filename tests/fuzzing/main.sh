@@ -29,6 +29,7 @@ shopt -o -s nounset
 
 source fuzz-fpgaconf.sh
 source fuzz-fpgad.sh
+source fuzz-hello_fpga.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -39,6 +40,7 @@ fuzz_all() {
 
   fuzz_fpgaconf ${iters}
   fuzz_fpgad ${iters}
+  fuzz_hello_fpga ${iters}
 
 }
 
