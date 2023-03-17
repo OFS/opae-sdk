@@ -159,16 +159,16 @@ fuzz_fpgainfo() {
 
 # fpgainfo long command line parameters
   local -a long_parms=(\
-'-help' \
-'-version' \
-'-segment 0x0' \
-'-segment 1' \
-'-bus 0x0' \
-'-bus 2' \
-'-device 0x0' \
-'-device 3' \
-'-function 0x0' \
-'-function 4' \
+'--help' \
+'--version' \
+'--segment 0x0' \
+'--segment 1' \
+'--bus 0x0' \
+'--bus 2' \
+'--device 0x0' \
+'--device 3' \
+'--function 0x0' \
+'--function 4' \
 'errors' \
 'errors --help' \
 'errors port' \
