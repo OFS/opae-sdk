@@ -29,6 +29,7 @@ shopt -o -s nounset
 
 source fuzz-fpgaconf.sh
 source fuzz-fpgad.sh
+source fuzz-hello_fpga.sh
 source fuzz-hello_events.sh
 
 fuzz_all() {
@@ -40,6 +41,7 @@ fuzz_all() {
 
   fuzz_fpgaconf ${iters}
   fuzz_fpgad ${iters}
+  fuzz_hello_fpga ${iters}
   fuzz_hello_events ${iters}
 
 }
