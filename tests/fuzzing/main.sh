@@ -28,7 +28,7 @@
 shopt -o -s nounset
 
 source fuzz-fpgaconf.sh
-source fuzz_fpgainfo.sh
+source fuzz-fpgainfo.sh
 source fuzz-fpgad.sh
 
 
