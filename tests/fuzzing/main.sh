@@ -33,6 +33,7 @@ source fuzz-fpgad.sh
 source fuzz-mmlink.sh
 source fuzz-hello_fpga.sh
 source fuzz-hello_events.sh
+source fuzz-userclk.sh
 source fuzz-fpgametrics.sh
 
 fuzz_all() {
@@ -48,7 +49,9 @@ fuzz_all() {
   fuzz_mmlink ${iters}
   fuzz_hello_fpga ${iters}
   fuzz_hello_events ${iters}
+  fuzz_userclk ${iters}
   fuzz_fpgametrics ${iters}
+
 
 }
 
