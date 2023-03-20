@@ -30,10 +30,10 @@ shopt -o -s nounset
 source fuzz-fpgaconf.sh
 source fuzz-fpgainfo.sh
 source fuzz-fpgad.sh
+source fuzz-mmlink.sh
 source fuzz-hello_fpga.sh
 source fuzz-hello_events.sh
 source fuzz-fpgametrics.sh
-
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -45,6 +45,7 @@ fuzz_all() {
   fuzz_fpgaconf ${iters}
   fuzz_fpgainfo ${iters}
   fuzz_fpgad ${iters}
+  fuzz_mmlink ${iters}
   fuzz_hello_fpga ${iters}
   fuzz_hello_events ${iters}
   fuzz_fpgametrics ${iters}
