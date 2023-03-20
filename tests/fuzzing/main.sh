@@ -31,7 +31,7 @@ source fuzz-fpgaconf.sh
 source fuzz-fpgad.sh
 source fuzz-hello_fpga.sh
 source fuzz-hello_events.sh
-source fuzz_userclk.sh
+source fuzz-userclk.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
