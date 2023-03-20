@@ -25,29 +25,92 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
-
-source fuzz-fpgaconf.sh
-source fuzz-fpgad.sh
-source fuzz-hello_fpga.sh
-source fuzz-hello_events.sh
-
-fuzz_all() {
+# $ hello_events --help
+#
+# hello_events
+# OPAE Events API sample
+#
+# Usage:
+# 	hello_events [-hv] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]
+#
+#                -h,--help           Print this help
+#                -v,--version        Print version info and exit
+fuzz_hello_events() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_hello_events <ITERS>\n"
     exit 1
   fi
+
   local -i iters=$1
+  local -i i
+  local -i p
+  local -i n
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
+  local -a short_parms=(\
+'-h' \
+'-v' \
+'-S 0x0' \
+'-S 1' \
+'-B 0x0' \
+'-B 2' \
+'-D 0x0' \
+'-D 3' \
+'-F 0x0' \
+'-F 4' \
+'0000:00:00.0'\
+)
 
+  local -a long_parms=(\
+'--help' \
+'--version' \
+'--segment 0x0' \
+'--segment 1' \
+'--bus 0x0' \
+'--bus 2' \
+'--device 0x0' \
+'--device 3' \
+'--function 0x0' \
+'--function 4' \
+'0000:00:00.0'\
+)
+
+  local cmd=''
+  local -i num_parms
+  local parm=''
+
+  for (( i = 0 ; i < ${iters} ; ++i )); do
+
+    printf "Fuzz Iteration: %d\n" $i
+
+    cmd='hello_events '
+    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#short_parms[@]}"
+      parm="${short_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+    cmd='hello_events '
+    let "num_parms = ${RANDOM} % ${#long_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#long_parms[@]}"
+      parm="${long_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+  done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_all ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_hello_events ${iters}
