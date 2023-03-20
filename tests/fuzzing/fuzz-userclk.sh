@@ -64,13 +64,13 @@ fuzz_userclk() {
 '-D 3' \
 '-F 0x0' \
 '-F 4' \
-'0000:00:00.0'\
+'0000:00:00.0' \
 '-H 400' \
 '-L 200' \
 '-H 1600' \
 '-L 1100' \
 '-H 400 -L 200' \
-'-H 1400 -L 200' \
+'-H 1400 -L 200'\
 )
 
 # userclk long command line parameters
@@ -83,15 +83,15 @@ fuzz_userclk() {
 '--bus 2' \
 '--device 0x0' \
 '--device 3' \
-'0000:00:00.0'\
+'0000:00:00.0' \
 '--function 0x0' \
 '--function 4' \
 '--freq-high 400' \
-'--freq-low  200' \
+'--freq-low 200' \
 '--freq-high 1600' \
-'--freq-low  1100' \
-'--freq-high 400 -freq-low  200' \
-'--freq-high 1400 -freq-low  200' \
+'--freq-low 1100' \
+'--freq-high 400 -freq-low 200' \
+'--freq-high 1400 -freq-low 200'\
 )
 
 
@@ -130,10 +130,10 @@ fuzz_userclk() {
   done
 }
 
-declare -i iters=1
-
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-
-fuzz_userclk ${iters}
+#declare -i iters=1
+#
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#
+#fuzz_userclk ${iters}
