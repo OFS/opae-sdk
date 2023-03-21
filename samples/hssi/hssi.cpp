@@ -34,7 +34,7 @@ hssi_afu app;
 
 void sig_handler(int signum)
 {
-  auto c = std::dynamic_pointer_cast<hssi_cmd>(app.current_command());
+  opae::afu_test::command::ptr_t c = app.current_command();
   switch (signum) {
   case SIGINT: // Handling signal interrupt(SIGINT) ctrl+C
     std::cerr << "caught SIGINT" << std::endl;
