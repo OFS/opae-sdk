@@ -25,45 +25,72 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
+#
+# hello_cxxcore
+# OPAE C++ Native Loopback 0 (NLB0) sample
+#
+# Usage:
+#         hello_cxxcore
+#                 -v,--version        Print version info and exit
 
-source fuzz-fpgaconf.sh
-source fuzz-fpgainfo.sh
-source fuzz-fpgad.sh
-source fuzz-mmlink.sh
-source fuzz-hello_fpga.sh
-source fuzz-hello_events.sh
-source fuzz-userclk.sh
-source fuzz-fpgametrics.sh
-source fuzz-hello_cxxcore.sh
-source fuzz-n5010-ctl.sh
-source fuzz-n5010-test.sh
-
-
-fuzz_all() {
+fuzz_hello_cxxcore() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_hello_cxxcore <ITERS>\n"
     exit 1
   fi
+
   local -i iters=$1
+  local -i i
+  local -i p
+  local -i n
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgainfo ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_mmlink ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
-  fuzz_userclk ${iters}
-  fuzz_fpgametrics ${iters}
-  fuzz_hello_cxxcore ${iters}
-  fuzz_n5010_ctl ${iters}
-  fuzz_n5010_test ${iters}
+  local -a short_parms=(\
+'-v' \
+'0000:00:00.0'\
+)
 
+  local -a long_parms=(\
+'--version' \
+'0000:00:00.0'\
+)
 
+  local cmd=''
+  local -i num_parms
+  local parm=''
+
+  for (( i = 0 ; i < ${iters} ; ++i )); do
+
+    printf "Fuzz Iteration: %d\n" $i
+
+    cmd='hello_cxxcore '
+    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#short_parms[@]}"
+      parm="${short_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+    cmd='hello_cxxcore '
+    let "num_parms = ${RANDOM} % ${#long_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#long_parms[@]}"
+      parm="${long_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+  done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_all ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_hello_cxxcore ${iters}
