@@ -64,7 +64,7 @@
 
 fuzz_host_exerciser() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_fpgametrics <ITERS>\n"
+    printf "usage: fuzz_host_exerciser <ITERS>\n"
     exit 1
   fi
 
