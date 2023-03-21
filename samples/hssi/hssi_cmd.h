@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -51,9 +51,7 @@ namespace fpga = opae::fpga::types;
 class hssi_cmd : public test_command
 {
 public:
-  hssi_cmd()
-  : running_(true)
-  {}
+  hssi_cmd() {}
 
   double clock_freq_for(test_afu *afu) const
   {
@@ -173,11 +171,4 @@ public:
     return ss.str();
   }
 
-  void stop()
-  {
-    running_ = false;
-  }
-
-protected:
-  bool running_;
 };
