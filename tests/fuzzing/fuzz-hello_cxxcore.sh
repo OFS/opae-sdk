@@ -89,8 +89,8 @@ fuzz_hello_cxxcore() {
   done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_hello_cxxcore ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_hello_cxxcore ${iters}
