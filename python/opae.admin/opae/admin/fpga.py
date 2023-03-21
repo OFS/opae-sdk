@@ -574,17 +574,23 @@ class fpga_base(sysfs_device):
         root_port = self.pci_node.root
         force = kwargs.pop('force', False)
         supports_dpc = root_port.supports_ecap('dpc')
-        if supports_dpc or force:
-            if supports_dpc:
-                self.log.debug('ECAP_DPC supported')
-            elif force:
-                self.log.warn('forcing rsu routine')
-            self.rsu_routine(available_image, **kwargs)
-        else:
-            if root_port.supports_ecap('aer'):
-                self.log.debug('ECAP_AER is supported')
+        if root_port.supports_ecap('aer'):
+            self.log.debug('ECAP_AER is supported')
+            if (not supports_dpc) or force:
+                if supports_dpc:
+                    self.log.warn('forcing disable ECAP_AER even ECAP_DPC supported')
                 with self.disable_aer(root_port):
                     self.rsu_routine(available_image, **kwargs)
+            else:
+                self.log.debug('ECAP_DPC is supported')
+                self.rsu_routine(available_image, **kwargs)
+        else:
+            if supports_dpc or force:
+                if supports_dpc:
+                    self.log.debug('ECAP_DPC is supported')
+                else:
+                    self.log.warn('forcing rsu')
+                self.rsu_routine(available_image, **kwargs)
             else:
                 msg = 'ECAP_AER and ECAP_DPC not supported'
                 self.log.error(msg)

@@ -216,7 +216,7 @@ public:
 
         std::cout << "HE loopback enabled. Use Ctrl+C to exit." << std::endl;
 
-        while (running_) {
+        while (running()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
 
@@ -251,7 +251,7 @@ public:
     {
       count = hafu->mbox_read(src_port_, CSR_PACKET_TX_COUNT);
   
-      if (!running_) {
+      if (!running()) {
         hafu->mbox_write(src_port_, CSR_STOP, 1);
         return test_afu::error;
       }
