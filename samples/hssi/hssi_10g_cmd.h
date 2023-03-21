@@ -42,7 +42,8 @@
 #define CSR_RND_SEED1         0x3c0b
 #define CSR_RND_SEED2         0x3c0c
 #define CSR_PACKET_LENGTH     0x3c0d
-#define CSR_TX_END_TSTAMP     0x3cf4
+#define CSR_TX_STA_TSTAMP     0x3cf4
+#define CSR_TX_END_TSTAMP     0x3cf5
 
 #define CSR_NUM_PKT           0x3d00
 #define CSR_PKT_GOOD          0x3d01
@@ -266,18 +267,20 @@ public:
     } else {
       std::cout << "HSSI performance: " << std::endl;
       // Read traffic control Tx/Rx timestamp registers
+      uint32_t tx_sta_tstamp = hafu->mbox_read(src_port_, CSR_TX_STA_TSTAMP);
       uint32_t tx_end_tstamp = hafu->mbox_read(src_port_, CSR_TX_END_TSTAMP);
       uint32_t rx_sta_tstamp = hafu->mbox_read(dst_port_, CSR_RX_STA_TSTAMP);
       uint32_t rx_end_tstamp = hafu->mbox_read(dst_port_, CSR_RX_END_TSTAMP);
 
       // Convert timestamp register from clock cycles to nanoseconds
       double sample_period_ns = 1000 / clk_freq;
+      double tx_sta_tstamp_ns = tx_sta_tstamp * sample_period_ns;
       double tx_end_tstamp_ns = tx_end_tstamp * sample_period_ns;
       double rx_sta_tstamp_ns = rx_sta_tstamp * sample_period_ns;
       double rx_end_tstamp_ns = rx_end_tstamp * sample_period_ns;
 
       // Calculate latencies
-      double latency_min_ns = rx_sta_tstamp_ns;
+      double latency_min_ns = rx_sta_tstamp_ns - tx_sta_tstamp_ns;
       double latency_max_ns = rx_end_tstamp_ns - tx_end_tstamp_ns;
 
       // Calculate Tx/Rx throughput achieved
@@ -286,7 +289,7 @@ public:
 	      data_pkt_size = packet_length_ - 4;
       else
 	      data_pkt_size = packet_length_ - 8;
-      double total_tx_duration_ns = tx_end_tstamp_ns;
+      double total_tx_duration_ns = (tx_end_tstamp_ns - tx_sta_tstamp_ns);
       double total_rx_duration_ns = (rx_end_tstamp_ns - rx_sta_tstamp_ns);
       uint32_t total_data_size_bits = (num_packets_  * data_pkt_size * 8) ;
       double achieved_tx_tput_gbps = (total_data_size_bits / total_tx_duration_ns);
@@ -367,7 +370,9 @@ public:
       int_to_hex(hafu->mbox_read(src_port_, CSR_RND_SEED2)) << std::endl;
     os << "0x3c0d " << std::setw(22) << "pkt_length" << ": " <<
       int_to_hex(hafu->mbox_read(src_port_, CSR_PACKET_LENGTH)) << std::endl;
-    os << "0x3cf4 " << std::setw(22) << "tx_end_tstamp" << ": " <<
+    os << "0x3cf4 " << std::setw(22) << "tx_sta_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(src_port_, CSR_TX_STA_TSTAMP)) << std::endl;
+    os << "0x3cf5 " << std::setw(22) << "tx_end_tstamp" << ": " <<
       int_to_hex(hafu->mbox_read(src_port_, CSR_TX_END_TSTAMP)) << std::endl;
   
     os << "0x3d00 " << std::setw(22) << "num_pkt" << ": " <<
