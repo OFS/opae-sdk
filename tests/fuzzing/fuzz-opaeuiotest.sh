@@ -25,45 +25,62 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
-
-source fuzz-fpgaconf.sh
-source fuzz-fpgainfo.sh
-source fuzz-fpgad.sh
-source fuzz-mmlink.sh
-source fuzz-hello_fpga.sh
-source fuzz-hello_events.sh
-source fuzz-userclk.sh
-source fuzz-fpgametrics.sh
-source fuzz-hello_cxxcore.sh
-source fuzz-n5010-ctl.sh
-source fuzz-n5010-test.sh
-source fuzz-opaeuiotest.sh
-
-fuzz_all() {
+# $ opaeuiotest
+#
+# usage: opaeuiotest <dfl device>
+#
+#        where <dfl device> is of the form dfl_dev.X
+fuzz_opaeuiotest() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_opaeuiotest <ITERS>\n"
     exit 1
   fi
+
   local -i iters=$1
+  local -i i
+  local -i p
+  local -i n
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgainfo ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_mmlink ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
-  fuzz_userclk ${iters}
-  fuzz_fpgametrics ${iters}
-  fuzz_hello_cxxcore ${iters}
-  fuzz_n5010_ctl ${iters}
-  fuzz_n5010_test ${iters}
-  fuzz_opaeuiotest ${iters}  
+  local -a short_parms=( 'dfl_dev.0' )
+  local -a long_parms=( '0000:00:00.0' )
 
+  local cmd=''
+  local -i num_parms
+  local parm=''
+
+  for (( i = 0 ; i < ${iters} ; ++i )); do
+
+    printf "Fuzz Iteration: %d\n" $i
+
+    cmd='opaeuiotest '
+    let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#short_parms[@]}"
+      parm="${short_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+    cmd='opaeuiotest '
+    let "num_parms = 1 + ${RANDOM} % ${#long_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#long_parms[@]}"
+      parm="${long_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+  done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_all ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_opaeuiotest ${iters}
