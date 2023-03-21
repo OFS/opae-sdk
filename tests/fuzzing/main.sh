@@ -38,7 +38,7 @@ source fuzz-fpgametrics.sh
 source fuzz-hello_cxxcore.sh
 source fuzz-n5010-ctl.sh
 source fuzz-n5010-test.sh
-
+source fuzz-host_exerciser.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -58,8 +58,7 @@ fuzz_all() {
   fuzz_hello_cxxcore ${iters}
   fuzz_n5010_ctl ${iters}
   fuzz_n5010_test ${iters}
-
-
+  fuzz_host_exerciser ${iters}
 }
 
 declare -i iters=1

@@ -256,10 +256,10 @@ fuzz_fpgainfo() {
   done
 }
 
-#declare -i iters=1
-#
-#if [ $# -gt 0 ]; then
-#  iters=$1
-#fi
-#
-#fuzz_fpgainfo ${iters}
+declare -i iters=1
+
+if [ $# -gt 0 ]; then
+  iters=$1
+fi
+
+fuzz_fpgainfo ${iters}
