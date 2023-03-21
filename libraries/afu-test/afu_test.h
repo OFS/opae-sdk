@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -113,7 +113,7 @@ class afu; // forward declaration
 class command {
 public:
   typedef std::shared_ptr<command> ptr_t;
-  command(){}
+  command() : running_(true) {}
   virtual ~command(){}
   virtual const char *name() const = 0;
   virtual const char *description() const = 0;
@@ -127,8 +127,11 @@ public:
     return nullptr;
   }
 
-private:
+  bool running() const { return running_; }
+  void stop() { running_ = false; }
 
+private:
+  std::atomic<bool> running_;
 };
 
 #if SPDLOG_VERSION >= 10900
@@ -284,8 +287,11 @@ public:
           return test->run(this, app);
         });
       auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
-      if (status == std::future_status::timeout)
+      if (status == std::future_status::timeout) {
+        std::cerr << "Error: test timed out" << std::endl;
+        current_command_->stop();
         throw std::runtime_error("timeout");
+      }
       res = f.get();
     } catch(std::exception &ex) {
       res = exit_codes::exception;
