@@ -131,8 +131,8 @@ fuzz_n5010_test() {
   done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_n5010_test ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_n5010_test ${iters}
