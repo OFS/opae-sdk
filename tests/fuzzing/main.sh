@@ -37,8 +37,8 @@ source fuzz-userclk.sh
 source fuzz-fpgametrics.sh
 source fuzz-hello_cxxcore.sh
 source fuzz-n5010-ctl.sh
+source fuzz-n5010-test.sh
 source fuzz-opaeuiotest.sh
-
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -57,8 +57,8 @@ fuzz_all() {
   fuzz_fpgametrics ${iters}
   fuzz_hello_cxxcore ${iters}
   fuzz_n5010_ctl ${iters}
-  fuzz_opaeuiotest ${iters}
-
+  fuzz_n5010_test ${iters}
+  fuzz_opaeuiotest ${iters}  
 
 }
 
