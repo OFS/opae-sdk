@@ -40,6 +40,7 @@ source fuzz-n5010-ctl.sh
 source fuzz-n5010-test.sh
 source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
+source fuzz-fpgabist.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -61,6 +62,7 @@ fuzz_all() {
   fuzz_n5010_test ${iters}
   fuzz_opaeuiotest ${iters}
   fuzz_bist_app ${iters}  
+  fuzz_fpgabist ${iters}
 
 }
 
