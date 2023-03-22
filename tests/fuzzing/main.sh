@@ -43,7 +43,9 @@ source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
 source fuzz-fpgabist.sh
 source fuzz-nlb3.sh
+source fuzz-fpgadiag.sh
 source fuzz-fpga_dma_N3000_test.sh
+
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -67,8 +69,10 @@ fuzz_all() {
   fuzz_opaeuiotest ${iters}  
   fuzz_bist_app ${iters}  
   fuzz_nlb3 ${iters}
+  fuzz_fpgadiag ${iters}
   fuzz_fpgabist ${iters}
   fuzz_fpga_dma_N3000_test ${iters}
+
 
 }
 
