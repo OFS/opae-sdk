@@ -41,6 +41,8 @@ source fuzz-n5010-test.sh
 source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
 source fuzz-dummy_afu.sh
+source fuzz-fpgabist.sh
+
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -63,6 +65,9 @@ fuzz_all() {
   fuzz_opaeuiotest ${iters}
   fuzz_bist_app ${iters}
   fuzz_dummy_afu ${iters}
+  fuzz_bist_app ${iters}  
+  fuzz_fpgabist ${iters}
+
 }
 
 declare -i iters=1
