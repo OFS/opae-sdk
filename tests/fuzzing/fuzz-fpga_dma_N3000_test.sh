@@ -25,55 +25,78 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
-
-source fuzz-fpgaconf.sh
-source fuzz-fpgainfo.sh
-source fuzz-fpgad.sh
-source fuzz-mmlink.sh
-source fuzz-hello_fpga.sh
-source fuzz-hello_events.sh
-source fuzz-userclk.sh
-source fuzz-fpgametrics.sh
-source fuzz-hello_cxxcore.sh
-source fuzz-n5010-ctl.sh
-source fuzz-n5010-test.sh
-source fuzz-host_exerciser.sh
-source fuzz-opaeuiotest.sh
-source fuzz-bist_app.sh
-source fuzz-fpgabist.sh
-source fuzz-nlb3.sh
-source fuzz-fpga_dma_N3000_test.sh
-
-fuzz_all() {
+# $ fpga_dma_N3000_test --help
+#
+# Usage: fpga_dma_test <use_ase = 1 (simulation only), 0 (hardware)> [options]
+# Options are:
+# 	-m	Use malloc (default)
+#	-p	Use mmap (Incompatible with -m)
+#	-c	Use builtin memcpy (default)
+#	-2	Use SSE2 memcpy (Incompatible with -c)
+#	-n	Do not provide OS advice (default)
+#	-a	Use madvise (Incompatible with -n)
+#	-y	Do not verify buffer contents - faster (default is to verify)
+#	-C	Do not restrict process to CPUs attached to DCP NUMA node
+#	-M	Do not restrict process memory allocation to DCP NUMA node
+#	-B	Set a target bus number
+#	-D	Select DMA to test
+#	-S	Set memory test size
+#	-G	Set AFU GUID
+fuzz_fpga_dma_N3000_test() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_fpga_dma_N3000_test <ITERS>\n"
     exit 1
   fi
+
   local -i iters=$1
+  local -i i
+  local -i p
+  local -i n
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgainfo ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_mmlink ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
-  fuzz_userclk ${iters}
-  fuzz_fpgametrics ${iters}
-  fuzz_hello_cxxcore ${iters}
-  fuzz_n5010_ctl ${iters}
-  fuzz_n5010_test ${iters}
-  fuzz_host_exerciser ${iters}
-  fuzz_opaeuiotest ${iters}  
-  fuzz_bist_app ${iters}  
-  fuzz_nlb3 ${iters}
-  fuzz_fpgabist ${iters}
-  fuzz_fpga_dma_N3000_test ${iters}
+  local -a short_parms=(\
+'use_ase=1' \
+'use_ase=0' \
+'-m' \
+'-p' \
+'-c' \
+'-2' \
+'-n' \
+'-a' \
+'-y' \
+'-C' \
+'-M' \
+'-B 0x0' \
+'-B 2' \
+'-D 0' \
+'-S 1024' \
+'-G 331DB30C-9885-41EA-9081-F88B8F655CAA'\
+)
 
+  local cmd=''
+  local -i num_parms
+  local parm=''
+
+  for (( i = 0 ; i < ${iters} ; ++i )); do
+
+    printf "Fuzz Iteration: %d\n" $i
+
+    cmd='fpga_dma_N3000_test '
+    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = 1 + ${RANDOM} % ${#short_parms[@]}"
+      parm="${short_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+  done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_all ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_fpga_dma_N3000_test ${iters}
