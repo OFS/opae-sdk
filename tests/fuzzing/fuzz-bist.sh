@@ -25,56 +25,85 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
-
-source fuzz-fpgaconf.sh
-source fuzz-fpgainfo.sh
-source fuzz-fpgad.sh
-source fuzz-mmlink.sh
-source fuzz-hello_fpga.sh
-source fuzz-hello_events.sh
-source fuzz-userclk.sh
-source fuzz-fpgametrics.sh
-source fuzz-hello_cxxcore.sh
-source fuzz-n5010-ctl.sh
-source fuzz-n5010-test.sh
-source fuzz-host_exerciser.sh
-source fuzz-opaeuiotest.sh
-source fuzz-bist_app.sh
-source fuzz-fpgabist.sh
-source fuzz-nlb3.sh
-source fuzz-bist.sh
-
-
-fuzz_all() {
+# $ bist
+#
+# too few argsUsage:
+#      bist [-h] [-B <bus>] [-D <device>] [-F <function>] 
+#          -h,--help           Print this help
+#          -v,--version        Print version and exit
+#          -B,--bus            Set target bus number
+#          -D,--device         Set target device number
+#          -F,--function       Set target function number
+fuzz_bist() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_bist <ITERS>\n"
     exit 1
   fi
+
   local -i iters=$1
+  local -i i
+  local -i p
+  local -i n
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgainfo ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_mmlink ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
-  fuzz_userclk ${iters}
-  fuzz_fpgametrics ${iters}
-  fuzz_hello_cxxcore ${iters}
-  fuzz_n5010_ctl ${iters}
-  fuzz_n5010_test ${iters}
-  fuzz_host_exerciser ${iters}
-  fuzz_opaeuiotest ${iters}  
-  fuzz_bist_app ${iters}  
-  fuzz_fpgabist ${iters}  
-  fuzz_nlb3 ${iters}
-  fuzz_bist ${iters}
+  local -a short_parms=(\
+'-h' \
+'-v' \
+'-B 0x0' \
+'-B 2' \
+'-D 0x0' \
+'-D 3' \
+'-F 0x0' \
+'-F 4'\
+)
 
+  local -a long_parms=(\
+'--help' \
+'--version' \
+'--bus 0x0' \
+'--bus 2' \
+'--device 0x0' \
+'--device 3' \
+'--function 0x0' \
+'--function 4'\
+)
+
+  local cmd=''
+  local -i num_parms
+  local parm=''
+
+  for (( i = 0 ; i < ${iters} ; ++i )); do
+
+    printf "Fuzz Iteration: %d\n" $i
+
+    cmd='bist '
+    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = 1 + ${RANDOM} % ${#short_parms[@]}"
+      parm="${short_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+    cmd='bist '
+    let "num_parms = ${RANDOM} % ${#long_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = 1 + ${RANDOM} % ${#long_parms[@]}"
+      parm="${long_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+  done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_all ${iters}
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_bist ${iters}
