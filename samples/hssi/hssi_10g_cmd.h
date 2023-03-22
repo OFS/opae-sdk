@@ -42,7 +42,8 @@
 #define CSR_RND_SEED1         0x3c0b
 #define CSR_RND_SEED2         0x3c0c
 #define CSR_PACKET_LENGTH     0x3c0d
-#define CSR_TX_END_TSTAMP     0x3cf4
+#define CSR_TX_STA_TSTAMP     0x3cf4
+#define CSR_TX_END_TSTAMP     0x3cf5
 
 #define CSR_NUM_PKT           0x3d00
 #define CSR_PKT_GOOD          0x3d01
@@ -53,11 +54,15 @@
 
 #define CSR_MAC_LOOP          0x3e00
 
+#define INVALID_PORT 99
+
 class hssi_10g_cmd : public hssi_cmd
 {
 public:
   hssi_10g_cmd()
-    : port_(0)
+    : port_(INVALID_PORT)
+    , dst_port_(0)
+    , src_port_(0)
     , eth_loopback_("on")
     , he_loopback_("none")
     , num_packets_(1)
@@ -84,9 +89,16 @@ public:
 
   virtual void add_options(CLI::App *app) override
   {
-    auto opt = app->add_option("--port", port_,
-                               "QSFP port");
+    auto opt = app->add_option("--port", port_, "QSFP Tx/Rx ports");
     opt->check(CLI::Range(0, 7))->default_str(std::to_string(port_));
+
+    opt = app->add_option("--dst-port", dst_port_,
+                          "QSFP Rx port");
+    opt->check(CLI::Range(0, 7))->default_str(std::to_string(dst_port_));
+
+    opt = app->add_option("--src-port", src_port_,
+                          "QSFP Tx port");
+    opt->check(CLI::Range(0, 7))->default_str(std::to_string(src_port_));
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
@@ -159,8 +171,15 @@ public:
     if (eth_ifc_ == "none")
         eth_ifc = hafu->ethernet_interface();
 
+    if (port_ != INVALID_PORT) {
+        std::cout << "--port is overriding --src-port and --dst-port" << std::endl;
+        src_port_ = dst_port_ = port_;
+    }
+
     std::cout << "10G loopback test" << std::endl
-              << "  port: " << port_ << std::endl
+              << "  Tx/Rx port: " << port_ << std::endl
+              << "  Tx port: " << src_port_ << std::endl
+              << "  Rx port: " << dst_port_ << std::endl
               << "  eth_loopback: " << eth_loopback_ << std::endl
               << "  he_loopback: " << he_loopback_ << std::endl
               << "  num_packets: " << num_packets_ << std::endl
@@ -187,12 +206,10 @@ public:
             enable_eth_loopback(eth_ifc, false);
     }
 
-    hafu->mbox_write(CSR_STOP, 0);
-
-    hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_);
+    hafu->mbox_write(src_port_, CSR_STOP, 0);
 
     if (he_loopback_ != "none") {
-        hafu->mbox_write(CSR_MAC_LOOP, (he_loopback_ == "on") ? 1 : 0);
+        hafu->mbox_write(src_port_, CSR_MAC_LOOP, (he_loopback_ == "on") ? 1 : 0);
 
         if (he_loopback_ != "on") // don't loop for "off"
             return test_afu::success;
@@ -208,23 +225,23 @@ public:
 
     double clk_freq = clock_freq_for(hafu);
 
-    hafu->mbox_write(CSR_NUM_PACKETS, num_packets_);
+    hafu->mbox_write(src_port_, CSR_NUM_PACKETS, num_packets_);
 
-    hafu->mbox_write(CSR_PACKET_LENGTH, packet_length_);
+    hafu->mbox_write(src_port_, CSR_PACKET_LENGTH, packet_length_);
 
-    hafu->mbox_write(CSR_SRC_ADDR0, static_cast<uint32_t>(bin_src_addr));
-    hafu->mbox_write(CSR_SRC_ADDR1, static_cast<uint32_t>(bin_src_addr >> 32));
+    hafu->mbox_write(src_port_, CSR_SRC_ADDR0, static_cast<uint32_t>(bin_src_addr));
+    hafu->mbox_write(src_port_, CSR_SRC_ADDR1, static_cast<uint32_t>(bin_src_addr >> 32));
 
-    hafu->mbox_write(CSR_DEST_ADDR0, static_cast<uint32_t>(bin_dest_addr));
-    hafu->mbox_write(CSR_DEST_ADDR1, static_cast<uint32_t>(bin_dest_addr >> 32));
+    hafu->mbox_write(src_port_, CSR_DEST_ADDR0, static_cast<uint32_t>(bin_dest_addr));
+    hafu->mbox_write(src_port_, CSR_DEST_ADDR1, static_cast<uint32_t>(bin_dest_addr >> 32));
 
-    hafu->mbox_write(CSR_RANDOM_LENGTH, (random_length_ == "fixed") ? 0 : 1);
-    hafu->mbox_write(CSR_RANDOM_PAYLOAD, (random_payload_ == "incremental") ? 0 : 1);
-    hafu->mbox_write(CSR_RND_SEED0, rnd_seed0_);
-    hafu->mbox_write(CSR_RND_SEED1, rnd_seed1_);
-    hafu->mbox_write(CSR_RND_SEED2, rnd_seed2_);
+    hafu->mbox_write(src_port_, CSR_RANDOM_LENGTH, (random_length_ == "fixed") ? 0 : 1);
+    hafu->mbox_write(src_port_, CSR_RANDOM_PAYLOAD, (random_payload_ == "incremental") ? 0 : 1);
+    hafu->mbox_write(src_port_, CSR_RND_SEED0, rnd_seed0_);
+    hafu->mbox_write(src_port_, CSR_RND_SEED1, rnd_seed1_);
+    hafu->mbox_write(src_port_, CSR_RND_SEED2, rnd_seed2_);
 
-    hafu->mbox_write(CSR_START, 1);
+    hafu->mbox_write(src_port_, CSR_START, 1);
 
     print_registers(std::cout, hafu);
 
@@ -232,10 +249,10 @@ public:
     const uint64_t interval = 100ULL;
     do
     {
-      count = hafu->mbox_read(CSR_PACKET_TX_COUNT);
+      count = hafu->mbox_read(src_port_, CSR_PACKET_TX_COUNT);
   
       if (!running()) {
-        hafu->mbox_write(CSR_STOP, 1);
+        hafu->mbox_write(src_port_, CSR_STOP, 1);
         return test_afu::error;
       }
   
@@ -250,18 +267,20 @@ public:
     } else {
       std::cout << "HSSI performance: " << std::endl;
       // Read traffic control Tx/Rx timestamp registers
-      uint32_t tx_end_tstamp = hafu->mbox_read(CSR_TX_END_TSTAMP);
-      uint32_t rx_sta_tstamp = hafu->mbox_read(CSR_RX_STA_TSTAMP);
-      uint32_t rx_end_tstamp = hafu->mbox_read(CSR_RX_END_TSTAMP);
+      uint32_t tx_sta_tstamp = hafu->mbox_read(src_port_, CSR_TX_STA_TSTAMP);
+      uint32_t tx_end_tstamp = hafu->mbox_read(src_port_, CSR_TX_END_TSTAMP);
+      uint32_t rx_sta_tstamp = hafu->mbox_read(dst_port_, CSR_RX_STA_TSTAMP);
+      uint32_t rx_end_tstamp = hafu->mbox_read(dst_port_, CSR_RX_END_TSTAMP);
 
       // Convert timestamp register from clock cycles to nanoseconds
       double sample_period_ns = 1000 / clk_freq;
+      double tx_sta_tstamp_ns = tx_sta_tstamp * sample_period_ns;
       double tx_end_tstamp_ns = tx_end_tstamp * sample_period_ns;
       double rx_sta_tstamp_ns = rx_sta_tstamp * sample_period_ns;
       double rx_end_tstamp_ns = rx_end_tstamp * sample_period_ns;
 
       // Calculate latencies
-      double latency_min_ns = rx_sta_tstamp_ns;
+      double latency_min_ns = rx_sta_tstamp_ns - tx_sta_tstamp_ns;
       double latency_max_ns = rx_end_tstamp_ns - tx_end_tstamp_ns;
 
       // Calculate Tx/Rx throughput achieved
@@ -270,7 +289,7 @@ public:
 	      data_pkt_size = packet_length_ - 4;
       else
 	      data_pkt_size = packet_length_ - 8;
-      double total_tx_duration_ns = tx_end_tstamp_ns;
+      double total_tx_duration_ns = (tx_end_tstamp_ns - tx_sta_tstamp_ns);
       double total_rx_duration_ns = (rx_end_tstamp_ns - rx_sta_tstamp_ns);
       uint32_t total_data_size_bits = (num_packets_  * data_pkt_size * 8) ;
       double achieved_tx_tput_gbps = (total_data_size_bits / total_tx_duration_ns);
@@ -324,57 +343,61 @@ public:
     os << std::endl;
 
     os << "0x3c00 " << std::setw(22) << "number_packets" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_NUM_PACKETS)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_NUM_PACKETS)) << std::endl;
     os << "0x3c01 " << std::setw(22) << "random_length" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RANDOM_LENGTH)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_RANDOM_LENGTH)) << std::endl;
     os << "0x3c02 " << std::setw(22) << "random_payload" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RANDOM_PAYLOAD)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_RANDOM_PAYLOAD)) << std::endl;
     os << "0x3c03 " << std::setw(22) << "start" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_START)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_START)) << std::endl;
     os << "0x3c04 " << std::setw(22) << "stop" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_STOP)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_STOP)) << std::endl;
     os << "0x3c05 " << std::setw(22) << "source_addr0" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_SRC_ADDR0)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_SRC_ADDR0)) << std::endl;
     os << "0x3c06 " << std::setw(22) << "source_addr1" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_SRC_ADDR1)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_SRC_ADDR1)) << std::endl;
     os << "0x3c07 " << std::setw(22) << "dest_addr0" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_DEST_ADDR0)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_DEST_ADDR0)) << std::endl;
     os << "0x3c08 " << std::setw(22) << "dest_addr1" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_DEST_ADDR1)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_DEST_ADDR1)) << std::endl;
     os << "0x3c09 " << std::setw(22) << "packet_tx_count" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_PACKET_TX_COUNT)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_PACKET_TX_COUNT)) << std::endl;
     os << "0x3c0a " << std::setw(22) << "rnd_seed0" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RND_SEED0)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_RND_SEED0)) << std::endl;
     os << "0x3c0b " << std::setw(22) << "rnd_seed1" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RND_SEED1)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_RND_SEED1)) << std::endl;
     os << "0x3c0c " << std::setw(22) << "rnd_seed2" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RND_SEED2)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_RND_SEED2)) << std::endl;
     os << "0x3c0d " << std::setw(22) << "pkt_length" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_PACKET_LENGTH)) << std::endl;
-    os << "0x3cf4 " << std::setw(22) << "tx_end_tstamp" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_TX_END_TSTAMP)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_PACKET_LENGTH)) << std::endl;
+    os << "0x3cf4 " << std::setw(22) << "tx_sta_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(src_port_, CSR_TX_STA_TSTAMP)) << std::endl;
+    os << "0x3cf5 " << std::setw(22) << "tx_end_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(src_port_, CSR_TX_END_TSTAMP)) << std::endl;
   
     os << "0x3d00 " << std::setw(22) << "num_pkt" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_NUM_PKT)) << std::endl;
+      int_to_hex(hafu->mbox_read(dst_port_, CSR_NUM_PKT)) << std::endl;
     os << "0x3d01 " << std::setw(22) << "pkt_good" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_PKT_GOOD)) << std::endl;
+      int_to_hex(hafu->mbox_read(dst_port_, CSR_PKT_GOOD)) << std::endl;
     os << "0x3d02 " << std::setw(22) << "pkt_bad" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_PKT_BAD)) << std::endl;
+      int_to_hex(hafu->mbox_read(dst_port_, CSR_PKT_BAD)) << std::endl;
     os << "0x3d07 " << std::setw(22) << "avst_rx_err" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_AVST_RX_ERR)) << std::endl;
+      int_to_hex(hafu->mbox_read(dst_port_, CSR_AVST_RX_ERR)) << std::endl;
     os << "0x3d0b " << std::setw(22) << "rx_sta_tstamp" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RX_STA_TSTAMP)) << std::endl;
+      int_to_hex(hafu->mbox_read(dst_port_, CSR_RX_STA_TSTAMP)) << std::endl;
     os << "0x3d0c " << std::setw(22) << "rx_end_tstamp" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RX_END_TSTAMP)) << std::endl;
+      int_to_hex(hafu->mbox_read(dst_port_, CSR_RX_END_TSTAMP)) << std::endl;
   
     os << "0x3e00 " << std::setw(22) << "mac_loop" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_MAC_LOOP)) << std::endl;
+      int_to_hex(hafu->mbox_read(src_port_, CSR_MAC_LOOP)) << std::endl;
 
     return os;
   }
 
 protected:
   uint32_t port_;
+  uint32_t dst_port_;
+  uint32_t src_port_;
   std::string eth_loopback_;
   std::string he_loopback_;
   uint32_t num_packets_;
