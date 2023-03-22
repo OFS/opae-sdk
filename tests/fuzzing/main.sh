@@ -45,6 +45,7 @@ source fuzz-fpgabist.sh
 source fuzz-nlb3.sh
 source fuzz-fpgadiag.sh
 source fuzz-fpga_dma_N3000_test.sh
+source fuzz-fpga_dma_test.sh
 
 
 fuzz_all() {
@@ -72,7 +73,7 @@ fuzz_all() {
   fuzz_fpgadiag ${iters}
   fuzz_fpgabist ${iters}
   fuzz_fpga_dma_N3000_test ${iters}
-
+  fuzz_fpga_dma_test ${iters}
 
 }
 
