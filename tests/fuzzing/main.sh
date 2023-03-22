@@ -38,10 +38,12 @@ source fuzz-fpgametrics.sh
 source fuzz-hello_cxxcore.sh
 source fuzz-n5010-ctl.sh
 source fuzz-n5010-test.sh
+source fuzz-host_exerciser.sh
 source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
 source fuzz-fpgabist.sh
 source fuzz-nlb3.sh
+
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -61,10 +63,12 @@ fuzz_all() {
   fuzz_hello_cxxcore ${iters}
   fuzz_n5010_ctl ${iters}
   fuzz_n5010_test ${iters}
+  fuzz_host_exerciser ${iters}
   fuzz_opaeuiotest ${iters}  
   fuzz_bist_app ${iters}  
   fuzz_fpgabist ${iters}  
   fuzz_nlb3 ${iters}
+
 
 }
 
