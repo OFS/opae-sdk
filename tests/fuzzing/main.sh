@@ -43,7 +43,7 @@ source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
 source fuzz-fpgabist.sh
 source fuzz-nlb3.sh
-
+source fuzz-fpgadiag.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -68,7 +68,7 @@ fuzz_all() {
   fuzz_bist_app ${iters}  
   fuzz_fpgabist ${iters}  
   fuzz_nlb3 ${iters}
-
+  fuzz_fpgadiag. ${iters}
 
 }
 
