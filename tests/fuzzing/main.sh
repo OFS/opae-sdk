@@ -42,6 +42,7 @@ source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
 source fuzz-dummy_afu.sh
 source fuzz-fpgabist.sh
+source fuzz-nlb3.sh
 
 
 fuzz_all() {
@@ -65,8 +66,10 @@ fuzz_all() {
   fuzz_opaeuiotest ${iters}
   fuzz_bist_app ${iters}
   fuzz_dummy_afu ${iters}
+  fuzz_opaeuiotest ${iters}  
   fuzz_bist_app ${iters}  
-  fuzz_fpgabist ${iters}
+  fuzz_fpgabist ${iters}  
+  fuzz_nlb3 ${iters}
 
 }
 
