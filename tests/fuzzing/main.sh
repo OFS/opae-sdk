@@ -68,7 +68,7 @@ fuzz_all() {
   fuzz_bist_app ${iters}  
   fuzz_fpgabist ${iters}  
   fuzz_nlb3 ${iters}
-  fuzz_fpgadiag. ${iters}
+  fuzz_fpgadiag ${iters}
 
 }
 
