@@ -45,8 +45,9 @@ source fuzz-fpgabist.sh
 source fuzz-nlb3.sh
 source fuzz-fpgadiag.sh
 source fuzz-fpga_dma_N3000_test.sh
+source fuzz-fpga_dma_test.sh
+source fuzz-mem_tg.sh
 source fuzz-hssi.sh
-
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -73,9 +74,9 @@ fuzz_all() {
   fuzz_fpgadiag ${iters}
   fuzz_fpgabist ${iters}
   fuzz_fpga_dma_N3000_test ${iters}
+  fuzz_fpga_dma_test ${iters}
+  fuzz_mem_tg ${iters}
   fuzz_hssi ${iters}
-
-
 }
 
 declare -i iters=1
