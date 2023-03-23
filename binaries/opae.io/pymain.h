@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -325,7 +325,7 @@ def main(argv=None):
     setattr(builtins, 'LOG', setup_logging())
     prog, major, minor, patch = version()
     version_str = '{prog} {major}.{minor}.{patch}'.format(**locals())
-    LOG.info(version_str)
+
     if argv is None:
         argv = sys.argv[1:]
 

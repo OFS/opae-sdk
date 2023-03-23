@@ -29,7 +29,7 @@ from distutils.core import Extension, setup
 
 setup(
     name="opae.io",
-    version="0.2.5",
+    version="0.2.6",
     packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': []
