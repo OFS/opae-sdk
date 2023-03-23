@@ -41,12 +41,14 @@ source fuzz-n5010-test.sh
 source fuzz-host_exerciser.sh
 source fuzz-opaeuiotest.sh
 source fuzz-bist_app.sh
+source fuzz-dummy_afu.sh
 source fuzz-fpgabist.sh
 source fuzz-nlb3.sh
 source fuzz-fpgadiag.sh
 source fuzz-fpga_dma_N3000_test.sh
 source fuzz-fpga_dma_test.sh
 source fuzz-mem_tg.sh
+source fuzz-opae.io.sh
 source fuzz-hps.sh
 
 fuzz_all() {
@@ -67,6 +69,9 @@ fuzz_all() {
   fuzz_hello_cxxcore ${iters}
   fuzz_n5010_ctl ${iters}
   fuzz_n5010_test ${iters}
+  fuzz_opaeuiotest ${iters}
+  fuzz_bist_app ${iters}
+  fuzz_dummy_afu ${iters}
   fuzz_host_exerciser ${iters}
   fuzz_opaeuiotest ${iters}  
   fuzz_bist_app ${iters}  
@@ -76,7 +81,8 @@ fuzz_all() {
   fuzz_fpga_dma_N3000_test ${iters}
   fuzz_fpga_dma_test ${iters}
   fuzz_mem_tg ${iters}
-  fuzz_hps ${iters}
+  fuzz_opae_io ${iters}
+  fuzz_hps ${iters}  
 }
 
 declare -i iters=1
