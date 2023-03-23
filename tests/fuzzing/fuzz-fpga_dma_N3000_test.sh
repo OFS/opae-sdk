@@ -81,9 +81,9 @@ fuzz_fpga_dma_N3000_test() {
     printf "Fuzz Iteration: %d\n" $i
 
     cmd='fpga_dma_N3000_test '
-    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
-      let "p = 1 + ${RANDOM} % ${#short_parms[@]}"
+      let "p = ${RANDOM} % ${#short_parms[@]}"
       parm="${short_parms[$p]}"
       parm="$(printf %s ${parm} | radamsa)"
       cmd="${cmd} ${parm}"

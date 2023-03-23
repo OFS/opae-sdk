@@ -168,7 +168,7 @@ fuzz_dummy_afu() {
     printf "Fuzz Iteration: %d\n" $i
 
     cmd='dummy_afu '
-    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
       let "p = ${RANDOM} % ${#short_parms[@]}"
       parm="${short_parms[$p]}"
@@ -180,7 +180,7 @@ fuzz_dummy_afu() {
     ${cmd}
 
     cmd='dummy_afu '
-    let "num_parms = ${RANDOM} % ${#long_parms[@]}"
+    let "num_parms = 1 + ${RANDOM} % ${#long_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
       let "p = ${RANDOM} % ${#long_parms[@]}"
       parm="${long_parms[$p]}"
