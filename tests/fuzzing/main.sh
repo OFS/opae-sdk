@@ -47,6 +47,7 @@ source fuzz-fpgadiag.sh
 source fuzz-fpga_dma_N3000_test.sh
 source fuzz-fpga_dma_test.sh
 source fuzz-mem_tg.sh
+source fuzz-opae.io.sh
 source fuzz-hssi.sh
 
 fuzz_all() {
@@ -76,6 +77,7 @@ fuzz_all() {
   fuzz_fpga_dma_N3000_test ${iters}
   fuzz_fpga_dma_test ${iters}
   fuzz_mem_tg ${iters}
+  fuzz_opae_io ${iters}
   fuzz_hssi ${iters}
 }
 
