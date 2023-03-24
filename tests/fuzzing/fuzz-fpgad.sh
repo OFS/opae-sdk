@@ -87,7 +87,7 @@ fuzz_fpgad() {
     printf "Fuzz Iteration: %d\n" $i
 
     cmd='fpgad '
-    let "num_parms = ${RANDOM} % ${#short_parms[@]}"
+    let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
       let "p = ${RANDOM} % ${#short_parms[@]}"
       parm="${short_parms[$p]}"
@@ -114,7 +114,7 @@ fuzz_fpgad() {
     exec {fpgad_stderr_fd}<&-
 
     cmd='fpgad '
-    let "num_parms = ${RANDOM} % ${#long_parms[@]}"
+    let "num_parms = 1 + ${RANDOM} % ${#long_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
       let "p = ${RANDOM} % ${#long_parms[@]}"
       parm="${long_parms[$p]}"

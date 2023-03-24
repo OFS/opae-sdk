@@ -69,15 +69,13 @@ fuzz_all() {
   fuzz_hello_cxxcore ${iters}
   fuzz_n5010_ctl ${iters}
   fuzz_n5010_test ${iters}
+  fuzz_host_exerciser ${iters}
   fuzz_opaeuiotest ${iters}
   fuzz_bist_app ${iters}
   fuzz_dummy_afu ${iters}
-  fuzz_host_exerciser ${iters}
-  fuzz_opaeuiotest ${iters}  
-  fuzz_bist_app ${iters}  
+  fuzz_fpgabist ${iters}
   fuzz_nlb3 ${iters}
   fuzz_fpgadiag ${iters}
-  fuzz_fpgabist ${iters}
   fuzz_fpga_dma_N3000_test ${iters}
   fuzz_fpga_dma_test ${iters}
   fuzz_mem_tg ${iters}
