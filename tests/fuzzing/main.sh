@@ -50,8 +50,10 @@ source fuzz-fpga_dma_test.sh
 source fuzz-mem_tg.sh
 source fuzz-opae.io.sh
 source fuzz-hps.sh
+source fuzz-nlb0.sh
 source fuzz-hps.sh
 source fuzz-nlb7.sh
+
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
@@ -83,7 +85,9 @@ fuzz_all() {
   fuzz_mem_tg ${iters}
   fuzz_opae_io ${iters}
   fuzz_hps ${iters}
+  fuzz_nlb0 ${iters}
   fuzz_nlb7 ${iters}
+
 }
 
 declare -i iters=1
