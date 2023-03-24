@@ -25,29 +25,23 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# $ nlb3 --help
+# $ nlb0 --help
 #
-#Usage: fpgadiag --mode {read,write,trput} [options]:
+#Usage: fpgadiag --mode lpbk1 [options]:
 #
 #    --help, -h. Show help
 #    --version, -v. Show version
-#    --config, -c. Path to test config file Default=nlb3.json
+#    --config, -c. Path to test config file Default=nlb0.json
 #    --target, -t. one of {fpga, ase} Default=fpga
-#    --mode, -m. mode {read, write, trput} Default=read
 #    --begin, -b. where 1 <= <value> <= 65535 Default=1
 #    --end, -e. where 1 <= <value> <= 65535 Default=1
 #    --multi-cl, -u. one of {1, 2, 4} Default=1
-#    --strided-access, -a. where 1 <= <value> <= 64 Default=1
 #    --cont, -L. Continuous mode
-#    --warm-fpga-cache, -H. Attempt to prime the cache with hits
-#    --cool-fpga-cache, -M. Attempt to prime the cache with misses
-#    --cool-cpu-cache, -C. Attempt to prime the cpu cache with misses
-#    --cache-policy, -p. one of {wrline-M, wrline-I, wrpush-I} Default=wrline-M
+#    --cache-policy, -p. one of {wrline-I, wrline-M wrpush-I} Default=wrline-M
 #    --cache-hint, -i. one of {rdline-I, rdline-S} Default=rdline-I
 #    --read-vc, -r. one of {auto, vl0, vh0, vh1, random} Default=auto
 #    --write-vc, -w. one of {auto, vl0, vh0, vh1, random} Default=auto
 #    --wrfence-vc, -f. one of {auto, vl0, vh0, vh1} Default=auto
-#    --alt-wr-pattern, -l. use alt wr pattern
 #    --dsm-timeout-usec Timeout for test completion Default=1000000
 #    --timeout-usec Timeout for continuous mode (microseconds portion)
 #    --timeout-msec Timeout for continuous mode (milliseconds portion)
@@ -58,14 +52,17 @@
 #    --bus, -B. Bus number of PCIe device
 #    --device, -D. Device number of PCIe device
 #    --function, -F. Function number of PCIe device
-#    --guid, -G. accelerator id to enumerate Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18
+#    --guid, -G. accelerator id to enumerate Default=D8424DC4-A4A3-C413-F89E-433683F9040B
+#    --id, -I. NLB0 id to enumerate Default=D8424DC4-A4A3-C413-F89E-433683F9040B
 #    --freq, -T. Clock frequency (used for bw measurements) Default=400000000
 #    --suppress-hdr Suppress column headers
 #    --csv, -V. Comma separated value format
 #    --suppress-stats Show stas at end
-fuzz_nlb3() {
+
+
+fuzz_nlb0() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_nlb3 <ITERS>\n"
+    printf "usage: fuzz_nlb0 <ITERS>\n"
     exit 1
   fi
 
@@ -77,12 +74,9 @@ fuzz_nlb3() {
   local -a short_parms=(\
 '-h' \
 '-v' \
-'-c nlb3.json' \
+'-c nlb0.json' \
 '-t fpga' \
 '-t ase' \
-'-m read' \
-'-m write' \
-'-m trput' \
 '-b 1' \
 '-b 65535' \
 '-e 1' \
@@ -90,12 +84,7 @@ fuzz_nlb3() {
 '-u 1' \
 '-u 2' \
 '-u 4' \
-'-a 1' \
-'-a 64' \
 '-L' \
-'-H' \
-'-M' \
-'-C' \
 '-p wrline-M' \
 '-p wrline-I' \
 '-p wrpush-I' \
@@ -111,7 +100,10 @@ fuzz_nlb3() {
 '-w vh0' \
 '-w vh1' \
 '-w random' \
-'-l' \
+'-f vl0' \
+'-f vh0' \
+'-f vh1' \
+'-f random' \
 '-S 0' \
 '-B 0x0' \
 '-B 0' \
@@ -119,7 +111,8 @@ fuzz_nlb3() {
 '-D 0' \
 '-F 0x0' \
 '-F 0' \
-'-G F7DF405C-BD7A-CF72-22F1-44B0B93ACD18' \
+'-I ' \
+'-G D8424DC4-A4A3-C413-F89E-433683F9040B' \
 '-T 400000000' \
 '-V'\
 )
@@ -127,12 +120,9 @@ fuzz_nlb3() {
   local -a long_parms=(\
 '--help' \
 '--version' \
-'--config nlb3.json' \
+'--config nlb0.json' \
 '--target fpga' \
 '--target ase' \
-'--mode read' \
-'--mode write' \
-'--mode trput' \
 '--begin 1' \
 '--begin 65535' \
 '--end 1' \
@@ -140,12 +130,7 @@ fuzz_nlb3() {
 '--multi-cl 1' \
 '--multi-cl 2' \
 '--multi-cl 4' \
-'--strided-access 1' \
-'--strided-access 64' \
 '--cont' \
-'--warm-fpga-cache' \
-'--cool-fpga-cache' \
-'--cool-cpu-cache' \
 '--cache-policy wrline-M' \
 '--cache-policy wrline-I' \
 '--cache-policy wrpush-I' \
@@ -156,12 +141,16 @@ fuzz_nlb3() {
 '--read-vc vh0' \
 '--read-vc vh1' \
 '--read-vc random' \
+'--write-vc auto' \
+'--write-vc vl0' \
+'--write-vc vh0' \
+'--write-vc vh1' \
+'--write-vc random' \
 '--wrfence-vc auto' \
 '--wrfence-vc vl0' \
 '--wrfence-vc vh0' \
 '--wrfence-vc vh1' \
 '--wrfence-vc random' \
-'--alt-wr-pattern' \
 '--dsm-timeout-usec 1000000' \
 '--timeout-usec 0' \
 '--timeout-msec 0' \
@@ -175,8 +164,9 @@ fuzz_nlb3() {
 '--device 0' \
 '--function 0x0' \
 '--function 0' \
-'--guid F7DF405C-BD7A-CF72-22F1-44B0B93ACD18' \
-'-T 400000000' \
+'--guid D8424DC4-A4A3-C413-F89E-433683F9040B' \
+'--freq 400000000' \
+'--id' \
 '--suppress-hdr' \
 '--csv' \
 '--suppress-stats'\
@@ -190,7 +180,7 @@ fuzz_nlb3() {
 
     printf "Fuzz Iteration: %d\n" $i
 
-    cmd='nlb3 '
+    cmd='nlb0 '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
       let "p = ${RANDOM} % ${#short_parms[@]}"
@@ -202,7 +192,7 @@ fuzz_nlb3() {
     printf "%s\n" "${cmd}"
     ${cmd}
 
-    cmd='nlb3 '
+    cmd='nlb0 '
     let "num_parms = 1 + ${RANDOM} % ${#long_parms[@]}"
     for (( n = 0 ; n < ${num_parms} ; ++n )); do
       let "p = ${RANDOM} % ${#long_parms[@]}"
@@ -217,8 +207,9 @@ fuzz_nlb3() {
   done
 }
 
+
 #declare -i iters=1
 #if [ $# -gt 0 ]; then
 #  iters=$1
 #fi
-#fuzz_nlb3 ${iters}
+#fuzz_nlb0 ${iters}
