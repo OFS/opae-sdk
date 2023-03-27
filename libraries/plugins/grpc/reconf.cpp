@@ -31,11 +31,9 @@
 #include <opae/log.h>
 #include <opae/types.h>
 
-#include "remote.h"
-//#include "request.h"
-//#include "response.h"
-
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
+#include "remote.h"
 
 fpga_result __REMOTE_API__ remote_fpgaReconfigureSlot(fpga_handle fpga,
                                                       uint32_t slot,
@@ -55,22 +53,9 @@ fpga_result __REMOTE_API__ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
                                                             uint32_t slot,
                                                             const char *path,
                                                             int flags) {
-#if 1
-  (void)fpga;
-  (void)slot;
-  (void)path;
-  (void)flags;
-
-  return FPGA_OK;
-#else
-  opae_fpgaReconfigureSlotByName_request req;
-  opae_fpgaReconfigureSlotByName_response resp;
-  struct _remote_handle *h;
-  struct _remote_token *tok;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
-  size_t len;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
 
   if (!fpga) {
     OPAE_ERR("NULL handle");
@@ -82,26 +67,10 @@ fpga_result __REMOTE_API__ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)fpga;
+  h = reinterpret_cast<_remote_handle *>(fpga);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.slot = slot;
-
-  len = strnlen(path, PATH_MAX - 1);
-  memcpy(req.path, path, len + 1);
-
-  req.flags = flags;
-
-  req_json = opae_encode_fpgaReconfigureSlotByName_request_41(
-      &req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaReconfigureSlotByName_response_41(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaReconfigureSlotByName(h->hdr.handle_id, slot,
+                                           std::string(path), flags);
 }

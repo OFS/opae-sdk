@@ -1539,3 +1539,34 @@ Status OPAEServiceImpl::fpgaGetMetricsThresholdInfo(
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
 }
+
+Status OPAEServiceImpl::fpgaReconfigureSlotByName(
+    ServerContext *context, const ReconfigureSlotByNameRequest *request,
+    ReconfigureSlotByNameReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t slot;
+  int flags;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaReconfigureSlotByName request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  slot = request->slot();
+  flags = request->flags();
+
+  res =
+      ::fpgaReconfigureSlotByName(handle, slot, request->path().c_str(), flags);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}

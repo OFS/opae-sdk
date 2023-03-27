@@ -106,6 +106,8 @@ using opaegrpc::ReadMMIO32Reply;
 using opaegrpc::ReadMMIO32Request;
 using opaegrpc::ReadMMIO64Reply;
 using opaegrpc::ReadMMIO64Request;
+using opaegrpc::ReconfigureSlotByNameReply;
+using opaegrpc::ReconfigureSlotByNameRequest;
 using opaegrpc::ReleaseBufferReply;
 using opaegrpc::ReleaseBufferRequest;
 using opaegrpc::ResetReply;
@@ -305,6 +307,10 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaGetMetricsThresholdInfo(
       ServerContext *context, const GetMetricsThresholdInfoRequest *request,
       GetMetricsThresholdInfoReply *reply) override;
+
+  Status fpgaReconfigureSlotByName(ServerContext *context,
+                                   const ReconfigureSlotByNameRequest *request,
+                                   ReconfigureSlotByNameReply *reply) override;
 
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;

@@ -200,6 +200,10 @@ class OPAEClient final {
       const fpga_remote_id &handle_id, uint32_t &num_thresholds,
       std::vector<metric_threshold> &metric_threshold);
 
+  fpga_result fpgaReconfigureSlotByName(const fpga_remote_id &handle_id,
+                                        uint32_t slot, const std::string &path,
+                                        int flags);
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 

@@ -1170,3 +1170,29 @@ fpga_result OPAEClient::fpgaGetMetricsThresholdInfo(
 
   return res;
 }
+
+fpga_result OPAEClient::fpgaReconfigureSlotByName(
+    const fpga_remote_id &handle_id, uint32_t slot, const std::string &path,
+    int flags) {
+  opaegrpc::ReconfigureSlotByNameRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_slot(slot);
+  request.set_allocated_path(new std::string(path));
+  request.set_flags(flags);
+
+  opaegrpc::ReconfigureSlotByNameReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaReconfigureSlotByName(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReconfigureSlotByName() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_)
+    std::cout << "fpgaReconfigureSlotByName reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}

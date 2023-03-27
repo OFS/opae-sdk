@@ -118,6 +118,8 @@ fpga_result remote_fpgaReleaseFromInterface(fpga_handle fpga,
 fpga_result remote_fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				      const uint8_t *bitstream,
 				      size_t bitstream_len, int flags);
+fpga_result remote_fpgaReconfigureSlotByName(fpga_handle fpga, uint32_t slot,
+              const char *path, int flags);
 fpga_result remote_fpgaTokenGetObject(fpga_token token, const char *name,
 				     fpga_object *object, int flags);
 fpga_result remote_fpgaHandleGetObject(fpga_handle handle, const char *name,
