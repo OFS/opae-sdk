@@ -59,6 +59,16 @@ using opaegrpc::GetErrorInfoReply;
 using opaegrpc::GetErrorInfoRequest;
 using opaegrpc::GetIOAddressReply;
 using opaegrpc::GetIOAddressRequest;
+using opaegrpc::GetMetricsByIndexReply;
+using opaegrpc::GetMetricsByIndexRequest;
+using opaegrpc::GetMetricsByNameReply;
+using opaegrpc::GetMetricsByNameRequest;
+using opaegrpc::GetMetricsInfoReply;
+using opaegrpc::GetMetricsInfoRequest;
+using opaegrpc::GetMetricsThresholdInfoReply;
+using opaegrpc::GetMetricsThresholdInfoRequest;
+using opaegrpc::GetNumMetricsReply;
+using opaegrpc::GetNumMetricsRequest;
 using opaegrpc::GetPropertiesFromHandleReply;
 using opaegrpc::GetPropertiesFromHandleRequest;
 using opaegrpc::GetPropertiesReply;
@@ -133,12 +143,13 @@ struct OPAEBufferInfo {
 
 class OPAEServiceImpl final : public OPAEService::Service {
  public:
-  OPAEServiceImpl()
+  OPAEServiceImpl(bool debug)
       : token_map_(nullptr),
         handle_map_(nullptr),
         mmio_map_(nullptr),
         binfo_map_(nullptr),
-        sysobj_map_(nullptr) {}
+        sysobj_map_(nullptr),
+        debug_(debug) {}
 
   Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
                        EnumerateReply *reply) override;
@@ -275,6 +286,26 @@ class OPAEServiceImpl final : public OPAEService::Service {
                           const GetUserClockRequest *request,
                           GetUserClockReply *reply) override;
 
+  Status fpgaGetNumMetrics(ServerContext *context,
+                           const GetNumMetricsRequest *request,
+                           GetNumMetricsReply *reply) override;
+
+  Status fpgaGetMetricsInfo(ServerContext *context,
+                            const GetMetricsInfoRequest *request,
+                            GetMetricsInfoReply *reply) override;
+
+  Status fpgaGetMetricsByIndex(ServerContext *context,
+                               const GetMetricsByIndexRequest *request,
+                               GetMetricsByIndexReply *reply) override;
+
+  Status fpgaGetMetricsByName(ServerContext *context,
+                              const GetMetricsByNameRequest *request,
+                              GetMetricsByNameReply *reply) override;
+
+  Status fpgaGetMetricsThresholdInfo(
+      ServerContext *context, const GetMetricsThresholdInfoRequest *request,
+      GetMetricsThresholdInfoReply *reply) override;
+
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;
 
@@ -290,4 +321,5 @@ class OPAEServiceImpl final : public OPAEService::Service {
   mmio_map_t mmio_map_;
   binfo_map_t binfo_map_;
   sysobj_map_t sysobj_map_;
+  bool debug_;
 };

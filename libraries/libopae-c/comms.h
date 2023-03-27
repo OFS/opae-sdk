@@ -47,6 +47,7 @@ typedef struct _opae_events_inet_data {
 
 typedef struct _opae_comms_channel {
 	bool valid;
+	bool debug;
 	char server_host[HOST_NAME_MAX + 1];
 	in_port_t server_port;
 	void *client;

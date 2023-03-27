@@ -47,15 +47,17 @@ using grpc::ServerBuilder;
 typedef struct _inet_server_config {
   char ip_addr[INET_ADDRSTRLEN];
   in_port_t port;
+  bool debug;
 } inet_server_config;
 
-STATIC inet_server_config config = {{'0', '.', '0', '.', '0', '.', '0', 0},
-                                    50051};
+STATIC inet_server_config config = {
+    {'0', '.', '0', '.', '0', '.', '0', 0}, 50051, false};
 
-#define OPT_STR ":hdl:P:va:p:"
+#define OPT_STR ":hdgl:P:va:p:"
 
 STATIC struct option longopts[] = {{"help", no_argument, NULL, 'h'},
                                    {"daemon", no_argument, NULL, 'd'},
+                                   {"debug", no_argument, NULL, 'g'},
                                    {"logfile", required_argument, NULL, 'l'},
                                    {"pidfile", required_argument, NULL, 'P'},
                                    {"version", no_argument, NULL, 'v'},
@@ -68,6 +70,8 @@ std::ostream &show_help(std::ostream &os) {
   os << "Usage: grpcserver <options>" << std::endl
      << std::endl
      //<< "\t-d,--daemon  run as a daemon process." << std::endl
+     << "\t-g,--debug                 enable debug logging."
+     << std::endl
      //<< "\t-l,--logfile <file> the log file for daemon mode [" << DEFAULT_LOG
      //<< "]" << std::endl
      //<< "\t-p,--pidfile <file> the pid file for daemon mode [" << DEFAULT_PID
@@ -109,6 +113,10 @@ int parse_args(inet_server_config *cfg, int argc, char *argv[]) {
                   << OPAE_GIT_COMMIT_HASH
                   << (OPAE_GIT_SRC_TREE_DIRTY ? "*" : "") << std::endl;
         return -2;
+
+      case 'g':
+        cfg->debug = true;
+        break;
 
       case 'a':
         if (tmp_optarg) {
@@ -204,7 +212,7 @@ int main(int argc, char *argv[]) {
 
   std::thread shutdown(shutdown_thread);
 
-  OPAEServiceImpl service;
+  OPAEServiceImpl service(config.debug);
 
   grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();

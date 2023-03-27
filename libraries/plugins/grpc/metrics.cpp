@@ -31,26 +31,15 @@
 #include <opae/log.h>
 #include <opae/types.h>
 
+#include "grpc_client.hpp"
 #include "mock/opae_std.h"
 #include "remote.h"
-//#include "request.h"
-//#include "response.h"
 
 fpga_result __REMOTE_API__ remote_fpgaGetNumMetrics(fpga_handle handle,
                                                     uint64_t *num_metrics) {
-#if 1
-  (void)handle;
-  (void)num_metrics;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetNumMetrics_request req;
-  opae_fpgaGetNumMetrics_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
@@ -62,42 +51,18 @@ fpga_result __REMOTE_API__ remote_fpgaGetNumMetrics(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-
-  req_json =
-      opae_encode_fpgaGetNumMetrics_request_36(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaGetNumMetrics_response_36(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) *num_metrics = resp.num_metrics;
-
-  return resp.result;
-#endif
+  return client->fpgaGetNumMetrics(h->hdr.handle_id, *num_metrics);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetMetricsInfo(
     fpga_handle handle, fpga_metric_info *metric_info, uint64_t *num_metrics) {
-#if 1
-  (void)handle;
-  (void)metric_info;
-  (void)num_metrics;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetMetricsInfo_request req;
-  opae_fpgaGetMetricsInfo_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_result res;
 
   if (!handle) {
@@ -115,51 +80,27 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsInfo(
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  std::vector<fpga_metric_info> info;
 
-  req.handle_id = h->hdr.handle_id;
-  req.num_metrics = *num_metrics;
+  res = client->fpgaGetMetricsInfo(h->hdr.handle_id, *num_metrics, info);
 
-  req_json = opae_encode_fpgaGetMetricsInfo_request_37(
-      &req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaGetMetricsInfo_response_37(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
-    memcpy(metric_info, resp.info, resp.num_metrics * sizeof(fpga_metric_info));
-
-    opae_free(resp.info);
-
-    *num_metrics = resp.num_metrics;
+  if (res == FPGA_OK) {
+    size_t count = std::min((size_t)*num_metrics, info.size());
+    std::copy(info.cbegin(), info.cbegin() + count, metric_info);
   }
 
-  return resp.result;
-#endif
+  return res;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetMetricsByIndex(
     fpga_handle handle, uint64_t *metric_num, uint64_t num_metric_indexes,
     fpga_metric *metrics) {
-#if 1
-  (void)handle;
-  (void)metric_num;
-  (void)num_metric_indexes;
-  (void)metrics;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetMetricsByIndex_request req;
-  opae_fpgaGetMetricsByIndex_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_result res;
 
   if (!handle) {
@@ -177,52 +118,34 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsByIndex(
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.metric_num = metric_num;
-  req.num_metric_indexes = num_metric_indexes;
-  resp.num_metric_indexes = num_metric_indexes;
+  std::vector<uint64_t> vmetric_num;
+  vmetric_num.reserve(num_metric_indexes);
+  vmetric_num.resize(num_metric_indexes);
+  std::copy(metric_num, metric_num + num_metric_indexes, vmetric_num.begin());
 
-  req_json = opae_encode_fpgaGetMetricsByIndex_request_38(
-      &req, tok->json_to_string_flags);
+  std::vector<fpga_metric> vmetrics;
 
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
+  res = client->fpgaGetMetricsByIndex(h->hdr.handle_id, vmetric_num,
+                                      num_metric_indexes, vmetrics);
 
-  if (!opae_decode_fpgaGetMetricsByIndex_response_38(resp_json, &resp))
-    return FPGA_EXCEPTION;
+  if (res == FPGA_OK)
+    std::copy(vmetrics.cbegin(), vmetrics.cbegin() + num_metric_indexes,
+              metrics);
 
-  if (resp.result == FPGA_OK) {
-    memcpy(metrics, resp.metrics,
-           resp.num_metric_indexes * sizeof(fpga_metric));
-
-    opae_free(resp.metrics);
-  }
-
-  return resp.result;
-#endif
+  return res;
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaGetMetricsByName(fpga_handle handle, char **metrics_names,
                             uint64_t num_metric_names, fpga_metric *metrics) {
-#if 1
-  (void)handle;
-  (void)metrics_names;
-  (void)num_metric_names;
-  (void)metrics;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetMetricsByName_request req;
-  opae_fpgaGetMetricsByName_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  uint64_t i;
   fpga_result res;
 
   if (!handle) {
@@ -240,50 +163,32 @@ remote_fpgaGetMetricsByName(fpga_handle handle, char **metrics_names,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.metrics_names = metrics_names;
-  req.num_metric_names = num_metric_names;
-  resp.num_metric_names = num_metric_names;
+  std::vector<std::string> vmetrics_names;
+  vmetrics_names.reserve(num_metric_names);
+  for (i = 0; i < num_metric_names; ++i)
+    vmetrics_names.push_back(std::string(metrics_names[i]));
 
-  req_json = opae_encode_fpgaGetMetricsByName_request_39(
-      &req, tok->json_to_string_flags);
+  std::vector<fpga_metric> vmetrics;
 
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
+  res = client->fpgaGetMetricsByName(h->hdr.handle_id, vmetrics_names,
+                                     num_metric_names, vmetrics);
 
-  if (!opae_decode_fpgaGetMetricsByName_response_39(resp_json, &resp))
-    return FPGA_EXCEPTION;
+  if (res == FPGA_OK)
+    std::copy(vmetrics.cbegin(), vmetrics.cbegin() + num_metric_names, metrics);
 
-  if (resp.result == FPGA_OK) {
-    memcpy(metrics, resp.metrics, resp.num_metric_names * sizeof(fpga_metric));
-
-    opae_free(resp.metrics);
-  }
-
-  return resp.result;
-#endif
+  return res;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetMetricsThresholdInfo(
     fpga_handle handle, metric_threshold *metric_thresholds,
     uint32_t *num_thresholds) {
-#if 1
-  (void)handle;
-  (void)metric_thresholds;
-  (void)num_thresholds;
-
-  return FPGA_OK;
-#else
-  opae_fpgaGetMetricsThresholdInfo_request req;
-  opae_fpgaGetMetricsThresholdInfo_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
   fpga_result res;
 
   if (!handle) {
@@ -301,32 +206,20 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsThresholdInfo(
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
-
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  req.handle_id = h->hdr.handle_id;
-  req.num_thresholds = *num_thresholds;
-  *num_thresholds = 0;
+  std::vector<metric_threshold> vmetric_thresholds;
 
-  req_json = opae_encode_fpgaGetMetricsThresholdInfo_request_40(
-      &req, tok->json_to_string_flags);
+  res = client->fpgaGetMetricsThresholdInfo(h->hdr.handle_id, *num_thresholds,
+                                            vmetric_thresholds);
 
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaGetMetricsThresholdInfo_response_40(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  if (resp.result == FPGA_OK) {
-    *num_thresholds = resp.num_thresholds;
-
-    memcpy(metric_thresholds, resp.metric_threshold,
-           resp.num_thresholds * sizeof(metric_threshold));
-
-    opae_free(resp.metric_threshold);
+  if (res == FPGA_OK) {
+    size_t count = std::min((size_t)*num_thresholds, vmetric_thresholds.size());
+    std::copy(vmetric_thresholds.cbegin(), vmetric_thresholds.cbegin() + count,
+              metric_thresholds);
   }
 
-  return resp.result;
-#endif
+  return res;
 }

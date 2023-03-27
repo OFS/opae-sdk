@@ -99,26 +99,22 @@ fpga_version to_opae_fpga_version(const opaegrpc::fpga_version &gver);
 opaegrpc::fpga_error_info *to_grpc_fpga_error_info(const fpga_error_info &info);
 fpga_error_info to_opae_fpga_error_info(const opaegrpc::fpga_error_info &ginfo);
 
-opaegrpc::metric_value *to_grpc_metric_value(const metric_value &val,
-                                             fpga_metric_datatype ty);
-metric_value to_opae_metric_value(const opaegrpc::metric_value &gval,
-                                  opaegrpc::fpga_metric_datatype ty);
+opaegrpc::metric_value *to_grpc_metric_value(const metric_value &val);
+metric_value to_opae_metric_value(const opaegrpc::metric_value &gval);
 
-opaegrpc::fpga_metric_info *to_grpc_fpga_metric_info(
-    const fpga_metric_info &minfo);
+void to_grpc_fpga_metric_info(const fpga_metric_info &minfo,
+                              opaegrpc::fpga_metric_info *gminfo);
 fpga_metric_info to_opae_fpga_metric_info(
     const opaegrpc::fpga_metric_info &ginfo);
 
-opaegrpc::fpga_metric *to_grpc_fpga_metric(const fpga_metric &m,
-                                           fpga_metric_datatype ty);
-fpga_metric to_opae_fpga_metric(const opaegrpc::fpga_metric &gm,
-                                opaegrpc::fpga_metric_datatype ty);
+void to_grpc_fpga_metric(const fpga_metric &m, opaegrpc::fpga_metric *gm);
+fpga_metric to_opae_fpga_metric(const opaegrpc::fpga_metric &gm);
 
 opaegrpc::threshold *to_grpc_threshold(const threshold &t);
 threshold to_opae_threshold(const opaegrpc::threshold &gt);
 
-opaegrpc::metric_threshold *to_grpc_metric_threshold(
-    const metric_threshold &mt);
+void to_grpc_metric_threshold(const metric_threshold &mt,
+                              opaegrpc::metric_threshold *gmt);
 metric_threshold to_opae_metric_threshold(
     const opaegrpc::metric_threshold &gmt);
 

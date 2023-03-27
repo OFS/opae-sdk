@@ -62,8 +62,10 @@ using opaegrpc::OPAEService;
 
 class OPAEClient final {
  public:
-  OPAEClient(std::shared_ptr<Channel> channel)
-      : stub_(OPAEService::NewStub(channel)), token_map_(nullptr) {}
+  OPAEClient(std::shared_ptr<Channel> channel, bool debug)
+      : stub_(OPAEService::NewStub(channel)),
+        token_map_(nullptr),
+        debug_(debug) {}
 
   fpga_result fpgaEnumerate(const std::vector<fpga_properties> &filters,
                             uint32_t num_filters, uint32_t max_tokens,
@@ -177,10 +179,34 @@ class OPAEClient final {
   fpga_result fpgaGetUserClock(const fpga_remote_id &handle_id, int flags,
                                uint64_t &high_clk, uint64_t &low_clk);
 
+  fpga_result fpgaGetNumMetrics(const fpga_remote_id &handle_id,
+                                uint64_t &num_metrics);
+
+  fpga_result fpgaGetMetricsInfo(const fpga_remote_id &handle_id,
+                                 uint64_t &num_metrics,
+                                 std::vector<fpga_metric_info> &info);
+
+  fpga_result fpgaGetMetricsByIndex(const fpga_remote_id &handle_id,
+                                    const std::vector<uint64_t> &metric_num,
+                                    uint64_t num_metric_indexes,
+                                    std::vector<fpga_metric> &metrics);
+
+  fpga_result fpgaGetMetricsByName(
+      const fpga_remote_id &handle_id,
+      const std::vector<std::string> &metrics_names, uint64_t num_metric_names,
+      std::vector<fpga_metric> &metrics);
+
+  fpga_result fpgaGetMetricsThresholdInfo(
+      const fpga_remote_id &handle_id, uint32_t &num_thresholds,
+      std::vector<metric_threshold> &metric_threshold);
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 
  public:
   typedef opae_map_helper<fpga_remote_id, _remote_token *> token_map_t;
   token_map_t token_map_;
+
+ private:
+  bool debug_;
 };

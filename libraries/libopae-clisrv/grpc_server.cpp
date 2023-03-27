@@ -38,7 +38,7 @@
 Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context,
                                       const EnumerateRequest *request,
                                       EnumerateReply *reply) {
-  std::cout << "fpgaEnumerate request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaEnumerate request " << *request << std::endl;
 
   UNUSED_PARAM(context);
   std::vector<fpga_properties> req_filters;
@@ -72,10 +72,11 @@ Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context,
 
   if (tokens) {
     uint32_t i;
-    const uint32_t num_tokens = std::min(resp_num_matches, req_max_tokens);
+
+    resp_max_tokens = std::min(resp_max_tokens, resp_num_matches);
 
     // Walk through the tokens, opening each and grabbing its header.
-    for (i = 0; i < num_tokens; ++i) {
+    for (i = 0; i < resp_max_tokens; ++i) {
       opae_wrapped_token *wt =
           reinterpret_cast<opae_wrapped_token *>(tokens[i]);
       fpga_token_header *hdr =
@@ -107,7 +108,7 @@ Status OPAEServiceImpl::fpgaDestroyToken(ServerContext *context,
   fpga_token token;
   fpga_result res;
 
-  std::cout << "fpgaDestroyToken request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaDestroyToken request " << *request << std::endl;
 
   req_token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(req_token_id);
@@ -135,7 +136,7 @@ Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context,
   fpga_token_header resp_token_hdr;
   fpga_result res;
 
-  std::cout << "fpgaCloneToken request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaCloneToken request " << *request << std::endl;
 
   req_src_token_id = to_opae_fpga_remote_id(request->src_token_id());
   src_token = token_map_.find(req_src_token_id);
@@ -173,7 +174,8 @@ Status OPAEServiceImpl::fpgaGetProperties(ServerContext *context,
   _fpga_properties *_props = nullptr;
   fpga_result res;
 
-  std::cout << "fpgaGetProperties request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaGetProperties request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -210,7 +212,8 @@ Status OPAEServiceImpl::fpgaUpdateProperties(
   fpga_properties resp_props = nullptr;
   fpga_result res;
 
-  std::cout << "fpgaUpdateProperties request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaUpdateProperties request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -252,7 +255,7 @@ Status OPAEServiceImpl::fpgaOpen(ServerContext *context,
   int flags;
   fpga_result res;
 
-  std::cout << "fpgaOpen request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaOpen request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -291,7 +294,7 @@ Status OPAEServiceImpl::fpgaClose(ServerContext *context,
   fpga_handle handle;
   fpga_result res;
 
-  std::cout << "fpgaClose request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaClose request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -316,7 +319,7 @@ Status OPAEServiceImpl::fpgaReset(ServerContext *context,
   fpga_handle handle;
   fpga_result res;
 
-  std::cout << "fpgaReset request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaReset request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -341,7 +344,9 @@ Status OPAEServiceImpl::fpgaGetPropertiesFromHandle(
   fpga_properties resp_props = nullptr;
   fpga_result res;
 
-  std::cout << "fpgaGetPropertiesFromHandle request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaGetPropertiesFromHandle request " << *request
+              << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -386,7 +391,7 @@ Status OPAEServiceImpl::fpgaMapMMIO(ServerContext *context,
   fpga_remote_id mmio_id;
   fpga_result res;
 
-  std::cout << "fpgaMapMMIO request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaMapMMIO request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -422,7 +427,7 @@ Status OPAEServiceImpl::fpgaUnmapMMIO(ServerContext *context,
   uint32_t mmio_num;
   fpga_result res;
 
-  std::cout << "fpgaUnmapMMIO request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaUnmapMMIO request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -458,7 +463,7 @@ Status OPAEServiceImpl::fpgaReadMMIO32(ServerContext *context,
   uint32_t value = 0;
   fpga_result res;
 
-  std::cout << "fpgaReadMMIO32 request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaReadMMIO32 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -489,7 +494,7 @@ Status OPAEServiceImpl::fpgaWriteMMIO32(ServerContext *context,
   uint32_t value;
   fpga_result res;
 
-  std::cout << "fpgaWriteMMIO32 request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaWriteMMIO32 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -520,7 +525,7 @@ Status OPAEServiceImpl::fpgaReadMMIO64(ServerContext *context,
   uint64_t value = 0;
   fpga_result res;
 
-  std::cout << "fpgaReadMMIO64 request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaReadMMIO64 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -551,7 +556,7 @@ Status OPAEServiceImpl::fpgaWriteMMIO64(ServerContext *context,
   uint64_t value;
   fpga_result res;
 
-  std::cout << "fpgaWriteMMIO64 request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaWriteMMIO64 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -583,7 +588,7 @@ Status OPAEServiceImpl::fpgaWriteMMIO512(ServerContext *context,
   uint64_t offset;
   fpga_result res;
 
-  std::cout << "fpgaWriteMMIO512 request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaWriteMMIO512 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -623,7 +628,8 @@ Status OPAEServiceImpl::fpgaPrepareBuffer(ServerContext *context,
   fpga_remote_id buf_id;
   fpga_result res;
 
-  std::cout << "fpgaPrepareBuffer request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaPrepareBuffer request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -670,7 +676,8 @@ Status OPAEServiceImpl::fpgaReleaseBuffer(ServerContext *context,
   OPAEBufferInfo *binfo;
   fpga_result res;
 
-  std::cout << "fpgaReleaseBuffer request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaReleaseBuffer request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -711,7 +718,7 @@ Status OPAEServiceImpl::fpgaGetIOAddress(ServerContext *context,
   uint64_t ioaddr = 0;
   fpga_result res;
 
-  std::cout << "fpgaGetIOAddress request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaGetIOAddress request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -751,7 +758,7 @@ Status OPAEServiceImpl::fpgaReadError(ServerContext *context,
   uint64_t value = 0;
   fpga_result res;
 
-  std::cout << "fpgaReadError request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaReadError request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -780,7 +787,7 @@ Status OPAEServiceImpl::fpgaGetErrorInfo(ServerContext *context,
   fpga_error_info error_info;
   fpga_result res;
 
-  std::cout << "fpgaGetErrorInfo request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaGetErrorInfo request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -808,7 +815,7 @@ Status OPAEServiceImpl::fpgaClearError(ServerContext *context,
   uint32_t error_num;
   fpga_result res;
 
-  std::cout << "fpgaClearError request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaClearError request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -834,7 +841,8 @@ Status OPAEServiceImpl::fpgaClearAllErrors(ServerContext *context,
   fpga_token token;
   fpga_result res;
 
-  std::cout << "fpgaClearAllErrors request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaClearAllErrors request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -860,7 +868,8 @@ Status OPAEServiceImpl::fpgaTokenGetObject(ServerContext *context,
   fpga_object obj = nullptr;
   fpga_result res;
 
-  std::cout << "fpgaTokenGetObject request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaTokenGetObject request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
   token = token_map_.find(token_id);
@@ -897,7 +906,8 @@ Status OPAEServiceImpl::fpgaDestroyObject(ServerContext *context,
   fpga_object sysobj;
   fpga_result res;
 
-  std::cout << "fpgaDestroyObject request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaDestroyObject request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -923,7 +933,8 @@ Status OPAEServiceImpl::fpgaObjectGetType(ServerContext *context,
   fpga_sysobject_type type = FPGA_OBJECT_ATTRIBUTE;
   fpga_result res;
 
-  std::cout << "fpgaObjectGetType request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaObjectGetType request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -948,7 +959,8 @@ Status OPAEServiceImpl::fpgaObjectGetName(ServerContext *context,
   fpga_object sysobj;
   fpga_result res;
 
-  std::cout << "fpgaObjectGetName request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaObjectGetName request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -979,7 +991,8 @@ Status OPAEServiceImpl::fpgaObjectGetSize(ServerContext *context,
   uint32_t value = 0;
   fpga_result res;
 
-  std::cout << "fpgaObjectGetSize request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaObjectGetSize request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -1010,7 +1023,7 @@ Status OPAEServiceImpl::fpgaObjectRead(ServerContext *context,
   int flags;
   fpga_result res;
 
-  std::cout << "fpgaObjectRead request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaObjectRead request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -1047,7 +1060,7 @@ Status OPAEServiceImpl::fpgaObjectRead64(ServerContext *context,
   uint64_t value = 0;
   fpga_result res;
 
-  std::cout << "fpgaObjectRead64 request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaObjectRead64 request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -1077,7 +1090,8 @@ Status OPAEServiceImpl::fpgaObjectWrite64(ServerContext *context,
   int flags;
   fpga_result res;
 
-  std::cout << "fpgaObjectWrite64 request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaObjectWrite64 request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
   sysobj = sysobj_map_.find(object_id);
@@ -1106,7 +1120,8 @@ Status OPAEServiceImpl::fpgaHandleGetObject(
   fpga_object sysobj = nullptr;
   fpga_result res;
 
-  std::cout << "fpgaHandleGetObject request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaHandleGetObject request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -1145,7 +1160,8 @@ Status OPAEServiceImpl::fpgaObjectGetObject(
   int flags;
   fpga_result res;
 
-  std::cout << "fpgaObjectGetObject request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaObjectGetObject request " << *request << std::endl;
 
   parent_id = to_opae_fpga_remote_id(request->object_id());
   parent = sysobj_map_.find(parent_id);
@@ -1184,7 +1200,8 @@ Status OPAEServiceImpl::fpgaObjectGetObjectAt(
   fpga_object child = nullptr;
   fpga_result res;
 
-  std::cout << "fpgaObjectGetObjectAt request " << *request << std::endl;
+  if (debug_)
+    std::cout << "fpgaObjectGetObjectAt request " << *request << std::endl;
 
   parent_id = to_opae_fpga_remote_id(request->object_id());
   parent = sysobj_map_.find(parent_id);
@@ -1224,7 +1241,7 @@ Status OPAEServiceImpl::fpgaSetUserClock(ServerContext *context,
   int flags;
   fpga_result res;
 
-  std::cout << "fpgaSetUserClock request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaSetUserClock request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -1255,7 +1272,7 @@ Status OPAEServiceImpl::fpgaGetUserClock(ServerContext *context,
   uint64_t low_clk = 0;
   fpga_result res;
 
-  std::cout << "fpgaGetUserClock request " << *request << std::endl;
+  if (debug_) std::cout << "fpgaGetUserClock request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
   handle = handle_map_.find(handle_id);
@@ -1273,6 +1290,251 @@ Status OPAEServiceImpl::fpgaGetUserClock(ServerContext *context,
     reply->set_high_clk(high_clk);
     reply->set_low_clk(low_clk);
   }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetNumMetrics(ServerContext *context,
+                                          const GetNumMetricsRequest *request,
+                                          GetNumMetricsReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint64_t num_metrics = 0;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaGetNumMetrics request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaGetNumMetrics(handle, &num_metrics);
+
+  if (res == FPGA_OK) reply->set_num_metrics(num_metrics);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetMetricsInfo(ServerContext *context,
+                                           const GetMetricsInfoRequest *request,
+                                           GetMetricsInfoReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint64_t input_num_metrics;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaGetMetricsInfo request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  input_num_metrics = request->num_metrics();
+  fpga_metric_info *info = nullptr;
+  uint64_t output_num_metrics = input_num_metrics;
+
+  if (input_num_metrics) {
+    info = new fpga_metric_info[input_num_metrics];
+    memset(info, 0, input_num_metrics * sizeof(fpga_metric_info));
+  }
+
+  res = ::fpgaGetMetricsInfo(handle, info, &output_num_metrics);
+
+  output_num_metrics = std::min(input_num_metrics, output_num_metrics);
+
+  if ((res == FPGA_OK) && info) {
+    uint64_t i;
+
+    for (i = 0; i < output_num_metrics; ++i)
+      to_grpc_fpga_metric_info(info[i], reply->add_info());
+
+    reply->set_num_metrics(output_num_metrics);
+  }
+
+  if (info) delete[] info;
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetMetricsByIndex(
+    ServerContext *context, const GetMetricsByIndexRequest *request,
+    GetMetricsByIndexReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint64_t input_num_metric_indexes;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaGetMetricsByIndex request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  input_num_metric_indexes = request->num_metric_indexes();
+  input_num_metric_indexes = std::min(input_num_metric_indexes,
+                                      (uint64_t)request->metric_num().size());
+  uint64_t *metric_num = nullptr;
+
+  fpga_metric *metrics = nullptr;
+  uint64_t output_num_metric_indexes = input_num_metric_indexes;
+
+  if (input_num_metric_indexes) {
+    metric_num = new uint64_t[input_num_metric_indexes];
+    std::copy(request->metric_num().cbegin(),
+              request->metric_num().cbegin() + input_num_metric_indexes,
+              metric_num);
+  }
+
+  if (output_num_metric_indexes) {
+    metrics = new fpga_metric[output_num_metric_indexes];
+    memset(metrics, 0, output_num_metric_indexes * sizeof(fpga_metric));
+  }
+
+  res = ::fpgaGetMetricsByIndex(handle, metric_num, output_num_metric_indexes,
+                                metrics);
+
+  if ((res == FPGA_OK) && metrics) {
+    uint64_t i;
+
+    for (i = 0; i < output_num_metric_indexes; ++i)
+      to_grpc_fpga_metric(metrics[i], reply->add_metrics());
+
+    reply->set_num_metric_indexes(output_num_metric_indexes);
+  }
+
+  if (metric_num) delete[] metric_num;
+  if (metrics) delete[] metrics;
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetMetricsByName(
+    ServerContext *context, const GetMetricsByNameRequest *request,
+    GetMetricsByNameReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint64_t input_num_metric_names;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaGetMetricsByName request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  input_num_metric_names = request->num_metric_names();
+  input_num_metric_names = std::min(input_num_metric_names,
+                                    (uint64_t)request->metrics_names().size());
+  char **metrics_names = nullptr;
+
+  fpga_metric *metrics = nullptr;
+  uint64_t output_num_metric_names = input_num_metric_names;
+
+  if (input_num_metric_names) {
+    metrics_names = new char *[input_num_metric_names];
+    uint64_t i;
+    google::protobuf::RepeatedPtrField<std::string>::const_iterator it;
+    for (i = 0, it = request->metrics_names().cbegin();
+         i < input_num_metric_names; ++i, ++it)
+      metrics_names[i] = const_cast<char *>(it->c_str());
+  }
+
+  if (output_num_metric_names) {
+    metrics = new fpga_metric[output_num_metric_names];
+    memset(metrics, 0, output_num_metric_names * sizeof(fpga_metric));
+  }
+
+  res = ::fpgaGetMetricsByName(handle, metrics_names, output_num_metric_names,
+                               metrics);
+
+  if ((res == FPGA_OK) && metrics) {
+    uint64_t i;
+
+    for (i = 0; i < output_num_metric_names; ++i)
+      to_grpc_fpga_metric(metrics[i], reply->add_metrics());
+
+    reply->set_num_metric_names(output_num_metric_names);
+  }
+
+  if (metrics_names) delete[] metrics_names;
+  if (metrics) delete[] metrics;
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaGetMetricsThresholdInfo(
+    ServerContext *context, const GetMetricsThresholdInfoRequest *request,
+    GetMetricsThresholdInfoReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint32_t input_num_thresholds;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaGetMetricsThresholdInfo request " << *request
+              << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  input_num_thresholds = request->num_thresholds();
+  metric_threshold *metric_thresholds = nullptr;
+
+  if (input_num_thresholds) {
+    metric_thresholds = new metric_threshold[input_num_thresholds];
+    memset(metric_thresholds, 0,
+           input_num_thresholds * sizeof(metric_threshold));
+  }
+
+  uint32_t output_num_thresholds = input_num_thresholds;
+  res = ::fpgaGetMetricsThresholdInfo(handle, metric_thresholds,
+                                      &output_num_thresholds);
+
+  reply->set_num_thresholds(output_num_thresholds);
+
+  if ((res == FPGA_OK) && metric_thresholds) {
+    uint32_t i;
+    for (i = 0; i < output_num_thresholds; ++i)
+      to_grpc_metric_threshold(metric_thresholds[i],
+                               reply->add_metric_threshold());
+  }
+
+  if (metric_thresholds) delete[] metric_thresholds;
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;

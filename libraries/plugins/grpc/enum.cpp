@@ -92,7 +92,8 @@ static int remote_enumerate(opae_comms_channel *comms, void *context) {
   target << comms->server_host << ':' << comms->server_port;
 
   OPAEClient *client = new OPAEClient(
-      grpc::CreateChannel(target.str(), grpc::InsecureChannelCredentials()));
+      grpc::CreateChannel(target.str(), grpc::InsecureChannelCredentials()),
+      comms->debug);
 
   comms->client = client;
 

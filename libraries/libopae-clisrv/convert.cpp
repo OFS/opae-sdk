@@ -200,61 +200,20 @@ fpga_error_info to_opae_fpga_error_info(
   return info;
 }
 
-opaegrpc::metric_value *to_grpc_metric_value(const metric_value &val,
-                                             fpga_metric_datatype ty) {
+opaegrpc::metric_value *to_grpc_metric_value(const metric_value &val) {
   opaegrpc::metric_value *gval = new opaegrpc::metric_value();
-
-  if (to_grpc_fpga_metric_datatype[ty] == opaegrpc::FPGA_METRIC_DATATYPE_INT)
-    gval->set_ivalue(val.ivalue);
-  else if (to_grpc_fpga_metric_datatype[ty] ==
-           opaegrpc::FPGA_METRIC_DATATYPE_FLOAT)
-    gval->set_fvalue(val.fvalue);
-  else if (to_grpc_fpga_metric_datatype[ty] ==
-           opaegrpc::FPGA_METRIC_DATATYPE_DOUBLE)
-    gval->set_dvalue(val.dvalue);
-  else if (to_grpc_fpga_metric_datatype[ty] ==
-           opaegrpc::FPGA_METRIC_DATATYPE_BOOL)
-    gval->set_bvalue(val.bvalue);
-  else
-    OPAE_ERR("can't set value for FPGA_METRIC_DATATYPE_UNKNOWN");
-
+  gval->set_dvalue(val.dvalue);
   return gval;
 }
 
-metric_value to_opae_metric_value(const opaegrpc::metric_value &gval,
-                                  opaegrpc::fpga_metric_datatype ty) {
+metric_value to_opae_metric_value(const opaegrpc::metric_value &gval) {
   metric_value val;
-
-  if (to_opae_fpga_metric_datatype[ty] == FPGA_METRIC_DATATYPE_INT)
-    if (gval.has_ivalue())
-      val.ivalue = gval.ivalue();
-    else
-      OPAE_ERR("fpga_metric_datatype mismatch (ivalue)");
-  else if (to_opae_fpga_metric_datatype[ty] == FPGA_METRIC_DATATYPE_FLOAT)
-    if (gval.has_fvalue())
-      val.fvalue = gval.fvalue();
-    else
-      OPAE_ERR("fpga_metric_datatype mismatch (fvalue)");
-  else if (to_opae_fpga_metric_datatype[ty] == FPGA_METRIC_DATATYPE_DOUBLE)
-    if (gval.has_dvalue())
-      val.dvalue = gval.dvalue();
-    else
-      OPAE_ERR("fpga_metric_datatype mismatch (dvalue)");
-  else if (to_opae_fpga_metric_datatype[ty] == FPGA_METRIC_DATATYPE_BOOL)
-    if (gval.has_bvalue())
-      val.bvalue = gval.bvalue();
-    else
-      OPAE_ERR("fpga_metric_datatype mismatch (bvalue)");
-  else
-    OPAE_ERR("can't set value for opaegrpc::FPGA_METRIC_DATATYPE_UNKNOWN");
-
+  val.dvalue = gval.dvalue();
   return val;
 }
 
-opaegrpc::fpga_metric_info *to_grpc_fpga_metric_info(
-    const fpga_metric_info &minfo) {
-  opaegrpc::fpga_metric_info *gminfo = new opaegrpc::fpga_metric_info();
-
+void to_grpc_fpga_metric_info(const fpga_metric_info &minfo,
+                              opaegrpc::fpga_metric_info *gminfo) {
   gminfo->set_metric_num(minfo.metric_num);
   gminfo->set_allocated_metric_guid(to_string(minfo.metric_guid));
   gminfo->set_allocated_qualifier_name(new std::string(minfo.qualifier_name));
@@ -264,8 +223,6 @@ opaegrpc::fpga_metric_info *to_grpc_fpga_metric_info(
   gminfo->set_metric_datatype(
       to_grpc_fpga_metric_datatype[minfo.metric_datatype]);
   gminfo->set_metric_type(to_grpc_fpga_metric_type[minfo.metric_type]);
-
-  return gminfo;
 }
 
 fpga_metric_info to_opae_fpga_metric_info(
@@ -303,24 +260,18 @@ fpga_metric_info to_opae_fpga_metric_info(
   return info;
 }
 
-opaegrpc::fpga_metric *to_grpc_fpga_metric(const fpga_metric &m,
-                                           fpga_metric_datatype ty) {
-  opaegrpc::fpga_metric *gm = new opaegrpc::fpga_metric();
-
+void to_grpc_fpga_metric(const fpga_metric &m, opaegrpc::fpga_metric *gm) {
   gm->set_metric_num(m.metric_num);
-  gm->set_allocated_value(to_grpc_metric_value(m.value, ty));
+  gm->set_allocated_value(to_grpc_metric_value(m.value));
   gm->set_isvalid(m.isvalid);
-
-  return gm;
 }
 
-fpga_metric to_opae_fpga_metric(const opaegrpc::fpga_metric &gm,
-                                opaegrpc::fpga_metric_datatype ty) {
+fpga_metric to_opae_fpga_metric(const opaegrpc::fpga_metric &gm) {
   fpga_metric m;
 
   m.metric_num = gm.metric_num();
   if (gm.has_value())
-    m.value = to_opae_metric_value(gm.value(), ty);
+    m.value = to_opae_metric_value(gm.value());
   else
     OPAE_ERR("fpga_metric missing value");
   m.isvalid = gm.isvalid();
@@ -353,10 +304,8 @@ threshold to_opae_threshold(const opaegrpc::threshold &gt) {
   return t;
 }
 
-opaegrpc::metric_threshold *to_grpc_metric_threshold(
-    const metric_threshold &mt) {
-  opaegrpc::metric_threshold *gmt = new opaegrpc::metric_threshold();
-
+void to_grpc_metric_threshold(const metric_threshold &mt,
+                              opaegrpc::metric_threshold *gmt) {
   gmt->set_allocated_metric_name(new std::string(mt.metric_name));
   gmt->set_allocated_upper_nr_threshold(
       to_grpc_threshold(mt.upper_nr_threshold));
@@ -369,8 +318,6 @@ opaegrpc::metric_threshold *to_grpc_metric_threshold(
   gmt->set_allocated_lower_nc_threshold(
       to_grpc_threshold(mt.lower_nc_threshold));
   gmt->set_allocated_hysteresis(to_grpc_threshold(mt.hysteresis));
-
-  return gmt;
 }
 
 metric_threshold to_opae_metric_threshold(

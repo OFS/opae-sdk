@@ -29,7 +29,7 @@
 #include "comms.h"
 
 #ifndef UNUSED_PARAM
-#define UNUSED_PARAM(x) ((void)x)
+#define UNUSED_PARAM(x) ((void)(x))
 #endif // UNUSED_PARAM
 
 #ifdef __cplusplus

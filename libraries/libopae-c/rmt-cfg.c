@@ -44,28 +44,32 @@ STATIC int parse_remote_grpc(json_object *j_remote_i,
 	int port = 0;
 	char *events_server = NULL;
 	int events_port = 0;
+	bool debug = false;
 //	int res;
 	size_t len;
 
 	if (!parse_json_string(j_remote_i, "server", &ip_or_host)) {
-		OPAE_ERR("INET_SOCK_STREAM remote missing \"server\" key");
+		OPAE_ERR("gRPC remote missing \"server\" key");
 		return 1;
 	}
 
 	if (!parse_json_int(j_remote_i, "port", &port)) {
-		OPAE_ERR("INET_SOCK_STREAM remote missing \"port\" key");
+		OPAE_ERR("gRPC remote missing \"port\" key");
 		return 2;
 	}
 
 	if (!parse_json_string(j_remote_i, "events_server", &events_server)) {
-		OPAE_ERR("INET_SOCK_STREAM remote missing \"events_server\" key");
+		OPAE_ERR("gRPC remote missing \"events_server\" key");
 		return 3;
 	}
 
 	if (!parse_json_int(j_remote_i, "events_port", &events_port)) {
-		OPAE_ERR("INET_SOCK_STREAM remote missing \"events_port\" key");
+		OPAE_ERR("gRPC remote missing \"events_port\" key");
 		return 4;
 	}
+
+  parse_json_boolean(j_remote_i, "debug", &debug);
+  comms->debug = debug;
 
   len = strnlen(ip_or_host, HOST_NAME_MAX);
   memcpy(comms->server_host, ip_or_host, len + 1);

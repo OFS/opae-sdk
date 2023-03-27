@@ -104,12 +104,7 @@ message fpga_error_info {
 }
 
 message metric_value {
-  oneof v {
-    uint64 ivalue = 1;
-    double dvalue = 2;
-    float fvalue = 3;
-    bool bvalue = 4;
-  }
+  double dvalue = 1;
 }
 
 message fpga_metric_info {
@@ -246,6 +241,11 @@ service OPAEService {
   rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {}
   rpc fpgaSetUserClock(SetUserClockRequest) returns (SetUserClockReply) {}
   rpc fpgaGetUserClock(GetUserClockRequest) returns (GetUserClockReply) {}
+  rpc fpgaGetNumMetrics(GetNumMetricsRequest) returns (GetNumMetricsReply) {}
+  rpc fpgaGetMetricsInfo(GetMetricsInfoRequest) returns (GetMetricsInfoReply) {}
+  rpc fpgaGetMetricsByIndex(GetMetricsByIndexRequest) returns (GetMetricsByIndexReply) {}
+  rpc fpgaGetMetricsByName(GetMetricsByNameRequest) returns (GetMetricsByNameReply) {}
+  rpc fpgaGetMetricsThresholdInfo(GetMetricsThresholdInfoRequest) returns (GetMetricsThresholdInfoReply) {}
 }
 
 message EnumerateRequest {
@@ -605,5 +605,60 @@ message GetUserClockRequest {
 message GetUserClockReply {
   uint64 high_clk = 1;
   uint64 low_clk = 2;
+  fpga_result result = 3;
+}
+
+message GetNumMetricsRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message GetNumMetricsReply {
+  uint64 num_metrics = 1;
+  fpga_result result = 2;
+}
+
+message GetMetricsInfoRequest {
+  fpga_remote_id handle_id = 1;
+  uint64 num_metrics = 2;
+}
+
+message GetMetricsInfoReply {
+  repeated fpga_metric_info info = 1;
+  uint64 num_metrics = 2;
+  fpga_result result = 3;
+}
+
+message GetMetricsByIndexRequest {
+  fpga_remote_id handle_id = 1;
+  repeated uint64 metric_num = 2;
+  uint64 num_metric_indexes = 3;
+}
+
+message GetMetricsByIndexReply {
+  uint64 num_metric_indexes = 1;
+  repeated fpga_metric metrics = 2;
+  fpga_result result = 3;
+}
+
+message GetMetricsByNameRequest {
+  fpga_remote_id handle_id = 1;
+  repeated string metrics_names = 2;
+  uint64 num_metric_names = 3;
+}
+
+message GetMetricsByNameReply {
+  uint64 num_metric_names = 1;
+  repeated fpga_metric metrics = 2;
+  fpga_result result = 3;
+}
+
+message GetMetricsThresholdInfoRequest {
+  fpga_remote_id handle_id = 1;
+  uint32 num_thresholds = 2;
+}
+
+message GetMetricsThresholdInfoReply {
+  repeated metric_threshold metric_threshold = 1;
+  uint32 num_thresholds = 2;
   fpga_result result = 3;
 }
