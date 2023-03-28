@@ -607,7 +607,7 @@ Status OPAEServiceImpl::fpgaWriteMMIO512(ServerContext *context,
     return Status::OK;
   }
 
-  res = ::fpgaWriteMMIO512(handle, mmio_num, offset, values.c_str());
+  res = ::fpgaWriteMMIO512(handle, mmio_num, offset, values.data());
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
@@ -1566,6 +1566,260 @@ Status OPAEServiceImpl::fpgaReconfigureSlotByName(
 
   res =
       ::fpgaReconfigureSlotByName(handle, slot, request->path().c_str(), flags);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaBufMemSet(ServerContext *context,
+                                      const BufMemSetRequest *request,
+                                      BufMemSetReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id buf_id;
+  OPAEBufferInfo *binfo;
+  size_t offset;
+  int c;
+  size_t n;
+  fpga_result res;
+
+  if (debug_) std::cout << "fpgaBufMemSet request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  buf_id = to_opae_fpga_remote_id(request->buf_id());
+  binfo = binfo_map_.find(buf_id);
+
+  if (!binfo) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  offset = (size_t)request->offset();
+  c = request->c();
+  n = (size_t)request->n();
+
+  res = ::fpgaBufMemSet(handle, binfo->wsid_, offset, c, n);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaBufMemCpyToRemote(
+    ServerContext *context, const BufMemCpyToRemoteRequest *request,
+    BufMemCpyToRemoteReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id dest_buf_id;
+  OPAEBufferInfo *binfo;
+  size_t dest_offset;
+  size_t n;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaBufMemCpyToRemote request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  dest_buf_id = to_opae_fpga_remote_id(request->dest_buf_id());
+  binfo = binfo_map_.find(dest_buf_id);
+
+  if (!binfo) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  dest_offset = (size_t)request->dest_offset();
+  const std::string &src = request->src();
+  n = (size_t)request->n();
+
+  res = ::fpgaBufMemCpyToRemote(handle, binfo->wsid_, dest_offset,
+                                const_cast<char *>(src.data()), n);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaBufPoll(ServerContext *context,
+                                    const BufPollRequest *request,
+                                    BufPollReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id buf_id;
+  OPAEBufferInfo *binfo;
+  size_t offset;
+  int width;
+  uint64_t mask;
+  uint64_t expected_value;
+  uint64_t sleep_interval;
+  uint64_t loops_timeout;
+  fpga_result res;
+
+  if (debug_) std::cout << "fpgaBufPoll request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  buf_id = to_opae_fpga_remote_id(request->buf_id());
+  binfo = binfo_map_.find(buf_id);
+
+  if (!binfo) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  offset = (size_t)request->offset();
+  width = request->width();
+  mask = request->mask();
+  expected_value = request->expected_value();
+  sleep_interval = request->sleep_interval();
+  loops_timeout = request->loops_timeout();
+
+  res = ::fpgaBufPoll(handle, binfo->wsid_, offset, width, mask, expected_value,
+                      sleep_interval, loops_timeout);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaBufMemCmp(ServerContext *context,
+                                      const BufMemCmpRequest *request,
+                                      BufMemCmpReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id bufa_id;
+  OPAEBufferInfo *binfoa;
+  size_t bufa_offset;
+  fpga_remote_id bufb_id;
+  OPAEBufferInfo *binfob;
+  size_t bufb_offset;
+  size_t n;
+  int cmp_result = 0;
+  fpga_result res;
+
+  if (debug_) std::cout << "fpgaBufMemCmp request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  bufa_id = to_opae_fpga_remote_id(request->bufa_id());
+  binfoa = binfo_map_.find(bufa_id);
+
+  if (!binfoa) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfoa->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  bufa_offset = (size_t)request->bufa_offset();
+
+  bufb_id = to_opae_fpga_remote_id(request->bufb_id());
+  binfob = binfo_map_.find(bufb_id);
+
+  if (!binfob) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfob->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  bufb_offset = (size_t)request->bufb_offset();
+  n = (size_t)request->n();
+
+  res = ::fpgaBufMemCmp(handle, binfoa->wsid_, bufa_offset, binfob->wsid_,
+                        bufb_offset, n, &cmp_result);
+
+  if (res == FPGA_OK) reply->set_cmp_result(cmp_result);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaBufWritePattern(
+    ServerContext *context, const BufWritePatternRequest *request,
+    BufWritePatternReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id buf_id;
+  OPAEBufferInfo *binfo;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaBufWritePattern request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  buf_id = to_opae_fpga_remote_id(request->buf_id());
+  binfo = binfo_map_.find(buf_id);
+
+  if (!binfo) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+    return Status::OK;
+  }
+
+  const std::string &pattern_name = request->pattern_name();
+
+  res = ::fpgaBufWritePattern(handle, binfo->wsid_, pattern_name.c_str());
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;

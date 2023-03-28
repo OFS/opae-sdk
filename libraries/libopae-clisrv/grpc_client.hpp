@@ -204,6 +204,29 @@ class OPAEClient final {
                                         uint32_t slot, const std::string &path,
                                         int flags);
 
+  fpga_result fpgaBufMemSet(const fpga_remote_id &handle_id,
+                            const fpga_remote_id &buf_id, size_t offset, int c,
+                            size_t n);
+
+  fpga_result fpgaBufMemCpyToRemote(const fpga_remote_id &handle_id,
+                                    const fpga_remote_id &dest_buf_id,
+                                    size_t dest_offset, const void *src,
+                                    size_t n);
+
+  fpga_result fpgaBufPoll(const fpga_remote_id &handle_id,
+                          const fpga_remote_id &buf_id, uint64_t offset,
+                          int width, uint64_t mask, uint64_t expected_value,
+                          uint64_t sleep_interval, uint64_t loops_timeout);
+
+  fpga_result fpgaBufMemCmp(const fpga_remote_id &handle_id,
+                            const fpga_remote_id &bufa_id, size_t bufa_offset,
+                            const fpga_remote_id &bufb_id, size_t bufb_offset,
+                            size_t n, int &cmp_result);
+
+  fpga_result fpgaBufWritePattern(const fpga_remote_id &handle_id,
+                                  const fpga_remote_id &buf_id,
+                                  const char *pattern_name);
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 

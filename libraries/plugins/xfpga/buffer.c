@@ -383,7 +383,7 @@ out_unlock:
 }
 
 fpga_result __XFPGA_API__ xfpga_fpgaBufMemCpyToRemote(fpga_handle handle, uint64_t dest_wsid,
-						      size_t dest_offset, void *src,
+						      size_t dest_offset, const void *src,
 						      size_t n)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;

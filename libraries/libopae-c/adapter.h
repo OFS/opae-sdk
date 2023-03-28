@@ -107,7 +107,7 @@ typedef struct _opae_api_adapter_table {
 				     size_t offset, int c, size_t n);
 
 	fpga_result (*fpgaBufMemCpyToRemote)(fpga_handle, uint64_t dest_wsid,
-					     size_t dest_offset, void *src,
+					     size_t dest_offset, const void *src,
 					     size_t n);
 
 	fpga_result (*fpgaBufPoll)(fpga_handle handle, uint64_t wsid,

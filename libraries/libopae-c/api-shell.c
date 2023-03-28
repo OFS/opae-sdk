@@ -969,7 +969,7 @@ fpga_result __OPAE_API__ fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
 
 fpga_result __OPAE_API__ fpgaBufMemCpyToRemote(fpga_handle handle,
 	uint64_t dest_wsid, size_t dest_offset,
-	void *src, size_t n)
+	const void *src, size_t n)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);

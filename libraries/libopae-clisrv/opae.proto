@@ -247,6 +247,11 @@ service OPAEService {
   rpc fpgaGetMetricsByName(GetMetricsByNameRequest) returns (GetMetricsByNameReply) {}
   rpc fpgaGetMetricsThresholdInfo(GetMetricsThresholdInfoRequest) returns (GetMetricsThresholdInfoReply) {}
   rpc fpgaReconfigureSlotByName(ReconfigureSlotByNameRequest) returns (ReconfigureSlotByNameReply) {}
+  rpc fpgaBufMemSet(BufMemSetRequest) returns (BufMemSetReply) {}
+  rpc fpgaBufMemCpyToRemote(BufMemCpyToRemoteRequest) returns (BufMemCpyToRemoteReply) {}
+  rpc fpgaBufPoll(BufPollRequest) returns (BufPollReply) {}
+  rpc fpgaBufMemCmp(BufMemCmpRequest) returns (BufMemCmpReply) {}
+  rpc fpgaBufWritePattern(BufWritePatternRequest) returns (BufWritePatternReply) {}
 }
 
 message EnumerateRequest {
@@ -672,5 +677,68 @@ message ReconfigureSlotByNameRequest {
 }
 
 message ReconfigureSlotByNameReply {
+  fpga_result result = 1;
+}
+
+message BufMemSetRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+  uint64 offset = 3;
+  int32 c = 4;
+  uint64 n = 5;
+}
+
+message BufMemSetReply {
+  fpga_result result = 1;
+}
+
+message BufMemCpyToRemoteRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id dest_buf_id = 2;
+  uint64 dest_offset = 3;
+  bytes src = 4;
+  uint64 n = 5;
+}
+
+message BufMemCpyToRemoteReply {
+  fpga_result result = 1;
+}
+
+message BufPollRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+  uint64 offset = 3;
+  int32 width = 4;
+  uint64 mask = 5;
+  uint64 expected_value = 6;
+  uint64 sleep_interval = 7;
+  uint64 loops_timeout = 8;
+}
+
+message BufPollReply {
+  fpga_result result = 1;
+}
+
+message BufMemCmpRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id bufa_id = 2;
+  uint64 bufa_offset = 3;
+  fpga_remote_id bufb_id = 4;
+  uint64 bufb_offset = 5;
+  uint64 n = 6;
+}
+
+message BufMemCmpReply {
+  int32 cmp_result = 1;
+  fpga_result result = 2;
+}
+
+message BufWritePatternRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+  string pattern_name = 3;
+}
+
+message BufWritePatternReply {
   fpga_result result = 1;
 }

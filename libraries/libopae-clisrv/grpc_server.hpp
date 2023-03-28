@@ -41,6 +41,16 @@
 
 using grpc::ServerContext;
 using grpc::Status;
+using opaegrpc::BufMemCmpReply;
+using opaegrpc::BufMemCmpRequest;
+using opaegrpc::BufMemCpyToRemoteReply;
+using opaegrpc::BufMemCpyToRemoteRequest;
+using opaegrpc::BufMemSetReply;
+using opaegrpc::BufMemSetRequest;
+using opaegrpc::BufPollReply;
+using opaegrpc::BufPollRequest;
+using opaegrpc::BufWritePatternReply;
+using opaegrpc::BufWritePatternRequest;
 using opaegrpc::ClearAllErrorsReply;
 using opaegrpc::ClearAllErrorsRequest;
 using opaegrpc::ClearErrorReply;
@@ -311,6 +321,23 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaReconfigureSlotByName(ServerContext *context,
                                    const ReconfigureSlotByNameRequest *request,
                                    ReconfigureSlotByNameReply *reply) override;
+
+  Status fpgaBufMemSet(ServerContext *context, const BufMemSetRequest *request,
+                       BufMemSetReply *reply) override;
+
+  Status fpgaBufMemCpyToRemote(ServerContext *context,
+                               const BufMemCpyToRemoteRequest *request,
+                               BufMemCpyToRemoteReply *reply) override;
+
+  Status fpgaBufPoll(ServerContext *context, const BufPollRequest *request,
+                     BufPollReply *reply) override;
+
+  Status fpgaBufMemCmp(ServerContext *context, const BufMemCmpRequest *request,
+                       BufMemCmpReply *reply) override;
+
+  Status fpgaBufWritePattern(ServerContext *context,
+                             const BufWritePatternRequest *request,
+                             BufWritePatternReply *reply) override;
 
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;

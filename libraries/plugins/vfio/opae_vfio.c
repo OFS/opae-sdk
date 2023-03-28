@@ -1606,7 +1606,7 @@ out_unlock:
 fpga_result vfio_fpgaBufMemCpyToRemote(fpga_handle handle,
 				       uint64_t dest_wsid,
 				       size_t dest_offset,
-				       void *src,
+				       const void *src,
 				       size_t n)
 {
 	UNUSED_PARAM(handle);

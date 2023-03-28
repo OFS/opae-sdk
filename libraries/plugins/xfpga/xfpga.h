@@ -72,7 +72,7 @@ fpga_result xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 fpga_result xfpga_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
 				size_t offset, int c, size_t n);
 fpga_result xfpga_fpgaBufMemCpyToRemote(fpga_handle, uint64_t dest_wsid,
-					size_t dest_offset, void *src,
+					size_t dest_offset, const void *src,
 					size_t n);
 fpga_result xfpga_fpgaBufPoll(fpga_handle handle, uint64_t wsid,
 	size_t offset, int width, uint64_t mask, uint64_t expected_value,

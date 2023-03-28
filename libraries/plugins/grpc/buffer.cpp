@@ -130,74 +130,34 @@ fpga_result __REMOTE_API__ remote_fpgaGetIOAddress(fpga_handle handle,
 fpga_result __REMOTE_API__ remote_fpgaBufMemSet(fpga_handle handle,
                                                 uint64_t wsid, size_t offset,
                                                 int c, size_t n) {
-#if 1
-  (void)handle;
-  (void)wsid;
-  (void)offset;
-  (void)c;
-  (void)n;
-
-  return FPGA_OK;
-#else
-  opae_fpgaBufMemSet_request req;
-  opae_fpgaBufMemSet_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
-  fpga_remote_id *rid;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  fpga_remote_id *buf_id;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  rid = (fpga_remote_id *)(void *)wsid;
+  buf_id = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
-  req.handle_id = h->hdr.handle_id;
-  req.buf_id = *rid;
-  req.offset = offset;
-  req.c = c;
-  req.n = n;
-
-  req_json =
-      opae_encode_fpgaBufMemSet_request_42(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaBufMemSet_response_42(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaBufMemSet(h->hdr.handle_id, *buf_id, offset, c, n);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaBufMemCpyToRemote(fpga_handle handle,
                                                         uint64_t dest_wsid,
                                                         size_t dest_offset,
-                                                        void *src, size_t n) {
-#if 1
-  (void)handle;
-  (void)dest_wsid;
-  (void)dest_offset;
-  (void)src;
-  (void)n;
-
-  return FPGA_OK;
-#else
-  opae_fpgaBufMemCpyToRemote_request req;
-  opae_fpgaBufMemCpyToRemote_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
-  fpga_remote_id *rid;
+                                                        const void *src,
+                                                        size_t n) {
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  fpga_remote_id *buf_id;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
@@ -209,109 +169,47 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCpyToRemote(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  rid = (fpga_remote_id *)(void *)dest_wsid;
+  buf_id = reinterpret_cast<fpga_remote_id *>((void *)dest_wsid);
 
-  req.handle_id = h->hdr.handle_id;
-  req.dest_buf_id = *rid;
-  req.dest_offset = dest_offset;
-  req.src = src;
-  req.n = n;
-
-  req_json = opae_encode_fpgaBufMemCpyToRemote_request_43(
-      &req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaBufMemCpyToRemote_response_43(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaBufMemCpyToRemote(h->hdr.handle_id, *buf_id, dest_offset,
+                                       src, n);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaBufPoll(
     fpga_handle handle, uint64_t wsid, size_t offset, int width, uint64_t mask,
     uint64_t expected_value, uint64_t sleep_interval, uint64_t loops_timeout) {
-#if 1
-  (void)handle;
-  (void)wsid;
-  (void)offset;
-  (void)width;
-  (void)mask;
-  (void)expected_value;
-  (void)sleep_interval;
-  (void)loops_timeout;
-
-  return FPGA_OK;
-#else
-  opae_fpgaBufPoll_request req;
-  opae_fpgaBufPoll_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
-  fpga_remote_id *rid;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  fpga_remote_id *buf_id;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  rid = (fpga_remote_id *)(void *)wsid;
+  buf_id = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
-  req.handle_id = h->hdr.handle_id;
-  req.buf_id = *rid;
-  req.offset = offset;
-  req.width = width;
-  req.mask = mask;
-  req.expected_value = expected_value;
-  req.sleep_interval = sleep_interval;
-  req.loops_timeout = loops_timeout;
-
-  req_json =
-      opae_encode_fpgaBufPoll_request_44(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaBufPoll_response_44(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaBufPoll(h->hdr.handle_id, *buf_id, offset, width, mask,
+                             expected_value, sleep_interval, loops_timeout);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaBufMemCmp(
     fpga_handle handle, uint64_t bufa_wsid, size_t bufa_offset,
     uint64_t bufb_wsid, size_t bufb_offset, size_t n, int *cmp_result) {
-#if 1
-  (void)handle;
-  (void)bufa_wsid;
-  (void)bufa_offset;
-  (void)bufb_wsid;
-  (void)bufb_offset;
-  (void)n;
-  (void)cmp_result;
-
-  return FPGA_OK;
-#else
-  opae_fpgaBufMemCmp_request req;
-  opae_fpgaBufMemCmp_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
-  fpga_remote_id *rid_a;
-  fpga_remote_id *rid_b;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  fpga_remote_id *bufa_id;
+  fpga_remote_id *bufb_id;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
@@ -323,52 +221,23 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCmp(
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  rid_a = (fpga_remote_id *)(void *)bufa_wsid;
-  rid_b = (fpga_remote_id *)(void *)bufb_wsid;
+  bufa_id = reinterpret_cast<fpga_remote_id *>((void *)bufa_wsid);
+  bufb_id = reinterpret_cast<fpga_remote_id *>((void *)bufb_wsid);
 
-  req.handle_id = h->hdr.handle_id;
-  req.bufa_id = *rid_a;
-  req.bufa_offset = bufa_offset;
-  req.bufb_id = *rid_b;
-  req.bufb_offset = bufb_offset;
-  req.n = n;
-
-  req_json =
-      opae_encode_fpgaBufMemCmp_request_45(&req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaBufMemCmp_response_45(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  *cmp_result = resp.cmp_result;
-
-  return resp.result;
-#endif
+  return client->fpgaBufMemCmp(h->hdr.handle_id, *bufa_id, bufa_offset,
+                               *bufb_id, bufb_offset, n, *cmp_result);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaBufWritePattern(
     fpga_handle handle, uint64_t wsid, const char *pattern_name) {
-#if 1
-  (void)handle;
-  (void)wsid;
-  (void)pattern_name;
-
-  return FPGA_OK;
-#else
-  opae_fpgaBufWritePattern_request req;
-  opae_fpgaBufWritePattern_response resp;
-  struct _remote_token *tok;
-  struct _remote_handle *h;
-  char *req_json;
-  char *resp_json = NULL;
-  fpga_result res;
-  size_t len;
-  fpga_remote_id *rid;
+  _remote_handle *h;
+  _remote_token *tok;
+  OPAEClient *client;
+  fpga_remote_id *buf_id;
 
   if (!handle) {
     OPAE_ERR("NULL handle");
@@ -380,27 +249,11 @@ fpga_result __REMOTE_API__ remote_fpgaBufWritePattern(
     return FPGA_INVALID_PARAM;
   }
 
-  h = (struct _remote_handle *)handle;
+  h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
+  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
 
-  rid = (fpga_remote_id *)(void *)wsid;
+  buf_id = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
-  req.handle_id = h->hdr.handle_id;
-  req.buf_id = *rid;
-
-  memset(req.pattern_name, 0, sizeof(req.pattern_name));
-  len = strnlen(pattern_name, OPAE_REQUEST_NAME_MAX - 1);
-  memcpy(req.pattern_name, pattern_name, len + 1);
-
-  req_json = opae_encode_fpgaBufWritePattern_request_46(
-      &req, tok->json_to_string_flags);
-
-  res = opae_client_send_and_receive(tok, req_json, &resp_json);
-  if (res) return res;
-
-  if (!opae_decode_fpgaBufWritePattern_response_46(resp_json, &resp))
-    return FPGA_EXCEPTION;
-
-  return resp.result;
-#endif
+  return client->fpgaBufWritePattern(h->hdr.handle_id, *buf_id, pattern_name);
 }

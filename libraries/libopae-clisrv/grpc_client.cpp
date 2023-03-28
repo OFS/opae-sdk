@@ -1196,3 +1196,144 @@ fpga_result OPAEClient::fpgaReconfigureSlotByName(
 
   return to_opae_fpga_result[reply.result()];
 }
+
+fpga_result OPAEClient::fpgaBufMemSet(const fpga_remote_id &handle_id,
+                                      const fpga_remote_id &buf_id,
+                                      size_t offset, int c, size_t n) {
+  opaegrpc::BufMemSetRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
+  request.set_offset(offset);
+  request.set_c(c);
+  request.set_n(n);
+
+  opaegrpc::BufMemSetReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaBufMemSet(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaBufMemSet() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "fpgaBufMemSet reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaBufMemCpyToRemote(const fpga_remote_id &handle_id,
+                                              const fpga_remote_id &dest_buf_id,
+                                              size_t dest_offset,
+                                              const void *src, size_t n) {
+  opaegrpc::BufMemCpyToRemoteRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_dest_buf_id(to_grpc_fpga_remote_id(dest_buf_id));
+  request.set_dest_offset(dest_offset);
+  request.set_allocated_src(
+      new std::string(reinterpret_cast<const char *>(src), n));
+  request.set_n(n);
+
+  opaegrpc::BufMemCpyToRemoteReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaBufMemCpyToRemote(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaBufMemCpyToRemote() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "fpgaBufMemCpyToRemote reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaBufPoll(const fpga_remote_id &handle_id,
+                                    const fpga_remote_id &buf_id,
+                                    uint64_t offset, int width, uint64_t mask,
+                                    uint64_t expected_value,
+                                    uint64_t sleep_interval,
+                                    uint64_t loops_timeout) {
+  opaegrpc::BufPollRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
+  request.set_offset(offset);
+  request.set_width(width);
+  request.set_mask(mask);
+  request.set_expected_value(expected_value);
+  request.set_sleep_interval(sleep_interval);
+  request.set_loops_timeout(loops_timeout);
+
+  opaegrpc::BufPollReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaBufPoll(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaBufPoll() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "fpgaBufPoll reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
+fpga_result OPAEClient::fpgaBufMemCmp(const fpga_remote_id &handle_id,
+                                      const fpga_remote_id &bufa_id,
+                                      size_t bufa_offset,
+                                      const fpga_remote_id &bufb_id,
+                                      size_t bufb_offset, size_t n,
+                                      int &cmp_result) {
+  opaegrpc::BufMemCmpRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_bufa_id(to_grpc_fpga_remote_id(bufa_id));
+  request.set_bufa_offset(bufa_offset);
+  request.set_allocated_bufb_id(to_grpc_fpga_remote_id(bufb_id));
+  request.set_bufb_offset(bufb_offset);
+  request.set_n(n);
+
+  opaegrpc::BufMemCmpReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaBufMemCmp(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaBufMemCmp() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "fpgaBufMemCmp reply " << reply << std::endl;
+
+  fpga_result res = to_opae_fpga_result[reply.result()];
+
+  if (res == FPGA_OK) cmp_result = reply.cmp_result();
+
+  return res;
+}
+
+fpga_result OPAEClient::fpgaBufWritePattern(const fpga_remote_id &handle_id,
+                                            const fpga_remote_id &buf_id,
+                                            const char *pattern_name) {
+  opaegrpc::BufWritePatternRequest request;
+  request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+  request.set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
+  request.set_allocated_pattern_name(new std::string(pattern_name));
+
+  opaegrpc::BufWritePatternReply reply;
+  ClientContext context;
+
+  Status status = stub_->fpgaBufWritePattern(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("fpgaBufWritePattern() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "fpgaBufWritePattern reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}

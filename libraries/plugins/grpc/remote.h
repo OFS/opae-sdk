@@ -75,7 +75,7 @@ fpga_result remote_fpgaBufMemSet(fpga_handle handle, uint64_t wsid,
 fpga_result remote_fpgaBufMemCpyToRemote(fpga_handle handle,
 					 uint64_t dest_wsid,
 					 size_t dest_offset,
-					 void *src, size_t n);
+					 const void *src, size_t n);
 fpga_result remote_fpgaBufPoll(fpga_handle handle,
 	uint64_t wsid, size_t offset,
 	int width, uint64_t mask, uint64_t expected_value,
@@ -119,7 +119,7 @@ fpga_result remote_fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				      const uint8_t *bitstream,
 				      size_t bitstream_len, int flags);
 fpga_result remote_fpgaReconfigureSlotByName(fpga_handle fpga, uint32_t slot,
-              const char *path, int flags);
+					     const char *path, int flags);
 fpga_result remote_fpgaTokenGetObject(fpga_token token, const char *name,
 				     fpga_object *object, int flags);
 fpga_result remote_fpgaHandleGetObject(fpga_handle handle, const char *name,
