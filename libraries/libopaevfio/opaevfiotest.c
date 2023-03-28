@@ -47,7 +47,8 @@ void print_dfhs(struct opae_vfio *v)
 	struct fme_dfh *mmio = NULL;
 	uint8_t *p = NULL;
 
-	opae_vfio_region_get(v, 0, (uint8_t **)&mmio, NULL);
+	if (opae_vfio_region_get(v, 0, (uint8_t **)&mmio, NULL))
+		return;
 
 	printf("FME\n"
 	       "dfh:         0x%016lx\n"
@@ -57,7 +58,8 @@ void print_dfhs(struct opae_vfio *v)
 	       mmio->fme_version, mmio->afu_id_low,
 	       mmio->afu_id_high, mmio->next_afu);
 
-	opae_vfio_region_get(v, 2, (uint8_t **)&mmio, NULL);
+	if (opae_vfio_region_get(v, 2, (uint8_t **)&mmio, NULL))
+		return;
 
 	printf("Port\n"
 	       "dfh:         0x%016lx\n"
@@ -170,20 +172,28 @@ do {                                                   \
 	uint64_t dst_iova = 0;
 
 
-	if (opae_vfio_region_get(v, 2, (uint8_t **)&afu, NULL))
+	if (opae_vfio_region_get(v, 2, (uint8_t **)&afu, NULL)) {
 		printf("whoops afu mmio\n");
+		return;
+	}
 
 	if (opae_vfio_buffer_allocate(v, &size,
-				      &afu_dsm_virt, &afu_dsm_iova))
+		&afu_dsm_virt, &afu_dsm_iova)) {
 		printf("whoops alloc afu dsm\n");
+	}
 
 	if (opae_vfio_buffer_allocate(v, &size,
-				      &src_virt, &src_iova))
+		&src_virt, &src_iova)) {
 		printf("whoops alloc src buf\n");
+		goto afu_dsm_virt;
+	}
 
 	if (opae_vfio_buffer_allocate(v, &size,
-				      &dst_virt, &dst_iova))
+		&dst_virt, &dst_iova)) {
 		printf("whoops alloc dst buf\n");
+		goto src_virt;
+	}
+
 
 	memset(afu_dsm_virt, 0, size);
 	memset(src_virt, 0xaf, size);
@@ -211,12 +221,17 @@ do {                                                   \
 	else
 		printf("NLB0 OK\n");
 
-	if (opae_vfio_buffer_free(v, afu_dsm_virt))
-		printf("whoops free afu dsm\n");
-	if (opae_vfio_buffer_free(v, src_virt))
-		printf("whoops free src\n");
 	if (opae_vfio_buffer_free(v, dst_virt))
 		printf("whoops free dst\n");
+
+src_virt:
+	if (opae_vfio_buffer_free(v, src_virt))
+		printf("whoops free src\n");
+
+afu_dsm_virt:
+	if (opae_vfio_buffer_free(v, afu_dsm_virt))
+		printf("whoops free afu dsm\n");
+
 }
 
 void irqinfo(struct opae_vfio *v)
