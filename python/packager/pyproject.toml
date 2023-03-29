@@ -1,4 +1,4 @@
-# Copyright(c) 2021-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,11 +23,26 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
 
-setup(
-    name="packager",
-    data_files=[('share/opae/packager', ['README']),
-               ],
-    include_package_data=True,
-)
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "packager"
+version = "1.0.1"
+description = "packager provides Python classes for creating Green BitStreams (GBS)"
+readme = "README"
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.4"
+
+dependencies = [
+  "jsonschema>=2.3.0",
+]
+
+[project.scripts]
+packager = "packager.tools.packager:main"
+afu_json_mgr = "packager.tools.afu_json_mgr:main"
+
+[project.urls]
+Homepage = "https://opae.github.io"
