@@ -47,8 +47,11 @@ void print_dfhs(struct opae_vfio *v)
 	struct fme_dfh *mmio = NULL;
 	uint8_t *p = NULL;
 
-	if (opae_vfio_region_get(v, 0, (uint8_t **)&mmio, NULL))
+	if (opae_vfio_region_get(v, 0, (uint8_t **)&mmio, NULL)) {
+		printf("error getting BAR 0\n");
 		return;
+	}
+
 
 	printf("FME\n"
 	       "dfh:         0x%016lx\n"
@@ -58,8 +61,11 @@ void print_dfhs(struct opae_vfio *v)
 	       mmio->fme_version, mmio->afu_id_low,
 	       mmio->afu_id_high, mmio->next_afu);
 
-	if (opae_vfio_region_get(v, 2, (uint8_t **)&mmio, NULL))
+	if (opae_vfio_region_get(v, 2, (uint8_t **)&mmio, NULL)) {
+		printf("error getting BAR 2\n");
 		return;
+	}
+
 
 	printf("Port\n"
 	       "dfh:         0x%016lx\n"
