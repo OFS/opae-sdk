@@ -82,11 +82,6 @@ fuzz_opaevfiotest() {
   done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_opaevfiotest ${iters}
 
 #declare -i iters=1
 #if [ $# -gt 0 ]; then
