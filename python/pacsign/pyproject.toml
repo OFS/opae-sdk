@@ -36,6 +36,13 @@ readme = "PACSign.md"
 license = {text = "BSD-3-Clause"}
 requires-python = ">=3.6"
 
+[tool.setuptools]
+packages = [
+"pacsign",
+"pacsign.hsm_managers",
+"pacsign.hsm_managers.openssl",
+]
+
 [project.scripts]
 PACSign = "pacsign.__main__:main"
 
