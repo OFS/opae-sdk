@@ -175,9 +175,7 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
-popd
+%{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 
 pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
