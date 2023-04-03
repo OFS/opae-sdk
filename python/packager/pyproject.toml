@@ -32,13 +32,24 @@ build-backend = "setuptools.build_meta"
 name = "packager"
 version = "1.0.1"
 description = "packager provides Python classes for creating Green BitStreams (GBS)"
-readme = "README"
 license = {text = "BSD-3-Clause"}
 requires-python = ">=3.4"
 
 dependencies = [
   "jsonschema>=2.3.0",
 ]
+
+[tool.setuptools]
+packages = [
+"packager",
+"packager.metadata",
+"packager.schema",
+"packager.tools",
+"packager.utils",
+]
+
+[tool.setuptools.package-data]
+"*" = ["README", "*.json"]
 
 [project.scripts]
 packager = "packager.tools.packager:main"

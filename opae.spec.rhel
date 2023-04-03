@@ -131,7 +131,7 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
-%{__python3} -m pip install %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager --root=%{buildroot}
+%{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 
 # Make rpmlint happy about install permissions
 # admin tools
