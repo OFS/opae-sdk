@@ -25,80 +25,66 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
+#opaevfiotest  --help
 
-source fuzz-fpgaconf.sh
-source fuzz-fpgainfo.sh
-source fuzz-fpgad.sh
-source fuzz-mmlink.sh
-source fuzz-hello_fpga.sh
-source fuzz-hello_events.sh
-source fuzz-userclk.sh
-source fuzz-fpgametrics.sh
-source fuzz-hello_cxxcore.sh
-source fuzz-n5010-ctl.sh
-source fuzz-n5010-test.sh
-source fuzz-host_exerciser.sh
-source fuzz-opaeuiotest.sh
-source fuzz-bist_app.sh
-source fuzz-dummy_afu.sh
-source fuzz-fpgabist.sh
-source fuzz-nlb3.sh
-source fuzz-fpgadiag.sh
-source fuzz-fpga_dma_N3000_test.sh
-source fuzz-fpga_dma_test.sh
-source fuzz-mem_tg.sh
-source fuzz-opae.io.sh
-source fuzz-hps.sh
-source fuzz-hssi.sh
-source fuzz-nlb0.sh
-source fuzz-hps.sh
-source fuzz-nlb7.sh
-source fuzz-object_api.sh
-source fuzz-opaevfiotest.sh
+# usage: opaevfiotest 0000:00:00.0 <test>
+#
+#        where <test> is one of { dfh, buf, nlb0, irqinfo, errinj }
 
 
-fuzz_all() {
+fuzz_opaevfiotest() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_opaevfiotest <ITERS>\n"
     exit 1
   fi
+
   local -i iters=$1
+  local -i i
+  local -i p
+  local -i n
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgainfo ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_mmlink ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
-  fuzz_userclk ${iters}
-  fuzz_fpgametrics ${iters}
-  fuzz_hello_cxxcore ${iters}
-  fuzz_n5010_ctl ${iters}
-  fuzz_n5010_test ${iters}
-  fuzz_host_exerciser ${iters}
-  fuzz_opaeuiotest ${iters}
-  fuzz_bist_app ${iters}
-  fuzz_dummy_afu ${iters}
-  fuzz_fpgabist ${iters}
-  fuzz_nlb3 ${iters}
-  fuzz_fpgadiag ${iters}
-  fuzz_fpga_dma_N3000_test ${iters}
-  fuzz_fpga_dma_test ${iters}
-  fuzz_mem_tg ${iters}
-  fuzz_opae_io ${iters}
-  fuzz_hps ${iters}  
-  fuzz_hssi ${iters}
-  fuzz_hps ${iters}
-  fuzz_nlb0 ${iters}
-  fuzz_nlb7 ${iters}
-  fuzz_object_api ${iters}
-  fuzz_opaevfiotest ${iters}
 
+  local -a long_parms=(\
+'--help' \
+'0000:00:00.0' \
+'0000:b1:00.1 dfh' \
+'0000:b1:00.0 dfh' \
+'0000:b1:00.1 buf' \
+'0000:b1:00.0 buf' \
+'0000:b1:00.1 nlb0' \
+'0000:b1:00.0 nlb0' \
+'0000:b1:00.1 irqinfo' \
+'0000:b1:00.0 irqinfo' \
+'0000:b1:00.1 errinj' \
+'0000:b1:00.0 errinj'\
+)
+
+  local cmd=''
+  local -i num_parms
+  local parm=''
+
+  for (( i = 0 ; i < ${iters} ; ++i )); do
+
+    printf "Fuzz Iteration: %d\n" $i
+
+    cmd='opaevfiotest '
+    let "num_parms = 1 + ${RANDOM} % ${#long_parms[@]}"
+    for (( n = 0 ; n < ${num_parms} ; ++n )); do
+      let "p = ${RANDOM} % ${#long_parms[@]}"
+      parm="${long_parms[$p]}"
+      parm="$(printf %s ${parm} | radamsa)"
+      cmd="${cmd} ${parm}"
+    done
+
+    printf "%s\n" "${cmd}"
+    ${cmd}
+
+  done
 }
 
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_all ${iters}
+
+#declare -i iters=1
+#if [ $# -gt 0 ]; then
+#  iters=$1
+#fi
+#fuzz_opaevfiotest ${iters}
