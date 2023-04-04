@@ -39,4 +39,4 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
 add_subdirectory(opae.admin)
 add_subdirectory(pacsign)
-#add_subdirectory(packager)
+add_subdirectory(packager)

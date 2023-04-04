@@ -34,6 +34,6 @@ override_dh_auto_install:
 	cd $(CURDIR)/obj-x86_64-linux-gnu/libraries/pyopae/stage && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/obj-x86_64-linux-gnu/libraries/pyopaeuio/stage && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	cd $(CURDIR)/python/opae.admin && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
-	cd $(CURDIR)/python/pacsign && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
 	DEB_PYTHON_INSTALL_LAYOUT=deb_system python3 -m pip install --prefix=/usr --root=$(CURDIR)/debian/tmp $(CURDIR)/python/packager
+	DEB_PYTHON_INSTALL_LAYOUT=deb_system python3 -m pip install --prefix=/usr --root=$(CURDIR)/debian/tmp $(CURDIR)/python/pacsign
 	dh_auto_install

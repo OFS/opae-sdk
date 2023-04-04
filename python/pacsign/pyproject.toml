@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,22 +23,28 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
 
-setup(
-    name="pacsign",
-    version="1.0.7",
-    packages=find_packages(),
-    python_requires='>=3.6',
-    extra_requires={'pkcs11': ['python-pkcs11']},
-    description="pacsign provides Python classes for interfacing with"
-                "OPAE PACSign tool",
-    entry_points={
-        'console_scripts': [
-            'PACSign = pacsign.__main__:main',
-        ],
-    },
-    license="BSD3",
-    keywords="OPAE accelerator fpga signing security",
-    url="https://opae.github.io",
-)
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pacsign"
+version = "1.0.8"
+description = "pacsign provides Python classes for interfacing with the OPAE PACSign tool"
+readme = "PACSign.md"
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.6"
+
+[tool.setuptools]
+packages = [
+"pacsign",
+"pacsign.hsm_managers",
+"pacsign.hsm_managers.openssl",
+]
+
+[project.scripts]
+PACSign = "pacsign.__main__:main"
+
+[project.urls]
+Homepage = "https://opae.github.io"
