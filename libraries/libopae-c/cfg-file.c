@@ -416,7 +416,7 @@ STATIC fpgainfo_config_data default_fpgainfo_config_table[] = {
 	"Intel Acceleration Development Platform N6001" },
 
 	{ 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_c6100.so", NULL,
-	"Intel Acceleration Development Platform C6100" },
+	"Intel IPU Platform F2000X-PL" },
 
 	{ 0,      0, 0, 0, -1,         NULL, NULL, "" }
 };
