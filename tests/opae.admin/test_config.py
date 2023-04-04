@@ -186,7 +186,7 @@ TEST_CONFIG = '''{
 
     "c6100": {
       "enabled": true,
-      "platform": "Intel Acceleration Development Platform C6100",
+      "platform": "Intel IPU Platform F2000X-PL",
   
       "devices": [
         { "name": "c6100_pf", "id": [ "0x8086", "0xbcce", "0x8086", "0x17d4" ] },
@@ -472,8 +472,8 @@ class TestEnv(unittest.TestCase):
         assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x1770) == 'Intel Acceleration Development Platform N6000'
         assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x1771) == 'Intel Acceleration Development Platform N6001'
         assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x1771) == 'Intel Acceleration Development Platform N6001'
-        assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x17d4) == 'Intel Acceleration Development Platform C6100'
-        assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x17d4) == 'Intel Acceleration Development Platform C6100'
+        assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x17d4) == 'Intel IPU Platform F2000X-PL'
+        assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x17d4) == 'Intel IPU Platform F2000X-PL'
         assert Config.fpgareg_platform_for(0x8086, 0xaf00, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
         assert Config.fpgareg_platform_for(0x8086, 0xaf01, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
         assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
