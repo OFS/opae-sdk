@@ -170,9 +170,7 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/%__cmake_builddir/libr
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
-popd
+%{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin
 
 %{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 
@@ -253,7 +251,6 @@ done
 %config(noreplace) %{_sysconfdir}/opae/opae.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 
-%{_datadir}/doc/opae.admin/LICENSE
 %{_unitdir}/fpgad.service
 
 %post
