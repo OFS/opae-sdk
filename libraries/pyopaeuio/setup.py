@@ -23,11 +23,10 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import os
-from setuptools import setup, find_packages
+
+from setuptools import setup
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
-
 
 # get the original build_extensions method
 original_build_extensions = build_ext.build_extensions
@@ -45,38 +44,20 @@ def override_build_extensions(self):
 build_ext.build_extensions = override_build_extensions
 
 
-class pybind_include_dirs(object):
-    def __init__(self, user=False):
-        self.user = user
-
-    def __str__(self):
-        import pybind11
-        return pybind11.get_include(self.user)
-
-
 extensions = [
             Extension("pyopaeuio",
                       sources=['pyopaeuio.cpp'],
                       language="c++",
                       extra_compile_args=["-std=c++11"],
                       extra_link_args=["-std=c++11"],
+                      include_dirs=[
+                        "@OPAE_INCLUDE_PATH@",
+                        "@pybind11_ROOT@/include",
+                      ],
                       libraries = ['opaeuio'],
-                      )
+                      library_dirs=["@LIBRARY_OUTPUT_PATH@"])
 ]
 
 setup(
-    name="pyopaeuio",
-    version="2.0",
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-        ]
-    },
-    ext_modules=extensions,
-    install_requires=['pybind11>=@PYBIND11_VERSION@'],
-    description="pyopaeuio provides Python bindings around the "
-                "opaeuio",
-    license="BSD3",
-    keywords="opaeuio fpga bindings",
-    url="https://opae.github.io",
+    ext_modules=extensions
 )

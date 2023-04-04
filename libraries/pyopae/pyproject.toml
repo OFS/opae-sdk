@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,21 +24,39 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from distutils.core import Extension, setup
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
-setup(
-    ext_modules=[
-        Extension('libvfio',
-                  sources=['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  include_dirs=[
-                    "@OPAE_INCLUDE_PATH@",
-                    "@pybind11_ROOT@/include",
-                    "@OPAE_BIN_SOURCE@/opae.io",
-                  ],
-                  libraries=['opaevfio'],
-                  library_dirs=["@LIBRARY_OUTPUT_PATH@"])
-    ],
-)
+[project]
+name = "opae.fpga"
+version = "@OPAE_VERSION@"
+description = "pyopae provides Python bindings around the OPAE C API"
+#readme = ""
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.6"
+
+[tool.setuptools.package-data]
+"*" = [
+"README.md",
+"opae.cpp",
+"pycontext.h",
+"pycontext.cpp",
+"pyproperties.h",
+"pyproperties.cpp",
+"pyhandle.h",
+"pyhandle.cpp",
+"pytoken.h",
+"pytoken.cpp",
+"pyshared_buffer.h",
+"pyshared_buffer.cpp",
+"pyevents.h",
+"pyevents.cpp",
+"pyerrors.h",
+"pyerrors.cpp",
+"pysysobject.h",
+"pysysobject.cpp",
+]
+
+[project.urls]
+Homepage = "https://opae.github.io"

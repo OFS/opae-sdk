@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,21 +24,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from distutils.core import Extension, setup
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
-setup(
-    ext_modules=[
-        Extension('libvfio',
-                  sources=['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  include_dirs=[
-                    "@OPAE_INCLUDE_PATH@",
-                    "@pybind11_ROOT@/include",
-                    "@OPAE_BIN_SOURCE@/opae.io",
-                  ],
-                  libraries=['opaevfio'],
-                  library_dirs=["@LIBRARY_OUTPUT_PATH@"])
-    ],
-)
+[project]
+name = "pyopaeuio"
+version = "2.0.1"
+description = "pyopaeuio provides Python bindings around the opaeuio"
+#readme = ""
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://opae.github.io"
