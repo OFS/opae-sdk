@@ -24,9 +24,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from setuptools import find_namespace_packages
 from distutils.core import Extension, setup
 
 setup(
+    name='opae.io',
+    version='0.2.7',
+    packages=find_namespace_packages(include=['opae.*']),
     ext_modules=[
         Extension('libvfio',
                   sources=['vfiobindings.cpp'],

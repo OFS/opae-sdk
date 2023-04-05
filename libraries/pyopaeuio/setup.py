@@ -24,7 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
 
@@ -59,5 +59,8 @@ extensions = [
 ]
 
 setup(
+    name='pyopaeuio',
+    version='2.0.1',
+    packages=find_packages(),
     ext_modules=extensions
 )

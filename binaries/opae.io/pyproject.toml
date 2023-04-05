@@ -25,13 +25,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools>=59.6", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "opae.io"
 version = "0.2.7"
-description = "pyopae provides Python bindings around the VFIO API"
+description = "opae.io provides Python bindings around the VFIO API"
 #readme = ""
 license = {text = "BSD-3-Clause"}
 requires-python = ">=3.6"

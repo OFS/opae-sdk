@@ -24,7 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
 
@@ -70,4 +70,9 @@ extensions = [
                             "@CMAKE_INSTALL_PREFIX@/lib64"])
 ]
 
-setup(ext_modules=extensions)
+setup(
+    name='opae.fpga',
+    version='@OPAE_VERSION@',
+    packages=find_namespace_packages(), 
+    ext_modules=extensions
+)

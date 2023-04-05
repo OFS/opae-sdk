@@ -24,7 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
 
@@ -64,5 +64,19 @@ def extensions():
 
 
 setup(
+    name="opae.diag",
+    version="2.0.1",
+    packages=find_namespace_packages(include=['opae.*']),
+    entry_points={
+        'console_scripts': [
+            'fpgadiag = opae.diag.fpgadiag:main',
+            'fvlbypass = opae.diag.fvlbypass:main',
+            'fpgalpbk = opae.diag.fpgalpbk:main',
+            'mactest = opae.diag.mactest:main',
+            'fpgastats = opae.diag.fpgastats:main',
+            'fpgamac = opae.diag.fpgamac:main',
+            'fecmode = opae.diag.fecmode:main',
+        ]
+    },
     ext_modules=extensions(),
 )

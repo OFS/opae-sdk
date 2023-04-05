@@ -25,7 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools>=59.6", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]

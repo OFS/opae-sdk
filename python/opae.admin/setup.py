@@ -24,17 +24,25 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-[build-system]
-requires = ["setuptools>=59.6", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+from setuptools import setup, find_namespace_packages
 
-[project]
-name = "pyopaeuio"
-version = "2.0.1"
-description = "pyopaeuio provides Python bindings around the opaeuio"
-#readme = ""
-license = {text = "BSD-3-Clause"}
-requires-python = ">=3.6"
-
-[project.urls]
-Homepage = "https://opae.github.io"
+setup(
+    name='opae.admin',
+    version='1.4.4',
+    packages=find_namespace_packages(include=['opae.*']),
+    entry_points={
+        'console_scripts': [
+            'fpgasupdate = opae.admin.tools.fpgasupdate:main',
+            'rsu = opae.admin.tools.rsu:main',
+            'super-rsu = opae.admin.tools.super_rsu:main',
+            'fpgaflash = opae.admin.tools.fpgaflash:main',
+            'fpgaotsu = opae.admin.tools.fpgaotsu:main',
+            'fpgaport = opae.admin.tools.fpgaport:main',
+            'bitstreaminfo = opae.admin.tools.bitstream_info:main',
+            'opaevfio = opae.admin.tools.opaevfio:main',
+            'pci_device = opae.admin.tools.pci_device:main',
+            'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
+            'fpgareg = opae.admin.tools.fpgareg:main',
+        ]
+    },
+)

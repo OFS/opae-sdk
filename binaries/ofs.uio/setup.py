@@ -1,4 +1,4 @@
-# Copyright(c) 2023, Intel Corporation
+# Copyright(c) 2022-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,17 +24,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-[build-system]
-requires = ["setuptools>=59.6", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+from setuptools import setup, find_namespace_packages
 
-[project]
-name = "pyopaeuio"
-version = "2.0.1"
-description = "pyopaeuio provides Python bindings around the opaeuio"
-#readme = ""
-license = {text = "BSD-3-Clause"}
-requires-python = ">=3.6"
-
-[project.urls]
-Homepage = "https://opae.github.io"
+setup(
+    name='ofs.uio',
+    version="1.0.1",
+    packages=find_namespace_packages(include=['uio*']),
+    entry_points={
+        'console_scripts': [
+            'ofs.uio = uio.ofs_uio:main',
+        ]
+    },
+)
