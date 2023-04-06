@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2022, Intel Corporation
+# Copyright(c) 2022-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -464,13 +464,13 @@ class UIO(object):
         self.write64(region_index, self.MAILBOX_CMD_CSR, 0x0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
 
+        # write value
+        self.write32(region_index, self.MAILBOX_WR_DATA_CSR, value)
+
         # Set write bit and write cmd address
         mbox_cmd_sts = mailbox_cmd_sts(0x2)
         mbox_cmd_sts.cmd_addr = address
         self.write64(region_index, self.MAILBOX_CMD_CSR, mbox_cmd_sts.value)
-
-        # write value
-        self.write32(region_index, self.MAILBOX_WR_DATA_CSR, value)
 
         # Poll for ACK_TRANS bit index 2, wdith 2
         if not self.read_poll_timeout(region_index,
