@@ -497,10 +497,22 @@ public:
         // Interrupt test mode
         if (he_lpbk_cfg_.IntrTestMode == 1) {
             if (!he_interrupt(ev)) {
-	            status = -1;
+                status = -1;
+                if (host_exe_->logger_->should_log(spdlog::level::debug)) {
+                    std::cout << std::endl;
+                    he_dump_buffer(source_, "Post-execution source");
+                    he_dump_buffer(destination_, "Post-execution destination");
+                    std::cout << std::endl;
+                }
             }
             else {
                 status = he_compare_buffer();
+                if (host_exe_->logger_->should_log(spdlog::level::debug)) {
+                    std::cout << std::endl;
+                    he_dump_buffer(source_, "Post-execution source");
+                    he_dump_buffer(destination_, "Post-execution destination");
+                    std::cout << std::endl;
+                }
                 he_perf_counters();
             }
         } else if (host_exe_->he_continuousmode_) {
