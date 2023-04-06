@@ -37,4 +37,5 @@ setup(
         ]
     },
     install_requires=['jsonschema>=2.3.0'],
+    include_package_data=True,
 )
