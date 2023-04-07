@@ -513,7 +513,6 @@ fpga_result print_phy_info(fpga_token token)
 	res = qsfp_cable_status(token);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to find QSFP cable info");
-		return res;
 	}
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
