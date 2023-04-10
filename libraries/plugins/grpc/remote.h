@@ -201,7 +201,6 @@ opae_create_remote_sysobject(struct _remote_token *token,
 
 void opae_destroy_remote_sysobject(struct _remote_sysobject *s);
 
-#if 0
 struct _remote_event_handle {
 	fpga_remote_id eh_id;
 	struct _remote_handle *handle;
@@ -212,14 +211,6 @@ struct _remote_event_handle *
 opae_create_remote_event_handle(void);
 
 void opae_destroy_remote_event_handle(struct _remote_event_handle *eh);
-
-fpga_result
-opae_client_send_and_receive(struct _remote_token *tok,
-			     char *req_json,
-			     char **resp_json);
-
-#endif
-
 
 #ifdef __cplusplus
 }

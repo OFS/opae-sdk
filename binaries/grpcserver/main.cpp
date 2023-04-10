@@ -32,17 +32,9 @@
 #include <opae/log.h>
 #include <signal.h>
 
-#include <condition_variable>
 #include <iostream>
-#include <memory>
-#include <mutex>
-#include <sstream>
-#include <thread>
 
-#include "grpc_server.hpp"
-
-using grpc::Server;
-using grpc::ServerBuilder;
+#include "grpc_server_runner.hpp"
 
 typedef struct _inet_server_config {
   char ip_addr[INET_ADDRSTRLEN];
@@ -160,20 +152,7 @@ int parse_args(inet_server_config *cfg, int argc, char *argv[]) {
   return 0;
 }
 
-std::unique_ptr<Server> server;
-std::mutex m;
-std::condition_variable cv;
-volatile bool shutting_down = false;
-
-void shutdown_thread() {
-  std::unique_lock<std::mutex> l(m);
-  cv.wait(l, [] { return shutting_down; });
-
-  std::cout << "Server shutting down." << std::endl;
-  server->Shutdown();
-
-  l.unlock();
-}
+gRPCServerRunner<OPAEServiceImpl> *runner = nullptr;
 
 void sig_handler(int sig, siginfo_t *info, void *unused) {
   UNUSED_PARAM(info);
@@ -181,11 +160,11 @@ void sig_handler(int sig, siginfo_t *info, void *unused) {
 
   switch (sig) {
     case SIGINT:
-    case SIGTERM: {
-      std::lock_guard<std::mutex> l(m);
-      shutting_down = true;
-    }
-      cv.notify_one();
+    case SIGTERM:
+      if (runner) {
+        runner->stop();
+        std::cout << "Server stopping" << std::endl;
+      }
       break;
   }
 }
@@ -210,25 +189,16 @@ int main(int argc, char *argv[]) {
     return 2;
   }
 
-  std::thread shutdown(shutdown_thread);
-
-  OPAEServiceImpl service(config.debug);
-
-  grpc::EnableDefaultHealthCheckService(true);
-  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+  runner = new gRPCServerRunner<OPAEServiceImpl>(config.ip_addr, config.port,
+                                                 config.debug);
+  runner->start();
 
   std::ostringstream oss;
   oss << config.ip_addr << ':' << config.port;
-
-  ServerBuilder builder;
-  builder.AddListeningPort(oss.str(), grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
-
-  server = builder.BuildAndStart();
   std::cout << "Server listening on " << oss.str() << std::endl;
 
-  server->Wait();
-  shutdown.join();
+  runner->join();
+  delete runner;
 
   return 0;
 }

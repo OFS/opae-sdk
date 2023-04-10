@@ -29,7 +29,7 @@ set(SRC
     grpc_client.cpp
     grpc_server.cpp
     convert.cpp
-    ${opae-test_ROOT}/framework/mock/opae_std.c
+    event_notifier.cpp
 )
 
 opae_add_shared_library(TARGET opae-clisrv

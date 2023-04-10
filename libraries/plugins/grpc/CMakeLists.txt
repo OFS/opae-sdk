@@ -55,6 +55,7 @@ opae_add_module_library(TARGET opae-grpc
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
         ${gRPC_LIBRARIES}
+        gRPC::grpc++_reflection
     COMPONENT opaeclib
 )
 

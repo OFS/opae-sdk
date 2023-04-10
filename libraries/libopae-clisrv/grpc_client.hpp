@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "convert.hpp"
+#include "map_helper.hpp"
 #include "opae.grpc.pb.h"
 #include "opae.pb.h"
 #include "remote.h"
@@ -227,6 +228,19 @@ class OPAEClient final {
                                   const fpga_remote_id &buf_id,
                                   const char *pattern_name);
 
+  fpga_result fpgaCreateEventHandle(fpga_remote_id &eh_id);
+
+  fpga_result fpgaRegisterEvent(const fpga_remote_id &handle_id,
+                                fpga_event_type event_type,
+                                const fpga_remote_id &eh_id, uint32_t flags,
+                                uint32_t events_port, int &client_event_fd);
+
+  fpga_result fpgaUnregisterEvent(const fpga_remote_id &handle_id,
+                                  fpga_event_type event_type,
+                                  const fpga_remote_id &eh_id);
+
+  fpga_result fpgaDestroyEventHandle(const fpga_remote_id &eh_id);
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 
@@ -235,5 +249,28 @@ class OPAEClient final {
   token_map_t token_map_;
 
  private:
+  bool debug_;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+using opaegrpc::OPAEEventsService;
+
+class OPAEEventsClient final {
+ public:
+  OPAEEventsClient(std::shared_ptr<Channel> channel, bool debug)
+      : stub_(OPAEEventsService::NewStub(channel)), debug_(debug) {
+    (void)debug_;
+  }
+
+  fpga_result fpgaGetRemoteEventID(fpga_remote_id &event_id,
+                                   int &client_event_fd);
+
+  fpga_result fpgaSignalRemoteEvent(const fpga_remote_id &event_id);
+
+  fpga_result fpgaReleaseRemoteEvent(const fpga_remote_id &event_id);
+
+ private:
+  std::unique_ptr<OPAEEventsService::Stub> stub_;
   bool debug_;
 };

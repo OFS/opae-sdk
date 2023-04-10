@@ -38,7 +38,6 @@
 STATIC int parse_remote_grpc(json_object *j_remote_i,
 			     opae_comms_channel *comms)
 {
-	opae_events_inet_data *events_data;
 	pthread_mutexattr_t mattr;
 	char *ip_or_host = NULL;
 	int port = 0;
@@ -75,19 +74,13 @@ STATIC int parse_remote_grpc(json_object *j_remote_i,
   memcpy(comms->server_host, ip_or_host, len + 1);
   comms->server_port = (in_port_t)port;
 
-	events_data = opae_malloc(sizeof(opae_events_inet_data));
-	if (!events_data) {
-		OPAE_ERR("malloc() failed");
-		return 5;
-	}
-
 	len = strnlen(events_server, INET_ADDRSTRLEN - 1);
-	memcpy(events_data->events_ip, events_server, len + 1);
+	memcpy(comms->events_data.events_ip, events_server, len + 1);
 
-	events_data->events_port = events_port;
-	comms->events_data = events_data;
+	comms->events_data.events_port = events_port;
 
-	comms->events_srv = NULL;
+	comms->events_srv_runner = NULL;
+	comms->events_srv_registrations = 0;
 
 	pthread_mutexattr_init(&mattr);
 	pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);

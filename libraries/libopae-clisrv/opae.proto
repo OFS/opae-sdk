@@ -252,6 +252,11 @@ service OPAEService {
   rpc fpgaBufPoll(BufPollRequest) returns (BufPollReply) {}
   rpc fpgaBufMemCmp(BufMemCmpRequest) returns (BufMemCmpReply) {}
   rpc fpgaBufWritePattern(BufWritePatternRequest) returns (BufWritePatternReply) {}
+  rpc fpgaCreateEventHandle(CreateEventHandleRequest) returns (CreateEventHandleReply) {}
+  rpc fpgaRegisterEvent(RegisterEventRequest) returns (RegisterEventReply) {}
+  rpc fpgaUnregisterEvent(UnregisterEventRequest) returns (UnregisterEventReply) {}
+  rpc fpgaGetOSObjectFromEventHandle(GetOSObjectFromEventHandleRequest) returns (GetOSObjectFromEventHandleReply) {}
+  rpc fpgaDestroyEventHandle(DestroyEventHandleRequest) returns (DestroyEventHandleReply) {}
 }
 
 message EnumerateRequest {
@@ -740,5 +745,82 @@ message BufWritePatternRequest {
 }
 
 message BufWritePatternReply {
+  fpga_result result = 1;
+}
+
+message CreateEventHandleRequest {}
+
+message CreateEventHandleReply {
+  fpga_remote_id eh_id = 1;
+  fpga_result result = 2;
+}
+
+message RegisterEventRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_event_type event_type = 2;
+  fpga_remote_id eh_id = 3;
+  uint32 flags = 4;
+  uint32 events_port = 5;
+}
+
+message RegisterEventReply {
+  int32 client_event_fd = 1;
+  fpga_result result = 2;
+}
+
+message UnregisterEventRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_event_type event_type = 2;
+  fpga_remote_id eh_id = 3;
+}
+
+message UnregisterEventReply {
+  fpga_result result = 1;
+}
+
+message GetOSObjectFromEventHandleRequest {
+  fpga_remote_id eh_id = 1;
+}
+
+message GetOSObjectFromEventHandleReply {
+  int32 fd = 1;
+  fpga_result result = 2;
+}
+
+message DestroyEventHandleRequest {
+  fpga_remote_id eh_id = 1;
+}
+
+message DestroyEventHandleReply {
+  fpga_result result = 1;
+}
+
+service OPAEEventsService {
+  rpc fpgaGetRemoteEventID(GetRemoteEventIDRequest) returns (GetRemoteEventIDReply) {}
+  rpc fpgaSignalRemoteEvent(SignalRemoteEventRequest) returns (SignalRemoteEventReply) {}
+  rpc fpgaReleaseRemoteEvent(ReleaseRemoteEventRequest) returns (ReleaseRemoteEventReply) {}
+}
+
+message GetRemoteEventIDRequest {}
+
+message GetRemoteEventIDReply {
+  fpga_remote_id event_id = 1;
+  int32 client_event_fd = 2;
+  fpga_result result = 3;
+}
+
+message SignalRemoteEventRequest {
+  fpga_remote_id event_id = 1;
+}
+
+message SignalRemoteEventReply {
+  fpga_result result = 1;
+}
+
+message ReleaseRemoteEventRequest {
+  fpga_remote_id event_id = 1;
+}
+
+message ReleaseRemoteEventReply {
   fpga_result result = 1;
 }

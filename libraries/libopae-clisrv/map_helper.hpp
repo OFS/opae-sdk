@@ -23,43 +23,34 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_COMMS_H__
-#define __OPAE_COMMS_H__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
-#endif // _GNU_SOURCE
-#include <pthread.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+#include <map>
 
-typedef struct _opae_events_inet_data {
-	char events_ip[INET_ADDRSTRLEN];
-	int events_port;
-} opae_events_inet_data;
+template <typename K, typename V>
+class opae_map_helper {
+ public:
+  opae_map_helper(V none) : none_(none) {}
 
-typedef struct _opae_comms_channel {
-	bool valid;
-	bool debug;
-	char server_host[HOST_NAME_MAX + 1];
-	in_port_t server_port;
-	void *client;
+  V find(const K &key) const {
+    typename std::map<K, V>::const_iterator it = map_.find(key);
+    return (it == map_.end()) ? none_ : it->second;
+  }
 
-	opae_events_inet_data events_data;
-	void *events_srv_runner;
-	volatile uint64_t events_srv_registrations;
-	pthread_mutex_t events_srv_lock;
-} opae_comms_channel;
+  bool add(const K &key, V value) {
+    typename std::pair<typename std::map<K, V>::iterator, bool> res =
+        map_.insert(std::make_pair(key, value));
+    return res.second;
+  }
 
-#ifdef __cplusplus
-}
-#endif // __cplusplus
+  bool remove(const K &key) {
+    typename std::map<K, V>::iterator it = map_.find(key);
+    if (it == map_.end()) return false;
+    map_.erase(it);
+    return true;
+  }
 
-#endif // __OPAE_COMMS_H__
+ private:
+  V none_;
+  std::map<K, V> map_;
+};

@@ -28,9 +28,12 @@
 #include <config.h>
 #endif  // HAVE_CONFIG_H
 
+#include <sys/eventfd.h>
+
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 #include "convert.hpp"
 #include "grpc_server.hpp"
@@ -1822,5 +1825,328 @@ Status OPAEServiceImpl::fpgaBufWritePattern(
   res = ::fpgaBufWritePattern(handle, binfo->wsid_, pattern_name.c_str());
 
   reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaCreateEventHandle(
+    ServerContext *context, const CreateEventHandleRequest *request,
+    CreateEventHandleReply *reply) {
+  UNUSED_PARAM(context);
+  UNUSED_PARAM(request);
+  fpga_event_handle event_handle = nullptr;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaCreateEventHandle request " << *request << std::endl;
+
+  res = ::fpgaCreateEventHandle(&event_handle);
+
+  if (res == FPGA_OK) {
+    fpga_remote_id event_handle_id;
+
+    // Allocate a new remote ID for the event handle.
+    opae_get_remote_id(&event_handle_id);
+
+    event_handle_map_.add(event_handle_id, event_handle);
+
+    reply->set_allocated_eh_id(to_grpc_fpga_remote_id(event_handle_id));
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaRegisterEvent(ServerContext *context,
+                                          const RegisterEventRequest *request,
+                                          RegisterEventReply *reply) {
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_event_type event_type;
+  fpga_remote_id eh_id;
+  fpga_event_handle event_handle;
+  uint32_t flags;
+  uint32_t events_port;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaRegisterEvent request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  event_type = to_opae_fpga_event_type[request->event_type()];
+
+  eh_id = to_opae_fpga_remote_id(request->eh_id());
+  event_handle = event_handle_map_.find(eh_id);
+
+  if (!event_handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  flags = request->flags();
+  events_port = request->events_port();
+
+  res = ::fpgaRegisterEvent(handle, event_type, event_handle, flags);
+
+  int server_event_fd = -1;
+  ::fpgaGetOSObjectFromEventHandle(event_handle, &server_event_fd);
+
+  if (res == FPGA_OK) {
+    // Initialize and open our client connection to the
+    // events server, if it has not already been.
+
+    std::lock_guard<std::mutex> g(events_client_lock_);
+
+    if (!events_client_registrations_) {
+      // context->peer() "ipv4:IPv4 Address:port"
+      std::string peer(context->peer());
+      size_t first_colon = peer.find(':');
+      size_t last_colon = peer.rfind(':');
+
+      if ((peer.length() <= 5) || (first_colon == peer.npos) ||
+          (last_colon == peer.npos)) {
+        reply->set_result(to_grpc_fpga_result[FPGA_EXCEPTION]);
+        return Status::OK;
+      }
+
+      size_t len = peer.length();
+      len -= (first_colon + 1) + (len - last_colon);
+
+      std::string peer_ip(peer.substr(first_colon + 1, len));
+
+      std::ostringstream oss;
+      oss << peer_ip << ':' << events_port;
+
+      events_client_ = new OPAEEventsClient(
+          grpc::CreateChannel(oss.str(), grpc::InsecureChannelCredentials()),
+          debug_);
+
+      event_notifier_.start();
+    }
+
+    ++events_client_registrations_;
+  }
+
+  fpga_remote_id event_id;
+  int client_event_fd = -1;
+  {
+    std::lock_guard<std::mutex> g(events_client_lock_);
+    res = events_client_->fpgaGetRemoteEventID(event_id, client_event_fd);
+  }
+
+  if (res != FPGA_OK) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  event_notifier_.add(
+      server_event_fd,
+      new EventFDNotify(&events_client_lock_, events_client_, event_id));
+
+  reply->set_client_event_fd(client_event_fd);
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaUnregisterEvent(
+    ServerContext *context, const UnregisterEventRequest *request,
+    UnregisterEventReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  fpga_remote_id eh_id;
+  fpga_event_handle event_handle;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaUnregisterEvent request " << *request << std::endl;
+
+  handle_id = to_opae_fpga_remote_id(request->handle_id());
+  handle = handle_map_.find(handle_id);
+
+  if (!handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  eh_id = to_opae_fpga_remote_id(request->eh_id());
+  event_handle = event_handle_map_.find(eh_id);
+
+  if (!event_handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  // Find the server-side event fd.
+  int server_event_fd = -1;
+  res = ::fpgaGetOSObjectFromEventHandle(event_handle, &server_event_fd);
+  if ((res != FPGA_OK) || (server_event_fd < 0)) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  IEventNotify *notify = event_notifier_.find(server_event_fd);
+  if (!notify) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  fpga_remote_id event_id = notify->event_id();
+  event_notifier_.remove(server_event_fd);
+
+  // Tell the events server side to remove its tracking for the
+  // requested event.
+  {
+    std::lock_guard<std::mutex> g(events_client_lock_);
+    res = events_client_->fpgaReleaseRemoteEvent(event_id);
+  }
+
+  if (res) {
+    reply->set_result(to_grpc_fpga_result[res]);
+    return Status::OK;
+  }
+
+  {
+    std::lock_guard<std::mutex> g(events_client_lock_);
+
+    if (events_client_registrations_ > 0) {
+      --events_client_registrations_;
+
+      if (events_client_registrations_ == 0) {
+        event_notifier_.stop();
+
+        delete events_client_;
+        events_client_ = nullptr;
+      }
+    }
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEServiceImpl::fpgaDestroyEventHandle(
+    ServerContext *context, const DestroyEventHandleRequest *request,
+    DestroyEventHandleReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id eh_id;
+  fpga_event_handle event_handle;
+  fpga_result res;
+
+  if (debug_)
+    std::cout << "fpgaDestroyEventHandle request " << *request << std::endl;
+
+  eh_id = to_opae_fpga_remote_id(request->eh_id());
+  event_handle = event_handle_map_.find(eh_id);
+
+  if (!event_handle) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  res = ::fpgaDestroyEventHandle(&event_handle);
+  if (res == FPGA_OK) event_handle_map_.remove(eh_id);
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Status OPAEEventsServiceImpl::fpgaGetRemoteEventID(
+    ServerContext *context, const GetRemoteEventIDRequest *request,
+    GetRemoteEventIDReply *reply) {
+  UNUSED_PARAM(context);
+  UNUSED_PARAM(request);
+  fpga_remote_id event_id;
+  int client_event_fd;
+
+  if (debug_)
+    std::cout << "fpgaGetRemoteEventID request " << *request << std::endl;
+
+  // Allocate a new remote ID for the event.
+  opae_get_remote_id(&event_id);
+
+  // Create the client-side eventfd.
+  client_event_fd = eventfd(0, 0);
+
+  // Add the new event registration to our tracking.
+  remote_id_to_eventreg_map_.add(event_id,
+                                 new EventRegistration(client_event_fd));
+
+  reply->set_allocated_event_id(to_grpc_fpga_remote_id(event_id));
+  reply->set_client_event_fd(client_event_fd);
+  reply->set_result(to_grpc_fpga_result[FPGA_OK]);
+  return Status::OK;
+}
+
+Status OPAEEventsServiceImpl::fpgaSignalRemoteEvent(
+    ServerContext *context, const SignalRemoteEventRequest *request,
+    SignalRemoteEventReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id event_id;
+  EventRegistration *event_reg;
+
+  if (debug_)
+    std::cout << "fpgaSignalRemoteEvent request " << *request << std::endl;
+
+  event_id = to_opae_fpga_remote_id(request->event_id());
+
+  // Look up our event registration matching event_id.
+  event_reg = remote_id_to_eventreg_map_.find(event_id);
+
+  if (!event_reg) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  fpga_result res = FPGA_EXCEPTION;
+
+  // Signal the client-side event.
+  ssize_t slen = ::write(event_reg->client_event_fd_, &event_reg->event_count_,
+                         sizeof(uint64_t));
+  if (slen == sizeof(uint64_t)) {
+    ++event_reg->event_count_;
+    if (event_reg->event_count_ == 0xfffffffffffffffe)
+      event_reg->event_count_ = 1;
+    res = FPGA_OK;
+  }
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
+Status OPAEEventsServiceImpl::fpgaReleaseRemoteEvent(
+    ServerContext *context, const ReleaseRemoteEventRequest *request,
+    ReleaseRemoteEventReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id event_id;
+  EventRegistration *event_reg;
+
+  if (debug_)
+    std::cout << "fpgaReleaseRemoteEvent request " << *request << std::endl;
+
+  event_id = to_opae_fpga_remote_id(request->event_id());
+
+  // Look up our event registration matching event_id.
+  event_reg = remote_id_to_eventreg_map_.find(event_id);
+
+  if (!event_reg) {
+    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+    return Status::OK;
+  }
+
+  remote_id_to_eventreg_map_.remove(event_id);
+
+  ::close(event_reg->client_event_fd_);
+  delete event_reg;
+
+  reply->set_result(to_grpc_fpga_result[FPGA_OK]);
   return Status::OK;
 }

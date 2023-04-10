@@ -33,9 +33,13 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "convert.hpp"
+#include "event_notifier.hpp"
+#include "grpc_client.hpp"
+#include "map_helper.hpp"
 #include "opae.grpc.pb.h"
 #include "opae.pb.h"
 
@@ -59,6 +63,10 @@ using opaegrpc::CloneTokenReply;
 using opaegrpc::CloneTokenRequest;
 using opaegrpc::CloseReply;
 using opaegrpc::CloseRequest;
+using opaegrpc::CreateEventHandleReply;
+using opaegrpc::CreateEventHandleRequest;
+using opaegrpc::DestroyEventHandleReply;
+using opaegrpc::DestroyEventHandleRequest;
 using opaegrpc::DestroyObjectReply;
 using opaegrpc::DestroyObjectRequest;
 using opaegrpc::DestroyTokenReply;
@@ -105,6 +113,7 @@ using opaegrpc::ObjectReadReply;
 using opaegrpc::ObjectReadRequest;
 using opaegrpc::ObjectWrite64Reply;
 using opaegrpc::ObjectWrite64Request;
+using opaegrpc::OPAEEventsService;
 using opaegrpc::OPAEService;
 using opaegrpc::OpenReply;
 using opaegrpc::OpenRequest;
@@ -118,6 +127,8 @@ using opaegrpc::ReadMMIO64Reply;
 using opaegrpc::ReadMMIO64Request;
 using opaegrpc::ReconfigureSlotByNameReply;
 using opaegrpc::ReconfigureSlotByNameRequest;
+using opaegrpc::RegisterEventReply;
+using opaegrpc::RegisterEventRequest;
 using opaegrpc::ReleaseBufferReply;
 using opaegrpc::ReleaseBufferRequest;
 using opaegrpc::ResetReply;
@@ -128,6 +139,8 @@ using opaegrpc::TokenGetObjectReply;
 using opaegrpc::TokenGetObjectRequest;
 using opaegrpc::UnmapMMIOReply;
 using opaegrpc::UnmapMMIORequest;
+using opaegrpc::UnregisterEventReply;
+using opaegrpc::UnregisterEventRequest;
 using opaegrpc::UpdatePropertiesReply;
 using opaegrpc::UpdatePropertiesRequest;
 using opaegrpc::WriteMMIO32Reply;
@@ -161,7 +174,10 @@ class OPAEServiceImpl final : public OPAEService::Service {
         mmio_map_(nullptr),
         binfo_map_(nullptr),
         sysobj_map_(nullptr),
-        debug_(debug) {}
+        event_handle_map_(nullptr),
+        debug_(debug),
+        events_client_(nullptr),
+        events_client_registrations_(0) {}
 
   Status fpgaEnumerate(ServerContext *context, const EnumerateRequest *request,
                        EnumerateReply *reply) override;
@@ -339,6 +355,22 @@ class OPAEServiceImpl final : public OPAEService::Service {
                              const BufWritePatternRequest *request,
                              BufWritePatternReply *reply) override;
 
+  Status fpgaCreateEventHandle(ServerContext *context,
+                               const CreateEventHandleRequest *request,
+                               CreateEventHandleReply *reply) override;
+
+  Status fpgaRegisterEvent(ServerContext *context,
+                           const RegisterEventRequest *request,
+                           RegisterEventReply *reply) override;
+
+  Status fpgaUnregisterEvent(ServerContext *context,
+                             const UnregisterEventRequest *request,
+                             UnregisterEventReply *reply) override;
+
+  Status fpgaDestroyEventHandle(ServerContext *context,
+                                const DestroyEventHandleRequest *request,
+                                DestroyEventHandleReply *reply) override;
+
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;
 
@@ -349,10 +381,59 @@ class OPAEServiceImpl final : public OPAEService::Service {
   typedef opae_map_helper<fpga_remote_id, uint64_t *> mmio_map_t;
   typedef opae_map_helper<fpga_remote_id, OPAEBufferInfo *> binfo_map_t;
   typedef opae_map_helper<fpga_remote_id, fpga_object> sysobj_map_t;
+  typedef opae_map_helper<fpga_remote_id, fpga_event_handle> event_handle_map_t;
 
   handle_map_t handle_map_;
   mmio_map_t mmio_map_;
   binfo_map_t binfo_map_;
   sysobj_map_t sysobj_map_;
+  event_handle_map_t event_handle_map_;
+  bool debug_;
+
+  OPAEEventsClient *events_client_;
+  uint64_t events_client_registrations_;
+  EventNotifier event_notifier_;
+  std::mutex events_client_lock_;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+using opaegrpc::GetRemoteEventIDReply;
+using opaegrpc::GetRemoteEventIDRequest;
+using opaegrpc::ReleaseRemoteEventReply;
+using opaegrpc::ReleaseRemoteEventRequest;
+using opaegrpc::SignalRemoteEventReply;
+using opaegrpc::SignalRemoteEventRequest;
+
+struct EventRegistration {
+  EventRegistration(int client_event_fd)
+      : client_event_fd_(client_event_fd), event_count_(1) {}
+
+  int client_event_fd_;
+  uint64_t event_count_;
+};
+
+class OPAEEventsServiceImpl final : public OPAEEventsService::Service {
+ public:
+  OPAEEventsServiceImpl(bool debug)
+      : remote_id_to_eventreg_map_(nullptr), debug_(debug) {}
+
+  Status fpgaGetRemoteEventID(ServerContext *context,
+                              const GetRemoteEventIDRequest *request,
+                              GetRemoteEventIDReply *reply) override;
+
+  Status fpgaSignalRemoteEvent(ServerContext *context,
+                               const SignalRemoteEventRequest *request,
+                               SignalRemoteEventReply *reply) override;
+
+  Status fpgaReleaseRemoteEvent(ServerContext *context,
+                                const ReleaseRemoteEventRequest *request,
+                                ReleaseRemoteEventReply *reply) override;
+
+ private:
+  typedef opae_map_helper<fpga_remote_id, EventRegistration *>
+      remote_id_to_eventreg_map_t;
+
+  remote_id_to_eventreg_map_t remote_id_to_eventreg_map_;
   bool debug_;
 };
