@@ -60,22 +60,38 @@ if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
     file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
 
-    set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include:${OPAE_BIN_SOURCE}/opae.io")
-    set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
+    set(PYFILES
+        pyproject.toml
+        setup.py
+        )
+
+    set(PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+
+    foreach(pyfile ${PYFILES})
+        configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
+    endforeach(pyfile ${PYFILES}) 
+
+    file(COPY opae DESTINATION ${PYDIST_STAGE_DIR})
+    file(COPY scripts DESTINATION ${PYDIST_STAGE_DIR})
+
+    foreach(cppfile vfiobindings.cpp)
+        file(COPY ${cppfile} DESTINATION ${PYDIST_STAGE_DIR})
+    endforeach(cppfile ${PYOPAE_SRC})
 
     add_custom_command(
         OUTPUT ${OUTPUT}
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
         COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS setup.py ${PKG_FILES}
+        WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
+        DEPENDS ${PYFILES} ${PKG_FILES}
     )
 
     add_custom_target(opae.io-build ALL DEPENDS opaevfio opae.io ${OUTPUT})
+
     opae_python_install(
         COMPONENT opae.io
         RECORD_FILE opae.io-install.txt
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+	SOURCE_DIR ${PYDIST_STAGE_DIR}
         RPM_PACKAGE devel
     )
 

@@ -47,7 +47,7 @@ struct mmio_region *the_region = nullptr;
 const char *program = "opae.io";
 const int major = 0;
 const int minor = 2;
-const int patch = 6;
+const int patch = 7;
 
 py::tuple version()
 {

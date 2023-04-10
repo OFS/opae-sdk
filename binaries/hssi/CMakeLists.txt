@@ -1,4 +1,4 @@
-## Copyright(c) 2021, Intel Corporation
+## Copyright(c) 2021-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,17 +25,14 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
-file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.py)
-
-set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
+file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ethernet/*.py)
 
 add_custom_command(
     OUTPUT ${OUTPUT}
-    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -L ${LINK_DIRS}
-    COMMAND ${PYTHON_EXECUTABLE} setup.py build
+    COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${CMAKE_CURRENT_SOURCE_DIR}/build --no-warn-script-location .
     COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS setup.py ${PKG_FILES}
+    DEPENDS pyproject.toml ${PKG_FILES}
 )
 
 set_property(DIRECTORY PROPERTY
@@ -43,7 +40,9 @@ set_property(DIRECTORY PROPERTY
         "${CMAKE_CURRENT_SOURCE_DIR}/build"
         "${CMAKE_CURRENT_SOURCE_DIR}/dist"
 )
-add_custom_target(build ALL DEPENDS  ${OUTPUT})
+
+add_custom_target(build ALL DEPENDS ${OUTPUT})
+
 opae_python_install(
     COMPONENT toolhssi
     RECORD_FILE hssi-install.txt

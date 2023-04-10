@@ -92,32 +92,40 @@ if (OPAE_WITH_PYBIND11)
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
     file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
 
-    set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
-    set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
+    set(PYFILES
+        pyproject.toml
+        setup.py
+        mux.json
+        nlb0.json
+        nlb3.json
+        nlb7.json
+        )
+
+    set(PYDIST_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+
+    foreach(pyfile ${PYFILES})
+        configure_file(${pyfile} ${PYDIST_STAGE_DIR}/${pyfile} @ONLY)
+    endforeach(pyfile ${PYFILES})
+
+    file(COPY opae DESTINATION ${PYDIST_STAGE_DIR})
+    file(COPY src DESTINATION ${PYDIST_STAGE_DIR})
 
     add_custom_command(
         OUTPUT ${OUTPUT}
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build --no-warn-script-location .
         COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS setup.py ${PKG_FILES}
+        WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
+        DEPENDS pyproject.toml setup.py ${PKG_FILES}
     )
 
-    set_property(DIRECTORY PROPERTY
-        ADDITIONAL_MAKE_CLEAN_FILES
-            "${CMAKE_CURRENT_SOURCE_DIR}/build"
-            "${CMAKE_CURRENT_SOURCE_DIR}/dist"
-    )
-
-    pybind11_add_module(eth_group THIN_LTO src/eth_group.cpp)
+    pybind11_add_module(eth_group THIN_LTO ${PYDIST_STAGE_DIR}/src/eth_group.cpp)
     target_link_libraries(eth_group PRIVATE opaeuio)
 
     add_custom_target(opae.diag-build ALL DEPENDS nlb0 nlb3 nlb7 ${OUTPUT})
     opae_python_install(
         COMPONENT toolfpgadiagapps
         RECORD_FILE fpgadiag-install.txt
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+	SOURCE_DIR ${PYDIST_STAGE_DIR}
         RPM_PACKAGE tools-extra
     )
 endif(OPAE_WITH_PYBIND11)

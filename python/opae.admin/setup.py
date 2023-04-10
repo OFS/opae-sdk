@@ -1,4 +1,4 @@
-# Copyright(c) 2021-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,25 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 setup(
-    name="packager",
-    version='1.0.1',
-    packages=find_packages(),
+    name='opae.admin',
+    version='1.4.4',
+    packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': [
-            'packager = packager.tools.packager:main',
-            'afu_json_mgr = packager.tools.afu_json_mgr:main',
+            'fpgasupdate = opae.admin.tools.fpgasupdate:main',
+            'rsu = opae.admin.tools.rsu:main',
+            'super-rsu = opae.admin.tools.super_rsu:main',
+            'fpgaflash = opae.admin.tools.fpgaflash:main',
+            'fpgaotsu = opae.admin.tools.fpgaotsu:main',
+            'fpgaport = opae.admin.tools.fpgaport:main',
+            'bitstreaminfo = opae.admin.tools.bitstream_info:main',
+            'opaevfio = opae.admin.tools.opaevfio:main',
+            'pci_device = opae.admin.tools.pci_device:main',
+            'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
+            'fpgareg = opae.admin.tools.fpgareg:main',
         ]
     },
-    install_requires=['jsonschema>=2.3.0'],
-    include_package_data=True,
 )

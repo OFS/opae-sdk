@@ -1,4 +1,4 @@
-# Copyright(c) 2021-2023, Intel Corporation
+# Copyright(c) 2019-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -27,15 +27,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="packager",
-    version='1.0.1',
+    name="pacsign",
+    version="1.0.8",
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'packager = packager.tools.packager:main',
-            'afu_json_mgr = packager.tools.afu_json_mgr:main',
-        ]
+            'PACSign = pacsign.__main__:main',
+        ],
     },
-    install_requires=['jsonschema>=2.3.0'],
-    include_package_data=True,
 )

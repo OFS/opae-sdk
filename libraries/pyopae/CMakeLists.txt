@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(PYOPAE_PYBIND11_VERSION "2.2.4")
-
 set(PYOPAE_SRC
     opae.cpp
     pycontext.h
@@ -82,9 +80,9 @@ add_custom_command(TARGET _opae
     COMMENT "Copying Python test files")
 
 if (OPAE_BUILD_PYTHON_DIST)
-    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_INCLUDE_DIRS}")
 
     set(PYFILES
+        pyproject.toml
         setup.py
         opae/fpga/__init__.py
         test_pyopae.py
@@ -100,16 +98,13 @@ if (OPAE_BUILD_PYTHON_DIST)
     foreach(cppfile ${PYOPAE_SRC})
         file(COPY ${cppfile} DESTINATION ${PYDIST_STAGE_DIR})
     endforeach(cppfile ${PYOPAE_SRC})
-    file(COPY MANIFEST.in DESTINATION ${PYDIST_STAGE_DIR})
+
     add_custom_target(pyopae-dist
-        COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext
-            --include-dirs=${OPAE_INCLUDE_PATH}
-            --library-dirs=${LIBRARY_OUTPUT_PATH}
-        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
         DEPENDS ${PYFILES} ${PYOPAE_SRC}
         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
         COMMENT "Building Python distrubutions")
+
     opae_python_install(
         COMPONONENT opae.fpga
         RECORD_FILE opae.fpga-install.txt
