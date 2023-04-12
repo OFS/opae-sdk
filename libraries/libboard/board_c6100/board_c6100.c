@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2022-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -422,6 +422,11 @@ fpga_result print_phy_info(fpga_token token)
 	struct opae_uio uio;
 	char feature_dev[SYSFS_PATH_MAX] = { 0 };
 	uint8_t *mmap_ptr = NULL;
+
+	res = qsfp_cable_status(token);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to find QSFP cable info");
+	}
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
