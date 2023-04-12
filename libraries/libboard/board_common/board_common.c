@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2022, Intel Corporation
+// Copyright(c) 2019-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -65,6 +65,10 @@
 			"fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
 
 #define FACTORY_BIT (1ULL << 36)
+
+// QSFP cable status
+#define DFL_SYSFS_QSFP "*dfl*dev.%ld/qsfp_connected"
+#define MAX_DEV_FEATURE_COUNT 256
 
 // Read sysfs
 fpga_result read_sysfs(fpga_token token, char *sysfs_path,
@@ -737,6 +741,66 @@ fpga_result reformat_bom_info(
 
 	// Finally replace commas with ': ':
 	res = replace_str_in_str(bom_info, ",", ": ", max_result_len, res);
+
+	return res;
+}
+
+// QSFP cable status
+fpga_result qsfp_cable_status(const fpga_token token)
+{
+	fpga_object fpga_object;
+	fpga_result res              = FPGA_OK;
+	uint64_t value               = 0;
+	size_t i                     = 0;
+	char qsfp_path[PATH_MAX]     = { 0 };
+	int retval                   = 0;
+	size_t qsfp_count            = 0;
+
+	for (i = 0; i < MAX_DEV_FEATURE_COUNT; i++) {
+
+		memset(qsfp_path, 0, sizeof(qsfp_path));
+
+		retval = snprintf(qsfp_path, sizeof(qsfp_path),
+			DFL_SYSFS_QSFP, i);
+		if (retval < 0) {
+			OPAE_MSG("error in formatting qsfp cable status");
+			return FPGA_EXCEPTION;
+		}
+
+		res = fpgaTokenGetObject(token, qsfp_path,
+			&fpga_object, FPGA_OBJECT_GLOB);
+		if (res != FPGA_OK) {
+			OPAE_MSG("Failed to get token Object");
+			continue;
+		}
+
+		res = fpgaObjectRead64(fpga_object, &value, 0);
+		if (res == FPGA_OK) {
+			OPAE_MSG("Failed to Read object ");
+
+			switch (value) {
+			case 0:
+				printf("QSFP%-28ld : %s \n", qsfp_count, "Not Connected");
+				break;
+			case 1:
+				printf("QSFP%-28ld : %s \n", qsfp_count, "Connected");
+				break;
+			default:
+				printf("QSFP%-28ld : %s \n", qsfp_count, "N/A");
+			}
+
+			qsfp_count++;
+
+		} else {
+			OPAE_MSG("Failed to Read object ");
+		}
+
+		res = fpgaDestroyObject(&fpga_object);
+		if (res != FPGA_OK) {
+			OPAE_MSG("Failed to Destroy Object");
+		}
+
+	}
 
 	return res;
 }
