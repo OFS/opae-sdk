@@ -86,6 +86,7 @@ typedef enum {
   HOSTEXE_CLS_2 = 0x1,
   HOSTEXE_CLS_4 = 0x2,
   HOSTEXE_CLS_8 = 0x3,
+  HOSTEXE_CLS_16 = 0x4,
 } hostexe_req_len;
 
 //configures atomic transactions
@@ -202,7 +203,8 @@ union he_cfg {
     uint64_t TestCfg : 5;
     uint64_t IntrOnErr : 1;
     uint64_t IntrTestMode : 1;
-    uint64_t Rsvd_63_30 : 34;
+    uint64_t ReqLen_High : 2;
+    uint64_t Rsvd_63_32 : 32;
   };
 };
 
@@ -315,11 +317,23 @@ const std::map<std::string, uint32_t> he_modes = {
   { "trput", HOST_EXEMODE_TRPUT},
 };
 
-const std::map<std::string, uint32_t> he_req_cls_len= {
+struct MapKeyComparator
+{
+  bool operator()( const std::string& a, const std::string& b ) const
+  {
+    if (a.length() != b.length())
+      return (a.length() < b.length());
+    else
+      return (a < b);
+  }
+};
+
+const std::map<std::string, uint32_t, MapKeyComparator> he_req_cls_len = {
   { "cl_1", HOSTEXE_CLS_1},
   { "cl_2", HOSTEXE_CLS_2},
   { "cl_4", HOSTEXE_CLS_4},
   { "cl_8", HOSTEXE_CLS_8},
+  { "cl_16", HOSTEXE_CLS_16},
 };
 
 const std::map<std::string, uint32_t> he_req_atomic_func = {
@@ -369,7 +383,7 @@ public:
       ->transform(CLI::CheckedTransformer(he_modes))->default_val("lpbk");
 
     // Cache line
-    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_4, cl_8}")
+    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_4, cl_8, cl_16}")
        ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
 
     // Configures test rollover or test termination
