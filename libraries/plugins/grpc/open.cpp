@@ -66,7 +66,7 @@ fpga_result __REMOTE_API__ remote_fpgaOpen(fpga_token token,
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
 
   res = client->fpgaOpen(tok->hdr.token_id, flags, hdr);
   if (res == FPGA_OK) {

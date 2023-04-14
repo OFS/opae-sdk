@@ -38,7 +38,6 @@
 fpga_result __REMOTE_API__ remote_fpgaGetNumMetrics(fpga_handle handle,
                                                     uint64_t *num_metrics) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -52,8 +51,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetNumMetrics(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaGetNumMetrics(h->hdr.handle_id, *num_metrics);
 }
@@ -61,7 +59,6 @@ fpga_result __REMOTE_API__ remote_fpgaGetNumMetrics(fpga_handle handle,
 fpga_result __REMOTE_API__ remote_fpgaGetMetricsInfo(
     fpga_handle handle, fpga_metric_info *metric_info, uint64_t *num_metrics) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_result res;
 
@@ -81,8 +78,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsInfo(
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
   std::vector<fpga_metric_info> info;
 
   res = client->fpgaGetMetricsInfo(h->hdr.handle_id, *num_metrics, info);
@@ -99,7 +95,6 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsByIndex(
     fpga_handle handle, uint64_t *metric_num, uint64_t num_metric_indexes,
     fpga_metric *metrics) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_result res;
 
@@ -119,8 +114,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsByIndex(
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   std::vector<uint64_t> vmetric_num;
   vmetric_num.reserve(num_metric_indexes);
@@ -143,7 +137,6 @@ fpga_result __REMOTE_API__
 remote_fpgaGetMetricsByName(fpga_handle handle, char **metrics_names,
                             uint64_t num_metric_names, fpga_metric *metrics) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   uint64_t i;
   fpga_result res;
@@ -164,8 +157,7 @@ remote_fpgaGetMetricsByName(fpga_handle handle, char **metrics_names,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   std::vector<std::string> vmetrics_names;
   vmetrics_names.reserve(num_metric_names);
@@ -187,7 +179,6 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsThresholdInfo(
     fpga_handle handle, metric_threshold *metric_thresholds,
     uint32_t *num_thresholds) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_result res;
 
@@ -207,8 +198,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetMetricsThresholdInfo(
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   std::vector<metric_threshold> vmetric_thresholds;
 

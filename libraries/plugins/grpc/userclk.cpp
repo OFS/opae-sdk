@@ -40,7 +40,6 @@ fpga_result __REMOTE_API__ remote_fpgaSetUserClock(fpga_handle handle,
                                                    uint64_t low_clk,
                                                    int flags) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -49,8 +48,7 @@ fpga_result __REMOTE_API__ remote_fpgaSetUserClock(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaSetUserClock(h->hdr.handle_id, high_clk, low_clk, flags);
 }
@@ -60,7 +58,6 @@ fpga_result __REMOTE_API__ remote_fpgaGetUserClock(fpga_handle handle,
                                                    uint64_t *low_clk,
                                                    int flags) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -79,8 +76,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetUserClock(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaGetUserClock(h->hdr.handle_id, flags, *high_clk, *low_clk);
 }

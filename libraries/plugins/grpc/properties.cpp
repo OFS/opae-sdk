@@ -39,7 +39,6 @@
 fpga_result __REMOTE_API__
 remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop) {
   struct _remote_handle *h;
-  struct _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -53,8 +52,7 @@ remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop) {
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaGetPropertiesFromHandle(h->hdr.handle_id, *prop);
 }
@@ -104,7 +102,7 @@ fpga_result __REMOTE_API__ remote_fpgaUpdateProperties(fpga_token token,
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
 
   result = client->fpgaUpdateProperties(tok->hdr.token_id, resp_props);
   if (result) return result;

@@ -36,7 +36,6 @@
 #include "remote.h"
 
 fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle) {
-  _remote_token *tok;
   _remote_handle *h;
   OPAEClient *client;
 
@@ -46,8 +45,7 @@ fpga_result __REMOTE_API__ remote_fpgaReset(fpga_handle handle) {
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaReset(h->hdr.handle_id);
 }

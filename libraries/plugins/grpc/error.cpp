@@ -51,7 +51,7 @@ fpga_result __REMOTE_API__ remote_fpgaReadError(fpga_token token,
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(token);
 
   return client->fpgaReadError(tok->hdr.token_id, error_num, *value);
 }
@@ -67,7 +67,7 @@ fpga_result __REMOTE_API__ remote_fpgaClearError(fpga_token token,
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(token);
 
   return client->fpgaClearError(tok->hdr.token_id, error_num);
 }
@@ -82,7 +82,7 @@ fpga_result __REMOTE_API__ remote_fpgaClearAllErrors(fpga_token token) {
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(token);
 
   return client->fpgaClearAllErrors(tok->hdr.token_id);
 }
@@ -103,7 +103,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetErrorInfo(
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(token);
 
   return client->fpgaGetErrorInfo(tok->hdr.token_id, error_num, *error_info);
 }

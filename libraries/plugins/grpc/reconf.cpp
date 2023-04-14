@@ -54,7 +54,6 @@ fpga_result __REMOTE_API__ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
                                                             const char *path,
                                                             int flags) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!fpga) {
@@ -68,8 +67,7 @@ fpga_result __REMOTE_API__ remote_fpgaReconfigureSlotByName(fpga_handle fpga,
   }
 
   h = reinterpret_cast<_remote_handle *>(fpga);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaReconfigureSlotByName(h->hdr.handle_id, slot,
                                            std::string(path), flags);

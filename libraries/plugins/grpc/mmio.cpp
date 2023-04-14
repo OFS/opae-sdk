@@ -39,7 +39,6 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO32(fpga_handle handle,
                                                   uint64_t offset,
                                                   uint32_t value) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -59,8 +58,7 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO32(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaWriteMMIO32(h->hdr.handle_id, mmio_num, offset, value);
 }
@@ -70,7 +68,6 @@ fpga_result __REMOTE_API__ remote_fpgaReadMMIO32(fpga_handle handle,
                                                  uint64_t offset,
                                                  uint32_t *value) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   uint32_t val = 0;
   fpga_result res;
@@ -97,8 +94,7 @@ fpga_result __REMOTE_API__ remote_fpgaReadMMIO32(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   res = client->fpgaReadMMIO32(h->hdr.handle_id, mmio_num, offset, val);
   if (res == FPGA_OK) *value = val;
@@ -111,7 +107,6 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO64(fpga_handle handle,
                                                   uint64_t offset,
                                                   uint64_t value) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -131,8 +126,7 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO64(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaWriteMMIO64(h->hdr.handle_id, mmio_num, offset, value);
 }
@@ -142,7 +136,6 @@ fpga_result __REMOTE_API__ remote_fpgaReadMMIO64(fpga_handle handle,
                                                  uint64_t offset,
                                                  uint64_t *value) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   uint64_t val = 0;
   fpga_result res;
@@ -169,8 +162,7 @@ fpga_result __REMOTE_API__ remote_fpgaReadMMIO64(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   res = client->fpgaReadMMIO64(h->hdr.handle_id, mmio_num, offset, val);
   if (res == FPGA_OK) *value = val;
@@ -183,7 +175,6 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO512(fpga_handle handle,
                                                    uint64_t offset,
                                                    const void *value) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!handle) {
@@ -203,8 +194,7 @@ fpga_result __REMOTE_API__ remote_fpgaWriteMMIO512(fpga_handle handle,
     return FPGA_INVALID_PARAM;
   }
 
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   return client->fpgaWriteMMIO512(h->hdr.handle_id, mmio_num, offset, value);
 }
@@ -213,7 +203,6 @@ fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
                                               uint32_t mmio_num,
                                               uint64_t **mmio_ptr) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_result res;
   fpga_remote_id *mmio_id;
@@ -229,8 +218,7 @@ fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   if (h->mmio_regions[mmio_num]) {
     OPAE_MSG(
@@ -268,7 +256,6 @@ fpga_result __REMOTE_API__ remote_fpgaMapMMIO(fpga_handle handle,
 fpga_result __REMOTE_API__ remote_fpgaUnmapMMIO(fpga_handle handle,
                                                 uint32_t mmio_num) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_result res;
   fpga_remote_id *mmio_id;
@@ -290,8 +277,7 @@ fpga_result __REMOTE_API__ remote_fpgaUnmapMMIO(fpga_handle handle,
   }
 
   mmio_id = h->mmio_regions[mmio_num];
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   res = client->fpgaUnmapMMIO(h->hdr.handle_id, *mmio_id, mmio_num);
   if (res == FPGA_OK) {

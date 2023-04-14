@@ -38,9 +38,8 @@
 #include "remote.h"
 
 fpga_result __REMOTE_API__ remote_fpgaClose(fpga_handle handle) {
-  struct _remote_token *tok;
   OPAEClient *client;
-  struct _remote_handle *h;
+  _remote_handle *h;
   fpga_result res;
 
   if (!handle) {
@@ -49,8 +48,7 @@ fpga_result __REMOTE_API__ remote_fpgaClose(fpga_handle handle) {
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   res = client->fpgaClose(h->hdr.handle_id);
   if (res == FPGA_OK) opae_destroy_remote_handle(h);

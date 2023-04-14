@@ -200,7 +200,7 @@ fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src,
   }
 
   tok = reinterpret_cast<_remote_token *>(src);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(src);
 
   res = client->fpgaCloneToken(tok->hdr.token_id, dst_hdr);
   if (res == FPGA_OK) {
@@ -230,7 +230,7 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token) {
   }
 
   tok = reinterpret_cast<_remote_token *>(*token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(*token);
 
   res = client->fpgaDestroyToken(tok->hdr.token_id);
 

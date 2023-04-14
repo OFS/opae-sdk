@@ -216,4 +216,23 @@ void opae_destroy_remote_event_handle(struct _remote_event_handle *eh);
 }
 #endif // __cplusplus
 
+#ifdef __cplusplus
+
+class OPAEClient;
+
+inline OPAEClient *token_to_client(fpga_token t)
+{
+  _remote_token *rt = reinterpret_cast<_remote_token *>(t);
+  return reinterpret_cast<OPAEClient *>(rt->comms->client);
+}
+
+inline OPAEClient *handle_to_client(fpga_handle h)
+{
+  _remote_handle *rh = reinterpret_cast<_remote_handle *>(h);
+  _remote_token *rt = rh->token;
+  return reinterpret_cast<OPAEClient *>(rt->comms->client);
+}
+
+#endif // __cplusplus
+
 #endif // __OPAE_REMOTE_PLUGIN_H__

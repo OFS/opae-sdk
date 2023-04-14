@@ -93,10 +93,7 @@ remote_fpgaDestroyEventHandle(fpga_event_handle *event_handle) {
   eh = reinterpret_cast<_remote_event_handle *>(*event_handle);
 
   if (eh->handle) {
-    _remote_handle *h = eh->handle;
-    _remote_token *tok = h->token;
-    OPAEClient *client = reinterpret_cast<OPAEClient *>(tok->comms->client);
-
+    OPAEClient *client = handle_to_client(eh->handle);
     res = client->fpgaDestroyEventHandle(eh->eh_id);
   }
 
@@ -214,7 +211,8 @@ remote_fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
 
   h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
+
   eh = reinterpret_cast<_remote_event_handle *>(event_handle);
 
   if (!eh->handle) {
@@ -259,7 +257,8 @@ remote_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 
   h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
+
   eh = reinterpret_cast<_remote_event_handle *>(event_handle);
 
   if (!eh->handle) {

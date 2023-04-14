@@ -43,7 +43,6 @@ fpga_result __REMOTE_API__ remote_fpgaPrepareBuffer(fpga_handle handle,
                                                     void **buf_addr,
                                                     uint64_t *wsid, int flags) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id buf_id;
   fpga_result res;
@@ -59,8 +58,7 @@ fpga_result __REMOTE_API__ remote_fpgaPrepareBuffer(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   res = client->fpgaPrepareBuffer(h->hdr.handle_id, blen, buf_addr, flags,
                                   buf_id);
@@ -84,7 +82,6 @@ fpga_result __REMOTE_API__ remote_fpgaPrepareBuffer(fpga_handle handle,
 fpga_result __REMOTE_API__ remote_fpgaReleaseBuffer(fpga_handle handle,
                                                     uint64_t wsid) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *rid;
 
@@ -94,8 +91,7 @@ fpga_result __REMOTE_API__ remote_fpgaReleaseBuffer(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
   rid = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
   return client->fpgaReleaseBuffer(h->hdr.handle_id, *rid);
@@ -105,7 +101,6 @@ fpga_result __REMOTE_API__ remote_fpgaGetIOAddress(fpga_handle handle,
                                                    uint64_t wsid,
                                                    uint64_t *ioaddr) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *rid;
 
@@ -120,8 +115,7 @@ fpga_result __REMOTE_API__ remote_fpgaGetIOAddress(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
   rid = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
   return client->fpgaGetIOAddress(h->hdr.handle_id, *rid, *ioaddr);
@@ -131,7 +125,6 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemSet(fpga_handle handle,
                                                 uint64_t wsid, size_t offset,
                                                 int c, size_t n) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *buf_id;
 
@@ -141,8 +134,7 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemSet(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   buf_id = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
@@ -155,7 +147,6 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCpyToRemote(fpga_handle handle,
                                                         const void *src,
                                                         size_t n) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *buf_id;
 
@@ -170,8 +161,7 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCpyToRemote(fpga_handle handle,
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   buf_id = reinterpret_cast<fpga_remote_id *>((void *)dest_wsid);
 
@@ -183,7 +173,6 @@ fpga_result __REMOTE_API__ remote_fpgaBufPoll(
     fpga_handle handle, uint64_t wsid, size_t offset, int width, uint64_t mask,
     uint64_t expected_value, uint64_t sleep_interval, uint64_t loops_timeout) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *buf_id;
 
@@ -193,8 +182,7 @@ fpga_result __REMOTE_API__ remote_fpgaBufPoll(
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   buf_id = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 
@@ -206,7 +194,6 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCmp(
     fpga_handle handle, uint64_t bufa_wsid, size_t bufa_offset,
     uint64_t bufb_wsid, size_t bufb_offset, size_t n, int *cmp_result) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *bufa_id;
   fpga_remote_id *bufb_id;
@@ -222,8 +209,7 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCmp(
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   bufa_id = reinterpret_cast<fpga_remote_id *>((void *)bufa_wsid);
   bufb_id = reinterpret_cast<fpga_remote_id *>((void *)bufb_wsid);
@@ -235,7 +221,6 @@ fpga_result __REMOTE_API__ remote_fpgaBufMemCmp(
 fpga_result __REMOTE_API__ remote_fpgaBufWritePattern(
     fpga_handle handle, uint64_t wsid, const char *pattern_name) {
   _remote_handle *h;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_remote_id *buf_id;
 
@@ -250,8 +235,7 @@ fpga_result __REMOTE_API__ remote_fpgaBufWritePattern(
   }
 
   h = reinterpret_cast<_remote_handle *>(handle);
-  tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(h->token);
 
   buf_id = reinterpret_cast<fpga_remote_id *>((void *)wsid);
 

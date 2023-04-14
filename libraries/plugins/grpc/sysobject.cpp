@@ -75,7 +75,7 @@ fpga_result __REMOTE_API__ remote_fpgaTokenGetObject(fpga_token token,
   }
 
   tok = reinterpret_cast<_remote_token *>(token);
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
 
   res = client->fpgaTokenGetObject(tok->hdr.token_id, name, flags, object_id);
   if (res == FPGA_OK) {
@@ -120,7 +120,7 @@ fpga_result __REMOTE_API__ remote_fpgaHandleGetObject(fpga_handle handle,
 
   h = reinterpret_cast<_remote_handle *>(handle);
   tok = h->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
 
   res = client->fpgaHandleGetObject(h->hdr.handle_id, name, flags, object_id);
   if (res == FPGA_OK) {
@@ -165,7 +165,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectGetObject(fpga_object parent,
 
   par = reinterpret_cast<_remote_sysobject *>(parent);
   tok = par->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
 
   res = client->fpgaObjectGetObject(par->object_id, name, flags, child_id);
 
@@ -205,7 +205,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectGetObjectAt(fpga_object parent,
 
   par = reinterpret_cast<_remote_sysobject *>(parent);
   tok = par->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(tok);
 
   res = client->fpgaObjectGetObjectAt(par->object_id, idx, child_id);
 
@@ -226,7 +226,6 @@ fpga_result __REMOTE_API__ remote_fpgaObjectGetObjectAt(fpga_object parent,
 
 fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
   fpga_result res;
 
@@ -236,8 +235,7 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj) {
   }
 
   o = reinterpret_cast<_remote_sysobject *>(*obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   res = client->fpgaDestroyObject(o->object_id);
 
@@ -252,7 +250,6 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj) {
 fpga_result __REMOTE_API__ remote_fpgaObjectGetSize(fpga_object obj,
                                                     uint32_t *size, int flags) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!obj) {
@@ -266,8 +263,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectGetSize(fpga_object obj,
   }
 
   o = reinterpret_cast<_remote_sysobject *>(obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   return client->fpgaObjectGetSize(o->object_id, flags, *size);
 }
@@ -275,7 +271,6 @@ fpga_result __REMOTE_API__ remote_fpgaObjectGetSize(fpga_object obj,
 fpga_result __REMOTE_API__ remote_fpgaObjectRead64(fpga_object obj,
                                                    uint64_t *value, int flags) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!obj) {
@@ -289,8 +284,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectRead64(fpga_object obj,
   }
 
   o = reinterpret_cast<_remote_sysobject *>(obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   return client->fpgaObjectRead64(o->object_id, flags, *value);
 }
@@ -299,7 +293,6 @@ fpga_result __REMOTE_API__ remote_fpgaObjectRead(fpga_object obj,
                                                  uint8_t *buffer, size_t offset,
                                                  size_t blen, int flags) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!obj) {
@@ -318,8 +311,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectRead(fpga_object obj,
   }
 
   o = reinterpret_cast<_remote_sysobject *>(obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   return client->fpgaObjectRead(o->object_id, buffer, offset, blen, flags);
 }
@@ -327,7 +319,6 @@ fpga_result __REMOTE_API__ remote_fpgaObjectRead(fpga_object obj,
 fpga_result __REMOTE_API__ remote_fpgaObjectWrite64(fpga_object obj,
                                                     uint64_t value, int flags) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!obj) {
@@ -336,8 +327,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectWrite64(fpga_object obj,
   }
 
   o = reinterpret_cast<_remote_sysobject *>(obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   return client->fpgaObjectWrite64(o->object_id, value, flags);
 }
@@ -345,7 +335,6 @@ fpga_result __REMOTE_API__ remote_fpgaObjectWrite64(fpga_object obj,
 fpga_result __REMOTE_API__
 remote_fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!obj) {
@@ -359,8 +348,7 @@ remote_fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type) {
   }
 
   o = reinterpret_cast<_remote_sysobject *>(obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   return client->fpgaObjectGetType(o->object_id, *type);
 }
@@ -368,7 +356,6 @@ remote_fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type) {
 fpga_result __REMOTE_API__ remote_fpgaObjectGetName(fpga_object obj, char *name,
                                                     size_t max_len) {
   _remote_sysobject *o;
-  _remote_token *tok;
   OPAEClient *client;
 
   if (!obj) {
@@ -382,8 +369,7 @@ fpga_result __REMOTE_API__ remote_fpgaObjectGetName(fpga_object obj, char *name,
   }
 
   o = reinterpret_cast<_remote_sysobject *>(obj);
-  tok = o->token;
-  client = reinterpret_cast<OPAEClient *>(tok->comms->client);
+  client = token_to_client(o->token);
 
   return client->fpgaObjectGetName(o->object_id, name, max_len);
 }
