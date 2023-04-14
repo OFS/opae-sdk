@@ -26,8 +26,9 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 
-template <typename K, typename V>
+template <typename K, typename V, typename L = std::mutex>
 class opae_map_helper {
  public:
   opae_map_helper(V none) : none_(none) {}
@@ -53,4 +54,7 @@ class opae_map_helper {
  private:
   V none_;
   std::map<K, V> map_;
+
+ public:
+  L lock_;
 };

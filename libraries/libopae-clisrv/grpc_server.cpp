@@ -85,9 +85,12 @@ Status OPAEServiceImpl::fpgaEnumerate(ServerContext *context,
       fpga_token_header *hdr =
           reinterpret_cast<fpga_token_header *>(wt->opae_token);
 
-      // If we're not already tracking this token_id, then add it.
-      if (!token_map_.find(hdr->token_id))
-        token_map_.add(hdr->token_id, tokens[i]);
+      {
+        std::lock_guard<std::mutex> g(token_map_.lock_);
+        // If we're not already tracking this token_id, then add it.
+        if (!token_map_.find(hdr->token_id))
+          token_map_.add(hdr->token_id, tokens[i]);
+      }
 
       // Add the token header to our outbound reply.
       to_grpc_token_header(*hdr, reply->add_tokens());
@@ -114,14 +117,18 @@ Status OPAEServiceImpl::fpgaDestroyToken(ServerContext *context,
   if (debug_) std::cout << "fpgaDestroyToken request " << *request << std::endl;
 
   req_token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(req_token_id);
 
-  if (!token) {
-    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
-    return Status::OK;
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(req_token_id);
+
+    if (!token) {
+      reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+      return Status::OK;
+    }
+
+    token_map_.remove(req_token_id);
   }
-
-  token_map_.remove(req_token_id);
 
   res = ::fpgaDestroyToken(&token);
   reply->set_result(to_grpc_fpga_result[res]);
@@ -142,7 +149,11 @@ Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context,
   if (debug_) std::cout << "fpgaCloneToken request " << *request << std::endl;
 
   req_src_token_id = to_opae_fpga_remote_id(request->src_token_id());
-  src_token = token_map_.find(req_src_token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    src_token = token_map_.find(req_src_token_id);
+  }
 
   if (!src_token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -156,7 +167,11 @@ Status OPAEServiceImpl::fpgaCloneToken(ServerContext *context,
         reinterpret_cast<fpga_token_header *>(wt->opae_token);
 
     resp_token_hdr = *hdr;
-    token_map_.add(resp_token_hdr.token_id, dest_token);
+
+    {
+      std::lock_guard<std::mutex> g(token_map_.lock_);
+      token_map_.add(resp_token_hdr.token_id, dest_token);
+    }
 
     opaegrpc::fpga_token_header *ghdr = new opaegrpc::fpga_token_header();
     to_grpc_token_header(resp_token_hdr, ghdr);
@@ -181,7 +196,11 @@ Status OPAEServiceImpl::fpgaGetProperties(ServerContext *context,
     std::cout << "fpgaGetProperties request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -219,7 +238,12 @@ Status OPAEServiceImpl::fpgaUpdateProperties(
     std::cout << "fpgaUpdateProperties request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
+
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
     return Status::OK;
@@ -261,7 +285,11 @@ Status OPAEServiceImpl::fpgaOpen(ServerContext *context,
   if (debug_) std::cout << "fpgaOpen request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -280,8 +308,11 @@ Status OPAEServiceImpl::fpgaOpen(ServerContext *context,
   fpga_handle_header *hdr =
       reinterpret_cast<fpga_handle_header *>(wh->opae_handle);
 
-  if (!handle_map_.find(hdr->handle_id))
-    handle_map_.add(hdr->handle_id, handle);
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    if (!handle_map_.find(hdr->handle_id))
+      handle_map_.add(hdr->handle_id, handle);
+  }
 
   reply->set_allocated_handle(to_grpc_handle_header(*hdr));
 
@@ -300,15 +331,19 @@ Status OPAEServiceImpl::fpgaClose(ServerContext *context,
   if (debug_) std::cout << "fpgaClose request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
 
-  if (!handle) {
-    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
-    return Status::OK;
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+
+    if (!handle) {
+      reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+      return Status::OK;
+    }
+
+    res = ::fpgaClose(handle);
+    if (res == FPGA_OK) handle_map_.remove(handle_id);
   }
-
-  res = ::fpgaClose(handle);
-  if (res == FPGA_OK) handle_map_.remove(handle_id);
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
@@ -325,7 +360,11 @@ Status OPAEServiceImpl::fpgaReset(ServerContext *context,
   if (debug_) std::cout << "fpgaReset request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -352,7 +391,11 @@ Status OPAEServiceImpl::fpgaGetPropertiesFromHandle(
               << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -397,7 +440,11 @@ Status OPAEServiceImpl::fpgaMapMMIO(ServerContext *context,
   if (debug_) std::cout << "fpgaMapMMIO request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -413,7 +460,11 @@ Status OPAEServiceImpl::fpgaMapMMIO(ServerContext *context,
   }
 
   opae_get_remote_id(&mmio_id);
-  mmio_map_.add(mmio_id, mmio_ptr);
+
+  {
+    std::lock_guard<std::mutex> g(mmio_map_.lock_);
+    mmio_map_.add(mmio_id, mmio_ptr);
+  }
 
   reply->set_allocated_mmio_id(to_grpc_fpga_remote_id(mmio_id));
   reply->set_result(to_grpc_fpga_result[res]);
@@ -433,7 +484,11 @@ Status OPAEServiceImpl::fpgaUnmapMMIO(ServerContext *context,
   if (debug_) std::cout << "fpgaUnmapMMIO request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -449,7 +504,11 @@ Status OPAEServiceImpl::fpgaUnmapMMIO(ServerContext *context,
   }
 
   mmio_id = to_opae_fpga_remote_id(request->mmio_id());
-  mmio_map_.remove(mmio_id);
+
+  {
+    std::lock_guard<std::mutex> g(mmio_map_.lock_);
+    mmio_map_.remove(mmio_id);
+  }
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
@@ -469,7 +528,11 @@ Status OPAEServiceImpl::fpgaReadMMIO32(ServerContext *context,
   if (debug_) std::cout << "fpgaReadMMIO32 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -500,7 +563,11 @@ Status OPAEServiceImpl::fpgaWriteMMIO32(ServerContext *context,
   if (debug_) std::cout << "fpgaWriteMMIO32 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -531,7 +598,11 @@ Status OPAEServiceImpl::fpgaReadMMIO64(ServerContext *context,
   if (debug_) std::cout << "fpgaReadMMIO64 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -562,7 +633,11 @@ Status OPAEServiceImpl::fpgaWriteMMIO64(ServerContext *context,
   if (debug_) std::cout << "fpgaWriteMMIO64 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -594,7 +669,11 @@ Status OPAEServiceImpl::fpgaWriteMMIO512(ServerContext *context,
   if (debug_) std::cout << "fpgaWriteMMIO512 request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -635,7 +714,11 @@ Status OPAEServiceImpl::fpgaPrepareBuffer(ServerContext *context,
     std::cout << "fpgaPrepareBuffer request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -660,7 +743,11 @@ Status OPAEServiceImpl::fpgaPrepareBuffer(ServerContext *context,
 
     OPAEBufferInfo *binfo =
         new OPAEBufferInfo(handle_id, length, *buf_addr, wsid, flags);
-    binfo_map_.add(buf_id, binfo);
+
+    {
+      std::lock_guard<std::mutex> g(binfo_map_.lock_);
+      binfo_map_.add(buf_id, binfo);
+    }
 
     reply->set_allocated_buf_id(to_grpc_fpga_remote_id(buf_id));
   }
@@ -683,7 +770,11 @@ Status OPAEServiceImpl::fpgaReleaseBuffer(ServerContext *context,
     std::cout << "fpgaReleaseBuffer request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -691,20 +782,24 @@ Status OPAEServiceImpl::fpgaReleaseBuffer(ServerContext *context,
   }
 
   buf_id = to_opae_fpga_remote_id(request->buf_id());
-  binfo = binfo_map_.find(buf_id);
 
-  if (!binfo) {
-    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
-    return Status::OK;
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfo = binfo_map_.find(buf_id);
+
+    if (!binfo) {
+      reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+      return Status::OK;
+    }
+
+    if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
+      reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
+      return Status::OK;
+    }
+
+    res = ::fpgaReleaseBuffer(handle, binfo->wsid_);
+    if (res == FPGA_OK) binfo_map_.remove(buf_id);
   }
-
-  if (!opae_remote_ids_match(&handle_id, &binfo->handle_id_)) {
-    reply->set_result(to_grpc_fpga_result[FPGA_NOT_FOUND]);
-    return Status::OK;
-  }
-
-  res = ::fpgaReleaseBuffer(handle, binfo->wsid_);
-  if (res == FPGA_OK) binfo_map_.remove(buf_id);
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
@@ -724,7 +819,11 @@ Status OPAEServiceImpl::fpgaGetIOAddress(ServerContext *context,
   if (debug_) std::cout << "fpgaGetIOAddress request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -732,7 +831,11 @@ Status OPAEServiceImpl::fpgaGetIOAddress(ServerContext *context,
   }
 
   buf_id = to_opae_fpga_remote_id(request->buf_id());
-  binfo = binfo_map_.find(buf_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfo = binfo_map_.find(buf_id);
+  }
 
   if (!binfo) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -764,7 +867,11 @@ Status OPAEServiceImpl::fpgaReadError(ServerContext *context,
   if (debug_) std::cout << "fpgaReadError request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -793,7 +900,11 @@ Status OPAEServiceImpl::fpgaGetErrorInfo(ServerContext *context,
   if (debug_) std::cout << "fpgaGetErrorInfo request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -821,7 +932,11 @@ Status OPAEServiceImpl::fpgaClearError(ServerContext *context,
   if (debug_) std::cout << "fpgaClearError request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -848,7 +963,11 @@ Status OPAEServiceImpl::fpgaClearAllErrors(ServerContext *context,
     std::cout << "fpgaClearAllErrors request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -875,7 +994,11 @@ Status OPAEServiceImpl::fpgaTokenGetObject(ServerContext *context,
     std::cout << "fpgaTokenGetObject request " << *request << std::endl;
 
   token_id = to_opae_fpga_remote_id(request->token_id());
-  token = token_map_.find(token_id);
+
+  {
+    std::lock_guard<std::mutex> g(token_map_.lock_);
+    token = token_map_.find(token_id);
+  }
 
   if (!token) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -892,7 +1015,10 @@ Status OPAEServiceImpl::fpgaTokenGetObject(ServerContext *context,
     // Allocate a new remote ID for the object.
     opae_get_remote_id(&object_id);
 
-    sysobj_map_.add(object_id, obj);
+    {
+      std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+      sysobj_map_.add(object_id, obj);
+    }
 
     reply->set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
   }
@@ -913,15 +1039,19 @@ Status OPAEServiceImpl::fpgaDestroyObject(ServerContext *context,
     std::cout << "fpgaDestroyObject request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
 
-  if (!sysobj) {
-    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
-    return Status::OK;
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+
+    if (!sysobj) {
+      reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+      return Status::OK;
+    }
+
+    res = ::fpgaDestroyObject(&sysobj);
+    if (res == FPGA_OK) sysobj_map_.remove(object_id);
   }
-
-  res = ::fpgaDestroyObject(&sysobj);
-  if (res == FPGA_OK) sysobj_map_.remove(object_id);
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
@@ -940,7 +1070,11 @@ Status OPAEServiceImpl::fpgaObjectGetType(ServerContext *context,
     std::cout << "fpgaObjectGetType request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+  }
 
   if (!sysobj) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -966,7 +1100,11 @@ Status OPAEServiceImpl::fpgaObjectGetName(ServerContext *context,
     std::cout << "fpgaObjectGetName request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+  }
 
   if (!sysobj) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -998,7 +1136,11 @@ Status OPAEServiceImpl::fpgaObjectGetSize(ServerContext *context,
     std::cout << "fpgaObjectGetSize request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+  }
 
   if (!sysobj) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1029,7 +1171,11 @@ Status OPAEServiceImpl::fpgaObjectRead(ServerContext *context,
   if (debug_) std::cout << "fpgaObjectRead request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+  }
 
   if (!sysobj) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1066,7 +1212,11 @@ Status OPAEServiceImpl::fpgaObjectRead64(ServerContext *context,
   if (debug_) std::cout << "fpgaObjectRead64 request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+  }
 
   if (!sysobj) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1097,7 +1247,11 @@ Status OPAEServiceImpl::fpgaObjectWrite64(ServerContext *context,
     std::cout << "fpgaObjectWrite64 request " << *request << std::endl;
 
   object_id = to_opae_fpga_remote_id(request->object_id());
-  sysobj = sysobj_map_.find(object_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    sysobj = sysobj_map_.find(object_id);
+  }
 
   if (!sysobj) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1127,7 +1281,11 @@ Status OPAEServiceImpl::fpgaHandleGetObject(
     std::cout << "fpgaHandleGetObject request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1144,7 +1302,10 @@ Status OPAEServiceImpl::fpgaHandleGetObject(
     // Allocate a new remote ID for the object.
     opae_get_remote_id(&object_id);
 
-    sysobj_map_.add(object_id, sysobj);
+    {
+      std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+      sysobj_map_.add(object_id, sysobj);
+    }
 
     reply->set_allocated_object_id(to_grpc_fpga_remote_id(object_id));
   }
@@ -1167,7 +1328,11 @@ Status OPAEServiceImpl::fpgaObjectGetObject(
     std::cout << "fpgaObjectGetObject request " << *request << std::endl;
 
   parent_id = to_opae_fpga_remote_id(request->object_id());
-  parent = sysobj_map_.find(parent_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    parent = sysobj_map_.find(parent_id);
+  }
 
   if (!parent) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1184,7 +1349,10 @@ Status OPAEServiceImpl::fpgaObjectGetObject(
     // Allocate a new remote ID for the child object.
     opae_get_remote_id(&child_id);
 
-    sysobj_map_.add(child_id, child);
+    {
+      std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+      sysobj_map_.add(child_id, child);
+    }
 
     reply->set_allocated_object_id(to_grpc_fpga_remote_id(child_id));
   }
@@ -1207,7 +1375,11 @@ Status OPAEServiceImpl::fpgaObjectGetObjectAt(
     std::cout << "fpgaObjectGetObjectAt request " << *request << std::endl;
 
   parent_id = to_opae_fpga_remote_id(request->object_id());
-  parent = sysobj_map_.find(parent_id);
+
+  {
+    std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+    parent = sysobj_map_.find(parent_id);
+  }
 
   if (!parent) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1224,7 +1396,10 @@ Status OPAEServiceImpl::fpgaObjectGetObjectAt(
     // Allocate a new remote ID for the child object.
     opae_get_remote_id(&child_id);
 
-    sysobj_map_.add(child_id, child);
+    {
+      std::lock_guard<std::mutex> g(sysobj_map_.lock_);
+      sysobj_map_.add(child_id, child);
+    }
 
     reply->set_allocated_object_id(to_grpc_fpga_remote_id(child_id));
   }
@@ -1247,7 +1422,11 @@ Status OPAEServiceImpl::fpgaSetUserClock(ServerContext *context,
   if (debug_) std::cout << "fpgaSetUserClock request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1278,7 +1457,11 @@ Status OPAEServiceImpl::fpgaGetUserClock(ServerContext *context,
   if (debug_) std::cout << "fpgaGetUserClock request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1311,7 +1494,11 @@ Status OPAEServiceImpl::fpgaGetNumMetrics(ServerContext *context,
     std::cout << "fpgaGetNumMetrics request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1339,7 +1526,11 @@ Status OPAEServiceImpl::fpgaGetMetricsInfo(ServerContext *context,
     std::cout << "fpgaGetMetricsInfo request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1387,7 +1578,11 @@ Status OPAEServiceImpl::fpgaGetMetricsByIndex(
     std::cout << "fpgaGetMetricsByIndex request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1446,7 +1641,11 @@ Status OPAEServiceImpl::fpgaGetMetricsByName(
     std::cout << "fpgaGetMetricsByName request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1508,7 +1707,11 @@ Status OPAEServiceImpl::fpgaGetMetricsThresholdInfo(
               << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1557,7 +1760,11 @@ Status OPAEServiceImpl::fpgaReconfigureSlotByName(
     std::cout << "fpgaReconfigureSlotByName request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1590,7 +1797,11 @@ Status OPAEServiceImpl::fpgaBufMemSet(ServerContext *context,
   if (debug_) std::cout << "fpgaBufMemSet request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1598,7 +1809,11 @@ Status OPAEServiceImpl::fpgaBufMemSet(ServerContext *context,
   }
 
   buf_id = to_opae_fpga_remote_id(request->buf_id());
-  binfo = binfo_map_.find(buf_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfo = binfo_map_.find(buf_id);
+  }
 
   if (!binfo) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1636,7 +1851,11 @@ Status OPAEServiceImpl::fpgaBufMemCpyToRemote(
     std::cout << "fpgaBufMemCpyToRemote request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1644,7 +1863,11 @@ Status OPAEServiceImpl::fpgaBufMemCpyToRemote(
   }
 
   dest_buf_id = to_opae_fpga_remote_id(request->dest_buf_id());
-  binfo = binfo_map_.find(dest_buf_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfo = binfo_map_.find(dest_buf_id);
+  }
 
   if (!binfo) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1686,7 +1909,11 @@ Status OPAEServiceImpl::fpgaBufPoll(ServerContext *context,
   if (debug_) std::cout << "fpgaBufPoll request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1694,7 +1921,11 @@ Status OPAEServiceImpl::fpgaBufPoll(ServerContext *context,
   }
 
   buf_id = to_opae_fpga_remote_id(request->buf_id());
-  binfo = binfo_map_.find(buf_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfo = binfo_map_.find(buf_id);
+  }
 
   if (!binfo) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1739,7 +1970,11 @@ Status OPAEServiceImpl::fpgaBufMemCmp(ServerContext *context,
   if (debug_) std::cout << "fpgaBufMemCmp request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1747,7 +1982,11 @@ Status OPAEServiceImpl::fpgaBufMemCmp(ServerContext *context,
   }
 
   bufa_id = to_opae_fpga_remote_id(request->bufa_id());
-  binfoa = binfo_map_.find(bufa_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfoa = binfo_map_.find(bufa_id);
+  }
 
   if (!binfoa) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1762,7 +2001,11 @@ Status OPAEServiceImpl::fpgaBufMemCmp(ServerContext *context,
   bufa_offset = (size_t)request->bufa_offset();
 
   bufb_id = to_opae_fpga_remote_id(request->bufb_id());
-  binfob = binfo_map_.find(bufb_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfob = binfo_map_.find(bufb_id);
+  }
 
   if (!binfob) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1800,7 +2043,11 @@ Status OPAEServiceImpl::fpgaBufWritePattern(
     std::cout << "fpgaBufWritePattern request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1808,7 +2055,11 @@ Status OPAEServiceImpl::fpgaBufWritePattern(
   }
 
   buf_id = to_opae_fpga_remote_id(request->buf_id());
-  binfo = binfo_map_.find(buf_id);
+
+  {
+    std::lock_guard<std::mutex> g(binfo_map_.lock_);
+    binfo = binfo_map_.find(buf_id);
+  }
 
   if (!binfo) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1847,7 +2098,10 @@ Status OPAEServiceImpl::fpgaCreateEventHandle(
     // Allocate a new remote ID for the event handle.
     opae_get_remote_id(&event_handle_id);
 
-    event_handle_map_.add(event_handle_id, event_handle);
+    {
+      std::lock_guard<std::mutex> g(event_handle_map_.lock_);
+      event_handle_map_.add(event_handle_id, event_handle);
+    }
 
     reply->set_allocated_eh_id(to_grpc_fpga_remote_id(event_handle_id));
   }
@@ -1872,7 +2126,11 @@ Status OPAEServiceImpl::fpgaRegisterEvent(ServerContext *context,
     std::cout << "fpgaRegisterEvent request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1882,7 +2140,11 @@ Status OPAEServiceImpl::fpgaRegisterEvent(ServerContext *context,
   event_type = to_opae_fpga_event_type[request->event_type()];
 
   eh_id = to_opae_fpga_remote_id(request->eh_id());
-  event_handle = event_handle_map_.find(eh_id);
+
+  {
+    std::lock_guard<std::mutex> g(event_handle_map_.lock_);
+    event_handle = event_handle_map_.find(eh_id);
+  }
 
   if (!event_handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1968,7 +2230,11 @@ Status OPAEServiceImpl::fpgaUnregisterEvent(
     std::cout << "fpgaUnregisterEvent request " << *request << std::endl;
 
   handle_id = to_opae_fpga_remote_id(request->handle_id());
-  handle = handle_map_.find(handle_id);
+
+  {
+    std::lock_guard<std::mutex> g(handle_map_.lock_);
+    handle = handle_map_.find(handle_id);
+  }
 
   if (!handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -1976,7 +2242,11 @@ Status OPAEServiceImpl::fpgaUnregisterEvent(
   }
 
   eh_id = to_opae_fpga_remote_id(request->eh_id());
-  event_handle = event_handle_map_.find(eh_id);
+
+  {
+    std::lock_guard<std::mutex> g(event_handle_map_.lock_);
+    event_handle = event_handle_map_.find(eh_id);
+  }
 
   if (!event_handle) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -2043,15 +2313,19 @@ Status OPAEServiceImpl::fpgaDestroyEventHandle(
     std::cout << "fpgaDestroyEventHandle request " << *request << std::endl;
 
   eh_id = to_opae_fpga_remote_id(request->eh_id());
-  event_handle = event_handle_map_.find(eh_id);
 
-  if (!event_handle) {
-    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
-    return Status::OK;
+  {
+    std::lock_guard<std::mutex> g(event_handle_map_.lock_);
+    event_handle = event_handle_map_.find(eh_id);
+
+    if (!event_handle) {
+      reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+      return Status::OK;
+    }
+
+    res = ::fpgaDestroyEventHandle(&event_handle);
+    if (res == FPGA_OK) event_handle_map_.remove(eh_id);
   }
-
-  res = ::fpgaDestroyEventHandle(&event_handle);
-  if (res == FPGA_OK) event_handle_map_.remove(eh_id);
 
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
@@ -2076,9 +2350,12 @@ Status OPAEEventsServiceImpl::fpgaGetRemoteEventID(
   // Create the client-side eventfd.
   client_event_fd = eventfd(0, 0);
 
-  // Add the new event registration to our tracking.
-  remote_id_to_eventreg_map_.add(event_id,
-                                 new EventRegistration(client_event_fd));
+  {
+    // Add the new event registration to our tracking.
+    std::lock_guard<std::mutex> g(remote_id_to_eventreg_map_.lock_);
+    remote_id_to_eventreg_map_.add(event_id,
+                                   new EventRegistration(client_event_fd));
+  }
 
   reply->set_allocated_event_id(to_grpc_fpga_remote_id(event_id));
   reply->set_client_event_fd(client_event_fd);
@@ -2098,8 +2375,11 @@ Status OPAEEventsServiceImpl::fpgaSignalRemoteEvent(
 
   event_id = to_opae_fpga_remote_id(request->event_id());
 
-  // Look up our event registration matching event_id.
-  event_reg = remote_id_to_eventreg_map_.find(event_id);
+  {
+    std::lock_guard<std::mutex> g(remote_id_to_eventreg_map_.lock_);
+    // Look up our event registration matching event_id.
+    event_reg = remote_id_to_eventreg_map_.find(event_id);
+  }
 
   if (!event_reg) {
     reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
@@ -2134,15 +2414,18 @@ Status OPAEEventsServiceImpl::fpgaReleaseRemoteEvent(
 
   event_id = to_opae_fpga_remote_id(request->event_id());
 
-  // Look up our event registration matching event_id.
-  event_reg = remote_id_to_eventreg_map_.find(event_id);
+  {
+    std::lock_guard<std::mutex> g(remote_id_to_eventreg_map_.lock_);
+    // Look up our event registration matching event_id.
+    event_reg = remote_id_to_eventreg_map_.find(event_id);
 
-  if (!event_reg) {
-    reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
-    return Status::OK;
+    if (!event_reg) {
+      reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+      return Status::OK;
+    }
+
+    remote_id_to_eventreg_map_.remove(event_id);
   }
-
-  remote_id_to_eventreg_map_.remove(event_id);
 
   ::close(event_reg->client_event_fd_);
   delete event_reg;

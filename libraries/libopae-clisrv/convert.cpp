@@ -754,7 +754,13 @@ fpga_properties to_opae_fpga_properties(
     // On the client side, we translate from fpga_remote_id to
     // the corresponding _remote_token *.
     fpga_remote_id rid = to_opae_fpga_remote_id(gprops.parent());
-    _remote_token *rtok = client->token_map_.find(rid);
+    _remote_token *rtok;
+
+    {
+      std::lock_guard<std::mutex> g(client->token_map_.lock_);
+      rtok = client->token_map_.find(rid);
+    }
+
     if (rtok)
       p->parent = rtok;
     else {
@@ -778,7 +784,13 @@ fpga_properties to_opae_fpga_properties(
     // On the server side, we translate from fpga_remote_id to
     // the corresponding fpga_token.
     fpga_remote_id rid = to_opae_fpga_remote_id(gprops.parent());
-    fpga_token tok = server->token_map_.find(rid);
+    fpga_token tok;
+
+    {
+      std::lock_guard<std::mutex> g(server->token_map_.lock_);
+      tok = server->token_map_.find(rid);
+    }
+
     if (tok)
       p->parent = tok;
     else {
