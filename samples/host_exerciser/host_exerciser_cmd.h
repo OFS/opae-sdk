@@ -55,6 +55,7 @@ public:
         :host_exe_(NULL) {
           he_lpbk_cfg_.value = 0;
           he_lpbk_ctl_.value = 0;
+          he_lpbk_max_reqlen_ = HOSTEXE_CLS_8;
           he_lpbk_api_ver_ = 0;
           he_lpbk_atomics_supported_ = false;
           is_ase_sim_ = false;
@@ -377,6 +378,25 @@ public:
         return true;
     }
 
+    inline void set_cfg_reqlen(hostexe_req_len req_len)
+    {
+        // Legal request lengths have grown over time, leading to the field being
+        // split in the configuration register.
+        he_lpbk_cfg_.ReqLen_High = req_len >> 2;
+        he_lpbk_cfg_.ReqLen = req_len & 3;
+    }
+
+    inline void set_cfg_reqlen(uint32_t req_len)
+    {
+        set_cfg_reqlen(static_cast<hostexe_req_len>(req_len));
+    }
+
+    inline hostexe_req_len get_cfg_reqlen()
+    {
+        return static_cast<hostexe_req_len>((he_lpbk_cfg_.ReqLen_High << 2) |
+                                            he_lpbk_cfg_.ReqLen);
+    }
+
     int parse_input_options()
     {
 
@@ -396,7 +416,12 @@ public:
         he_lpbk_cfg_.TestMode = host_exe_->he_modes_;
 
         // Host Exerciser Read
-        he_lpbk_cfg_.ReqLen = host_exe_->he_req_cls_len_;
+        if (host_exe_->he_req_cls_len_ > he_lpbk_max_reqlen_) {
+            std::cerr << "Request length " << host_exe_->he_req_cls_len_
+                      << " is not supported by this platform." << std::endl;
+            return -1;
+        }
+        set_cfg_reqlen(host_exe_->he_req_cls_len_);
 
         // Host Exerciser  lpbk delay
         if (host_exe_->he_delay_)
@@ -429,7 +454,7 @@ public:
                 std::cerr << "The platform does not support atomic functions" << std::endl;
                 return -1;
             }
-            if ((he_lpbk_cfg_.ReqLen != HOSTEXE_CLS_1) && (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)) {
+            if ((get_cfg_reqlen() != HOSTEXE_CLS_1) && (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)) {
                 std::cerr << "Atomic function in lpbk mode requires cl_1" << std::endl;
                 return -1;
             }
@@ -571,7 +596,8 @@ public:
         std::cout << std::endl << "Testing loopback, varying payload size:" << std::endl;
         for (std::map<std::string, uint32_t>::const_iterator cls=he_req_cls_len.begin(); cls!=he_req_cls_len.end(); ++cls) {
             // Set request length
-            he_lpbk_cfg_.ReqLen = cls->second;
+            if (cls->second > he_lpbk_max_reqlen_) break;
+            set_cfg_reqlen(cls->second);
 
             // Initialize buffer values
             he_init_src_buffer(source_);
@@ -583,7 +609,7 @@ public:
             std::cout << "  " << cls->first << ": "
                       << (test_status ? "FAIL" : "PASS") << std::endl;
         }
-        he_lpbk_cfg_.ReqLen = HOSTEXE_CLS_1;
+        set_cfg_reqlen(HOSTEXE_CLS_1);
 
         // Test atomic functions if the API supports it
         if (he_lpbk_atomics_supported_) {
@@ -609,7 +635,10 @@ public:
             uint32_t trip = 0;
             for (std::map<std::string, uint32_t>::const_reverse_iterator cls=he_req_cls_len.rbegin(); cls!=he_req_cls_len.rend(); ++cls) {
                 he_lpbk_cfg_.TestMode = HOST_EXEMODE_TRPUT;
-                he_lpbk_cfg_.ReqLen = cls->second;
+
+                if (cls->second > he_lpbk_max_reqlen_) break;
+                set_cfg_reqlen(cls->second);
+
                 he_lpbk_cfg_.AtomicFunc = (trip & 1 ? HOSTEXE_ATOMIC_FADD_4 : HOSTEXE_ATOMIC_CAS_8);
                 host_exe_->he_continuousmode_ = true;
                 he_lpbk_cfg_.Continuous = 1;
@@ -640,7 +669,8 @@ public:
         host_exe_->he_continuousmode_ = true;
         he_lpbk_cfg_.Continuous = 1;
         for (std::map<std::string, uint32_t>::const_iterator cls=he_req_cls_len.begin(); cls!=he_req_cls_len.end(); ++cls) {
-            he_lpbk_cfg_.ReqLen = cls->second;
+            if (cls->second > he_lpbk_max_reqlen_) break;
+            set_cfg_reqlen(cls->second);
 
             he_lpbk_cfg_.TestMode = HOST_EXEMODE_READ;
             int test_status = run_single_test();
@@ -699,6 +729,9 @@ public:
         // For atomics support, the version must not be zero and bit 24 must be 0.
         he_lpbk_atomics_supported_ = (he_lpbk_api_ver_ != 0) &&
                                      (0 == ((he_info >> 24) & 1));
+
+        // The maximum request length before API version 2 was 8.
+        he_lpbk_max_reqlen_ = (he_lpbk_api_ver_ < 2) ? HOSTEXE_CLS_8 : HOSTEXE_CLS_16;
 
         if (0 == host_exe_->he_clock_mhz_) {
             uint16_t freq = he_info;
@@ -783,6 +816,7 @@ protected:
     shared_buffer::ptr_t dsm_;
     he_interrupt0 he_interrupt_;
     token::ptr_t token_;
+    hostexe_req_len he_lpbk_max_reqlen_;
     uint8_t he_lpbk_api_ver_;
     bool he_lpbk_atomics_supported_;
     bool is_ase_sim_;
