@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -117,6 +117,12 @@ public:
     return std::string("");
   }
 
+  void mbox_write(uint64_t port_select, uint16_t offset, uint32_t data)
+  {
+    write64(TRAFFIC_CTRL_PORT_SEL, port_select);
+    mbox_write(offset, data);
+  }
+
   void mbox_write(uint16_t offset, uint32_t data)
   {
     volatile uint8_t *mmio_base = handle_->mmio_ptr(0);
@@ -168,6 +174,12 @@ public:
             --ticks;
         }
     } while (val & ACK_TRANS); 
+  }
+
+  uint32_t mbox_read(uint64_t port_select, uint16_t offset)
+  {
+    write64(TRAFFIC_CTRL_PORT_SEL, port_select);
+    return mbox_read(offset);
   }
 
   uint32_t mbox_read(uint16_t offset)

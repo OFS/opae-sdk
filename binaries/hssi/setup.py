@@ -23,11 +23,12 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from setuptools import setup, find_packages
 
 setup(
-    name='hssi ethernet',
-    version="2.0",
+    name='hssi_ethernet',
+    version="2.0.1",
     packages=find_packages(include=['*']),
     entry_points={
         'console_scripts': [
@@ -36,9 +37,4 @@ setup(
             'hssiloopback = ethernet.hssiloopback:main'
         ]
     },
-    description="hssi ethernet tools",
-    license="BSD3",
-    keywords="OPAE hssi tools ",
-    url="https://opae.github.io",
-    include_package_data=True,
 )

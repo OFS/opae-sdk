@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -209,7 +209,7 @@ static void parse_args(struct config *config, int argc, char *argv[])
 		char *endptr;
 		const char *tmp_optarg;
 
-		c = getopt_long(argc, argv, "hB:D:F:v", options, NULL);
+		c = getopt_long(argc, argv, ":hB:D:F:v", options, NULL);
 		if (c == -1) {
 			break;
 		}
@@ -228,21 +228,36 @@ static void parse_args(struct config *config, int argc, char *argv[])
 		case 'B':    /* bus */
 			if (NULL == tmp_optarg)
 				break;
+			endptr = NULL;
 			config->bus = (int) strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				fprintf(stderr, "Invalid bus number.\n");
+				exit(1);
+			}
 			//debug_print("bus = %x\n", config->bus);
 			break;
 
 		case 'D':    /* device */
 			if (NULL == tmp_optarg)
 				break;
+			endptr = NULL;
 			config->device = (int) strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				fprintf(stderr, "Invalid device number.\n");
+				exit(1);
+			}
 			//debug_print("device = %x\n", config->device);
 			break;
 
 		case 'F':    /* function */
 			if (NULL == tmp_optarg)
 				break;
+			endptr = NULL;
 			config->function = (int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				fprintf(stderr, "Invalid function number.\n");
+				exit(1);
+			}
 			//debug_print("function = %x\n", config->function);
 			break;
 		case 'v':    /* version */
@@ -252,9 +267,23 @@ static void parse_args(struct config *config, int argc, char *argv[])
 			       OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			exit(0);
 
+
+		case ':':
+			fprintf(stderr, "missing option argument.\n");
+			printUsage();
+			exit(1);
+			break;
+
+		case '?':
+			fprintf(stderr, "invalid option.\n");
+			printUsage();
+			exit(1);
+			break;
+
 		default:
 			fprintf(stderr, "unknown op %c\n", c);
 			printUsage();
+			exit(1);
 			break;
 		} //end case
 	} while(1);

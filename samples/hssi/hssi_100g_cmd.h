@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -492,7 +492,7 @@ public:
       if (count == 0)  // Added to eliminate infinite loop occured when CSR_TX_COUNT is 0
         break;
 
-      if (!running_) {
+      if (!running()) {
         hafu->mbox_write(CSR_CTRL1, STOP_BITS);
         return test_afu::error;
       }
@@ -562,7 +562,7 @@ public:
           reset_monitor(port_, CURSOR_UP, config_data, hafu);
 
         //Handling CTL+C and CTL+Z
-        if (!running_) {
+        if (!running()) {
           quit_monitor(port_size, CURSOR_DOWN, hafu);
           return test_afu::error;
         }

@@ -215,21 +215,40 @@ function(opae_python_install)
     # `make install DESTDIR=/mnt/root`). Avoid passing an empty variable to
     # --root= by checking (and possibly set) the $DESTDIR variable before
     # calling python setuptools.
+
+    #install(
+    #    CODE "
+    #        if (\"\$ENV{DESTDIR}\" STREQUAL \"\")
+    #            set(ENV{DESTDIR} /)
+    #        endif()
+    #        execute_process(
+    #            COMMAND ${PYTHON_EXECUTABLE} setup.py install -O1 \
+    #                --single-version-externally-managed \
+    #                --root=\$ENV{DESTDIR} \
+    #                --prefix=${CMAKE_INSTALL_PREFIX} \
+    #                --record=${CMAKE_BINARY_DIR}/${OPAE_PYTHON_INSTALL_RECORD_FILE}
+    #            WORKING_DIRECTORY ${OPAE_PYTHON_INSTALL_SOURCE_DIR}
+    #        )
+    #    ${APPEND_CODE}
+    #    "
+    #    COMPONENT ${OPAE_PYTHON_INSTALL_COMPONENT}
+    #)
+
     install(
         CODE "
             if (\"\$ENV{DESTDIR}\" STREQUAL \"\")
                 set(ENV{DESTDIR} /)
             endif()
             execute_process(
-                COMMAND ${PYTHON_EXECUTABLE} setup.py install -O1 \
-                    --single-version-externally-managed \
+                COMMAND ${PYTHON_EXECUTABLE} -m pip install \
                     --root=\$ENV{DESTDIR} \
                     --prefix=${CMAKE_INSTALL_PREFIX} \
-                    --record=${CMAKE_BINARY_DIR}/${OPAE_PYTHON_INSTALL_RECORD_FILE}
+		    --no-warn-script-location .
                 WORKING_DIRECTORY ${OPAE_PYTHON_INSTALL_SOURCE_DIR}
             )
         ${APPEND_CODE}
         "
         COMPONENT ${OPAE_PYTHON_INSTALL_COMPONENT}
     )
+
 endfunction(opae_python_install)

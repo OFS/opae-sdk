@@ -28,22 +28,21 @@ from setuptools import find_namespace_packages
 from distutils.core import Extension, setup
 
 setup(
-    name="opae.io",
-    version="0.2.5",
+    name='opae.io',
+    version='0.2.7',
     packages=find_namespace_packages(include=['opae.*']),
-    entry_points={
-        'console_scripts': []
-    },
     ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
+        Extension('libvfio',
+                  sources=['vfiobindings.cpp'],
                   language="c++",
                   extra_compile_args=["-std=c++11"],
                   extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
+                  include_dirs=[
+                    "@OPAE_INCLUDE_PATH@",
+                    "@pybind11_ROOT@/include",
+                    "@OPAE_BIN_SOURCE@/opae.io",
+                  ],
+                  libraries=['opaevfio'],
+                  library_dirs=["@LIBRARY_OUTPUT_PATH@"])
     ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
-    license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
-    url="https://opae.github.io",
 )

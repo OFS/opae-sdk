@@ -353,7 +353,7 @@ endif(OPAE_WITH_SPDLOG)
 ################################################################################
 
 set(LIBEDIT_URL
-        https://www.thrysoee.dk/editline/libedit-20221030-3.1.tar.gz
+        https://src.fedoraproject.org/repo/pkgs/libedit/libedit-20221030-3.1.tar.gz/sha512/41eb46feaffa909e8790b9a9e304d5246e82ab366721196126a923d68b4d4964d0a433fe238f9d5e0a00aefb5c8cb66132150792929a793785ad091d91016f97/libedit-20221030-3.1.tar.gz
         CACHE STRING "URL for libedit")
 set(LIBEDIT_VERSION
         3.1
@@ -725,7 +725,7 @@ endif()
 
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
-set(OPAE_VERSION_MINOR    3 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_MINOR    4 CACHE STRING "OPAE minor version" FORCE)
 set(OPAE_VERSION_REVISION 0${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)

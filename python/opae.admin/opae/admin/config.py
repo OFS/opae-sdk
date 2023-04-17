@@ -137,10 +137,10 @@ DEFAULT_FPGAREG_CONFIG = {
     'platform': 'Intel Acceleration Development Platform N6001'
   },
   (0x8086, 0xbcce, 0x8086, 0x17d4): {
-    'platform': 'Intel Acceleration Development Platform C6100'
+    'platform': 'Intel IPU Platform F2000X-PL'
   },
   (0x8086, 0xbccf, 0x8086, 0x17d4): {
-    'platform': 'Intel Acceleration Development Platform C6100'
+    'platform': 'Intel IPU Platform F2000X-PL'
   },
   (0x8086, 0xaf00, 0x8086, 0): {
     'platform': 'Intel Open FPGA Stack Platform'

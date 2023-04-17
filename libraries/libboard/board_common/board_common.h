@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2022, Intel Corporation
+// Copyright(c) 2019-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -186,6 +186,16 @@ fpga_result reformat_bom_info(
 	char *const bom_info,
 	const size_t len,
 	const size_t max_result_len);
+
+/**
+* prints QSFP cable status.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success.
+* FPGA_EXCEPTION if invalid sysfs path
+*/
+fpga_result qsfp_cable_status(const fpga_token token);
+
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,11 +23,12 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from setuptools import setup, find_namespace_packages
 
 setup(
-    name="opae.admin",
-    version='1.4.3',
+    name='opae.admin',
+    version='1.4.4',
     packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': [
@@ -44,12 +45,4 @@ setup(
             'fpgareg = opae.admin.tools.fpgareg:main',
         ]
     },
-    install_requires=[],
-    description="opae.admin provides Python classes for interfacing with"
-                "OPAE kernel drivers",
-    license="BSD3",
-    keywords="OPAE accelerator fpga kernel sysfs",
-    data_files=[('share/doc/opae.admin',
-                 ['LICENSE'])],
-    url="https://opae.github.io",
 )

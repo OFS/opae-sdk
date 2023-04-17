@@ -35,6 +35,7 @@
 #include <string>
 #include <list>
 #include <sys/stat.h>
+#include <ctype.h>
 #include "main.h"
 #include "pymain.h"
 
@@ -46,7 +47,7 @@ struct mmio_region *the_region = nullptr;
 const char *program = "opae.io";
 const int major = 0;
 const int minor = 2;
-const int patch = 5;
+const int patch = 7;
 
 py::tuple version()
 {
@@ -375,10 +376,28 @@ bool is_file(const std::string &path)
   return !stat(path.c_str(), &stbuf);
 }
 
+bool is_ascii(const char *s)
+{
+  while (*s) {
+    if (!isascii(*s++))
+      return false;
+  }
+  return true;
+}
+
 
 int main(int argc, char *argv[])
 {
   int res = 0;
+  int i;
+
+  for (i = 1 ; i < argc ; ++i) {
+    if (!is_ascii(argv[i])) {
+      std::cerr << "Error: invalid char(s) in command line." << std::endl;
+      return 1;
+    }
+  }
+
   py::scoped_interpreter guard{}; // start the interpreter and keep it alive
   auto cli = std::make_shared<opae_io_cli>();
   auto globals = py::globals();
@@ -400,7 +419,18 @@ int main(int argc, char *argv[])
   auto pysys = py::module::import("sys");
   auto pyargs = args_to_list(argc, argv);
   pysys.attr("argv") = pyargs;
-  py::exec(pymain, globals);
+  try {
+    py::exec(pymain, globals);
+  } catch(py::error_already_set &pyerr) {
+    //std::cerr << pyerr.what() << std::endl;
+    if (pyerr.matches(PyExc_SystemExit)) {
+      std::cerr << "Command line parse failed." << std::endl;
+      return 1;
+    } else if (pyerr.matches(PyExc_TypeError)) {
+      std::cerr << "No suitable accelerator device found." << std::endl;
+      return 2;
+    }
+  }
   if (!cli->is_interactive()) {
     return cli->return_code();
   }
