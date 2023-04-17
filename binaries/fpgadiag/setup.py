@@ -23,11 +23,10 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from setuptools import setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
-from distutils.ccompiler import new_compiler
 from distutils.extension import Extension
-from distutils.errors import CompileError, DistutilsExecError
 
 # get the original build_extensions method
 original_build_extensions = build_ext.build_extensions
@@ -45,16 +44,6 @@ def override_build_extensions(self):
 build_ext.build_extensions = override_build_extensions
 
 
-class pybind_include_dirs(object):
-    def __init__(self, user=False):
-        self.user = user
-
-    def __str__(self):
-        import pybind11
-        return pybind11.get_include(self.user)
-
-
-
 def extensions():
     ext = []
 
@@ -64,17 +53,20 @@ def extensions():
                       language="c++",
                       extra_compile_args=["-std=c++11"],
                       extra_link_args=["-std=c++11"],
+                      include_dirs=[
+                        "@OPAE_INCLUDE_PATH@",
+                        "@pybind11_ROOT@/include",
+                      ],
                       libraries=['opaeuio'],
-                      )
+                      library_dirs=["@LIBRARY_OUTPUT_PATH@"])
         )
     return ext
 
 
 setup(
-    name='opae.diag',
-    version="2.0",
+    name="opae.diag",
+    version="2.0.1",
     packages=find_namespace_packages(include=['opae.*']),
-    include_dirs=[pybind_include_dirs()],
     entry_points={
         'console_scripts': [
             'fpgadiag = opae.diag.fpgadiag:main',
@@ -86,11 +78,5 @@ setup(
             'fecmode = opae.diag.fecmode:main',
         ]
     },
-    description="eth group provides python bindings"
-    "for ethernet mdev",
-    license="BSD3",
-    keywords="OPAE eth group bindings",
-    url="https://opae.github.io",
     ext_modules=extensions(),
-    include_package_data=True,
 )

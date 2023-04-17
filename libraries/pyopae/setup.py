@@ -23,6 +23,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from setuptools import setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
 from distutils.extension import Extension
@@ -44,15 +45,6 @@ def override_build_extensions(self):
 build_ext.build_extensions = override_build_extensions
 
 
-class pybind_include_dirs(object):
-    def __init__(self, user=False):
-        self.user = user
-
-    def __str__(self):
-        import pybind11
-        return pybind11.get_include(self.user)
-
-
 extensions = [
     Extension("opae.fpga._opae",
               sources=["pyproperties.cpp",
@@ -70,8 +62,7 @@ extensions = [
               include_dirs=[
                   "@CMAKE_INSTALL_PREFIX@/include",
                   "@OPAE_INCLUDE_PATH@",
-                  pybind_include_dirs(),
-                  pybind_include_dirs(True)
+                  "@pybind11_ROOT@/include"
               ],
               libraries=["opae-c", "opae-cxx-core", "uuid"],
               library_dirs=["@LIBRARY_OUTPUT_PATH@",
@@ -80,18 +71,8 @@ extensions = [
 ]
 
 setup(
-    name="opae.fpga",
-    version="@OPAE_VERSION@",
-    packages=find_namespace_packages(),
-    entry_points={
-        'console_scripts': [
-        ]
-    },
-    ext_modules=extensions,
-    install_requires=['pybind11>=@PYOPAE_PYBIND11_VERSION@'],
-    description="pyopae provides Python bindings around the "
-                "OPAE C API",
-    license="BSD3",
-    keywords="OPAE accelerator fpga bindings",
-    url="https://opae.github.io",
+    name='opae.fpga',
+    version='@OPAE_VERSION@',
+    packages=find_namespace_packages(), 
+    ext_modules=extensions
 )

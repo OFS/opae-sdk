@@ -1,4 +1,4 @@
-# Copyright(c) 2021-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,26 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup, find_packages
+[build-system]
+requires = ["setuptools>=59.6", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
-setup(
-    name="packager",
-    version='1.0.1',
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'packager = packager.tools.packager:main',
-            'afu_json_mgr = packager.tools.afu_json_mgr:main',
-        ]
-    },
-    install_requires=['jsonschema>=2.3.0'],
-    include_package_data=True,
-)
+[project]
+name = "opae.io"
+version = "0.2.7"
+description = "opae.io provides Python bindings around the VFIO API"
+#readme = ""
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.6"
+
+[tool.setuptools]
+packages = [
+"opae",
+"opae.io",
+]
+
+[tool.setuptools.package-data]
+"*" = ["scripts/*"]
+
+[project.urls]
+Homepage = "https://opae.github.io"

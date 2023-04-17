@@ -23,22 +23,16 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
-    version="1.0.7",
+    version="1.0.8",
     packages=find_packages(),
-    python_requires='>=3.6',
-    extra_requires={'pkcs11': ['python-pkcs11']},
-    description="pacsign provides Python classes for interfacing with"
-                "OPAE PACSign tool",
     entry_points={
         'console_scripts': [
             'PACSign = pacsign.__main__:main',
         ],
     },
-    license="BSD3",
-    keywords="OPAE accelerator fpga signing security",
-    url="https://opae.github.io",
 )

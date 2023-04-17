@@ -23,20 +23,16 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from setuptools import setup, find_namespace_packages
 
 setup(
     name='ofs.uio',
-    version="1.0",
+    version="1.0.1",
     packages=find_namespace_packages(include=['uio*']),
     entry_points={
         'console_scripts': [
             'ofs.uio = uio.ofs_uio:main',
         ]
     },
-    description="ofs uio tool to peek/poke and mailbox read/write csr",
-    license="BSD3",
-    keywords="ofs uio tools ",
-    url="https://opae.github.io",
-    include_package_data=True,
 )

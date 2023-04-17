@@ -1,4 +1,4 @@
-# Copyright(c) 2021-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,39 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup, find_packages
+[build-system]
+requires = ["setuptools>=59.6", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
-setup(
-    name="packager",
-    version='1.0.1',
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'packager = packager.tools.packager:main',
-            'afu_json_mgr = packager.tools.afu_json_mgr:main',
-        ]
-    },
-    install_requires=['jsonschema>=2.3.0'],
-    include_package_data=True,
-)
+[project]
+name = "opae.fpga"
+version = "@OPAE_VERSION@"
+description = "pyopae provides Python bindings around the OPAE C API"
+#readme = ""
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.6"
+
+[tool.setuptools.package-data]
+"*" = [
+"README.md",
+"opae.cpp",
+"pycontext.h",
+"pycontext.cpp",
+"pyproperties.h",
+"pyproperties.cpp",
+"pyhandle.h",
+"pyhandle.cpp",
+"pytoken.h",
+"pytoken.cpp",
+"pyshared_buffer.h",
+"pyshared_buffer.cpp",
+"pyevents.h",
+"pyevents.cpp",
+"pyerrors.h",
+"pyerrors.cpp",
+"pysysobject.h",
+"pysysobject.cpp",
+]
+
+[project.urls]
+Homepage = "https://opae.github.io"
