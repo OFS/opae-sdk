@@ -117,12 +117,6 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 		return FPGA_INVALID_PARAM;
 	}
 
-	item = opae_hash_map_alloc_item(key, value);
-	if (!item) {
-		ERR("malloc() failed");
-		return FPGA_NO_MEMORY;
-	}
-
 	key_hash = hm->key_hash(hm->num_buckets,
 				hm->hash_seed,
 				key);
@@ -132,6 +126,12 @@ fpga_result opae_hash_map_add(opae_hash_map *hm,
 		    "greater or equal num_buckets(%u)\n",
 		    key_hash, hm->num_buckets);
 		return FPGA_INVALID_PARAM;
+	}
+
+	item = opae_hash_map_alloc_item(key, value);
+	if (!item) {
+		ERR("malloc() failed");
+		return FPGA_NO_MEMORY;
 	}
 
 	list = hm->buckets[key_hash];
