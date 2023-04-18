@@ -170,10 +170,18 @@ def vfio_init(pci_addr, new_owner='', force=False):
 
     time.sleep(0.50)
 
+    if not iommu_enabled():
+        LOG.info("IOMMU is disabled. Binding failed.")
+
     iommu_group = os.path.join('/sys/bus/pci/devices',
                                pci_addr,
                                'iommu_group')
-    group_num = os.readlink(iommu_group).split(os.sep)[-1]
+
+    try:
+        group_num = os.readlink(iommu_group).split(os.sep)[-1]
+    except FileNotFoundError:
+        LOG.info("No such directory: {}".format(iommu_group))
+        return
 
     LOG.info('iommu group for {} is {}'.format(msg, group_num))
 
@@ -533,3 +541,8 @@ def find_region(device, region):
     for r in device.regions:
         if r.index() == region:
             return r
+
+
+def iommu_enabled():
+    iommu_on = any(Path('/sys/kernel/iommu_groups').iterdir())
+    return iommu_on
