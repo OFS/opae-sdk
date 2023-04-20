@@ -126,9 +126,26 @@ public:
         return (double)(num_lines * 64) / ((1000.0 / host_exe_->he_clock_mhz_ * num_ticks));
     }
 
+    inline uint64_t dsm_num_ticks(const volatile he_dsm_status *dsm_status)
+    {
+        return dsm_status->num_ticks;
+    }
+
+    // Read count has two parts -- the size was increased after the first release
+    inline uint64_t dsm_num_reads(const volatile he_dsm_status *dsm_status)
+    {
+        return (uint64_t(dsm_status->num_reads_h) << 32) | dsm_status->num_reads_l;
+    }
+
+    // Write count has two parts -- the size was increased after the first release
+    inline uint64_t dsm_num_writes(const volatile he_dsm_status *dsm_status)
+    {
+        return (uint64_t(dsm_status->num_writes_h) << 32) | dsm_status->num_writes_l;
+    }
+
     void he_perf_counters()
     {
-        struct he_dsm_status *dsm_status = NULL;
+        volatile he_dsm_status *dsm_status = NULL;
         volatile uint8_t* status_ptr = dsm_->c_type();
         uint64_t num_cache_lines = 0;
         if (!status_ptr)
@@ -142,13 +159,13 @@ public:
         // calculate number of cache lines in continuous mode
         if (host_exe_->he_continuousmode_) {
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
-                num_cache_lines = dsm_status->num_writes * 2;
+                num_cache_lines = dsm_num_writes(dsm_status) * 2;
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_READ)
-                num_cache_lines = dsm_status->num_reads;
+                num_cache_lines = dsm_num_reads(dsm_status);
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_WRITE)
-                num_cache_lines = (dsm_status->num_writes);
+                num_cache_lines = (dsm_num_writes(dsm_status));
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRPUT)
-                num_cache_lines = dsm_status->num_writes * 2;
+                num_cache_lines = dsm_num_writes(dsm_status) * 2;
         } else {
             num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
         }
@@ -157,16 +174,16 @@ public:
 
         uint64_t tmp;
 
-        tmp = dsm_status->num_ticks;
+        tmp = dsm_num_ticks(dsm_status);
         host_exe_->logger_->info("Number of clocks: {0}", tmp);
-        tmp = dsm_status->num_reads;
+        tmp = dsm_num_reads(dsm_status);
         host_exe_->logger_->info("Total number of Reads sent: {0}", tmp);
-        tmp = dsm_status->num_writes;
+        tmp = dsm_num_writes(dsm_status);
         host_exe_->logger_->info("Total number of Writes sent: {0}", tmp);
 
         // print bandwidth
-        if (dsm_status->num_ticks > 0) {
-            double perf_data = he_num_xfers_to_bw(num_cache_lines, dsm_status->num_ticks);
+        if (dsm_num_ticks(dsm_status) > 0) {
+            double perf_data = he_num_xfers_to_bw(num_cache_lines, dsm_num_ticks(dsm_status));
             host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
         }
     }
@@ -679,7 +696,7 @@ public:
             if (test_status)
                 std::cout << "FAIL" << std::endl;
             else {
-                std::cout << he_num_xfers_to_bw(dsm_status->num_reads, dsm_status->num_ticks)
+                std::cout << he_num_xfers_to_bw(dsm_num_reads(dsm_status), dsm_num_ticks(dsm_status))
                           << std::endl;
             }
 
@@ -690,7 +707,7 @@ public:
             if (test_status)
                 std::cout << "FAIL" << std::endl;
             else {
-                std::cout << he_num_xfers_to_bw(dsm_status->num_writes, dsm_status->num_ticks)
+                std::cout << he_num_xfers_to_bw(dsm_num_writes(dsm_status), dsm_num_ticks(dsm_status))
                           << std::endl;
             }
 
@@ -701,8 +718,8 @@ public:
             if (test_status)
                 std::cout << "FAIL" << std::endl;
             else {
-                std::cout << he_num_xfers_to_bw(dsm_status->num_reads + dsm_status->num_writes,
-                                                dsm_status->num_ticks)
+                std::cout << he_num_xfers_to_bw(dsm_num_reads(dsm_status) + dsm_num_writes(dsm_status),
+                                                dsm_num_ticks(dsm_status))
                           << std::endl;
             }
 
