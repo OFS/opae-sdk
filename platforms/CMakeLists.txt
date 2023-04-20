@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,15 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(PLATFORM_DIRS
-        afu_top_ifc_db
-        platform_db
-        platform_if)
-
-## This path may be used in scripts to point to the installed platform database.
-## The configure_file rule below handles the substitution.
-set(PLATFORM_SHARE_DIR share/opae/platform)
-
-install(DIRECTORY ${PLATFORM_DIRS} DESTINATION ${PLATFORM_SHARE_DIR} USE_SOURCE_PERMISSIONS COMPONENT platform)
-
-add_subdirectory(scripts)
+opae_python_install(COMPONENT platmgr
+    RECORD_FILE platmgr-install.txt
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    RPM_PACKAGE platmgr
+)

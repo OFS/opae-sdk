@@ -125,6 +125,7 @@ done
 %{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin
 %{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 %{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
+%{__python3} -m pip install --prefix=/usr --root=%{buildroot} %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/platforms
 
 # Make rpmlint happy about install permissions
 # admin tools
@@ -286,12 +287,12 @@ done
 %{_bindir}/afu_platform_config
 %{_bindir}/afu_platform_info
 %{_bindir}/afu_synth_setup
+%{_bindir}/rtl_src_config
 %{_bindir}/hssiloopback
 %{_bindir}/hssimac
 %{_bindir}/hssistats
 %{_bindir}/opaeuiotest
 %{_bindir}/pac_hssi_config.py
-%{_bindir}/rtl_src_config
 %{_bindir}/nlb0
 %{_bindir}/nlb3
 %{_bindir}/nlb7
@@ -302,6 +303,7 @@ done
 %{python3_sitelib}/hssi_ethernet*
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
+%{python3_sitelib}/platmgr*
 
 
 %changelog

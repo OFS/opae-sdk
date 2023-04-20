@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 #
 # Copyright (c) 2023, Intel Corporation
 # All rights reserved.
@@ -32,11 +30,10 @@
 #
 
 #
-# Wrapper module for legacy scripts that expect to be able to run the
-# script from the source tree.
+# Provide a simple way to find the platform database root directory,
+# which is in the tree below this module.
 #
 
-import sys
+import os.path
 
-from platmgr.tools.afu_synth_setup import main
-sys.exit(main())
+plat_db_root = os.path.abspath(os.path.dirname(__file__))

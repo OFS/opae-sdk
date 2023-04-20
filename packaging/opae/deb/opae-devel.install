@@ -65,3 +65,4 @@ usr/lib/python3/dist-packages/packager*
 usr/lib/python3/dist-packages/libvfio*
 usr/lib/python3/dist-packages/opae.fpga*
 usr/lib/python3/dist-packages/opae/fpga*
+usr/lib/python3/dist-packages/platmgr*

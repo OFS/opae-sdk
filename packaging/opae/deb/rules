@@ -36,5 +36,6 @@ override_dh_auto_install:
 	DEB_PYTHON_INSTALL_LAYOUT=deb_system python3 -m pip install --prefix=/usr --root=$(CURDIR)/debian/tmp $(CURDIR)/python/opae.admin
 	DEB_PYTHON_INSTALL_LAYOUT=deb_system python3 -m pip install --prefix=/usr --root=$(CURDIR)/debian/tmp $(CURDIR)/python/packager
 	DEB_PYTHON_INSTALL_LAYOUT=deb_system python3 -m pip install --prefix=/usr --root=$(CURDIR)/debian/tmp $(CURDIR)/python/pacsign
+	DEB_PYTHON_INSTALL_LAYOUT=deb_system python3 -m pip install --prefix=/usr --root=$(CURDIR)/debian/tmp $(CURDIR)/platforms
 	dh_auto_install
 
