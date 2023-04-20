@@ -299,9 +299,11 @@ struct he_dsm_status {
 	uint64_t res1 : 16;
 	uint64_t err_vector : 32;
 	uint64_t num_ticks : 40;
-	uint64_t res2 : 24;
-	uint64_t num_reads : 32;
-	uint64_t num_writes : 32;
+	uint64_t res2 : 8;
+	uint64_t num_reads_h : 8;
+	uint64_t num_writes_h : 8;
+	uint64_t num_reads_l : 32;
+	uint64_t num_writes_l : 32;
 	uint64_t penalty_start : 16;
 	uint64_t res3 : 16;
 	uint64_t penalty_end : 8;
