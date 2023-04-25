@@ -9,7 +9,8 @@ find_c() {
     find "${OPAE_SDK_ROOT}/libraries/libbitstream" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/libraries/libopae-c" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/libraries/plugins" \( -iname "*.c" -or -iname "*.h" \) -and \
-	    \( ! -path '*/libraries/plugins/xfpga/usrclk/*' \)
+	    \( ! -path '*/libraries/plugins/xfpga/usrclk/*' \) -and \
+	    \( ! -path '*/libraries/plugins/grpc/remote.h' \)
     find "${OPAE_SDK_ROOT}/libraries/libofs" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/libraries/libopaemem" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/libraries/libopaevfio" -iname "*.c" -or -iname "*.h"

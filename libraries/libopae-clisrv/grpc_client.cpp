@@ -1437,6 +1437,23 @@ fpga_result OPAEClient::fpgaDestroyEventHandle(const fpga_remote_id &eh_id) {
   return to_opae_fpga_result[reply.result()];
 }
 
+fpga_result OPAEClient::ServerReset() {
+  opaegrpc::ServerResetRequest request;
+  opaegrpc::ServerResetReply reply;
+  ClientContext context;
+
+  Status status = stub_->ServerReset(&context, request, &reply);
+  if (!status.ok()) {
+    OPAE_ERR("ServerReset() gRPC failed: %s", status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "ServerReset reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 fpga_result OPAEEventsClient::fpgaGetRemoteEventID(fpga_remote_id &event_id,

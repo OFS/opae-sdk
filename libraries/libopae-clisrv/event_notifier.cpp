@@ -71,6 +71,28 @@ void EventNotifier::stop() {
     lock_.unlock();
 }
 
+void EventNotifier::reset() {
+  stop();
+
+  {
+    std::lock_guard<mutex_t> g(lock_);
+
+    std::vector<IEventNotify *>::iterator it;
+    for (it = actions_.begin(); it != actions_.end(); ++it) delete *it;
+    actions_.clear();
+
+    poll_fds_.clear();
+
+    while (!to_add_.empty()) {
+      std::pair<int, IEventNotify *> p = to_add_.front();
+      delete p.second;
+      to_add_.pop();
+    }
+
+    while (!to_remove_.empty()) to_remove_.pop();
+  }
+}
+
 void EventNotifier::run(EventNotifier *n) {
   int res;
   bool check_events;

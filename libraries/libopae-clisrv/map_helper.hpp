@@ -34,27 +34,45 @@ class opae_map_helper {
   opae_map_helper(V none) : none_(none) {}
 
   V find(const K &key) const {
+    std::lock_guard<std::mutex> g(lock_);
     typename std::map<K, V>::const_iterator it = map_.find(key);
-    return (it == map_.end()) ? none_ : it->second;
+    return (it == map_.cend()) ? none_ : it->second;
   }
 
   bool add(const K &key, V value) {
+    std::lock_guard<std::mutex> g(lock_);
     typename std::pair<typename std::map<K, V>::iterator, bool> res =
         map_.insert(std::make_pair(key, value));
     return res.second;
   }
 
+  bool add_unique(const K &key, V value) {
+    std::lock_guard<std::mutex> g(lock_);
+    typename std::map<K, V>::const_iterator it = map_.find(key);
+    if (it == map_.cend()) {
+      typename std::pair<typename std::map<K, V>::iterator, bool> res =
+          map_.insert(std::make_pair(key, value));
+      return res.second;
+    }
+    return false;
+  }
+
   bool remove(const K &key) {
+    std::lock_guard<std::mutex> g(lock_);
     typename std::map<K, V>::iterator it = map_.find(key);
     if (it == map_.end()) return false;
     map_.erase(it);
     return true;
   }
 
+  typename std::map<K, V>::iterator begin() { return map_.begin(); }
+
+  typename std::map<K, V>::iterator end() { return map_.end(); }
+
+  void clear() { map_.clear(); }
+
  private:
   V none_;
   std::map<K, V> map_;
-
- public:
-  L lock_;
+  mutable L lock_;
 };

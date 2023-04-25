@@ -83,8 +83,9 @@ class EventNotifier {
   void stop();
   bool is_running() const { return running_; }
 
+  void reset();
+
  private:
-  typedef opae_map_helper<int, IEventNotify *> map_t;
   typedef std::mutex mutex_t;
 
   static void run(EventNotifier *n);

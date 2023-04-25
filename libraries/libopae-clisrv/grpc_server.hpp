@@ -133,6 +133,8 @@ using opaegrpc::ReleaseBufferReply;
 using opaegrpc::ReleaseBufferRequest;
 using opaegrpc::ResetReply;
 using opaegrpc::ResetRequest;
+using opaegrpc::ServerResetReply;
+using opaegrpc::ServerResetRequest;
 using opaegrpc::SetUserClockReply;
 using opaegrpc::SetUserClockRequest;
 using opaegrpc::TokenGetObjectReply;
@@ -166,6 +168,25 @@ struct OPAEBufferInfo {
   int flags_;
 };
 
+struct OPAEEventInfo {
+  OPAEEventInfo(fpga_event_handle event_handle)
+      : handle_(nullptr),
+        event_type_((fpga_event_type)-1),
+        event_handle_(event_handle) {}
+
+  fpga_handle handle_;
+  fpga_event_type event_type_;
+  fpga_event_handle event_handle_;
+};
+
+struct OPAEMMIOInfo {
+  OPAEMMIOInfo(fpga_handle handle, uint32_t mmio_num)
+      : handle_(handle), mmio_num_(mmio_num) {}
+
+  fpga_handle handle_;
+  uint32_t mmio_num_;
+};
+
 class OPAEServiceImpl final : public OPAEService::Service {
  public:
   OPAEServiceImpl(bool debug)
@@ -174,7 +195,7 @@ class OPAEServiceImpl final : public OPAEService::Service {
         mmio_map_(nullptr),
         binfo_map_(nullptr),
         sysobj_map_(nullptr),
-        event_handle_map_(nullptr),
+        einfo_map_(nullptr),
         debug_(debug),
         events_client_(nullptr),
         events_client_registrations_(0) {}
@@ -371,6 +392,9 @@ class OPAEServiceImpl final : public OPAEService::Service {
                                 const DestroyEventHandleRequest *request,
                                 DestroyEventHandleReply *reply) override;
 
+  Status ServerReset(ServerContext *context, const ServerResetRequest *request,
+                     ServerResetReply *reply) override;
+
  public:
   typedef opae_map_helper<fpga_remote_id, fpga_token> token_map_t;
 
@@ -378,16 +402,16 @@ class OPAEServiceImpl final : public OPAEService::Service {
 
  private:
   typedef opae_map_helper<fpga_remote_id, fpga_handle> handle_map_t;
-  typedef opae_map_helper<fpga_remote_id, uint64_t *> mmio_map_t;
+  typedef opae_map_helper<fpga_remote_id, OPAEMMIOInfo *> mmio_map_t;
   typedef opae_map_helper<fpga_remote_id, OPAEBufferInfo *> binfo_map_t;
   typedef opae_map_helper<fpga_remote_id, fpga_object> sysobj_map_t;
-  typedef opae_map_helper<fpga_remote_id, fpga_event_handle> event_handle_map_t;
+  typedef opae_map_helper<fpga_remote_id, OPAEEventInfo *> einfo_map_t;
 
   handle_map_t handle_map_;
   mmio_map_t mmio_map_;
   binfo_map_t binfo_map_;
   sysobj_map_t sysobj_map_;
-  event_handle_map_t event_handle_map_;
+  einfo_map_t einfo_map_;
   bool debug_;
 
   OPAEEventsClient *events_client_;

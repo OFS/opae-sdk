@@ -79,4 +79,5 @@ opae_add_subdirectory(fpgad)
 
 if (OPAE_WITH_gRPC)
   opae_add_subdirectory(grpcserver)
+  opae_add_subdirectory(grpcreset)
 endif(OPAE_WITH_gRPC)

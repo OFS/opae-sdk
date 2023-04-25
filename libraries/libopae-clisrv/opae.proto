@@ -257,6 +257,7 @@ service OPAEService {
   rpc fpgaUnregisterEvent(UnregisterEventRequest) returns (UnregisterEventReply) {}
   rpc fpgaGetOSObjectFromEventHandle(GetOSObjectFromEventHandleRequest) returns (GetOSObjectFromEventHandleReply) {}
   rpc fpgaDestroyEventHandle(DestroyEventHandleRequest) returns (DestroyEventHandleReply) {}
+  rpc ServerReset(ServerResetRequest) returns (ServerResetReply) {}
 }
 
 message EnumerateRequest {
@@ -792,6 +793,12 @@ message DestroyEventHandleRequest {
 }
 
 message DestroyEventHandleReply {
+  fpga_result result = 1;
+}
+
+message ServerResetRequest {}
+
+message ServerResetReply{
   fpga_result result = 1;
 }
 

@@ -123,11 +123,7 @@ static int remote_enumerate(opae_comms_channel *comms, void *context) {
       return OPAE_ENUM_STOP;
     }
 
-    {
-      std::lock_guard<std::mutex> g(client->token_map_.lock_);
-      if (!client->token_map_.find(token_hdrs[i].token_id))
-        client->token_map_.add(token_hdrs[i].token_id, token);
-    }
+    client->token_map_.add_unique(token_hdrs[i].token_id, token);
 
     ctx->tokens[ctx->num_tokens++] = token;
   }
@@ -208,10 +204,7 @@ fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src,
 
     if (!_dst) return FPGA_NO_MEMORY;
 
-    {
-      std::lock_guard<std::mutex> g(client->token_map_.lock_);
-      client->token_map_.add(_dst->hdr.token_id, _dst);
-    }
+    client->token_map_.add(_dst->hdr.token_id, _dst);
 
     *dst = _dst;
   }
@@ -235,10 +228,7 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token) {
   res = client->fpgaDestroyToken(tok->hdr.token_id);
 
   if (res == FPGA_OK) {
-    {
-      std::lock_guard<std::mutex> g(client->token_map_.lock_);
-      client->token_map_.remove(tok->hdr.token_id);
-    }
+    client->token_map_.remove(tok->hdr.token_id);
     opae_destroy_remote_token(tok);
     *token = NULL;
   }

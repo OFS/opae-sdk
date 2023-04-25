@@ -241,6 +241,8 @@ class OPAEClient final {
 
   fpga_result fpgaDestroyEventHandle(const fpga_remote_id &eh_id);
 
+  fpga_result ServerReset();
+
  private:
   std::unique_ptr<OPAEService::Stub> stub_;
 
