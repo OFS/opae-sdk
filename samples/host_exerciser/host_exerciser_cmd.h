@@ -158,14 +158,12 @@ public:
         host_exe_->logger_->info("Host Exerciser Performance Counter:");
         // calculate number of cache lines in continuous mode
         if (host_exe_->he_continuousmode_) {
-            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
-                num_cache_lines = dsm_num_writes(dsm_status) * 2;
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_READ)
                 num_cache_lines = dsm_num_reads(dsm_status);
-            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_WRITE)
+            else if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_WRITE)
                 num_cache_lines = (dsm_num_writes(dsm_status));
-            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRPUT)
-                num_cache_lines = dsm_num_writes(dsm_status) * 2;
+            else
+                num_cache_lines = dsm_num_reads(dsm_status) + dsm_num_writes(dsm_status);
         } else {
             num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
         }
@@ -513,7 +511,7 @@ public:
 
         // Write to CSR_CFG
         host_exe_->write64(HE_CFG, he_lpbk_cfg_.value);
-        host_exe_->logger_->debug("Input Config: {0}");
+        host_exe_->logger_->debug("Input Config: {0}", he_lpbk_cfg_.value);
 
         event::ptr_t ev = nullptr;
         if (he_lpbk_cfg_.IntrTestMode == 1) {
