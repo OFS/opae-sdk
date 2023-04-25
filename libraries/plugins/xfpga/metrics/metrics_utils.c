@@ -581,14 +581,26 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 		// DCP VC DC
 		case FPGA_HW_DCP_N3000:
-		case FPGA_HW_DCP_D5005:
-		case FPGA_HW_DCP_N5010: {
+		case FPGA_HW_DCP_D5005: {
 
 			// Max10 Power & Thermal
 			result = dfl_enum_max10_metrics_info(_handle,
 					&(_handle->fpga_enum_metric_vector),
 					&metric_num,
 					hw_type);
+					if (result != FPGA_OK) {
+						OPAE_ERR("Failed to Enum Power and Thermal metrics.");
+					}
+		}
+		break;
+		case FPGA_HW_DCP_N5010: {
+
+			// Max10 Power & Thermal
+			result = dfl_enum_max10_metrics_info_pattern(_handle,
+					&(_handle->fpga_enum_metric_vector),
+					&metric_num,
+					hw_type,
+					DFL_MAX10_SYSFS_PATH_SPI_MASTER);
 					if (result != FPGA_OK) {
 						OPAE_ERR("Failed to Enum Power and Thermal metrics.");
 					}
