@@ -1,0 +1,17 @@
+[
+  {
+    "reg-name": "pf0",
+    "address": "0x20000",
+    "value": "0x22"
+  },
+  {
+    "reg-name": "pf1",
+    "address": "0x20004",
+    "value": "0x23"
+  },
+  {
+    "reg-name": "pf2",
+    "address": "0x20008",
+    "value": "0x24"
+  }  
+]

@@ -32,6 +32,8 @@ import argparse
 import sys
 import time
 import mmap
+import pathlib
+import json
 import binascii
 import struct
 from ctypes import c_uint64, Structure, Union, c_uint32
@@ -68,6 +70,48 @@ def verify_pcie_address(pcie_address):
         print("Invalid pcie address format{}".format(pcie_address))
         return False
     return True
+
+
+def verify_hex(str):
+    regx = re.compile("0[xX][0-9a-fA-F]+")
+    try:
+        if re.fullmatch(regx, str) is not None:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
+
+
+def verify_json(str):
+    if os.path.isfile(str) is not True:
+        raise argparse.ArgumentTypeError('Input file does not exist:', str)
+    if pathlib.Path(str).suffix != ".json":
+         raise argparse.ArgumentTypeError('Input file is not json file:', str)
+
+
+    with open(str, 'r') as f:
+        try:
+            data = json.load(f)
+            print(data)
+        except ValueError:
+            print('Decoding JSON has failed')
+            raise argparse.ArgumentTypeError('Decoding JSON has failed', str)
+
+        for i in data:
+            print(i)
+        for i in data:
+            if i.get('address') is not None:
+                if verify_hex(i.get('address')) is False:
+                    raise argparse.ArgumentTypeError('{} file contains invalid hex address {} {}'
+                  . format(str, i.get('reg-name'),i.get('address') ))
+
+            if i.get('value') is not None:
+                if verify_hex(i.get('value')) is False:
+                    print('{} file contains invalid hex value {} {}'
+                  . format(str, i.get('reg-name'),i.get('value') ) )
+                    raise argparse.ArgumentTypeError('Input file is not json file:', str)
+    return str
 
 
 class verify_input_hex(argparse.Action):
@@ -583,6 +627,13 @@ def parse_args():
                         default=None, nargs=2, metavar=('address', 'value'),
                         help=mailbox_write_help)
 
+
+    mailbox_json_help = 'Write Mailbox json file address Values \
+                        (e.g.--mailbox-json msi-x.json).'
+    parser.add_argument('--mailbox-json', 
+                        default=None,type=verify_json,
+                        help=mailbox_json_help)
+
     return parser, parser.parse_args()
 
 
@@ -593,14 +644,13 @@ def main():
     supports peek/poke csr,mailbox read/mailbox write/mailbox dump
     """
     parser, args = parse_args()
-    print("\n*****************************")
     print('args:', args)
     if all(arg is None for arg in [args.peek, args.poke, args.mailbox_read,
-                                   args.mailbox_write, args.mailbox_dump]):
+                                   args.mailbox_write, args.mailbox_dump,
+                                   args.mailbox_json]):
         print('Error: please pass the proper arguments\n\n')
         parser.print_help(sys.stderr)
         sys.exit(1)
-
     if args.pcie_address and not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
@@ -686,6 +736,26 @@ def main():
                 else:
                     print('MailboxDump({}): {}'
                           .format(hex(addr), hex(value)))
+
+        elif args.mailbox_json is not None:
+            with open(args.mailbox_json, 'r') as f:
+                try:
+                    data = json.load(f)
+                except ValueError:
+                    print('Decoding JSON has failed')
+
+                for i in data:
+                    print('reg-name:{} address:{} value:{}'.format(i.get('reg-name'),
+                                                                   i.get('address'),
+                                                                   i.get('value')))
+                    if not uio.mailbox_write(args.region_index, int(i.get('address'), 16),
+                                             int(i.get('value'), 16)):
+                        print('Failed to write Mailbox CSR {} address:{}'
+                              .format(i.get('reg-name'),i.get('address')))
+                    else:
+                        print('MailboxWrite({}:{}):{}'
+                              .format(i.get('reg-name'),i.get('address'), i.get('value')))
+
 
     except Exception as e:
         print(e)
