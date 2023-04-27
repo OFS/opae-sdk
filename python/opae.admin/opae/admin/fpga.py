@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2022, Intel Corporation
+# Copyright(c) 2019-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@ from opae.admin.config import Config
 from opae.admin.path import device_path, sysfs_path
 from opae.admin.sysfs import sysfs_device, sysfs_node
 from opae.admin.utils.log import loggable
+from opae.admin.utils.process import call_process
 from opae.admin.utils import max10_or_nios_version
 
 
@@ -596,6 +597,24 @@ class fpga_base(sysfs_device):
                 self.log.error(msg)
                 raise IOError(msg)
 
+    def clear_device_status(self, device):
+        self.log.debug(f'Clearing device status for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} CAP_EXP+0x08.L'
+        output = int(call_process(cmd), 16)
+        output &= ~0xFF000
+        output |= 0xF5000
+        call_process(f'{cmd}={output:08x}')
+
+    def clear_uncorrectable_errors(self, device):
+        self.log.debug(f'Clearing uncorrectable errors for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x04.L'
+        call_process(f'{cmd}=FFFFFFFF')
+
+    def clear_correctable_errors(self, device):
+        self.log.debug(f'Clearing correctable errors for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x10.L'
+        call_process(f'{cmd}=FFFFFFFF')
+
     def rsu_routine(self, available_image, **kwargs):
         wait_time = kwargs.pop('wait', 10)
         to_remove = [self.pci_node.root]
@@ -627,10 +646,23 @@ class fpga_base(sysfs_device):
         for node in to_remove:
             self.log.info('[%s] removing device from PCIe bus', node)
             node.remove()
+
         self.log.info('waiting %s seconds for boot', wait_time)
         time.sleep(wait_time)
+
         self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
         to_rescan.node('rescan').value = 1
+        time.sleep(1)
+
+        root = self.pci_node.root
+        self.clear_device_status(root)
+        self.clear_uncorrectable_errors(root)
+        self.clear_correctable_errors(root)
+
+        for ep in root.endpoints:
+            self.clear_device_status(ep)
+            self.clear_uncorrectable_errors(ep)
+            self.clear_correctable_errors(ep)
 
 
 class fpga_region(fpga_base):
