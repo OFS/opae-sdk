@@ -27,6 +27,7 @@
 import re
 import sys
 import subprocess
+import time
 from argparse import ArgumentParser, FileType
 from opae.admin.sysfs import pcie_device, pci_node
 from opae.admin.utils.process import call_process
@@ -47,8 +48,9 @@ def pci_devices(inp):
     if m:
         d = m.groupdict()
         pci_address = '{}:{}'.format(d.get('segment') or '0000', d['bdf'])
-        pci_devices = pcie_device.enum([{'pci_node.pci_address': pci_address}])
-        return pci_devices
+        filt = {}
+        filt['pci_node.pci_address'] = pci_address
+        return [filt]
     m = PCI_VENDOR_DEVICE_RE.match(inp)
     if m:
         d = m.groupdict()
@@ -56,13 +58,12 @@ def pci_devices(inp):
         device_str = d.get('device')
         if not vendor_str and not device_str:
             raise SystemExit('must specify vendor or device')
-        f = {}
+        filt = {}
         if vendor_str:
-            f['pci_node.vendor_id'] = int(vendor_str, 16)
+            filt['pci_node.vendor_id'] = int(vendor_str, 16)
         if device_str:
-            f['pci_node.device_id'] = int(device_str, 16)
-        pci_devices = pcie_device.enum([f])
-        return pci_devices
+            filt['pci_node.device_id'] = int(device_str, 16)
+        return [filt]
 
     raise ValueError('wrong pci address format: {}'.format(inp))
 
@@ -207,10 +208,6 @@ class unplug(object):
         if v0:
             root.aer = (v0, v1)
 
-        print('To recover..')
-        print(" $ sudo sh -c 'echo 1 >/sys/bus/pci/rescan'")
-        print(f' $ sudo pci_device {device} plug')
-
     def unplug(self, root, args, debug):
         if debug:
             print('Unbinding drivers for leaf devices')
@@ -291,10 +288,17 @@ def main():
                         help='perform action on peer pcie devices')
     args, rest = parser.parse_known_args()
 
-    if not args.devices:
+    if hasattr(args, 'action') and args.action == 'plug':
+        # Force a PCI bus rescan.
+        with open('/sys/bus/pci/rescan', 'w') as fd:
+            fd.write('1')
+        time.sleep(1)
+
+    devices = pcie_device.enum(args.devices)
+    if not devices:
         raise SystemExit(f'{sys.argv[1]} not found')
 
-    for dev in args.devices:
+    for dev in devices:
         actions[args.action or 'topology'](dev, args, *rest)
 
 
