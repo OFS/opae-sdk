@@ -39,7 +39,7 @@ extern "C" {
 #include "xfpga.h"
 #include "sysfs_int.h"
 
-fpga_result open_accel(fpga_handle handle, fpga_handle *accel);
+fpga_result open_accel(fpga_handle handle, fpga_token *token, fpga_handle *accel);
 fpga_result clear_port_errors(fpga_handle handle);
 fpga_result validate_bitstream(fpga_handle, const uint8_t *bitstream, 
                                size_t bitstream_len, int *header_len);
@@ -184,17 +184,19 @@ TEST_P(reconf_c, fpga_reconf_slot) {
 */
 TEST_P(reconf_c, open_accel_01) {
   fpga_result result;
+  fpga_token tok = nullptr;
   fpga_handle accel = nullptr;
 
   // Null handle
-  result = open_accel(NULL, &accel);
+  result = open_accel(NULL, &tok, &accel);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Valid handle
-  result = open_accel(device_, &accel);
+  result = open_accel(device_, &tok, &accel);
   EXPECT_EQ(result, FPGA_OK);
 
   EXPECT_EQ(xfpga_fpgaClose(accel), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyToken(&tok), FPGA_OK);
 
   // Invalid object type
   struct _fpga_handle *handle = (struct _fpga_handle *)device_;
@@ -202,7 +204,7 @@ TEST_P(reconf_c, open_accel_01) {
 
   handle->token = NULL;
 
-  result = open_accel(device_, &accel);
+  result = open_accel(device_, &tok, &accel);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   handle->token = token;
@@ -231,10 +233,12 @@ TEST_P(reconf_c, open_accel_02) {
 
   EXPECT_NE(device_, nullptr);
   EXPECT_NE(handle_accel, nullptr);
-  auto result = open_accel(handle_accel, &accel);
+  fpga_token tok = nullptr;
+  auto result = open_accel(handle_accel, &tok, &accel);
   EXPECT_EQ(result, FPGA_BUSY);
 
   EXPECT_EQ(accel, nullptr);
+  EXPECT_EQ(xfpga_fpgaDestroyToken(&tok), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&filter_accel), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaClose(handle_accel), FPGA_OK);
   for (auto &t : tokens_accel) {
