@@ -597,24 +597,6 @@ class fpga_base(sysfs_device):
                 self.log.error(msg)
                 raise IOError(msg)
 
-    def clear_device_status(self, device):
-        self.log.debug(f'Clearing device status for {device.pci_address}')
-        cmd = f'setpci -s {device.pci_address} CAP_EXP+0x08.L'
-        output = int(call_process(cmd), 16)
-        output &= ~0xFF000
-        output |= 0xF5000
-        call_process(f'{cmd}={output:08x}')
-
-    def clear_uncorrectable_errors(self, device):
-        self.log.debug(f'Clearing uncorrectable errors for {device.pci_address}')
-        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x04.L'
-        call_process(f'{cmd}=FFFFFFFF')
-
-    def clear_correctable_errors(self, device):
-        self.log.debug(f'Clearing correctable errors for {device.pci_address}')
-        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x10.L'
-        call_process(f'{cmd}=FFFFFFFF')
-
     def rsu_routine(self, available_image, **kwargs):
         wait_time = kwargs.pop('wait', 10)
         to_remove = [self.pci_node.root]
@@ -652,6 +634,8 @@ class fpga_base(sysfs_device):
 
         self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
         to_rescan.node('rescan').value = 1
+
+    def clear_status_and_errors(self):
         time.sleep(1)
 
         root = self.pci_node.root
@@ -663,6 +647,27 @@ class fpga_base(sysfs_device):
             self.clear_device_status(ep)
             self.clear_uncorrectable_errors(ep)
             self.clear_correctable_errors(ep)
+
+    def clear_device_status(self, device):
+        self.log.debug(f'Clearing device status for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} CAP_EXP+0x08.L'
+        try:
+            output = int(call_process(cmd), 16)
+        except ValueError: # Error during conversion. setpci() call failed.
+            return
+        output &= ~0xFF000
+        output |= 0xF5000
+        call_process(f'{cmd}={output:08x}')
+
+    def clear_uncorrectable_errors(self, device):
+        self.log.debug(f'Clearing uncorrectable errors for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x04.L'
+        call_process(f'{cmd}=FFFFFFFF')
+
+    def clear_correctable_errors(self, device):
+        self.log.debug(f'Clearing correctable errors for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x10.L'
+        call_process(f'{cmd}=FFFFFFFF')
 
 
 class fpga_region(fpga_base):
