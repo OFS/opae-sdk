@@ -44,6 +44,7 @@
 #include "opae.pb.h"
 
 using grpc::ServerContext;
+using grpc::ServerReader;
 using grpc::Status;
 using opaegrpc::BufMemCmpReply;
 using opaegrpc::BufMemCmpRequest;
@@ -127,6 +128,8 @@ using opaegrpc::ReadMMIO64Reply;
 using opaegrpc::ReadMMIO64Request;
 using opaegrpc::ReconfigureSlotByNameReply;
 using opaegrpc::ReconfigureSlotByNameRequest;
+using opaegrpc::ReconfigureSlotReply;
+using opaegrpc::ReconfigureSlotRequest;
 using opaegrpc::RegisterEventReply;
 using opaegrpc::RegisterEventRequest;
 using opaegrpc::ReleaseBufferReply;
@@ -354,6 +357,10 @@ class OPAEServiceImpl final : public OPAEService::Service {
   Status fpgaGetMetricsThresholdInfo(
       ServerContext *context, const GetMetricsThresholdInfoRequest *request,
       GetMetricsThresholdInfoReply *reply) override;
+
+  Status fpgaReconfigureSlot(ServerContext *context,
+                             ServerReader<ReconfigureSlotRequest> *reader,
+                             ReconfigureSlotReply *reply) override;
 
   Status fpgaReconfigureSlotByName(ServerContext *context,
                                    const ReconfigureSlotByNameRequest *request,

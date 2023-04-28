@@ -40,13 +40,29 @@ fpga_result __REMOTE_API__ remote_fpgaReconfigureSlot(fpga_handle fpga,
                                                       const uint8_t *bitstream,
                                                       size_t bitstream_len,
                                                       int flags) {
-  OPAE_MSG("remote_fpgaReconfigureSlot not supported");
-  UNUSED_PARAM(fpga);
-  UNUSED_PARAM(slot);
-  UNUSED_PARAM(bitstream);
-  UNUSED_PARAM(bitstream_len);
-  UNUSED_PARAM(flags);
-  return FPGA_NOT_SUPPORTED;
+  _remote_handle *h;
+  OPAEClient *client;
+
+  if (!fpga) {
+    OPAE_ERR("NULL handle");
+    return FPGA_INVALID_PARAM;
+  }
+
+  if (!bitstream) {
+    OPAE_ERR("NULL bitstream");
+    return FPGA_INVALID_PARAM;
+  }
+
+  if (!bitstream_len) {
+    OPAE_ERR("Invalid bitstream_len: %u", bitstream_len);
+    return FPGA_INVALID_PARAM;
+  }
+
+  h = reinterpret_cast<_remote_handle *>(fpga);
+  client = token_to_client(h->token);
+
+  return client->fpgaReconfigureSlot(h->hdr.handle_id, slot, bitstream,
+                                     bitstream_len, flags);
 }
 
 fpga_result __REMOTE_API__ remote_fpgaReconfigureSlotByName(fpga_handle fpga,

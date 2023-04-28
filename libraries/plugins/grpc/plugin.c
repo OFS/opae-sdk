@@ -137,8 +137,8 @@ int __REMOTE_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaAssignToInterface");
 	adapter->fpgaReleaseFromInterface = dlsym(
 		adapter->plugin.dl_handle, "remote_fpgaReleaseFromInterface");
-	/*adapter->fpgaReconfigureSlot =
-		dlsym(adapter->plugin.dl_handle, "remote_fpgaReconfigureSlot");*/
+	adapter->fpgaReconfigureSlot =
+		dlsym(adapter->plugin.dl_handle, "remote_fpgaReconfigureSlot");
 	adapter->fpgaReconfigureSlotByName =
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaReconfigureSlotByName");
 	adapter->fpgaTokenGetObject =

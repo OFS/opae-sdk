@@ -1171,6 +1171,61 @@ fpga_result OPAEClient::fpgaGetMetricsThresholdInfo(
   return res;
 }
 
+#define OPAE_GRPC_CHUNK_SIZE ((uint64_t)(64 * 1024))
+
+fpga_result OPAEClient::fpgaReconfigureSlot(const fpga_remote_id &handle_id,
+                                            uint32_t slot,
+                                            const uint8_t *bitstream,
+                                            size_t bitstream_len, int flags) {
+  opaegrpc::ReconfigureSlotReply reply;
+  ClientContext context;
+
+  std::unique_ptr<ClientWriter<opaegrpc::ReconfigureSlotRequest>> writer(
+      stub_->fpgaReconfigureSlot(&context, &reply));
+
+  uint64_t bytes_remaining = bitstream_len;
+  uint64_t byte_offset = 0;
+  bool first = true;
+
+  while (bytes_remaining) {
+    uint64_t partial_len = std::min(OPAE_GRPC_CHUNK_SIZE, bytes_remaining);
+
+    opaegrpc::ReconfigureSlotRequest request;
+
+    if (first) {
+      request.set_allocated_handle_id(to_grpc_fpga_remote_id(handle_id));
+      request.set_slot(slot);
+      request.set_bitstream_len(bitstream_len);
+      request.set_flags(flags);
+      first = false;
+    }
+
+    request.set_allocated_partial_bitstream(
+        new std::string((const char *)&bitstream[byte_offset], partial_len));
+
+    request.set_partial_len(partial_len);
+
+    if (!writer->Write(request)) break;
+
+    bytes_remaining -= partial_len;
+    byte_offset += partial_len;
+  }
+
+  writer->WritesDone();
+
+  Status status = writer->Finish();
+  if (!status.ok()) {
+    OPAE_ERR("fpgaReconfigureSlot() gRPC failed: %s",
+             status.error_message().c_str());
+    OPAE_ERR("details: %s", status.error_details().c_str());
+    return FPGA_EXCEPTION;
+  }
+
+  if (debug_) std::cout << "fpgaReconfigureSlot reply " << reply << std::endl;
+
+  return to_opae_fpga_result[reply.result()];
+}
+
 fpga_result OPAEClient::fpgaReconfigureSlotByName(
     const fpga_remote_id &handle_id, uint32_t slot, const std::string &path,
     int flags) {

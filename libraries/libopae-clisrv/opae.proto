@@ -246,6 +246,7 @@ service OPAEService {
   rpc fpgaGetMetricsByIndex(GetMetricsByIndexRequest) returns (GetMetricsByIndexReply) {}
   rpc fpgaGetMetricsByName(GetMetricsByNameRequest) returns (GetMetricsByNameReply) {}
   rpc fpgaGetMetricsThresholdInfo(GetMetricsThresholdInfoRequest) returns (GetMetricsThresholdInfoReply) {}
+  rpc fpgaReconfigureSlot(stream ReconfigureSlotRequest) returns (ReconfigureSlotReply) {}
   rpc fpgaReconfigureSlotByName(ReconfigureSlotByNameRequest) returns (ReconfigureSlotByNameReply) {}
   rpc fpgaBufMemSet(BufMemSetRequest) returns (BufMemSetReply) {}
   rpc fpgaBufMemCpyToRemote(BufMemCpyToRemoteRequest) returns (BufMemCpyToRemoteReply) {}
@@ -673,6 +674,19 @@ message GetMetricsThresholdInfoReply {
   repeated metric_threshold metric_threshold = 1;
   uint32 num_thresholds = 2;
   fpga_result result = 3;
+}
+
+message ReconfigureSlotRequest {
+  optional fpga_remote_id handle_id = 1;
+  optional uint32 slot = 2;
+  bytes partial_bitstream = 3;
+  uint64 partial_len = 4;
+  optional uint64 bitstream_len = 5;
+  optional int32 flags = 6;
+}
+
+message ReconfigureSlotReply {
+  fpga_result result = 1;
 }
 
 message ReconfigureSlotByNameRequest {

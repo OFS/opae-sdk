@@ -58,6 +58,7 @@ class pthread_lock_guard {
 
 using grpc::Channel;
 using grpc::ClientContext;
+using grpc::ClientWriter;
 using grpc::Status;
 using opaegrpc::OPAEService;
 
@@ -200,6 +201,10 @@ class OPAEClient final {
   fpga_result fpgaGetMetricsThresholdInfo(
       const fpga_remote_id &handle_id, uint32_t &num_thresholds,
       std::vector<metric_threshold> &metric_threshold);
+
+  fpga_result fpgaReconfigureSlot(const fpga_remote_id &handle_id,
+                                  uint32_t slot, const uint8_t *bitstream,
+                                  size_t bitstream_len, int flags);
 
   fpga_result fpgaReconfigureSlotByName(const fpga_remote_id &handle_id,
                                         uint32_t slot, const std::string &path,

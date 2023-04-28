@@ -1559,6 +1559,70 @@ Status OPAEServiceImpl::fpgaGetMetricsThresholdInfo(
   return Status::OK;
 }
 
+Status OPAEServiceImpl::fpgaReconfigureSlot(
+    ServerContext *context, ServerReader<ReconfigureSlotRequest> *reader,
+    ReconfigureSlotReply *reply) {
+  UNUSED_PARAM(context);
+  fpga_remote_id handle_id;
+  fpga_handle handle;
+  uint8_t *bitstream = nullptr;
+  uint32_t slot;
+  uint64_t bitstream_len = 0;
+  int flags;
+  fpga_result res;
+  bool first = true;
+
+  if (debug_) std::cout << "fpgaReconfigureSlot request " << std::endl;
+
+  opaegrpc::ReconfigureSlotRequest request;
+  uint64_t byte_offset = 0;
+
+  while (reader->Read(&request)) {
+    if (first) {
+      handle_id = to_opae_fpga_remote_id(request.handle_id());
+      handle = handle_map_.find(handle_id);
+
+      if (!handle) {
+        reply->set_result(to_grpc_fpga_result[FPGA_INVALID_PARAM]);
+        return Status::OK;
+      }
+
+      slot = request.slot();
+      bitstream_len = request.bitstream_len();
+      flags = request.flags();
+
+      bitstream = new (std::nothrow) uint8_t[bitstream_len];
+      if (!bitstream) {
+        reply->set_result(to_grpc_fpga_result[FPGA_NO_MEMORY]);
+        return Status::OK;
+      }
+
+      first = false;
+    }
+
+    uint64_t partial_len = request.partial_len();
+    const std::string &bits(request.partial_bitstream());
+
+    std::copy(bits.data(), bits.data() + partial_len, &bitstream[byte_offset]);
+    byte_offset += partial_len;
+  }
+
+  if (debug_)
+    std::cout << "Streamed " << byte_offset << " of " << bitstream_len
+              << " bytes." << std::endl
+              << std::endl;
+
+  if (bitstream_len && (byte_offset == bitstream_len))
+    res = ::fpgaReconfigureSlot(handle, slot, bitstream, bitstream_len, flags);
+  else
+    res = FPGA_INVALID_PARAM;
+
+  delete[] bitstream;
+
+  reply->set_result(to_grpc_fpga_result[res]);
+  return Status::OK;
+}
+
 Status OPAEServiceImpl::fpgaReconfigureSlotByName(
     ServerContext *context, const ReconfigureSlotByNameRequest *request,
     ReconfigureSlotByNameReply *reply) {
