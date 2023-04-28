@@ -245,7 +245,10 @@ class plug(object):
         if debug:
             print(f'Clearing device status for {device.pci_address}')
         cmd = f'setpci -s {device.pci_address} CAP_EXP+0x08.L'
-        output = int(call_process(cmd), 16)
+        try:
+            output = int(call_process(cmd), 16)
+        except ValueError: # Error during conversion. setpci() call failed.
+            return
         output &= ~0xFF000
         output |= 0xF5000
         call_process(f'{cmd}={output:08x}')
