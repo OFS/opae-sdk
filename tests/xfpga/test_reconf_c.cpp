@@ -238,7 +238,9 @@ TEST_P(reconf_c, open_accel_02) {
   EXPECT_EQ(result, FPGA_BUSY);
 
   EXPECT_EQ(accel, nullptr);
-  EXPECT_EQ(xfpga_fpgaDestroyToken(&tok), FPGA_OK);
+  if (tok) {
+    EXPECT_EQ(xfpga_fpgaDestroyToken(&tok), FPGA_OK);
+  }
   EXPECT_EQ(fpgaDestroyProperties(&filter_accel), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaClose(handle_accel), FPGA_OK);
   for (auto &t : tokens_accel) {
