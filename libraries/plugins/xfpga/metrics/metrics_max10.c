@@ -146,10 +146,11 @@ out:
 
 
 
-fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
+fpga_result  dfl_enum_max10_metrics_info_pattern(struct _fpga_handle *_handle,
 	fpga_metric_vector *vector,
 	uint64_t *metric_num,
-	enum fpga_hw_type  hw_type)
+	enum fpga_hw_type  hw_type,
+	const char *glob_pattern)
 {
 	fpga_result result                         = FPGA_OK;
 	struct _fpga_token *_token                 = NULL;
@@ -184,7 +185,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 	// metrics group
 	if (snprintf(glob_path, sizeof(glob_path),
-		"%s/%s", _token->sysfspath, DFL_MAX10_SYSFS_PATH) < 0) {
+		"%s/%s", _token->sysfspath, glob_pattern) < 0) {
 		OPAE_ERR("snprintf failed");
 		return FPGA_EXCEPTION;
 	}
@@ -356,6 +357,15 @@ out:
 	return result;
 }
 
+
+
+fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
+	fpga_metric_vector *vector,
+	uint64_t *metric_num,
+	enum fpga_hw_type  hw_type)
+{
+	return dfl_enum_max10_metrics_info_pattern(_handle, vector, metric_num, hw_type, DFL_MAX10_SYSFS_PATH);
+}
 
 fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 					double *dvalue)
