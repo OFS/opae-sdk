@@ -117,13 +117,12 @@ STATIC fpga_result validate_bitstream(fpga_handle handle,
 }
 
 
-// open child accelerator exclusively - it not, it's busy!
-STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
+// open child accelerator exclusively - if not, it's busy!
+STATIC fpga_result open_accel(fpga_handle handle, fpga_token *token, fpga_handle *accel)
 {
 	fpga_result result                = FPGA_OK;
 	fpga_result destroy_result        = FPGA_OK;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
-	fpga_token token = NULL;
 	fpga_properties props;
 	uint32_t matches = 0;
 
@@ -150,7 +149,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	// TODO: Use slot number as part of filter
 	//       We only want to query for accelerators for the
 	//       slot being reconfigured
-	result = xfpga_fpgaEnumerate(&props, 1, &token, 1, &matches);
+	result = xfpga_fpgaEnumerate(&props, 1, token, 1, &matches);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Error enumerating for accelerator to reconfigure");
 		goto free_props;
@@ -159,19 +158,14 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	if (matches == 0) {
 		OPAE_ERR("No accelerator found to reconfigure");
 		result = FPGA_BUSY;
-		goto destroy_token;
+		goto free_props;
 	}
 
-	result = xfpga_fpgaOpen(token, accel, 0);
+	result = xfpga_fpgaOpen(*token, accel, 0);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Could not open accelerator for given slot");
-		goto destroy_token;
+		goto free_props;
 	}
-
-destroy_token:
-	destroy_result = xfpga_fpgaDestroyToken(&token);
-	if (destroy_result != FPGA_OK)
-		OPAE_ERR("Error destroying a token");
 
 free_props:
 	destroy_result = fpgaDestroyProperties(&props);
@@ -268,6 +262,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	struct gbs_metadata  metadata;
 	int bitstream_header_len        = 0;
 	int err                         = 0;
+	fpga_token token		= NULL;
 	fpga_handle accel               = NULL;
 
 	result = handle_check_and_lock(_handle);
@@ -290,7 +285,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	// error out if "force" flag is NOT indicated
 	// and the resource is in use
 	if (!(flags & FPGA_RECONF_FORCE)) {
-		result = open_accel(fpga, &accel);
+		result = open_accel(fpga, &token, &accel);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Accelerator in use or not found");
 			goto out_unlock;
@@ -406,8 +401,15 @@ out_unlock:
 		result = FPGA_RECONF_ERROR;
 	}
 
+	// close the token obtained during `open_accel`
+	if (token && xfpga_fpgaDestroyToken(&token) != FPGA_OK) {
+		OPAE_ERR("Error destroying token after reconfiguration");
+		result = FPGA_RECONF_ERROR;
+	}
+
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
 		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+
 	return result;
 }

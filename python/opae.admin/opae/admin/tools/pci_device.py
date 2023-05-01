@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021-2022, Intel Corporation
+# Copyright(c) 2021-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,7 @@
 import re
 import sys
 import subprocess
+import time
 from argparse import ArgumentParser, FileType
 from opae.admin.sysfs import pcie_device, pci_node
 from opae.admin.utils.process import call_process
@@ -47,8 +48,9 @@ def pci_devices(inp):
     if m:
         d = m.groupdict()
         pci_address = '{}:{}'.format(d.get('segment') or '0000', d['bdf'])
-        pci_devices = pcie_device.enum([{'pci_node.pci_address': pci_address}])
-        return pci_devices
+        filt = {}
+        filt['pci_node.pci_address'] = pci_address
+        return [filt]
     m = PCI_VENDOR_DEVICE_RE.match(inp)
     if m:
         d = m.groupdict()
@@ -56,13 +58,12 @@ def pci_devices(inp):
         device_str = d.get('device')
         if not vendor_str and not device_str:
             raise SystemExit('must specify vendor or device')
-        f = {}
+        filt = {}
         if vendor_str:
-            f['pci_node.vendor_id'] = int(vendor_str, 16)
+            filt['pci_node.vendor_id'] = int(vendor_str, 16)
         if device_str:
-            f['pci_node.device_id'] = int(device_str, 16)
-        pci_devices = pcie_device.enum([f])
-        return pci_devices
+            filt['pci_node.device_id'] = int(device_str, 16)
+        return [filt]
 
     raise ValueError('wrong pci address format: {}'.format(inp))
 
@@ -126,7 +127,7 @@ class aer(object):
         """
         try:
             cmd = f'setpci -s {device} ECAP_AER+0x10.L'
-            call_process(f'{cmd}=0xFFFFFFFF')
+            call_process(f'{cmd}=FFFFFFFF')
             output = call_process(cmd)
             print("aer clear errors:", output)
         except (subprocess.CalledProcessError, OSError):
@@ -183,6 +184,88 @@ def topology(pci_device, args):
         print(line)
 
 
+class unplug(object):
+    def __init__(self):
+        self.parser = ArgumentParser('pci_device [device] unplug')
+        self.parser.add_argument('-d', '--debug', action='store_true',
+                                 default=False, help='enable debug output')
+
+    def __call__(self, device, args, *rest):
+        myargs, rest = self.parser.parse_known_args(rest)
+        debug = myargs.debug
+
+        root = device.pci_node.root
+
+        v0, v1 = None, None
+        if root.supports_ecap('aer'):
+            if debug:
+                print('ECAP_AER is supported')
+            v0, v1 = root.aer
+            root.aer = (0xFFFFFFFF, 0xFFFFFFFF)
+
+        self.unplug(root, args, debug)
+
+        if v0:
+            root.aer = (v0, v1)
+
+    def unplug(self, root, args, debug):
+        if debug:
+            print('Unbinding drivers for leaf devices')
+        for e in root.endpoints:
+            if debug:
+                print(f' unbind {e.pci_address}')
+            e.unbind()
+        if debug:
+            print(f'Removing the root device {root.pci_address}')
+        root.remove()
+
+
+class plug(object):
+    def __init__(self):
+        self.parser = ArgumentParser('pci_device [device] plug')
+        self.parser.add_argument('-d', '--debug', action='store_true',
+                                 default=False, help='enable debug output')
+
+    def __call__(self, device, args, *rest):
+        myargs, rest = self.parser.parse_known_args(rest)
+        debug = myargs.debug
+
+        root = device.pci_node.root
+
+        self.clear_device_status(root, debug)
+        self.clear_uncorrectable_errors(root, debug)
+        self.clear_correctable_errors(root, debug)
+
+        for e in root.endpoints:
+            self.clear_device_status(e, debug)
+            self.clear_uncorrectable_errors(e, debug)
+            self.clear_correctable_errors(e, debug)
+
+    def clear_device_status(self, device, debug):
+        if debug:
+            print(f'Clearing device status for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} CAP_EXP+0x08.L'
+        try:
+            output = int(call_process(cmd), 16)
+        except ValueError: # Error during conversion. setpci() call failed.
+            return
+        output &= ~0xFF000
+        output |= 0xF5000
+        call_process(f'{cmd}={output:08x}')
+
+    def clear_uncorrectable_errors(self, device, debug):
+        if debug:
+            print(f'Clearing uncorrectable errors for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x04.L'
+        call_process(f'{cmd}=FFFFFFFF')
+
+    def clear_correctable_errors(self, device, debug):
+        if debug:
+            print(f'Clearing correctable errors for {device.pci_address}')
+        cmd = f'setpci -s {device.pci_address} ECAP_AER+0x10.L'
+        call_process(f'{cmd}=FFFFFFFF')
+
+
 def main():
     actions = {'unbind': pci_op('unbind'),
                'bind': pci_op('bind'),
@@ -190,7 +273,9 @@ def main():
                'remove': pci_op('remove'),
                'vf': pci_prop('sriov_numvfs', int),
                'aer': aer(),
-               'topology': topology}
+               'topology': topology,
+               'unplug': unplug(),
+               'plug': plug()}
 
     parser = ArgumentParser()
     parser.add_argument('devices', type=pci_devices,
@@ -206,10 +291,17 @@ def main():
                         help='perform action on peer pcie devices')
     args, rest = parser.parse_known_args()
 
-    if not args.devices:
+    if hasattr(args, 'action') and args.action == 'plug':
+        # Force a PCI bus rescan.
+        with open('/sys/bus/pci/rescan', 'w') as fd:
+            fd.write('1')
+        time.sleep(1)
+
+    devices = pcie_device.enum(args.devices)
+    if not devices:
         raise SystemExit(f'{sys.argv[1]} not found')
 
-    for dev in args.devices:
+    for dev in devices:
         actions[args.action or 'topology'](dev, args, *rest)
 
 

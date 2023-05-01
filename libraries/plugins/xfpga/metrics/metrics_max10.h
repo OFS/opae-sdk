@@ -34,6 +34,7 @@
 
 
 #define DFL_MAX10_SYSFS_PATH                    "*dfl_*/*/**/*hwmon*/hwmon/hwmon*/"
+#define DFL_MAX10_SYSFS_PATH_SPI_MASTER         "*dfl_*/spi_master/**/*hwmon*/hwmon/hwmon*/"
 #define DFL_MAX10_SYSFS_LABEL                   "*_label"
 #define DFL_TEMPERATURE                         "temp"
 #define DFL_VOLTAGE                             "in"
@@ -52,4 +53,10 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	fpga_metric_vector *vector,
 	uint64_t *metric_num,
 	enum fpga_hw_type  hw_type);
+
+fpga_result  dfl_enum_max10_metrics_info_pattern(struct _fpga_handle *_handle,
+	fpga_metric_vector *vector,
+	uint64_t *metric_num,
+	enum fpga_hw_type  hw_type,
+	const char *glob_pattern);
 #endif // __FPGA_METRICS_MAX10_H__

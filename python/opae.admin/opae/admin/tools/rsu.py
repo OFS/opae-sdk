@@ -268,6 +268,11 @@ def main():
                 except IOError as err:
                     logging.error(f'RSU operation failed: {err}')
                 else:
+                    if args.which not in ['fpgadefault']:
+                        filt = {'pci_node.pci_address': args.bdf.lower()}
+                        dev = fpga.enum([filt])
+                        for d in dev:
+                            d.clear_status_and_errors()
                     exit_code = os.EX_OK
                     logging.info('RSU operation complete')
                 finally:
