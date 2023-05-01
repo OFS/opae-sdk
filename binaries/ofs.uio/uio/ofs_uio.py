@@ -65,6 +65,8 @@ MAILBOX_POLL_TIMEOUT = 1/10000
 
 MBOX_JSON_VAL = re.compile("0[xX][0-9a-fA-F]+", re.IGNORECASE)
 
+UIO_PATTERN = re.compile("uio[0-9]+")
+
 
 def verify_pcie_address(pcie_address):
     m = BDF_PATTERN.match(pcie_address)
@@ -138,9 +140,8 @@ class verify_input_hex(argparse.Action):
 
 
 def verify_uio(string):
-    regx = re.compile("uio[0-9]+")
     try:
-        if re.fullmatch(regx, string) is not None:
+        if re.fullmatch(UIO_PATTERN, string) is not None:
             return string
         else:
             raise argparse.ArgumentTypeError('Invalid input:', string)
