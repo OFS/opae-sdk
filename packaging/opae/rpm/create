@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -35,9 +35,9 @@ SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
 declare WHICH_RPM=''
 
-if [ $# -lt 1 -o \( "$1" != 'rhel' -a "$1" != 'fedora' \) ]; then
-  while [ "${WHICH_RPM}" != 'rhel' -a "${WHICH_RPM}" != 'fedora' ]; do
-    read -p "Which RPM would you like to build? rhel or fedora> " WHICH_RPM
+if [ $# -lt 1 -o \( "$1" != 'rhel' -a "$1" != 'fedora' -a "$1" != 'unrestricted' \) ]; then
+  while [ "${WHICH_RPM}" != 'rhel' -a "${WHICH_RPM}" != 'fedora' -a "${WHICH_RPM}" != 'unrestricted' ]; do
+    read -p "Which RPM would you like to build? rhel, fedora, or unrestricted> " WHICH_RPM
   done
 else
   WHICH_RPM="$1"
@@ -46,7 +46,11 @@ printf "Building %s RPM\n" "${WHICH_RPM}"
 
 shopt -o -s nounset
 
-declare -r RPM_SPEC="opae.spec.${WHICH_RPM}"
+if [ "${WHICH_RPM}" = 'unrestricted' ]; then
+  declare -r RPM_SPEC="opae.spec.fedora"
+else
+  declare -r RPM_SPEC="opae.spec.${WHICH_RPM}"
+fi
 
 # Check for prerequisite packages.
 
@@ -57,18 +61,20 @@ declare -ra PYTHON_PKG_DEPS=(\
 )
 declare -i HAVE_PYTHON_DEVEL=0
 
-for pkg in ${PYTHON_PKG_DEPS[@]}
-do
-    dnf list installed "${pkg}" >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        HAVE_PYTHON_DEVEL=1
-        break
-    fi
-done
+if [ "${WHICH_RPM}" != 'unrestricted' ]; then
+  for pkg in ${PYTHON_PKG_DEPS[@]}
+  do
+      dnf list installed "${pkg}" >/dev/null 2>&1
+      if [ $? -eq 0 ]; then
+          HAVE_PYTHON_DEVEL=1
+          break
+      fi
+  done
 
-if [ ${HAVE_PYTHON_DEVEL} -eq 0 ]; then
-    printf "No suitable Python Development package found.. exiting\n"
-    exit 1
+  if [ ${HAVE_PYTHON_DEVEL} -eq 0 ]; then
+      printf "No suitable Python Development package found.. exiting\n"
+      exit 1
+  fi
 fi
 
 declare -a PKG_DEPS=(\
@@ -101,14 +107,16 @@ if [ "${WHICH_RPM}" = 'fedora' ]; then
 )
 fi
 
-for pkg in ${PKG_DEPS[@]}
-do
-    dnf list installed "${pkg}" >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        printf "${pkg} package not found.. exiting\n"
-        exit 1
-    fi
-done
+if [ "${WHICH_RPM}" != 'unrestricted' ]; then
+  for pkg in ${PKG_DEPS[@]}
+  do
+      dnf list installed "${pkg}" >/dev/null 2>&1
+      if [ $? -ne 0 ]; then
+          printf "${pkg} package not found.. exiting\n"
+          exit 1
+      fi
+  done
+fi
 
 rm -rf "${RPMBUILD_DIR}"
 
@@ -149,10 +157,18 @@ mv ${SDK_DIR}/../opae-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz .
 # Copy the tarball to the rpm SOURCES dir
 cp opae-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
-cat "${SDK_DIR}/${RPM_SPEC}" | \
-  sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
-      -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
-  > "${RPMBUILD_DIR}/SPECS/opae.spec"
+if [ "${WHICH_RPM}" = 'unrestricted' ]; then
+  cat "${SDK_DIR}/${RPM_SPEC}" | \
+    sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
+        -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
+        -e "s/BuildRequires:  .*//" \
+    > "${RPMBUILD_DIR}/SPECS/opae.spec"
+else
+  cat "${SDK_DIR}/${RPM_SPEC}" | \
+    sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
+        -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
+    > "${RPMBUILD_DIR}/SPECS/opae.spec"
+fi
 
 # Create RPMS.
 cd "${RPMBUILD_DIR}/SPECS"
