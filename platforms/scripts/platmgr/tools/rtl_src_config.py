@@ -62,14 +62,16 @@ json_tag_map = {
 
 # Suffixes to emit for simulation targets.  This is a subset of the
 # Quartus map.
-sim_tag_map = {
+sim_vlog_tag_map = {
     '.v':    'VERILOG_FILE',
     '.sv':   'SYSTEMVERILOG_FILE',
     '.vh':   'SYSTEMVERILOG_FILE',
     '.svh':  'SYSTEMVERILOG_FILE',
-    '.vhd':  'VHDL_FILE',
-    '.vhdl': 'VHDL_FILE',
     '.json': 'MISC_FILE'
+}
+sim_vhdl_tag_map = {
+    '.vhd':  'VHDL_FILE',
+    '.vhdl': 'VHDL_FILE'
 }
 
 
@@ -82,7 +84,8 @@ def validateTag(filename):
             ext not in tcl_tag_map and
             ext not in qsys_ipx_tag_map and
             ext not in json_tag_map and
-            ext not in sim_tag_map):
+            ext not in sim_vlog_tag_map and
+            ext not in sim_vhdl_tag_map):
         errorExit(
             "unrecognized file extension '{0}' ({1})".format(ext, filename))
 
@@ -114,8 +117,10 @@ def emitCfg(opts, cfg):
         # First emit all preprocessor configuration
         for c in cfg:
             if ("+define+" == c[:8]):
-                if (opts.sim):
+                if (opts.sim_vlog):
                     print(c)
+                elif (opts.sim_vhdl):
+                    None
                 else:
                     print('set_global_assignment -name VERILOG_MACRO "' +
                           c[8:] + '"')
@@ -123,33 +128,53 @@ def emitCfg(opts, cfg):
         # Emit all include directives
         for c in cfg:
             if ("+incdir+" == c[:8]):
-                if (opts.sim):
+                if (opts.sim_vlog):
                     print(c)
+                elif (opts.sim_vhdl):
+                    None
                 else:
                     print('set_global_assignment -name SEARCH_PATH "{0}{1}"'
                           .format(rel_prefix, c[8:]))
 
     # Emit sources and Quartus/simulator includes
     for c in cfg:
+        # Parse cmd:value
+        try:
+            cmd, value = c.split(':', 1)
+            has_cmd = True
+        except ValueError:
+            has_cmd = False
+
         if ("+" == c[:1]):
             # Directive handled already
             None
-        elif ("SI:" == c[:3]):
+        elif (has_cmd and ("SI" == cmd or "SI_VLOG" == cmd)):
             # Simulator include
-            if (lookupTag(c, tcl_tag_map) and (opts.sim or opts.tcl)):
-                print(c[3:])
-            elif (opts.sim):
-                print("-F " + c[3:])
-        elif ("QI:" == c[:3]):
+            if (lookupTag(value, tcl_tag_map) and (opts.sim_vlog or
+                                                   opts.tcl)):
+                print(value)
+            elif (opts.sim_vlog):
+                print("-F " + value)
+        elif (has_cmd and ("SI_VHDL" == cmd)):
+            # Simulator include
+            if (lookupTag(value, tcl_tag_map) and (opts.sim_vhdl or
+                                                   opts.tcl)):
+                print(value)
+            elif (opts.sim_vhdl):
+                print("-F " + value)
+        elif (has_cmd and ("QI" == cmd)):
             # Quartus include
             if (not opts.sim and not file_type_filter):
-                print('source "{0}{1}"'.format(rel_prefix, c[3:]))
+                print('source "{0}{1}"'.format(rel_prefix, value))
         else:
             validateTag(c)
             tag = lookupTag(c, quartus_tag_map)
 
-            if (opts.sim):
-                if (lookupTag(c, sim_tag_map)):
+            if (opts.sim_vlog):
+                if (lookupTag(c, sim_vlog_tag_map)):
+                    print(c)
+            elif (opts.sim_vhdl):
+                if (lookupTag(c, sim_vhdl_tag_map)):
                     print(c)
             elif (opts.json):
                 if (lookupTag(c, json_tag_map)):
@@ -396,6 +421,12 @@ Quartus commands.  The following special syntax is supported:
                     configuration (the -F directive).  The request is
                     ignored when the target is Quartus.
 
+                    Verilog vs. VHDL: By convention, file names ending
+                    with "vhd" or "vhdl" immediately before the suffix
+                    are treated as directives for VHDL simulation. For
+                    example, "path/to/sim_files_vhd.f" is passed to VHDL
+                    tools. All other filenames are treated as Verilog.
+
   QI:<file>         The equivalent of SI, but for Quartus.  A "source"
                     command is emitted.
 
@@ -414,7 +445,15 @@ These commands affect script parsing:
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",
                        action="store_true",
-                       help="""Emit a configuration for RTL simulation.""")
+                       help="""Emit a configuration for Verilog RTL
+                               simulation.""")
+    group.add_argument("--sim-vlog",
+                       action="store_true",
+                       help="""Synonym for --sim.""")
+    group.add_argument("--sim-vhdl",
+                       action="store_true",
+                       help="""Emit a configuration for VHDL RTL
+                               simulation.""")
     group.add_argument("--qsf",
                        action="store_true",
                        help="""Emit a configuration for Quartus.""")
@@ -453,6 +492,14 @@ These commands affect script parsing:
                                 checked.""")
 
     opts = parser.parse_args(args)
+    # Treat --sim and --sim-vlog as synonyms
+    if opts.sim or opts.sim_vlog:
+        opts.sim = True
+        opts.sim_vlog = True
+    # Now that opts.sim_vlog is set, enable opts.sim for any simulation
+    if opts.sim_vhdl:
+        opts.sim = True
+
     cfg = parseConfigFile(opts, opts.config_file, opts.rel)
 
     emitCfg(opts, cfg)
