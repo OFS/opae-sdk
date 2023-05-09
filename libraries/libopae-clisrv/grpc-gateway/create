@@ -1,0 +1,85 @@
+#!/bin/bash
+# Copyright(c) 2023, Intel Corporation
+#
+# Redistribution  and  use  in source  and  binary  forms,  with  or  without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of  source code  must retain the  above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name  of Intel Corporation  nor the names of its contributors
+#   may be used to  endorse or promote  products derived  from this  software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+# IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+# LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+# CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+# SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+# INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+# CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+shopt -o -s nounset
+set -x
+set -e
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+declare -r GO='/usr/local/go/bin/go'
+export GOPATH="${SCRIPT_DIR}/.go"
+export PATH="${GOPATH}/bin:${PATH}"
+
+cd "${SCRIPT_DIR}"
+
+${GO} mod init github.com/OFS/opae-sdk
+
+${GO} mod tidy
+
+${GO} install \
+    github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
+    github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 \
+    google.golang.org/protobuf/cmd/protoc-gen-go \
+    google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+if ! [ -d "googleapis" ]; then
+  git clone https://github.com/googleapis/googleapis.git
+fi
+
+if ! [ -d "../proto/google/api" ]; then
+  mkdir -p "../proto/google/api"
+  for file in annotations.proto \
+              field_behavior.proto \
+              http.proto \
+              httpbody.proto \
+              ; do
+    cp "googleapis/google/api/${file}" "../proto/google/api"
+  done
+fi
+
+protoc -I ../proto \
+  --go_out . \
+  --go_opt paths=source_relative \
+  --go-grpc_out . \
+  --go-grpc_opt paths=source_relative \
+  --grpc-gateway_out . \
+  --grpc-gateway_opt logtostderr=true \
+  --grpc-gateway_opt paths=source_relative \
+  --grpc-gateway_opt generate_unbound_methods=true \
+  opae_gw.proto
+
+for file in opae_gw_grpc.pb.go \
+            opae_gw.pb.go \
+            opae_gw.pb.gw.go \
+            ; do
+  sed -e 's/package opae_sdk/package main/' "${file}" >"${file}.tmp"
+  mv "${file}.tmp" "${file}"
+done
+
+printf "to run:\n"
+printf "go run main.go opae_gw.pb.go opae_gw_grpc.pb.go opae_gw.pb.gw.go\n"

@@ -1,0 +1,876 @@
+// Copyright(c) 2023, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
+syntax = "proto3";
+
+package opaegrpc;
+
+option go_package = "github.com/OFS/opae-sdk";
+
+import "google/api/annotations.proto";
+
+enum fpga_result {
+  FPGA_OK = 0;
+  FPGA_INVALID_PARAM = 1;
+  FPGA_BUSY = 2;
+  FPGA_EXCEPTION = 3;
+  FPGA_NOT_FOUND = 4;
+  FPGA_NO_MEMORY = 5;
+  FPGA_NOT_SUPPORTED = 6;
+  FPGA_NO_DRIVER = 7;
+  FPGA_NO_DAEMON = 8;
+  FPGA_NO_ACCESS = 9;
+  FPGA_RECONF_ERROR = 10;
+}
+
+enum fpga_event_type {
+  FPGA_EVENT_INTERRUPT = 0;
+  FPGA_EVENT_ERROR = 1;
+  FPGA_EVENT_POWER_THERMAL = 2;
+}
+
+enum fpga_accelerator_state {
+  FPGA_ACCELERATOR_ASSIGNED = 0;
+  FPGA_ACCELERATOR_UNASSIGNED = 1;
+}
+
+enum fpga_objtype {
+  FPGA_DEVICE = 0;
+  FPGA_ACCELERATOR = 1;
+}
+
+enum fpga_interface {
+  FPGA_IFC_DFL = 0;
+  FPGA_IFC_VFIO = 1;
+  FPGA_IFC_SIM_DFL = 2;
+  FPGA_IFC_SIM_VFIO = 3;
+}
+
+// enum fpga_buffer_flags {}
+// enum fpga_open_flags {}
+// enum fpga_reconf_flags {}
+// enum fpga_sysobject_flags {}
+
+enum fpga_sysobject_type {
+  __UNUSED = 0;
+  FPGA_OBJECT_CONTAINER = 1;
+  FPGA_OBJECT_ATTRIBUTE = 2;
+}
+
+enum fpga_metric_type {
+  FPGA_METRIC_TYPE_POWER = 0;
+  FPGA_METRIC_TYPE_THERMAL = 1;
+  FPGA_METRIC_TYPE_PERFORMANCE_CTR = 2;
+  FPGA_METRIC_TYPE_AFU = 3;
+  FPGA_METRIC_TYPE_UNKNOWN = 4;
+}
+
+enum fpga_metric_datatype {
+  FPGA_METRIC_DATATYPE_INT = 0;
+  FPGA_METRIC_DATATYPE_FLOAT = 1;
+  FPGA_METRIC_DATATYPE_DOUBLE = 2;
+  FPGA_METRIC_DATATYPE_BOOL = 3;
+  FPGA_METRIC_DATATYPE_UNKNOWN = 4;
+}
+
+message fpga_version {
+  uint32 major = 1; // uint8_t
+  uint32 minor = 2; // uint8_t
+  uint32 patch = 3; // uint16_t
+}
+
+message fpga_error_info {
+  string name = 1;
+  bool can_clear = 2;
+}
+
+message metric_value {
+  double dvalue = 1;
+}
+
+message fpga_metric_info {
+  uint64 metric_num = 1;
+  string metric_guid = 2;
+  string qualifier_name = 3;
+  string group_name = 4;
+  string metric_name = 5;
+  string metric_units = 6;
+  fpga_metric_datatype metric_datatype = 7;
+  fpga_metric_type metric_type = 8;
+}
+
+message fpga_metric {
+  uint64 metric_num = 1;
+  metric_value value = 2;
+  bool isvalid = 3;
+}
+
+message threshold {
+  string threshold_name = 1;
+  uint32 is_valid = 2;
+  double value = 3;
+}
+
+message metric_threshold {
+  string metric_name = 1;
+  threshold upper_nr_threshold = 2;
+  threshold upper_c_threshold = 3;
+  threshold upper_nc_threshold = 4;
+  threshold lower_nr_threshold = 5;
+  threshold lower_c_threshold = 6;
+  threshold lower_nc_threshold = 7;
+  threshold hysteresis = 8;
+}
+
+message fpga_remote_id {
+  string hostname = 1;
+  uint64 unique_id = 2;
+}
+
+message fpga_token_header {
+  uint64 magic = 1;
+  uint32 vendor_id = 2; // uint16_t
+  uint32 device_id = 3; // uint16_t
+  uint32 segment = 4; // uint16_t
+  uint32 bus = 5; // uint8_t
+  uint32 device = 6; // uint8_t
+  uint32 function = 7; // uint8_t
+  fpga_interface interface = 8;
+  fpga_objtype objtype = 9;
+  uint64 object_id = 10;
+  string guid = 11;
+  uint32 subsystem_vendor_id = 12; // uint16_t
+  uint32 subsystem_device_id = 13; // uint16_t
+  fpga_remote_id token_id = 14;
+}
+
+message fpga_handle_header {
+  uint64 magic = 1;
+  fpga_remote_id token_id = 2;
+  fpga_remote_id handle_id = 3;
+}
+
+message fpga_properties {
+  uint64 magic = 1;
+  uint64 valid_fields = 2;
+  optional string guid = 3;
+  optional fpga_remote_id parent = 4;
+  optional fpga_objtype objtype = 5;
+  optional uint32 segment = 6; // uint16_t
+  optional uint32 bus = 7; // uint8_t
+  optional uint32 device = 8; // uint8_t
+  optional uint32 function = 9; // uint8_t
+  optional uint32 socket_id = 10; // uint8_t
+  optional uint64 object_id = 11;
+  optional uint32 vendor_id = 12; // uint16_t
+  optional uint32 device_id = 13; // uint16_t
+  optional uint32 num_errors = 14;
+  optional fpga_interface interface = 15;
+  optional uint32 subsystem_vendor_id = 16;
+  optional uint32 subsystem_device_id = 17;
+  optional string hostname = 18;
+  message fpga_fields {
+    optional uint32 num_slots = 1;
+    optional uint64 bbs_id = 2;
+    optional fpga_version bbs_version = 3;
+  }
+  message accelerator_fields {
+    optional fpga_accelerator_state state = 1;
+    optional uint32 num_mmio = 2;
+    optional uint32 num_interrupts = 3;
+  }
+  oneof u {
+    fpga_fields fpga = 19;
+    accelerator_fields accelerator = 20;
+  }
+}
+
+service OPAEService {
+  rpc fpgaEnumerate(EnumerateRequest) returns (EnumerateReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/enumerate"
+      body: "*"
+    };
+  }
+  rpc fpgaDestroyToken(DestroyTokenRequest) returns (DestroyTokenReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/destroy"
+      body: "*"
+    };
+  }
+  rpc fpgaCloneToken(CloneTokenRequest) returns (CloneTokenReply) {}
+  rpc fpgaGetProperties(GetPropertiesRequest) returns (GetPropertiesReply) {}
+  rpc fpgaUpdateProperties(UpdatePropertiesRequest) returns (UpdatePropertiesReply) {}
+  rpc fpgaOpen(OpenRequest) returns (OpenReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/open"
+      body: "*"
+    };
+  }
+  rpc fpgaClose(CloseRequest) returns (CloseReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/close"
+      body: "*"
+    };
+  }
+  rpc fpgaReset(ResetRequest) returns (ResetReply) {}
+  rpc fpgaGetPropertiesFromHandle(GetPropertiesFromHandleRequest) returns (GetPropertiesFromHandleReply) {}
+  rpc fpgaMapMMIO(MapMMIORequest) returns (MapMMIOReply) {}
+  rpc fpgaUnmapMMIO(UnmapMMIORequest) returns (UnmapMMIOReply) {}
+  rpc fpgaReadMMIO32(ReadMMIO32Request) returns (ReadMMIO32Reply) {}
+  rpc fpgaWriteMMIO32(WriteMMIO32Request) returns (WriteMMIO32Reply) {}
+  rpc fpgaReadMMIO64(ReadMMIO64Request) returns (ReadMMIO64Reply) {}
+  rpc fpgaWriteMMIO64(WriteMMIO64Request) returns (WriteMMIO64Reply) {}
+  rpc fpgaWriteMMIO512(WriteMMIO512Request) returns (WriteMMIO512Reply) {}
+  rpc fpgaPrepareBuffer(PrepareBufferRequest) returns (PrepareBufferReply) {}
+  rpc fpgaReleaseBuffer(ReleaseBufferRequest) returns (ReleaseBufferReply) {}
+  rpc fpgaGetIOAddress(GetIOAddressRequest) returns (GetIOAddressReply) {}
+  rpc fpgaReadError(ReadErrorRequest) returns (ReadErrorReply) {}
+  rpc fpgaGetErrorInfo(GetErrorInfoRequest) returns (GetErrorInfoReply) {}
+  rpc fpgaClearError(ClearErrorRequest) returns (ClearErrorReply) {}
+  rpc fpgaClearAllErrors(ClearAllErrorsRequest) returns (ClearAllErrorsReply) {}
+  rpc fpgaTokenGetObject(TokenGetObjectRequest) returns (TokenGetObjectReply) {}
+  rpc fpgaDestroyObject(DestroyObjectRequest) returns (DestroyObjectReply) {}
+  rpc fpgaObjectGetType(ObjectGetTypeRequest) returns (ObjectGetTypeReply) {}
+  rpc fpgaObjectGetName(ObjectGetNameRequest) returns (ObjectGetNameReply) {}
+  rpc fpgaObjectGetSize(ObjectGetSizeRequest) returns (ObjectGetSizeReply) {}
+  rpc fpgaObjectRead(ObjectReadRequest) returns (ObjectReadReply) {}
+  rpc fpgaObjectRead64(ObjectRead64Request) returns (ObjectRead64Reply) {}
+  rpc fpgaObjectWrite64(ObjectWrite64Request) returns (ObjectWrite64Reply) {}
+  rpc fpgaHandleGetObject(HandleGetObjectRequest) returns (HandleGetObjectReply) {}
+  rpc fpgaObjectGetObject(ObjectGetObjectRequest) returns (ObjectGetObjectReply) {}
+  rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {}
+  rpc fpgaSetUserClock(SetUserClockRequest) returns (SetUserClockReply) {}
+  rpc fpgaGetUserClock(GetUserClockRequest) returns (GetUserClockReply) {}
+  rpc fpgaGetNumMetrics(GetNumMetricsRequest) returns (GetNumMetricsReply) {}
+  rpc fpgaGetMetricsInfo(GetMetricsInfoRequest) returns (GetMetricsInfoReply) {}
+  rpc fpgaGetMetricsByIndex(GetMetricsByIndexRequest) returns (GetMetricsByIndexReply) {}
+  rpc fpgaGetMetricsByName(GetMetricsByNameRequest) returns (GetMetricsByNameReply) {}
+  rpc fpgaGetMetricsThresholdInfo(GetMetricsThresholdInfoRequest) returns (GetMetricsThresholdInfoReply) {}
+  rpc fpgaReconfigureSlot(stream ReconfigureSlotRequest) returns (ReconfigureSlotReply) {}
+  rpc fpgaReconfigureSlotByName(ReconfigureSlotByNameRequest) returns (ReconfigureSlotByNameReply) {}
+  rpc fpgaBufMemSet(BufMemSetRequest) returns (BufMemSetReply) {}
+  rpc fpgaBufMemCpyToRemote(BufMemCpyToRemoteRequest) returns (BufMemCpyToRemoteReply) {}
+  rpc fpgaBufPoll(BufPollRequest) returns (BufPollReply) {}
+  rpc fpgaBufMemCmp(BufMemCmpRequest) returns (BufMemCmpReply) {}
+  rpc fpgaBufWritePattern(BufWritePatternRequest) returns (BufWritePatternReply) {}
+  rpc fpgaCreateEventHandle(CreateEventHandleRequest) returns (CreateEventHandleReply) {}
+  rpc fpgaRegisterEvent(RegisterEventRequest) returns (RegisterEventReply) {}
+  rpc fpgaUnregisterEvent(UnregisterEventRequest) returns (UnregisterEventReply) {}
+  rpc fpgaGetOSObjectFromEventHandle(GetOSObjectFromEventHandleRequest) returns (GetOSObjectFromEventHandleReply) {}
+  rpc fpgaDestroyEventHandle(DestroyEventHandleRequest) returns (DestroyEventHandleReply) {}
+  rpc ServerReset(ServerResetRequest) returns (ServerResetReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/server/reset"
+      body: "*"
+    };
+  }
+}
+
+message EnumerateRequest {
+  repeated fpga_properties filters = 1;
+  uint32 num_filters = 2;
+  uint32 max_tokens = 3;
+}
+
+message EnumerateReply {
+  repeated fpga_token_header tokens = 1;
+  uint32 max_tokens = 2;
+  uint32 num_matches = 3;
+  fpga_result result = 4;
+}
+
+message DestroyTokenRequest {
+  fpga_remote_id token_id = 1;
+}
+
+message DestroyTokenReply {
+  fpga_result result = 1;
+}
+
+message CloneTokenRequest {
+  fpga_remote_id src_token_id = 1;
+}
+
+message CloneTokenReply {
+  fpga_token_header dest_token = 1;
+  fpga_result result = 2;
+}
+
+message GetPropertiesRequest {
+  fpga_remote_id token_id = 1;
+}
+
+message GetPropertiesReply {
+  optional fpga_properties properties = 1;
+  fpga_result result = 2;
+}
+
+message UpdatePropertiesRequest {
+  fpga_remote_id token_id = 1;
+}
+
+message UpdatePropertiesReply {
+  optional fpga_properties properties = 1;
+  fpga_result result = 2;
+}
+
+message OpenRequest {
+  fpga_remote_id token_id = 1;
+  int32 flags = 2;
+}
+
+message OpenReply {
+  fpga_handle_header handle = 1;
+  fpga_result result = 2;
+}
+
+message CloseRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message CloseReply {
+  fpga_result result = 1;
+}
+
+message ResetRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message ResetReply {
+  fpga_result result = 1;
+}
+
+message GetPropertiesFromHandleRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message GetPropertiesFromHandleReply {
+  optional fpga_properties properties = 1;
+  fpga_result result = 2;
+}
+
+message MapMMIORequest {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+}
+
+message MapMMIOReply {
+  fpga_remote_id mmio_id = 1;
+  fpga_result result = 2;
+}
+
+message UnmapMMIORequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id mmio_id = 2;
+  uint32 mmio_num = 3;
+}
+
+message UnmapMMIOReply {
+  fpga_result result = 1;
+}
+
+message ReadMMIO32Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+}
+
+message ReadMMIO32Reply {
+  uint32 value = 1;
+  fpga_result result = 2;
+}
+
+message WriteMMIO32Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+  uint32 value = 4;
+}
+
+message WriteMMIO32Reply {
+  fpga_result result = 1;
+}
+
+message ReadMMIO64Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+}
+
+message ReadMMIO64Reply {
+  uint64 value = 1;
+  fpga_result result = 2;
+}
+
+message WriteMMIO64Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+  uint64 value = 4;
+}
+
+message WriteMMIO64Reply {
+  fpga_result result = 1;
+}
+
+message WriteMMIO512Request {
+  fpga_remote_id handle_id = 1;
+  uint32 mmio_num = 2;
+  uint64 offset = 3;
+  bytes values = 4;
+}
+
+message WriteMMIO512Reply {
+  fpga_result result = 1;
+}
+
+message PrepareBufferRequest {
+  fpga_remote_id handle_id = 1;
+  uint64 length = 2;
+  bool have_buf_addr = 3;
+  uint64 pre_allocated_addr = 4;
+  int32 flags = 5;
+}
+
+message PrepareBufferReply {
+  fpga_remote_id buf_id = 1;
+  fpga_result result = 2;
+}
+
+message ReleaseBufferRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+}
+
+message ReleaseBufferReply {
+  fpga_result result = 1;
+}
+
+message GetIOAddressRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+}
+
+message GetIOAddressReply {
+  uint64 ioaddr = 1;
+  fpga_result result = 2;
+}
+
+message ReadErrorRequest {
+  fpga_remote_id token_id = 1;
+  uint32 error_num = 2;
+}
+
+message ReadErrorReply {
+  uint64 value = 1;
+  fpga_result result = 2;
+}
+
+message GetErrorInfoRequest {
+  fpga_remote_id token_id = 1;
+  uint32 error_num = 2;
+}
+
+message GetErrorInfoReply {
+  fpga_error_info error_info = 1;
+  fpga_result result = 2;
+}
+
+message ClearErrorRequest {
+  fpga_remote_id token_id = 1;
+  uint32 error_num = 2;
+}
+
+message ClearErrorReply {
+  fpga_result result = 1;
+}
+
+message ClearAllErrorsRequest {
+  fpga_remote_id token_id = 1;
+}
+
+message ClearAllErrorsReply {
+  fpga_result result = 1;
+}
+
+message TokenGetObjectRequest {
+  fpga_remote_id token_id = 1;
+  string name = 2;
+  int32 flags = 3;
+}
+
+message TokenGetObjectReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message DestroyObjectRequest {
+  fpga_remote_id object_id = 1;
+}
+
+message DestroyObjectReply {
+  fpga_result result = 1;
+}
+
+message ObjectGetTypeRequest {
+  fpga_remote_id object_id = 1;
+}
+
+message ObjectGetTypeReply {
+  fpga_sysobject_type type = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetNameRequest {
+  fpga_remote_id object_id = 1;
+}
+
+message ObjectGetNameReply {
+  string name = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetSizeRequest {
+  fpga_remote_id object_id = 1;
+  int32 flags = 2;
+}
+
+message ObjectGetSizeReply {
+  uint32 value = 1;
+  fpga_result result = 2;
+}
+
+message ObjectReadRequest {
+  fpga_remote_id object_id = 1;
+  uint64 offset = 2;
+  uint64 length = 3;
+  int32 flags = 4;
+}
+
+message ObjectReadReply {
+  string value = 1;
+  fpga_result result = 2;
+}
+
+message ObjectRead64Request {
+  fpga_remote_id object_id = 1;
+  int32 flags = 2;
+}
+
+message ObjectRead64Reply {
+  uint64 value = 1;
+  fpga_result result = 2;
+}
+
+message ObjectWrite64Request {
+  fpga_remote_id object_id = 1;
+  uint64 value = 2;
+  int32 flags = 3;
+}
+
+message ObjectWrite64Reply {
+  fpga_result result = 1;
+}
+
+message HandleGetObjectRequest {
+  fpga_remote_id handle_id = 1;
+  string name = 2;
+  int32 flags = 3;
+}
+
+message HandleGetObjectReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetObjectRequest {
+  fpga_remote_id object_id = 1;
+  string name = 2;
+  int32 flags = 3;
+}
+
+message ObjectGetObjectReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message ObjectGetObjectAtRequest {
+  fpga_remote_id object_id = 1;
+  uint64 index = 2;
+}
+
+message ObjectGetObjectAtReply {
+  fpga_remote_id object_id = 1;
+  fpga_result result = 2;
+}
+
+message SetUserClockRequest {
+  fpga_remote_id handle_id = 1;
+  uint64 high_clk = 2;
+  uint64 low_clk = 3;
+  int32 flags = 4;
+}
+
+message SetUserClockReply {
+  fpga_result result = 1;
+}
+
+message GetUserClockRequest {
+  fpga_remote_id handle_id = 1;
+  int32 flags = 2;
+}
+
+message GetUserClockReply {
+  uint64 high_clk = 1;
+  uint64 low_clk = 2;
+  fpga_result result = 3;
+}
+
+message GetNumMetricsRequest {
+  fpga_remote_id handle_id = 1;
+}
+
+message GetNumMetricsReply {
+  uint64 num_metrics = 1;
+  fpga_result result = 2;
+}
+
+message GetMetricsInfoRequest {
+  fpga_remote_id handle_id = 1;
+  uint64 num_metrics = 2;
+}
+
+message GetMetricsInfoReply {
+  repeated fpga_metric_info info = 1;
+  uint64 num_metrics = 2;
+  fpga_result result = 3;
+}
+
+message GetMetricsByIndexRequest {
+  fpga_remote_id handle_id = 1;
+  repeated uint64 metric_num = 2;
+  uint64 num_metric_indexes = 3;
+}
+
+message GetMetricsByIndexReply {
+  uint64 num_metric_indexes = 1;
+  repeated fpga_metric metrics = 2;
+  fpga_result result = 3;
+}
+
+message GetMetricsByNameRequest {
+  fpga_remote_id handle_id = 1;
+  repeated string metrics_names = 2;
+  uint64 num_metric_names = 3;
+}
+
+message GetMetricsByNameReply {
+  uint64 num_metric_names = 1;
+  repeated fpga_metric metrics = 2;
+  fpga_result result = 3;
+}
+
+message GetMetricsThresholdInfoRequest {
+  fpga_remote_id handle_id = 1;
+  uint32 num_thresholds = 2;
+}
+
+message GetMetricsThresholdInfoReply {
+  repeated metric_threshold metric_threshold = 1;
+  uint32 num_thresholds = 2;
+  fpga_result result = 3;
+}
+
+message ReconfigureSlotRequest {
+  optional fpga_remote_id handle_id = 1;
+  optional uint32 slot = 2;
+  bytes partial_bitstream = 3;
+  uint64 partial_len = 4;
+  optional uint64 bitstream_len = 5;
+  optional int32 flags = 6;
+}
+
+message ReconfigureSlotReply {
+  fpga_result result = 1;
+}
+
+message ReconfigureSlotByNameRequest {
+  fpga_remote_id handle_id = 1;
+  uint32 slot = 2;
+  string path = 3;
+  int32 flags = 4;
+}
+
+message ReconfigureSlotByNameReply {
+  fpga_result result = 1;
+}
+
+message BufMemSetRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+  uint64 offset = 3;
+  int32 c = 4;
+  uint64 n = 5;
+}
+
+message BufMemSetReply {
+  fpga_result result = 1;
+}
+
+message BufMemCpyToRemoteRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id dest_buf_id = 2;
+  uint64 dest_offset = 3;
+  bytes src = 4;
+  uint64 n = 5;
+}
+
+message BufMemCpyToRemoteReply {
+  fpga_result result = 1;
+}
+
+message BufPollRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+  uint64 offset = 3;
+  int32 width = 4;
+  uint64 mask = 5;
+  uint64 expected_value = 6;
+  uint64 sleep_interval = 7;
+  uint64 loops_timeout = 8;
+}
+
+message BufPollReply {
+  fpga_result result = 1;
+}
+
+message BufMemCmpRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id bufa_id = 2;
+  uint64 bufa_offset = 3;
+  fpga_remote_id bufb_id = 4;
+  uint64 bufb_offset = 5;
+  uint64 n = 6;
+}
+
+message BufMemCmpReply {
+  int32 cmp_result = 1;
+  fpga_result result = 2;
+}
+
+message BufWritePatternRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_remote_id buf_id = 2;
+  string pattern_name = 3;
+}
+
+message BufWritePatternReply {
+  fpga_result result = 1;
+}
+
+message CreateEventHandleRequest {}
+
+message CreateEventHandleReply {
+  fpga_remote_id eh_id = 1;
+  fpga_result result = 2;
+}
+
+message RegisterEventRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_event_type event_type = 2;
+  fpga_remote_id eh_id = 3;
+  uint32 flags = 4;
+  uint32 events_port = 5;
+}
+
+message RegisterEventReply {
+  int32 client_event_fd = 1;
+  fpga_result result = 2;
+}
+
+message UnregisterEventRequest {
+  fpga_remote_id handle_id = 1;
+  fpga_event_type event_type = 2;
+  fpga_remote_id eh_id = 3;
+}
+
+message UnregisterEventReply {
+  fpga_result result = 1;
+}
+
+message GetOSObjectFromEventHandleRequest {
+  fpga_remote_id eh_id = 1;
+}
+
+message GetOSObjectFromEventHandleReply {
+  int32 fd = 1;
+  fpga_result result = 2;
+}
+
+message DestroyEventHandleRequest {
+  fpga_remote_id eh_id = 1;
+}
+
+message DestroyEventHandleReply {
+  fpga_result result = 1;
+}
+
+message ServerResetRequest {}
+
+message ServerResetReply{
+  fpga_result result = 1;
+}
+
+service OPAEEventsService {
+  rpc fpgaGetRemoteEventID(GetRemoteEventIDRequest) returns (GetRemoteEventIDReply) {}
+  rpc fpgaSignalRemoteEvent(SignalRemoteEventRequest) returns (SignalRemoteEventReply) {}
+  rpc fpgaReleaseRemoteEvent(ReleaseRemoteEventRequest) returns (ReleaseRemoteEventReply) {}
+}
+
+message GetRemoteEventIDRequest {}
+
+message GetRemoteEventIDReply {
+  fpga_remote_id event_id = 1;
+  int32 client_event_fd = 2;
+  fpga_result result = 3;
+}
+
+message SignalRemoteEventRequest {
+  fpga_remote_id event_id = 1;
+}
+
+message SignalRemoteEventReply {
+  fpga_result result = 1;
+}
+
+message ReleaseRemoteEventRequest {
+  fpga_remote_id event_id = 1;
+}
+
+message ReleaseRemoteEventReply {
+  fpga_result result = 1;
+}

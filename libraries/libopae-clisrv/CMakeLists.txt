@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 set(SRC
-    opae.proto
+    proto/opae.proto
     grpc_client.cpp
     grpc_server.cpp
     convert.cpp
@@ -74,11 +74,13 @@ add_dependencies(opae-clisrv bin_protos)
 get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
 protobuf_generate(TARGET opae-clisrv
     LANGUAGE cpp
+    IMPORT_DIRS proto
     PROTOC_OUT_DIR ${CMAKE_BINARY_DIR}/protos
 )
 protobuf_generate(TARGET opae-clisrv
     LANGUAGE grpc
     GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+    IMPORT_DIRS proto
     PROTOC_OUT_DIR ${CMAKE_BINARY_DIR}/protos
     PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
 )

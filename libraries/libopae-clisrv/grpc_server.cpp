@@ -2240,6 +2240,12 @@ Status OPAEServiceImpl::ServerReset(ServerContext *context,
     token_map_.clear();
   }
 
+  if (debug_) {
+    std::cout << "Server reset complete with " << errors << " error";
+    if (!errors || (errors > 1)) std::cout << 's';
+    std::cout << '.' << std::endl;
+  }
+
   res = (errors > 0) ? FPGA_EXCEPTION : FPGA_OK;
   reply->set_result(to_grpc_fpga_result[res]);
   return Status::OK;
