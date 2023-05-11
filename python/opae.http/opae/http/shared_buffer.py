@@ -25,48 +25,36 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+#import base64
+import json
 import requests
+#import struct
+#import sys
 
-import opae.http.constants as constants
 from opae.http.conversion import to_json_obj
-from opae.http.token import token
+from opae.http.fpga_remote_id import fpga_remote_id
+import opae.http.constants as constants
 
 
-def enumerate(url, filters, max_tokens):
-    """Given a server URL and a list of filters (properties objects),
-       retrieve a list of token objects that match the filter criteria.
+class shared_buffer():
+    def __init__(self, h, buf_id):
+        self.handle = h
+        self.buf_id = buf_id
 
-       url - eg, http://my.server.net:8080
+    def ioaddr(self):
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/ioaddress'
+        print(url)
 
-       filters - a list of populated properites objects.
-       eg,
-       p = properties()
-       p.objtype = constants.FPGA_ACCELERATOR
-       enumerate(url, [p], 1)
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'buf_id': self.buf_id.to_json_obj()}
 
-       max_tokens - the maximum number of tokens to return
-    """
-    req = {'filters': list(map(to_json_obj, filters)),
-           'num_filters': len(filters),
-           'max_tokens': max_tokens,
-          }
+        resp = requests.post(url, json=req)
 
-    enum_url = url + '/fpga/v1/enumerate'
-    print(enum_url)
+        resp.raise_for_status()
 
-    tokens = []
-    resp = requests.post(enum_url, json=req)
+        jobj = resp.json()
 
-    resp.raise_for_status()
+        constants.raise_for_error(jobj['result'], 'fpgaGetIOAddress returned')
+        return int(jobj['ioaddr'])
 
-    jobj = resp.json()
-
-    constants.raise_for_error(jobj['result'], 'fpgaEnumerate returned')
-
-    for tok in jobj['tokens']:
-        tokens.append(token.from_json_obj(tok))
-
-    for tok in tokens:
-        tok.__dict__['_url'] = url
-
-    return tokens

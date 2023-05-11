@@ -25,12 +25,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import base64
 import json
-import os
 import requests
+import struct
+import sys
 
 from opae.http.conversion import to_json_obj
 from opae.http.fpga_remote_id import fpga_remote_id
+import opae.http.constants as constants
+from opae.http.properties import properties
+from opae.http.shared_buffer import shared_buffer
 
 
 class handle():
@@ -41,6 +46,10 @@ class handle():
              'token_id':  ['tokenId'],
              'handle_id': ['handleId'],
             }
+
+    def __init__(self):
+        self.__dict__['_mmio_map'] = {}
+        self.__dict__['_shared_buffers'] = []
 
     def __getattr__(self, attr):
         if attr in handle.attrs:
@@ -98,7 +107,7 @@ class handle():
 
     def close(self):
         tok = self.__dict__['_token']
-        url = os.path.join(tok.__dict__['_url'], 'fpga/v1/handle/close')
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/close'
         print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj()}
@@ -106,3 +115,263 @@ class handle():
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        jobj = resp.json()
+        constants.raise_for_error(jobj['result'], 'fpgaClose returned')
+
+    def reset(self):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/afu/reset'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+        constants.raise_for_error(jobj['result'], 'fpgaReset returned')
+
+    def get_properties(self):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/properties/get'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetPropertiesFromHandle returned')
+
+        return properties.from_json_obj(jobj['properties'])
+
+    def map_mmio(self, region_num):
+        map_dict = self.__dict__['_mmio_map']
+        if region_num in map_dict:
+            print(f'MMIO region {region_num} is already mapped.')
+            return
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/map'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_num': region_num}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaMapMMIO returned')
+
+        map_dict[region_num] = fpga_remote_id.from_json_obj(jobj['mmioId'])
+
+    def unmap_mmio(self, region_num):
+        map_dict = self.__dict__['_mmio_map']
+        if region_num not in map_dict:
+            print(f'MMIO region {region_num} is not mapped.')
+            return
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/unmap'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_id': map_dict[region_num].to_json_obj(),
+               'mmio_num': region_num}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaUnmapMMIO returned')
+        del map_dict[region_num]
+
+    def read32(self, region_num, offset):
+        map_dict = self.__dict__['_mmio_map']
+        if region_num not in map_dict:
+            print(f'MMIO region {region_num} is not mapped.')
+            return
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/read32'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_num': region_num,
+               'offset': str(offset)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaReadMMIO32 returned')
+        return jobj['value']
+
+    def read64(self, region_num, offset):
+        map_dict = self.__dict__['_mmio_map']
+        if region_num not in map_dict:
+            print(f'MMIO region {region_num} is not mapped.')
+            return
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/read64'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_num': region_num,
+               'offset': str(offset)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaReadMMIO64 returned')
+        return int(jobj['value'])
+
+    def write32(self, region_num, offset, value):
+        map_dict = self.__dict__['_mmio_map']
+        if region_num not in map_dict:
+            print(f'MMIO region {region_num} is not mapped.')
+            return
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write32'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_num': region_num,
+               'offset': str(offset),
+               'value': value}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaWriteMMIO32 returned')
+
+    def write64(self, region_num, offset, value):
+        map_dict = self.__dict__['_mmio_map']
+        if region_num not in map_dict:
+            print(f'MMIO region {region_num} is not mapped.')
+            return
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write64'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_num': region_num,
+               'offset': str(offset),
+               'value': str(value)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaWriteMMIO64 returned')
+
+    def write512(self, region_num, offset, values):
+        """values is interpreted as a list of 8-byte integers.
+        """
+        map_dict = self.__dict__['_mmio_map']
+        if region_num not in map_dict:
+            print(f'MMIO region {region_num} is not mapped.')
+            return
+
+        if len(values) != 8: # 8 64-bit integers = 512 bits
+            msg = 'write512: values should be a list of eight 8-byte integers'
+            constants.raise_for_error(constants.FPGA_INVALID_PARAM, msg)
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write512'
+        print(url)
+
+        order = '<' if sys.byteorder == 'little' else '>'
+
+        packed = struct.pack(f'{order}8Q', *values)
+        encoded = base64.b64encode(packed)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'mmio_num': region_num,
+               'offset': str(offset),
+               'values': encoded.decode()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaWriteMMIO512 returned')
+
+    def prepare_buffer(self, length, pre_allocated_addr=0, flags=0):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/prepare'
+        print(url)
+
+        pre = (flags & constants.FPGA_BUF_PREALLOCATED) != 0
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'length': str(length),
+               'have_buf_addr': True,
+               'pre_allocated_addr': str(pre_allocated_addr) if pre else '0',
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaPrepareBuffer returned')
+
+        buf_id = fpga_remote_id.from_json_obj(jobj['bufId'])
+
+        buffer = shared_buffer(self, buf_id)
+        self.__dict__['_shared_buffers'].append(buffer)
+
+        return buffer
+
+    def release_buffer(self, buffer):
+        shared = self.__dict__['_shared_buffers']
+        if buffer not in shared:
+            msg = f'buffer {buffer} is not tracked by {self}'
+            constants.raise_for_error(constants.FPGA_INVALID_PARAM, msg)
+
+        if buffer.handle != self:
+            msg = f'buffer {buffer} / handle {self} mismatch'
+            constants.raise_for_error(constants.FPGA_INVALID_PARAM, msg)
+
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/release'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'buf_id': buffer.buf_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaReleaseBuffer returned')
+        shared.remove(buffer)

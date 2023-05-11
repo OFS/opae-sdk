@@ -480,7 +480,14 @@ fpga_result OPAEClient::fpgaPrepareBuffer(const fpga_remote_id &handle_id,
 
   fpga_result res = to_opae_fpga_result[reply.result()];
 
-  if (res == FPGA_OK) buf_id = to_opae_fpga_remote_id(reply.buf_id());
+  if (res == FPGA_OK) {
+    // Special case: when flags contains FPGA_BUF_PREALLOCATED,
+    // and when buf_addr and length are nullptr and 0, then an FPGA_OK
+    // indicates that the API supports preallocated buffers.
+    if ((flags & FPGA_BUF_PREALLOCATED) && !buf_addr && !length) return FPGA_OK;
+
+    buf_id = to_opae_fpga_remote_id(reply.buf_id());
+  }
 
   return res;
 }

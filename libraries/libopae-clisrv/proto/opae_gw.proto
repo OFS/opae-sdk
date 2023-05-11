@@ -221,9 +221,24 @@ service OPAEService {
       body: "*"
     };
   }
-  rpc fpgaCloneToken(CloneTokenRequest) returns (CloneTokenReply) {}
-  rpc fpgaGetProperties(GetPropertiesRequest) returns (GetPropertiesReply) {}
-  rpc fpgaUpdateProperties(UpdatePropertiesRequest) returns (UpdatePropertiesReply) {}
+  rpc fpgaCloneToken(CloneTokenRequest) returns (CloneTokenReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/clone"
+      body: "*"
+    };
+  }
+  rpc fpgaGetProperties(GetPropertiesRequest) returns (GetPropertiesReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/properties/get"
+      body: "*"
+    };
+  }
+  rpc fpgaUpdateProperties(UpdatePropertiesRequest) returns (UpdatePropertiesReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/properties/update"
+      body: "*"
+    };
+  }
   rpc fpgaOpen(OpenRequest) returns (OpenReply) {
     option (google.api.http) = {
       post: "/fpga/v1/token/open"
@@ -236,18 +251,78 @@ service OPAEService {
       body: "*"
     };
   }
-  rpc fpgaReset(ResetRequest) returns (ResetReply) {}
-  rpc fpgaGetPropertiesFromHandle(GetPropertiesFromHandleRequest) returns (GetPropertiesFromHandleReply) {}
-  rpc fpgaMapMMIO(MapMMIORequest) returns (MapMMIOReply) {}
-  rpc fpgaUnmapMMIO(UnmapMMIORequest) returns (UnmapMMIOReply) {}
-  rpc fpgaReadMMIO32(ReadMMIO32Request) returns (ReadMMIO32Reply) {}
-  rpc fpgaWriteMMIO32(WriteMMIO32Request) returns (WriteMMIO32Reply) {}
-  rpc fpgaReadMMIO64(ReadMMIO64Request) returns (ReadMMIO64Reply) {}
-  rpc fpgaWriteMMIO64(WriteMMIO64Request) returns (WriteMMIO64Reply) {}
-  rpc fpgaWriteMMIO512(WriteMMIO512Request) returns (WriteMMIO512Reply) {}
-  rpc fpgaPrepareBuffer(PrepareBufferRequest) returns (PrepareBufferReply) {}
-  rpc fpgaReleaseBuffer(ReleaseBufferRequest) returns (ReleaseBufferReply) {}
-  rpc fpgaGetIOAddress(GetIOAddressRequest) returns (GetIOAddressReply) {}
+  rpc fpgaReset(ResetRequest) returns (ResetReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/afu/reset"
+      body: "*"
+    };
+  }
+  rpc fpgaGetPropertiesFromHandle(GetPropertiesFromHandleRequest) returns (GetPropertiesFromHandleReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/properties/get"
+      body: "*"
+    };
+  }
+  rpc fpgaMapMMIO(MapMMIORequest) returns (MapMMIOReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/map"
+      body: "*"
+    };
+  }
+  rpc fpgaUnmapMMIO(UnmapMMIORequest) returns (UnmapMMIOReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/unmap"
+      body: "*"
+    };
+  }
+  rpc fpgaReadMMIO32(ReadMMIO32Request) returns (ReadMMIO32Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/read32"
+      body: "*"
+    };
+  }
+  rpc fpgaWriteMMIO32(WriteMMIO32Request) returns (WriteMMIO32Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/write32"
+      body: "*"
+    };
+  }
+  rpc fpgaReadMMIO64(ReadMMIO64Request) returns (ReadMMIO64Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/read64"
+      body: "*"
+    };
+  }
+  rpc fpgaWriteMMIO64(WriteMMIO64Request) returns (WriteMMIO64Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/write64"
+      body: "*"
+    };
+  }
+  rpc fpgaWriteMMIO512(WriteMMIO512Request) returns (WriteMMIO512Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/mmio/write512"
+      body: "*"
+    };
+  }
+  rpc fpgaPrepareBuffer(PrepareBufferRequest) returns (PrepareBufferReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/prepare"
+      body: "*"
+    };
+  }
+  rpc fpgaReleaseBuffer(ReleaseBufferRequest) returns (ReleaseBufferReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/release"
+      body: "*"
+    };
+  }
+  rpc fpgaGetIOAddress(GetIOAddressRequest) returns (GetIOAddressReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/ioaddress"
+      body: "*"
+    };
+  }
   rpc fpgaReadError(ReadErrorRequest) returns (ReadErrorReply) {}
   rpc fpgaGetErrorInfo(GetErrorInfoRequest) returns (GetErrorInfoReply) {}
   rpc fpgaClearError(ClearErrorRequest) returns (ClearErrorReply) {}

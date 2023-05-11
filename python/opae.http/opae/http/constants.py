@@ -25,6 +25,53 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# fpga_result
+FPGA_OK = 0
+FPGA_INVALID_PARAM = 1
+FPGA_BUSY = 2
+FPGA_EXCEPTION = 3
+FPGA_NOT_FOUND = 4
+FPGA_NO_MEMORY = 5
+FPGA_NOT_SUPPORTED = 6
+FPGA_NO_DRIVER = 7
+FPGA_NO_DAEMON = 8
+FPGA_NO_ACCESS = 9
+FPGA_RECONF_ERROR = 10
+
+def fpga_result_to_str(r):
+    d = {FPGA_OK: 'FPGA_OK',
+         FPGA_INVALID_PARAM: 'FPGA_INVALID_PARAM',
+         FPGA_BUSY: 'FPGA_BUSY',
+         FPGA_EXCEPTION: 'FPGA_EXCEPTION',
+         FPGA_NOT_FOUND: 'FPGA_NOT_FOUND',
+         FPGA_NO_MEMORY: 'FPGA_NO_MEMORY',
+         FPGA_NOT_SUPPORTED: 'FPGA_NOT_SUPPORTED',
+         FPGA_NO_DRIVER: 'FPGA_NO_DRIVER',
+         FPGA_NO_DAEMON: 'FPGA_NO_DAEMON',
+         FPGA_NO_ACCESS: 'FPGA_NO_ACCESS',
+         FPGA_RECONF_ERROR: 'FPGA_RECONF_ERROR'}
+    return d[r]
+
+def fpga_result_from_str(s):
+    d = {'FPGA_OK': FPGA_OK,
+         'FPGA_INVALID_PARAM': FPGA_INVALID_PARAM,
+         'FPGA_BUSY': FPGA_BUSY,
+         'FPGA_EXCEPTION': FPGA_EXCEPTION,
+         'FPGA_NOT_FOUND': FPGA_NOT_FOUND,
+         'FPGA_NO_MEMORY': FPGA_NO_MEMORY,
+         'FPGA_NOT_SUPPORTED': FPGA_NOT_SUPPORTED,
+         'FPGA_NO_DRIVER': FPGA_NO_DRIVER,
+         'FPGA_NO_DAEMON': FPGA_NO_DAEMON,
+         'FPGA_NO_ACCESS': FPGA_NO_ACCESS,
+         'FPGA_RECONF_ERROR': FPGA_RECONF_ERROR}
+    return d[s]
+
+def raise_for_error(result, msg):
+    res = fpga_result_from_str(result) if type(result) is str else result
+    s = fpga_result_to_str(result) if type(result) is int else result
+    if res != FPGA_OK:
+        raise RuntimeError(f'{msg} {s}')
+
 # fpga_objtype
 FPGA_DEVICE = 0
 FPGA_ACCELERATOR = 1
@@ -76,3 +123,7 @@ def fpga_accelerator_state_from_str(s):
 # fpga_open_flags
 FPGA_OPEN_SHARED = 1
 
+# fpga_buffer_flags
+FPGA_BUF_PREALLOCATED = 1
+FPGA_BUF_QUIET = 2
+FPGA_BUF_READ_ONLY = 4

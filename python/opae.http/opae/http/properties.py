@@ -90,10 +90,26 @@ class fpga_properties(tracks_valid_fields):
         return d
 
     @staticmethod
+    def resolve_aliases(d):
+        aliases = {'num_slots':   ['numSlots'],
+                   'bbs_id':      ['bbsId'],
+                   'bbs_version': ['bbsVersion'],
+                  }
+        c = d.copy()
+        for attr, alias_list in aliases.items():
+            if attr in c:
+                continue
+            for a in alias_list:
+                if a in c:
+                    c[attr] = c[a]
+                    del c[a]
+        return c
+
+    @staticmethod
     def from_json_obj(jobj, parent):
         props = fpga_properties(parent)
         transforms = {'bbs_version': version.from_json_obj}
-        for k, v in jobj.items():
+        for k, v in fpga_properties.resolve_aliases(jobj).items():
             if k in transforms:
                 setattr(props, k, transforms[k](v))
             else:
@@ -146,10 +162,25 @@ class accelerator_properties(tracks_valid_fields):
         return d
 
     @staticmethod
+    def resolve_aliases(d):
+        aliases = {'num_mmio':       ['numMmio'],
+                   'num_interrupts': ['numInterrupts'],
+                  }
+        c = d.copy()
+        for attr, alias_list in aliases.items():
+            if attr in c:
+                continue
+            for a in alias_list:
+                if a in c:
+                    c[attr] = c[a]
+                    del c[a]
+        return c
+
+    @staticmethod
     def from_json_obj(jobj, parent):
         props = accelerator_properties(parent)
         transforms = {'state': constants.fpga_accelerator_state_from_str}
-        for k, v in jobj.items():
+        for k, v in accelerator_properties.resolve_aliases(jobj).items():
             if k in transforms:
                 setattr(props, k, transforms[k](v))
             else:
@@ -264,16 +295,56 @@ class properties(tracks_valid_fields):
         return json.dumps(self.to_json_obj())
 
     @staticmethod
+    def resolve_aliases(d):
+        aliases = {'guid':                [],
+                   'parent':              [],
+                   'objtype':             [],
+                   'segment':             [],
+                   'bus':                 [],
+                   'device':              [],
+                   'function':            [],
+                   'socket_id':           ['socketId'],
+                   'object_id':           ['objectId'],
+                   'vendor_id':           ['vendorId'],
+                   'device_id':           ['deviceId'],
+                   'num_errors':          ['numErrors'],
+                   'interface':           [],
+                   'subsystem_vendor_id': ['subsystemVendorId'],
+                   'subsystem_device_id': ['subsystemDeviceId'],
+                   'hostname':            [],
+                  }
+        c = d.copy()
+        for attr, alias_list in aliases.items():
+            if attr in c:
+                continue
+            for a in alias_list:
+                if a in c:
+                    c[attr] = c[a]
+                    del c[a]
+        return c
+
+    @staticmethod
     def from_json_obj(jobj):
         props = properties()
+        props.__dict__['magic'] = properties.MAGIC
+
+        valid_fields = jobj.get('valid_fields')
+        if valid_fields is None:
+            valid_fields = jobj.get('validFields')
+        props.__dict__['valid_fields'] = int(valid_fields)
+
         objtype = jobj.get('objtype', constants.FPGA_ACCELERATOR + 1)
         if objtype in [constants.FPGA_DEVICE, constants.FPGA_ACCELERATOR]:
             setattr(props, 'objtype', constants.fpga_objtype_from_str(objtype))
+
         transforms = {'objtype': constants.fpga_objtype_from_str,
                       'interface': constants.fpga_interface_from_str,
                       'object_id': int,
                      }
-        for k, v in jobj.items():
+        skip = ['magic', 'valid_fields', 'validFields']
+        for k, v in properties.resolve_aliases(jobj).items():
+            if k in skip:
+                continue
             if k == 'fpga':
                 props.__dict__['fpga'] = fpga_properties.from_json_obj(v, props)
             elif k == 'accelerator':

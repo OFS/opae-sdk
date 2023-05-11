@@ -26,13 +26,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import json
-import os
 import requests
 
 import opae.http.constants as constants
 from opae.http.conversion import to_json_obj
 from opae.http.fpga_remote_id import fpga_remote_id
 from opae.http.handle import handle
+from opae.http.properties import properties
 
 
 class token():
@@ -112,8 +112,27 @@ class token():
                 setattr(tok, k, v)
         return tok
 
+    def clone(self):
+        url = self.__dict__['_url'] + '/fpga/v1/token/clone'
+        print(url)
+
+        req = {'src_token_id': self.token_id.to_json_obj()}
+        print(req)
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaCloneToken returned')
+
+        tok = token.from_json_obj(jobj['destToken'])
+        tok.__dict__['_url'] = self.__dict__['_url']
+        return tok
+
     def destroy(self):
-        url = os.path.join(self.__dict__['_url'], 'fpga/v1/token/destroy')
+        url = self.__dict__['_url'] + '/fpga/v1/token/destroy'
         print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
@@ -123,8 +142,11 @@ class token():
 
         resp.raise_for_status()
 
+        jobj = resp.json()
+        constants.raise_for_error(jobj['result'], 'fpgaDestroyToken returned')
+
     def open(self, flags):
-        url = os.path.join(self.__dict__['_url'], 'fpga/v1/token/open')
+        url = self.__dict__['_url'] + '/fpga/v1/token/open'
         print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
@@ -136,7 +158,41 @@ class token():
 
         jobj = resp.json()
 
+        constants.raise_for_error(jobj['result'], 'fpgaOpen returned')
+
         h = handle.from_json_obj(jobj['handle'])
         h.__dict__['_token'] = self
 
         return h
+
+    def get_properties(self):
+        url = self.__dict__['_url'] + '/fpga/v1/token/properties/get'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetProperties returned')
+
+        return properties.from_json_obj(jobj['properties'])
+
+    def update_properties(self):
+        url = self.__dict__['_url'] + '/fpga/v1/token/properties/update'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaUpdateProperties returned')
+
+        return properties.from_json_obj(jobj['properties'])

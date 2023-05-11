@@ -210,9 +210,27 @@ def test_token():
     print(to_json_str(t))
 
 
-def test_enumerate(url):
+def test_except():
+    # Expect no error..
+    constants.raise_for_error('FPGA_OK', 'whoops!')
+    constants.raise_for_error(constants.FPGA_OK, 'whoops!!')
+
+    # Expect an error..
+    try:
+        constants.raise_for_error('FPGA_EXCEPTION', 'test0')
+    except RuntimeError as exc:
+        print('Caught ' + str(exc) + ' as expected.')
+
+    # Expect an error..
+    try:
+        constants.raise_for_error(constants.FPGA_EXCEPTION, 'test1')
+    except RuntimeError as exc:
+        print('Caught ' + str(exc) + ' as expected.')
+
+
+def test_enumerate(url, objtype):
     p = properties()
-    p.objtype = constants.FPGA_ACCELERATOR
+    p.objtype = objtype
 
     tokens = enum.enumerate(url, [p], 1)
 
@@ -222,8 +240,67 @@ def test_enumerate(url):
     return tokens
 
 
+def test_clone(tok):
+    t = tok.clone()
+    t.destroy()
+
+
+def test_token_properties(tok):
+    props = tok.get_properties()
+    print(props.to_json_str())
+
+    props = tok.update_properties()
+    print(props.to_json_str())
+
+
 def test_open(tok):
-    return tok.open(0)
+    h = tok.open(0)
+    print(h.to_json_str())
+    return h
+
+
+def test_reset(h):
+    h.reset()
+
+
+def test_handle_properties(h):
+    props = h.get_properties()
+    print(props.to_json_str())
+
+
+def test_mmio(h):
+    h.map_mmio(0)
+    h.map_mmio(0)
+
+    for i in range(4):
+        val = h.read32(0, i*4)
+        print(f'0x{val:08x}')
+
+    h.write32(0, 0x130, 1)
+
+    for i in range(2):
+        val = h.read64(0, i*8)
+        print(f'0x{val:016x}')
+
+    h.write64(0, 0x130, 0x0000000100000001)
+
+    values = [0x0000000100000001, 0x0000000200000002,
+              0x0000000300000003, 0x0000000400000004,
+              0x0000000500000005, 0x0000000600000006,
+              0x0000000700000007, 0x0000000800000008]
+    h.write512(0, 0x140, values)
+
+    h.unmap_mmio(0)
+    h.unmap_mmio(0)
+
+
+def test_shared_buffers(h):
+    b = h.prepare_buffer(4096)
+
+    ioaddr = b.ioaddr()
+    print(f'ioaddr: 0x{ioaddr:016x}')
+
+    h.release_buffer(b)
 
 
 def test_close(h):
@@ -241,12 +318,20 @@ def main():
     #test_properties()
     #test_fpga_remote_id()
     #test_token()
-    tokens = test_enumerate(http_url(args))
+    #test_except()
+    #tokens = test_enumerate(http_url(args), constants.FPGA_DEVICE)
+    tokens = test_enumerate(http_url(args), constants.FPGA_ACCELERATOR)
+    #test_clone(tokens[0])
+    #test_token_properties(tokens[0])
     h = test_open(tokens[0])
+    #test_reset(h)
+    #test_handle_properties(h)
+    #test_mmio(h)
+    test_shared_buffers(h)
+
 
     test_close(h)
     test_destroy(tokens[0])
-
 
 
 if __name__ == '__main__':
