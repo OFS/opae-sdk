@@ -323,19 +323,84 @@ service OPAEService {
       body: "*"
     };
   }
-  rpc fpgaReadError(ReadErrorRequest) returns (ReadErrorReply) {}
-  rpc fpgaGetErrorInfo(GetErrorInfoRequest) returns (GetErrorInfoReply) {}
-  rpc fpgaClearError(ClearErrorRequest) returns (ClearErrorReply) {}
-  rpc fpgaClearAllErrors(ClearAllErrorsRequest) returns (ClearAllErrorsReply) {}
-  rpc fpgaTokenGetObject(TokenGetObjectRequest) returns (TokenGetObjectReply) {}
-  rpc fpgaDestroyObject(DestroyObjectRequest) returns (DestroyObjectReply) {}
-  rpc fpgaObjectGetType(ObjectGetTypeRequest) returns (ObjectGetTypeReply) {}
-  rpc fpgaObjectGetName(ObjectGetNameRequest) returns (ObjectGetNameReply) {}
-  rpc fpgaObjectGetSize(ObjectGetSizeRequest) returns (ObjectGetSizeReply) {}
-  rpc fpgaObjectRead(ObjectReadRequest) returns (ObjectReadReply) {}
-  rpc fpgaObjectRead64(ObjectRead64Request) returns (ObjectRead64Reply) {}
-  rpc fpgaObjectWrite64(ObjectWrite64Request) returns (ObjectWrite64Reply) {}
-  rpc fpgaHandleGetObject(HandleGetObjectRequest) returns (HandleGetObjectReply) {}
+  rpc fpgaReadError(ReadErrorRequest) returns (ReadErrorReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/errors/read"
+      body: "*"
+    };
+  }
+  rpc fpgaGetErrorInfo(GetErrorInfoRequest) returns (GetErrorInfoReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/errors/information/get"
+      body: "*"
+    };
+  }
+  rpc fpgaClearError(ClearErrorRequest) returns (ClearErrorReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/errors/clear"
+      body: "*"
+    };
+  }
+  rpc fpgaClearAllErrors(ClearAllErrorsRequest) returns (ClearAllErrorsReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/errors/all/clear"
+      body: "*"
+    };
+  }
+  rpc fpgaTokenGetObject(TokenGetObjectRequest) returns (TokenGetObjectReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/get"
+      body: "*"
+    };
+  }
+  rpc fpgaDestroyObject(DestroyObjectRequest) returns (DestroyObjectReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/sysobject/destroy"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectGetType(ObjectGetTypeRequest) returns (ObjectGetTypeReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/type/get"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectGetName(ObjectGetNameRequest) returns (ObjectGetNameReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/name/get"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectGetSize(ObjectGetSizeRequest) returns (ObjectGetSizeReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/size/get"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectRead(ObjectReadRequest) returns (ObjectReadReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/read"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectRead64(ObjectRead64Request) returns (ObjectRead64Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/read64"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectWrite64(ObjectWrite64Request) returns (ObjectWrite64Reply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/token/sysobject/write64"
+      body: "*"
+    };
+  }
+  rpc fpgaHandleGetObject(HandleGetObjectRequest) returns (HandleGetObjectReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/sysobject/get"
+      body: "*"
+    };
+  }
   rpc fpgaObjectGetObject(ObjectGetObjectRequest) returns (ObjectGetObjectReply) {}
   rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {}
   rpc fpgaSetUserClock(SetUserClockRequest) returns (SetUserClockReply) {}

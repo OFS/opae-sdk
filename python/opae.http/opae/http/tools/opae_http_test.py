@@ -253,6 +253,43 @@ def test_token_properties(tok):
     print(props.to_json_str())
 
 
+def test_errors(tok):
+    props = tok.get_properties()
+
+    for i in range(props.num_errors):
+        einfo = tok.get_error_info(i)
+        err = tok.read_error(i)
+
+        print(f'[{i}] {einfo.name} 0x{err:016x} can_clear:{einfo.can_clear}')
+
+        if einfo.can_clear:
+            tok.clear_error(i)
+
+    tok.clear_all_errors()
+
+
+def test_token_sysobject(tok):
+    props = tok.get_properties()
+
+    if props.objtype == constants.FPGA_ACCELERATOR:
+        sobj = tok.get_object('power_state', 0)
+
+        sobj_type = constants.fpga_sysobject_type_to_str(sobj.get_type())
+        sobj_name = sobj.get_name()
+        sobj_size = sobj.get_size(constants.FPGA_OBJECT_SYNC)
+        svalue = sobj.read(0, sobj_size, constants.FPGA_OBJECT_SYNC).rstrip()
+        ivalue = sobj.read64(constants.FPGA_OBJECT_SYNC)
+        print(f'sysobject {sobj_name} type: {sobj_type} size: {sobj_size} value: {svalue} ({ivalue})')
+
+        try:
+            sobj.write64(0x1, 0)
+        except RuntimeError as exc:
+            print('expected that to happen (read-only)')
+
+        sobj.destroy()
+
+
+
 def test_open(tok):
     h = tok.open(0)
     print(h.to_json_str())
@@ -303,6 +340,17 @@ def test_shared_buffers(h):
     h.release_buffer(b)
 
 
+def test_handle_sysobject(h):
+    props = h.get_properties()
+
+    if props.objtype == constants.FPGA_ACCELERATOR:
+        errors = h.get_object('errors', constants.FPGA_OBJECT_RECURSE_ONE)
+
+
+
+        errors.destroy()
+
+
 def test_close(h):
     h.close()
 
@@ -323,11 +371,15 @@ def main():
     tokens = test_enumerate(http_url(args), constants.FPGA_ACCELERATOR)
     #test_clone(tokens[0])
     #test_token_properties(tokens[0])
+    #test_errors(tokens[0])
+    test_token_sysobject(tokens[0])
+
     h = test_open(tokens[0])
     #test_reset(h)
     #test_handle_properties(h)
     #test_mmio(h)
-    test_shared_buffers(h)
+    #test_shared_buffers(h)
+    test_handle_sysobject(h)
 
 
     test_close(h)

@@ -33,6 +33,17 @@ from opae.http.conversion import to_json_obj
 from opae.http.fpga_remote_id import fpga_remote_id
 from opae.http.handle import handle
 from opae.http.properties import properties
+from opae.http.sysobject import sysobject
+
+
+class fpga_error_info():
+    def __init__(self, name, can_clear):
+        self.name = name
+        self.can_clear = can_clear
+
+    @staticmethod
+    def from_json_obj(jobj):
+        return fpga_error_info(jobj['name'], jobj['canClear'])
 
 
 class token():
@@ -196,3 +207,86 @@ class token():
         constants.raise_for_error(jobj['result'], 'fpgaUpdateProperties returned')
 
         return properties.from_json_obj(jobj['properties'])
+
+    def read_error(self, error_num):
+        url = self.__dict__['_url'] + '/fpga/v1/token/errors/read'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj(),
+               'error_num': error_num}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaReadError returned')
+
+        return int(jobj['value'])
+
+    def get_error_info(self, error_num):
+        url = self.__dict__['_url'] + '/fpga/v1/token/errors/information/get'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj(),
+               'error_num': error_num}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetErrorInfo returned')
+
+        return fpga_error_info.from_json_obj(jobj['errorInfo'])
+
+    def clear_error(self, error_num):
+        url = self.__dict__['_url'] + '/fpga/v1/token/errors/clear'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj(),
+               'error_num': error_num}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaClearError returned')
+
+    def clear_all_errors(self):
+        url = self.__dict__['_url'] + '/fpga/v1/token/errors/all/clear'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaClearAllErrors returned')
+
+    def get_object(self, name, flags):
+        save_url = self.__dict__['_url']
+        url = save_url + '/fpga/v1/token/sysobject/get'
+        print(url)
+
+        req = {'token_id': self.token_id.to_json_obj(),
+               'name': name,
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaTokenGetObject returned')
+
+        return sysobject(save_url, name, fpga_remote_id.from_json_obj(jobj['objectId']))
+

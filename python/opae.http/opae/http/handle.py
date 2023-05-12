@@ -36,6 +36,7 @@ from opae.http.fpga_remote_id import fpga_remote_id
 import opae.http.constants as constants
 from opae.http.properties import properties
 from opae.http.shared_buffer import shared_buffer
+from opae.http.sysobject import sysobject
 
 
 class handle():
@@ -153,8 +154,8 @@ class handle():
     def map_mmio(self, region_num):
         map_dict = self.__dict__['_mmio_map']
         if region_num in map_dict:
-            print(f'MMIO region {region_num} is already mapped.')
-            return
+            msg = f'MMIO region {region_num} is already mapped.'
+            constants.raise_for_error(constants.FPGA_BUSY, msg)
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/map'
@@ -176,8 +177,8 @@ class handle():
     def unmap_mmio(self, region_num):
         map_dict = self.__dict__['_mmio_map']
         if region_num not in map_dict:
-            print(f'MMIO region {region_num} is not mapped.')
-            return
+            msg = f'MMIO region {region_num} is not mapped.'
+            constants.raise_for_error(constants.FPGA_EXCEPTION, msg)
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/unmap'
@@ -199,8 +200,8 @@ class handle():
     def read32(self, region_num, offset):
         map_dict = self.__dict__['_mmio_map']
         if region_num not in map_dict:
-            print(f'MMIO region {region_num} is not mapped.')
-            return
+            msg = f'MMIO region {region_num} is not mapped.'
+            constants.raise_for_error(constants.FPGA_EXCEPTION, msg)
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/read32'
@@ -222,8 +223,8 @@ class handle():
     def read64(self, region_num, offset):
         map_dict = self.__dict__['_mmio_map']
         if region_num not in map_dict:
-            print(f'MMIO region {region_num} is not mapped.')
-            return
+            msg = f'MMIO region {region_num} is not mapped.'
+            constants.raise_for_error(constants.FPGA_EXCEPTION, msg)
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/read64'
@@ -245,8 +246,8 @@ class handle():
     def write32(self, region_num, offset, value):
         map_dict = self.__dict__['_mmio_map']
         if region_num not in map_dict:
-            print(f'MMIO region {region_num} is not mapped.')
-            return
+            msg = f'MMIO region {region_num} is not mapped.'
+            constants.raise_for_error(constants.FPGA_EXCEPTION, msg)
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write32'
@@ -268,8 +269,8 @@ class handle():
     def write64(self, region_num, offset, value):
         map_dict = self.__dict__['_mmio_map']
         if region_num not in map_dict:
-            print(f'MMIO region {region_num} is not mapped.')
-            return
+            msg = f'MMIO region {region_num} is not mapped.'
+            constants.raise_for_error(constants.FPGA_EXCEPTION, msg)
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write64'
@@ -293,8 +294,8 @@ class handle():
         """
         map_dict = self.__dict__['_mmio_map']
         if region_num not in map_dict:
-            print(f'MMIO region {region_num} is not mapped.')
-            return
+            msg = f'MMIO region {region_num} is not mapped.'
+            constants.raise_for_error(constants.FPGA_EXCEPTION, msg)
 
         if len(values) != 8: # 8 64-bit integers = 512 bits
             msg = 'write512: values should be a list of eight 8-byte integers'
@@ -375,3 +376,23 @@ class handle():
 
         constants.raise_for_error(jobj['result'], 'fpgaReleaseBuffer returned')
         shared.remove(buffer)
+
+    def get_object(self, name, flags):
+        tok = self.__dict__['_token']
+        save_url = tok.__dict__['_url']
+        url = save_url + '/fpga/v1/handle/sysobject/get'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'name': name,
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaHandleGetObject returned')
+
+        return sysobject(save_url, name, fpga_remote_id.from_json_obj(jobj['objectId']))
