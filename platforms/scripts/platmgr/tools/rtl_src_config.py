@@ -417,15 +417,14 @@ Quartus commands.  The following special syntax is supported:
 
   +define+<X>       Define preprocessor variable.
 
-  SI:<file>         Emit a directive to include <file> in the simulator
-                    configuration (the -F directive).  The request is
-                    ignored when the target is Quartus.
+  SI:<file>         Emit a directive to include <file> in the Verilog
+  SI_VLOG:<file>    simulator configuration (the -F directive). The
+                    request is ignored when the target is Quartus.
+                    SI and SI_VLOG are synonyms.
 
-                    Verilog vs. VHDL: By convention, file names ending
-                    with "vhd" or "vhdl" immediately before the suffix
-                    are treated as directives for VHDL simulation. For
-                    example, "path/to/sim_files_vhd.f" is passed to VHDL
-                    tools. All other filenames are treated as Verilog.
+  SI_VHDL:<file>    Emit a directive to include <file> in the VHDL
+                    simulator configuration. SI_VHDL is the analog of
+                    SI_VLOG for VHDL.
 
   QI:<file>         The equivalent of SI, but for Quartus.  A "source"
                     command is emitted.
