@@ -96,7 +96,11 @@ def bind_driver(driver, pci_addr):
 def get_dev_dict(file_name):
     if os.path.isfile(file_name):
         with open(file_name, 'rb') as inf:
-            dev_dict = pickle.load(inf)
+            try:
+                dev_dict = pickle.load(inf)
+            except EOFError:
+                LOG.warn('Overwriting corrupted pickle file {}'.format(file_name))
+                dev_dict = dict()
             return dev_dict
 
 
