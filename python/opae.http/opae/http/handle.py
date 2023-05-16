@@ -37,6 +37,7 @@ import opae.http.constants as constants
 from opae.http.properties import properties
 from opae.http.shared_buffer import shared_buffer
 from opae.http.sysobject import sysobject
+from opae.http.metrics import fpga_metric_info, fpga_metric
 
 
 class handle():
@@ -346,36 +347,10 @@ class handle():
 
         buf_id = fpga_remote_id.from_json_obj(jobj['bufId'])
 
-        buffer = shared_buffer(self, buf_id)
+        buffer = shared_buffer(self, buf_id, length)
         self.__dict__['_shared_buffers'].append(buffer)
 
         return buffer
-
-    def release_buffer(self, buffer):
-        shared = self.__dict__['_shared_buffers']
-        if buffer not in shared:
-            msg = f'buffer {buffer} is not tracked by {self}'
-            constants.raise_for_error(constants.FPGA_INVALID_PARAM, msg)
-
-        if buffer.handle != self:
-            msg = f'buffer {buffer} / handle {self} mismatch'
-            constants.raise_for_error(constants.FPGA_INVALID_PARAM, msg)
-
-        tok = self.__dict__['_token']
-        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/release'
-        print(url)
-
-        req = {'handle_id': self.handle_id.to_json_obj(),
-               'buf_id': buffer.buf_id.to_json_obj()}
-
-        resp = requests.post(url, json=req)
-
-        resp.raise_for_status()
-
-        jobj = resp.json()
-
-        constants.raise_for_error(jobj['result'], 'fpgaReleaseBuffer returned')
-        shared.remove(buffer)
 
     def get_object(self, name, flags):
         tok = self.__dict__['_token']
@@ -396,3 +371,188 @@ class handle():
         constants.raise_for_error(jobj['result'], 'fpgaHandleGetObject returned')
 
         return sysobject(save_url, name, fpga_remote_id.from_json_obj(jobj['objectId']))
+
+    def set_user_clocks(self, high_clock, low_clock, flags):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/clock/frequency/set'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'high_clk': str(high_clock),
+               'low_clk': str(low_clock),
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaSetUserClock returned')
+
+    def get_user_clocks(self, flags):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/clock/frequency/get'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetUserClock returned')
+
+        return (int(jobj['highClk']), int(jobj['lowClk']))
+
+    def get_metrics_count(self):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/count'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetNumMetrics returned')
+
+        return int(jobj['numMetrics'])
+
+    def get_metrics_info(self, count):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/info/get'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'num_metrics': str(count)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetMetricsInfo returned')
+
+        l = []
+        for i in jobj['info']:
+            l.append(fpga_metric_info.from_json_obj(i))
+
+        c = int(jobj['numMetrics'])
+        if c < count:
+            count = c
+
+        if count < len(l):
+            l = l[:count]
+
+        return l
+
+    def get_metrics_by_index(self, indexes):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/get/index'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'metric_num': indexes,
+               'num_metric_indexes': str(len(indexes))}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetMetricsByIndex returned')
+
+        #print(resp.text)
+        num_indexes = int(jobj['numMetricIndexes'])
+        l = []
+        for m in jobj['metrics']:
+            l.append(fpga_metric.from_json_obj(m))
+
+        if num_indexes < len(l):
+            l = l[:num_indexes]
+
+        return l
+
+    def get_metrics_by_name(self, names):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/get/name'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'metrics_names': names,
+               'num_metric_names': str(len(names))}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetMetricsByName returned')
+        #print(resp.text)
+
+        num_names = int(jobj['numMetricNames'])
+        l = []
+        for m in jobj['metrics']:
+            l.append(fpga_metric.from_json_obj(m))
+
+        if num_names < len(l):
+            l = l[:num_names]
+
+        return l
+
+    def get_metrics_threshold_info(self, num_thresholds):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/threshold/get'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'num_thresholds': num_thresholds}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaGetMetricsThresholdInfo returned')
+        print(resp.text)
+
+        num_thresholds = jobj['numThresholds']
+
+        l = []
+        for t in jobj['metricThreshold']:
+            l.append(metric_threshold.from_json_obj(t))
+
+        if num_thresholds < len(l):
+            l = l[:num_thresholds]
+
+        return l
+
+    def reconfigure_slot_by_name(self, slot, path, flags):
+        tok = self.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/reconfigure/name'
+        print(url)
+
+        req = {'handle_id': self.handle_id.to_json_obj(),
+               'slot': slot,
+               'path': path,
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaReconfigureSlotByName returned')
+

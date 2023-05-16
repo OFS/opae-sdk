@@ -361,37 +361,37 @@ service OPAEService {
   }
   rpc fpgaObjectGetType(ObjectGetTypeRequest) returns (ObjectGetTypeReply) {
     option (google.api.http) = {
-      post: "/fpga/v1/token/sysobject/type/get"
+      post: "/fpga/v1/sysobject/type/get"
       body: "*"
     };
   }
   rpc fpgaObjectGetName(ObjectGetNameRequest) returns (ObjectGetNameReply) {
     option (google.api.http) = {
-      post: "/fpga/v1/token/sysobject/name/get"
+      post: "/fpga/v1/sysobject/name/get"
       body: "*"
     };
   }
   rpc fpgaObjectGetSize(ObjectGetSizeRequest) returns (ObjectGetSizeReply) {
     option (google.api.http) = {
-      post: "/fpga/v1/token/sysobject/size/get"
+      post: "/fpga/v1/sysobject/size/get"
       body: "*"
     };
   }
   rpc fpgaObjectRead(ObjectReadRequest) returns (ObjectReadReply) {
     option (google.api.http) = {
-      post: "/fpga/v1/token/sysobject/read"
+      post: "/fpga/v1/sysobject/read"
       body: "*"
     };
   }
   rpc fpgaObjectRead64(ObjectRead64Request) returns (ObjectRead64Reply) {
     option (google.api.http) = {
-      post: "/fpga/v1/token/sysobject/read64"
+      post: "/fpga/v1/sysobject/read64"
       body: "*"
     };
   }
   rpc fpgaObjectWrite64(ObjectWrite64Request) returns (ObjectWrite64Reply) {
     option (google.api.http) = {
-      post: "/fpga/v1/token/sysobject/write64"
+      post: "/fpga/v1/sysobject/write64"
       body: "*"
     };
   }
@@ -401,22 +401,97 @@ service OPAEService {
       body: "*"
     };
   }
-  rpc fpgaObjectGetObject(ObjectGetObjectRequest) returns (ObjectGetObjectReply) {}
-  rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {}
-  rpc fpgaSetUserClock(SetUserClockRequest) returns (SetUserClockReply) {}
-  rpc fpgaGetUserClock(GetUserClockRequest) returns (GetUserClockReply) {}
-  rpc fpgaGetNumMetrics(GetNumMetricsRequest) returns (GetNumMetricsReply) {}
-  rpc fpgaGetMetricsInfo(GetMetricsInfoRequest) returns (GetMetricsInfoReply) {}
-  rpc fpgaGetMetricsByIndex(GetMetricsByIndexRequest) returns (GetMetricsByIndexReply) {}
-  rpc fpgaGetMetricsByName(GetMetricsByNameRequest) returns (GetMetricsByNameReply) {}
-  rpc fpgaGetMetricsThresholdInfo(GetMetricsThresholdInfoRequest) returns (GetMetricsThresholdInfoReply) {}
+  rpc fpgaObjectGetObject(ObjectGetObjectRequest) returns (ObjectGetObjectReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/sysobject/get"
+      body: "*"
+    };
+  }
+  rpc fpgaObjectGetObjectAt(ObjectGetObjectAtRequest) returns (ObjectGetObjectAtReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/sysobject/get/at"
+      body: "*"
+    };
+  }
+  rpc fpgaSetUserClock(SetUserClockRequest) returns (SetUserClockReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/clock/frequency/set"
+      body: "*"
+    };
+  }
+  rpc fpgaGetUserClock(GetUserClockRequest) returns (GetUserClockReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/clock/frequency/get"
+      body: "*"
+    };
+  }
+  rpc fpgaGetNumMetrics(GetNumMetricsRequest) returns (GetNumMetricsReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/metrics/count"
+      body: "*"
+    };
+  }
+  rpc fpgaGetMetricsInfo(GetMetricsInfoRequest) returns (GetMetricsInfoReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/metrics/info/get"
+      body: "*"
+    };
+  }
+  rpc fpgaGetMetricsByIndex(GetMetricsByIndexRequest) returns (GetMetricsByIndexReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/metrics/get/index"
+      body: "*"
+    };
+  }
+  rpc fpgaGetMetricsByName(GetMetricsByNameRequest) returns (GetMetricsByNameReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/metrics/get/name"
+      body: "*"
+    };
+  }
+  rpc fpgaGetMetricsThresholdInfo(GetMetricsThresholdInfoRequest) returns (GetMetricsThresholdInfoReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/metrics/threshold/get"
+      body: "*"
+    };
+  }
   rpc fpgaReconfigureSlot(stream ReconfigureSlotRequest) returns (ReconfigureSlotReply) {}
-  rpc fpgaReconfigureSlotByName(ReconfigureSlotByNameRequest) returns (ReconfigureSlotByNameReply) {}
-  rpc fpgaBufMemSet(BufMemSetRequest) returns (BufMemSetReply) {}
-  rpc fpgaBufMemCpyToRemote(BufMemCpyToRemoteRequest) returns (BufMemCpyToRemoteReply) {}
-  rpc fpgaBufPoll(BufPollRequest) returns (BufPollReply) {}
-  rpc fpgaBufMemCmp(BufMemCmpRequest) returns (BufMemCmpReply) {}
-  rpc fpgaBufWritePattern(BufWritePatternRequest) returns (BufWritePatternReply) {}
+  rpc fpgaReconfigureSlotByName(ReconfigureSlotByNameRequest) returns (ReconfigureSlotByNameReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/reconfigure/name"
+      body: "*"
+    };
+  }
+  rpc fpgaBufMemSet(BufMemSetRequest) returns (BufMemSetReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/memset"
+      body: "*"
+    };
+  }
+  rpc fpgaBufMemCpyToRemote(BufMemCpyToRemoteRequest) returns (BufMemCpyToRemoteReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/memcpy"
+      body: "*"
+    };
+  }
+  rpc fpgaBufPoll(BufPollRequest) returns (BufPollReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/poll"
+      body: "*"
+    };
+  }
+  rpc fpgaBufMemCmp(BufMemCmpRequest) returns (BufMemCmpReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/compare"
+      body: "*"
+    };
+  }
+  rpc fpgaBufWritePattern(BufWritePatternRequest) returns (BufWritePatternReply) {
+    option (google.api.http) = {
+      post: "/fpga/v1/handle/buffers/pattern/write"
+      body: "*"
+    };
+  }
   rpc fpgaCreateEventHandle(CreateEventHandleRequest) returns (CreateEventHandleReply) {}
   rpc fpgaRegisterEvent(RegisterEventRequest) returns (RegisterEventReply) {}
   rpc fpgaUnregisterEvent(UnregisterEventRequest) returns (UnregisterEventReply) {}

@@ -333,11 +333,26 @@ def test_mmio(h):
 
 def test_shared_buffers(h):
     b = h.prepare_buffer(4096)
+    c = h.prepare_buffer(4096)
 
     ioaddr = b.ioaddr()
     print(f'ioaddr: 0x{ioaddr:016x}')
 
-    h.release_buffer(b)
+    b.memset(0, 0xbe, b.length)
+    c.memset(0, 0xbe, c.length)
+
+    cmp = b.memcmp(c, 0, 0, b.length)
+    assert cmp == 0
+
+    res = b.poll(0, 8, 0xffffffffffffffff, 0xbebebebebebebebe, 100, 10000)
+    assert res == constants.FPGA_OK
+
+    b.memcpy(0, b'be', 2)
+
+    c.write_pattern('cl_index_end')
+
+    b.destroy()
+    c.destroy()
 
 
 def test_handle_sysobject(h):
@@ -346,9 +361,53 @@ def test_handle_sysobject(h):
     if props.objtype == constants.FPGA_ACCELERATOR:
         errors = h.get_object('errors', constants.FPGA_OBJECT_RECURSE_ONE)
 
+        errors_errors = errors.get_object('errors', 0)
+        errors_errors.write64(0, 0)
 
+        zero = errors.get_object_at(0)
+        print(f'name: {zero.get_name()}')
 
+        zero.destroy()
+        errors_errors.destroy()
         errors.destroy()
+
+
+def test_user_clocks(h):
+    #h.set_user_clocks(600, 10, 0)
+
+    clks = h.get_user_clocks(0)
+    print(f'high: {clks[0]} low: {clks[1]}')
+
+
+def test_metrics(h):
+    count = h.get_metrics_count()
+    print(f'there are {count} metrics')
+
+    info = h.get_metrics_info(count)
+    indexes = []
+    names = []
+    for i in info:
+        #print(f'num: {i.metric_num} guid: {i.metric_guid} q: {i.qualifier_name} g: {i.group_name} m: {i.metric_name}')
+        #dt = constants.fpga_metric_datatype_to_str(i.metric_datatype)
+        #t = constants.fpga_metric_type_to_str(i.metric_type)
+        #print(f'\tu: {i.metric_units} dt: {dt} t: {t}')
+
+        indexes.append(i.metric_num)
+        names.append(i.metric_name)
+
+    #metrics = h.get_metrics_by_index(indexes)
+    #for m in metrics:
+    #    print(f'n: {m.metric_num} val: {m.value.dvalue} valid: {m.valid}')
+
+    metrics = h.get_metrics_by_name(names)
+    for m in metrics:
+        print(f'n: {m.metric_num} val: {m.value.dvalue} valid: {m.valid}')
+
+    thresholds = h.get_metrics_threshold_info(count)
+
+
+def test_reconfigure(h):
+    h.reconfigure_slot_by_name(0, 'sr_vista_rot_2x2x25-v1.3.16.bin', 0)
 
 
 def test_close(h):
@@ -372,14 +431,17 @@ def main():
     #test_clone(tokens[0])
     #test_token_properties(tokens[0])
     #test_errors(tokens[0])
-    test_token_sysobject(tokens[0])
+    #test_token_sysobject(tokens[0])
 
     h = test_open(tokens[0])
     #test_reset(h)
     #test_handle_properties(h)
     #test_mmio(h)
-    #test_shared_buffers(h)
-    test_handle_sysobject(h)
+    test_shared_buffers(h) # FPGA_ACCELERATOR
+    #test_handle_sysobject(h)
+    #test_user_clocks(h)
+    #test_metrics(h) # FPGA_DEVICE
+    #test_reconfigure(h) # FPGA_DEVICE
 
 
     test_close(h)

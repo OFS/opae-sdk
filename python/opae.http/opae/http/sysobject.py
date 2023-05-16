@@ -28,8 +28,7 @@
 import requests
 
 import opae.http.constants as constants
-#from opae.http.conversion import to_json_obj
-#from opae.http.fpga_remote_id import fpga_remote_id
+from opae.http.fpga_remote_id import fpga_remote_id
 
 
 class sysobject():
@@ -53,7 +52,7 @@ class sysobject():
         constants.raise_for_error(jobj['result'], 'fpgaDestroyObject returned')
 
     def get_type(self):
-        url = self.url + '/fpga/v1/token/sysobject/type/get'
+        url = self.url + '/fpga/v1/sysobject/type/get'
         print(url)
 
         req = {'object_id': self.object_id.to_json_obj()}
@@ -69,7 +68,7 @@ class sysobject():
         return constants.fpga_sysobject_type_from_str(jobj['type'])
 
     def get_name(self):
-        url = self.url + '/fpga/v1/token/sysobject/name/get'
+        url = self.url + '/fpga/v1/sysobject/name/get'
         print(url)
 
         req = {'object_id': self.object_id.to_json_obj()}
@@ -85,7 +84,7 @@ class sysobject():
         return jobj['name']
 
     def get_size(self, flags):
-        url = self.url + '/fpga/v1/token/sysobject/size/get'
+        url = self.url + '/fpga/v1/sysobject/size/get'
         print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
@@ -102,7 +101,7 @@ class sysobject():
         return jobj['value']
 
     def read(self, offset, length, flags):
-        url = self.url + '/fpga/v1/token/sysobject/read'
+        url = self.url + '/fpga/v1/sysobject/read'
         print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
@@ -121,7 +120,7 @@ class sysobject():
         return jobj['value']
 
     def read64(self, flags):
-        url = self.url + '/fpga/v1/token/sysobject/read64'
+        url = self.url + '/fpga/v1/sysobject/read64'
         print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
@@ -138,7 +137,7 @@ class sysobject():
         return int(jobj['value'])
 
     def write64(self, value, flags):
-        url = self.url + '/fpga/v1/token/sysobject/write64'
+        url = self.url + '/fpga/v1/sysobject/write64'
         print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
@@ -152,3 +151,38 @@ class sysobject():
         jobj = resp.json()
 
         constants.raise_for_error(jobj['result'], 'fpgaObjectWrite64 returned')
+
+    def get_object(self, name, flags):
+        url = self.url + '/fpga/v1/sysobject/get'
+        print(url)
+
+        req = {'object_id': self.object_id.to_json_obj(),
+               'name': name,
+               'flags': flags}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaObjectGetObject returned')
+
+        return sysobject(self.url, name, fpga_remote_id.from_json_obj(jobj['objectId']))
+
+    def get_object_at(self, index):
+        url = self.url + '/fpga/v1/sysobject/get/at'
+        print(url)
+
+        req = {'object_id': self.object_id.to_json_obj(),
+               'index': str(index)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaObjectGetObjectAt returned')
+
+        return sysobject(self.url, str(index), fpga_remote_id.from_json_obj(jobj['objectId']))

@@ -25,11 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-#import base64
-import json
+import base64
 import requests
-#import struct
-#import sys
 
 from opae.http.conversion import to_json_obj
 from opae.http.fpga_remote_id import fpga_remote_id
@@ -37,9 +34,32 @@ import opae.http.constants as constants
 
 
 class shared_buffer():
-    def __init__(self, h, buf_id):
+    def __init__(self, h, buf_id, length):
         self.handle = h
         self.buf_id = buf_id
+        self.length = length
+
+    def destroy(self):
+        shared = self.handle.__dict__['_shared_buffers']
+        if self not in shared:
+            msg = f'buffer {self} is not tracked by {self.handle}'
+            constants.raise_for_error(constants.FPGA_INVALID_PARAM, msg)
+
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/release'
+        print(url)
+
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'buf_id': self.buf_id.to_json_obj()}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaReleaseBuffer returned')
+        shared.remove(self)
 
     def ioaddr(self):
         tok = self.handle.__dict__['_token']
@@ -58,3 +78,108 @@ class shared_buffer():
         constants.raise_for_error(jobj['result'], 'fpgaGetIOAddress returned')
         return int(jobj['ioaddr'])
 
+    def memset(self, offset, c, n):
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/memset'
+        print(url)
+
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'buf_id': self.buf_id.to_json_obj(),
+               'offset': str(offset),
+               'c': c,
+               'n': str(n)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaBufMemSet returned')
+
+    def memcpy(self, dest_offset, src_data, num_bytes):
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/memcpy'
+        print(url)
+
+        encoded = base64.b64encode(src_data)
+
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'dest_buf_id': self.buf_id.to_json_obj(),
+               'dest_offset': str(dest_offset),
+               'src': encoded.decode(),
+               'n': str(num_bytes)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaBufMemCpyToRemote returned')
+
+    def poll(self, offset, width, mask, expected_value, sleep_interval, loops_timeout):
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/poll'
+        print(url)
+
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'buf_id': self.buf_id.to_json_obj(),
+               'offset': str(offset),
+               'width': width,
+               'mask': str(mask),
+               'expected_value': str(expected_value),
+               'sleep_interval': str(sleep_interval),
+               'loops_timeout': str(loops_timeout)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        result = constants.fpga_result_from_str(jobj['result'])
+
+        if result not in [constants.FPGA_OK, constants.FPGA_NOT_FOUND]:
+            constants.raise_for_error(result, 'fpgaBufPoll returned')
+
+        return result
+
+    def memcmp(self, other, bufa_offset, bufb_offset, n):
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/compare'
+        print(url)
+
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'bufa_id': self.buf_id.to_json_obj(),
+               'bufa_offset': str(bufa_offset),
+               'bufb_id': other.buf_id.to_json_obj(),
+               'bufb_offset': str(bufb_offset),
+               'n': str(n)}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaBufMemCmp returned')
+
+        return jobj['cmpResult']
+
+    def write_pattern(self, pattern_name):
+        tok = self.handle.__dict__['_token']
+        url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/pattern/write'
+        print(url)
+
+        req = {'handle_id': self.handle.handle_id.to_json_obj(),
+               'buf_id': self.buf_id.to_json_obj(),
+               'pattern_name': pattern_name}
+
+        resp = requests.post(url, json=req)
+
+        resp.raise_for_status()
+
+        jobj = resp.json()
+
+        constants.raise_for_error(jobj['result'], 'fpgaBufWritePattern returned')
