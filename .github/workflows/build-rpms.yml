@@ -33,5 +33,5 @@ jobs:
         with:
           name: OPAE-${{ matrix.distro }}
           path:
-            ${{ matrix.distro }}/opae-sdk/packaging/opae/rpm/*.rpm
+            ${{ github.workspace }}/packaging/opae/rpm/*.rpm
 
