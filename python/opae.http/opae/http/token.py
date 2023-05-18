@@ -125,10 +125,10 @@ class token():
 
     def clone(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/clone'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'src_token_id': self.token_id.to_json_obj()}
-        print(req)
 
         resp = requests.post(url, json=req)
 
@@ -140,14 +140,15 @@ class token():
 
         tok = token.from_json_obj(jobj['destToken'])
         tok.__dict__['_url'] = self.__dict__['_url']
+        tok.__dict__['_debug'] = self.__dict__['_debug']
         return tok
 
     def destroy(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/destroy'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
-        print(req)
 
         resp = requests.post(url, json=req)
 
@@ -156,9 +157,10 @@ class token():
         jobj = resp.json()
         constants.raise_for_error(jobj['result'], 'fpgaDestroyToken returned')
 
-    def open(self, flags):
+    def open(self, flags=0):
         url = self.__dict__['_url'] + '/fpga/v1/token/open'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'flags': flags}
@@ -173,12 +175,13 @@ class token():
 
         h = handle.from_json_obj(jobj['handle'])
         h.__dict__['_token'] = self
-
+        h.__dict__['_debug'] = self.__dict__['_debug']
         return h
 
     def get_properties(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/properties/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
 
@@ -194,7 +197,8 @@ class token():
 
     def update_properties(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/properties/update'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
 
@@ -210,7 +214,8 @@ class token():
 
     def read_error(self, error_num):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/read'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'error_num': error_num}
@@ -227,7 +232,8 @@ class token():
 
     def get_error_info(self, error_num):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/information/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'error_num': error_num}
@@ -244,7 +250,8 @@ class token():
 
     def clear_error(self, error_num):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/clear'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'error_num': error_num}
@@ -259,7 +266,8 @@ class token():
 
     def clear_all_errors(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/all/clear'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
 
@@ -274,7 +282,8 @@ class token():
     def get_object(self, name, flags):
         save_url = self.__dict__['_url']
         url = save_url + '/fpga/v1/token/sysobject/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'name': name,
@@ -288,5 +297,7 @@ class token():
 
         constants.raise_for_error(jobj['result'], 'fpgaTokenGetObject returned')
 
-        return sysobject(save_url, name, fpga_remote_id.from_json_obj(jobj['objectId']))
-
+        return sysobject(save_url,
+                         name,
+                         fpga_remote_id.from_json_obj(jobj['objectId']),
+                         self.__dict__['_debug'])

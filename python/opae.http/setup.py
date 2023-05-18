@@ -34,6 +34,7 @@ setup(
         'console_scripts': [
             'server_reset = opae.http.tools.server_reset:main',
             'opae_http_test = opae.http.tools.opae_http_test:main',
+            'nlb0 = opae.http.tools.nlb0:main',
         ]
     },
 )

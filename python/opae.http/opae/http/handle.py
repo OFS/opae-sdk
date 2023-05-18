@@ -110,7 +110,8 @@ class handle():
     def close(self):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/close'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj()}
 
@@ -124,7 +125,8 @@ class handle():
     def reset(self):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/afu/reset'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj()}
 
@@ -138,7 +140,8 @@ class handle():
     def get_properties(self):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/properties/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj()}
 
@@ -160,7 +163,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/map'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'mmio_num': region_num}
@@ -183,7 +187,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/unmap'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'mmio_id': map_dict[region_num].to_json_obj(),
@@ -206,7 +211,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/read32'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'mmio_num': region_num,
@@ -229,7 +235,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/read64'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'mmio_num': region_num,
@@ -252,7 +259,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write32'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'mmio_num': region_num,
@@ -275,7 +283,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write64'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'mmio_num': region_num,
@@ -304,7 +313,8 @@ class handle():
 
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/mmio/write512'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         order = '<' if sys.byteorder == 'little' else '>'
 
@@ -327,7 +337,8 @@ class handle():
     def prepare_buffer(self, length, pre_allocated_addr=0, flags=0):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/prepare'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         pre = (flags & constants.FPGA_BUF_PREALLOCATED) != 0
 
@@ -347,7 +358,7 @@ class handle():
 
         buf_id = fpga_remote_id.from_json_obj(jobj['bufId'])
 
-        buffer = shared_buffer(self, buf_id, length)
+        buffer = shared_buffer(self, buf_id, length, self.__dict__['_debug'])
         self.__dict__['_shared_buffers'].append(buffer)
 
         return buffer
@@ -356,7 +367,8 @@ class handle():
         tok = self.__dict__['_token']
         save_url = tok.__dict__['_url']
         url = save_url + '/fpga/v1/handle/sysobject/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'name': name,
@@ -370,12 +382,16 @@ class handle():
 
         constants.raise_for_error(jobj['result'], 'fpgaHandleGetObject returned')
 
-        return sysobject(save_url, name, fpga_remote_id.from_json_obj(jobj['objectId']))
+        return sysobject(save_url,
+                         name,
+                         fpga_remote_id.from_json_obj(jobj['objectId']),
+                         self.__dict__['_debug'])
 
     def set_user_clocks(self, high_clock, low_clock, flags):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/clock/frequency/set'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'high_clk': str(high_clock),
@@ -393,7 +409,8 @@ class handle():
     def get_user_clocks(self, flags):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/clock/frequency/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'flags': flags}
@@ -411,7 +428,8 @@ class handle():
     def get_metrics_count(self):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/count'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj()}
 
@@ -428,7 +446,8 @@ class handle():
     def get_metrics_info(self, count):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/info/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'num_metrics': str(count)}
@@ -457,7 +476,8 @@ class handle():
     def get_metrics_by_index(self, indexes):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/get/index'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'metric_num': indexes,
@@ -471,7 +491,6 @@ class handle():
 
         constants.raise_for_error(jobj['result'], 'fpgaGetMetricsByIndex returned')
 
-        #print(resp.text)
         num_indexes = int(jobj['numMetricIndexes'])
         l = []
         for m in jobj['metrics']:
@@ -485,7 +504,8 @@ class handle():
     def get_metrics_by_name(self, names):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/get/name'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'metrics_names': names,
@@ -498,7 +518,6 @@ class handle():
         jobj = resp.json()
 
         constants.raise_for_error(jobj['result'], 'fpgaGetMetricsByName returned')
-        #print(resp.text)
 
         num_names = int(jobj['numMetricNames'])
         l = []
@@ -513,7 +532,8 @@ class handle():
     def get_metrics_threshold_info(self, num_thresholds):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/metrics/threshold/get'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'num_thresholds': num_thresholds}
@@ -525,7 +545,6 @@ class handle():
         jobj = resp.json()
 
         constants.raise_for_error(jobj['result'], 'fpgaGetMetricsThresholdInfo returned')
-        print(resp.text)
 
         num_thresholds = jobj['numThresholds']
 
@@ -541,7 +560,8 @@ class handle():
     def reconfigure_slot_by_name(self, slot, path, flags):
         tok = self.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/reconfigure/name'
-        print(url)
+        if self.__dict__['_debug']:
+            print(url)
 
         req = {'handle_id': self.handle_id.to_json_obj(),
                'slot': slot,
@@ -555,4 +575,3 @@ class handle():
         jobj = resp.json()
 
         constants.raise_for_error(jobj['result'], 'fpgaReconfigureSlotByName returned')
-

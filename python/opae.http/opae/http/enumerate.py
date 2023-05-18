@@ -32,7 +32,7 @@ from opae.http.conversion import to_json_obj
 from opae.http.token import token
 
 
-def enumerate(url, filters, max_tokens):
+def enumerate(url, filters, max_tokens, debug=False):
     """Given a server URL and a list of filters (properties objects),
        retrieve a list of token objects that match the filter criteria.
 
@@ -52,7 +52,8 @@ def enumerate(url, filters, max_tokens):
           }
 
     enum_url = url + '/fpga/v1/enumerate'
-    print(enum_url)
+    if debug:
+        print(enum_url)
 
     tokens = []
     resp = requests.post(enum_url, json=req)
@@ -68,5 +69,6 @@ def enumerate(url, filters, max_tokens):
 
     for tok in tokens:
         tok.__dict__['_url'] = url
+        tok.__dict__['_debug'] = debug
 
     return tokens

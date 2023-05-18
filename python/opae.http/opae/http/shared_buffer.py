@@ -34,10 +34,11 @@ import opae.http.constants as constants
 
 
 class shared_buffer():
-    def __init__(self, h, buf_id, length):
+    def __init__(self, h, buf_id, length, debug):
         self.handle = h
         self.buf_id = buf_id
         self.length = length
+        self.debug = debug
 
     def destroy(self):
         shared = self.handle.__dict__['_shared_buffers']
@@ -47,7 +48,8 @@ class shared_buffer():
 
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/release'
-        print(url)
+        if self.debug:
+            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj()}
@@ -64,7 +66,8 @@ class shared_buffer():
     def ioaddr(self):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/ioaddress'
-        print(url)
+        if self.debug:
+            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj()}
@@ -81,7 +84,8 @@ class shared_buffer():
     def memset(self, offset, c, n):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/memset'
-        print(url)
+        if self.debug:
+            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj(),
@@ -100,7 +104,8 @@ class shared_buffer():
     def memcpy(self, dest_offset, src_data, num_bytes):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/memcpy'
-        print(url)
+        if self.debug:
+            print(url)
 
         encoded = base64.b64encode(src_data)
 
@@ -121,7 +126,8 @@ class shared_buffer():
     def poll(self, offset, width, mask, expected_value, sleep_interval, loops_timeout):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/poll'
-        print(url)
+        if self.debug:
+            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj(),
@@ -148,7 +154,8 @@ class shared_buffer():
     def memcmp(self, other, bufa_offset, bufb_offset, n):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/compare'
-        print(url)
+        if self.debug:
+            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'bufa_id': self.buf_id.to_json_obj(),
@@ -170,7 +177,8 @@ class shared_buffer():
     def write_pattern(self, pattern_name):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/pattern/write'
-        print(url)
+        if self.debug:
+            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj(),

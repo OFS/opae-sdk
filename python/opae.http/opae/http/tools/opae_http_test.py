@@ -56,6 +56,9 @@ def parse_args():
     parser.add_argument('-P', '--protocol', default=DEFAULT_PROTOCOL,
                         choices=['http://', 'https://'])
 
+    parser.add_argument('-g', '--debug', default=False, action='store_true',
+                        help='enable debug info')
+
     parser.add_argument('-v', '--version', action='version',
                         version=f'%(prog)s {SCRIPT_VERSION}')
 
@@ -126,7 +129,8 @@ def test_properties():
 
 
     p = properties.from_json_obj({
-        'objtype': "FPGA_DEVICE",
+        'valid_fields': '30064771074',
+        'objtype': 'FPGA_DEVICE',
         'fpga': {
           'num_slots': 2,
           'bbs_id': 0xbaddecaf,
@@ -143,9 +147,10 @@ def test_properties():
     assert p.fpga.bbs_version.patch == 9
 
     p = properties.from_json_obj({
-        'objtype': "FPGA_ACCELERATOR",
+        'valid_fields': '30064771074',
+        'objtype': 'FPGA_ACCELERATOR',
         'accelerator': {
-          'state': "FPGA_ACCELERATOR_ASSIGNED",
+          'state': 'FPGA_ACCELERATOR_ASSIGNED',
           'num_mmio': 2,
           'num_interrupts': 4 }
         })
@@ -171,7 +176,8 @@ def test_fpga_remote_id():
 
 
 def test_token():
-    values = [0x8086,
+    values = [0x46504741544f4b4e,
+              0x8086,
               0xbcce,
               0x0000,
               0x5e,
@@ -193,6 +199,7 @@ def test_token():
     print(to_json_str(t))
 
     t = token.from_json_obj({
+        'magic': 0x46504741544f4b4e,
         'vendor_id': 0x8086,
         'device_id': 0xbcce,
         'segment': 0x0000,
@@ -228,11 +235,11 @@ def test_except():
         print('Caught ' + str(exc) + ' as expected.')
 
 
-def test_enumerate(url, objtype):
+def test_enumerate(url, objtype, debug):
     p = properties()
     p.objtype = objtype
 
-    tokens = enum.enumerate(url, [p], 1)
+    tokens = enum.enumerate(url, [p], 1, debug)
 
     for t in tokens:
         print(t.to_json_str())
@@ -307,7 +314,10 @@ def test_handle_properties(h):
 
 def test_mmio(h):
     h.map_mmio(0)
-    h.map_mmio(0)
+    try:
+        h.map_mmio(0)
+    except RuntimeError as exc:
+        print(f'Caught {exc} as expected')
 
     for i in range(4):
         val = h.read32(0, i*4)
@@ -328,7 +338,10 @@ def test_mmio(h):
     h.write512(0, 0x140, values)
 
     h.unmap_mmio(0)
-    h.unmap_mmio(0)
+    try:
+        h.unmap_mmio(0)
+    except RuntimeError as exc:
+        print(f'Caught {exc} as expected')
 
 
 def test_shared_buffers(h):
@@ -375,9 +388,9 @@ def test_handle_sysobject(h):
 def test_user_clocks(h):
     #h.set_user_clocks(600, 10, 0)
 
-    clks = h.get_user_clocks(0)
-    print(f'high: {clks[0]} low: {clks[1]}')
-
+    #clks = h.get_user_clocks(0)
+    #print(f'high: {clks[0]} low: {clks[1]}')
+    pass
 
 def test_metrics(h):
     count = h.get_metrics_count()
@@ -421,25 +434,25 @@ def test_destroy(tok):
 def main():
     parser, args = parse_args()
 
-    #test_version()
-    #test_properties()
-    #test_fpga_remote_id()
-    #test_token()
-    #test_except()
-    #tokens = test_enumerate(http_url(args), constants.FPGA_DEVICE)
-    tokens = test_enumerate(http_url(args), constants.FPGA_ACCELERATOR)
-    #test_clone(tokens[0])
-    #test_token_properties(tokens[0])
-    #test_errors(tokens[0])
-    #test_token_sysobject(tokens[0])
+    test_version()
+    test_properties()
+    test_fpga_remote_id()
+    test_token()
+    test_except()
+    #tokens = test_enumerate(http_url(args), constants.FPGA_DEVICE, args.debug)
+    tokens = test_enumerate(http_url(args), constants.FPGA_ACCELERATOR, args.debug)
+    test_clone(tokens[0])
+    test_token_properties(tokens[0])
+    test_errors(tokens[0])
+    test_token_sysobject(tokens[0])
 
     h = test_open(tokens[0])
-    #test_reset(h)
-    #test_handle_properties(h)
-    #test_mmio(h)
+    test_reset(h)
+    test_handle_properties(h)
+    test_mmio(h)
     test_shared_buffers(h) # FPGA_ACCELERATOR
-    #test_handle_sysobject(h)
-    #test_user_clocks(h)
+    test_handle_sysobject(h)
+    test_user_clocks(h)
     #test_metrics(h) # FPGA_DEVICE
     #test_reconfigure(h) # FPGA_DEVICE
 
