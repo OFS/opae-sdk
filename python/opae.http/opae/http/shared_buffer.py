@@ -48,15 +48,20 @@ class shared_buffer():
 
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/release'
-        if self.debug:
-            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj()}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaReleaseBuffer Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaReleaseBuffer Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -66,15 +71,20 @@ class shared_buffer():
     def ioaddr(self):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/ioaddress'
-        if self.debug:
-            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj()}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaGetIOAddress Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaGetIOAddress Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -84,8 +94,6 @@ class shared_buffer():
     def memset(self, offset, c, n):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/memset'
-        if self.debug:
-            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj(),
@@ -93,9 +101,16 @@ class shared_buffer():
                'c': c,
                'n': str(n)}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaBufMemSet Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaBufMemSet Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -104,8 +119,6 @@ class shared_buffer():
     def memcpy(self, dest_offset, src_data, num_bytes):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/memcpy'
-        if self.debug:
-            print(url)
 
         encoded = base64.b64encode(src_data)
 
@@ -115,9 +128,16 @@ class shared_buffer():
                'src': encoded.decode(),
                'n': str(num_bytes)}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaBufMemCpyToRemote Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaBufMemCpyToRemote Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -126,8 +146,6 @@ class shared_buffer():
     def poll(self, offset, width, mask, expected_value, sleep_interval, loops_timeout):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/poll'
-        if self.debug:
-            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj(),
@@ -138,9 +156,16 @@ class shared_buffer():
                'sleep_interval': str(sleep_interval),
                'loops_timeout': str(loops_timeout)}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaBufPoll Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaBufPoll Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -154,8 +179,6 @@ class shared_buffer():
     def memcmp(self, other, bufa_offset, bufb_offset, n):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/compare'
-        if self.debug:
-            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'bufa_id': self.buf_id.to_json_obj(),
@@ -164,9 +187,16 @@ class shared_buffer():
                'bufb_offset': str(bufb_offset),
                'n': str(n)}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaBufMemCmp Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaBufMemCmp Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -177,16 +207,21 @@ class shared_buffer():
     def write_pattern(self, pattern_name):
         tok = self.handle.__dict__['_token']
         url = tok.__dict__['_url'] + '/fpga/v1/handle/buffers/pattern/write'
-        if self.debug:
-            print(url)
 
         req = {'handle_id': self.handle.handle_id.to_json_obj(),
                'buf_id': self.buf_id.to_json_obj(),
                'pattern_name': pattern_name}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaBufWritePattern Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaBufWritePattern Response: {resp.text}')
 
         jobj = resp.json()
 

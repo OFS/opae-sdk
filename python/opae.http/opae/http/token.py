@@ -125,14 +125,19 @@ class token():
 
     def clone(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/clone'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'src_token_id': self.token_id.to_json_obj()}
+
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaCloneToken Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaCloneToken Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -145,29 +150,39 @@ class token():
 
     def destroy(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/destroy'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
+
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaDestroyToken Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaDestroyToken Response: {resp.text}')
 
         jobj = resp.json()
         constants.raise_for_error(jobj['result'], 'fpgaDestroyToken returned')
 
     def open(self, flags=0):
         url = self.__dict__['_url'] + '/fpga/v1/token/open'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'flags': flags}
 
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaOpen Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaOpen Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -180,14 +195,19 @@ class token():
 
     def get_properties(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/properties/get'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
+
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaGetProperties Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaGetProperties Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -197,14 +217,19 @@ class token():
 
     def update_properties(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/properties/update'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
+
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaUpdateProperties Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaUpdateProperties Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -214,15 +239,20 @@ class token():
 
     def read_error(self, error_num):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/read'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'error_num': error_num}
 
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaReadError Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaReadError Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -232,15 +262,20 @@ class token():
 
     def get_error_info(self, error_num):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/information/get'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'error_num': error_num}
 
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaGetErrorInfo Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaGetErrorInfo Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -250,15 +285,20 @@ class token():
 
     def clear_error(self, error_num):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/clear'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'error_num': error_num}
 
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaClearError Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaClearError Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -266,14 +306,19 @@ class token():
 
     def clear_all_errors(self):
         url = self.__dict__['_url'] + '/fpga/v1/token/errors/all/clear'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj()}
+
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaClearAllErrors Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaClearAllErrors Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -282,16 +327,21 @@ class token():
     def get_object(self, name, flags):
         save_url = self.__dict__['_url']
         url = save_url + '/fpga/v1/token/sysobject/get'
-        if self.__dict__['_debug']:
-            print(url)
 
         req = {'token_id': self.token_id.to_json_obj(),
                'name': name,
                'flags': flags}
 
+        if self.__dict__['_debug']:
+            print(url)
+            print(f'fpgaTokenGetObject Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.__dict__['_debug']:
+            print(f'fpgaTokenGetObject Response: {resp.text}')
 
         jobj = resp.json()
 

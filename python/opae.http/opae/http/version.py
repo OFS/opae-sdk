@@ -27,6 +27,7 @@
 
 import json
 
+
 class version:
     def __init__(self, major, minor, patch):
         self.major = major

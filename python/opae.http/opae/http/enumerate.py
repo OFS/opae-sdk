@@ -54,11 +54,15 @@ def enumerate(url, filters, max_tokens, debug=False):
     enum_url = url + '/fpga/v1/enumerate'
     if debug:
         print(enum_url)
+        print(f'fpgaEnumerate Request: {req}')
 
     tokens = []
     resp = requests.post(enum_url, json=req)
 
     resp.raise_for_status()
+
+    if debug:
+        print(f'fpgaEnumerate Response: {resp.text}')
 
     jobj = resp.json()
 

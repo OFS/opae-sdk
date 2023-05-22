@@ -299,7 +299,7 @@ def test_token_sysobject(tok):
 
 def test_open(tok):
     h = tok.open(0)
-    print(h.to_json_str())
+    #print(h.to_json_str())
     return h
 
 
@@ -416,7 +416,7 @@ def test_metrics(h):
     for m in metrics:
         print(f'n: {m.metric_num} val: {m.value.dvalue} valid: {m.valid}')
 
-    thresholds = h.get_metrics_threshold_info(count)
+    #thresholds = h.get_metrics_threshold_info(count)
 
 
 def test_reconfigure(h):
@@ -434,11 +434,11 @@ def test_destroy(tok):
 def main():
     parser, args = parse_args()
 
-    test_version()
-    test_properties()
-    test_fpga_remote_id()
-    test_token()
-    test_except()
+    #test_version()
+    #test_properties()
+    #test_fpga_remote_id()
+    #test_token()
+    #test_except()
     #tokens = test_enumerate(http_url(args), constants.FPGA_DEVICE, args.debug)
     tokens = test_enumerate(http_url(args), constants.FPGA_ACCELERATOR, args.debug)
     test_clone(tokens[0])
@@ -447,9 +447,9 @@ def main():
     test_token_sysobject(tokens[0])
 
     h = test_open(tokens[0])
-    test_reset(h)
+    test_reset(h) # FPGA_ACCELERATOR
     test_handle_properties(h)
-    test_mmio(h)
+    test_mmio(h) # FPGA_ACCELERATOR
     test_shared_buffers(h) # FPGA_ACCELERATOR
     test_handle_sysobject(h)
     test_user_clocks(h)

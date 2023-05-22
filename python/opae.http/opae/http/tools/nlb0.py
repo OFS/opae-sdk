@@ -26,7 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import argparse
-from ctypes import c_uint64, c_uint32, Structure, Union
+from ctypes import c_uint64, Structure, Union
 import requests
 import sys
 import time
@@ -270,7 +270,7 @@ def main():
     input_buffer.destroy()
     device_status_memory.destroy()
 
-    h.unmap_mmio(0)
+    h.unmap_mmio(mmio_region)
     h.close()
     for t in tokens:
         t.destroy()

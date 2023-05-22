@@ -40,14 +40,19 @@ class sysobject():
 
     def destroy(self):
         url = self.url + '/fpga/v1/sysobject/destroy'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj()}
+
+        if self.debug:
+            print(url)
+            print(f'fpgaDestroyObject Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaDestroyObject Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -55,14 +60,19 @@ class sysobject():
 
     def get_type(self):
         url = self.url + '/fpga/v1/sysobject/type/get'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj()}
+
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectGetType Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectGetType Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -72,14 +82,19 @@ class sysobject():
 
     def get_name(self):
         url = self.url + '/fpga/v1/sysobject/name/get'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj()}
+
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectGetName Request: {req}')
 
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectGetName Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -89,15 +104,20 @@ class sysobject():
 
     def get_size(self, flags):
         url = self.url + '/fpga/v1/sysobject/size/get'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
                'flags': flags}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectGetSize Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectGetSize Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -107,17 +127,22 @@ class sysobject():
 
     def read(self, offset, length, flags):
         url = self.url + '/fpga/v1/sysobject/read'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
                'offset': str(offset),
                'length': str(length),
                'flags': flags}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectRead Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectRead Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -127,15 +152,20 @@ class sysobject():
 
     def read64(self, flags):
         url = self.url + '/fpga/v1/sysobject/read64'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
                'flags': flags}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectRead64 Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectRead64 Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -145,16 +175,21 @@ class sysobject():
 
     def write64(self, value, flags):
         url = self.url + '/fpga/v1/sysobject/write64'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
                'value': str(value),
                'flags': flags}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectWrite64 Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectWrite64 Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -162,16 +197,21 @@ class sysobject():
 
     def get_object(self, name, flags):
         url = self.url + '/fpga/v1/sysobject/get'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
                'name': name,
                'flags': flags}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectGetObject Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectGetObject Response: {resp.text}')
 
         jobj = resp.json()
 
@@ -184,15 +224,20 @@ class sysobject():
 
     def get_object_at(self, index):
         url = self.url + '/fpga/v1/sysobject/get/at'
-        if self.debug:
-            print(url)
 
         req = {'object_id': self.object_id.to_json_obj(),
                'index': str(index)}
 
+        if self.debug:
+            print(url)
+            print(f'fpgaObjectGetObjectAt Request: {req}')
+
         resp = requests.post(url, json=req)
 
         resp.raise_for_status()
+
+        if self.debug:
+            print(f'fpgaObjectGetObjectAt Response: {resp.text}')
 
         jobj = resp.json()
 
