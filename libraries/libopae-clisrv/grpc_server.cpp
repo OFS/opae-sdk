@@ -1564,11 +1564,11 @@ Status OPAEServiceImpl::fpgaReconfigureSlot(
     ReconfigureSlotReply *reply) {
   UNUSED_PARAM(context);
   fpga_remote_id handle_id;
-  fpga_handle handle;
+  fpga_handle handle = nullptr;
   uint8_t *bitstream = nullptr;
-  uint32_t slot;
+  uint32_t slot = 0;
   uint64_t bitstream_len = 0;
-  int flags;
+  int flags = 0;
   fpga_result res;
   bool first = true;
 
