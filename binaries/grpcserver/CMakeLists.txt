@@ -31,6 +31,8 @@ opae_add_executable(TARGET grpcserver
       opae-c
       opae-clisrv
       gRPC::grpc++_reflection
+    COMPONENT
+      grpcserver
 )
 
 target_include_directories(grpcserver

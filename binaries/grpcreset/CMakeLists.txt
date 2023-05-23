@@ -31,6 +31,8 @@ opae_add_executable(TARGET grpcreset
       opae-c
       opae-clisrv
       gRPC::grpc++_reflection
+    COMPONENT
+      grpcreset
 )
 
 target_include_directories(grpcreset
