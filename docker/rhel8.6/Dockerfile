@@ -4,32 +4,20 @@ RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|
 RUN yum update -y
 RUN yum install -y \
         python3 \
-        python3-pip \
+        python3-pip \  
         python3-devel \
-        python3-wheel \
-        python3-pybind11 \
-        make \
+        json-c \
         libuuid-devel \
-        json-c-devel \
         gcc \
-        clang \
         gcc-c++ \
-        hwloc-devel \
-        tbb-devel \
+        git \
+        make \
+        cmake \
         rpm-build \
         rpmdevtools \
-        git \
-        libedit-devel \
-        epel-release
-
-RUN yum install -y \
-        libudev-devel \
-        libcap-devel \
-        cmake3 \
-        openssl11-devel
-
-RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
-RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
+        systemd-devel
+RUN yum install -y json-c-devel python3-jsonschema
+RUN python3 -m pip install jsonschema
 WORKDIR /root
 COPY scripts/build-rpms-new-rhel.sh /scripts/build-rpms-new-rhel.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
