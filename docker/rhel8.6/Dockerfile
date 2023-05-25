@@ -15,7 +15,8 @@ RUN yum install -y \
         cmake \
         rpm-build \
         rpmdevtools \
-        systemd-devel
+        systemd-devel \
+        libncurses-compat-libs
 RUN yum install -y json-c-devel python3-jsonschema
 RUN python3 -m pip install jsonschema
 WORKDIR /root
