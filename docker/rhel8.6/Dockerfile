@@ -19,7 +19,8 @@ RUN yum install -y \
         libncurses* \
         hwloc \
         autoconf \
-        automake
+        automake \
+        libtool
 RUN yum install -y json-c-devel python3-jsonschema
 RUN python3 -m pip install jsonschema
 WORKDIR /root
