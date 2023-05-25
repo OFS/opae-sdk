@@ -17,7 +17,7 @@ RUN yum install -y \
         rpmdevtools \
         systemd-devel \
         libncurses* \
-        hwloc
+        hwloc-devel
 RUN yum install -y json-c-devel python3-jsonschema
 RUN python3 -m pip install jsonschema
 WORKDIR /root
