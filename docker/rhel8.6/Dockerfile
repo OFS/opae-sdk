@@ -17,7 +17,7 @@ RUN yum install -y \
         rpmdevtools \
         systemd-devel \
         libncurses* \
-        hwloc \
+        hwloc-devel \
         autoconf \
         automake \
         libtool
