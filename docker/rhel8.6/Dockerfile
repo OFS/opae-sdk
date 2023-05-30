@@ -15,7 +15,7 @@ RUN yum install -y \
         python3-pip \
         python3-devel \
         python3-wheel \
-        python3-pybind11 \
+#       python3-pybind11 \
         make \
         libuuid-devel \
         json-c-devel \
