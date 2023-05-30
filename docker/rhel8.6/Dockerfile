@@ -33,7 +33,7 @@ RUN yum install -y \
         libudev-devel \
         libcap-devel \
         cmake3 \
-        openssl11-devel
+#        openssl11-devel
 
 RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
 RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
