@@ -1,8 +1,11 @@
 FROM centos:8
+RUN sed -i 's/mirrorlist/#mirorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
+RUN yum install -y https://www.elrepo.org/elrepo-release-7.0-4.el7.elrepo.noarch.rpm
 RUN rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-RUN yum install -y https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm
 RUN yum --enablerepo=elrepo-kernel install -y kernel-ml-headers
+
 RUN yum update -y
 RUN yum install -y \
         python3 \
