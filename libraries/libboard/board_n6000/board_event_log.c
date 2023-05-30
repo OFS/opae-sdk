@@ -299,7 +299,7 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
 }
 
-static void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
+void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_ON_STATUS)
 		return;
@@ -457,7 +457,7 @@ static void bel_print_sensor_alert(uint32_t sensor_alert, size_t offset)
 	for (i = 0; i < last; i++, info++)
 		bel_print_fail(info->label, sensor_alert, i);
 }
-static void bel_print_power_off_status(struct bel_power_off_status *status, bool print_bits)
+void bel_print_power_off_status(struct bel_power_off_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_OFF_STATUS)
 		return;
@@ -606,7 +606,7 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 		bel_print_sensor_alert(status->sensor_alert_1, 64);
 }
 
-static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
+size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 {
 	struct bel_sensor_info *info = NULL;
 	size_t next = last + 1;
@@ -616,6 +616,9 @@ static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 		info = &bel_sensor_info[next];
 
 		if (info->id == state->id)
+			break;
+
+		if (state->id == 0)
 			break;
 
 		next = (next + 1) % ARRAY_SIZE(bel_sensor_info);
@@ -636,7 +639,7 @@ static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 	return next;
 }
 
-static void bel_print_sensors_state(struct bel_sensors_state *state)
+void bel_print_sensors_state(struct bel_sensors_state *state)
 {
 	size_t idx = -1;
 	size_t i;
@@ -650,7 +653,7 @@ static void bel_print_sensors_state(struct bel_sensors_state *state)
 		idx = bel_print_sensor(&state->sensor_state[i], idx);
 }
 
-static void bel_print_sensors_status_ext(const char *label, struct bel_ext_status *status, size_t idx)
+void bel_print_sensors_status_ext(const char *label, struct bel_ext_status *status, size_t idx)
 {
 	struct bel_sensor_info *info = &bel_power_regulator_info[idx];
 	char l[32];
@@ -691,7 +694,7 @@ static void bel_print_sensors_status_ext(const char *label, struct bel_ext_statu
 	bel_print_bit("Invalid/Unsupported Command", status->cml, 7);
 }
 
-static void bel_print_sensors_status(struct bel_sensors_status *status)
+void bel_print_sensors_status(struct bel_sensors_status *status)
 {
 	if (status->header.magic != BEL_SENSORS_STATUS)
 		return;
@@ -707,7 +710,7 @@ static void bel_print_sensors_status(struct bel_sensors_status *status)
 	bel_print_value("ED8401 Status", status->ed8401_status);
 }
 
-static void bel_print_max10_seu(struct bel_max10_seu *status)
+void bel_print_max10_seu(struct bel_max10_seu *status)
 {
 	if (status->header.magic != BEL_MAX10_SEU_STATUS)
 		return;
@@ -716,7 +719,7 @@ static void bel_print_max10_seu(struct bel_max10_seu *status)
 
 }
 
-static void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
+void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
 {
 	if (timeof_day->header.magic != BEL_TIMEOF_DAY_STATUS)
 		return;
@@ -728,7 +731,7 @@ static void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
 	bel_print_value("TimeOfDay offset high", timeof_day->timeofday_offset_high);
 }
 
-static void bel_print_fpga_seu(struct bel_fpga_seu *status)
+void bel_print_fpga_seu(struct bel_fpga_seu *status)
 {
 	if (status->header.magic != BEL_FPGA_SEU_STATUS)
 		return;
@@ -737,7 +740,7 @@ static void bel_print_fpga_seu(struct bel_fpga_seu *status)
 	bel_print_bit("FPGA SEU error status", status->fpga_seu, 1);
 }
 
-static void bel_print_pci_error_status(struct bel_pci_error_status *status, bool print_bits)
+void bel_print_pci_error_status(struct bel_pci_error_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_PCI_ERROR_STATUS)
 		return;
@@ -780,7 +783,7 @@ static void bel_print_pci_error_status(struct bel_pci_error_status *status, bool
 
 }
 
-static void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status *status, bool print_bits)
+void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status *status, bool print_bits)
 {
 
 	if (status->header.magic != BEL_PCI_V1_ERROR_STATUS)
