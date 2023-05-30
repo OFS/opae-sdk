@@ -32,7 +32,7 @@ RUN yum install -y \
 RUN yum install -y \
         libudev-devel \
         libcap-devel \
-        cmake3 \
+        cmake3
 #        openssl11-devel
 
 RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
