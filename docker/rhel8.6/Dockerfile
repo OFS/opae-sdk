@@ -36,6 +36,8 @@ RUN yum install -y \
         cmake3
 #        openssl11-devel
 
+RUN /usr/bin/python3 -m pip --version
+
 RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
 RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
 
