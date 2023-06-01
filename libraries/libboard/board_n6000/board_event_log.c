@@ -48,7 +48,8 @@ enum bel_magic {
 	BEL_POWER_OFF_STATUS    = 0x53696C34,
 	BEL_SENSORS_STATE       = 0x53696C56,
 	BEL_SENSORS_STATUS      = 0x53696C78,
-	BEL_PCI_ERROR_STATUS    = 0x53696C9A
+	BEL_PCI_ERROR_STATUS    = 0x53696C9A,
+	BEL_PCI_V1_ERROR_STATUS = 0x53696D12
 };
 
 enum bel_power_regulator {
@@ -298,7 +299,7 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
 }
 
-static void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
+void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_ON_STATUS)
 		return;
@@ -456,7 +457,7 @@ static void bel_print_sensor_alert(uint32_t sensor_alert, size_t offset)
 	for (i = 0; i < last; i++, info++)
 		bel_print_fail(info->label, sensor_alert, i);
 }
-static void bel_print_power_off_status(struct bel_power_off_status *status, bool print_bits)
+void bel_print_power_off_status(struct bel_power_off_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_OFF_STATUS)
 		return;
@@ -605,7 +606,7 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 		bel_print_sensor_alert(status->sensor_alert_1, 64);
 }
 
-static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
+size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 {
 	struct bel_sensor_info *info = NULL;
 	size_t next = last + 1;
@@ -615,6 +616,9 @@ static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 		info = &bel_sensor_info[next];
 
 		if (info->id == state->id)
+			break;
+
+		if (state->id == 0)
 			break;
 
 		next = (next + 1) % ARRAY_SIZE(bel_sensor_info);
@@ -635,7 +639,7 @@ static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 	return next;
 }
 
-static void bel_print_sensors_state(struct bel_sensors_state *state)
+void bel_print_sensors_state(struct bel_sensors_state *state)
 {
 	size_t idx = -1;
 	size_t i;
@@ -649,7 +653,7 @@ static void bel_print_sensors_state(struct bel_sensors_state *state)
 		idx = bel_print_sensor(&state->sensor_state[i], idx);
 }
 
-static void bel_print_sensors_status_ext(const char *label, struct bel_ext_status *status, size_t idx)
+void bel_print_sensors_status_ext(const char *label, struct bel_ext_status *status, size_t idx)
 {
 	struct bel_sensor_info *info = &bel_power_regulator_info[idx];
 	char l[32];
@@ -690,7 +694,7 @@ static void bel_print_sensors_status_ext(const char *label, struct bel_ext_statu
 	bel_print_bit("Invalid/Unsupported Command", status->cml, 7);
 }
 
-static void bel_print_sensors_status(struct bel_sensors_status *status)
+void bel_print_sensors_status(struct bel_sensors_status *status)
 {
 	if (status->header.magic != BEL_SENSORS_STATUS)
 		return;
@@ -706,7 +710,7 @@ static void bel_print_sensors_status(struct bel_sensors_status *status)
 	bel_print_value("ED8401 Status", status->ed8401_status);
 }
 
-static void bel_print_max10_seu(struct bel_max10_seu *status)
+void bel_print_max10_seu(struct bel_max10_seu *status)
 {
 	if (status->header.magic != BEL_MAX10_SEU_STATUS)
 		return;
@@ -715,7 +719,7 @@ static void bel_print_max10_seu(struct bel_max10_seu *status)
 
 }
 
-static void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
+void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
 {
 	if (timeof_day->header.magic != BEL_TIMEOF_DAY_STATUS)
 		return;
@@ -727,7 +731,7 @@ static void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
 	bel_print_value("TimeOfDay offset high", timeof_day->timeofday_offset_high);
 }
 
-static void bel_print_fpga_seu(struct bel_fpga_seu *status)
+void bel_print_fpga_seu(struct bel_fpga_seu *status)
 {
 	if (status->header.magic != BEL_FPGA_SEU_STATUS)
 		return;
@@ -736,7 +740,7 @@ static void bel_print_fpga_seu(struct bel_fpga_seu *status)
 	bel_print_bit("FPGA SEU error status", status->fpga_seu, 1);
 }
 
-static void bel_print_pci_error_status(struct bel_pci_error_status *status, bool print_bits)
+void bel_print_pci_error_status(struct bel_pci_error_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_PCI_ERROR_STATUS)
 		return;
@@ -776,6 +780,124 @@ static void bel_print_pci_error_status(struct bel_pci_error_status *status, bool
 		bel_print_bit("TLP Prefix Blocked Status", status->pcie_uncorr_err, 25);
 		bel_print_bit("Poisoned TLP Egress Blocked Status", status->pcie_uncorr_err, 26);
 	}
+
+}
+
+void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status *status, bool print_bits)
+{
+
+	if (status->header.magic != BEL_PCI_V1_ERROR_STATUS)
+		return;
+
+	bel_print_header("PCI Error Status Time", &status->header);
+
+	// PCIe Link Status
+	bel_print_value("PCIe Link Status", status->pcie_link_status);
+	if (print_bits) {
+		bel_print_field("Current Link Speed", status->pcie_link_status, 0, 3);
+		bel_print_field("Negotiated Link Speed", status->pcie_link_status, 4, 9);
+		bel_print_bit("Link Training ", status->pcie_link_status, 11);
+		bel_print_bit("Slot Clock Configuration", status->pcie_link_status, 12);
+		bel_print_bit("Data link layer link active", status->pcie_link_status, 13);
+		bel_print_bit("Link Bandwidth Management Status", status->pcie_link_status, 14);
+		bel_print_bit("Link Autonomous Management Status", status->pcie_link_status, 15);
+	}
+
+	// PCIe Uncorrectable Error
+	bel_print_value("PCIe Uncorrectable Error", status->pcie_uncorr_err);
+	if (print_bits) {
+		bel_print_bit("Data Link Protocol error Status", status->pcie_uncorr_err, 4);
+		bel_print_bit("Surprise down error Status", status->pcie_uncorr_err, 5);
+		bel_print_bit("Poisoned TLP received", status->pcie_uncorr_err, 12);
+		bel_print_bit("Flow Control Protocol Errors Status", status->pcie_uncorr_err, 13);
+		bel_print_bit("Completion Timeout Status", status->pcie_uncorr_err, 14);
+		bel_print_bit("Completer Abort error Status", status->pcie_uncorr_err, 15);
+		bel_print_bit("Unexpected Completion Status", status->pcie_uncorr_err, 16);
+		bel_print_bit("Receiver Overflow Status", status->pcie_uncorr_err, 17);
+		bel_print_bit("Malformed TLP Status", status->pcie_uncorr_err, 18);
+		bel_print_bit("ECRC Error Status", status->pcie_uncorr_err, 19);
+		bel_print_bit("Unsupported Request Error Status", status->pcie_uncorr_err, 20);
+		bel_print_bit("ACS Violation Status", status->pcie_uncorr_err, 21);
+		bel_print_bit("Uncorrectable Internal Error Status", status->pcie_uncorr_err, 22);
+		bel_print_bit("MC Blocked TLP Status", status->pcie_uncorr_err, 23);
+		bel_print_bit("AtomicOp Egress Blocked Status", status->pcie_uncorr_err, 24);
+		bel_print_bit("TLP Prefix Blocked Status", status->pcie_uncorr_err, 25);
+		bel_print_bit("Poisoned TLP Egress Blocked Status", status->pcie_uncorr_err, 26);
+	}
+
+	// PCIe Uncorrectable Err Mask
+	bel_print_value("PCIe Uncorrectable Err Mask", status->pcie_uncorr_err_mask);
+	if (print_bits) {
+		bel_print_bit("Data Link Protocol error", status->pcie_uncorr_err, 4);
+		bel_print_bit("Surprise down error", status->pcie_uncorr_err, 5);
+		bel_print_bit("Poisoned TLP received", status->pcie_uncorr_err, 12);
+		bel_print_bit("Flow Control Protocol Errors", status->pcie_uncorr_err, 13);
+		bel_print_bit("Completion Timeout", status->pcie_uncorr_err, 14);
+		bel_print_bit("Completer Abort error", status->pcie_uncorr_err, 15);
+		bel_print_bit("Unexpected Completion", status->pcie_uncorr_err, 16);
+		bel_print_bit("Receiver Overflow", status->pcie_uncorr_err, 17);
+		bel_print_bit("Malformed TLP", status->pcie_uncorr_err, 18);
+		bel_print_bit("ECRC Error", status->pcie_uncorr_err, 19);
+		bel_print_bit("Unsupported Request Error", status->pcie_uncorr_err, 20);
+		bel_print_bit("ACS Violation", status->pcie_uncorr_err, 21);
+		bel_print_bit("Uncorrectable Internal Error", status->pcie_uncorr_err, 22);
+		bel_print_bit("MC Blocked TLP", status->pcie_uncorr_err, 23);
+		bel_print_bit("AtomicOp Egress Blocked", status->pcie_uncorr_err, 24);
+		bel_print_bit("TLP Prefix Blocked", status->pcie_uncorr_err, 25);
+		bel_print_bit("Poisoned TLP Egress Blocked", status->pcie_uncorr_err, 26);
+	}
+
+	//PCIE Uncorrectable Err Severity
+	bel_print_value("PCIe Uncorrectable Err Severity", status->pcie_uncorr_err_severity);
+	if (print_bits) {
+		bel_print_bit("Data Link Protocol error", status->pcie_uncorr_err_severity, 4);
+		bel_print_bit("Surprise Down Error", status->pcie_uncorr_err_severity, 5);
+		bel_print_bit("Poisoned TLP", status->pcie_uncorr_err_severity, 12);
+		bel_print_bit("Flow Control protocol error", status->pcie_uncorr_err_severity, 13);
+		bel_print_bit("Completion Timeout", status->pcie_uncorr_err_severity, 14);
+		bel_print_bit("Completer Abort (CA) was transmitted", status->pcie_uncorr_err_severity, 15);
+		bel_print_bit("Unexpected Completion was received", status->pcie_uncorr_err_severity, 16);
+		bel_print_bit("Receiver Overflow", status->pcie_uncorr_err_severity, 17);
+		bel_print_bit("Malformed TLP Received", status->pcie_uncorr_err_severity, 18);
+		bel_print_bit("ECRC Error Detected", status->pcie_uncorr_err_severity, 19);
+		bel_print_bit("Unsupported Request Received", status->pcie_uncorr_err_severity, 20);
+	}
+
+	//PCIE Correctable Err Status
+	bel_print_value("PCIe Correctable Err Status", status->pcie_corr_err_status);
+	if (print_bits) {
+		bel_print_bit("Receiver Error status", status->pcie_corr_err_status, 0);
+		bel_print_bit("Bad TLP status", status->pcie_corr_err_status, 6);
+		bel_print_bit("Bad DLLP status", status->pcie_corr_err_status, 7);
+		bel_print_bit("Replay Number Rollover status", status->pcie_corr_err_status, 8);
+		bel_print_bit("Replay timer Timeout status", status->pcie_corr_err_status, 12);
+		bel_print_bit("Advisory Non-Fatal Error status", status->pcie_corr_err_status, 13);
+		bel_print_bit("Corrected internal error status", status->pcie_corr_err_status, 14);
+	}
+
+	//PCIE Correctable Err Mask
+	bel_print_value("PCIe Correctable Err Mask", status->pcie_corr_err_mask);
+	if (print_bits) {
+		bel_print_bit("Receiver Error", status->pcie_corr_err_status, 0);
+		bel_print_bit("Bad TLP", status->pcie_corr_err_status, 6);
+		bel_print_bit("Bad DLLP", status->pcie_corr_err_status, 7);
+		bel_print_bit("Replay Number Rollover", status->pcie_corr_err_status, 8);
+		bel_print_bit("Replay timer Timeout", status->pcie_corr_err_status, 12);
+		bel_print_bit("Advisory Non-Fatal Error", status->pcie_corr_err_status, 13);
+		bel_print_bit("Corrected internal error", status->pcie_corr_err_status, 14);
+	}
+
+	//PCIE Cap And Ctrl
+	bel_print_value("PCIe Cap And Ctrl", status->pcie_cap_ctrl);
+
+	//PCIE Header Log DW 1
+	bel_print_value("PCIE Header Log DW1", status->pcie_header_log1);
+	//PCIE Header Log DW 2
+	bel_print_value("PCIE Header Log DW2", status->pcie_header_log1);
+	//PCIE Header Log DW 3
+	bel_print_value("PCIE Header Log DW3", status->pcie_header_log1);
+	//PCIE Header Log DW 4
+	bel_print_value("PCIE Header Log DW4", status->pcie_header_log1);
 
 }
 
@@ -845,6 +967,7 @@ void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 		bel_print_sensors_state(&event->sensors_state);
 		bel_print_sensors_status(&event->sensors_status);
 	}
+	bel_print_pci_v1_error_status(&event->pcie_v1_error_status, print_bits);
 
 }
 

@@ -39,6 +39,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <stdexcept>
 #include "platform/fpga_hw.h"
 #include <glob.h>
 
