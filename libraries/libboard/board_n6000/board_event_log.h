@@ -100,6 +100,7 @@ struct bel_sensors_status {
 	struct bel_ext_status ir38063;
 	struct bel_ext_status isl68220;
 	uint32_t ed8401_status;
+	uint32_t reserved[16];
 } __attribute__((__packed__));
 
 struct bel_timeof_day {
@@ -125,6 +126,21 @@ struct bel_pci_error_status {
 	uint32_t reserved[7];
 } __attribute__((__packed__));
 
+struct bel_pcie_v1_error_status {
+	struct bel_header header;
+	uint32_t pcie_link_status;
+	uint32_t pcie_uncorr_err;
+	uint32_t pcie_uncorr_err_mask;
+	uint32_t pcie_uncorr_err_severity;
+	uint32_t pcie_corr_err_status;
+	uint32_t pcie_corr_err_mask;
+	uint32_t pcie_cap_ctrl;
+	uint32_t pcie_header_log1;
+	uint32_t pcie_header_log2;
+	uint32_t pcie_header_log3;
+	uint32_t pcie_header_log4;
+} __attribute__((__packed__)) ;
+
 struct bel_event {
 	union {
 		struct {
@@ -136,6 +152,7 @@ struct bel_event {
 			struct bel_power_off_status power_off_status;
 			struct bel_sensors_state sensors_state;
 			struct bel_sensors_status sensors_status;
+			struct bel_pcie_v1_error_status pcie_v1_error_status;
 		};
 		uint32_t data[1];
 	};
