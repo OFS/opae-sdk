@@ -44,5 +44,5 @@ RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
 WORKDIR /root
 COPY scripts/build-rpms-new-rhel.sh /scripts/build-rpms-new-rhel.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
-ENTRYPOINT ["/scripts/build-rpms-new-rhel.sh"]
-#ENTRYPOINT python3 -m pip install --help
+#ENTRYPOINT ["/scripts/build-rpms-new-rhel.sh"]
+ENTRYPOINT python3 -m pip install --help
