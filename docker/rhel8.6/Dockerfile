@@ -3,6 +3,8 @@ RUN sed -i 's/mirrorlist/#mirorlist/g' /etc/yum.repos.d/CentOS-*
 RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 RUN sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
 
+RUN yum -y install epel-release epel-next-release
+
 RUN yum -y install gcc
 
 #RUN yum install -y https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm
@@ -43,6 +45,7 @@ RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
 
 RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
 
+RUN yum -y install create-fake-rpm
 RUN /usr/bin/python3 -m pip install pybind11 --prefix=/usr
 RUN create-fake-rpm --build python3-pybind11
 
