@@ -39,9 +39,12 @@ RUN yum install -y \
 
 
 RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
-RUN /usr/bin/python3 -m pip install pyyaml jsonschema pybind11 --prefix=/usr
+RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
 
 RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
+
+RUN /usr/bin/python3 -m pip install pybind11 --prefix=/usr
+RUN create-fake-rpm --build python3-pybind11
 
 WORKDIR /root
 COPY scripts/build-rpms-new.sh /scripts/build-rpms-new.sh
