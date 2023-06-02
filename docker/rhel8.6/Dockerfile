@@ -45,5 +45,6 @@ RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
 WORKDIR /root
 COPY scripts/build-rpms-new-rhel.sh /scripts/build-rpms-new-rhel.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
+RUN echo "ls /packaging/opae/rpm/" >> /scripts/builde-rpms-new-rhel.sh
 ENTRYPOINT ["/scripts/build-rpms-new-rhel.sh"]
 #ENTRYPOINT python3 -m pip install --help
