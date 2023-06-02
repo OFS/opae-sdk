@@ -12,10 +12,11 @@ RUN yum -y install gcc
 RUN yum update -y
 RUN yum install -y \
         python3 \
-#        python3-pip \
+        python3-pip \
         python3-devel \
         python3-wheel \
-        python3-jsonschema\
+        python3-jsonschema \
+        python3-pyyaml \
 #       python3-pybind11 \
         make \
         libuuid-devel \
