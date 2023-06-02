@@ -17,7 +17,7 @@ RUN yum install -y \
         python3-wheel \
         python3-jsonschema \
         python3-pyyaml \
-        python39-pybind11 \
+#        python39-pybind11 \
         make \
         libuuid-devel \
         json-c-devel \
@@ -39,7 +39,7 @@ RUN yum install -y \
 
 
 RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
-RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
+RUN /usr/bin/python3 -m pip install pyyaml jsonschema pybind11 --prefix=/usr
 
 RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
 
