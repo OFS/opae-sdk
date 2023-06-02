@@ -17,7 +17,7 @@ RUN yum install -y \
         python3-wheel \
         python3-jsonschema \
         python3-pyyaml \
-#       python3-pybind11 \
+        python3-pybind11 \
         make \
         libuuid-devel \
         json-c-devel \
