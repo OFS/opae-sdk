@@ -48,7 +48,7 @@ RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
 RUN yum -y install create-fake-rpm
 RUN /usr/bin/python3 -m pip install pybind11 --prefix=/usr
 RUN create-fake-rpm --build python3-pybind11 "python3dist(pybind11)"
-RUN yum install python3-pybind11
+RUN yum install fake-python3-pybind-0-0.noarch.rpm
 
 WORKDIR /root
 COPY scripts/build-rpms-new.sh /scripts/build-rpms-new.sh
