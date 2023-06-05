@@ -51,6 +51,7 @@ RUN create-fake-rpm --build python3-pybind11 python3-pybind11
 RUN mv /noarch/fake-python3-pybind11-0-0.noarch.rpm /noarch/python3-pybind11-0-0.noarch.rpm
 RUN yum -y install /noarch/python3-pybind11-0-0.noarch.rpm
 
+RUN yum list installed | grep python3-pybind11
 
 WORKDIR /root
 COPY scripts/build-rpms-new.sh /scripts/build-rpms-new.sh
