@@ -48,8 +48,5 @@ RUN yum -y install /noarch/python3-pybind11-0-0.noarch.rpm
 WORKDIR /root
 COPY scripts/build-rpms-new.sh /scripts/build-rpms-new.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
-#RUN sed "5i\
-#        grep -v \'pybind11\' \${src}/opae.spec.fedora > temp && mv temp \${src}/opae.spec.fedora"\
-#        /scripts/build-rpms-new.sh
 RUN sed -i 's/fedora/unrestricted/g' /scripts/build-rpms-new.sh
 ENTRYPOINT ["/scripts/build-rpms-new.sh"]
