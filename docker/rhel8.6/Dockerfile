@@ -39,11 +39,11 @@ RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
 
 RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
 
-RUN yum -y install create-fake-rpm
+#RUN yum -y install create-fake-rpm
 RUN /usr/bin/python3 -m pip install pybind11 --prefix=/usr
 RUN create-fake-rpm --build python3-pybind11 python3-pybind11
-RUN mv /noarch/fake-python3-pybind11-0-0.noarch.rpm /noarch/python3-pybind11-0-0.noarch.rpm
-RUN yum -y install /noarch/python3-pybind11-0-0.noarch.rpm
+#RUN mv /noarch/fake-python3-pybind11-0-0.noarch.rpm /noarch/python3-pybind11-0-0.noarch.rpm
+#RUN yum -y install /noarch/python3-pybind11-0-0.noarch.rpm
 
 WORKDIR /root
 COPY scripts/build-rpms-new.sh /scripts/build-rpms-new.sh
