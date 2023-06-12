@@ -1,47 +1,18 @@
-FROM centos:8
-RUN sed -i 's/mirrorlist/#mirorlist/g' /etc/yum.repos.d/CentOS-*
-RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-RUN sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
+FROM rockylinux:8.5.20220308
+RUN dnf install -y 'dnf-command(config-manager)'
+RUN dnf config-manager --set-enabled powertools
+RUN dnf install -y epel-release
+RUN dnf check-update || true
+RUN dnf upgrade -y
+RUN dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml gdb vim git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel cli11-devel spdlog-devel libedit-devel systemd-devel doxygen python3-sphinx pandoc rpm-build rpmdevtools python3-virtualenv yaml-cpp-devel libudev-devel libcap-devel sudo
 
-RUN yum -y install epel-release epel-next-release
-
-RUN yum update -y
-RUN yum install -y \
-        make \
-        cmake3 \
-        git \
-        gcc \
-        gcc-c++ \
-        json-c-devel \
-        libuuid-devel \
-        python3 \
-        python3-devel \
-        python3-jsonschema \
-        python3-pip \
-        rpm-build \
-        systemd \
-        rpmdevtools \
-        python3-wheel \
-        python3-pyyaml \
-        hwloc-devel \
-        tbb-devel \
-        libudev-devel \
-        libcap-devel \
-        cli11-devel \
-        spdlog-devel \
-        libedit-devel \
-        systemd-devel \
-        clang 
-
-RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
-RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
-
-RUN /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
-RUN /usr/bin/python3 -m pip install pybind11 --prefix=/usr
-
+RUN python3 -m pip install --user jsonschema virtualenv pudb pyyaml pybind11 && \
+    /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr && \
+    /usr/bin/python3 -m pip install --upgrade pip --prefix=/usr
 
 WORKDIR /root
 COPY scripts/build-rpms-new.sh /scripts/build-rpms-new.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
-RUN sed -i 's/fedora/unrestricted/g' /scripts/build-rpms-new.sh
+RUN sed -i 's/fedora/unrestricted/g' /scripts/build-rpms-new.sh && \
+        grep 'create unrestricted' /scripts/build-rpms-new.sh
 ENTRYPOINT ["/scripts/build-rpms-new.sh"]
