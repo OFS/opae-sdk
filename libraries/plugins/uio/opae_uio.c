@@ -86,41 +86,104 @@ const char *fme_drivers[] = {
 
 static uio_pci_device_t *_pci_devices;
 
-STATIC int read_pci_attr(const char *addr, const char *attr, char *value, size_t max)
+STATIC int read_file(const char *path, char *value, size_t max)
 {
 	int res = FPGA_OK;
-	char path[PATH_MAX];
+	FILE *fp;
 
-	snprintf(path, sizeof(path), "/sys/bus/pci/devices/%s/%s", addr, attr);
-	FILE *fp = fopen(path, "r");
-
+	fp = opae_fopen(path, "r");
 	if (!fp) {
 		ERR("error opening: %s", path);
 		return FPGA_EXCEPTION;
 	}
+
 	if (!fread(value, 1, max, fp)) {
 		ERR("error reading from: %s", path);
 		res = FPGA_EXCEPTION;
 	}
-	fclose(fp);
+
+	opae_fclose(fp);
 	return res;
+}
+
+STATIC int read_pci_attr(const char *addr, const char *attr, char *value, size_t max)
+{
+	char path[PATH_MAX];
+
+	snprintf(path, sizeof(path),
+		 "/sys/bus/pci/devices/%s/%s", addr, attr);
+
+	return read_file(path, value, max);
 }
 
 STATIC int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value)
 {
 	char str_value[64];
 	char *endptr = NULL;
-	int res = read_pci_attr(addr, attr, str_value, sizeof(str_value));
+	int res;
+	uint32_t v;
 
+	res = read_pci_attr(addr, attr, str_value, sizeof(str_value));
 	if (res)
 		return res;
-	uint32_t v = strtoul(str_value, &endptr, 0);
+
+	v = strtoul(str_value, &endptr, 0);
 
 	if (endptr == str_value) {
 		ERR("error parsing string: %s", str_value);
 		return FPGA_EXCEPTION;
 	}
+
 	*value = v;
+	return FPGA_OK;
+}
+
+STATIC int read_pci_attr_dev(const char *uio_path, const char *attr,
+			     uint32_t *major, uint32_t *minor)
+{
+	char path[PATH_MAX];
+	char str_value[64];
+	char *endptr = NULL;
+	size_t len;
+	int res;
+	uint32_t v;
+	char *p;
+
+	snprintf(path, sizeof(path), "%s/%s", uio_path, attr);
+	res = read_file(path, str_value, sizeof(str_value));
+	if (res) {
+		OPAE_ERR("reading %s", path);
+		return FPGA_EXCEPTION;
+	}
+
+	len = strnlen(str_value, sizeof(str_value));
+	if (str_value[len-1] == '\n') {
+		--len;
+		str_value[len] = '\0';
+	}
+
+	p = strchr(str_value, ':');
+	if (!p) {
+		OPAE_ERR("malformed dev sysfs string");
+		return FPGA_EXCEPTION;
+	}
+	*p = '\0';
+
+	v = strtoul(str_value, &endptr, 0);
+	if (endptr != p) {
+		ERR("error parsing string: %s", str_value);
+		return FPGA_EXCEPTION;
+	}
+	*major = v;
+
+	endptr = NULL;
+	v = strtoul(p + 1, &endptr, 0);
+	if (endptr != &str_value[len]) {
+		OPAE_ERR("malformed dev sysfs string");
+		return FPGA_EXCEPTION;
+	}
+	*minor = v;
+
 	return FPGA_OK;
 }
 
@@ -191,24 +254,27 @@ STATIC uio_pci_device_t *find_pci_device(const char addr[PCIADDR_MAX],
 }
 
 uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
-				     const char dfl_dev[DFL_DEV_MAX])
+				     const char dfl_dev[DFL_DEV_MAX],
+				     uint64_t object_id)
 {
 	uint32_t value;
-	uio_pci_device_t *p = find_pci_device(addr, dfl_dev);
+	uio_pci_device_t *dev;
 
-	if (p)
-		return p;
+	dev = find_pci_device(addr, dfl_dev);
+	if (dev)
+		return dev;
 
-	p = (uio_pci_device_t *)opae_calloc(1, sizeof(uio_pci_device_t));
-	if (!p) {
+	dev = (uio_pci_device_t *)opae_calloc(1, sizeof(uio_pci_device_t));
+	if (!dev) {
 		ERR("Failed to allocate memory for uio_pci_device_t");
 		return NULL;
 	}
 
-	strncpy(p->addr, addr, PCIADDR_MAX-1);
-	strncpy(p->dfl_dev, dfl_dev, DFL_DEV_MAX-1);
+	strncpy(dev->addr, addr, PCIADDR_MAX-1);
+	strncpy(dev->dfl_dev, dfl_dev, DFL_DEV_MAX-1);
+	dev->object_id = object_id;
 
-	if (read_pci_attr_u32(addr, "vendor", &p->vendor)) {
+	if (read_pci_attr_u32(addr, "vendor", &dev->vendor)) {
 		OPAE_ERR("error reading 'vendor' attribute: %s", addr);
 		goto free;
 	}
@@ -219,9 +285,9 @@ uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
 			 addr);
 		goto free;
 	}
-	p->subsystem_vendor = (uint16_t)value;
+	dev->subsystem_vendor = (uint16_t)value;
 
-	if (read_pci_attr_u32(addr, "device", &p->device)) {
+	if (read_pci_attr_u32(addr, "device", &dev->device)) {
 		OPAE_ERR("error reading 'device' attribute: %s", addr);
 		goto free;
 	}
@@ -232,24 +298,24 @@ uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
 			 addr);
 		goto free;
 	}
-	p->subsystem_device = (uint16_t)value;
+	dev->subsystem_device = (uint16_t)value;
 
-	if (read_pci_attr_u32(addr, "numa_node", &p->numa_node)) {
+	if (read_pci_attr_u32(addr, "numa_node", &dev->numa_node)) {
 		OPAE_ERR("error opening 'numa_node' attribute: %s", addr);
 		goto free;
 	}
 
-	if (parse_pcie_info(p, addr)) {
+	if (parse_pcie_info(dev, addr)) {
 		OPAE_ERR("error parsing pcie address: %s", addr);
 		goto free;
 	}
 
-	p->next = _pci_devices;
-	_pci_devices = p;
-	return p;
+	dev->next = _pci_devices;
+	_pci_devices = dev;
+	return dev;
 
 free:
-	opae_free(p);
+	opae_free(dev);
 	return NULL;
 }
 
@@ -309,7 +375,7 @@ bool pci_device_supported(const char *pcie_addr)
 int uio_pci_discover(void)
 {
 	int res = 1;
-	const char *gpattern = "/sys/bus/dfl/drivers/uio_dfl/dfl_dev.*";
+	const char *gpattern = "/sys/bus/dfl/drivers/uio_dfl/dfl_dev.*/uio/uio*";
 	glob_t pg;
 	int gres;
 	char rlbuf[PATH_MAX];
@@ -329,13 +395,31 @@ int uio_pci_discover(void)
 		const char *dfl_device;
 		char *pcie_addr;
 		uio_pci_device_t *dev;
+		uint32_t major = 0;
+		uint32_t minor = 0;
+		uint64_t object_id;
+		char *p;
 
-		dfl_device = strrchr(pg.gl_pathv[i], '/');
-		if (!dfl_device) {
-			OPAE_ERR("gl_pathv misformatted");
+		if (read_pci_attr_dev(pg.gl_pathv[i], "dev",
+				      &major, &minor)) {
+			OPAE_ERR("reading dev sysfs entry");
 			continue;
 		}
-		++dfl_device;
+
+		p = strstr(pg.gl_pathv[i], "/uio/uio");
+		if (!p) {
+			OPAE_ERR("finding uio in device path");
+			continue;
+		}
+		*p = '\0';
+
+		p = strstr(pg.gl_pathv[i], "/uio_dfl/");
+		if (!p) {
+			OPAE_ERR("finding uio_dfl in device path");
+			continue;
+		}
+
+		dfl_device = p + 9;
 
 		memset(rlbuf, 0, sizeof(rlbuf));
 		if (opae_readlink(pg.gl_pathv[i], rlbuf, PATH_MAX - 1) == -1) {
@@ -354,7 +438,8 @@ int uio_pci_discover(void)
 		if (!pci_device_supported(pcie_addr))
 			continue;
 
-		dev = uio_get_pci_device(pcie_addr, dfl_device);
+		object_id = (((uint64_t)major & 0xfff) << 20) | (minor & 0xfffff);
+		dev = uio_get_pci_device(pcie_addr, dfl_device, object_id);
 
 		if (!dev) {
 			OPAE_ERR("error with pci address: %s", pcie_addr);
@@ -716,7 +801,7 @@ fpga_result __UIO_API__ uio_fpgaUpdateProperties(fpga_token token, fpga_properti
 	_prop->socket_id = t->device->numa_node;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID);
 
-	_prop->object_id = ((uint64_t)t->device->bdf.bdf) << 32 | t->region;
+	_prop->object_id = t->device->object_id;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
 
 	_prop->objtype = t->hdr.objtype;
@@ -1238,7 +1323,7 @@ fpga_result __UIO_API__ uio_fpgaEnumerate(const fpga_properties *filters,
 				tptr->hdr.function = tptr->device->bdf.function;
 				tptr->hdr.interface = FPGA_IFC_UIO;
 				//tptr->hdr.objtype = <already populated>
-				tptr->hdr.object_id = ((uint64_t)tptr->device->bdf.bdf) << 32 | tptr->region;
+				tptr->hdr.object_id = dev->object_id;
 				if (tptr->hdr.objtype == FPGA_DEVICE)
 					memcpy(tptr->hdr.guid, tptr->compat_id, sizeof(fpga_guid));
 

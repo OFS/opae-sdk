@@ -67,6 +67,7 @@ struct _uio_token;
 typedef struct _uio_pci_device {
 	char addr[PCIADDR_MAX];
 	char dfl_dev[DFL_DEV_MAX];
+	uint64_t object_id;
 	bdf_t bdf;
 	uint32_t vendor;
 	uint32_t device;
