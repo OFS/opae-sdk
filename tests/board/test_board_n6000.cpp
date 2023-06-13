@@ -38,6 +38,7 @@
 
 #include "libboard/board_common/board_common.h"
 #include "libboard/board_n6000/board_n6000.h"
+#include "libboard/board_n6000/board_event_log.h"
 
 using namespace opae::testing;
 
@@ -72,6 +73,25 @@ ssize_t board_n6000_c_p::eintr_write(int fd, void *buf, size_t count)
 
   return total_written;
 }
+
+extern "C" {
+    void bel_print_pci_error_status(struct bel_pci_error_status* status,
+        bool print_bits);
+    void bel_print_timeof_day(struct bel_timeof_day* timeof_day);
+    void bel_print_fpga_seu(struct bel_fpga_seu* status);
+    void bel_print_max10_seu(struct bel_max10_seu* status);
+    void bel_print_sensors_status(struct bel_sensors_status* status);
+    void bel_print_sensors_state(struct bel_sensors_state* state);
+    void bel_print_power_off_status(struct bel_power_off_status* status,
+        bool print_bits);
+    void bel_print_power_on_status(struct bel_power_on_status* status,
+        struct bel_timeof_day* timeof_day,
+        bool print_bits);
+    void bel_print(struct bel_event* event, bool print_sensors, bool print_bits);
+    void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status* status, bool print_bits);
+}
+
+
 
 fpga_result board_n6000_c_p::write_sysfs_file(const char *file,
                                               void *buf, size_t count) {
@@ -438,6 +458,62 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_12) {
   write_sysfs_file((char*)"dfl_dev*/mac_address",
                    (void*)mac_buf, 18);
   EXPECT_EQ(print_mac_info(device_token_), FPGA_OK);
+}
+
+/**
+ * @test       board_n6000_13
+ * @brief      Tests: prints event log functions
+ * @details    prints event logs  <br>
+ */
+TEST_P(board_dfl_n6000_c_p, board_n6000_13) {
+    struct bel_pci_error_status pcie_status;
+    memset(&pcie_status, 0x0, sizeof(pcie_status));
+    pcie_status.header.magic = 0x53696C9A;
+    EXPECT_NO_THROW(bel_print_pci_error_status(&pcie_status, true));
+
+    struct bel_timeof_day timeof_day;
+    memset(&timeof_day, 0x0, sizeof(timeof_day));
+    timeof_day.header.magic = 0x53696CF0;
+    EXPECT_NO_THROW(bel_print_timeof_day(&timeof_day));
+
+    struct bel_max10_seu max10_seu;
+    memset(&max10_seu, 0x0, sizeof(max10_seu));
+    max10_seu.header.magic = 0x53696CBC;
+    EXPECT_NO_THROW(bel_print_max10_seu(&max10_seu));
+
+    struct bel_fpga_seu fpga_seu;
+    memset(&fpga_seu, 0x0, sizeof(fpga_seu));
+    fpga_seu.header.magic = 0x53696CDE;
+    EXPECT_NO_THROW(bel_print_fpga_seu(&fpga_seu));
+
+    struct bel_power_off_status power_off_status;
+    memset(&power_off_status, 0x0, sizeof(power_off_status));
+    power_off_status.header.magic = 0x53696C34;
+    bel_print_power_off_status(&power_off_status, true);
+
+    struct bel_power_on_status power_on_status;
+    memset(&power_on_status, 0x0, sizeof(power_on_status));
+    power_on_status.header.magic = 0x53696C12;
+    EXPECT_NO_THROW(bel_print_power_on_status(&power_on_status, &timeof_day, true));
+
+    struct bel_sensors_status sensors_status;
+    memset(&sensors_status, 0x0, sizeof(sensors_status));
+    sensors_status.header.magic = 0x53696C78;
+    EXPECT_NO_THROW(bel_print_sensors_status(&sensors_status));
+
+    struct bel_sensors_state sensors_state;
+    memset(&sensors_state, 0x0, sizeof(sensors_state));
+    sensors_state.header.magic = 0x53696C56;
+    EXPECT_NO_THROW(bel_print_sensors_state(&sensors_state));
+
+    struct bel_event event;
+    EXPECT_NO_THROW(bel_print(&event, true, true));
+
+    struct bel_pcie_v1_error_status pcie_v1_error_status;
+    memset(&pcie_v1_error_status, 0x0, sizeof(pcie_v1_error_status));
+    pcie_v1_error_status.header.magic = 0x53696D12;
+    EXPECT_NO_THROW(bel_print_pci_v1_error_status(&pcie_v1_error_status,true));
+
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_n6000_c_p);
