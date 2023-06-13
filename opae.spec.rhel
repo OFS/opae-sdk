@@ -164,6 +164,7 @@ done
 
 %{_libdir}/opae/libxfpga.so
 %{_libdir}/opae/libopae-v.so
+%{_libdir}/opae/libopae-u.so
 %{_libdir}/opae/libmodbmc.so
 %{_libdir}/opae/libfpgad-xfpga.so
 %{_libdir}/opae/libfpgad-vc.so

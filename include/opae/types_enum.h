@@ -131,7 +131,10 @@ typedef enum {
 	FPGA_IFC_SIM_DFL,
 	/** FPGA_IFC_SIM_VFIO indicates that the plugin interface is the
 	 * AFU Simulation Environment simulating vfio-pci. */
-	FPGA_IFC_SIM_VFIO
+	FPGA_IFC_SIM_VFIO,
+	/** FPGA_IFC_UIO indicates that the plugin interface is the
+	 * uio-dfl driver. */
+	FPGA_IFC_UIO,
 } fpga_interface;
 
 /**

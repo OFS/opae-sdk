@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,16 +24,30 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(xfpga)
-add_subdirectory(xfpga/metrics/bmc)
+set(SRC
+  plugin.c
+  opae_uio.c
+  dfl.c
+  ${opae-test_ROOT}/framework/mock/opae_std.c
+)
 
-if (OPAE_BUILD_PLUGIN_VFIO AND PLATFORM_SUPPORTS_VFIO)
-    if (OPAE_BUILD_LIBOPAEVFIO)
-        add_subdirectory(vfio)
-    else()
-        message(WARNING
-            "Must enable 'OPAE_BUILD_LIBOPAEVFIO' to build vfio plugin")
-    endif()
-endif()
+set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 
-add_subdirectory(uio)
+opae_add_module_library(TARGET opae-u
+    SOURCE ${SRC}
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaeuio
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
+    COMPONENT uiolib
+)
+
+target_include_directories(opae-u
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${uuid_INCLUDE}
+)
