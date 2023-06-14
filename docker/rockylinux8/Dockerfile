@@ -18,4 +18,4 @@ WORKDIR /root
 
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
 
-ENTRYPOINT ["/opae-centos8/opae-sdk/packaging/opae/rpm/create", "unrestricted"]
+ENTRYPOINT ["/opae-rockylinux8/opae-sdk/packaging/opae/rpm/create", "unrestricted"]
