@@ -8,7 +8,7 @@ RUN dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-
 
 RUN python3 -m pip install --user jsonschema virtualenv pudb pyyaml pybind11 && \
     # setuptools < ~51.x will fail to process the pyproject.toml successfully, so we upgrade
-    # /usr is required to target the correct Python installation, asa it has been found to fail when only affecting /usr/local
+    # /usr is required to target the correct Python installation, as it has been found to fail when only affecting /usr/local
     /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr && \
     # the pip version has to be at least 10.0.0b1 for the build scripts to run, however the pip installed through dnf is only version 9
     # similar to setuptools, it has been found to fail when only affecting /usr/local
