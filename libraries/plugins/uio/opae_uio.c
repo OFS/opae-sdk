@@ -547,7 +547,8 @@ static fpga_result uio_reset(const uio_pci_device_t *dev,
 {
 	ASSERT_NOT_NULL(dev);
 	ASSERT_NOT_NULL(port_base);
-	OPAE_ERR("fpgaReset for uio is not implemented yet");
+	OPAE_ERR("fpgaReset() is not implemented "
+		 "for this uio device.");
 	return FPGA_OK;
 }
 
