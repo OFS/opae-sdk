@@ -74,7 +74,7 @@ LOG = logging.getLogger(None)
 def verify_pcie_address(pcie_address):
     m = BDF_PATTERN.match(pcie_address)
     if m is None:
-        LOG.error("Invalid pcie address format{}".format(pcie_address))
+        LOG.error("Invalid pcie address format %s", pcie_address)
         return False
     return True
 
@@ -111,8 +111,8 @@ def verify_json(file_json):
 
             if i.get('value') is not None:
                 if verify_hex(i.get('value')) is False:
-                    LOG.error('{} file contains invalid hex value {} {}'
-                              .format(file_json, i.get('reg-name'), i.get('value')))
+                    LOG.error('%s file contains invalid hex value %s 0x%x',
+                              file_json, i.get('reg-name'), i.get('value'))
                     raise argparse.ArgumentTypeError('Input file is not json file:', file_json)
     return data
 
@@ -190,7 +190,7 @@ class FpgaFinder(object):
 
     def enum(self):
         if not self.all_devs:
-            LOG.error('No FPGA device found at {}'.format(FPGA_ROOT_PATH))
+            LOG.error("No FPGA device found at %s", FPGA_ROOT_PATH)
         for dev in self.all_devs:
             self.match_dev.append(dev)
         return self.match_dev
@@ -482,8 +482,8 @@ class UIO(object):
         mbox_cmd_sts = mailbox_cmd_sts(0x1)
         mbox_cmd_sts.cmd_addr = address
         self.write64(region_index, self.MAILBOX_CMD_CSR, mbox_cmd_sts.value)
-        LOG.debug('Mailbox CMD CSR:{} value:{}'.format(hex(self.MAILBOX_CMD_CSR),
-                                                       hex(mbox_cmd_sts.value)))
+        LOG.debug('Mailbox CMD CSR:0x%x value:0x%x', self.MAILBOX_CMD_CSR,
+                  mbox_cmd_sts.value)
 
         # Poll for ACK_TRANS bit index 2, wdith 2
         if not self.read_poll_timeout(region_index,
@@ -494,8 +494,8 @@ class UIO(object):
 
         # Read data
         value = self.read32(region_index, self.MAILBOX_RD_DATA_CSR)
-        LOG.debug('Mailbox RD DATA CSR:{} value:{}'.format(hex(self.MAILBOX_RD_DATA_CSR),
-                                                           hex(value)))
+        LOG.debug('Mailbox RD DATA CSR:0x%x value:0x%x', self.MAILBOX_RD_DATA_CSR,
+                  value)
         # clear cmd sts csr
         self.write64(region_index, self.MAILBOX_CMD_CSR, 0)
         time.sleep(MAILBOX_POLL_TIMEOUT)
@@ -516,15 +516,15 @@ class UIO(object):
 
         # write value
         self.write32(region_index, self.MAILBOX_WR_DATA_CSR, value)
-        LOG.debug('Mailbox WR DATA CSR:{} value:{}'.format(hex(self.MAILBOX_WR_DATA_CSR),
-                                                           hex(value)))
+        LOG.debug('Mailbox WR DATA CSR:0x%x value:0x%x', self.MAILBOX_WR_DATA_CSR,
+                  value)
 
         # Set write bit and write cmd address
         mbox_cmd_sts = mailbox_cmd_sts(0x2)
         mbox_cmd_sts.cmd_addr = address
         self.write64(region_index, self.MAILBOX_CMD_CSR, mbox_cmd_sts.value)
-        LOG.debug('Mailbox CMD CSR:{} value:{}'.format(hex(self.MAILBOX_CMD_CSR),
-                                                       hex(mbox_cmd_sts.value)))
+        LOG.debug('Mailbox CMD CSR:0x%x value:0x%x', self.MAILBOX_CMD_CSR,
+                  mbox_cmd_sts.value)
 
         # Poll for ACK_TRANS bit index 2, wdith 2
         if not self.read_poll_timeout(region_index,
@@ -669,7 +669,7 @@ def main():
     else:
         logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
-    LOG.debug("args {}".format(args))
+    LOG.debug("args:%s", args)
     if all(arg is None for arg in [args.peek, args.peek_dump, args.poke, args.mailbox_read,
                                    args.mailbox_write, args.mailbox_dump,
                                    args.mailbox_json]):
@@ -689,20 +689,19 @@ def main():
             sys.exit(1)
 
         if len(devs) > 1:
-            s = '{} FPGAs are found\nplease choose one FPGA'.format(len(devs))
-            LOG.info(s)
+            LOG.info("%d FPGAs are found\nplease choose one FPGA", len(devs))
             sys.exit(1)
 
         # enum FPGA UIO Features if args.uio is none
         for d in devs:
-            LOG.debug('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
+            LOG.debug('sbdf: %s', d)
             args.uio_grps += f.find_uio_feature(d['pcie_address'], args.feature_id)
         if len(args.uio_grps) == 0:
-            LOG.error('Failed to find uiox feature:0x%x', hex(args.feature_id))
+            LOG.error("Failed to find uiox feature:0x%x", args.feature_id)
             sys.exit(1)
         if len(args.uio_grps) > 1:
-            LOG.info('{} FPGAs UIO feature matchs are found: {}'
-                     .format(len(args.uio_grps), [d[0] for d in args.uio_grps]))
+            LOG.info('%d FPGAs UIO feature matchs are found: %s',
+                     len(args.uio_grps), [d[0] for d in args.uio_grps])
             sys.exit(1)
 
     try:
@@ -722,40 +721,40 @@ def main():
         # peek/read csr
         if args.peek is not None:
             value = uio.peek(args.region_index, args.bit_size, args.peek)
-            LOG.info('peek({}): {}'.format(hex(args.peek), hex(value)))
+            LOG.info('peek(0x%x): 0x%x', args.peek, value)
 
         elif args.peek_dump is not None:
             addr = int(args.peek_dump[0], 16)
             for i in range(int(args.peek_dump[1], 16)):
                 value = uio.peek(args.region_index, args.bit_size, addr)
-                LOG.info('peek({}): {}'.format(hex(addr), hex(value)))
+                LOG.info('peek(0x%x): 0x%x', addr, value)
                 addr = addr + (int(args.bit_size/8))
 
         # mailbox read
         elif args.mailbox_read is not None:
             status, value = uio.mailbox_read(args.region_index, args.mailbox_read)
             if not status:
-                LOG.error('Failed to Read Mailbox CSR address {}'
-                          .format(hex(args.mailbox_read)))
+                LOG.error('Failed to Read Mailbox CSR address 0x%x',
+                          args.mailbox_read)
             else:
-                LOG.info('MailboxRead({}): {}'
-                         .format(hex(args.mailbox_read), hex(value)))
+                LOG.info('MailboxRead(0x%x): 0x%x',
+                         args.mailbox_read, value)
 
         # poke/write csr
         elif args.poke is not None:
             uio.poke(args.region_index, args.bit_size, int(args.poke[0], 16),
                      int(args.poke[1], 16))
-            LOG.info('poke({}):{}'.format(args.poke[0], args.poke[1]))
+            LOG.info('poke(0x%x):0x%x', args.poke[0], args.poke[1])
 
         # mailbox write
         elif args.mailbox_write is not None:
             if not uio.mailbox_write(args.region_index, int(args.mailbox_write[0], 16),
                                      int(args.mailbox_write[1], 16)):
-                LOG.error('Failed to write Mailbox CSR address {}'
-                          .format(args.mailbox_write[0]))
+                LOG.error('Failed to write Mailbox CSR address 0x%x',
+                          args.mailbox_write[0])
             else:
-                LOG.info('MailboxWrite({}):{}'
-                         .format(args.mailbox_write[0], args.mailbox_write[1]))
+                LOG.info('MailboxWrite(0x%x):0x%x',
+                         args.mailbox_write[0], args.mailbox_write[1])
 
         # mailbox dump
         elif args.mailbox_dump is not None:
@@ -763,21 +762,19 @@ def main():
                 addr = int(args.mailbox_dump[0], 16) + i * 0x4
                 status, value = uio.mailbox_read(args.region_index, addr)
                 if not status:
-                    LOG.error('Failed to Dump Mailbox CSR address {}'
-                              .format(addr))
+                    LOG.error('Failed to Dump Mailbox CSR address 0x%x', addr)
                 else:
-                    LOG.info('MailboxDump({}): {}'
-                             .format(hex(addr), hex(value)))
+                    LOG.info('MailboxDump(0x%x): 0x%x', addr, value)
 
         elif args.mailbox_json is not None:
             for i in args.mailbox_json:
                 if not uio.mailbox_write(args.region_index, int(i.get('address'), 16),
                                          int(i.get('value'), 16)):
-                    LOG.error('Failed to write Mailbox CSR {} address:{}'
-                              .format(i.get('reg-name'), i.get('address')))
+                    LOG.error('Failed to write Mailbox CSR %s address:0x%x',
+                              i.get('reg-name'), i.get('address'))
                 else:
-                    LOG.info('MailboxWrite({}:{}):{}'
-                             .format(i.get('reg-name'), i.get('address'), i.get('value')))
+                    LOG.info('MailboxWrite(%s:0x%x):0x%x',
+                             i.get('reg-name'), i.get('address'), i.get('value'))
 
     except Exception as e:
         LOG.error(e)
