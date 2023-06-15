@@ -534,7 +534,7 @@ event_handle_check_and_lock(fpga_event_handle event_handle)
 {
 	int res;
 	uio_event_handle *eh;
-		
+
 	eh = event_handle_check(event_handle);
 	if (eh)
 		return opae_mutex_lock(res, &eh->lock) ? NULL : eh;
@@ -865,7 +865,6 @@ fpga_result __UIO_API__ uio_fpgaGetProperties(fpga_token token, fpga_properties 
 	ASSERT_NOT_NULL(prop);
 	struct _fpga_properties *_prop = NULL;
 	fpga_result result = FPGA_OK;
-
 
 	result = fpgaGetProperties(NULL, (fpga_properties *)&_prop);
 	if (result)
