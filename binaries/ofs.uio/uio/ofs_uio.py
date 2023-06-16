@@ -728,7 +728,7 @@ def main():
             for i in range(int(args.peek_dump[1], 16)):
                 value = uio.peek(args.region_index, args.bit_size, addr)
                 LOG.info('peek(0x%x): 0x%x', addr, value)
-                addr = addr + (int(args.bit_size/8))
+                addr = addr + int(args.bit_size)/8
 
         # mailbox read
         elif args.mailbox_read is not None:
