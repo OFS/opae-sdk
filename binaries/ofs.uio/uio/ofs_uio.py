@@ -107,12 +107,12 @@ def verify_json(file_json):
                 if verify_hex(i.get('address')) is False:
                     raise argparse.ArgumentTypeError('{} file contains invalid hex address {} {}'
                                                      .format(file_json, i.get('reg-name'),
-                                                             i.get('address')))
+                                                             int(i.get('address'), 16)))
 
             if i.get('value') is not None:
                 if verify_hex(i.get('value')) is False:
                     LOG.error('%s file contains invalid hex value %s 0x%x',
-                              file_json, i.get('reg-name'), i.get('value'))
+                              file_json, i.get('reg-name'),  int(i.get('value'), 16))
                     raise argparse.ArgumentTypeError('Input file is not json file:', file_json)
     return data
 
@@ -728,7 +728,7 @@ def main():
             for i in range(int(args.peek_dump[1], 16)):
                 value = uio.peek(args.region_index, args.bit_size, addr)
                 LOG.info('peek(0x%x): 0x%x', addr, value)
-                addr = addr + int(args.bit_size)/8
+                addr = addr + int(args.bit_size/8)
 
         # mailbox read
         elif args.mailbox_read is not None:
@@ -744,17 +744,17 @@ def main():
         elif args.poke is not None:
             uio.poke(args.region_index, args.bit_size, int(args.poke[0], 16),
                      int(args.poke[1], 16))
-            LOG.info('poke(0x%x):0x%x', args.poke[0], args.poke[1])
+            LOG.info('poke(0x%x):0x%x', int(args.poke[0], 16), int(args.poke[1], 16))
 
         # mailbox write
         elif args.mailbox_write is not None:
             if not uio.mailbox_write(args.region_index, int(args.mailbox_write[0], 16),
                                      int(args.mailbox_write[1], 16)):
                 LOG.error('Failed to write Mailbox CSR address 0x%x',
-                          args.mailbox_write[0])
+                          int(args.mailbox_write[0], 16))
             else:
                 LOG.info('MailboxWrite(0x%x):0x%x',
-                         args.mailbox_write[0], args.mailbox_write[1])
+                         int(args.mailbox_write[0], 16), int(args.mailbox_write[1], 16))
 
         # mailbox dump
         elif args.mailbox_dump is not None:
@@ -771,10 +771,10 @@ def main():
                 if not uio.mailbox_write(args.region_index, int(i.get('address'), 16),
                                          int(i.get('value'), 16)):
                     LOG.error('Failed to write Mailbox CSR %s address:0x%x',
-                              i.get('reg-name'), i.get('address'))
+                              i.get('reg-name'), int(i.get('address'), 16))
                 else:
                     LOG.info('MailboxWrite(%s:0x%x):0x%x',
-                             i.get('reg-name'), i.get('address'), i.get('value'))
+                             i.get('reg-name'), int(i.get('address'), 16), int(i.get('value'), 16))
 
     except Exception as e:
         LOG.error(e)
