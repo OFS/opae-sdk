@@ -540,7 +540,6 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 	} else	if (objtype == FPGA_DEVICE) {
 		// enum FME
-
 		// get fpga hw type.
 		result = get_fpga_hw_type(_handle, &hw_type);
 		if (result != FPGA_OK) {
@@ -559,8 +558,6 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 		 // DCP RC
 		case FPGA_HW_DCP_RC: {
-
-
 			memset(metrics_path, 0, SYSFS_PATH_MAX);
 			if (sysfs_get_bmc_path(_token, metrics_path) == FPGA_OK) {
 
@@ -582,25 +579,39 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		// DCP VC DC
 		case FPGA_HW_DCP_N3000:
 		case FPGA_HW_DCP_D5005: {
-
-			// Max10 Power & Thermal
 			result = dfl_enum_max10_metrics_info(_handle,
-					&(_handle->fpga_enum_metric_vector),
-					&metric_num,
-					hw_type);
-					if (result != FPGA_OK) {
-						OPAE_ERR("Failed to Enum Power and Thermal metrics.");
-					}
+				&(_handle->fpga_enum_metric_vector),
+				&metric_num,
+				hw_type);
+			if (result != FPGA_OK) {
+				OPAE_ERR("Failed to Enum Power and Thermal metrics.");
+			}
+
 		}
 		break;
-		case FPGA_HW_DCP_N5010: {
 
+		case FPGA_HW_DCP_N5010: {
+			// Max10 Power & Thermal
+			result = dfl_enum_max10_metrics_info_pattern(_handle,
+				&(_handle->fpga_enum_metric_vector),
+				&metric_num,
+				hw_type,
+				DFL_MAX10_SYSFS_PATH_SPI_MASTER);
+			if (result != FPGA_OK) {
+				OPAE_ERR("Failed to Enum Power and Thermal metrics.");
+			}
+		}
+		 break;
+
+
+		case FPGA_HW_ADP_N6000:
+		case FPGA_HW_IPU_C6100: {
 			// Max10 Power & Thermal
 			result = dfl_enum_max10_metrics_info_pattern(_handle,
 					&(_handle->fpga_enum_metric_vector),
 					&metric_num,
 					hw_type,
-					DFL_MAX10_SYSFS_PATH_SPI_MASTER);
+					DFL_MAX10_SYSFS_PATH_MAX10_MASTER);
 					if (result != FPGA_OK) {
 						OPAE_ERR("Failed to Enum Power and Thermal metrics.");
 					}
@@ -845,6 +856,8 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 			// Read power theraml values from Max10
 			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_N3000) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_D5005) ||
+				(_fpga_enum_metric->hw_type == FPGA_HW_ADP_N6000) ||
+				(_fpga_enum_metric->hw_type == FPGA_HW_IPU_C6100) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_N5010)) &&
 				((_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_POWER) ||
 				(_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_THERMAL))) {

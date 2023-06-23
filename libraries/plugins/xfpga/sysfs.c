@@ -1690,9 +1690,12 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	return FPGA_OK;
 }
 
-enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
+enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id,
+	uint16_t sub_vendor_id, uint16_t sub_device_id)
 {
 	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
+
+	UNUSED_PARAM(sub_vendor_id);
 
 	if (vendor_id == 0x8086) {
 
@@ -1714,9 +1717,25 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 
 		case 0x0b2b: /* FALLTHROUGH */
 		case 0x0b2c:
+			hw_type = FPGA_HW_DCP_D5005;
+			break;
 		case 0xaf00:
 		case 0xbcce:
-			hw_type = FPGA_HW_DCP_D5005;
+
+			if (sub_device_id == 0x17d4) {
+				hw_type = FPGA_HW_IPU_C6100;
+				break;
+			} else if (sub_device_id == 0x1771 ||
+				sub_device_id == 0x1770) {
+				hw_type = FPGA_HW_ADP_N6000;
+				break;
+			} else if (sub_device_id == 0x138d) {
+				hw_type = FPGA_HW_DCP_D5005;
+				break;
+			} else {
+				hw_type = FPGA_HW_ADP_N6000;
+			}
+
 		break;
 
 		case 0x0b30: /* FALLTHROUGH */
@@ -1758,6 +1777,8 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 	int err = 0;
 	uint64_t vendor_id = 0;
 	uint64_t device_id = 0;
+	uint64_t sub_vendor_id = 0;
+	uint64_t sub_device_id = 0;
 
 	if (_handle == NULL) {
 		OPAE_ERR("Invalid handle");
@@ -1807,8 +1828,35 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 		goto out_unlock;
 	}
 
+	if (snprintf(sysfs_path, SYSFS_PATH_MAX,
+		"%s/../device/subsystem_vendor", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	result = sysfs_read_u64(sysfs_path, &sub_vendor_id);
+	if (result != 0) {
+		OPAE_ERR("Failed to read subsystem vendor ID");
+		goto out_unlock;
+	}
+
+	if (snprintf(sysfs_path, SYSFS_PATH_MAX,
+		"%s/../device/subsystem_device", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		result = FPGA_EXCEPTION;
+		goto out_unlock;
+	}
+
+	result = sysfs_read_u64(sysfs_path, &sub_device_id);
+	if (result != 0) {
+		OPAE_ERR("Failed to read subsystem device ID");
+		goto out_unlock;
+	}
+
+
 	*hw_type = opae_id_to_hw_type((uint16_t)vendor_id,
-				      (uint16_t)device_id);
+				      (uint16_t)device_id, (uint16_t)sub_device_id, (uint16_t)sub_device_id);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
