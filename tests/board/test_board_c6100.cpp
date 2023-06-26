@@ -144,6 +144,7 @@ void bel_print_power_on_status(struct bel_power_on_status* status,
                             struct bel_timeof_day* timeof_day,
                             bool print_bits);
 void bel_print(struct bel_event *event, bool print_sensors, bool print_bits);
+void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status* status, bool print_bits);
 }
 
 // test DFL sysfs attributes
@@ -407,6 +408,11 @@ TEST_P(board_dfl_c6100_c_p, board_c6100_13) {
 
   struct bel_event event;
   EXPECT_NO_THROW(bel_print(&event, true, true));
+
+  struct bel_pcie_v1_error_status pcie_v1_err;
+  memset(&pcie_v1_err, 0x0, sizeof(pcie_v1_err));
+  pcie_v1_err.header.magic = 0x53696D12;
+  EXPECT_NO_THROW(bel_print_pci_v1_error_status(&pcie_v1_err,true));
 }
 
 /**
