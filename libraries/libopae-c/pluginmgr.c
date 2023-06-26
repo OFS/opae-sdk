@@ -68,7 +68,7 @@ STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
 		i < sizeof(search_paths) / sizeof(search_paths[0]) ; ++i) {
 
 		snprintf(plugin_path, sizeof(plugin_path),
-			 "%s%s", search_paths[i], lib_path);
+			 "%s%s", "/home/lab/ananda/opae-sdk/mybuild/lib/", lib_path);
 
 		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
 
