@@ -36,7 +36,7 @@
 #define FME_PORTS 4
 uint32_t fme_ports[FME_PORTS] = {0x38, 0x40, 0x48, 0x50};
 
-static fpga_result legacy_port_reset(const uio_pci_device_t *p,
+STATIC fpga_result legacy_port_reset(const uio_pci_device_t *p,
 				     volatile uint8_t *port_base)
 {
 	(void)p;
@@ -121,9 +121,10 @@ int walk_fme(uio_pci_device_t *dev, struct opae_uio *u,
 	uio_get_guid(1 + (uint64_t *)mmio, fme->hdr.guid);
 	fme->bitstream_id = *(uint64_t *)(mmio + BITSTREAM_ID);
 	fme->bitstream_mdata = *(uint64_t *)(mmio + BITSTREAM_MD);
-	fab_capability_ptr cap = (fab_capability_ptr)(mmio + FAB_CAPABILITY);
 
+	fab_capability_ptr cap = (fab_capability_ptr)(mmio + FAB_CAPABILITY);
 	fme->num_ports = cap->num_ports;
+
 	for_each_dfh(h, mmio) {
 		if (h->id == PR_FEATURE_ID) {
 			uint8_t *pr_id = PR_INTFC_ID_LO + (uint8_t *)h;

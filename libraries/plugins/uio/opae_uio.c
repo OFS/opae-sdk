@@ -84,7 +84,7 @@ const char *fme_drivers[] = {
 	0
 };
 
-static uio_pci_device_t *_pci_devices;
+STATIC uio_pci_device_t *_pci_devices;
 
 STATIC int read_file(const char *path, char *value, size_t max)
 {
@@ -93,12 +93,12 @@ STATIC int read_file(const char *path, char *value, size_t max)
 
 	fp = opae_fopen(path, "r");
 	if (!fp) {
-		ERR("error opening: %s", path);
+		OPAE_ERR("error opening: %s", path);
 		return FPGA_EXCEPTION;
 	}
 
 	if (!fread(value, 1, max, fp)) {
-		ERR("error reading from: %s", path);
+		OPAE_ERR("error reading from: %s", path);
 		res = FPGA_EXCEPTION;
 	}
 
@@ -118,19 +118,26 @@ STATIC int read_pci_attr(const char *addr, const char *attr, char *value, size_t
 
 STATIC int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value)
 {
-	char str_value[64];
+	char str_value[64] = { 0, };
 	char *endptr = NULL;
 	int res;
 	uint32_t v;
+	size_t len;
 
 	res = read_pci_attr(addr, attr, str_value, sizeof(str_value));
 	if (res)
 		return res;
 
+	len = strnlen(str_value, sizeof(str_value) - 1);
+	if (str_value[len-1] == '\n') {
+		--len;
+		str_value[len] = '\0';
+	}
+
 	v = strtoul(str_value, &endptr, 0);
 
-	if (endptr == str_value) {
-		ERR("error parsing string: %s", str_value);
+	if (endptr != &str_value[len]) {
+		OPAE_ERR("error parsing string: %s", str_value);
 		return FPGA_EXCEPTION;
 	}
 
@@ -142,7 +149,7 @@ STATIC int read_pci_attr_dev(const char *uio_path, const char *attr,
 			     uint32_t *major, uint32_t *minor)
 {
 	char path[PATH_MAX];
-	char str_value[64];
+	char str_value[64] = { 0, };
 	char *endptr = NULL;
 	size_t len;
 	int res;
@@ -171,7 +178,7 @@ STATIC int read_pci_attr_dev(const char *uio_path, const char *attr,
 
 	v = strtoul(str_value, &endptr, 0);
 	if (endptr != p) {
-		ERR("error parsing string: %s", str_value);
+		OPAE_ERR("error parsing string: %s", str_value);
 		return FPGA_EXCEPTION;
 	}
 	*major = v;
@@ -189,7 +196,7 @@ STATIC int read_pci_attr_dev(const char *uio_path, const char *attr,
 
 STATIC int parse_pcie_info(uio_pci_device_t *device, const char *addr)
 {
-	char err[128] = {0};
+	char err[128] = { 0, };
 	regex_t re;
 	regmatch_t matches[PCIE_PATH_PATTERN_GROUPS] = { {0} };
 	int res = FPGA_EXCEPTION;
@@ -219,7 +226,7 @@ out:
 	return res;
 }
 
-void free_token_list(uio_token *tokens)
+STATIC void free_token_list(uio_token *tokens)
 {
 	while (tokens) {
 		uio_token *trash = tokens;
@@ -253,12 +260,12 @@ STATIC uio_pci_device_t *find_pci_device(const char addr[PCIADDR_MAX],
 	return NULL;
 }
 
-uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
-				     const char dfl_dev[DFL_DEV_MAX],
-				     uint64_t object_id)
+STATIC uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
+					    const char dfl_dev[DFL_DEV_MAX],
+					    uint64_t object_id)
 {
-	uint32_t value;
 	uio_pci_device_t *dev;
+	uint32_t svid_sdid[2] = { 0, 0 };
 
 	dev = find_pci_device(addr, dfl_dev);
 	if (dev)
@@ -266,7 +273,7 @@ uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
 
 	dev = (uio_pci_device_t *)opae_calloc(1, sizeof(uio_pci_device_t));
 	if (!dev) {
-		ERR("Failed to allocate memory for uio_pci_device_t");
+		OPAE_ERR("Failed to allocate memory for uio_pci_device_t");
 		return NULL;
 	}
 
@@ -274,35 +281,19 @@ uio_pci_device_t *uio_get_pci_device(const char addr[PCIADDR_MAX],
 	strncpy(dev->dfl_dev, dfl_dev, DFL_DEV_MAX-1);
 	dev->object_id = object_id;
 
-	if (read_pci_attr_u32(addr, "vendor", &dev->vendor)) {
-		OPAE_ERR("error reading 'vendor' attribute: %s", addr);
+	if (read_pci_attr_u32(addr, "vendor", &dev->vendor) ||
+	    read_pci_attr_u32(addr, "device", &dev->device) ||
+	    read_pci_attr_u32(addr, "subsystem_vendor", &svid_sdid[0]) ||
+	    read_pci_attr_u32(addr, "subsystem_device", &svid_sdid[1])) {
+		OPAE_ERR("reading PCI attributes for %s", addr);
 		goto free;
 	}
-
-	value = 0;
-	if (read_pci_attr_u32(addr, "subsystem_vendor", &value)) {
-		OPAE_ERR("error reading 'subsystem_vendor' attribute: %s",
-			 addr);
-		goto free;
-	}
-	dev->subsystem_vendor = (uint16_t)value;
-
-	if (read_pci_attr_u32(addr, "device", &dev->device)) {
-		OPAE_ERR("error reading 'device' attribute: %s", addr);
-		goto free;
-	}
-
-	value = 0;
-	if (read_pci_attr_u32(addr, "subsystem_device", &value)) {
-		OPAE_ERR("error reading 'subsystem_device' attribute: %s",
-			 addr);
-		goto free;
-	}
-	dev->subsystem_device = (uint16_t)value;
+	dev->subsystem_vendor = (uint16_t)svid_sdid[0];
+	dev->subsystem_device = (uint16_t)svid_sdid[1];
 
 	if (read_pci_attr_u32(addr, "numa_node", &dev->numa_node)) {
-		OPAE_ERR("error opening 'numa_node' attribute: %s", addr);
-		goto free;
+		OPAE_DBG("reading numa_node for %s", addr);
+		dev->numa_node = INVALID_NUMA_NODE;
 	}
 
 	if (parse_pcie_info(dev, addr)) {
@@ -345,7 +336,7 @@ STATIC bool pci_device_matches(const libopae_config_data *c,
 	return true;
 }
 
-bool pci_device_supported(const char *pcie_addr)
+STATIC bool pci_device_supported(const char *pcie_addr)
 {
 	uint32_t vendor = 0;
 	uint32_t device = 0;
@@ -372,13 +363,15 @@ bool pci_device_supported(const char *pcie_addr)
 	return false;
 }
 
-int uio_pci_discover(void)
+int uio_pci_discover(const char *gpattern)
 {
 	int res = 1;
-	const char *gpattern = "/sys/bus/dfl/drivers/uio_dfl/dfl_dev.*/uio/uio*";
 	glob_t pg;
 	int gres;
 	char rlbuf[PATH_MAX];
+
+	if (!gpattern)
+		gpattern = "/sys/bus/dfl/drivers/uio_dfl/dfl_dev.*/uio/uio*";
 
 	gres = opae_glob(gpattern, 0, NULL, &pg);
 
@@ -443,27 +436,33 @@ int uio_pci_discover(void)
 
 		if (!dev) {
 			OPAE_ERR("error with pci address: %s", pcie_addr);
+		} else {
+			res = 0;
 		}
 	}
-	res = 0;
 
 free:
 	opae_globfree(&pg);
 	return res;
 }
 
-uio_token *clone_token(uio_token *src)
+STATIC uio_token *clone_token(uio_token *src)
 {
+	uio_token *token;
+
 	ASSERT_NOT_NULL_RESULT(src, NULL);
 	if (src->hdr.magic != UIO_TOKEN_MAGIC)
 		return NULL;
-	uio_token *token = (uio_token *)opae_malloc(sizeof(uio_token));
+
+	token = (uio_token *)opae_malloc(sizeof(uio_token));
 
 	if (!token) {
-		ERR("Failed to allocate memory for uio_token");
+		OPAE_ERR("Failed to allocate memory for uio_token");
 		return NULL;
 	}
+
 	memcpy(token, src, sizeof(uio_token));
+
 	if (src->parent)
 		token->parent = clone_token(src->parent);
 
@@ -472,7 +471,7 @@ uio_token *clone_token(uio_token *src)
 	return token;
 }
 
-uio_token *token_check(fpga_token token)
+STATIC uio_token *token_check(fpga_token token)
 {
 	uio_token *t;
 
@@ -487,7 +486,7 @@ uio_token *token_check(fpga_token token)
 	return t;
 }
 
-uio_handle *handle_check(fpga_handle handle)
+STATIC uio_handle *handle_check(fpga_handle handle)
 {
 	uio_handle *h;
 
@@ -502,7 +501,7 @@ uio_handle *handle_check(fpga_handle handle)
 	return h;
 }
 
-uio_event_handle *event_handle_check(fpga_event_handle event_handle)
+STATIC uio_event_handle *event_handle_check(fpga_event_handle event_handle)
 {
 	uio_event_handle *eh;
 
@@ -517,7 +516,7 @@ uio_event_handle *event_handle_check(fpga_event_handle event_handle)
 	return eh;
 }
 
-uio_handle *handle_check_and_lock(fpga_handle handle)
+STATIC uio_handle *handle_check_and_lock(fpga_handle handle)
 {
 	int res;
 	uio_handle *h;
@@ -529,7 +528,7 @@ uio_handle *handle_check_and_lock(fpga_handle handle)
 	return NULL;
 }
 
-uio_event_handle *
+STATIC uio_event_handle *
 event_handle_check_and_lock(fpga_event_handle event_handle)
 {
 	int res;
@@ -542,7 +541,7 @@ event_handle_check_and_lock(fpga_event_handle event_handle)
 	return NULL;
 }
 
-static fpga_result uio_reset(const uio_pci_device_t *dev,
+STATIC fpga_result uio_reset(const uio_pci_device_t *dev,
 			     volatile uint8_t *port_base)
 {
 	ASSERT_NOT_NULL(dev);
@@ -552,7 +551,7 @@ static fpga_result uio_reset(const uio_pci_device_t *dev,
 	return FPGA_OK;
 }
 
-int uio_walk(uio_pci_device_t *dev)
+STATIC int uio_walk(uio_pci_device_t *dev)
 {
 	int res = 0;
 	volatile uint8_t *mmio = NULL;
@@ -647,7 +646,7 @@ fpga_result __UIO_API__ uio_fpgaOpen(fpga_token token, fpga_handle *handle, int 
 
 	_handle = opae_calloc(1, sizeof(uio_handle));
 	if (!_handle) {
-		ERR("Failed to allocate memory for handle");
+		OPAE_ERR("Failed to allocate memory for handle");
 		res = FPGA_NO_MEMORY;
 		goto out_attr_destroy;
 	}
@@ -696,6 +695,11 @@ out_attr_destroy:
 	if (res && _handle) {
 		pthread_mutex_destroy(&_handle->lock);
 		opae_uio_close(&_handle->uio);
+		if (_handle->token) {
+			if (_handle->token->parent)
+				opae_free(_handle->token->parent);
+			opae_free(_handle->token);
+		}
 		_handle->magic = 0;
 		opae_free(_handle);
 	}
@@ -706,14 +710,19 @@ fpga_result __UIO_API__ uio_fpgaClose(fpga_handle handle)
 {
 	fpga_result res = FPGA_OK;
 	uio_handle *h;
+	uio_token *t;
 
 	h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
 
-	if (token_check(h->token))
-		opae_free(h->token);
-	else
+	t = token_check(h->token);
+	if (t) {
+		if (t->parent)
+			opae_free(t->parent);
+		opae_free(t);
+	} else {
 		OPAE_ERR("invalid token in handle");
+	}
 
 	opae_uio_close(&h->uio);
 
@@ -748,31 +757,32 @@ fpga_result __UIO_API__ uio_fpgaReset(fpga_handle handle)
 	return res;
 }
 
-fpga_result uio_get_guid(uint64_t *h, fpga_guid guid)
+fpga_result uio_get_guid(uint64_t *src, fpga_guid guid)
 {
-	ASSERT_NOT_NULL(h);
+	ASSERT_NOT_NULL(src);
 
-	uint64_t *ptr = (uint64_t *)guid;
-	*ptr = bswap_64(*(h+1));
-	*(ptr+1) = bswap_64(*h);
+	uint64_t *dst = (uint64_t *)guid;
+	*dst = bswap_64(*(src+1));
+	*(dst+1) = bswap_64(*src);
+
 	return FPGA_OK;
 }
 
 fpga_result __UIO_API__ uio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
-	uio_token *t = token_check(token);
+	uio_token *t;
+	struct _fpga_properties *_prop;
+	int err;
 
+	t = token_check(token);
 	ASSERT_NOT_NULL(t);
 
-	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
-
+	_prop = opae_validate_and_lock_properties(prop);
 	if (!_prop) {
-		return FPGA_EXCEPTION;
-	}
-	if (_prop->magic != FPGA_PROPERTY_MAGIC) {
 		OPAE_ERR("Invalid properties object");
 		return FPGA_INVALID_PARAM;
 	}
+
 	_prop->valid_fields = 0;
 
 	_prop->vendor_id = t->device->vendor;
@@ -857,28 +867,36 @@ fpga_result __UIO_API__ uio_fpgaUpdateProperties(fpga_token token, fpga_properti
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_SLOTS);
 	}
 
+	opae_mutex_unlock(err, &_prop->lock);
 	return FPGA_OK;
 }
 
 fpga_result __UIO_API__ uio_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
-	ASSERT_NOT_NULL(prop);
 	struct _fpga_properties *_prop = NULL;
 	fpga_result result = FPGA_OK;
+	int err;
+
+	ASSERT_NOT_NULL(prop);
 
 	result = fpgaGetProperties(NULL, (fpga_properties *)&_prop);
 	if (result)
 		return result;
+
 	if (token) {
 		result = uio_fpgaUpdateProperties(token, _prop);
 		if (result)
 			goto out_free;
 	}
-	*prop = (fpga_properties)_prop;
 
+	*prop = (fpga_properties)_prop;
 	return result;
+
 out_free:
-	free(_prop);
+	err = pthread_mutex_destroy(&_prop->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_destroy() failed");
+	opae_free(_prop);
 	return result;
 }
 
@@ -886,17 +904,26 @@ fpga_result __UIO_API__ uio_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga
 {
 	uio_handle *h;
 	uio_token *t;
+	fpga_result res;
+	int err;
 
-	ASSERT_NOT_NULL(handle);
 	ASSERT_NOT_NULL(prop);
 
-	h = handle_check(handle);
+	h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
 
 	t = h->token;
-	ASSERT_NOT_NULL(t);
+	if (!t) {
+		res = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
 
-	return uio_fpgaGetProperties(t, prop);
+	res = uio_fpgaGetProperties(t, prop);
+
+out_unlock:
+	opae_mutex_unlock(err, &h->lock);
+
+	return res;
 }
 
 static inline volatile uint8_t *get_user_offset(uio_handle *h,
@@ -910,9 +937,9 @@ static inline volatile uint8_t *get_user_offset(uio_handle *h,
 
 
 fpga_result __UIO_API__ uio_fpgaWriteMMIO64(fpga_handle handle,
-				 uint32_t mmio_num,
-				 uint64_t offset,
-				 uint64_t value)
+					    uint32_t mmio_num,
+					    uint64_t offset,
+					    uint64_t value)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -942,9 +969,9 @@ out_unlock:
 }
 
 fpga_result __UIO_API__ uio_fpgaReadMMIO64(fpga_handle handle,
-				uint32_t mmio_num,
-				uint64_t offset,
-				uint64_t *value)
+					   uint32_t mmio_num,
+					   uint64_t offset,
+					   uint64_t *value)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -974,9 +1001,9 @@ out_unlock:
 }
 
 fpga_result __UIO_API__ uio_fpgaWriteMMIO32(fpga_handle handle,
-				 uint32_t mmio_num,
-				 uint64_t offset,
-				 uint32_t value)
+					    uint32_t mmio_num,
+					    uint64_t offset,
+					    uint32_t value)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -1006,9 +1033,9 @@ out_unlock:
 }
 
 fpga_result __UIO_API__ uio_fpgaReadMMIO32(fpga_handle handle,
-				uint32_t mmio_num,
-				uint64_t offset,
-				uint32_t *value)
+					   uint32_t mmio_num,
+					   uint64_t offset,
+					   uint32_t *value)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -1055,9 +1082,9 @@ static inline void copy512(const void *src, void *dst)
 #endif // x86
 
 fpga_result __UIO_API__ uio_fpgaWriteMMIO512(fpga_handle handle,
-				 uint32_t mmio_num,
-				 uint64_t offset,
-				 const void *value)
+					     uint32_t mmio_num,
+					     uint64_t offset,
+					     const void *value)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -1093,8 +1120,8 @@ out_unlock:
 }
 
 fpga_result __UIO_API__ uio_fpgaMapMMIO(fpga_handle handle,
-			     uint32_t mmio_num,
-			     uint64_t **mmio_ptr)
+					uint32_t mmio_num,
+					uint64_t **mmio_ptr)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -1121,7 +1148,7 @@ out_unlock:
 }
 
 fpga_result __UIO_API__ uio_fpgaUnmapMMIO(fpga_handle handle,
-			       uint32_t mmio_num)
+					  uint32_t mmio_num)
 {
 	uio_handle *h;
 	uio_token *t;
@@ -1168,7 +1195,7 @@ uio_token *uio_get_token(uio_pci_device_t *dev,
 
 	t = (uio_token *)opae_calloc(1, sizeof(uio_token));
 	if (!t) {
-		ERR("Failed to allocate memory for uio_token");
+		OPAE_ERR("Failed to allocate memory for uio_token");
 		return NULL;
 	}
 
@@ -1183,7 +1210,7 @@ uio_token *uio_get_token(uio_pci_device_t *dev,
 	return t;
 }
 
-bool pci_matches_filter(const fpga_properties *filter, uio_pci_device_t *dev)
+STATIC bool pci_matches_filter(const fpga_properties filter, uio_pci_device_t *dev)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)filter;
 
@@ -1218,8 +1245,9 @@ bool pci_matches_filter(const fpga_properties *filter, uio_pci_device_t *dev)
 	return true;
 }
 
-bool pci_matches_filters(const fpga_properties *filters, uint32_t num_filters,
-			 uio_pci_device_t *dev)
+STATIC bool pci_matches_filters(const fpga_properties *filters,
+				uint32_t num_filters,
+				uio_pci_device_t *dev)
 {
 	if (!filters)
 		return true;
@@ -1232,7 +1260,7 @@ bool pci_matches_filters(const fpga_properties *filters, uint32_t num_filters,
 	return false;
 }
 
-bool matches_filter(const fpga_properties *filter, uio_token *t)
+STATIC bool matches_filter(const fpga_properties filter, uio_token *t)
 {
 	struct _fpga_properties *_prop = (struct _fpga_properties *)filter;
 
@@ -1281,8 +1309,9 @@ bool matches_filter(const fpga_properties *filter, uio_token *t)
 	return true;
 }
 
-bool matches_filters(const fpga_properties *filters, uint32_t num_filters,
-		     uio_token *t)
+STATIC bool matches_filters(const fpga_properties *filters,
+			    uint32_t num_filters,
+			    uio_token *t)
 {
 	if (!filters)
 		return true;
@@ -1475,7 +1504,7 @@ fpga_result __UIO_API__ uio_fpgaDestroyEventHandle(fpga_event_handle *event_hand
 }
 
 fpga_result __UIO_API__ uio_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
-						int *fd)
+							   int *fd)
 {
 	uio_event_handle *_ueh;
 	int err;
@@ -1518,9 +1547,9 @@ STATIC fpga_result register_event(uio_handle *_h,
 }
 
 fpga_result __UIO_API__ uio_fpgaRegisterEvent(fpga_handle handle,
-				   fpga_event_type event_type,
-				   fpga_event_handle event_handle,
-				   uint32_t flags)
+					      fpga_event_type event_type,
+					      fpga_event_handle event_handle,
+					      uint32_t flags)
 {
 	uio_handle *_h;
 	uio_event_handle *_ueh;

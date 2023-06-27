@@ -28,19 +28,6 @@
 #include <opae/uio.h>
 #include <opae/fpga.h>
 
-#ifndef __FILENAME__
-#define SLASHPTR strrchr(__FILE__, '/')
-#define __FILENAME__ (SLASHPTR ? SLASHPTR+1 : __FILE__)
-#endif
-
-#ifdef LIBOPAE_DEBUG
-#define ERR(format, ...)                                                       \
-	fprintf(stderr, "%s:%u:%s() [ERROR][%s] : " format,                    \
-	__FILENAME__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
-#else
-#define ERR(format, ...) do { } while (0)
-#endif
-
 #define GUIDSTR_MAX 36
 
 #ifdef __GNUC__
@@ -64,6 +51,7 @@ struct _uio_token;
 #define PCIADDR_MAX 16
 // dfl_dev.xyz
 #define DFL_DEV_MAX 12
+#define INVALID_NUMA_NODE 0xffffffff
 typedef struct _uio_pci_device {
 	char addr[PCIADDR_MAX];
 	char dfl_dev[DFL_DEV_MAX];
@@ -88,7 +76,6 @@ typedef struct _uio_token {
 	fpga_guid compat_id;
 	uio_pci_device_t *device;
 	uint32_t region;
-	uint32_t offset; // ?
 	uint32_t mmio_size;
 	uint32_t user_mmio_count;
 	uint32_t user_mmio[USER_MMIO_MAX];
@@ -120,7 +107,7 @@ typedef struct _uio_event_handle {
 	uint32_t flags;
 } uio_event_handle;
 
-int uio_pci_discover(void);
+int uio_pci_discover(const char *gpattern);
 void uio_free_device_list(void);
 uio_token *uio_get_token(uio_pci_device_t *dev,
 			 uint32_t region,

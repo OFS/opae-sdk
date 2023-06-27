@@ -34,6 +34,7 @@
 #include <opae/types_enum.h>
 
 #include "adapter.h"
+#include "opae_int.h"
 #include "opae_uio.h"
 #include "cfg-file.h"
 #include "mock/opae_std.h"
@@ -61,9 +62,9 @@ int __UIO_API__ uio_plugin_initialize(void)
 		cfg_file = NULL;
 	}
 
-	res = uio_pci_discover();
+	res = uio_pci_discover(NULL);
 	if (res) {
-		OPAE_ERR("error with uio_pci_discover\n");
+		OPAE_ERR("error with uio_pci_discover");
 	}
 
 	return res;
@@ -80,9 +81,9 @@ int __UIO_API__ uio_plugin_finalize(void)
 }
 
 int __UIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
-				       const char *jsonConfig)
+				      const char *jsonConfig)
 {
-	(void)(jsonConfig);
+	UNUSED_PARAM(jsonConfig);
 
 	adapter->fpgaOpen = dlsym(adapter->plugin.dl_handle, "uio_fpgaOpen");
 	adapter->fpgaClose =
