@@ -36,6 +36,7 @@ import pathlib
 import json
 import binascii
 import struct
+import time
 import logging
 from ctypes import c_uint64, Structure, Union, c_uint32
 from pyopaeuio import pyopaeuio
@@ -653,7 +654,55 @@ def parse_args():
     parser.add_argument('--log-level', choices=log_levels,
                         default='info', help='log level to use')
 
+    daemon_help = 'run as pause frame config daemon'
+    parser.add_argument('--pause-daemon', action='store_true', default=None, help=daemon_help)
+
+    sleep_help = 'pause daemon sleep time in seconds'
+    parser.add_argument('--sleep-time', type=float, default=20.0, help=sleep_help)
+
     return parser, parser.parse_args()
+
+
+def write_pause_regs(args):
+    """
+    Configure the RX pause configuration registers for Port 0 and 4
+    with an appropriate multicast mac address.
+    """
+    uio = UIO(args.uio, args.bit_size, args.region_index, args.mailbox_cmdcsr)
+    if not uio.verify_uio():
+        LOG.error('please pass the proper arguments')
+        sys.exit(1)
+
+    try:
+        ret = uio.open()
+    except Exception as e:
+        LOG.error(e)
+        return
+
+    uio.mailbox_write(args.region_index, 0x08070705, 0xc2000001)
+    uio.mailbox_write(args.region_index, 0x48070705, 0xc2000001)
+    uio.mailbox_write(args.region_index, 0x08070805, 0x180)
+    uio.mailbox_write(args.region_index, 0x48070805, 0x180)
+
+    uio.close()
+
+
+def pause_daemon(args):
+    """
+    A function to implement a simple daemon that continuously
+    tries to configure RX pause registers in E-tile via the
+    HSSI subsystem.  These writes only succeed if the the
+    ethernet link is established.
+    """
+    if args.uio is None:
+        LOG.error('pause_daemon requires --uio')
+        sys.exit(1)
+
+    while True:
+        write_pause_regs(args)
+        time.sleep(args.sleep_time)
+
+    sys.exit(0)
 
 
 def main():
@@ -672,12 +721,15 @@ def main():
     LOG.debug("args:%s", args)
     if all(arg is None for arg in [args.peek, args.peek_dump, args.poke, args.mailbox_read,
                                    args.mailbox_write, args.mailbox_dump,
-                                   args.mailbox_json]):
+                                   args.mailbox_json, args.pause_daemon]):
         LOG.error('please pass the proper arguments\n')
         parser.print_help(sys.stderr)
         sys.exit(1)
     if args.pcie_address and not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
+
+    if args.pause_daemon is not None:
+        pause_daemon(args)
 
     args.uio_grps = []
     if args.uio is None:
@@ -716,7 +768,7 @@ def main():
         if not uio.verify_uio():
             LOG.error('please pass the proper arguments')
             sys.exit(1)
-        LOG.info("**************OFS.UIO*****************\n")
+        LOG.debug("**************OFS.UIO*****************\n")
         uio.open()
         # peek/read csr
         if args.peek is not None:
