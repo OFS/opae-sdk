@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2020-2023, Intel Corporation
+# Copyright(c) 2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,5 +24,11 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-declare -r PROJECT_VERSION='2.7.0'
-declare -r PROJECT_RELEASE='1'
+
+set -e
+set -x
+
+zypper install -y python3 python3-pip python3-devel python3-jsonschema python3-PyYAML python3-pybind11 gdb vim git gcc gcc-c++ make cmake libuuid-devel libjson-c-devel hwloc-devel tbb-devel libedit-devel doxygen python3-Sphinx pandoc rpmdevtools python3-pybind11-devel python3-virtualenv yaml-cpp-devel systemd-devel libcap-devel cli11-devel spdlog-devel netcat rsync sudo shadow
+zypper remove -y busybox-which
+zypper install -y rpm-build git
+pip3 install jsonschema pyyaml

@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2022, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@
 #include <sys/mman.h>
 #include <glob.h>
 #include <dirent.h>
+#include <sys/file.h>
 
 #include <opae/uio.h>
 #include "mock/opae_std.h"
@@ -125,6 +126,7 @@ STATIC void opae_uio_destroy(struct opae_uio *u)
 	u->regions = NULL;
 
 	if (u->device_fd >= 0) {
+		flock(u->device_fd, LOCK_UN|LOCK_NB);
 		opae_close(u->device_fd);
 		u->device_fd = -1;
 	}
@@ -341,6 +343,17 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 	if (u->device_fd < 0) {
 		ERR("failed to open(\"%s\")\n", u->device_path);
 		res = 8;
+		goto out_destroy;
+	}
+
+	res = flock(u->device_fd, LOCK_EX|LOCK_NB);
+	if (res == -1) {
+		if (errno == EWOULDBLOCK)
+			ERR("failed to obtain exclusive access to \"%s\"\n",
+			    u->device_path);
+		close(u->device_fd);
+		u->device_fd = -1;
+		res = 10;
 		goto out_destroy;
 	}
 
