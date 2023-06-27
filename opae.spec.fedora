@@ -109,6 +109,11 @@ Additional OPAE tools
   %cmake_build
 %endif
 
+%if 0%{?suse_version} > 0
+  echo "Building for openSUSE"
+  %{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
+%endif
+
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
 cp RELEASE_NOTES.md %{buildroot}%{_datadir}/opae/RELEASE_NOTES.md
