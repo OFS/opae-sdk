@@ -2568,7 +2568,7 @@ TEST(opae_u, pci_matches_filter)
 
   const uint16_t segment = 0xbeef;
   const uint8_t bus = 0x5a;
-  const uint8_t device = 0x7;
+  const uint8_t device = 4;
   const uint8_t function = 3;
   const uint8_t socket_id = 2;
   const uint16_t vendor_id = 0x8086;
@@ -2612,6 +2612,10 @@ TEST(opae_u, pci_matches_filter)
   dev.bdf.bus = bus + 1;
   EXPECT_EQ(false, pci_matches_filter(&_p, &dev));
   dev.bdf.bus = bus;
+
+  dev.bdf.device = device + 1;
+  EXPECT_EQ(false, pci_matches_filter(&_p, &dev));
+  dev.bdf.device = device;
 
   dev.bdf.function = function + 1;
   EXPECT_EQ(false, pci_matches_filter(&_p, &dev));
@@ -2749,6 +2753,7 @@ class matches_filter_f : public ::testing::Test
     SET_FIELD_VALID(&props_, FPGA_PROPERTY_OBJTYPE);
     props_.objtype = FPGA_ACCELERATOR;
     token_.hdr.objtype = FPGA_ACCELERATOR;
+    parent_.hdr.objtype = FPGA_DEVICE;
 
     SET_FIELD_VALID(&props_, FPGA_PROPERTY_ACCELERATOR_STATE);
     props_.u.accelerator.state = FPGA_ACCELERATOR_UNASSIGNED;
@@ -2894,6 +2899,8 @@ TEST_F(matches_filter_f, matches_filter_guid_err6)
  */
 TEST_F(matches_filter_f, matches_filter_guid_err7)
 {
+  CLEAR_FIELD_VALID(&props_, FPGA_PROPERTY_PARENT);
+  CLEAR_FIELD_VALID(&props_, FPGA_PROPERTY_OBJTYPE);
   token_.hdr.objtype = FPGA_DEVICE;
   memset(token_.compat_id, 0, sizeof(token_.compat_id));
   EXPECT_EQ(false, matches_filter(&props_, &token_));
