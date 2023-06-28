@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #define _GNU_SOURCE
 #include <string.h>
 
@@ -41,6 +45,18 @@ void fpgainfo_print_err(const char *s, fpga_result res)
 {
 	if (s && res)
 		fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
+}
+
+STATIC const char *fpgainfo_interface_to_str(fpga_interface ifc)
+{
+	switch (ifc) {
+	case FPGA_IFC_DFL : return "DFL";
+	case FPGA_IFC_VFIO : return "VFIO";
+	case FPGA_IFC_SIM_DFL : return "Simulated DFL";
+	case FPGA_IFC_SIM_VFIO : return "Simulated VFIO";
+	case FPGA_IFC_UIO : return "UIO";
+	default : return "<unknown>";
+	}
 }
 
 void fpgainfo_print_common(const char *hdr, fpga_properties props)
@@ -67,6 +83,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_token par = NULL;
 	bool has_parent = true;
 	bool pr_valid = true;
+	fpga_interface interface = FPGA_IFC_DFL;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -100,6 +117,9 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	res = fpgaPropertiesGetSubsystemDeviceID(props, &subdevice_id);
 	fpgainfo_print_err("reading subdevice_id from properties", res);
+
+	res = fpgaPropertiesGetInterface(props, &interface);
+	fpgainfo_print_err("reading interface from properties", res);
 
 	if (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetGUID(props, &port_guid);
@@ -163,6 +183,8 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	}
 
 	printf("%s\n", hdr);
+	printf("%-32s : %s\n", "Interface",
+	       fpgainfo_interface_to_str(interface));
 	printf("%-32s : 0x%2" PRIX64 "\n", "Object Id", object_id);
 	printf("%-32s : %04X:%02X:%02X.%01X\n", "PCIe s:b:d.f", segment, bus,
 	       device, function);
