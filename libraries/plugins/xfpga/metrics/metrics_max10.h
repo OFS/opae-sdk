@@ -33,8 +33,9 @@
 #define __FPGA_METRICS_MAX10_H__
 
 
-#define DFL_MAX10_SYSFS_PATH                    "*dfl_*/*/**/*hwmon*/hwmon/hwmon*/"
+#define DFL_MAX10_SYSFS_PATH                    "*dfl_*/*spi*/*spi*/**/*hwmon*/hwmon/hwmon*/"
 #define DFL_MAX10_SYSFS_PATH_SPI_MASTER         "*dfl_*/spi_master/**/*hwmon*/hwmon/hwmon*/"
+#define DFL_MAX10_SYSFS_PATH_MAX10_MASTER       "*dfl_*/*hwmon*/*hwmon*/**/*hwmon*/"
 #define DFL_MAX10_SYSFS_LABEL                   "*_label"
 #define DFL_TEMPERATURE                         "temp"
 #define DFL_VOLTAGE                             "in"
