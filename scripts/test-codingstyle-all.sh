@@ -23,13 +23,14 @@ find_c() {
     find "${OPAE_SDK_ROOT}/libraries/libboard" -iname "*.c" -or -iname "*.h"
 }
 
+declare -r CHECKPATCH_HASH='d0f90841cba1931ee8284297deda53f098de5c82'
 check_c () {
     pushd $(dirname $0) >/dev/null
 
     CHECKPATCH=checkpatch.pl
 
     if [ ! -f $CHECKPATCH ]; then
-        wget --no-check-certificate https://raw.githubusercontent.com/torvalds/linux/master/scripts/checkpatch.pl
+        wget --no-check-certificate https://raw.githubusercontent.com/torvalds/linux/${CHECKPATCH_HASH}/scripts/checkpatch.pl
         if [ ! -f $CHECKPATCH ]; then
             echo "Couldn't download checkpatch.pl - please put a copy into the same"
             echo "directory as this script."
