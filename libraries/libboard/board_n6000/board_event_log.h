@@ -154,7 +154,16 @@ struct bel_event {
 			struct bel_sensors_status sensors_status;
 			struct bel_pcie_v1_error_status pcie_v1_error_status;
 		};
-		uint32_t data[1];
+		uint32_t data[(sizeof(struct bel_power_on_status) +
+			       sizeof(struct bel_timeof_day) +
+			       sizeof(struct bel_max10_seu) +
+			       sizeof(struct bel_fpga_seu) +
+			       sizeof(struct bel_pci_error_status) +
+			       sizeof(struct bel_power_off_status) +
+			       sizeof(struct bel_sensors_state) +
+			       sizeof(struct bel_sensors_status) +
+			       sizeof(struct bel_pcie_v1_error_status)
+			      )/sizeof(uint32_t)];
 	};
 } __attribute__((__packed__));
 
