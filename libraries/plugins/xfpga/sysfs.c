@@ -1695,8 +1695,6 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id,
 {
 	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
-	UNUSED_PARAM(sub_vendor_id);
-
 	if (vendor_id == 0x8086) {
 
 		switch (device_id) {
