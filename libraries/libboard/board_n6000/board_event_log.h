@@ -154,7 +154,7 @@ struct bel_event {
 			struct bel_sensors_status sensors_status;
 			struct bel_pcie_v1_error_status pcie_v1_error_status;
 		};
-		uint32_t data[];
+		uint32_t data[1];
 	};
 } __attribute__((__packed__));
 
