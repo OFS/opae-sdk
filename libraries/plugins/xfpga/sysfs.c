@@ -1742,15 +1742,11 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id,
 				// D5005 ADP 0x8086  0xbcce 0x8086 0x138d
 				hw_type = FPGA_HW_DCP_D5005;
 				break;
-			} else if (sub_vendor_id == 0x8086
-				&& sub_device_id == 0) {
-
-				//Intel Open FPGA Stack Platform
-				//  D5005 ADP 0x8086  0xbcce 0x8086 0x0
-				hw_type = FPGA_HW_DCP_D5005;
-				break;
 			} else {
+				// Intel Open FPGA Stack Platform /Silicom
+				// N6010 0x8086  0xbcce 0x8086 0x0
 				hw_type = FPGA_HW_ADP_N6000;
+				break;
 			}
 
 		break;
