@@ -532,14 +532,34 @@ TEST(sysfs_c, sysfs_sbdf_invalid_tests) {
 *          returns FPGA_OK
 */
 TEST_P(sysfs_c_p, hw_type) {
-  enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
+  enum fpga_hw_type hw_type = FPGA_HW_ADP_N6000;
   uint64_t real_vendorid = platform_.devices[0].vendor_id;
   uint64_t real_deviceid = platform_.devices[0].device_id;
+  uint64_t real_sub_deviceid = 0;
+  uint64_t real_sub_vendorid = 0;
 
   auto res = get_fpga_hw_type(device_, &hw_type);
   EXPECT_EQ(res, FPGA_OK);
 
-  EXPECT_EQ(hw_type, opae_id_to_hw_type(real_vendorid, real_deviceid));
+  if (real_deviceid == 0x9c4) {
+      hw_type = FPGA_HW_DCP_RC;
+  }
+  else if (real_deviceid == 0xb30) {
+      hw_type = FPGA_HW_DCP_N3000;
+  }else if (real_deviceid == 0xb2b) {
+      hw_type = FPGA_HW_DCP_D5005;
+  } else if (real_deviceid == 0xbcc0) {
+      hw_type = FPGA_HW_MCP;
+  }
+  else {
+      hw_type = FPGA_HW_ADP_N6000;
+  }
+
+  EXPECT_EQ(hw_type, opae_id_to_hw_type(real_vendorid, real_deviceid,
+      real_sub_vendorid, real_sub_deviceid));
+
+  EXPECT_EQ(hw_type, opae_id_to_hw_type(real_vendorid, real_deviceid,
+      real_sub_vendorid, real_sub_deviceid));
 }
 
 /**

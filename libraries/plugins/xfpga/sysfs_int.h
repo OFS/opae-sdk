@@ -117,7 +117,8 @@ fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid);
 fpga_result sysfs_get_slots(int dev, int subdev, uint32_t *slots);
 fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id);
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
-enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id);
+enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id,
+	uint16_t sub_vendor_id, uint16_t sub_device_id);
 fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type);
 fpga_result sysfs_deviceid_from_path(const char *sysfspath,
 				uint64_t *deviceid);
