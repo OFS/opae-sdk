@@ -50,12 +50,12 @@ void fpgainfo_print_err(const char *s, fpga_result res)
 STATIC const char *fpgainfo_interface_to_str(fpga_interface ifc)
 {
 	switch (ifc) {
-	case FPGA_IFC_DFL : return "DFL";
-	case FPGA_IFC_VFIO : return "VFIO";
-	case FPGA_IFC_SIM_DFL : return "Simulated DFL";
-	case FPGA_IFC_SIM_VFIO : return "Simulated VFIO";
-	case FPGA_IFC_UIO : return "UIO";
-	default : return "<unknown>";
+	case FPGA_IFC_DFL: return "DFL";
+	case FPGA_IFC_VFIO: return "VFIO";
+	case FPGA_IFC_SIM_DFL: return "Simulated DFL";
+	case FPGA_IFC_SIM_VFIO: return "Simulated VFIO";
+	case FPGA_IFC_UIO: return "UIO";
+	default: return "<unknown>";
 	}
 }
 
