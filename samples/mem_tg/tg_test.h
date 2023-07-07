@@ -26,12 +26,19 @@
 #pragma once
 
 #include <unistd.h>
+#include <thread>
+#include <iostream>
+#include <vector>
+#include <future>
 
 #include "afu_test.h"
 #include "mem_tg.h"
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::token;
+
+#define NUM_AVAILABLE_CHANNELS 3
+const int AVAILABLE_CHANNELS[] = {0, 1, 2};
 
 namespace mem_tg {
 
@@ -67,7 +74,7 @@ public:
     }
 
     void tg_perf () {
-      uint32_t mem_ch_offset = (tg_exe_->mem_ch_) << 0x3;
+      uint32_t mem_ch_offset = (std::stoi(tg_exe_->mem_ch_[0])) << 0x3;
       uint64_t num_ticks = tg_exe_->read64(MEM_TG_CLOCKS + mem_ch_offset);
       std::cout << "Mem Clock Cycles: " << std::dec << num_ticks << std::endl;
       uint64_t write_bytes = 64 * (tg_exe_->loop_*tg_exe_->wcnt_*tg_exe_->bcnt_);
@@ -81,88 +88,106 @@ public:
     {
         /* Wait for test completion */
         uint32_t           timeout = MEM_TG_TEST_TIMEOUT;
-
-	// poll while active bit is set (channel status = {pass,fail,timeout,active})
-	uint32_t tg_status = 0x1;
-	tg_status = 0xF&(tg_exe_->read64(MEM_TG_STAT) >> (0x4*(tg_exe_->mem_ch_)));
+        int max_itterations = 10000; // TODO: REMOVE AFTER TESTING
+        // poll while active bit is set (channel status = {pass,fail,timeout,active})
+        uint32_t tg_status = 0x1;
+        tg_status = 0xF&(tg_exe_->read64(MEM_TG_STAT) >> (0x4*(std::stoi(tg_exe_->mem_ch_[0]))));
+        int i = 0; // TODO: REMOVE AFTER TESTING
         while ( tg_status == TG_STATUS_ACTIVE ) {
-	  tg_status = 0xF&(tg_exe_->read64(MEM_TG_STAT) >> (0x4*(tg_exe_->mem_ch_)));
-	  usleep(TEST_SLEEP_INVL);
-	  if (--timeout == 0) {
-	    std::cout << "TG TEST TIME OUT" << std::endl;
-	    return false;
-	  }
-        }
-	if(tg_status == TG_STATUS_TIMEOUT) {
-	  std::cout << "TG TIMEOUT" << std::endl;
-	  return false;
-	}
-	uint32_t tg_fail_exp  = 0;
-	uint32_t tg_fail_act  = 0;
-	uint64_t tg_fail_addr = 0;
+          tg_status = 0xF&(tg_exe_->read64(MEM_TG_STAT) >> (0x4*(std::stoi(tg_exe_->mem_ch_[0]))));
+          // usleep(TEST_SLEEP_INVL);
+          std::this_thread::yield();
+          if (--timeout == 0) {
+            std::cout << "TG TEST TIME OUT" << std::endl;
+            return false;
+          }
 
-	if (tg_status == TG_STATUS_ERROR) {
-	  std::cout << "TG ERROR" << std::endl;
-	  tg_fail_addr = tg_exe_->read64(tg_offset_ + TG_FIRST_FAIL_ADDR_L);
-	  tg_fail_exp  = tg_exe_->read64(tg_offset_ + TG_FAIL_EXPECTED_DATA);
-	  tg_fail_act  = tg_exe_->read64(tg_offset_ + TG_FAIL_READ_DATA);
-	  std::cout << "Failed at address 0x" << std::hex << tg_fail_addr << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act << std::endl;
-	  return false;
-	}
-	std::cout << "TG PASS" << std::endl;
+          // TODO: REMOVE AFTER TESTING
+          i++;
+          if (i >= max_itterations) {
+            std::cout << "EXCEEDED MAX ITTERATIONS ON CHANNEL "<< std::stoi(tg_exe_->mem_ch_[0]) << std::endl;
+            return false;
+          }
+        }
+        if(tg_status == TG_STATUS_TIMEOUT) {
+          std::cout << "TG TIMEOUT" << std::endl;
+          return false;
+        }
+        uint32_t tg_fail_exp  = 0;
+        uint32_t tg_fail_act  = 0;
+        uint64_t tg_fail_addr = 0;
+
+        if (tg_status == TG_STATUS_ERROR) {
+          std::cout << "TG ERROR" << std::endl;
+          tg_fail_addr = tg_exe_->read64(tg_offset_ + TG_FIRST_FAIL_ADDR_L);
+          tg_fail_exp  = tg_exe_->read64(tg_offset_ + TG_FAIL_EXPECTED_DATA);
+          tg_fail_act  = tg_exe_->read64(tg_offset_ + TG_FAIL_READ_DATA);
+          std::cout << "Failed at address 0x" << std::hex << tg_fail_addr << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act << std::endl;
+          return false;
+        }
+        std::cout << "TG PASS" << std::endl;
         return true;
     }
 
 
-    int config_input_options()
+    int config_input_options(mem_tg *tg_exe_)
     {
         if (!tg_exe_)
             return -1;
 
         uint64_t mem_capability = tg_exe_->read64(MEM_TG_CTRL);
-	if((mem_capability & (0x1 << tg_exe_->mem_ch_)) == 0) {
-	  std::cerr << "No traffic generator for mem[" << tg_exe_->mem_ch_ << "]" << std::endl;
-	  return -1;
-	} else {
-	  tg_offset_ = AFU_DFH + (MEM_TG_CFG_OFFSET * (1+tg_exe_->mem_ch_));
-	}
+        if((mem_capability & (0x1 << std::stoi(tg_exe_->mem_ch_[0]))) == 0) { 
+          std::cerr << "No traffic generator for mem[" << std::stoi(tg_exe_->mem_ch_[0]) << "]" << std::endl;
+          return -1;
+        } else {
+          tg_offset_ = AFU_DFH + (MEM_TG_CFG_OFFSET * (1+std::stoi(tg_exe_->mem_ch_[0])));
+        }
 	
-	tg_exe_->write32(tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);
-	tg_exe_->write32(tg_offset_+TG_WRITE_COUNT, tg_exe_->wcnt_);
-	tg_exe_->write32(tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
-	tg_exe_->write32(tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
-	tg_exe_->write32(tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
-	tg_exe_->write32(tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);
+        tg_exe_->write32(tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);
+        tg_exe_->write32(tg_offset_+TG_WRITE_COUNT, tg_exe_->wcnt_);
+        tg_exe_->write32(tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
+        tg_exe_->write32(tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
+        tg_exe_->write32(tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
+        tg_exe_->write32(tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);
 
-	// address increment mode
-	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, TG_ADDR_SEQ);
-	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_RD, TG_ADDR_SEQ);
+        // address increment mode
+        tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, TG_ADDR_SEQ);
+        tg_exe_->write32(tg_offset_+TG_ADDR_MODE_RD, TG_ADDR_SEQ);
 
         return 0;
     }
 
     // The test state has been configured. Run one test instance.
-    int run_mem_test()
+    int run_mem_test(mem_tg *tg_exe_)
     {
         int status = 0;
 	
         tg_exe_->logger_->debug("Start Test");
 
-	tg_exe_->write32(tg_offset_+TG_START,0x1);
+        tg_exe_->write32(tg_offset_+TG_START,0x1);
 
-	if(!tg_wait_test_completion())
-	  status = -1;
+        if(!tg_wait_test_completion())
+          status = -1;
 
-	tg_perf();
+        tg_perf();
 	
         return status;
     }
 
+    int run_thread_single_channel(mem_tg *tg_exe_){
+      auto ret = config_input_options(tg_exe_);
+        if (ret != 0) {
+            std::cerr << "Failed to configure TG input options" << std::endl;
+            return ret;
+        }
+
+        int status = run_mem_test(tg_exe_);
+        return status;
+    }
 
     virtual int run(test_afu *afu, CLI::App *app) override
     {
         (void)app;
-
         auto d_afu = dynamic_cast<mem_tg*>(afu);
         tg_exe_ = dynamic_cast<mem_tg*>(afu);
 
@@ -171,22 +196,69 @@ public:
         // Read HW details
 
         if (0 == tg_exe_->mem_speed_) {
-	  tg_exe_->mem_speed_ = 300;
-	  std::cout << "Memory channel clock frequency unknown. Assuming "
-		    << tg_exe_->mem_speed_ << " MHz." << std::endl;
-	}
+          tg_exe_->mem_speed_ = 300;
+          std::cout << "Memory channel clock frequency unknown. Assuming "
+              << tg_exe_->mem_speed_ << " MHz." << std::endl;
+        }
         else {
             std::cout << "Memory clock from command line: "
                       << tg_exe_->mem_speed_ << " MHz" << std::endl;
         }
 
-        auto ret = config_input_options();
-        if (ret != 0) {
-            std::cerr << "Failed to configure TG input options" << std::endl;
-            return ret;
+        // Parse mem_ch_ into array of selected channels and number of channels
+        int *channels = NULL;
+        int num_channels = 0;
+        if (0 < tg_exe_->mem_ch_.size()) {
+          if (tg_exe_->mem_ch_[0] == "all"){
+            channels = new int[NUM_AVAILABLE_CHANNELS];
+            num_channels = NUM_AVAILABLE_CHANNELS;
+            for (int i = 0; i < NUM_AVAILABLE_CHANNELS; i++){
+              channels[i] = AVAILABLE_CHANNELS[i];
+            }
+          } else {
+            channels = new int[tg_exe_->mem_ch_.size()];
+            num_channels = tg_exe_->mem_ch_.size();
+            try{
+              for (unsigned i = 0; i < tg_exe_->mem_ch_.size(); i++){
+                channels[i] = std::stoi(tg_exe_->mem_ch_[i]);
+              }
+            } catch (std::invalid_argument& e){
+              std::cerr << "Error: invalid argument to std::stoi";
+              delete[] channels;
+              return 1;
+            }
+          }
         }
 
-        return run_mem_test();
+        // Spawn threads for each channel:
+        std::vector<mem_tg*> thread_tg_exe_objects;
+        std::vector<std::future<int>> futures;
+        std::vector<std::promise<int>> promises(num_channels);
+        std::vector<std::thread> threads;
+        for (int i = 0; i < num_channels; i++){
+          thread_tg_exe_objects[i] = tg_exe_->duplicate();
+          thread_tg_exe_objects[i]->mem_ch_.clear();
+          thread_tg_exe_objects[i]->mem_ch_.push_back(std::to_string(channels[i]));
+          futures.push_back(promises[i].get_future());
+          threads.emplace_back([&] { promises[i].set_value(run_thread_single_channel(thread_tg_exe_objects[i])); });
+        }
+
+        // Wait for all threads to exit then collect their exit statuses
+        for (auto &thread : threads){
+          thread.join();
+        }
+        std::vector<int> exit_codes;
+        for (auto& future : futures){
+          exit_codes.push_back(future.get());
+        }
+
+        // Print message showing thread statuses
+        for (int i = 0; i < num_channels; i++){
+          std::cout << "Thread on channel " << channels[i] << " exited with status " << (long)exit_codes[i] << std::endl;
+        }
+
+        delete[] channels;
+        return 0;
     }
 
 protected:

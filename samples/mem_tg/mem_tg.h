@@ -25,6 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <opae/cxx/core/token.h>
+#include <iostream>
+#include <vector>
 
 #include "afu_test.h"
 
@@ -208,7 +210,7 @@ public:
 
 public:
   uint32_t count_;
-  uint32_t mem_ch_;
+  std::vector<std::string> mem_ch_;
   uint32_t loop_;
   uint32_t wcnt_;
   uint32_t rcnt_;
@@ -232,6 +234,20 @@ public:
   token::ptr_t get_token()
   {
     return handle_->get_token();
+  }
+
+  mem_tg* duplicate() const {
+    mem_tg *duplicate = new mem_tg;
+
+    duplicate->count_       = this->count_;
+    duplicate->loop_        = this->loop_;
+    duplicate->wcnt_        = this->wcnt_;
+    duplicate->rcnt_        = this->rcnt_;
+    duplicate->bcnt_        = this->bcnt_;
+    duplicate->stride_      = this->stride_;
+    duplicate->pattern_     = this->pattern_;
+    duplicate->mem_speed_   = this->mem_speed_;
+    return duplicate;
   }
 
 };
