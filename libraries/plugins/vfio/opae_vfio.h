@@ -28,38 +28,6 @@
 #include <opae/vfio.h>
 #include <opae/fpga.h>
 
-#ifndef __FILENAME__
-#define SLASHPTR strrchr(__FILE__, '/')
-#define __FILENAME__ (SLASHPTR ? SLASHPTR+1 : __FILE__)
-#endif
-
-#ifdef LIBOPAE_DEBUG
-#define ERR(format, ...)                                                       \
-	fprintf(stderr, "%s:%u:%s() [ERROR][%s] : " format,                    \
-	__FILENAME__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
-#else
-#define ERR(format, ...) do { } while (0)
-#endif
-
-#ifndef ASSERT_NOT_NULL_MSG_RESULT
-#define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __res) \
-  do {                                                  \
-    if (!__arg) {                                       \
-      OPAE_ERR(__msg);                                  \
-      return __res;                                     \
-    }                                                   \
-  } while (0)
-#endif
-
-#ifndef ASSERT_NOT_NULL_MSG
-#define ASSERT_NOT_NULL_MSG(__arg, __msg) \
-  ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, FPGA_INVALID_PARAM)
-#endif
-
-#ifndef ASSERT_NOT_NULL
-#define ASSERT_NOT_NULL(__arg) ASSERT_NOT_NULL_MSG(__arg, #__arg " is NULL")
-#endif
-
 #define GUIDSTR_MAX 36
 
 #ifdef __GNUC__
@@ -81,7 +49,8 @@ typedef union _bdf {
 struct _vfio_token;
 
 #define PCIADDR_MAX 16
-typedef struct _pci_device {
+#define INVALID_NUMA_NODE 0xffffffff
+typedef struct _vfio_pci_device {
 	char addr[PCIADDR_MAX];
 	bdf_t bdf;
 	uint32_t vendor;
@@ -90,22 +59,20 @@ typedef struct _pci_device {
 	uint16_t subsystem_vendor;
 	uint16_t subsystem_device;
 	struct _vfio_token *tokens;
-	struct _pci_device *next;
-} pci_device_t;
+	struct _vfio_pci_device *next;
+} vfio_pci_device_t;
 
 typedef struct _vfio_ops {
-	fpga_result(*reset)(const pci_device_t *p, volatile uint8_t *mmio);
+	fpga_result (*reset)(const vfio_pci_device_t *p, volatile uint8_t *mmio);
 } vfio_ops;
 
 #define USER_MMIO_MAX 8
 typedef struct _vfio_token {
 	fpga_token_header hdr; //< Must appear at offset 0!
 	fpga_guid compat_id;
-	pci_device_t *device;
+	vfio_pci_device_t *device;
 	uint32_t region;
-	uint32_t offset;
 	uint32_t mmio_size;
-	uint32_t pr_control;
 	uint32_t user_mmio_count;
 	uint32_t user_mmio[USER_MMIO_MAX];
 	uint64_t bitstream_id;
@@ -127,9 +94,8 @@ typedef struct _vfio_pair {
 
 typedef struct _vfio_handle {
 	uint32_t magic;
-	struct _vfio_token *token;
+	vfio_token *token;
 	vfio_pair_t *vfio_pair;
-
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;
 	pthread_mutex_t lock;
@@ -144,10 +110,10 @@ typedef struct _vfio_event_handle {
 	uint32_t flags;
 } vfio_event_handle;
 
-int pci_discover(void);
-int features_discover(void);
-pci_device_t *get_pci_device(char addr[PCIADDR_MAX]);
-void free_device_list(void);
-vfio_token *get_token(pci_device_t *p, uint32_t region, int type);
-fpga_result get_guid(uint64_t *h, fpga_guid guid);
-#endif
+int vfio_pci_discover(const char *gpattern);
+void vfio_free_device_list(void);
+vfio_token *vfio_get_token(vfio_pci_device_t *dev,
+			   uint32_t region,
+			   fpga_objtype type);
+fpga_result vfio_get_guid(uint64_t *h, fpga_guid guid);
+#endif // _OPAE_VFIO_PLUGIN_H

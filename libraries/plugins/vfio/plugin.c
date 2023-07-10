@@ -23,6 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
@@ -33,6 +34,7 @@
 #include <opae/types_enum.h>
 
 #include "adapter.h"
+#include "opae_int.h"
 #include "opae_vfio.h"
 #include "cfg-file.h"
 #include "mock/opae_std.h"
@@ -60,9 +62,9 @@ int __VFIO_API__ vfio_plugin_initialize(void)
 		cfg_file = NULL;
 	}
 
-	res = pci_discover();
+	res = vfio_pci_discover(NULL);
 	if (res) {
-		OPAE_ERR("error with pci_discover\n");
+		OPAE_ERR("error with vfio_pci_discover");
 	}
 
 	return res;
@@ -70,7 +72,7 @@ int __VFIO_API__ vfio_plugin_initialize(void)
 
 int __VFIO_API__ vfio_plugin_finalize(void)
 {
-	free_device_list();
+	vfio_free_device_list();
 
 	opae_free_libopae_config(opae_v_supported_devices);
 	opae_v_supported_devices = NULL;
@@ -81,7 +83,7 @@ int __VFIO_API__ vfio_plugin_finalize(void)
 int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 				       const char *jsonConfig)
 {
-	(void)(jsonConfig);
+	UNUSED_PARAM(jsonConfig);
 
 	adapter->fpgaOpen = dlsym(adapter->plugin.dl_handle, "vfio_fpgaOpen");
 	adapter->fpgaClose =
@@ -138,4 +140,3 @@ int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 
 	return 0;
 }
-

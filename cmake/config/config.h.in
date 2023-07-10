@@ -245,6 +245,10 @@
 #define __XFPGA_API__
 #endif
 
+#ifndef __VFIO_API__
+#define __VFIO_API__
+#endif
+
 #ifndef __OPAE_API__
 #define __OPAE_API__
 #endif

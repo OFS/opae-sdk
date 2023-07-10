@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -127,11 +127,15 @@ typedef struct _dfl {
 	dfh *next;
 } dfl;
 
-#define for_each_dfh(H, ADDR)                                                  \
+#define for_each_dfh(H, ADDR) \
 	for (dfh_ptr H = (dfh_ptr)ADDR; H; H = next_dfh(H))
 
-int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio,
-	int region);
-int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio);
+int walk_fme(vfio_pci_device_t *p,
+	     struct opae_vfio *v,
+	     volatile uint8_t *mmio,
+	     int region);
+int walk_port(vfio_token *parent,
+	      uint32_t region,
+	      volatile uint8_t *mmio);
 
 #endif /* !VFIO_DFL_H */

@@ -988,7 +988,7 @@ int opae_vfio_irq_enable(struct opae_vfio *v,
 					VFIO_IRQ_SET_DATA_EVENTFD |
 					VFIO_IRQ_SET_ACTION_TRIGGER);
 
-	if (res < 0)
+	if (res)
 		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [enable]\n");
 
 	if (pthread_mutex_unlock(&v->lock))
@@ -1020,7 +1020,7 @@ int opae_vfio_irq_unmask(struct opae_vfio *v,
 					VFIO_IRQ_SET_DATA_BOOL |
 					VFIO_IRQ_SET_ACTION_UNMASK);
 
-	if (res < 0)
+	if (res)
 		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [unmask]\n");
 
 	if (pthread_mutex_unlock(&v->lock))
