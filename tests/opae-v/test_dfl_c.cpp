@@ -215,6 +215,65 @@ TEST(opae_v, walk_fme_no_token)
 }
 
 /**
+ * @test    walk_fme_vfio_error
+ * @brief   Test: walk_fme()
+ * @details walk_fme() skips the Port under<br>
+ *          inspection when opae_vfio_region_get() fails.
+ */
+TEST(opae_v, walk_fme_vfio_error)
+{
+  uint8_t mmio[16384];
+  memset(mmio, 0, sizeof(mmio));
+
+  const int FME = 0;
+  const int PORT = 8192;
+
+  dfh_ptr fme_dfh = (dfh_ptr)&mmio[FME];
+  uint64_t *bitstream_id = (uint64_t *)&mmio[FME + BITSTREAM_ID];
+  uint64_t *bitstream_md = (uint64_t *)&mmio[FME + BITSTREAM_MD];
+  fab_capability_ptr cap = (fab_capability_ptr)&mmio[FME + FAB_CAPABILITY];
+  port_offset_ptr port_offset = (port_offset_ptr)&mmio[FME + fme_ports[0]];
+  dfh_ptr pr = (dfh_ptr)&mmio[FME + 2048];
+
+  fme_dfh->eol = 0;
+  fme_dfh->next = 2048;
+  port_offset->implemented = 1;
+  port_offset->bar = 0;
+  *bitstream_id = 0xdeadbeefc0cac01a;
+  *bitstream_md = 0xc0cac01adeadbeef;
+  cap->num_ports = 1;
+  pr->id = PR_FEATURE_ID;
+  pr->eol = 1;
+
+  dfh_ptr port_dfh = (dfh_ptr)&mmio[PORT];
+  port_next_afu_ptr port_next_afu = (port_next_afu_ptr)&mmio[PORT + PORT_NEXT_AFU];
+  port_capability_ptr port_cap = (port_capability_ptr)&mmio[PORT + PORT_CAPABILITY];
+  port_control_ptr port_ctrl = (port_control_ptr)&mmio[PORT + PORT_CONTROL];
+  dfh_ptr stp = (dfh_ptr)&mmio[PORT + 2048];
+
+  port_dfh->eol = 0;
+  port_dfh->next = 2048;
+  port_next_afu->port_afu_dfh_offset = 4096;
+  port_ctrl->port_reset_ack = 1;
+  port_cap->mmio_size = 4096;
+  stp->id = PORT_STP_ID;
+  stp->eol = 1;
+
+  vfio_pci_device_t device;
+  memset(&device, 0, sizeof(device));
+
+  EXPECT_EQ(0, walk_fme(&device, nullptr, mmio, 0));
+
+  vfio_token *fme_token = device.tokens;
+
+  EXPECT_EQ(0xdeadbeefc0cac01a, fme_token->bitstream_id);
+  EXPECT_EQ(0xc0cac01adeadbeef, fme_token->bitstream_mdata);
+  EXPECT_EQ(1, fme_token->num_ports);
+
+  opae_free(fme_token);
+}
+
+/**
  * @test    walk_fme_ok
  * @brief   Test: walk_fme()
  * @details walk_fme() returns 0 on success.

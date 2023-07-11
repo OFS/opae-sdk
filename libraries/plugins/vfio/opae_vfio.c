@@ -167,57 +167,6 @@ STATIC int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value
 	return FPGA_OK;
 }
 
-#if 0
-STATIC int read_pci_attr_dev(const char *vfio_path, const char *attr,
-			     uint32_t *major, uint32_t *minor)
-{
-	char path[PATH_MAX];
-	char str_value[64] = { 0, };
-	char *endptr = NULL;
-	size_t len;
-	int res;
-	uint32_t v;
-	char *p;
-
-	snprintf(path, sizeof(path), "%s/%s", vfio_path, attr);
-	res = read_file(path, str_value, sizeof(str_value));
-	if (res) {
-		OPAE_ERR("reading %s", path);
-		return FPGA_EXCEPTION;
-	}
-
-	len = strnlen(str_value, sizeof(str_value));
-	if (str_value[len-1] == '\n') {
-		--len;
-		str_value[len] = '\0';
-	}
-
-	p = strchr(str_value, ':');
-	if (!p) {
-		OPAE_ERR("malformed dev sysfs string");
-		return FPGA_EXCEPTION;
-	}
-	*p = '\0';
-
-	v = strtoul(str_value, &endptr, 0);
-	if (endptr != p) {
-		OPAE_ERR("error parsing string: %s", str_value);
-		return FPGA_EXCEPTION;
-	}
-	*major = v;
-
-	endptr = NULL;
-	v = strtoul(p + 1, &endptr, 0);
-	if (endptr != &str_value[len]) {
-		OPAE_ERR("malformed dev sysfs string");
-		return FPGA_EXCEPTION;
-	}
-	*minor = v;
-
-	return FPGA_OK;
-}
-#endif
-
 STATIC int parse_pcie_info(vfio_pci_device_t *device, const char *addr)
 {
 	char err[128] = { 0, };
@@ -529,13 +478,13 @@ STATIC int close_vfio_pair(vfio_pair_t **pair)
 
 	if (ptr->device) {
 		opae_vfio_close(ptr->device);
-		free(ptr->device);
+		opae_free(ptr->device);
 	}
 	if (ptr->physfn) {
 		opae_vfio_close(ptr->physfn);
-		free(ptr->physfn);
+		opae_free(ptr->physfn);
 	}
-	free(ptr);
+	opae_free(ptr);
 	*pair = NULL;
 	return 0;
 }
@@ -549,7 +498,7 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	int ires;
 	fpga_result res = FPGA_EXCEPTION;
 
-	*ppair = malloc(sizeof(vfio_pair_t));
+	*ppair = opae_malloc(sizeof(vfio_pair_t));
 
 	if (!*ppair) {
 		OPAE_ERR("Failed to allocate memory for vfio_pair_t");
@@ -559,10 +508,10 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	pair = *ppair;
 	memset(pair, 0, sizeof(vfio_pair_t));
 
-	pair->device = malloc(sizeof(struct opae_vfio));
+	pair->device = opae_malloc(sizeof(struct opae_vfio));
 	if (!pair->device) {
 		OPAE_ERR("Failed to allocate memory for opae_vfio struct");
-		free(pair);
+		opae_free(pair);
 		*ppair = NULL;
 		return FPGA_NO_MEMORY;
 	}
@@ -576,28 +525,33 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	    strstr(phys_driver, "vfio-pci")) {
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
-		pair->physfn = malloc(sizeof(struct opae_vfio));
+
+		pair->physfn = opae_malloc(sizeof(struct opae_vfio));
 		if (!pair->physfn) {
 			OPAE_ERR("Failed to allocate memory for opae_vfio");
 			goto out_destroy;
 		}
 		memset(pair->physfn, 0, sizeof(struct opae_vfio));
+
 		ires = opae_vfio_secure_open(pair->physfn, phys_device, secret);
 		if (ires) {
 			if (ires == 2)
 				res = FPGA_BUSY;
 			else
 				OPAE_ERR("error opening physfn: %s", phys_device);
-			free(pair->physfn);
+			opae_free(pair->physfn);
 			pair->physfn = NULL;
 			goto out_destroy;
 		}
+
 		ires = opae_vfio_secure_open(pair->device, addr, secret);
 		if (ires) {
 			if (ires == 2)
 				res = FPGA_BUSY;
 			else
 				OPAE_ERR("error opening vfio device: %s", addr);
+			opae_free(pair->physfn);
+			pair->physfn = NULL;
 			goto out_destroy;
 		}
 	} else {
@@ -614,8 +568,8 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	return FPGA_OK;
 
 out_destroy:
-	free(pair->device);
-	free(pair);
+	opae_free(pair->device);
+	opae_free(pair);
 	*ppair = NULL;
 	return res;
 }

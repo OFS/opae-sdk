@@ -46,6 +46,7 @@ extern "C" {
 #include "opae_vfio.h"
 
 int read_file(const char *path, char *value, size_t max);
+int read_pci_link(const char *addr, const char *link, char *value, size_t max);
 int read_pci_attr(const char *addr, const char *attr, char *value, size_t max);
 int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value);
 int parse_pcie_info(vfio_pci_device_t *device, const char *addr);
@@ -64,6 +65,10 @@ vfio_handle *handle_check(fpga_handle handle);
 vfio_event_handle *event_handle_check(fpga_event_handle event_handle);
 vfio_handle *handle_check_and_lock(fpga_handle handle);
 vfio_event_handle *event_handle_check_and_lock(fpga_event_handle event_handle);
+
+int close_vfio_pair(vfio_pair_t **pair);
+fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair);
+
 fpga_result vfio_reset(const vfio_pci_device_t *dev,
                       volatile uint8_t *port_base);
 int vfio_walk(vfio_pci_device_t *dev);
@@ -100,12 +105,23 @@ bool matches_filter(const fpga_properties filter, vfio_token *t);
 bool matches_filters(const fpga_properties *filters,
                      uint32_t num_filters,
                      vfio_token *t);
+uint32_t vfio_irq_count(struct opae_vfio *device);
 
 fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
                               uint32_t num_filters, fpga_token *tokens,
                               uint32_t max_tokens, uint32_t *num_matches);
 fpga_result vfio_fpgaCloneToken(fpga_token src, fpga_token *dst);
 fpga_result vfio_fpgaDestroyToken(fpga_token *token);
+fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle,
+                                   uint64_t len,
+                                   void **buf_addr,
+                                   uint64_t *wsid,
+                                   int flags);
+fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
+fpga_result vfio_fpgaGetIOAddress(fpga_handle handle,
+                                  uint64_t wsid,
+                                  uint64_t *ioaddr);
+
 fpga_result vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle);
 fpga_result vfio_fpgaDestroyEventHandle(fpga_event_handle *event_handle);
 fpga_result vfio_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
@@ -1242,6 +1258,66 @@ TEST(opae_v, event_handle_check_and_lock_ok)
   vfio_event_handle *p = event_handle_check_and_lock(&eh);
   ASSERT_EQ(&eh, p);
   EXPECT_EQ(0, pthread_mutex_unlock(&eh.lock));
+}
+
+/**
+ * @test    close_vfio_pair_ok
+ * @brief   Test: close_vfio_pair()
+ * @details When the given parameters are<br>
+ *          non-NULL, then the function returns 0.
+ */
+TEST(opae_v, close_vfio_pair_ok)
+{
+  vfio_pair_t *pair = (vfio_pair_t *)opae_malloc(sizeof(*pair));
+
+  struct opae_vfio *device = (struct opae_vfio *)opae_calloc(1, sizeof(*device));
+  device->group.group_fd = -1;
+  device->device.device_fd = -1;
+  device->cont_fd = -1;
+  mem_alloc_init(&device->iova_alloc);
+
+  struct opae_vfio *physfn = (struct opae_vfio *)opae_calloc(1, sizeof(*physfn));
+  physfn->group.group_fd = -1;
+  physfn->device.device_fd = -1;
+  physfn->cont_fd = -1;
+  mem_alloc_init(&physfn->iova_alloc);
+
+  pair->device = device;
+  pair->physfn = physfn;
+
+  EXPECT_EQ(0, close_vfio_pair(&pair));
+}
+
+/**
+ * @test    open_vfio_pair_err0
+ * @brief   Test: open_vfio_pair()
+ * @details When the first call to malloc() fails,<br>
+ *          then the function returns FPGA_NO_MEMORY.
+ */
+TEST(opae_v, open_vfio_pair_err0)
+{
+  vfio_pair_t *pair = nullptr;
+  const char *addr = "0000:00:00.0";
+
+  test_system::instance()->invalidate_malloc(0, "open_vfio_pair");
+
+  EXPECT_EQ(FPGA_NO_MEMORY, open_vfio_pair(addr, &pair));
+}
+
+/**
+ * @test    open_vfio_pair_err1
+ * @brief   Test: open_vfio_pair()
+ * @details When the second call to malloc() fails,<br>
+ *          then the function returns FPGA_NO_MEMORY.
+ */
+TEST(opae_v, open_vfio_pair_err1)
+{
+  vfio_pair_t *pair = nullptr;
+  const char *addr = "0000:00:00.0";
+
+  test_system::instance()->invalidate_malloc(1, "open_vfio_pair");
+
+  EXPECT_EQ(FPGA_NO_MEMORY, open_vfio_pair(addr, &pair));
 }
 
 /**
@@ -2405,6 +2481,49 @@ TEST(opae_v, pci_matches_filters_mismatch)
   EXPECT_EQ(false, pci_matches_filters(filters, num_filters, &dev));
 }
 
+/**
+ * @test    vfio_irq_count_not_found
+ * @brief   Test: vfio_irq_count()
+ * @details When the given struct opae_vfio<br>
+ *          has no entry that matches VFIO_PCI_MSIX_IRQ_INDEX,<br>
+ *          then the function returns 0.
+ */
+TEST(opae_v, vfio_irq_count_not_found)
+{
+  struct opae_vfio v;
+  memset(&v, 0, sizeof(v));
+
+  EXPECT_EQ(0, vfio_irq_count(&v));
+}
+
+/**
+ * @test    vfio_irq_count_ok
+ * @brief   Test: vfio_irq_count()
+ * @details When the given struct opae_vfio<br>
+ *          has no entry that matches VFIO_PCI_MSIX_IRQ_INDEX,<br>
+ *          then the function returns 0.
+ */
+TEST(opae_v, vfio_irq_count_ok)
+{
+  struct opae_vfio_device_irq irq0;
+  memset(&irq0, 0, sizeof(irq0));
+  irq0.count = 2;
+  irq0.index = VFIO_PCI_MSIX_IRQ_INDEX + 1;
+
+  struct opae_vfio_device_irq irq1;
+  memset(&irq1, 0, sizeof(irq1));
+  irq1.count = 3;
+  irq1.index = VFIO_PCI_MSIX_IRQ_INDEX;
+
+  irq0.next = &irq1;
+
+  struct opae_vfio v;
+  memset(&v, 0, sizeof(v));
+  v.device.irqs = &irq0;
+
+  EXPECT_EQ(3, vfio_irq_count(&v));
+}
+
 class matches_filter_f : public ::testing::Test
 {
  protected:
@@ -2860,6 +2979,118 @@ TEST(opae_v, destroy_ok)
 }
 
 /**
+ * @test    prepare_buffer_special_case
+ * @brief   Test: vfio_fpgaPrepareBuffer()
+ * @details When the input flags param contains<br>
+ *          FPGA_BUF_PREALLOCATED, and the buf_addr and<br>
+ *          len fields are both zero, then the function<br>
+ *          returns FPGA_OK to signal support for pre-<br>
+ *          allocated buffers.
+ */
+TEST(opae_v, prepare_buffer_special_case)
+{
+  const int flags = FPGA_BUF_PREALLOCATED;
+  uint64_t wsid = 0;
+  EXPECT_EQ(FPGA_OK, vfio_fpgaPrepareBuffer(nullptr, 0, nullptr, &wsid, flags));
+}
+
+/**
+ * @test    prepare_buffer_err1
+ * @brief   Test: vfio_fpgaPrepareBuffer()
+ * @details When the input flags param contains<br>
+ *          FPGA_BUF_PREALLOCATED, and the buf_addr is NULL,<br>
+ *          but the len field is non-zero, then the function<br>
+ *          returns FPGA_INVALID_PARAM.
+ */
+TEST(opae_v, prepare_buffer_err1)
+{
+  const int flags = FPGA_BUF_PREALLOCATED;
+  uint64_t wsid = 0;
+  EXPECT_EQ(FPGA_INVALID_PARAM, vfio_fpgaPrepareBuffer(nullptr, 4096, nullptr, &wsid, flags));
+}
+
+/**
+ * @test    prepare_buffer_err2
+ * @brief   Test: vfio_fpgaPrepareBuffer()
+ * @details When the input flags param contains<br>
+ *          FPGA_BUF_PREALLOCATED, and the buf_addr<br>
+ *          and len fields are non-zero,<br>
+ *          but the handle's vfio_pair is invalid,<br>
+ *          then the function returns FPGA_EXCEPTION.
+ */
+TEST(opae_v, prepare_buffer_err2)
+{
+  const int flags = FPGA_BUF_PREALLOCATED;
+  uint64_t wsid = 0;
+  void *buf_addr = nullptr;
+  uint64_t len = 1024 * 1024 * 1024;
+
+  vfio_pair_t pair;
+  memset(&pair, 0, sizeof(pair));
+
+  vfio_handle handle;
+  memset(&handle, 0, sizeof(handle));
+  handle.magic = VFIO_HANDLE_MAGIC;
+  handle.lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+  handle.vfio_pair = &pair;
+
+  EXPECT_EQ(FPGA_EXCEPTION, vfio_fpgaPrepareBuffer(&handle, len, &buf_addr, &wsid, flags));
+
+  len = 2 * 1024 * 1024;
+  EXPECT_EQ(FPGA_EXCEPTION, vfio_fpgaPrepareBuffer(&handle, len, &buf_addr, &wsid, flags));
+
+  len = 4096;
+  EXPECT_EQ(FPGA_EXCEPTION, vfio_fpgaPrepareBuffer(&handle, len, &buf_addr, &wsid, flags));
+}
+
+/**
+ * @test    release_buffer_err0
+ * @brief   Test: vfio_fpgaReleaseBuffer()
+ * @details When the parameters are valid,<br>
+ *          but the "device" member of the vfio_pair<br>
+ *          is NULL,<br>
+ *          then the function returns FPGA_NOT_FOUND.
+ */
+TEST(opae_v, release_buffer_err0)
+{
+  vfio_handle handle;
+  memset(&handle, 0, sizeof(handle));
+  handle.magic = VFIO_HANDLE_MAGIC;
+  handle.lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+  vfio_pair_t pair;
+  memset(&pair, 0, sizeof(pair));
+
+  handle.vfio_pair = &pair;
+
+  struct opae_vfio_buffer binfo;
+  memset(&binfo, 0, sizeof(binfo));
+
+  EXPECT_EQ(FPGA_NOT_FOUND, vfio_fpgaReleaseBuffer(&handle, (uint64_t)&binfo));
+}
+
+/**
+ * @test    get_io_addr_ok
+ * @brief   Test: vfio_fpgaGetIOAddress()
+ * @details When the parameters are valid,<br>
+ *          but the "device" member of the vfio_pair<br>
+ *          is NULL,<br>
+ *          then the function returns FPGA_NOT_FOUND.
+ */
+TEST(opae_v, get_io_addr_ok)
+{
+  struct opae_vfio_buffer binfo;
+  memset(&binfo, 0, sizeof(binfo));
+  binfo.buffer_iova = 0xdeadbeefdecafbad;
+
+  uint64_t ioaddr = 0;
+
+  EXPECT_EQ(FPGA_OK, vfio_fpgaGetIOAddress(nullptr, (uint64_t)&binfo, &ioaddr));
+  EXPECT_EQ(0xdeadbeefdecafbad, ioaddr);
+}
+
+
+/**
  * @test    create_event_err0
  * @brief   Test: vfio_fpgaCreateEventHandle()
  * @details When the input event handle pointer<br>
@@ -2935,6 +3166,24 @@ TEST(opae_v, destroy_event_err1)
   memset(&ueh, 0, sizeof(ueh));
 
   fpga_event_handle eh = &ueh;
+  EXPECT_EQ(FPGA_INVALID_PARAM, vfio_fpgaDestroyEventHandle(&eh));
+}
+
+/**
+ * @test    destroy_event_err2
+ * @brief   Test: vfio_fpgaDestroyEventHandle()
+ * @details When the given event handle pointer<br>
+ *          has an invalid file descriptor,<br>
+ *          then the function returns FPGA_INVALID_PARAM.
+ */
+TEST(opae_v, destroy_event_err2)
+{
+  vfio_event_handle veh;
+  memset(&veh, 0, sizeof(veh));
+  veh.fd = -1;
+  veh.magic = VFIO_EVENT_HANDLE_MAGIC;
+
+  fpga_event_handle eh = &veh;
   EXPECT_EQ(FPGA_INVALID_PARAM, vfio_fpgaDestroyEventHandle(&eh));
 }
 
