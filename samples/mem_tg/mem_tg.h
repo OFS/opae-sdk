@@ -236,18 +236,28 @@ public:
     return handle_->get_token();
   }
 
-  mem_tg* duplicate() const {
-    mem_tg *duplicate = new mem_tg;
-
-    duplicate->count_       = this->count_;
-    duplicate->loop_        = this->loop_;
-    duplicate->wcnt_        = this->wcnt_;
-    duplicate->rcnt_        = this->rcnt_;
-    duplicate->bcnt_        = this->bcnt_;
-    duplicate->stride_      = this->stride_;
-    duplicate->pattern_     = this->pattern_;
-    duplicate->mem_speed_   = this->mem_speed_;
-    return duplicate;
+  void duplicate(mem_tg *duplicate_obj) const {
+    
+    duplicate_obj->count_       = this->count_;
+    duplicate_obj->loop_        = this->loop_;
+    duplicate_obj->wcnt_        = this->wcnt_;
+    duplicate_obj->rcnt_        = this->rcnt_;
+    duplicate_obj->bcnt_        = this->bcnt_;
+    duplicate_obj->stride_      = this->stride_;
+    duplicate_obj->pattern_     = this->pattern_;
+    duplicate_obj->mem_speed_   = this->mem_speed_;
+    duplicate_obj->name_        = this->name_;
+    duplicate_obj->afu_id_      = this->afu_id_;
+    //duplicate_obj->app_         = this->app_;
+    duplicate_obj->pci_addr_    = this->pci_addr_;
+    duplicate_obj->log_level_   = this->log_level_;
+    duplicate_obj->shared_      = this->shared_;
+    duplicate_obj->timeout_msec_ = this->timeout_msec_;
+    duplicate_obj->handle_      = this->handle_;
+    //duplicate_obj->current_command_ = this->current_command_;
+    //duplicate_obj->commands_    = this->commands_;
+    duplicate_obj->logger_      = this->logger_;
+    return;
   }
 
 };
