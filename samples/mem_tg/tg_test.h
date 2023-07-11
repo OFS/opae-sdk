@@ -213,7 +213,7 @@ public:
           for (unsigned i = 0; i < tg_exe_->mem_ch_.size(); i++) {
             channels[i] = std::stoi(tg_exe_->mem_ch_[i]);
           }
-        } catch (std::invalid_argument& e) {
+        } catch (std::invalid_argument &e) {
           std::cerr << "Error: invalid argument to std::stoi";
           delete[] channels;
           return 1;
