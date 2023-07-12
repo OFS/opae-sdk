@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <iostream>
+#include <sys/ioctl.h>
 #include <opae/vfio.h>
 
 
@@ -214,6 +216,28 @@ struct vfio_device {
     b->vfio = v_;
 
     return b;
+  }
+
+  #define VFIO_VF_TOKEN_LEN (16)
+  int set_vf_token(const char *vf_token)
+  {
+    struct vfio_device_feature *df;
+    int ret;
+
+    df = (struct vfio_device_feature *)
+         new uint8_t[sizeof(struct vfio_device_feature) + VFIO_VF_TOKEN_LEN];
+
+    df->argsz = sizeof(df) + VFIO_VF_TOKEN_LEN;
+    df->flags = VFIO_DEVICE_FEATURE_SET | VFIO_DEVICE_FEATURE_PCI_VF_TOKEN;
+    memcpy(df->data, vf_token, VFIO_VF_TOKEN_LEN);
+
+    ret = ioctl(v_->device.device_fd, VFIO_DEVICE_FEATURE, df);
+    delete[] df;
+
+    if (ret)
+      std::cerr << "ioctl failed " << errno << std::endl;
+
+    return ret;
   }
 private:
   opae_vfio *v_;

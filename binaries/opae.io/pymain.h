@@ -34,6 +34,7 @@ import os
 import pdb
 import sys
 import libvfio
+import uuid
 
 from opae.io import utils, pci
 from opae.io.utils import Path
@@ -148,6 +149,29 @@ class poke_action(base_action):
         wr(args.offset, args.value)
         raise SystemExit(0)
 
+class vf_token_action(base_action):
+    open_device = True
+
+    def add_args(self):
+        self.parser.add_argument('vftoken', default=None)
+
+    def execute(self, args):
+        if not self.device:
+            raise SystemExit('Need device for poke.')
+
+        try:
+            token_uuid = uuid.UUID(args.vftoken)
+            ret = self.device.set_vf_token(token_uuid.bytes)
+            if ret:
+                print('Failed to set token')
+                raise SystemExit(1)
+            print(f'Successfully set vf token to {str(token_uuid)}')
+        except ValueError:
+            print('Invalid vf_token')
+            raise SystemExit(1)
+
+        raise SystemExit(0)
+
 class script_action(base_action):
     open_device = True
 
@@ -218,6 +242,7 @@ actions = {
     'poke': poke_action,
     'walk': walk_action,
     'dump': dump_action,
+    'vf_token': vf_token_action,
 }
 
 def do_action(action, args):
@@ -244,6 +269,7 @@ def show_help():
       "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]"
       "opae.io release [-d <PCI_ADDRESS>]"
       "opae.io [-d <PCI_ADDRESS>]"
+      "opae.io [-d <PCI_ADDRESS>] vf_token <GUID>"
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>]"
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] walk [<OFFSET>] [-u | --show-uuid]"
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] dump [<OFFSET>] [-o | --output <FILE>] [-f | --format (hex, bin)] [ -c | --count <WORD COUNT>]
