@@ -258,13 +258,13 @@ class fme(region):
     def bmcfw_version(self):
         spi = self.spi_bus
         if spi:
-            node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
+            node = spi.find_one('bmcfw_version')
             value = int(node.value, 16)
             return max10_or_nios_version(value)
         else:
             pmci = self.pmci_bus
             if pmci:
-                node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
+                node = spi.find_one('bmcfw_version')
                 value = int(node.value, 16)
                 return max10_or_nios_version(value)
 

@@ -66,7 +66,7 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
 
 ## Simulation with ASE
 
-  Ensure your `$QUARTUS_HOME` and `$MTI_HOME` user environment variables point
+  Ensure your `$QUARTUS_ROOTDIR` and `$MTI_HOME` user environment variables point
   to the roots of valid installations of Quartus (17.0 or higher) and Modelsim
   (10.3 or higher). While these steps are also listed in ../README.md, we also list them here:
 
