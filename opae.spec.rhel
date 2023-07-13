@@ -70,10 +70,18 @@ OPAE headers, tools, sample source, and documentation
 %cmake -DOPAE_MINIMAL_BUILD=ON \
        -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
        -DFETCHCONTENT_BASE_DIR=_build/_deps
-%if 0%{rhel} > 8
-  %cmake_build
-%else
+
+%if 0%{?rhel}
+%if 0%{rhel} <= 8
+  echo "Building for RHEL <= 8"
   %make_build
+%else
+  echo "Building for RHEL >= 9"
+  %cmake_build
+%endif
+%else
+  echo "Building for non-RHEL"
+  %cmake_build
 %endif
 
 %install
@@ -107,10 +115,14 @@ cp binaries/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
-%if 0%{rhel} > 8
-  %cmake_install
-%else
+%if 0%{?rhel}
+%if 0%{rhel} <= 8
   %make_install
+%else
+  %cmake_install
+%endif
+%else
+  %cmake_install
 %endif
 
 #cmake
@@ -129,7 +141,7 @@ done
 
 # Make rpmlint happy about install permissions
 # admin tools
-for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device}.py; do
+for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device,fpgareg,n5010tool}.py; do
    chmod a+x $file
 done
 # ethernet
@@ -298,6 +310,7 @@ done
 %{_bindir}/nlb3
 %{_bindir}/nlb7
 %{_bindir}/vabtool
+%{_bindir}/n5010tool
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
