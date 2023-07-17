@@ -29,9 +29,9 @@
 #include "opae_uio.h"
 
 #define read_csr64(__addr) \
-	*((volatile uint64_t *)(__addr))
+	( *((volatile uint64_t *)(__addr)) )
 #define write_csr64(__addr, __value) \
-	*((volatile uint64_t *)(__addr)) = (__value)
+	( *((volatile uint64_t *)(__addr)) = (__value) )
 
 typedef struct _dfh {
 	union {
