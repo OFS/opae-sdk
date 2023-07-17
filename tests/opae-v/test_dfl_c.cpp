@@ -177,36 +177,36 @@ TEST(opae_v, walk_fme_vfio_error)
   const int FME = 0;
   const int PORT = 8192;
 
-  dfh_ptr fme_dfh = (dfh_ptr)&mmio[FME];
+  dfh *fme_dfh_ptr = (dfh *)&mmio[FME];
   uint64_t *bitstream_id = (uint64_t *)&mmio[FME + BITSTREAM_ID];
   uint64_t *bitstream_md = (uint64_t *)&mmio[FME + BITSTREAM_MD];
-  fab_capability_ptr cap = (fab_capability_ptr)&mmio[FME + FAB_CAPABILITY];
-  port_offset_ptr port_offset = (port_offset_ptr)&mmio[FME + fme_ports[0]];
-  dfh_ptr pr = (dfh_ptr)&mmio[FME + 2048];
+  fab_capability *cap_ptr = (fab_capability *)&mmio[FME + FAB_CAPABILITY];
+  port_offset *port_offset_ptr = (port_offset *)&mmio[FME + fme_ports[0]];
+  dfh *pr_ptr = (dfh *)&mmio[FME + 2048];
 
-  fme_dfh->eol = 0;
-  fme_dfh->next = 2048;
-  port_offset->implemented = 1;
-  port_offset->bar = 0;
+  fme_dfh_ptr->bits.eol = 0;
+  fme_dfh_ptr->bits.next = 2048;
+  port_offset_ptr->bits.implemented = 1;
+  port_offset_ptr->bits.bar = 0;
   *bitstream_id = 0xdeadbeefc0cac01a;
   *bitstream_md = 0xc0cac01adeadbeef;
-  cap->num_ports = 1;
-  pr->id = PR_FEATURE_ID;
-  pr->eol = 1;
+  cap_ptr->bits.num_ports = 1;
+  pr_ptr->bits.id = PR_FEATURE_ID;
+  pr_ptr->bits.eol = 1;
 
-  dfh_ptr port_dfh = (dfh_ptr)&mmio[PORT];
-  port_next_afu_ptr port_next_afu = (port_next_afu_ptr)&mmio[PORT + PORT_NEXT_AFU];
-  port_capability_ptr port_cap = (port_capability_ptr)&mmio[PORT + PORT_CAPABILITY];
-  port_control_ptr port_ctrl = (port_control_ptr)&mmio[PORT + PORT_CONTROL];
-  dfh_ptr stp = (dfh_ptr)&mmio[PORT + 2048];
+  dfh *port_dfh_ptr = (dfh *)&mmio[PORT];
+  port_next_afu *port_next_afu_ptr = (port_next_afu *)&mmio[PORT + PORT_NEXT_AFU];
+  port_capability *port_cap_ptr = (port_capability *)&mmio[PORT + PORT_CAPABILITY];
+  port_control *port_ctrl_ptr = (port_control *)&mmio[PORT + PORT_CONTROL];
+  dfh *stp_ptr = (dfh *)&mmio[PORT + 2048];
 
-  port_dfh->eol = 0;
-  port_dfh->next = 2048;
-  port_next_afu->port_afu_dfh_offset = 4096;
-  port_ctrl->port_reset_ack = 1;
-  port_cap->mmio_size = 4096;
-  stp->id = PORT_STP_ID;
-  stp->eol = 1;
+  port_dfh_ptr->bits.eol = 0;
+  port_dfh_ptr->bits.next = 2048;
+  port_next_afu_ptr->bits.port_afu_dfh_offset = 4096;
+  port_ctrl_ptr->bits.port_reset_ack = 1;
+  port_cap_ptr->bits.mmio_size = 4096;
+  stp_ptr->bits.id = PORT_STP_ID;
+  stp_ptr->bits.eol = 1;
 
   vfio_pci_device_t device;
   memset(&device, 0, sizeof(device));
