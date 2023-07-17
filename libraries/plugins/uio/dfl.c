@@ -30,48 +30,55 @@
 
 #include <time.h>
 
+#include "opae_int.h"
 #include "opae_uio.h"
 #include "dfl.h"
 
 #define FME_PORTS 4
 uint32_t fme_ports[FME_PORTS] = {0x38, 0x40, 0x48, 0x50};
 
-STATIC fpga_result legacy_port_reset(const uio_pci_device_t *p,
+STATIC fpga_result legacy_port_reset(const uio_pci_device_t *dev,
 				     volatile uint8_t *port_base)
 {
-	(void)p;
-	port_control_ptr cntrl = (port_control_ptr)(port_base + PORT_CONTROL);
-
-	cntrl->port_reset = 1;
-	(void)*cntrl;
+	UNUSED_PARAM(dev);
 	struct timespec ts = {.tv_sec = 0, .tv_nsec = 500};
 	uint64_t cycles = 0;
-	const uint64_t port_timeout = 1000;
+	const uint64_t reset_timeout = 1000;
+	port_control port_ctrl_reg;
+	volatile uint64_t *port_ctrl_ptr =
+		(volatile uint64_t *)(port_base + PORT_CONTROL);
 
-	while (!cntrl->port_reset_ack) {
-		(void)*cntrl;
+	// Read CSR 0x38, Port Control register.
+	port_ctrl_reg.data = read_csr64(port_ctrl_ptr);
+
+	// Clear bit 0, port soft reset.
+	port_ctrl_reg.bits.port_reset = 0;
+
+	// Write the CSR back.
+	write_csr64(port_ctrl_ptr, port_ctrl_reg.data);
+
+	// Poll until hardware clears the reset ACK bit.
+	port_ctrl_reg.data = read_csr64(port_ctrl_ptr);
+	while (port_ctrl_reg.bits.port_reset_ack) {
 		nanosleep(&ts, NULL);
-		if (++cycles > port_timeout) {
+		if (++cycles > reset_timeout) {
 			return FPGA_EXCEPTION;
 		}
+		port_ctrl_reg.data = read_csr64(port_ctrl_ptr);
 	}
-	cntrl->port_reset = 0;
-	(void)*cntrl;
+
 	return FPGA_OK;
 }
-
-
-static inline dfh_ptr next_dfh(dfh_ptr h)
-{
-	if (h && h->next && !h->eol)
-		return (dfh_ptr)(((volatile uint8_t *)h) + h->next);
-	return NULL;
-}
-
 
 int walk_port(uio_token *parent, uint32_t region, volatile uint8_t *mmio)
 {
 	uio_token *port;
+	volatile uint64_t *port_next_afu_ptr;
+	port_next_afu port_next_afu_reg;
+	volatile uint64_t *port_capability_ptr;
+	port_capability port_capability_reg;
+	volatile uint8_t *dfh_ptr;
+	dfh dfh_reg;
 
 	port = uio_get_token(parent->device, region, FPGA_ACCELERATOR);
 	if (!port) {
@@ -79,28 +86,41 @@ int walk_port(uio_token *parent, uint32_t region, volatile uint8_t *mmio)
 		return -1;
 	}
 
-	port_next_afu_ptr next_afu = (port_next_afu_ptr)(mmio + PORT_NEXT_AFU);
-	port_capability_ptr cap = (port_capability_ptr)(mmio + PORT_CAPABILITY);
+	port_next_afu_ptr = (volatile uint64_t *)(mmio + PORT_NEXT_AFU);
+	port_next_afu_reg.data = read_csr64(port_next_afu_ptr);
+
+	port_capability_ptr = (volatile uint64_t *)(mmio + PORT_CAPABILITY);
+	port_capability_reg.data = read_csr64(port_capability_ptr);
 
 	port->parent = parent;
-	port->mmio_size = cap->mmio_size;
-	port->user_mmio_count = 1;
-	port->user_mmio[0] = next_afu->port_afu_dfh_offset;
+	port->mmio_size = port_capability_reg.bits.mmio_size;
+	port->user_mmio_count += 1;
+	port->user_mmio[region] = port_next_afu_reg.bits.port_afu_dfh_offset;
 
 	port->ops.reset = legacy_port_reset;
 	// reset the port before attempting to read any afu registers
 	if (port->ops.reset(port->device, mmio)) {
 		OPAE_ERR("error resetting port");
 	}
-	uio_get_guid(1 + (uint64_t *)(mmio + next_afu->port_afu_dfh_offset),
-		     port->hdr.guid);
+	uio_get_guid(1 +
+			(uint64_t *)(mmio +
+				port_next_afu_reg.bits.port_afu_dfh_offset),
+			port->hdr.guid);
 
 	// look for stp and if found, add it to user_mmio offsets
-	for_each_dfh(h, mmio) {
-		if (h->id == PORT_STP_ID) {
+	dfh_ptr = mmio;
+	dfh_reg.data = read_csr64(dfh_ptr);
+	while (dfh_ptr) {
+		if (dfh_reg.bits.id == PORT_STP_ID) {
 			port->user_mmio_count += 1;
-			port->user_mmio[1] = (uint8_t *)h - mmio;
+			port->user_mmio[region + 1] = dfh_ptr - mmio;
 			break;
+		}
+		if (!dfh_reg.bits.next || dfh_reg.bits.eol)
+			dfh_ptr = NULL;
+		else {
+			dfh_ptr += dfh_reg.bits.next;
+			dfh_reg.data = read_csr64(dfh_ptr);
 		}
 	}
 
@@ -111,6 +131,9 @@ int walk_fme(uio_pci_device_t *dev, struct opae_uio *u,
 	     volatile uint8_t *mmio, int region)
 {
 	uio_token *fme;
+	fab_capability fab_capability_reg;
+	volatile uint8_t *dfh_ptr;
+	dfh dfh_reg;
 
 	fme = uio_get_token(dev, region, FPGA_DEVICE);
 	if (!fme) {
@@ -119,17 +142,27 @@ int walk_fme(uio_pci_device_t *dev, struct opae_uio *u,
 	}
 
 	uio_get_guid(1 + (uint64_t *)mmio, fme->hdr.guid);
-	fme->bitstream_id = *(uint64_t *)(mmio + BITSTREAM_ID);
-	fme->bitstream_mdata = *(uint64_t *)(mmio + BITSTREAM_MD);
+	fme->bitstream_id = read_csr64(mmio + BITSTREAM_ID);
+	fme->bitstream_mdata = read_csr64(mmio + BITSTREAM_MD);
 
-	fab_capability_ptr cap = (fab_capability_ptr)(mmio + FAB_CAPABILITY);
-	fme->num_ports = cap->num_ports;
+	fab_capability_reg.data = read_csr64(mmio + FAB_CAPABILITY);
+	fme->num_ports = fab_capability_reg.bits.num_ports;
 
-	for_each_dfh(h, mmio) {
-		if (h->id == PR_FEATURE_ID) {
-			uint8_t *pr_id = PR_INTFC_ID_LO + (uint8_t *)h;
-			uio_get_guid((uint64_t *)pr_id, fme->compat_id);
+	// Find the PR feature and grab its guid. This will
+	// be used as the FME guid.
+	dfh_ptr = mmio;
+	dfh_reg.data = read_csr64(dfh_ptr);
+	while (dfh_ptr) {
+		if (dfh_reg.bits.id == PR_FEATURE_ID) {
+			uio_get_guid((uint64_t *)(dfh_ptr + PR_INTFC_ID_LO),
+					fme->compat_id);
 			break;
+		}
+		if (!dfh_reg.bits.next || dfh_reg.bits.eol)
+			dfh_ptr = NULL;
+		else {
+			dfh_ptr += dfh_reg.bits.next;
+			dfh_reg.data = read_csr64(dfh_ptr);
 		}
 	}
 
@@ -137,19 +170,22 @@ int walk_fme(uio_pci_device_t *dev, struct opae_uio *u,
 		int bar;
 		uint8_t *port_mmio = NULL;
 		size_t size = 0;
-		port_offset_ptr offset_r =
-			(port_offset_ptr)(mmio + fme_ports[i]);
+		volatile uint8_t *offset_ptr;
+		port_offset port_offset_reg;
 
-		if (!offset_r->implemented)
+		offset_ptr = mmio + fme_ports[i];
+		port_offset_reg.data = read_csr64(offset_ptr);
+
+		if (!port_offset_reg.bits.implemented)
 			continue;
 
-		bar = offset_r->bar;
+		bar = port_offset_reg.bits.bar;
 		if (opae_uio_region_get(u, bar, &port_mmio, &size)) {
-			OPAE_ERR("error getting port %lu", i);
+			OPAE_ERR("failed to get Port BAR %d", bar);
 			continue;
 		}
 
-		walk_port(fme, bar, port_mmio + offset_r->offset);
+		walk_port(fme, bar, port_mmio + port_offset_reg.bits.offset);
 	}
 
 	return 0;

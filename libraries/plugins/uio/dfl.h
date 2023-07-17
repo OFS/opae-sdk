@@ -28,40 +28,55 @@
 #include <stdint.h>
 #include "opae_uio.h"
 
+#define read_csr64(__addr) *(volatile uint64_t *)(__addr)
+#define write_csr64(__addr, __value) *(volatile uint64_t *)(__addr) = (__value)
+
 typedef struct _dfh {
-	uint64_t id : 12;
-	uint64_t major_rev : 4;
-	uint64_t next : 24;
-	uint64_t eol : 1;
-	uint64_t reserved41 : 7;
-	uint64_t minor_rev : 4;
-	uint64_t version : 8;
-	uint64_t type : 4;
+	union {
+		struct {
+			uint64_t id : 12;
+			uint64_t major_rev : 4;
+			uint64_t next : 24;
+			uint64_t eol : 1;
+			uint64_t reserved41 : 7;
+			uint64_t minor_rev : 4;
+			uint64_t version : 8;
+			uint64_t type : 4;
+		} bits;
+		uint64_t data;
+	};
 } dfh;
-typedef volatile dfh *dfh_ptr;
 
 typedef struct _dfh0 {
-	uint64_t cci_version : 12;
-	uint64_t cci_minor_rev : 4;
-	uint64_t next : 24;
-	uint64_t eol : 1;
-	uint64_t reserved41 : 20;
-	uint64_t type : 4;
+	union {
+		struct {
+			uint64_t cci_version : 12;
+			uint64_t cci_minor_rev : 4;
+			uint64_t next : 24;
+			uint64_t eol : 1;
+			uint64_t reserved41 : 20;
+			uint64_t type : 4;
+		} bits;
+		uint64_t data;
+	};
 } dfh0;
-typedef volatile dfh0 *dfh0_ptr;
 
 typedef struct _port_offset {
-	uint64_t offset : 24;
-	uint64_t reserved24 : 8;
-	uint64_t bar : 3;
-	uint64_t reserved35 : 20;
-	uint64_t access : 1;
-	uint64_t access_ctrl : 1;
-	uint64_t reserved57 : 3;
-	uint64_t implemented : 1;
-	uint64_t reserved61 : 3;
+	union {
+		struct {
+			uint64_t offset : 24;
+			uint64_t reserved24 : 8;
+			uint64_t bar : 3;
+			uint64_t reserved35 : 20;
+			uint64_t access : 1;
+			uint64_t access_ctrl : 1;
+			uint64_t reserved57 : 3;
+			uint64_t implemented : 1;
+			uint64_t reserved61 : 3;
+		} bits;
+		uint64_t data;
+	};
 } port_offset;
-typedef volatile port_offset *port_offset_ptr;
 
 #define PR_FEATURE_ID 0x5
 #define PR_INTFC_ID_LO 0xA8
@@ -69,66 +84,78 @@ typedef volatile port_offset *port_offset_ptr;
 #define PORT_STP_ID 0x13
 #define BITSTREAM_ID 0x60
 typedef struct _bitstream_id {
-	uint64_t git_hash : 32;
-	uint64_t hssi_id : 4;
-	uint64_t reserved36 : 12;
-	uint64_t ver_debug : 4;
-	uint64_t ver_patch : 4;
-	uint64_t ver_minor : 4;
-	uint64_t ver_major : 4;
+	union {
+		struct {
+			uint64_t git_hash : 32;
+			uint64_t hssi_id : 4;
+			uint64_t reserved36 : 12;
+			uint64_t ver_debug : 4;
+			uint64_t ver_patch : 4;
+			uint64_t ver_minor : 4;
+			uint64_t ver_major : 4;
+		} bits;
+		uint64_t data;
+	};
 } bitstream_id;
-typedef volatile bitstream_id *bitstream_id_ptr;
 
 #define BITSTREAM_MD 0x68
 #define PORT_CONTROL 0x38
 typedef struct _port_control {
-	uint64_t port_reset : 1;
-	uint64_t reserved1 : 1;
-	uint64_t latency_tolerance : 1;
-	uint64_t flr_port_reset : 1;
-	uint64_t port_reset_ack : 1;
-	uint64_t reserved5 : 59;
+	union {
+		struct {
+			uint64_t port_reset : 1;
+			uint64_t reserved1 : 1;
+			uint64_t latency_tolerance : 1;
+			uint64_t flr_port_reset : 1;
+			uint64_t port_reset_ack : 1;
+			uint64_t reserved5 : 59;
+		} bits;
+		uint64_t data;
+	};
 } port_control;
-typedef volatile port_control *port_control_ptr;
 
 #define PORT_NEXT_AFU 0x18
 typedef struct _port_next_afu {
-	uint64_t port_afu_dfh_offset : 24;
-	uint64_t reserved24 : 40;
+	union {
+		struct {
+			uint64_t port_afu_dfh_offset : 24;
+			uint64_t reserved24 : 40;
+		} bits;
+		uint64_t data;
+	};
 } port_next_afu;
-typedef volatile port_next_afu *port_next_afu_ptr;
 
 #define FAB_CAPABILITY 0x30
 typedef struct _fab_capability {
-	uint64_t fab_version : 8;
-	uint64_t reserved9 : 4;
-	uint64_t pcie0_link : 1;
-	uint64_t reserved13 : 4;
-	uint64_t num_ports : 3;
-	uint64_t reserved20 : 4;
-	uint64_t address_width : 6;
-	uint64_t reserved30 : 34;
+	union {
+		struct {
+			uint64_t fab_version : 8;
+			uint64_t reserved9 : 4;
+			uint64_t pcie0_link : 1;
+			uint64_t reserved13 : 4;
+			uint64_t num_ports : 3;
+			uint64_t reserved20 : 4;
+			uint64_t address_width : 6;
+			uint64_t reserved30 : 34;
+		} bits;
+		uint64_t data;
+	};
 } fab_capability;
-typedef volatile fab_capability *fab_capability_ptr;
 
 #define PORT_CAPABILITY 0x30
 typedef struct _port_capability {
-	uint64_t port_number : 2;
-	uint64_t reserved2 : 6;
-	uint64_t mmio_size : 16;
-	uint64_t resered24 : 8;
-	uint64_t num_supported_int : 4;
-	uint64_t reserved36 : 28;
+	union {
+		struct {
+			uint64_t port_number : 2;
+			uint64_t reserved2 : 6;
+			uint64_t mmio_size : 16;
+			uint64_t resered24 : 8;
+			uint64_t num_supported_int : 4;
+			uint64_t reserved36 : 28;
+		} bits;
+		uint64_t data;
+	};
 } port_capability;
-typedef volatile port_capability *port_capability_ptr;
-
-typedef struct _dfl {
-	dfh h;
-	dfh *next;
-} dfl;
-
-#define for_each_dfh(H, ADDR) \
-	for (dfh_ptr H = (dfh_ptr)ADDR; H; H = next_dfh(H))
 
 int walk_fme(uio_pci_device_t *dev,
 	     struct opae_uio *u,

@@ -2011,7 +2011,7 @@ TEST_F(uio_mmio_f, uio_fpgaWriteMMIO64_err0)
  */
 TEST_F(uio_mmio_f, uio_fpgaWriteMMIO64_err1)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   const uint64_t offset = 0;
   const uint64_t value = 0xdeadbeefc0cac01a;
   EXPECT_EQ(FPGA_INVALID_PARAM, uio_fpgaWriteMMIO64(&handle_, mmio_num, offset, value));
@@ -2065,7 +2065,7 @@ TEST_F(uio_mmio_f, uio_fpgaReadMMIO64_err0)
  */
 TEST_F(uio_mmio_f, uio_fpgaReadMMIO64_err1)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   const uint64_t offset = 0;
   uint64_t value = 0;
 
@@ -2122,7 +2122,7 @@ TEST_F(uio_mmio_f, uio_fpgaWriteMMIO32_err0)
  */
 TEST_F(uio_mmio_f, uio_fpgaWriteMMIO32_err1)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   const uint64_t offset = 0;
   const uint32_t value = 0xc0cac01a;
   EXPECT_EQ(FPGA_INVALID_PARAM, uio_fpgaWriteMMIO32(&handle_, mmio_num, offset, value));
@@ -2176,7 +2176,7 @@ TEST_F(uio_mmio_f, uio_fpgaReadMMIO32_err0)
  */
 TEST_F(uio_mmio_f, uio_fpgaReadMMIO32_err1)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   const uint64_t offset = 0;
   uint32_t value = 0;
 
@@ -2317,7 +2317,7 @@ TEST_F(uio_mmio_f, uio_fpgaWriteMMIO512_err2)
  */
 TEST_F(uio_mmio_f, uio_fpgaWriteMMIO512_err3)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   const uint64_t offset = 0;
   const uint64_t values[8] = {
     0x0000000100000001, 0x0000000200000002, 0x0000000300000003, 0x0000000400000004,
@@ -2363,7 +2363,7 @@ TEST_F(uio_mmio_f, uio_fpgaWriteMMIO512_ok)
  */
 TEST_F(uio_mmio_f, uio_fpgaMapMMIO_err0)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   uint64_t *mmio_ptr = nullptr;
 
   EXPECT_EQ(FPGA_INVALID_PARAM, uio_fpgaMapMMIO(&handle_, mmio_num, &mmio_ptr));
@@ -2395,7 +2395,7 @@ TEST_F(uio_mmio_f, uio_fpgaMapMMIO_ok)
  */
 TEST_F(uio_mmio_f, uio_fpgaUnmapMMIO_err0)
 {
-  const uint32_t mmio_num = 4; // <- out of bounds
+  const uint32_t mmio_num = USER_MMIO_MAX; // <- out of bounds
   EXPECT_EQ(FPGA_INVALID_PARAM, uio_fpgaUnmapMMIO(&handle_, mmio_num));
 }
 

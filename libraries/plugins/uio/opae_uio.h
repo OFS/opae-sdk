@@ -70,7 +70,7 @@ typedef struct _uio_ops {
 	fpga_result (*reset)(const uio_pci_device_t *p, volatile uint8_t *mmio);
 } uio_ops;
 
-#define USER_MMIO_MAX 8
+#define USER_MMIO_MAX 32
 typedef struct _uio_token {
 	fpga_token_header hdr; //< Must appear at offset 0!
 	fpga_guid compat_id;
