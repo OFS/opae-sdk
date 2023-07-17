@@ -523,6 +523,21 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	    !read_pci_link(phys_device, "driver", phys_driver,
 				PATH_MAX-1) &&
 	    strstr(phys_driver, "vfio-pci")) {
+
+#if 0
+		uuid_parse("D8424DC4-A4A3-C413-F89E-433683F9040B", pair->secret);
+		uuid_unparse(pair->secret, secret);
+
+		pair->physfn = malloc(sizeof(struct opae_vfio));
+		if (!pair->physfn) {
+			OPAE_ERR("Failed to allocate memory for opae_vfio");
+			goto out_destroy;
+		}
+		memset(pair->physfn, 0, sizeof(struct opae_vfio));
+		pair->physfn->cont_fd = -1;
+		pair->physfn->device.device_fd = -1;
+
+#else
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
 
@@ -544,6 +559,7 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 			goto out_destroy;
 		}
 
+#endif
 		ires = opae_vfio_secure_open(pair->device, addr, secret);
 		if (ires) {
 			if (ires == 2)
@@ -591,6 +607,7 @@ STATIC int vfio_walk(vfio_pci_device_t *dev)
 	size_t size = 0;
 	vfio_pair_t *pair = NULL;
 	fpga_guid bar0_guid;
+	const uint32_t bar = 0;
 	vfio_token *tok;
 	struct opae_vfio *v;
 
@@ -604,7 +621,7 @@ STATIC int vfio_walk(vfio_pci_device_t *dev)
 	v = pair->device;
 
 	// look for legacy FME guids in BAR 0
-	if (opae_vfio_region_get(v, 0, (uint8_t **)&mmio, &size)) {
+	if (opae_vfio_region_get(v, bar, (uint8_t **)&mmio, &size)) {
 		OPAE_ERR("error getting BAR 0");
 		res = 2;
 		goto close;
@@ -629,14 +646,14 @@ STATIC int vfio_walk(vfio_pci_device_t *dev)
 		}
 		if (!uuid_compare(uuid, bar0_guid)) {
 			// we found a legacy FME in BAR0, walk it
-			res = walk_fme(dev, v, mmio, 0);
+			res = walk_fme(dev, v, mmio, (int)bar);
 			goto close;
 		}
 	}
 
 	// If we got here, we didn't find an FME/Port. In this case,
 	// treat all of BAR0 as an FPGA_ACCELERATOR.
-	tok = vfio_get_token(dev, 0, FPGA_ACCELERATOR);
+	tok = vfio_get_token(dev, bar, FPGA_ACCELERATOR);
 	if (!tok) {
 		OPAE_ERR("failed to find token during walk");
 		res = -1;
@@ -645,7 +662,7 @@ STATIC int vfio_walk(vfio_pci_device_t *dev)
 
 	tok->mmio_size = size;
 	tok->user_mmio_count = 1;
-	tok->user_mmio[0] = 0;
+	tok->user_mmio[bar] = 0;
 	tok->ops.reset = vfio_reset;
 	vfio_get_guid(1+(uint64_t *)mmio, tok->hdr.guid);
 
@@ -993,7 +1010,7 @@ fpga_result __VFIO_API__ vfio_fpgaWriteMMIO64(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1025,7 +1042,7 @@ fpga_result __VFIO_API__ vfio_fpgaReadMMIO64(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1057,7 +1074,7 @@ fpga_result __VFIO_API__ vfio_fpgaWriteMMIO32(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1089,7 +1106,7 @@ fpga_result __VFIO_API__ vfio_fpgaReadMMIO32(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1144,7 +1161,7 @@ fpga_result __VFIO_API__ vfio_fpgaWriteMMIO512(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1161,16 +1178,13 @@ fpga_result __VFIO_API__ vfio_fpgaMapMMIO(fpga_handle handle,
 					  uint64_t **mmio_ptr)
 {
 	vfio_handle *h;
-	vfio_token *t;
 	fpga_result res = FPGA_OK;
 	int err;
 
 	h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
 
-	t = h->token;
-
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1188,16 +1202,13 @@ fpga_result __VFIO_API__ vfio_fpgaUnmapMMIO(fpga_handle handle,
 					    uint32_t mmio_num)
 {
 	vfio_handle *h;
-	vfio_token *t;
 	fpga_result res = FPGA_OK;
 	int err;
 
 	h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
 
-	t = h->token;
-
-	if (mmio_num >= t->user_mmio_count) {
+	if (mmio_num >= USER_MMIO_MAX) {
 		res = FPGA_INVALID_PARAM;
 	}
 
