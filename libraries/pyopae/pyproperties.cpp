@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -100,7 +100,7 @@ const char *properties_doc_get() {
 
       object_id (uint64_t): The 64-bit number unique within a single node or system.
 
-      interface (fpga_interface): The interface type - IFC_DFL, IFC_VFIO, IFC_SIM_DFL, or IFC_SIM_VFIO.
+      interface (fpga_interface): The interface type - IFC_DFL, IFC_VFIO, IFC_SIM_DFL, IFC_SIM_VFIO, or IFC_UIO.
 
    )opaedoc";
 }
@@ -558,7 +558,7 @@ void properties_set_accelerator_state(properties::ptr_t props,
 const char *properties_doc_interface() {
   return R"opaedoc(
     Get or set the interface property of a resource. The interface
-    must be either IFC_DFL, IFC_VFIO, IFC_SIM_DFL, or IFC_SIM_VFIO.
+    must be either IFC_DFL, IFC_VFIO, IFC_SIM_DFL, IFC_SIM_VFIO, or IFC_UIO.
    )opaedoc";
 }
 

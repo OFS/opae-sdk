@@ -56,9 +56,13 @@
 	p;                                                \
 })
 
+#ifdef LIBOPAE_DEBUG
 #define ERR(format, ...)                               \
 fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
+#else
+#define ERR(format, ...) do { } while (0)
+#endif
 
 // dfl_dev.xxx
 #define MAX_DFL_DEVICE 11

@@ -16,6 +16,7 @@ usr/lib/libopaevfio.so.*
 usr/lib/libofs_cpeng.so.*
 usr/lib/opae/libxfpga.so
 usr/lib/opae/libopae-v.so
+usr/lib/opae/libopae-u.so
 usr/lib/opae/libmodbmc.so
 usr/lib/opae/libfpgad-xfpga.so
 usr/lib/opae/libfpgad-vc.so

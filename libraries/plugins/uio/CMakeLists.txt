@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,46 +24,30 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.14)
-project(testing)
+set(SRC
+  plugin.c
+  opae_uio.c
+  dfl.c
+  ${opae-test_ROOT}/framework/mock/opae_std.c
+)
 
-if(GTest_FOUND)
-    message(STATUS "Found GTest")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif()
+set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 
-# Disable some warnings that fire during gtest compilation
-check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
-if(CXX_SUPPORTS_NO_SIGN_COMPARE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-endif()
+opae_add_module_library(TARGET opae-u
+    SOURCE ${SRC}
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaeuio
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
+    COMPONENT uiolib
+)
 
-add_subdirectory(framework)
-
-add_subdirectory(bitstream)
-add_subdirectory(opae-c)
-add_subdirectory(opae-cxx)
-add_subdirectory(pyopae)
-add_subdirectory(xfpga)
-add_subdirectory(opaemem)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(libofs)
-    add_subdirectory(ofs_driver)
-endif (OPAE_BUILD_LIBOFS)
-
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(ofs_cpeng)
-endif (OPAE_BUILD_LIBOFS)
-add_subdirectory(fpgad)
-add_subdirectory(opae-u)
+target_include_directories(opae-u
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${uuid_INCLUDE}
+)

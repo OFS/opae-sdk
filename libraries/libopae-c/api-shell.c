@@ -562,7 +562,7 @@ fpga_result __OPAE_API__ fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
 }
 
 fpga_result __OPAE_API__ fpgaWriteMMIO512(fpga_handle handle,
-	uint32_t mmio_num, uint64_t offset, void *value)
+	uint32_t mmio_num, uint64_t offset, const void *value)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
