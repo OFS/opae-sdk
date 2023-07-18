@@ -40,8 +40,6 @@
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::token;
 
-
-
 namespace mem_tg {
 
 // Shared static variables for synchornization
@@ -273,7 +271,7 @@ public:
         futures.push_back(promises[i].get_future());
         threads.emplace_back([&, i] { 
           promises[i].set_value(run_thread_single_channel(thread_tg_exe_objects[i])); 
-	      });
+        });
       }
 
       // Wait for all threads to exit then collect their exit statuses
