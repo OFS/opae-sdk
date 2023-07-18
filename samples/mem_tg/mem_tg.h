@@ -149,7 +149,7 @@ public:
   , mem_speed_(0)
   {
     // Channel
-    app_.add_option("-m,--mem-channel", mem_ch_, "Target memory bank for test to run on (0 indexed)")
+    app_.add_option("-m,--mem-channel", mem_ch_, "Target memory banks for test to run on (0 indexed). Multiple banks seperated by ', '. 'all' will use every channel enumerated in MEM_TG_CTRL")
       ->default_val("0");
 
     // Loops
@@ -218,6 +218,8 @@ public:
   uint32_t stride_;
   uint32_t pattern_;
   uint32_t mem_speed_;
+  uint32_t status_;
+  uint64_t tg_offset_;
 
   std::map<uint32_t, uint32_t> limits_;
 

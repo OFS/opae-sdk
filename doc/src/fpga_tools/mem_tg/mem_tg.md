@@ -65,7 +65,10 @@ mem_tg application time out, by default time out 60000
 
 `-m,--mem-channel`
 
-Target memory bank for test to run on (0 indexed) 
+Target memory banks for test to run on (0 indexed). Multiple banks seperated by ', '. '-m all' will use every channel enumerated in MEM_TG_CTRL
+Example: to run on channels 1 and 2:            -m 0, 1
+Example: to run on all available channels:      -m all
+
 default: 0
 
 `--loops`
