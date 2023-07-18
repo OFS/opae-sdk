@@ -31,6 +31,8 @@
 #include <vector>
 #include <future>
 #include <string>
+#include <condition_variable> 
+#include <mutex>
 
 #include "afu_test.h"
 #include "mem_tg.h"
@@ -39,6 +41,13 @@ using test_afu = opae::afu_test::afu;
 using opae::fpga::types::token;
 
 namespace mem_tg {
+
+// Shared static variables for synchornization
+std::mutex tg_print_mutex;
+std::mutex tg_start_write_mutex;
+std::condition_variable tg_cv;
+std::atomic<int> tg_waiting_threads_counter;
+int tg_num_threads = -1; // Written to once in run() then read-only
 
 class tg_test : public test_command
 {
@@ -72,14 +81,36 @@ public:
     }
 
     void tg_perf (mem_tg *tg_exe_) {
-        uint32_t mem_ch_offset = (std::stoi(tg_exe_->mem_ch_[0])) << 0x3;
-        uint64_t num_ticks = tg_exe_->read64(MEM_TG_CLOCKS + mem_ch_offset);
-        std::cout << "Mem Clock Cycles: " << std::dec << num_ticks << std::endl;
+      
+      // Lock mutex before printing so print statements don't collide between threads.
+      std::unique_lock<std::mutex> print_lock(tg_print_mutex);
+      std::cout << "Channel " << std::stoi(tg_exe_->mem_ch_[0]) << ":" << std::endl;
 
-        uint64_t write_bytes = 64 * (tg_exe_->loop_*tg_exe_->wcnt_*tg_exe_->bcnt_);
-        uint64_t read_bytes  = 64 * (tg_exe_->loop_*tg_exe_->rcnt_*tg_exe_->bcnt_);
-        std::cout << "Write BW: " << bw_calc(write_bytes,num_ticks) << " GB/s" << std::endl;
-        std::cout << "Read BW: "  << bw_calc(read_bytes,num_ticks)  << " GB/s\n" << std::endl;
+      if (tg_exe_->status_ == TG_STATUS_TIMEOUT) {
+        std::cout << "TG TIMEOUT" << std::endl;
+      } else if (tg_exe_->status_ == TG_STATUS_ERROR) {
+        uint32_t tg_fail_exp;
+        uint32_t tg_fail_act;
+        uint64_t tg_fail_addr;
+        std::cout << "TG ERROR" << std::endl;
+        tg_fail_addr = tg_exe_->read64(tg_exe_->tg_offset_ + TG_FIRST_FAIL_ADDR_L);
+        tg_fail_exp  = tg_exe_->read64(tg_exe_->tg_offset_ + TG_FAIL_EXPECTED_DATA);
+        tg_fail_act  = tg_exe_->read64(tg_exe_->tg_offset_ + TG_FAIL_READ_DATA);
+        std::cout << "Failed at address 0x" << std::hex << tg_fail_addr << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act << std::endl;
+      } else {
+        std::cout << "TG PASS" << std::endl;
+      }
+
+      uint32_t mem_ch_offset = (std::stoi(tg_exe_->mem_ch_[0])) << 0x3;
+      uint64_t num_ticks = tg_exe_->read64(MEM_TG_CLOCKS + mem_ch_offset);
+      std::cout << "Mem Clock Cycles: " << std::dec << num_ticks << std::endl;
+
+      uint64_t write_bytes = 64 * (tg_exe_->loop_*tg_exe_->wcnt_*tg_exe_->bcnt_);
+      uint64_t read_bytes  = 64 * (tg_exe_->loop_*tg_exe_->rcnt_*tg_exe_->bcnt_);
+      std::cout << "Write BW: " << bw_calc(write_bytes,num_ticks) << " GB/s" << std::endl;
+      std::cout << "Read BW: "  << bw_calc(read_bytes,num_ticks)  << " GB/s\n" << std::endl;
+
+      print_lock.unlock();
     }
   
     bool tg_wait_test_completion (mem_tg *tg_exe_)
@@ -93,28 +124,20 @@ public:
           tg_status = 0xF & (tg_exe_->read64(MEM_TG_STAT) >> (0x4*(std::stoi(tg_exe_->mem_ch_[0]))));
           std::this_thread::yield();
           if (--timeout == 0) {
-            std::cout << "TG TEST TIME OUT" << std::endl;
+            tg_exe_->status_ = tg_status;
             return false;
           }
         }
-        std::cout << "Channel " << std::stoi(tg_exe_->mem_ch_[0]) << ":" << std::endl;
       	if (tg_status == TG_STATUS_TIMEOUT) {
-          std::cout << "TG TIMEOUT" << std::endl;
+          tg_exe_->status_ = tg_status;
           return false;
         }
-        uint32_t tg_fail_exp  = 0;
-        uint32_t tg_fail_act  = 0;
-        uint64_t tg_fail_addr = 0;
 
         if (tg_status == TG_STATUS_ERROR) {
-          std::cout << "TG ERROR" << std::endl;
-          tg_fail_addr = tg_exe_->read64(tg_offset_ + TG_FIRST_FAIL_ADDR_L);
-          tg_fail_exp  = tg_exe_->read64(tg_offset_ + TG_FAIL_EXPECTED_DATA);
-          tg_fail_act  = tg_exe_->read64(tg_offset_ + TG_FAIL_READ_DATA);
-          std::cout << "Failed at address 0x" << std::hex << tg_fail_addr << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act << std::endl;
+          tg_exe_->status_ = tg_status;
           return false;
         }
-        std::cout << "TG PASS" << std::endl;
+        tg_exe_->status_ = tg_status;
         return true;
     }
 
@@ -128,18 +151,18 @@ public:
           return -1;
         }
 
-        tg_offset_ = AFU_DFH + (MEM_TG_CFG_OFFSET * (1+std::stoi(tg_exe_->mem_ch_[0])));
+        tg_exe_->tg_offset_ = AFU_DFH + (MEM_TG_CFG_OFFSET * (1+std::stoi(tg_exe_->mem_ch_[0])));
 
-        tg_exe_->write32(tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);
-        tg_exe_->write32(tg_offset_+TG_WRITE_COUNT, tg_exe_->wcnt_);
-        tg_exe_->write32(tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
-        tg_exe_->write32(tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
-        tg_exe_->write32(tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
-        tg_exe_->write32(tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_WRITE_COUNT, tg_exe_->wcnt_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);
 
         // address increment mode
-        tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, TG_ADDR_SEQ);
-        tg_exe_->write32(tg_offset_+TG_ADDR_MODE_RD, TG_ADDR_SEQ);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_ADDR_MODE_WR, TG_ADDR_SEQ);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_ADDR_MODE_RD, TG_ADDR_SEQ);
         return 0;
     }
 
@@ -148,9 +171,21 @@ public:
     {
       int status = 0;
 	
-      tg_exe_->logger_->debug("Start Test");
+      // All threads do their set up and wait here for other threads so start write happens all at once
+      std::unique_lock<std::mutex> lock(tg_start_write_mutex);
+      tg_waiting_threads_counter++;
+      if(tg_waiting_threads_counter == tg_num_threads) {
+        tg_cv.notify_all(); 
+      } else {
+        tg_cv.wait(lock, [&](){ return tg_waiting_threads_counter == tg_num_threads; });
+      }
+      lock.unlock();
 
-      tg_exe_->write32(tg_offset_ + TG_START, 0x1);
+      // write32 is not thread safe so we wrap it in a lock
+      lock.lock();
+      tg_exe_->logger_->debug("Start Test");
+      tg_exe_->write32(tg_exe_->tg_offset_ + TG_START, 0x1);
+      lock.unlock();
 
       if (!tg_wait_test_completion(tg_exe_))
         status = -1;
@@ -225,6 +260,8 @@ public:
       std::vector<std::future<int>> futures;
       std::vector<std::promise<int>> promises(num_channels);
       std::vector<std::thread> threads;
+      tg_num_threads = num_channels;
+      tg_waiting_threads_counter = 0;
       for (int i = 0; i < num_channels; i++) { 
         if (channels[i] == -1) break;
         thread_tg_exe_objects[i] = new mem_tg;
@@ -234,7 +271,7 @@ public:
         futures.push_back(promises[i].get_future());
         threads.emplace_back([&, i] { 
           promises[i].set_value(run_thread_single_channel(thread_tg_exe_objects[i])); 
-	});
+        });
       }
 
       // Wait for all threads to exit then collect their exit statuses
