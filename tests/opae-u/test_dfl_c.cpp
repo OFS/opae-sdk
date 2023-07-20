@@ -87,6 +87,10 @@ TEST(opae_u, port_reset_fail)
  */
 TEST(opae_u, walk_port_no_token)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uio_pci_device_t device;
   device.tokens = nullptr;
   device.next = nullptr;
@@ -155,6 +159,10 @@ TEST(opae_u, walk_port_ok)
  */
 TEST(opae_u, walk_fme_no_token)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uio_pci_device_t device;
   device.tokens = nullptr;
   device.next = nullptr;

@@ -661,6 +661,9 @@ if (OPAE_BUILD_TESTS)
 
 endif(OPAE_BUILD_TESTS)
 
+option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
+mark_as_advanced(OPAE_ENABLE_MOCK)
+
 include(OPAE)
 
 ############################################################################
@@ -763,9 +766,6 @@ mark_as_advanced(OPAE_BUILD_LIBOPAE_CXX)
 
 option(OPAE_BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
-
-option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
-mark_as_advanced(OPAE_ENABLE_MOCK)
 
 option(OPAE_BUILD_LIBOPAEVFIO "Enable building of the opaevfio library" ON)
 mark_as_advanced(OPAE_BUILD_LIBOPAEVFIO)
