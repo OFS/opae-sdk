@@ -481,6 +481,10 @@ TEST(opae_v, vfio_get_pci_device_found)
  */
 TEST(opae_v, vfio_get_pci_device_calloc_err)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   set_pci_devices();
   const char *addr = "0000:ab:00.0";
 
@@ -924,6 +928,10 @@ TEST_F(vfio_pci_discover_f, vfio_pci_discover_err4)
  */
 TEST_F(vfio_pci_discover_f, vfio_pci_discover_err5)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uint32_t vid = 0;
   uint32_t did = 0;
   uint32_t svid = 0;
@@ -1024,6 +1032,10 @@ TEST(opae_v, clone_token_err0)
  */
 TEST(opae_v, clone_token_err1)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   vfio_token t;
   t.hdr.magic = VFIO_TOKEN_MAGIC;
 
@@ -1296,6 +1308,10 @@ TEST(opae_v, close_vfio_pair_ok)
  */
 TEST(opae_v, open_vfio_pair_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   vfio_pair_t *pair = nullptr;
   const char *addr = "0000:00:00.0";
 
@@ -1312,6 +1328,10 @@ TEST(opae_v, open_vfio_pair_err0)
  */
 TEST(opae_v, open_vfio_pair_err1)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   vfio_pair_t *pair = nullptr;
   const char *addr = "0000:00:00.0";
 
@@ -1363,6 +1383,10 @@ TEST(opae_v, vfio_walk_err0)
  */
 TEST(opae_v, vfio_fpgaOpen_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   vfio_token t;
   memset(&t, 0, sizeof(t));
   t.hdr.magic = VFIO_TOKEN_MAGIC;
@@ -1564,6 +1588,10 @@ TEST(opae_v, vfio_fpgaUpdateProperties_ok)
  */
 TEST(opae_v, vfio_fpgaGetProperties_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   fpga_properties props = nullptr;
 
   test_system::instance()->invalidate_calloc(0, "opae_properties_create");
@@ -2259,6 +2287,10 @@ TEST(opae_v, vfio_get_token_ok0)
  */
 TEST(opae_v, vfio_get_token_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   vfio_pci_device_t device;
   memset(&device, 0, sizeof(device));
 
@@ -2894,6 +2926,10 @@ TEST(opae_v, clone_err1)
  */
 TEST(opae_v, clone_err2)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   vfio_token token;
   memset(&token, 0, sizeof(token));
   token.hdr.magic = VFIO_TOKEN_MAGIC;
@@ -3109,6 +3145,10 @@ TEST(opae_v, create_event_err0)
  */
 TEST(opae_v, create_event_err1)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+      
   fpga_event_handle eh = nullptr;
 
   test_system::instance()->invalidate_malloc(0, "vfio_fpgaCreateEventHandle");
