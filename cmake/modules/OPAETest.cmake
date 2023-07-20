@@ -66,6 +66,11 @@ function(opae_test_add)
         target_compile_options(${OPAE_TEST_ADD_TARGET}
             PRIVATE -Wno-sign-compare)
     endif()
+    if(OPAE_ENABLE_MOCK)
+        target_compile_definitions(${OPAE_TEST_ADD_TARGET}
+            PRIVATE
+                OPAE_ENABLE_MOCK=1)
+    endif(OPAE_ENABLE_MOCK)
 
     target_include_directories(${OPAE_TEST_ADD_TARGET}
         PUBLIC

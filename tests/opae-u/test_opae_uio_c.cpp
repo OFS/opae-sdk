@@ -611,6 +611,10 @@ TEST(opae_u, uio_get_pci_device_found)
  */
 TEST(opae_u, uio_get_pci_device_calloc_err)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   set_pci_devices();
   const char *addr = "0000:ab:00.0";
   const char *dfl_dev = "dfl_dev.7";
@@ -1217,6 +1221,10 @@ TEST_F(uio_pci_discover_f, uio_pci_discover_err4)
  */
 TEST_F(uio_pci_discover_f, uio_pci_discover_err5)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uint32_t vid = 0;
   uint32_t did = 0;
   uint32_t svid = 0;
@@ -1317,6 +1325,10 @@ TEST(opae_u, clone_token_err0)
  */
 TEST(opae_u, clone_token_err1)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uio_token t;
   t.hdr.magic = UIO_TOKEN_MAGIC;
 
@@ -1597,6 +1609,10 @@ TEST(opae_u, uio_walk_err0)
  */
 TEST(opae_u, uio_fpgaOpen_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uio_token t;
   memset(&t, 0, sizeof(t));
   t.hdr.magic = UIO_TOKEN_MAGIC;
@@ -1799,6 +1815,10 @@ TEST(opae_u, uio_fpgaUpdateProperties_ok)
  */
 TEST(opae_u, uio_fpgaGetProperties_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   fpga_properties props = nullptr;
 
   test_system::instance()->invalidate_calloc(0, "opae_properties_create");
@@ -2495,6 +2515,10 @@ TEST(opae_u, uio_get_token_ok0)
  */
 TEST(opae_u, uio_get_token_err0)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uio_pci_device_t device;
   memset(&device, 0, sizeof(device));
 
@@ -3087,6 +3111,10 @@ TEST(opae_u, clone_err1)
  */
 TEST(opae_u, clone_err2)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   uio_token token;
   memset(&token, 0, sizeof(token));
   token.hdr.magic = UIO_TOKEN_MAGIC;
@@ -3190,6 +3218,10 @@ TEST(opae_u, create_event_err0)
  */
 TEST(opae_u, create_event_err1)
 {
+#ifndef OPAE_ENABLE_MOCK
+  GTEST_SKIP() << "Invalidate test requires MOCK.";
+#endif // OPAE_ENABLE_MOCK
+
   fpga_event_handle eh = nullptr;
 
   test_system::instance()->invalidate_malloc(0, "uio_fpgaCreateEventHandle");
