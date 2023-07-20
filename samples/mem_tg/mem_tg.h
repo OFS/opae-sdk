@@ -1,4 +1,4 @@
-// Copyright(c) 2022, Intel Corporation
+// Copyright(c) 2022-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <opae/cxx/core/token.h>
+#include <iostream>
+#include <vector>
+#include <string>
 
 #include "afu_test.h"
 
@@ -64,7 +67,6 @@ const std::map<std::string, uint32_t> tg_pattern = {
   { "prbs31", TG_DATA_PRBS31},
   { "rot1",   TG_DATA_PRBS31},
 };
-
   
 enum {
   AFU_DFH         = 0x0000,
@@ -147,7 +149,7 @@ public:
   , mem_speed_(0)
   {
     // Channel
-    app_.add_option("-m,--mem-channel", mem_ch_, "Target memory bank for test to run on (0 indexed)")
+    app_.add_option("-m,--mem-channel", mem_ch_, "Target memory banks for test to run on (0 indexed). Multiple banks seperated by ', '. 'all' will use every channel enumerated in MEM_TG_CTRL")
       ->default_val("0");
 
     // Loops
@@ -208,7 +210,7 @@ public:
 
 public:
   uint32_t count_;
-  uint32_t mem_ch_;
+  std::vector<std::string> mem_ch_;
   uint32_t loop_;
   uint32_t wcnt_;
   uint32_t rcnt_;
@@ -216,6 +218,8 @@ public:
   uint32_t stride_;
   uint32_t pattern_;
   uint32_t mem_speed_;
+  uint32_t status_;
+  uint64_t tg_offset_;
 
   std::map<uint32_t, uint32_t> limits_;
 
@@ -234,6 +238,27 @@ public:
     return handle_->get_token();
   }
 
+  // Duplicate contents of this mem_tg to duplicate_obj.
+  // commands_, current_command_, app_ are ommited since they are not
+  // relevant to closed instances of mem_tg that don't interact with commands.
+  void duplicate(mem_tg *duplicate_obj) const {
+    duplicate_obj->count_        = this->count_;
+    duplicate_obj->loop_         = this->loop_;
+    duplicate_obj->wcnt_         = this->wcnt_;
+    duplicate_obj->rcnt_         = this->rcnt_;
+    duplicate_obj->bcnt_         = this->bcnt_;
+    duplicate_obj->stride_       = this->stride_;
+    duplicate_obj->pattern_      = this->pattern_;
+    duplicate_obj->mem_speed_    = this->mem_speed_;
+    duplicate_obj->name_         = this->name_;
+    duplicate_obj->afu_id_       = this->afu_id_;
+    duplicate_obj->pci_addr_     = this->pci_addr_;
+    duplicate_obj->log_level_    = this->log_level_;
+    duplicate_obj->shared_       = this->shared_;
+    duplicate_obj->timeout_msec_ = this->timeout_msec_;
+    duplicate_obj->handle_       = this->handle_;
+    duplicate_obj->logger_       = this->logger_;
+  }
+
 };
 } // end of namespace mem_tg
-

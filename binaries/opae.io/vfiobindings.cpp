@@ -56,6 +56,7 @@ PYBIND11_MODULE(libvfio, m)
           .def("config_write8", &vfio_device::config_write<uint8_t>)
           .def("__repr__", &vfio_device::address)
           .def("allocate", &vfio_device::buffer_allocate)
+          .def("set_vf_token", &vfio_device::set_vf_token)
           .def_property_readonly("pci_address", &vfio_device::address)
           .def_property_readonly("num_regions", &vfio_device::num_regions)
           .def_property_readonly("regions", &vfio_device::regions);

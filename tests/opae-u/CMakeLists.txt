@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,16 +24,47 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(xfpga)
-add_subdirectory(xfpga/metrics/bmc)
+opae_test_add_static_lib(TARGET opae-u-static
+    SOURCE
+        ${OPAE_LIB_SOURCE}/plugins/uio/dfl.c
+        ${OPAE_LIB_SOURCE}/plugins/uio/opae_uio.c
+        ${OPAE_LIB_SOURCE}/plugins/uio/plugin.c
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaeuio
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
+)
 
-if (OPAE_BUILD_PLUGIN_VFIO AND PLATFORM_SUPPORTS_VFIO)
-    if (OPAE_BUILD_LIBOPAEVFIO)
-        add_subdirectory(vfio)
-    else()
-        message(WARNING
-            "Must enable 'OPAE_BUILD_LIBOPAEVFIO' to build vfio plugin")
-    endif()
-endif()
+opae_test_add(TARGET test_opae_u_dfl_c
+    SOURCE test_dfl_c.cpp
+    LIBS opae-u-static
+)
 
-add_subdirectory(uio)
+target_include_directories(test_opae_u_dfl_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/plugins/uio
+)
+
+opae_test_add(TARGET test_opae_u_opae_uio_c
+    SOURCE test_opae_uio_c.cpp
+    LIBS opae-u-static
+)
+
+target_include_directories(test_opae_u_opae_uio_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/plugins/uio
+)
+
+opae_test_add(TARGET test_opae_u_plugin_c
+    SOURCE test_plugin_c.cpp
+    LIBS opae-u-static
+)
+
+target_include_directories(test_opae_u_plugin_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/plugins/uio
+)

@@ -168,7 +168,7 @@ done
 
 # Make rpmlint happy about install permissions
 # admin tools
-for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device,fpgareg}.py; do
+for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device,fpgareg,n5010tool}.py; do
    chmod a+x $file
 done
 # ethernet
@@ -213,6 +213,7 @@ done
 
 %{_libdir}/opae/libxfpga.so
 %{_libdir}/opae/libopae-v.so
+%{_libdir}/opae/libopae-u.so
 %{_libdir}/opae/libmodbmc.so
 %{_libdir}/opae/libfpgad-xfpga.so
 %{_libdir}/opae/libfpgad-vc.so
@@ -313,7 +314,7 @@ done
 %{_bindir}/nlb3
 %{_bindir}/nlb7
 %{_bindir}/vabtool
-
+%{_bindir}/n5010tool
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*

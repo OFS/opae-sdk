@@ -270,28 +270,46 @@ STATIC libopae_config_data default_libopae_config_table[] = {
 	{ 0x8086, 0xbcce, 0x8086,          0x138d,          "libxfpga.so",  "{}", 0 }, // D5005
 	{ 0x8086, 0xbcce, 0x8086,          0x138d,          "libopae-v.so", "{}", 0 }, // D5005
 	{ 0x8086, 0xbccf, 0x8086,          0x138d,          "libopae-v.so", "{}", 0 }, // D5005
+	{ 0x8086, 0xbcce, 0x8086,          0x138d,          "libopae-u.so", "{}", 0 }, // D5005
+	{ 0x8086, 0xbccf, 0x8086,          0x138d,          "libopae-u.so", "{}", 0 }, // D5005
+
 
 	{ 0x8086, 0x0b30, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // N3000
 	{ 0x8086, 0x0b31, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // N3000
 	{ 0x8086, 0xaf00, 0x8086,          0x0000,          "libxfpga.so",  "{}", 0 }, // OFS EA
 	{ 0x8086, 0xaf00, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS EA
 	{ 0x8086, 0xaf01, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS EA
+	{ 0x8086, 0xaf00, 0x8086,          0x0000,          "libopae-u.so", "{}", 0 }, // OFS EA
+	{ 0x8086, 0xaf01, 0x8086,          0x0000,          "libopae-u.so", "{}", 0 }, // OFS EA
+
 
 	{ 0x8086, 0xbcce, 0x8086,          0x0000,          "libxfpga.so",  "{}", 0 }, // OFS
 	{ 0x8086, 0xbcce, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS
 	{ 0x8086, 0xbccf, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbcce, 0x8086,          0x0000,          "libopae-u.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbccf, 0x8086,          0x0000,          "libopae-u.so", "{}", 0 }, // OFS
+
 
 	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libxfpga.so",  "{}", 0 }, // N6000
 	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
 	{ 0x8086, 0xbccf, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
+	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libopae-u.so", "{}", 0 }, // N6000
+	{ 0x8086, 0xbccf, 0x8086,          0x1770,          "libopae-u.so", "{}", 0 }, // N6000
+
 
 	{ 0x8086, 0xbcce, 0x8086,          0x1771,          "libxfpga.so",  "{}", 0 }, // N6001
 	{ 0x8086, 0xbcce, 0x8086,          0x1771,          "libopae-v.so", "{}", 0 }, // N6001
 	{ 0x8086, 0xbccf, 0x8086,          0x1771,          "libopae-v.so", "{}", 0 }, // N6001
+	{ 0x8086, 0xbcce, 0x8086,          0x1771,          "libopae-u.so", "{}", 0 }, // N6001
+	{ 0x8086, 0xbccf, 0x8086,          0x1771,          "libopae-u.so", "{}", 0 }, // N6001
+
 
 	{ 0x8086, 0xbcce, 0x8086,          0x17d4,          "libxfpga.so",  "{}", 0 }, // C6100
 	{ 0x8086, 0xbcce, 0x8086,          0x17d4,          "libopae-v.so", "{}", 0 }, // C6100
 	{ 0x8086, 0xbccf, 0x8086,          0x17d4,          "libopae-v.so", "{}", 0 }, // C6100
+	{ 0x8086, 0xbcce, 0x8086,          0x17d4,          "libopae-u.so", "{}", 0 }, // C6100
+	{ 0x8086, 0xbccf, 0x8086,          0x17d4,          "libopae-u.so", "{}", 0 }, // C6100
+
 
 	{      0,      0,      0,               0,          NULL,           NULL, 0 },
 };

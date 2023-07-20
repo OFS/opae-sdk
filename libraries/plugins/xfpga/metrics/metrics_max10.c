@@ -224,7 +224,6 @@ fpga_result  dfl_enum_max10_metrics_info_pattern(struct _fpga_handle *_handle,
 		return FPGA_NOT_FOUND;
 	}
 
-
 	// for loop
 	for (i = 0; i < pglob.gl_pathc; i++) {
 

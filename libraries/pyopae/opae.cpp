@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -129,6 +129,7 @@ PYBIND11_MODULE(_opae, m) {
       .value("IFC_VFIO", FPGA_IFC_VFIO)
       .value("IFC_SIM_DFL", FPGA_IFC_SIM_DFL)
       .value("IFC_SIM_VFIO", FPGA_IFC_SIM_VFIO)
+      .value("IFC_UIO", FPGA_IFC_UIO)
       .export_values();
 
   // version method

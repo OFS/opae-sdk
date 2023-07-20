@@ -43,6 +43,7 @@ setup(
             'pci_device = opae.admin.tools.pci_device:main',
             'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
             'fpgareg = opae.admin.tools.fpgareg:main',
+            'n5010tool = opae.admin.tools.n5010tool:main',
         ]
     },
 )
