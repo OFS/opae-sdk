@@ -1245,17 +1245,6 @@ out_destroy_attr:
 	return res;
 }
 
-int opae_vfio_open(struct opae_vfio *v,
-		   const char *pciaddr)
-{
-	if (!v || !pciaddr) {
-		ERR("NULL param\n");
-		return 1;
-	}
-
-	return opae_vfio_init(v, pciaddr, NULL);
-}
-
 #define GUID_RE_PATTERN "[0-9a-fA-F]{8}-" \
 			"[0-9a-fA-F]{4}-" \
 			"[0-9a-fA-F]{4}-" \
@@ -1294,6 +1283,59 @@ int opae_vfio_secure_open(struct opae_vfio *v,
 
 	regfree(&re);
 	return opae_vfio_init(v, pciaddr, token);
+}
+
+#define PCI_ADDR_LEN 12
+//           11
+// 012345678901
+// 0000:00:00.0
+STATIC char *opae_vfio_get_vf_token(const char *pciaddr)
+{
+	char env_var[128];
+	char copy_addr[64];
+	size_t len;
+
+	len = strnlen(pciaddr, sizeof(copy_addr) - 1);
+	if (len != PCI_ADDR_LEN) {
+		ERR("invalid PCIe address: %s\n", pciaddr);
+		return NULL;
+	}
+
+	memset(copy_addr, 0, sizeof(copy_addr));
+	memcpy(copy_addr, pciaddr, len + 1);
+
+	copy_addr[4] = '\0';
+	copy_addr[7] = '\0';
+	copy_addr[10] = '\0';
+
+	memset(env_var, 0, sizeof(env_var));
+	strcpy(env_var, "vf_token_");
+	strncat(env_var, copy_addr, 5);
+	strncat(env_var, "_", 2);
+	strncat(env_var, &copy_addr[5], 3);
+	strncat(env_var, "_", 2);
+	strncat(env_var, &copy_addr[8], 3);
+	strncat(env_var, "_", 2);
+	strncat(env_var, &copy_addr[11], 2);
+
+	return getenv(env_var);
+}
+
+int opae_vfio_open(struct opae_vfio *v,
+		   const char *pciaddr)
+{
+	char *vf_token;
+
+	if (!v || !pciaddr) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	vf_token = opae_vfio_get_vf_token(pciaddr);
+	if (vf_token)
+		return opae_vfio_secure_open(v, pciaddr, vf_token);
+
+	return opae_vfio_init(v, pciaddr, NULL);
 }
 
 int opae_vfio_region_get(struct opae_vfio *v,
