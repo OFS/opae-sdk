@@ -523,21 +523,6 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 	    !read_pci_link(phys_device, "driver", phys_driver,
 				PATH_MAX-1) &&
 	    strstr(phys_driver, "vfio-pci")) {
-
-#if 0
-		uuid_parse("D8424DC4-A4A3-C413-F89E-433683F9040B", pair->secret);
-		uuid_unparse(pair->secret, secret);
-
-		pair->physfn = malloc(sizeof(struct opae_vfio));
-		if (!pair->physfn) {
-			OPAE_ERR("Failed to allocate memory for opae_vfio");
-			goto out_destroy;
-		}
-		memset(pair->physfn, 0, sizeof(struct opae_vfio));
-		pair->physfn->cont_fd = -1;
-		pair->physfn->device.device_fd = -1;
-
-#else
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
 
@@ -559,7 +544,6 @@ STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 			goto out_destroy;
 		}
 
-#endif
 		ires = opae_vfio_secure_open(pair->device, addr, secret);
 		if (ires) {
 			if (ires == 2)
