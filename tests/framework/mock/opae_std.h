@@ -25,7 +25,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #ifndef __OPAE_STD_H__
 #define __OPAE_STD_H__
-#include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include <errno.h>
@@ -45,6 +44,7 @@
 #ifndef __USE_GNU
 #define __USE_GNU 1
 #endif // __USE_GNU
+#include <stdio.h>
 #include <stdlib.h>
 #include <sched.h>
 
