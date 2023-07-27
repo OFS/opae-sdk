@@ -210,7 +210,7 @@ def copy_build_env(hw_lib_dir, dst, force):
     build_dst = os.path.join(dst, 'build')
     print('Copying build from {0}...'.format(build_src))
     try:
-        shutil.copytree(build_src, build_dst)
+        shutil.copytree(build_src, build_dst, symlinks=True)
     except Exception:
         shutil.rmtree(dst)
         print('Failed to copy {0} to {1}'.format(build_src, build_dst))
