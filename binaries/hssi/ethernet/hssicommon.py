@@ -1035,7 +1035,7 @@ class FpgaFinder(object):
                 continue
             m = re.search('dfl_dev(.*)', path)
             if m:
-                hssi_group.append( (m.group(0), uio_path, pci_address, feature_id) )
+                hssi_group.append((m.group(0), uio_path, pci_address, feature_id))
         return hssi_group
 
 
@@ -1055,7 +1055,7 @@ class HSSICOMMON(object):
         if (hssi_dfh.feature_rev == 0x1) or (hssi_dfh.feature_rev == 0):
             print("{0: <24}:{1}".format("DFHv", 0))
             self.hssi_csr = HSSI_DFHV0_CSR()
-        elif (hssi_dfh.feature_rev == 0x2):
+        elif (hssi_dfh.feature_rev >= 0x2) and (hssi_dfh.feature_rev < 0xf):
             self.hssi_csr = HSSI_DFHV05_CSR()
             guidl = self.read64(0, self.hssi_csr.HSSI_GUID_L)
             guidh = self.read64(0, self.hssi_csr.HSSI_GUID_H)
@@ -1076,7 +1076,7 @@ class HSSICOMMON(object):
             hssi_csr_addr = csr_addr(self.read64(0, self.hssi_csr.FEATUR_ADDR_CSR))
             self.hssi_csr.set_csr_dfhv05_offset(hssi_csr_addr.addr)
         else:
-            print("dfh version not supported:", hex(hssi_dfh.feature_rev))
+            print("dfh feature revision not supported:", hex(hssi_dfh.feature_rev))
             return False
 
         return True
@@ -1176,7 +1176,7 @@ class HSSICOMMON(object):
         poll for status
         """
         total_time = 0
-        while(True):
+        while (True):
             reg_data = self.read32(region_index, reg_offset)
             value = self.register_get_bits(reg_data, idx, width)
             if value == 0:
@@ -1203,7 +1203,7 @@ class HSSICOMMON(object):
         Read Data
         """
         total_time = 0
-        while(True):
+        while (True):
             reg_data = self.read32(region_index, reg_offset)
             if reg_data == 0:
                 return True
@@ -1257,7 +1257,7 @@ class HSSICOMMON(object):
         Read Data
         """
         total_time = 0
-        while(True):
+        while (True):
             reg_data = self.read32(region_index, reg_offset)
             if ((reg_data >> bit_index) & 1) == 1:
                 return True

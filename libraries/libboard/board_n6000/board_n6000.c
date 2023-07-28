@@ -897,7 +897,7 @@ fpga_result print_hssi_port_status(uint8_t *uio_ptr)
 		feature_list_offset = HSSI_FEATURE_LIST;
 		port_sts_offset = HSSI_PORT_STATUS;
 		port_attr_offset = HSSI_PORT_ATTRIBUTE;
-	} else if (dfh_csr.feature_rev == 0x2) { // dfhv0.5
+	} else if ((dfh_csr.feature_rev >= 0x2) && (dfh_csr.feature_rev < 0xf)) { // dfhv0.5
 		csr_addr.csr = *((uint64_t *)(uio_ptr + DFH_CSR_ADDR));
 		ver_offset = csr_addr.addr;
 		feature_list_offset = csr_addr.addr + 0x4;
@@ -905,7 +905,7 @@ fpga_result print_hssi_port_status(uint8_t *uio_ptr)
 		port_attr_offset = csr_addr.addr + 0x8;
 
 	} else {
-		printf("DFH veriosn not supported:%x \n", dfh_csr.feature_rev);
+		printf("DFH feature revision not supported:%x \n", dfh_csr.feature_rev);
 		return FPGA_NOT_SUPPORTED;
 	}
 
