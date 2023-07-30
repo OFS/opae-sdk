@@ -318,7 +318,7 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 #
 # Emit simulator Makefile/CMake configuration.
 #
-def emitSimMakeConfig(args, afu_ifc_db, platform_db):
+def emitSimMakeConfig(args, afu_ifc_db, platform_db, afu_ifc_req):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
@@ -348,9 +348,13 @@ def emitSimMakeConfig(args, afu_ifc_db, platform_db):
     f_cm.write("# This file has been generated automatically by " +
                "afu_platform_config.\n\n")
 
+    afu_sim_flags = []
+    if ('enable-hssi-sim' in afu_ifc_req and afu_ifc_req['enable-hssi-sim']):
+        afu_sim_flags += ['ENABLE_HSSI_SIM']
+
     # Does either the AFU or platform request some preprocessor
     # definitions?
-    for d in (platform_db['define'] + afu_ifc_db['define']):
+    for d in (platform_db['define'] + afu_ifc_db['define'] + afu_sim_flags):
         f_mk.write("{0} = 1\n".format(d))
         f_cm.write("set({0} 1)\n".format(d))
 
@@ -362,7 +366,7 @@ def emitSimMakeConfig(args, afu_ifc_db, platform_db):
 # Emit the QSF script to load the platform interface.
 #
 def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
-                  afu_port_list):
+                  afu_port_list, afu_ifc_req):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
@@ -429,7 +433,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 # Emit the RTL simulator file to include platform interfaces.
 #
 def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
-                  afu_port_list):
+                  afu_port_list, afu_ifc_req):
     # Path prefix for emitting configuration files
     f_prefix = ""
     if (args.tgt):
@@ -509,4 +513,4 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     #
     # Emit some preprocessor configuration for the simulator environment.
     #
-    emitSimMakeConfig(args, afu_ifc_db, platform_db)
+    emitSimMakeConfig(args, afu_ifc_db, platform_db, afu_ifc_req)
