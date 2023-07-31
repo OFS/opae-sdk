@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,47 +24,48 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.14)
-project(testing)
+opae_test_add_static_lib(TARGET opae-v-static
+    SOURCE
+        ${OPAE_LIB_SOURCE}/plugins/vfio/dfl.c
+        ${OPAE_LIB_SOURCE}/plugins/vfio/opae_vfio.c
+        ${OPAE_LIB_SOURCE}/plugins/vfio/plugin.c
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaevfio
+        opaemem
+        ${json-c_LIBRARIES}
+        ${uuid_LIBRARIES}
+)
 
-if(GTest_FOUND)
-    message(STATUS "Found GTest")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif()
+opae_test_add(TARGET test_opae_v_dfl_c
+    SOURCE test_dfl_c.cpp
+    LIBS opae-v-static
+)
 
-# Disable some warnings that fire during gtest compilation
-check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
-if(CXX_SUPPORTS_NO_SIGN_COMPARE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-endif()
+target_include_directories(test_opae_v_dfl_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/plugins/vfio
+)
 
-add_subdirectory(framework)
+opae_test_add(TARGET test_opae_v_opae_vfio_c
+    SOURCE test_opae_vfio_c.cpp
+    LIBS opae-v-static
+)
 
-add_subdirectory(bitstream)
-add_subdirectory(opae-c)
-add_subdirectory(opae-cxx)
-add_subdirectory(pyopae)
-add_subdirectory(xfpga)
-add_subdirectory(opaemem)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(libofs)
-    add_subdirectory(ofs_driver)
-endif (OPAE_BUILD_LIBOFS)
+target_include_directories(test_opae_v_opae_vfio_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/plugins/vfio
+)
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(ofs_cpeng)
-endif (OPAE_BUILD_LIBOFS)
-add_subdirectory(fpgad)
-add_subdirectory(opae-u)
-add_subdirectory(opae-v)
+opae_test_add(TARGET test_opae_v_plugin_c
+    SOURCE test_plugin_c.cpp
+    LIBS opae-v-static
+)
+
+target_include_directories(test_opae_v_plugin_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/plugins/vfio
+)
