@@ -336,7 +336,7 @@ STATIC bool pci_device_matches(const libopae_config_data *c,
 	return true;
 }
 
-STATIC bool pci_device_supported(const char *pcie_addr)
+STATIC bool uio_pci_device_supported(const char *pcie_addr)
 {
 	uint32_t vendor = 0;
 	uint32_t device = 0;
@@ -428,7 +428,7 @@ int uio_pci_discover(const char *gpattern)
 		*pcie_addr = '\0'; // null-terminate the address.
 		pcie_addr -= 12; // back up to the beginning of the PCIe address.
 
-		if (!pci_device_supported(pcie_addr))
+		if (!uio_pci_device_supported(pcie_addr))
 			continue;
 
 		object_id = (((uint64_t)major & 0xfff) << 20) | (minor & 0xfffff);

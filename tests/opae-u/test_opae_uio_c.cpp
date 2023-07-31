@@ -62,7 +62,7 @@ bool pci_device_matches(const libopae_config_data *c,
                         uint16_t did,
                         uint16_t svid,
                         uint16_t sdid);
-bool pci_device_supported(const char *pcie_addr);
+bool uio_pci_device_supported(const char *pcie_addr);
 uio_token *clone_token(uio_token *src);
 uio_token *token_check(fpga_token token);
 uio_handle *handle_check(fpga_handle handle);
@@ -827,27 +827,27 @@ TEST(opae_u, pci_device_matches_ok1)
 }
 
 /**
- * @test    pci_device_supported_err0
- * @brief   Test: pci_device_supported()
+ * @test    uio_pci_device_supported_err0
+ * @brief   Test: uio_pci_device_supported()
  * @details When the PCI device attributes for the<br>
  *          given pcie_addr parameter cannot be read,<br>
  *          then the function returns false.
  */
-TEST(opae_u, pci_device_supported_err0)
+TEST(opae_u, uio_pci_device_supported_err0)
 {
   const char *dev = "doesnt_exist";
-  EXPECT_EQ(false, pci_device_supported(dev));
+  EXPECT_EQ(false, uio_pci_device_supported(dev));
 }
 
 /**
- * @test    pci_device_supported_err1
- * @brief   Test: pci_device_supported()
+ * @test    uio_pci_device_supported_err1
+ * @brief   Test: uio_pci_device_supported()
  * @details When the device ID 4-tuple is not found<br>
  *          in the configuration table stored at<br>
  *          opae_u_supported_devices, then the<br>
  *          function returns false.
  */
-TEST(opae_u, pci_device_supported_err1)
+TEST(opae_u, uio_pci_device_supported_err1)
 {
   char addr[32] = { 0, };
   get_valid_pci_addr("vendor", addr, sizeof(addr));
@@ -872,19 +872,19 @@ TEST(opae_u, pci_device_supported_err1)
   c[1].module_library = NULL;
 
   opae_u_supported_devices = c;
-  EXPECT_EQ(false, pci_device_supported(addr));
+  EXPECT_EQ(false, uio_pci_device_supported(addr));
   opae_u_supported_devices = nullptr;
 }
 
 /**
- * @test    pci_device_supported_ok
- * @brief   Test: pci_device_supported()
+ * @test    uio_pci_device_supported_ok
+ * @brief   Test: uio_pci_device_supported()
  * @details When the device ID 4-tuple is found<br>
  *          in the configuration table stored at<br>
  *          opae_u_supported_devices, then the<br>
  *          function returns true.
  */
-TEST(opae_u, pci_device_supported_ok)
+TEST(opae_u, uio_pci_device_supported_ok)
 {
   char addr[32] = { 0, };
   get_valid_pci_addr("vendor", addr, sizeof(addr));
@@ -909,7 +909,7 @@ TEST(opae_u, pci_device_supported_ok)
   c[1].module_library = NULL;
 
   opae_u_supported_devices = c;
-  EXPECT_EQ(true, pci_device_supported(addr));
+  EXPECT_EQ(true, uio_pci_device_supported(addr));
   opae_u_supported_devices = nullptr;
 }
 
