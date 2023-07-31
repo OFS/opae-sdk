@@ -633,10 +633,10 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
                platform_defaults.db, afu_port_list)
     if (args.sim):
         emitSimConfig(args, afu_ifc.db, platform.db,
-                      platform_defaults.db, afu_port_list)
+                      platform_defaults.db, afu_port_list, afu_ifc_req)
     else:
         emitQsfConfig(args, afu_ifc.db, platform.db,
-                      platform_defaults.db, afu_port_list)
+                      platform_defaults.db, afu_port_list, afu_ifc_req)
 
 
 if __name__ == "__main__":
