@@ -23,47 +23,6 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+__path__ = __import__('pkgutil').extend_path(__path__, __name__)
 
-[build-system]
-requires = ["setuptools>=59.6", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "platmgr"
-version = "1.0.1"
-description = "platforms scripts construct manage AFU interfaces"
-license = {text = "BSD-3-Clause"}
-requires-python = ">=3.4"
-
-[tool.setuptools]
-packages = [
-"platmgr",
-"platmgr.lib",
-"platmgr.tools",
-]
-
-[tool.setuptools.package-data]
-"*" = [
-"platmgr/db/info.py",
-"platmgr/db/afu_top_ifc_db/*",
-"platmgr/db/platform_db/*",
-"platmgr/db/platform_db/platform_defaults/*",
-"platmgr/db/platform_if/*",
-"platmgr/db/platform_if/par/*",
-"platmgr/db/platform_if/rtl/*",
-"platmgr/db/platform_if/rtl/device_cfg/*",
-"platmgr/db/platform_if/rtl/device_if/*",
-"platmgr/db/platform_if/rtl/platform_shims/*",
-"platmgr/db/platform_if/rtl/platform_shims/utils/*",
-"platmgr/db/platform_if/rtl/platform_shims/utils/quartus_ip/*",
-"platmgr/db/platform_if/sim/*",
-]
-
-[project.scripts]
-afu_platform_config = "platmgr.tools.afu_platform_config:main"
-afu_platform_info = "platmgr.tools.afu_platform_info:main"
-afu_synth_setup = "platmgr.tools.afu_synth_setup:main"
-rtl_src_config = "platmgr.tools.rtl_src_config:main"
-
-[project.urls]
-Homepage = "https://opae.github.io"
+__all__ = ["jsondb", "emitcfg"]
