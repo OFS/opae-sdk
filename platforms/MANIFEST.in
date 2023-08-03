@@ -1,0 +1,13 @@
+include platmgr/db/info.py
+include platmgr/db/afu_top_ifc_db/*
+include platmgr/db/platform_db/*
+include platmgr/db/platform_db/platform_defaults/*
+include platmgr/db/platform_if/*
+include platmgr/db/platform_if/par/*
+include platmgr/db/platform_if/rtl/*
+include platmgr/db/platform_if/rtl/device_cfg/*
+include platmgr/db/platform_if/rtl/device_if/*
+include platmgr/db/platform_if/rtl/platform_shims/*
+include platmgr/db/platform_if/rtl/platform_shims/utils/*
+include platmgr/db/platform_if/rtl/platform_shims/utils/quartus_ip/*
+include platmgr/db/platform_if/sim/*
