@@ -783,13 +783,15 @@ void bel_print_pci_error_status(struct bel_pci_error_status *status, bool print_
 
 }
 
-void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status *status, bool print_bits)
+void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
 {
 
 	if (status->header.magic != BEL_PCI_V1_ERROR_STATUS)
 		return;
 
-	bel_print_header("PCI Error Status Time", &status->header);
+	/* PCIe errors are logged immediately after power on.
+	Time of the day information is written by SW into a BMC register.*/
+	bel_print_timeofday("PCI Error Status Time", timeof_day);
 
 	// PCIe Link Status
 	bel_print_value("PCIe Link Status", status->pcie_link_status);
@@ -967,7 +969,7 @@ void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 		bel_print_sensors_state(&event->sensors_state);
 		bel_print_sensors_status(&event->sensors_status);
 	}
-	bel_print_pci_v1_error_status(&event->pcie_v1_error_status, print_bits);
+	bel_print_pci_v1_error_status(&event->pcie_v1_error_status, &event->timeof_day, print_bits);
 
 }
 
