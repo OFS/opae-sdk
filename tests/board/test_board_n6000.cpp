@@ -88,7 +88,8 @@ extern "C" {
         struct bel_timeof_day* timeof_day,
         bool print_bits);
     void bel_print(struct bel_event* event, bool print_sensors, bool print_bits);
-    void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status* status, bool print_bits);
+    void bel_print_pci_v1_error_status(struct bel_pcie_v1_error_status *status,
+        struct bel_timeof_day *timeof_day, bool print_bits);
 }
 
 
@@ -512,7 +513,7 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_13) {
     struct bel_pcie_v1_error_status pcie_v1_error_status;
     memset(&pcie_v1_error_status, 0x0, sizeof(pcie_v1_error_status));
     pcie_v1_error_status.header.magic = 0x53696D12;
-    EXPECT_NO_THROW(bel_print_pci_v1_error_status(&pcie_v1_error_status,true));
+    EXPECT_NO_THROW(bel_print_pci_v1_error_status(&pcie_v1_error_status, &timeof_day, true));
 
 }
 
