@@ -44,7 +44,7 @@ using namespace intel::fpga;
 using namespace intel::fpga::diag;
 using namespace intel::utils;
 
-int main(int argc, char* argv[])
+int nlb_main(int argc, char *argv[])
 {
     nlb7 nlb;
     option_parser parser;
@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
     std::string target = "fpga";
     opts.get_value("target", target);
     bool shared = target == "fpga";
-
     auto props = get_properties(filter, FPGA_ACCELERATOR);
     auto accelerator_list = token::enumerate({ props });
     if (accelerator_list.size() >= 1)
@@ -126,3 +125,19 @@ int main(int argc, char* argv[])
     return 102;
 }
 
+int main(int argc, char *argv[])
+{
+    const char *msg = "command line parse failed.";
+
+    try {
+        return nlb_main(argc, argv);
+    } catch(any_value_cast_error &avce) {
+        std::cout << msg << std::endl;
+    } catch(std::out_of_range &oor) {
+        std::cout << msg << std::endl;
+    } catch(opae::fpga::types::except &ex) {
+        std::cout << msg << std::endl;
+    }
+
+    return 101;
+}
