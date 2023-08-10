@@ -120,12 +120,12 @@ static struct bel_sensor_info bel_sensor_info[] = {
 static struct bel_sensor_info bel_power_regulator_info[] = {
 	[BEL_PWR_REG_IR38063_VOUT]  = { .label = "IR38063 Voltage",      .unit = "mV", .resolution = 1 },
 	[BEL_PWR_REG_IR38063_IOUT]  = { .label = "IR38063 Current",      .unit = "mA", .resolution = 1 },
-	[BEL_PWR_REG_IR38063_VIN]   = { .label = "IR38063 Temperature",  .unit = "°C", .resolution = 1 },
-	[BEL_PWR_REG_IR38063_TEMP]  = { .label = "IR38063 Input",        .unit = "mV", .resolution = 1 },
+	[BEL_PWR_REG_IR38063_VIN]   = { .label = "IR38063 Input",        .unit = "mV", .resolution = 1 },
+	[BEL_PWR_REG_IR38063_TEMP]  = { .label = "IR38063 Temperature",  .unit = "°C", .resolution = 2 },
 	[BEL_PWR_REG_ISL68220_VOUT] = { .label = "ISL68220 Voltage",     .unit = "mV", .resolution = 1 },
 	[BEL_PWR_REG_ISL68220_IOUT] = { .label = "ISL68220 Current",     .unit = "mA", .resolution = 1 },
-	[BEL_PWR_REG_ISL68220_VIN]  = { .label = "ISL68220 Temperature", .unit = "°C", .resolution = 1 },
-	[BEL_PWR_REG_ISL68220_TEMP] = { .label = "ISL68220 Input",       .unit = "mV", .resolution = 1 }
+	[BEL_PWR_REG_ISL68220_VIN]  = { .label = "ISL68220 Input",       .unit = "mV", .resolution = 1 },
+	[BEL_PWR_REG_ISL68220_TEMP] = { .label = "ISL68220 Temperature", .unit = "°C", .resolution = 2 }
 };
 
 struct pwron_status {
