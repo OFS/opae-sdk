@@ -39,7 +39,7 @@
 
 fuzz_object_api() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_object_api <ITERS>\n"
+    printf "usage: fuzz_object_api <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -47,6 +47,11 @@ fuzz_object_api() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -86,7 +91,7 @@ fuzz_object_api() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "object_api Fuzz Iteration: %d\n" $i
 
     cmd='object_api '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -97,7 +102,7 @@ fuzz_object_api() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='object_api '
@@ -109,24 +114,14 @@ fuzz_object_api() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done
 }
 
-
-
-declare -i iters=1
-if [ $# -gt 0 ]; then
-  iters=$1
-fi
-fuzz_object_api ${iters}
-
-
-
 #declare -i iters=1
 #if [ $# -gt 0 ]; then
 #  iters=$1
 #fi
-#fuzz_object_api ${iter}
+#fuzz_object_api ${iters}

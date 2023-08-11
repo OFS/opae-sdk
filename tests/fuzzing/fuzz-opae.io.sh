@@ -74,7 +74,7 @@
 #             "$ opae.io -d 0000:00:00.0 -r 0 script.py a b c"
 fuzz_opae_io() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_opae_io <ITERS>\n"
+    printf "usage: fuzz_opae_io <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -82,6 +82,11 @@ fuzz_opae_io() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -175,7 +180,7 @@ fuzz_opae_io() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "opae.io Fuzz Iteration: %d\n" $i
 
     cmd='opae.io '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -250,7 +255,7 @@ fuzz_opae_io() {
       ;;
     esac
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     coproc ${cmd} >"${stdout_file}" 2>"${stderr_file}"
     exec {stderr_fd}<"${stderr_file}"
     stdin_fd=${COPROC[1]}
@@ -341,7 +346,7 @@ fuzz_opae_io() {
       ;;
     esac
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     coproc ${cmd} >"${stdout_file}" 2>"${stderr_file}"
     exec {stderr_fd}<"${stderr_file}"
     stdin_fd=${COPROC[1]}

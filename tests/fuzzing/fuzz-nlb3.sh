@@ -65,7 +65,7 @@
 #    --suppress-stats Show stas at end
 fuzz_nlb3() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_nlb3 <ITERS>\n"
+    printf "usage: fuzz_nlb3 <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -73,6 +73,11 @@ fuzz_nlb3() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -188,7 +193,7 @@ fuzz_nlb3() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "nlb3 Fuzz Iteration: %d\n" $i
 
     cmd='nlb3 '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -199,7 +204,7 @@ fuzz_nlb3() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='nlb3 '
@@ -211,7 +216,7 @@ fuzz_nlb3() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

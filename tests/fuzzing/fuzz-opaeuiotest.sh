@@ -32,7 +32,7 @@
 #        where <dfl device> is of the form dfl_dev.X
 fuzz_opaeuiotest() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_opaeuiotest <ITERS>\n"
+    printf "usage: fuzz_opaeuiotest <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -40,6 +40,11 @@ fuzz_opaeuiotest() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=( 'dfl_dev.0' )
   local -a long_parms=( '0000:00:00.0' )
@@ -50,7 +55,7 @@ fuzz_opaeuiotest() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "opaeuiotest Fuzz Iteration: %d\n" $i
 
     cmd='opaeuiotest '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -61,7 +66,7 @@ fuzz_opaeuiotest() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='opaeuiotest '
@@ -73,7 +78,7 @@ fuzz_opaeuiotest() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

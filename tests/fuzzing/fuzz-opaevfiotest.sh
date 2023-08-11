@@ -34,7 +34,7 @@
 
 fuzz_opaevfiotest() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_opaevfiotest <ITERS>\n"
+    printf "usage: fuzz_opaevfiotest <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -43,6 +43,10 @@ fuzz_opaevfiotest() {
   local -i p
   local -i n
 
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a long_parms=(\
 '--help' \
@@ -65,7 +69,7 @@ fuzz_opaevfiotest() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "opaevfiotest Fuzz Iteration: %d\n" $i
 
     cmd='opaevfiotest '
     let "num_parms = 1 + ${RANDOM} % ${#long_parms[@]}"
@@ -76,7 +80,7 @@ fuzz_opaevfiotest() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

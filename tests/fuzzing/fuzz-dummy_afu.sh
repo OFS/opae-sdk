@@ -50,7 +50,7 @@
 
 fuzz_dummy_afu() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_dummy_afu <ITERS>\n"
+    printf "usage: fuzz_dummy_afu <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -58,6 +58,11 @@ fuzz_dummy_afu() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
 # dummy_afu short command line parameters
   local -a short_parms=(\
@@ -165,7 +170,7 @@ fuzz_dummy_afu() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "dummy_afu Fuzz Iteration: %d\n" $i
 
     cmd='dummy_afu '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -176,7 +181,7 @@ fuzz_dummy_afu() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='dummy_afu '
@@ -188,7 +193,7 @@ fuzz_dummy_afu() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

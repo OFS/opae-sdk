@@ -38,7 +38,7 @@
 #	-v,--version                display the version and exit.
 fuzz_fpgad() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_fpgad <ITERS>\n"
+    printf "usage: fuzz_fpgad <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -46,6 +46,11 @@ fuzz_fpgad() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-d' \
@@ -84,7 +89,7 @@ fuzz_fpgad() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "fpgad Fuzz Iteration: %d\n" $i
 
     cmd='fpgad '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -95,7 +100,7 @@ fuzz_fpgad() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     coproc ${cmd} >"${fpgad_stdout_file}" 2>"${fpgad_stderr_file}"
     exec {fpgad_stderr_fd}<"${fpgad_stderr_file}"
     fpgad_stdin_fd=${COPROC[1]}
@@ -122,7 +127,7 @@ fuzz_fpgad() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     coproc ${cmd} >"${fpgad_stdout_file}" 2>"${fpgad_stderr_file}"
     exec {fpgad_stderr_fd}<"${fpgad_stderr_file}"
     fpgad_stdin_fd=${COPROC[1]}

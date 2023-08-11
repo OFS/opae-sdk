@@ -64,7 +64,7 @@
 
 fuzz_host_exerciser() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_host_exerciser <ITERS>\n"
+    printf "usage: fuzz_host_exerciser <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -72,6 +72,11 @@ fuzz_host_exerciser() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -227,7 +232,7 @@ fuzz_host_exerciser() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "host_exerciser Fuzz Iteration: %d\n" $i
 
     cmd='host_exerciser '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -238,7 +243,7 @@ fuzz_host_exerciser() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='host_exerciser '
@@ -250,7 +255,7 @@ fuzz_host_exerciser() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

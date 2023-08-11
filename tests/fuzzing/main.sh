@@ -60,40 +60,45 @@ source fuzz-opaevfiotest.sh
 
 fuzz_all() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_all <ITERS>\n"
+    printf "usage: fuzz_all <ITERS> [QUIET]\n"
     exit 1
   fi
   local -i iters=$1
 
-  fuzz_fpgaconf ${iters}
-  fuzz_fpgainfo ${iters}
-  fuzz_fpgad ${iters}
-  fuzz_mmlink ${iters}
-  fuzz_hello_fpga ${iters}
-  fuzz_hello_events ${iters}
-  fuzz_userclk ${iters}
-  fuzz_fpgametrics ${iters}
-  fuzz_hello_cxxcore ${iters}
-  fuzz_n5010_ctl ${iters}
-  fuzz_n5010_test ${iters}
-  fuzz_host_exerciser ${iters}
-  fuzz_opaeuiotest ${iters}
-  fuzz_bist_app ${iters}
-  fuzz_dummy_afu ${iters}
-  fuzz_fpgabist ${iters}
-  fuzz_nlb3 ${iters}
-  fuzz_fpgadiag ${iters}
-  fuzz_fpga_dma_N3000_test ${iters}
-  fuzz_fpga_dma_test ${iters}
-  fuzz_mem_tg ${iters}
-  fuzz_opae_io ${iters}
-  fuzz_hps ${iters}  
-  fuzz_hssi ${iters}
-  fuzz_hps ${iters}
-  fuzz_nlb0 ${iters}
-  fuzz_nlb7 ${iters}
-  fuzz_object_api ${iters}
-  fuzz_opaevfiotest ${iters}
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
+
+  fuzz_fpgaconf ${iters} ${quiet}
+  fuzz_fpgainfo ${iters} ${quiet}
+  fuzz_fpgad ${iters} ${quiet}
+  fuzz_mmlink ${iters} ${quiet}
+  fuzz_hello_fpga ${iters} ${quiet}
+  fuzz_hello_events ${iters} ${quiet}
+  fuzz_userclk ${iters} ${quiet}
+  fuzz_fpgametrics ${iters} ${quiet}
+  fuzz_hello_cxxcore ${iters} ${quiet}
+  fuzz_n5010_ctl ${iters} ${quiet}
+  fuzz_n5010_test ${iters} ${quiet}
+  fuzz_host_exerciser ${iters} ${quiet}
+  fuzz_opaeuiotest ${iters} ${quiet}
+  fuzz_bist_app ${iters} ${quiet}
+  fuzz_dummy_afu ${iters} ${quiet}
+  fuzz_fpgabist ${iters} ${quiet}
+  fuzz_nlb3 ${iters} ${quiet}
+  fuzz_fpgadiag ${iters} ${quiet}
+  fuzz_fpga_dma_N3000_test ${iters} ${quiet}
+  fuzz_fpga_dma_test ${iters} ${quiet}
+  fuzz_mem_tg ${iters} ${quiet}
+  fuzz_opae_io ${iters} ${quiet}
+  fuzz_hps ${iters} ${quiet}
+  fuzz_hssi ${iters} ${quiet}
+  fuzz_hps ${iters} ${quiet}
+  fuzz_nlb0 ${iters} ${quiet}
+  fuzz_nlb7 ${iters} ${quiet}
+  fuzz_object_api ${iters} ${quiet}
+  fuzz_opaevfiotest ${iters} ${quiet}
 
 }
 
@@ -101,4 +106,11 @@ declare -i iters=1
 if [ $# -gt 0 ]; then
   iters=$1
 fi
-fuzz_all ${iters}
+
+declare -i quiet=0
+if [ $# -gt 1 ] && [ $2 = '-q' ]; then
+  quiet=1
+fi
+
+fuzz_all ${iters} ${quiet}
+printf "\nAll fuzz tests PASSED\n"

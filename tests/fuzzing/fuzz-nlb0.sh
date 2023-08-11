@@ -62,7 +62,7 @@
 
 fuzz_nlb0() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_nlb0 <ITERS>\n"
+    printf "usage: fuzz_nlb0 <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -70,6 +70,11 @@ fuzz_nlb0() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -178,7 +183,7 @@ fuzz_nlb0() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "nlb0 Fuzz Iteration: %d\n" $i
 
     cmd='nlb0 '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -189,7 +194,7 @@ fuzz_nlb0() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='nlb0 '
@@ -201,7 +206,7 @@ fuzz_nlb0() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

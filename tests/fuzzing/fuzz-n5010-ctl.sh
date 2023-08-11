@@ -38,7 +38,7 @@
 #  [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]
 fuzz_n5010_ctl() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_n5010_ctl <ITERS>\n"
+    printf "usage: fuzz_n5010_ctl <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -46,6 +46,11 @@ fuzz_n5010_ctl() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -89,7 +94,7 @@ fuzz_n5010_ctl() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "n5010-ctl Fuzz Iteration: %d\n" $i
 
     cmd='n5010-ctl '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -100,7 +105,7 @@ fuzz_n5010_ctl() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='n5010-ctl '
@@ -112,7 +117,7 @@ fuzz_n5010_ctl() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

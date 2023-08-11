@@ -39,7 +39,7 @@
 #                 -v,--version        Print version info and exit
 fuzz_hello_fpga() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_hello_fpga <ITERS>\n"
+    printf "usage: fuzz_hello_fpga <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -47,6 +47,11 @@ fuzz_hello_fpga() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -86,7 +91,7 @@ fuzz_hello_fpga() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "hello_fpga Fuzz Iteration: %d\n" $i
 
     cmd='hello_fpga '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -97,7 +102,7 @@ fuzz_hello_fpga() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='hello_fpga '
@@ -109,7 +114,7 @@ fuzz_hello_fpga() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

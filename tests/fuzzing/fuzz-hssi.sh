@@ -176,7 +176,7 @@
 #  --contmonitor UINT=0        time period(in seconds) for performance monitor
 fuzz_hssi() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_hssi <ITERS>\n"
+    printf "usage: fuzz_hssi <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -184,6 +184,11 @@ fuzz_hssi() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -316,7 +321,7 @@ fuzz_hssi() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "hssi Fuzz Iteration: %d\n" $i
 
     cmd='hssi '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -371,7 +376,7 @@ fuzz_hssi() {
       ;;
     esac
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='hssi '
@@ -427,7 +432,7 @@ fuzz_hssi() {
       ;;
     esac
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done
