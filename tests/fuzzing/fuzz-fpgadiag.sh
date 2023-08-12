@@ -43,7 +43,7 @@
 
 fuzz_fpgadiag() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_fpgadiag <ITERS>\n"
+    printf "usage: fuzz_fpgadiag <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -51,6 +51,11 @@ fuzz_fpgadiag() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
 # fpgadiag short command line parameters
   local -a short_parms=(\
@@ -133,7 +138,7 @@ fuzz_fpgadiag() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "fpgadiag Fuzz Iteration: %d\n" $i
 
     cmd='fpgadiag '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -144,7 +149,7 @@ fuzz_fpgadiag() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='fpgadiag '
@@ -156,7 +161,7 @@ fuzz_fpgadiag() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

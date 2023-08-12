@@ -44,7 +44,7 @@
 #                         Function number for specific FPGA
 fuzz_fpgabist() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_fpgabist <ITERS>\n"
+    printf "usage: fuzz_fpgabist <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -52,6 +52,11 @@ fuzz_fpgabist() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -83,7 +88,7 @@ fuzz_fpgabist() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "fpgabist Fuzz Iteration: %d\n" $i
 
     cmd='fpgabist '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -94,7 +99,7 @@ fuzz_fpgabist() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='fpgabist '
@@ -106,7 +111,7 @@ fuzz_fpgabist() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

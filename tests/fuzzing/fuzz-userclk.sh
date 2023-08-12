@@ -43,7 +43,7 @@
 
 fuzz_userclk() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_userclk <ITERS>\n"
+    printf "usage: fuzz_userclk <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -51,6 +51,11 @@ fuzz_userclk() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
 # userclk short command line parameters
   local -a short_parms=(\
@@ -101,7 +106,7 @@ fuzz_userclk() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "userclk Fuzz Iteration: %d\n" $i
 
     cmd='userclk '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -112,7 +117,7 @@ fuzz_userclk() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='userclk '
@@ -124,7 +129,7 @@ fuzz_userclk() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

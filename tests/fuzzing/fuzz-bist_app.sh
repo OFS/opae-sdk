@@ -30,7 +30,7 @@
 # USAGE: bist_app [-s] [-v]
 fuzz_bist_app() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_bist_app <ITERS>\n"
+    printf "usage: fuzz_bist_app <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -38,6 +38,11 @@ fuzz_bist_app() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-s' \
@@ -50,7 +55,7 @@ fuzz_bist_app() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "bist_app Fuzz Iteration: %d\n" $i
 
     cmd='bist_app '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -61,7 +66,7 @@ fuzz_bist_app() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

@@ -44,7 +44,7 @@
 
 fuzz_n5010_test() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_n5010_test <ITERS>\n"
+    printf "usage: fuzz_n5010_test <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -52,6 +52,11 @@ fuzz_n5010_test() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-h' \
@@ -102,7 +107,7 @@ fuzz_n5010_test() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "n5010-test Fuzz Iteration: %d\n" $i
 
     cmd='n5010-test '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -113,7 +118,7 @@ fuzz_n5010_test() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='n5010-test '
@@ -125,7 +130,7 @@ fuzz_n5010_test() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

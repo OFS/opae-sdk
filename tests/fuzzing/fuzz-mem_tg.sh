@@ -57,7 +57,7 @@
 
 fuzz_mem_tg() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_mem_tg <ITERS>\n"
+    printf "usage: fuzz_mem_tg <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -65,6 +65,11 @@ fuzz_mem_tg() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
 # mem_tg short command line parameters
   local -a short_parms=(\
@@ -133,7 +138,7 @@ fuzz_mem_tg() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "mem_tg Fuzz Iteration: %d\n" $i
 
     cmd='mem_tg '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -144,7 +149,7 @@ fuzz_mem_tg() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='mem_tg '
@@ -156,7 +161,7 @@ fuzz_mem_tg() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

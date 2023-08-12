@@ -35,7 +35,7 @@
 
 fuzz_hello_cxxcore() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_hello_cxxcore <ITERS>\n"
+    printf "usage: fuzz_hello_cxxcore <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -43,6 +43,11 @@ fuzz_hello_cxxcore() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
   local -a short_parms=(\
 '-v' \
@@ -60,7 +65,7 @@ fuzz_hello_cxxcore() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "hello_cxxcore Fuzz Iteration: %d\n" $i
 
     cmd='hello_cxxcore '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -71,7 +76,7 @@ fuzz_hello_cxxcore() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='hello_cxxcore '
@@ -83,7 +88,7 @@ fuzz_hello_cxxcore() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done

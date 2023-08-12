@@ -63,7 +63,7 @@
 
 fuzz_hps() {
   if [ $# -lt 1 ]; then
-    printf "usage: fuzz_hps <ITERS>\n"
+    printf "usage: fuzz_hps <ITERS> [QUIET]\n"
     exit 1
   fi
 
@@ -71,6 +71,11 @@ fuzz_hps() {
   local -i i
   local -i p
   local -i n
+
+  local -i quiet=0
+  if [ $# -gt 1 ]; then
+    quiet=$2
+  fi
 
 # hps short command line parameters
   local -a short_parms=(\
@@ -168,7 +173,7 @@ fuzz_hps() {
 
   for (( i = 0 ; i < ${iters} ; ++i )); do
 
-    printf "Fuzz Iteration: %d\n" $i
+    printf "hps Fuzz Iteration: %d\n" $i
 
     cmd='hps '
     let "num_parms = 1 + ${RANDOM} % ${#short_parms[@]}"
@@ -179,7 +184,7 @@ fuzz_hps() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
     cmd='hps '
@@ -191,7 +196,7 @@ fuzz_hps() {
       cmd="${cmd} ${parm}"
     done
 
-    printf "%s\n" "${cmd}"
+    [ ${quiet} -eq 0 ] && printf "%s\n" "${cmd}"
     ${cmd}
 
   done
