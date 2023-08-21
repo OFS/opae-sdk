@@ -223,6 +223,7 @@ done
 %{_libdir}/opae/libboard_n5010.so
 %{_libdir}/opae/libboard_n6000.so
 %{_libdir}/opae/libboard_c6100.so
+%{_libdir}/opae/libboard_cmc.so
 
 %{_bindir}/fpgad
 %{_bindir}/fpgaconf
@@ -353,6 +354,7 @@ done
 %{_bindir}/opae.io
 %{_bindir}/mem_tg
 %{_bindir}/ofs.uio
+%{_bindir}/cxl_mem_tg
 
 %{python3_sitearch}/opae.diag*
 %{python3_sitearch}/opae/diag*

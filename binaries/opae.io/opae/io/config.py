@@ -70,6 +70,9 @@ DEFAULT_OPAE_IO_CONFIG = {
   (0x8086, 0x0b31, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY) : {
     'platform': 'Intel FPGA Programmable Acceleration Card N3000'
   },
+  (0x8086, 0x0ddb, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY) : {
+    'platform': 'Intel Acceleration Development Platform CMC'
+  },
   (0x1c2c, 0x1000, 0, 0) : {
     'platform': 'Silicom FPGA SmartNIC N5010 Series'
   },

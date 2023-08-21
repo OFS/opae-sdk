@@ -1717,6 +1717,10 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id,
 		case 0x0b2c:
 			hw_type = FPGA_HW_DCP_D5005;
 			break;
+			
+        case 0x0ddb: /* FALLTHROUGH */
+			hw_type = FPGA_HW_DCP_CMC;
+        break;
 		case 0xaf00:
 		case 0xbcce:
 
