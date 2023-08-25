@@ -660,6 +660,10 @@ fpga_result set_userclock(const char *sysfs_path,
 	ssize_t bytes_written              = 0;
 	struct opae_uio uio;
 
+	unsigned int iopll_max_freq        = IOPLL_MAX_FREQ;
+	unsigned int iopll_min_freq        = IOPLL_MIN_FREQ;
+	unsigned int slow_freq             = MIN_FPGA_FREQ;
+
 	memset(&uio, 0, sizeof(uio));
 
 	if (sysfs_path == NULL) {
@@ -676,9 +680,12 @@ fpga_result set_userclock(const char *sysfs_path,
 	// S10 & A10 user clock DFH revision 0
 	result = get_userclk_revision(sysfs_path, &revision);
 	if (result == FPGA_OK && revision == AGILEX_USRCLK_REV) {
+		iopll_max_freq = IOPLL_AGILEX_MAX_FREQ;
+		iopll_min_freq = IOPLL_AGILEX_MIN_FREQ;
+
 		// Enforce 1x clock within valid range
-		if ((userclk_low > IOPLL_AGILEX_MAX_FREQ) ||
-			(userclk_low < IOPLL_AGILEX_MIN_FREQ)) {
+		if ((userclk_low > iopll_max_freq) ||
+			(userclk_low < iopll_min_freq)) {
 			OPAE_ERR("Invalid Input frequency");
 			return FPGA_INVALID_PARAM;
 		}
@@ -687,12 +694,21 @@ fpga_result set_userclock(const char *sysfs_path,
 	} else {
 		// S10 & A10 user clock
 		// Enforce 1x clock within valid range
-		if ((userclk_low > IOPLL_MAX_FREQ) ||
-			(userclk_low < IOPLL_MIN_FREQ)) {
+		if ((userclk_low > iopll_max_freq) ||
+			(userclk_low < iopll_min_freq)) {
 			OPAE_ERR("Invalid Input frequency");
 			return FPGA_INVALID_PARAM;
 		}
 		bufp = (char *)&iopll_freq_config[userclk_low];
+	}
+
+	// Transitions from a currently configured very high frequency
+	// or very low frequency to another extreme frequency sometimes
+	// fails to stabilize. Start by forcing the fast clock to half
+	// speed.
+	slow_freq = iopll_max_freq / 4;
+	if (userclk_low != slow_freq) {
+		result = set_userclock(sysfs_path, slow_freq * 2, slow_freq);
 	}
 
 	ret = using_iopll(sysfs_usrpath, sysfs_path);
@@ -720,8 +736,8 @@ fpga_result set_userclock(const char *sysfs_path,
 	}
 
 	struct pll_config *iopll_config = (struct pll_config *)bufp;
-	if ((iopll_config->pll_freq_khz > IOPLL_MAX_FREQ * 1000) ||
-		(iopll_config->pll_freq_khz < IOPLL_MIN_FREQ * 1000))
+	if ((iopll_config->pll_freq_khz > iopll_max_freq * 1000) ||
+		(iopll_config->pll_freq_khz < iopll_min_freq * 1000))
 		return FPGA_EXCEPTION;
 
 	result = get_usrclk_uio(sysfs_path,
