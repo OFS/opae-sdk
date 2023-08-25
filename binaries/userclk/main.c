@@ -165,13 +165,14 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(result, out_destroy_prop, "opening accelerator");
 
 	res = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low, 0);
-	ON_ERR_GOTO(res, out_close, "Failed to get user clock");
+	ON_ERR_GOTO(res, cur_clock_invalid, "Failed to get user clock");
 
 	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		userclk_high / 1.0e6, userclk_low / 1.0e6);
 
+cur_clock_invalid:
 	if (userclkCmdLine.freq_high <= -1 &&  userclkCmdLine.freq_low <= -1) {
 		goto out_close;
 	}
