@@ -127,9 +127,9 @@
 
 #define IOPLL_MEASURE_LOW             0
 #define IOPLL_MEASURE_HIGH            1
-#define IOPLL_MEASURE_DELAY_MS        4000
-#define IOPLL_RESET_DELAY_MS          1000
-#define IOPLL_CAL_DELAY_MS            1000
+#define IOPLL_MEASURE_DELAY_US        8000
+#define IOPLL_RESET_DELAY_US          1000
+#define IOPLL_CAL_DELAY_US            1000
 
 #define IOPLL_WRITE_POLL_INVL_US      10 /* Write poll interval */
 #define IOPLL_WRITE_POLL_TIMEOUT_US   1000000 /* Write poll timeout */
@@ -169,19 +169,19 @@ fpga_result usrclk_reset(uint8_t *uio_ptr)
 	v = IOPLL_MGMT_RESET | IOPLL_RESET;
 	*((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_CMD0)) = v;
 
-	usleep(IOPLL_RESET_DELAY_MS);
+	usleep(IOPLL_RESET_DELAY_US);
 
 	/* De-assert the iopll reset only */
 	v = IOPLL_MGMT_RESET;
 	*((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_CMD0)) = v;
 
-	usleep(IOPLL_RESET_DELAY_MS);
+	usleep(IOPLL_RESET_DELAY_US);
 
 	/* De-assert the remaining resets */
 	v = IOPLL_AVMM_RESET_N;
 	*((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_CMD0)) = v;
 
-	usleep(IOPLL_RESET_DELAY_MS);
+	usleep(IOPLL_RESET_DELAY_US);
 
 	v = *((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_STS0));
 	if (!(v & IOPLL_LOCKED)) {
@@ -211,7 +211,7 @@ fpga_result usrclk_read_freq(uint8_t *uio_ptr,
 	v = FIELD_PREP(IOPLL_CLK_MEASURE, clock_sel);
 	*((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_CMD1)) = v;
 
-	usleep(IOPLL_MEASURE_DELAY_MS);
+	usleep(IOPLL_MEASURE_DELAY_US);
 
 	v = *((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_STS1));
 
@@ -495,7 +495,7 @@ fpga_result usrclk_calibrate(uint8_t *uio_ptr, uint8_t *seq)
 	/* Enable calibration interface */
 	res = usrclk_write(uio_ptr, PLL_ENABLE_CAL_ADDR, PLL_ENABLE_CALIBRATION,
 		(*seq)++);
-	usleep(IOPLL_CAL_DELAY_MS);
+	usleep(IOPLL_CAL_DELAY_US);
 	return res;
 }
 
