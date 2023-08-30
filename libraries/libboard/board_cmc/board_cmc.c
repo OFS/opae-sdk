@@ -69,7 +69,7 @@
 
 // image info sysfs
 #define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory*/nvmem"
-#define IMAGE_INFO_STRIDE 4096
+#define IMAGE_INFO_STRIDE 0x10000
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
 #define GET_BIT(var, pos) ((var >> pos) & (1))
@@ -473,9 +473,9 @@ fpga_result fpga_boot_info(fpga_token token)
 fpga_result fpga_image_info(fpga_token token)
 {
 	const char *image_info_label[IMAGE_INFO_COUNT] = {
-		"Factory Image Info",
-		"User1 Image Info",
-		"User2 Image Info",
+	"User1 Image Info",
+	"User2 Image Info",
+	"Factory Image Info"
 	};
 	fpga_object fpga_object;
 	fpga_result res;
