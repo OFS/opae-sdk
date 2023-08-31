@@ -605,6 +605,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 
 		case FPGA_HW_ADP_N6000:
+		case FPGA_HW_DCP_CMC:
 		case FPGA_HW_IPU_C6100: {
 			// Max10 Power & Thermal
 			result = dfl_enum_max10_metrics_info_pattern(_handle,
@@ -858,6 +859,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_D5005) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_ADP_N6000) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_IPU_C6100) ||
+				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_CMC) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_N5010)) &&
 				((_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_POWER) ||
 				(_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_THERMAL))) {

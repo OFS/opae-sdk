@@ -488,6 +488,7 @@ def infer_type(expanded):
             'fpga_dma_N3000_test',
             'fpga_dma_test',
             'host_exerciser',
+            'cxl_mem_tg',
             'bist',
             'hps',
             'hssi',
