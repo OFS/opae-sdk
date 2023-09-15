@@ -53,8 +53,8 @@ DEFAULT_BDF = 'ssss:bb:dd.f'
 # mailbox register poll interval 1 microseconds
 HSSI_POLL_SLEEP_TIME = 1/1000000
 
-# mailbox register poll timeout 100 microseconds
-HSSI_POLL_TIMEOUT = 1/10000
+# mailbox register poll timeout 500 microseconds
+HSSI_POLL_TIMEOUT = 5/10000
 
 HSSI_FEATURE_ID = 0x15
 
