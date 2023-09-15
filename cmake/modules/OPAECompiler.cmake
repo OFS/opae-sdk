@@ -225,6 +225,13 @@ function(opae_add_executable)
         endif(NEED_EXTERNAL_HWLOC)
     endif(hwloc_IMPORTED)
 
+    if (numa_IMPORTED)
+        string(REGEX MATCH "${numa_LIBRARIES}" NEED_EXTERNAL_NUMA "${OPAE_ADD_EXECUTABLE_LIBS}")
+        if (NEED_EXTERNAL_NUMA)
+            add_dependencies(${OPAE_ADD_EXECUTABLE_TARGET} numa_IMPORT)
+        endif(NEED_EXTERNAL_NUMA)
+    endif(numa_IMPORTED)
+
     opae_coverage_build(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} SOURCE ${OPAE_ADD_EXECUTABLE_SOURCE})
     set_install_rpath(${OPAE_ADD_EXECUTABLE_TARGET})
 
@@ -313,6 +320,13 @@ function(opae_add_shared_library)
         endif(NEED_EXTERNAL_HWLOC)
     endif(hwloc_IMPORTED)
 
+    if (numa_IMPORTED)
+        string(REGEX MATCH "${numa_LIBRARIES}" NEED_EXTERNAL_NUMA "${OPAE_ADD_SHARED_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_NUMA)
+            add_dependencies(${OPAE_ADD_SHARED_LIBRARY_TARGET} numa_IMPORT)
+        endif(NEED_EXTERNAL_NUMA)
+    endif(numa_IMPORTED)
+
     opae_coverage_build(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} SOURCE ${OPAE_ADD_SHARED_LIBRARY_SOURCE})
     set_install_rpath(${OPAE_ADD_SHARED_LIBRARY_TARGET})
 
@@ -395,6 +409,13 @@ function(opae_add_module_library)
             add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} hwloc_IMPORT)
         endif(NEED_EXTERNAL_HWLOC)
     endif(hwloc_IMPORTED)
+
+    if (numa_IMPORTED)
+        string(REGEX MATCH "${numa_LIBRARIES}" NEED_EXTERNAL_NUMA "${OPAE_ADD_MODULE_LIBRARY_LIBS}")
+        if (NEED_EXTERNAL_NUMA)
+            add_dependencies(${OPAE_ADD_MODULE_LIBRARY_TARGET} numa_IMPORT)
+        endif(NEED_EXTERNAL_NUMA)
+    endif(numa_IMPORTED)
 
     opae_coverage_build(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} SOURCE ${OPAE_ADD_MODULE_LIBRARY_SOURCE})
 

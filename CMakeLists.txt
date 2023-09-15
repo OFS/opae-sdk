@@ -56,7 +56,7 @@ mark_as_advanced(OPAE_WITH_SPDLOG)
 option(OPAE_WITH_LIBEDIT "Enable use of libedit" ON)
 mark_as_advanced(OPAE_WITH_LIBEDIT)
 
-option(OPAE_WITH_PYBIND11 "Enable use of pybind11." ON)
+option(OPAE_WITH_PYBIND11 "Enable use of pybind11" ON)
 mark_as_advanced(OPAE_WITH_PYBIND11)
 
 option(OPAE_WITH_HWLOC "Enable use of hwloc" ON)
@@ -64,6 +64,9 @@ mark_as_advanced(OPAE_WITH_HWLOC)
 
 option(OPAE_WITH_TBB "Enable use of tbb" ON)
 mark_as_advanced(OPAE_WITH_TBB)
+
+option(OPAE_WITH_NUMA "Enable use of numa" ON)
+mark_as_advanced(OPAE_WITH_NUMA)
 
 option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
 mark_as_advanced(OPAE_MINIMAL_BUILD)
@@ -567,6 +570,68 @@ if (OPAE_WITH_TBB)
 endif(OPAE_WITH_TBB)
 
 ################################################################################
+# numa
+################################################################################
+
+set(NUMA_URL
+        https://github.com/numactl/numactl.git
+        CACHE STRING "URL for numa")
+set(NUMA_VERSION
+        2.0.16
+        CACHE STRING "Version for numa")
+set(NUMA_TAG
+	v${NUMA_VERSION}
+        CACHE STRING "Tag for numa")
+
+if (OPAE_WITH_NUMA)
+
+    if (NOT numa_FOUND)
+        find_package(numa ${NUMA_VERSION})
+    endif(NOT numa_FOUND)
+
+    if (NOT numa_FOUND)
+        include(ExternalProject)
+
+        message(WARNING "Building libnuma.so from source is experimental. "
+                        "To avoid this build path, please install the libnuma-dev "
+                        "/ numactl-devel package, which provides libnuma.so.")
+
+        ExternalProject_Add(numa
+            GIT_REPOSITORY ${NUMA_URL}
+            GIT_TAG ${NUMA_TAG}
+            CONFIGURE_COMMAND ./autogen.sh && ./configure
+            BUILD_COMMAND make libnuma.la
+            INSTALL_COMMAND ""
+            BUILD_IN_SOURCE ON
+        )
+
+        set(numa_ROOT ${CMAKE_CURRENT_BINARY_DIR}/numa-prefix/src/numa CACHE PATH "base dir for numa" FORCE)
+        set(numa_INCLUDE_DIRS ${numa_ROOT}
+            CACHE STRING "Path to numa" FORCE)
+        set(numa_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/numa-prefix/src/numa/.libs/libnuma.so
+            CACHE STRING "Path to numa libraries" FORCE)
+        set(numa_DEFINITIONS "" CACHE STRING "numa built from source" FORCE)
+        set(numa_FOUND TRUE CACHE BOOL "numa built from source" FORCE)
+
+        add_library(numa_IMPORT SHARED IMPORTED)
+        set_property(
+            TARGET numa_IMPORT
+            PROPERTY
+                IMPORTED_LOCATION "${numa_LIBRARIES}"
+        )
+        set(numa_IMPORTED TRUE CACHE BOOL "numa imported from source" FORCE)
+        add_dependencies(numa_IMPORT numa)
+
+    endif(NOT numa_FOUND)
+
+    message(STATUS "numa_ROOT ${numa_ROOT}")
+    message(STATUS "numa_INCLUDE_DIRS ${numa_INCLUDE_DIRS}")
+    message(STATUS "numa_LIBRARIES ${numa_LIBRARIES}")
+    message(STATUS "numa_DEFINITIONS ${numa_DEFINITIONS}")
+
+endif(OPAE_WITH_NUMA)
+
+################################################################################
 # googletest
 ################################################################################
 
@@ -694,6 +759,7 @@ if (OPAE_MINIMAL_BUILD)
     set(OPAE_WITH_PYBIND11 OFF CACHE BOOL "Enable use of pybind11" FORCE)
     set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
     set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
+    set(OPAE_WITH_NUMA OFF CACHE BOOL "Enable use of numa" FORCE)
     set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "" FORCE)
 endif(OPAE_MINIMAL_BUILD)
 
