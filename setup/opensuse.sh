@@ -28,7 +28,7 @@
 set -e
 set -x
 
-zypper install -y python3 python3-pip python3-devel python3-jsonschema python3-PyYAML python3-pybind11 gdb vim git gcc gcc-c++ make cmake libuuid-devel libjson-c-devel hwloc-devel tbb-devel libedit-devel doxygen python3-Sphinx pandoc rpmdevtools python3-pybind11-devel python3-virtualenv yaml-cpp-devel systemd-devel libcap-devel cli11-devel spdlog-devel netcat rsync sudo shadow
+zypper install -y python3 python3-pip python3-devel python3-jsonschema python3-PyYAML python3-pybind11 gdb vim git gcc gcc-c++ make cmake libuuid-devel libjson-c-devel hwloc-devel tbb-devel libedit-devel doxygen python3-Sphinx pandoc rpmdevtools python3-pybind11-devel python3-virtualenv yaml-cpp-devel systemd-devel libcap-devel cli11-devel spdlog-devel netcat rsync sudo shadow libnuma-devel
 zypper remove -y busybox-which
 zypper install -y rpm-build git
 pip3 install jsonschema pyyaml

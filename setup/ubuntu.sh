@@ -29,6 +29,6 @@ set -e
 set -x
 
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev bsdmainutils pandoc devscripts debhelper doxygen
+DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev bsdmainutils pandoc devscripts debhelper doxygen libnuma-dev
 
 pip3 install jsonschema pyyaml pybind11
