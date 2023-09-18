@@ -31,11 +31,6 @@ project(python)
 ############################################################################
 ## Find Python by version     ##############################################
 ############################################################################
-set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
-
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
 add_subdirectory(opae.admin)
 add_subdirectory(pacsign)

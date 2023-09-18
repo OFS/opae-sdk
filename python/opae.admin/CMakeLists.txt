@@ -47,17 +47,17 @@ add_custom_command(TARGET opae.admin PRE_BUILD
 
 
 add_custom_target(opae.admin.src
-    COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
+    COMMAND ${Python3_EXECUTABLE} setup.py sdist
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
     COMMENT "Building opae.admin Python source distribution"
     )
 add_custom_target(opae.admin.wheel
-    COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel --universal
+    COMMAND ${Python3_EXECUTABLE} setup.py bdist_wheel --universal
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
     COMMENT "Building opae.admin Python wheel distribution"
     )
 add_custom_target(opae.admin.tox
-    COMMAND ${PYTHON_EXECUTABLE} -m tox opae
+    COMMAND ${Python3_EXECUTABLE} -m tox opae
     DEPENDS opae.admin
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
     COMMENT "Running tox on opae.admin"
