@@ -32,5 +32,5 @@ dnf install -y 'dnf-command(config-manager)'
 dnf config-manager --set-enabled powertools
 dnf install -y epel-release
 dnf check-update || true
-dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pybind11 git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel cli11-devel spdlog-devel libedit-devel systemd-devel rpm-build rpmdevtools pybind11-devel python3-virtualenv yaml-cpp-devel libudev-devel
+dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pybind11 git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel cli11-devel spdlog-devel libedit-devel systemd-devel rpm-build rpmdevtools pybind11-devel python3-virtualenv yaml-cpp-devel libudev-devel numactl-devel
 python3 -m pip install --user jsonschema pyyaml

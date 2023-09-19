@@ -29,6 +29,6 @@ set -e
 set -x
 
 dnf check-update || true
-dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml python3-pybind11 git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel python3-virtualenv yaml-cpp-devel libudev-devel cli11-devel spdlog-devel
+dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml python3-pybind11 git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel python3-virtualenv yaml-cpp-devel libudev-devel cli11-devel spdlog-devel numactl-devel
 
 pip3 install jsonschema pyyaml pybind11
