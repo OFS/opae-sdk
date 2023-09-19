@@ -55,7 +55,7 @@ opae_add_module_library(TARGET _opae
 
 target_include_directories(_opae
     PRIVATE ${pybind11_INCLUDE_DIRS}
-    PRIVATE ${PYTHON_INCLUDE_DIRS})
+    PRIVATE ${Python3_INCLUDE_DIRS})
 
 set_target_properties(_opae
     PROPERTIES PREFIX ""
@@ -100,7 +100,7 @@ if (OPAE_BUILD_PYTHON_DIST)
     endforeach(cppfile ${PYOPAE_SRC})
 
     add_custom_target(pyopae-dist
-        COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
+        COMMAND ${Python3_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
         DEPENDS ${PYFILES} ${PYOPAE_SRC}
         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
         COMMENT "Building Python distrubutions")

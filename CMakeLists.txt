@@ -79,8 +79,7 @@ mark_as_advanced(OPAE_BUILD_TESTS)
 ############################################################################
 set(OPAE_PYTHON_VERSION 3 CACHE STRING "Python version to use for building/distributing pyopae")
 set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 3 3.6 3.7 3.8 3.9 3.10 3.11)
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+find_package(Python3 COMPONENTS Interpreter Development)
 
 ################################################################################
 # util-linux/libuuid
@@ -419,7 +418,7 @@ set(PYBIND11_URL
         https://github.com/pybind/pybind11.git
         CACHE STRING "URL for pybind11")
 
-if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${PYTHONLIBS_VERSION_STRING} VERSION_LESS "3.9.0")
+if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${Python3_VERSION} VERSION_LESS "3.9.0")
     set(PYBIND11_VERSION
         2.4.3
         CACHE STRING "Version for pybind11")
