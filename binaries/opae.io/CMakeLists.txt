@@ -34,7 +34,7 @@ if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
     if (NOT (CMAKE_VERSION VERSION_LESS 3.0))
         target_link_libraries(opae.io PRIVATE pybind11::embed dl util ${libedit_LIBRARIES} opaevfio)
     else()
-        target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
+        target_link_libraries(opae.io PRIVATE ${Python3_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
     endif()
 
     if (libedit_IMPORTED)
@@ -43,7 +43,7 @@ if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
 
     target_include_directories(opae.io
         PUBLIC ${OPAE_INCLUDE_DIR}
-        PRIVATE ${PYTHON_INCLUDE_DIRS}
+        PRIVATE ${Python3_INCLUDE_DIRS}
         PRIVATE ${pybind11_ROOT}/include
         PRIVATE ${libedit_INCLUDE_DIRS}
     )
@@ -80,7 +80,7 @@ if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
 
     add_custom_command(
         OUTPUT ${OUTPUT}
-        COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
+        COMMAND ${Python3_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
         COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
         DEPENDS ${PYFILES} ${PKG_FILES}

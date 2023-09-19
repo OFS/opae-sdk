@@ -182,6 +182,13 @@ function(opae_test_add_static_lib)
         endif(NEED_EXTERNAL_HWLOC)
     endif(hwloc_IMPORTED)
 
+    if (numa_IMPORTED)
+        string(REGEX MATCH "${numa_LIBRARIES}" NEED_EXTERNAL_NUMA "${OPAE_TEST_ADD_STATIC_LIB_LIBS}")
+        if (NEED_EXTERNAL_NUMA)
+            add_dependencies(${OPAE_TEST_ADD_STATIC_LIB_TARGET} numa_IMPORT)
+        endif(NEED_EXTERNAL_NUMA)
+    endif(numa_IMPORTED)
+
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         SOURCE ${OPAE_TEST_ADD_STATIC_LIB_SOURCE})
 endfunction()

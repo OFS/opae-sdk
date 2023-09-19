@@ -42,7 +42,7 @@ if (OPAE_WITH_PYBIND11)
 
     add_custom_command(
         OUTPUT ${OUTPUT}
-	COMMAND ${PYTHON_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
+	COMMAND ${Python3_EXECUTABLE} -m pip install --root=${PYDIST_STAGE_DIR}/build .
         COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
 	DEPENDS ${PYFILES} pyopaeuio.cpp pyopaeuio.h

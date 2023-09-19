@@ -151,7 +151,7 @@ function(opae_python_install)
     #            set(ENV{DESTDIR} /)
     #        endif()
     #        execute_process(
-    #            COMMAND ${PYTHON_EXECUTABLE} setup.py install -O1 \
+    #            COMMAND ${Python3_EXECUTABLE} setup.py install -O1 \
     #                --single-version-externally-managed \
     #                --root=\$ENV{DESTDIR} \
     #                --prefix=${CMAKE_INSTALL_PREFIX} \
@@ -169,7 +169,7 @@ function(opae_python_install)
                 set(ENV{DESTDIR} /)
             endif()
             execute_process(
-                COMMAND ${PYTHON_EXECUTABLE} -m pip install \
+                COMMAND ${Python3_EXECUTABLE} -m pip install \
                     --root=\$ENV{DESTDIR} \
                     --prefix=${CMAKE_INSTALL_PREFIX} \
 		    --no-warn-script-location .
