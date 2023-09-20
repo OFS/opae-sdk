@@ -25,16 +25,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include "cxl_he_cmd.h"
 #include "cxl_host_exerciser.h"
 #include "he_cache_test.h"
-#include <map>
-#include <numa.h>
-#include <unistd.h>
-
-using test_afu = opae::afu_test::afu;
-using opae::fpga::types::shared_buffer;
-using opae::fpga::types::token;
-namespace fpga = opae::fpga::types;
 
 #define UNUSED_PARAM(x) ((void)x)
 
@@ -51,17 +44,65 @@ void he_sig_handler(int) {
 
 namespace host_exerciser {
 
-std::mutex he_cache_read_mutex;
-std::mutex he_cache_write_mutex;
-
-class host_exerciser_cmd;
-
 void he_cache_thread(uint8_t *buf_ptr, uint64_t len);
 
-class host_exerciser_cmd : public test_command {
+class he_cache_cmd : public he_cmd {
 public:
-  host_exerciser_cmd() : host_exe_(NULL), numa_node_(0) {}
-  virtual ~host_exerciser_cmd() {}
+  he_cache_cmd()
+      : he_continuousmode_(false), he_contmodetime_(0), he_linerep_count_(0),
+        he_stide_(0), he_test_(0), he_test_all_(false) {}
+
+  virtual ~he_cache_cmd() {}
+
+  virtual const char *name() const override { return "cache"; }
+
+  virtual const char *description() const override {
+    return "run simple cxl he cache test";
+  }
+
+  virtual const char *afu_id() const override { return HE_CACHE_AFU_ID; }
+
+  virtual uint64_t featureid() const override { return MEM_TG_FEATURE_ID; }
+
+  virtual uint64_t guidl() const override { return MEM_TG_FEATURE_GUIDL; }
+
+  virtual uint64_t guidh() const override { return MEM_TG_FEATURE_GUIDH; }
+
+  virtual void add_options(CLI::App *app) override {
+    app->add_option(
+           "--test", he_test_,
+           "host exerciser cache test {fpgardcachehit, fpgawrcachehit, all}")
+        ->transform(CLI::CheckedTransformer(he_test_modes))
+        ->default_val("fpgardcachehit");
+
+    // Continuous mode
+    app->add_option("--continuousmode", he_continuousmode_,
+                    "test rollover or test termination")
+        ->default_val("false");
+
+    // Continuous mode time
+    app->add_option("--contmodetime", he_contmodetime_,
+                    "Continuous mode time in seconds")
+        ->default_val("1");
+
+    // target host or fpga
+    app->add_option("--target", he_target_,
+                    "host exerciser run on host or fpga")
+        ->transform(CLI::CheckedTransformer(he_targets))
+        ->default_val("host");
+
+    app->add_option("--stride", he_stide_, "Enable stride mode")
+        ->default_val("0");
+
+    // Line repeat count
+    app->add_option("--linerepcount", he_linerep_count_, "Line repeat count")
+        ->transform(CLI::Range(1, 256))
+        ->default_val("10");
+
+    // Test all
+    app->add_option("--testall", he_test_all_, "Run all tests")
+        ->default_val("false");
+  }
 
   int he_run_fpga_rd_cache_hit_test() {
     cout << "********** FPGA Read cache hit test start**********" << endl;
@@ -69,11 +110,12 @@ public:
     STEPS
     1) Allocate DSM, Read buffer // flush
     2) set cache lines 32kb/64
-    3) set loop count
+    3) set line repeat count
     4) Set RdShared (CXL) config
     5) Run test ( AFU copies cache from host memory to FPGA cache)
-    6) Set RdShared (CXL) config
-    5) Run test ( AFU read cache from FPGA cache)
+    6) set line repeat count
+    7) Set RdShared (CXL) config
+    8) Run test ( AFU read cache from FPGA cache)
     */
 
     // HE_INFO
@@ -82,13 +124,13 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
 
     cout << "Numa node:" << numa_node_ << endl;
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
-    cout << "Read number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES);
+    cout << "Read number Lines:" << FPGA_32KB_CACHE_LINES << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_rd_cfg_.line_repeat_count = 1;
     he_rd_cfg_.read_traffic_enable = 1;
     he_rd_cfg_.opcode = RD_LINE_S;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
@@ -135,7 +177,7 @@ public:
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
     he_rd_cfg_.opcode = RD_LINE_S;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
@@ -180,11 +222,12 @@ public:
     STEPS
     1) Allocate DSM, Read buffer, Write buffer // flush
     2) set cache lines 32kb/64
-    3) set loop count
+    3) set line repeat count
     4) Set RdShared (CXL) config
     5) Run test ( AFU copies cache from host memory to FPGA cache)
-    6) Set WrLine_M/WrPart_M (CXL) config
-    5) Run test ( AFU writes to FPGA cache)
+    6) set line repeat count
+    7) Set WrLine_M/WrPart_M (CXL) config
+    8) Run test ( AFU writes to FPGA cache)
     */
 
     // HE_INFO
@@ -194,14 +237,13 @@ public:
     cout << "Write address table size:" << he_info_.write_addr_table_size
          << endl;
 
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
-    host_exe_->write64(HE_WR_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
-    cout << "Read/write number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES);
+    cout << "Read/write number Lines:" << FPGA_32KB_CACHE_LINES << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_rd_cfg_.line_repeat_count = 1;
     he_rd_cfg_.read_traffic_enable = 1;
     he_rd_cfg_.opcode = RD_LINE_S;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
@@ -248,7 +290,7 @@ public:
 
     // set W_CONFIG
     he_wr_cfg_.value = 0;
-    he_wr_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_wr_cfg_.line_repeat_count = he_linerep_count_;
     he_wr_cfg_.write_traffic_enable = 1;
     he_wr_cfg_.opcode = WR_LINE_M;
     host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -258,6 +300,7 @@ public:
     wr_table_ctl_.enable_address_stride = 1;
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
 
+    host_exe_->write64(HE_WR_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
     // Start test
     he_ctl_.Start = 1;
     host_exe_->write64(HE_CTL, he_ctl_.value);
@@ -291,19 +334,10 @@ public:
     /*
     STEPS
     1) Allocate DSM, Read buffer, Write buffer
-    2) Write number of lines more then 32 kb  2mb/64
-    3) Set RdShared (CXL) config
-    4) Run test (Buffer is not present in FPGA - FPGA read Cache miss )
-
-   // 2) Set RdShared (CXL) config
-    //3) Run test ( AFU copies cache from host memory to FPGA cache)
-    //4) Set write Evict (CXL) config
-    //5) Run test ( AFU Invalidate to FPGA cache)
+    2) Write number of lines more then 32kb 2mb/64
     3) Set RdShared (CXL) config
     4) Run test (Buffer is not present in FPGA - FPGA read Cache miss )
     */
-
-    // 2MB / 64
 
     // HE_INFO
     // Set Read number Lines
@@ -312,11 +346,11 @@ public:
 
     host_exe_->write64(HE_RD_NUM_LINES, FPGA_2MB_CACHE_LINES - 1);
     cout << "Read number Lines:" << FPGA_2MB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
     he_rd_cfg_.opcode = RD_LINE_S;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
@@ -375,13 +409,6 @@ public:
     2) Write number of lines more then 32 kb  2mb/64
     3) Set WR ItoMWr (CXL) config
     4) Run test ( Buffer is not present in FPGA - FPGA write Cache miss )
-
-    //2) Set RdShared (CXL) config
-    //3) Run test ( AFU copies cache from host to HDM
-    //4) Set write Evict  (CXL) config
-    //5) Run test ( AFU Invalidate to FPGA cache)
-    6) Set WR ItoMWr (CXL) config
-    7) Run test ( Buffer is not present in FPGA - FPGA write Cache miss )
     */
 
     // HE_INFO
@@ -391,13 +418,13 @@ public:
     cout << "Write address table size:" << he_info_.write_addr_table_size
          << endl;
 
-    host_exe_->write64(HE_WR_NUM_LINES, FPGA_2MB_CACHE_LINES - 1);
-    cout << "Read/write number Lines:" << FPGA_2MB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    host_exe_->write64(HE_WR_NUM_LINES, FPGA_2MB_CACHE_LINES);
+    cout << "Read/write number Lines:" << FPGA_2MB_CACHE_LINES << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set W_CONFIG
     he_wr_cfg_.value = 0;
-    he_wr_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_wr_cfg_.line_repeat_count = he_linerep_count_;
     he_wr_cfg_.write_traffic_enable = 1;
     he_wr_cfg_.opcode = WR_LINE_M;
     host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -467,11 +494,11 @@ public:
 
     host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
     cout << "Read number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
     he_rd_cfg_.opcode = RD_LINE_I;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
@@ -556,11 +583,11 @@ public:
 
     host_exe_->write64(HE_WR_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
     cout << "Write number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG
     he_wr_cfg_.value = 0;
-    he_wr_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_wr_cfg_.line_repeat_count = he_linerep_count_;
     he_wr_cfg_.write_traffic_enable = 1;
     he_wr_cfg_.opcode = WR_LINE_I;
     host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -640,11 +667,11 @@ public:
 
     host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
     cout << "Read/write number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG
     he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
     he_rd_cfg_.opcode = RD_LINE_I;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
@@ -718,11 +745,11 @@ public:
 
     host_exe_->write64(HE_WR_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
     cout << "Write number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
-    cout << "Line Repeat Count:" << host_exe_->he_linerep_count_ << endl;
+    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
 
     // set RD_CONFIG
     he_wr_cfg_.value = 0;
-    he_wr_cfg_.line_repeat_count = host_exe_->he_linerep_count_;
+    he_wr_cfg_.line_repeat_count = he_linerep_count_;
     he_wr_cfg_.write_traffic_enable = 1;
     he_wr_cfg_.opcode = WR_PUSH_I;
     host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -773,6 +800,11 @@ public:
     return 0;
   }
 
+  // Convert number of transactions to bandwidth (GB/s)
+  double he_num_xfers_to_bw(uint64_t num_lines, uint64_t num_ticks) {
+    return (double)(num_lines * 64) / ((1000.0 / he_clock_mhz_ * num_ticks));
+  }
+
   void he_perf_counters() {
     volatile he_cache_dsm_status *dsm_status = NULL;
 
@@ -781,18 +813,26 @@ public:
     if (!dsm_status)
       return;
 
-    std::cout << "\n********* DSM Status CSR Start *********" << std::endl;
+    cout << "\n********* DSM Status CSR Start *********" << std::endl;
 
-    std::cout << "test completed :" << dsm_status->test_completed << std::endl;
-    std::cout << "dsm number:" << dsm_status->dsm_number << std::endl;
-    std::cout << "error vector:" << dsm_status->err_vector << std::endl;
-    std::cout << "num ticks:" << dsm_status->num_ticks << std::endl;
-    std::cout << "num reads:" << dsm_status->num_reads << std::endl;
-    std::cout << "num writes:" << dsm_status->num_writes << std::endl;
-    std::cout << "penalty start:" << dsm_status->penalty_start << std::endl;
-    std::cout << "penalty end:" << dsm_status->penalty_end << std::endl;
-    std::cout << "actual data:" << dsm_status->actual_data << std::endl;
-    std::cout << "expected data:" << dsm_status->expected_data << std::endl;
+    cout << "test completed :" << dsm_status->test_completed << endl;
+    cout << "dsm number:" << dsm_status->dsm_number << endl;
+    cout << "error vector:" << dsm_status->err_vector << endl;
+    cout << "num ticks:" << dsm_status->num_ticks << endl;
+    cout << "num reads:" << dsm_status->num_reads << endl;
+    cout << "num writes:" << dsm_status->num_writes << endl;
+    cout << "penalty start:" << dsm_status->penalty_start << endl;
+    cout << "penalty end:" << dsm_status->penalty_end << endl;
+    cout << "actual data:" << dsm_status->actual_data << endl;
+    cout << "expected data:" << dsm_status->expected_data << endl;
+
+    // print bandwidth
+    if (dsm_status->num_ticks > 0) {
+      double perf_data =
+          he_num_xfers_to_bw(dsm_status->num_reads + dsm_status->num_writes,
+                             dsm_status->num_ticks);
+      host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
+    }
 
     std::cout << "********* DSM Status CSR end *********" << std::endl;
   }
@@ -871,9 +911,6 @@ public:
       printf("System does not support NUMA API!\n");
       return false;
     }
-
-    printf("SUpported NUMA API!\n");
-
     int n = numa_max_node();
     printf("There are %d nodes on your system\n", n + 1);
 
@@ -883,7 +920,7 @@ public:
     int node = numa_node_of_cpu(cup_num);
     printf("node:%d\n", node);
 
-    if (host_exe_->he_target_ == HE_TARGET_HOST) {
+    if (he_target_ == HE_TARGET_HOST) {
       numa_node_ = node;
       printf("HE_TARGET_HOST numa_node_:%d\n", numa_node_);
 
@@ -892,9 +929,6 @@ public:
       numa_node_ = 2;
       printf("HE_TARGET_FPGA numa_node_:%d\n", numa_node_);
     }
-
-    int num_task = numa_num_task_nodes();
-    printf("num_task:%d\n", num_task);
 
     return true;
   }
@@ -919,42 +953,82 @@ public:
     he_ctl_.ResetL = 1;
     host_exe_->write64(HE_CTL, he_ctl_.value);
 
-    if (host_exe_->he_test_ == HE_FPGA_RD_CACHE_HIT) {
+    if (he_test_all_ == true) {
+      int retvalue = 0;
+      ret = he_run_fpga_rd_cache_hit_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+      ret = he_run_fpga_wr_cache_hit_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+
+      ret = he_run_fpga_rd_cache_miss_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+      ret = he_run_fpga_wr_cache_miss_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+      ret = he_run_host_rd_cache_hit_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+      ret = he_run_host_wr_cache_hit_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+
+      ret = he_run_host_rd_cache_miss_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+      ret = he_run_host_wr_cache_miss_test();
+      if (ret != 0) {
+        retvalue = ret;
+      }
+
+      return retvalue;
+    }
+
+    if (he_test_ == HE_FPGA_RD_CACHE_HIT) {
       ret = he_run_fpga_rd_cache_hit_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_FPGA_WR_CACHE_HIT) {
+    if (he_test_ == HE_FPGA_WR_CACHE_HIT) {
       ret = he_run_fpga_wr_cache_hit_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_FPGA_RD_CACHE_MISS) {
+    if (he_test_ == HE_FPGA_RD_CACHE_MISS) {
       ret = he_run_fpga_rd_cache_miss_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_FPGA_WR_CACHE_MISS) {
+    if (he_test_ == HE_FPGA_WR_CACHE_MISS) {
       ret = he_run_fpga_wr_cache_miss_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_HOST_RD_CACHE_HIT) {
+    if (he_test_ == HE_HOST_RD_CACHE_HIT) {
       ret = he_run_host_rd_cache_hit_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_HOST_WR_CACHE_HIT) {
+    if (he_test_ == HE_HOST_WR_CACHE_HIT) {
       ret = he_run_host_wr_cache_hit_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_HOST_RD_CACHE_MISS) {
+    if (he_test_ == HE_HOST_RD_CACHE_MISS) {
       ret = he_run_host_rd_cache_miss_test();
       return ret;
     }
 
-    if (host_exe_->he_test_ == HE_HOST_WR_CACHE_MISS) {
+    if (he_test_ == HE_HOST_WR_CACHE_MISS) {
       ret = he_run_host_wr_cache_miss_test();
       return ret;
     }
@@ -963,40 +1037,30 @@ public:
   }
 
 protected:
-  host_exerciser *host_exe_;
-  token::ptr_t token_;
-
-  he_ctl he_ctl_;
-  he_info he_info_;
-  he_rd_config he_rd_cfg_;
-  he_wr_config he_wr_cfg_;
-
-  he_rd_addr_table_ctrl rd_table_ctl_;
-  he_wr_addr_table_ctrl wr_table_ctl_;
-  uint8_t *dsm_buf_;
-  uint8_t *rd_buf_;
-
-  uint32_t numa_node_;
+  bool he_continuousmode_;
+  uint32_t he_contmodetime_;
+  uint32_t he_linerep_count_;
+  uint32_t he_stide_;
+  uint32_t he_target_;
+  uint32_t he_test_;
+  bool he_test_all_;
 };
 
 void he_cache_thread(uint8_t *buf_ptr, uint64_t len) {
-  cout << "he_cache_thread  enter" << endl;
   if (buf_ptr == NULL || len == 0) {
     return;
   }
   uint64_t value;
   UNUSED_PARAM(value);
-  uint64_t cache_lines = len / 64;
+  uint64_t cache_lines = len / CL;
   uint64_t i = 0;
-  cout << "he_cache_thread  cache_lines:" << cache_lines << endl;
 
   while (true) {
 
     if (g_stop_thread == true) {
-      cout << "he_cache_thread g_stop_thread " << endl;
+      // cout << "he_cache_thread g_stop_thread " << endl;
       return;
     }
-    // cout << "he_cache_thread:i "<<i << endl;
     if (i < cache_lines) {
       value = *((volatile uint64_t *)(buf_ptr + i * 8));
     }
@@ -1006,7 +1070,6 @@ void he_cache_thread(uint8_t *buf_ptr, uint64_t len) {
     }
   }
 
-  cout << "he_cache_thread  end" << endl;
   return;
 }
 

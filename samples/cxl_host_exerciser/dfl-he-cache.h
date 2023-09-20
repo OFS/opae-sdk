@@ -30,7 +30,7 @@
 #define DFL_HE_CACHE_BASE 0
 
 /**
- * DFL_FPGA_GET_API_VERSION - _IO(DFL_FPGA_MAGIC, DFL_FPGA_BASE + 0)
+ * DFL_HE_CACHE_GET_API_VERSION - _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 0)
  *
  * Report the version of the driver API.
  * Return: Driver API Version.
@@ -40,7 +40,7 @@
   _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 0)
 
 /**
- * DFL_FPGA_CHECK_EXTENSION - _IO(DFL_FPGA_MAGIC, DFL_FPGA_BASE + 1)
+ * DFL_HE_CACHE_CHECK_EXTENSION - _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 1)
  *
  * Check whether an extension is supported.
  * Return: 0 if not supported, otherwise the extension is supported.
@@ -49,18 +49,19 @@
 #define DFL_HE_CACHE_CHECK_EXTENSION                                           \
   _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 1)
 
-#define DFL_HE_CACHE_GET_REGION_INFO                                           \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 2)
-
 /**
- * FPGA_PORT_GET_REGION_INFO - _IOWR(FPGA_MAGIC, PORT_BASE + 2,
- *                                      struct dfl_he_cache_region_info)
+ * DFL_HE_CACHE_GET_REGION_INFO - _IOWR(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE +
+ * 2, struct dfl_he_cache_region_info)
  *
  * Retrieve information about a device memory region.
- * Caller provides struct dfl_fpga_port_region_info with index value set.
+ * Caller provides struct dfl_he_cache_region_info with flags.
  * Driver returns the region info in other fields.
  * Return: 0 on success, -errno on failure.
  */
+
+#define DFL_HE_CACHE_GET_REGION_INFO                                           \
+  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 2)
+
 struct dfl_he_cache_region_info {
   /* Input */
   __u32 argsz; /* Structure length */
@@ -73,43 +74,24 @@ struct dfl_he_cache_region_info {
   __u64 offset; /* Region offset from start of device fd */
 };
 
-#define DFL_HE_CACHE_SET_DSM_INFO _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 3)
+/**
+* DFL_HE_CACHE_NUMA_DMA_MAP - _IOWR(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 3,
+*                                      struct dfl_he_cache_dma_map)
+*
+* Map the dma memory per user_addr,length and numa node which are provided by
+caller.
+* The driver allocates memory on the numa node, converts the user's virtual
+address
+* to a continuous physical address, and writes the physical address to
+* the host executor's read/write address table CSR.
 
-struct dfl_he_cache_dsm_info {
-  /* Input */
-  __u32 argsz;     /* Structure length */
-  __u64 user_addr; /* Process virtual address */
-  __u64 length;    /* Length of mapping (bytes)*/
-};
-
-#define DFL_HE_CACHE_CLEAR_DSM_INFO                                            \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 4)
-
-#define DFL_HE_CACHE_ALLOC_ADDR_TABLE                                          \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 5)
-#define DFL_HE_CACHE_FREE_ADDR_TABLE                                           \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 6)
-#define DFL_HE_CACHE_APPEND_ADDR_TABLE                                         \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 7)
-
-#define DFL_HE_CACHE_NUM_LINES_MIN 1
-#define DFL_HE_CACHE_NUM_LINES_MAX 0xffff
-
-struct dfl_he_cache_addr_table {
-  /* Input */
-  __u32 argsz; /* Structure length */
-  __u32 flags; /* Address Table ID */
-#define DFL_HE_CACHE_READ_ADDR_TABLE (1 << 0)
-#define DFL_HE_CACHE_WRITE_ADDR_TABLE (1 << 1)
-  __u32 cache_lines; /* Buffer size/offset in cache lines */
-};
-
-#define DFL_HE_CACHE_NUMA_DMA_MAP                                              \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 12)
-#define DFL_HE_CACHE_NUMA_DMA_UNMAP                                            \
-  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 13)
+* This interface only accepts page-size aligned user memory for dma mapping.
+* Return: 0 on success, -errno on failure.
+*/
 
 #define DFL_ARRAY_MAX_SIZE 0x10
+
+#define DFL_HE_CACHE_NUMA_DMA_MAP _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 3)
 
 struct dfl_he_cache_dma_map {
   /* Input */
@@ -121,13 +103,26 @@ struct dfl_he_cache_dma_map {
   __u64 csr_array[DFL_ARRAY_MAX_SIZE]; /* CSR  */
 };
 
+/**
+ * DFL_HE_CACHE_NUMA_DMA_UNMAP - _IOWR(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE +
+ * 4, struct dfl_he_cache_dma_unmap)
+ *
+ * Unmpas the dma memory per user_addr and length which are provided by caller.
+ * The driver deletes the physical pages of the user address and writes a zero
+ * to the read/write address table CSR.
+ * Return: 0 on success, -errno on failure.
+ */
+
+#define DFL_HE_CACHE_NUMA_DMA_UNMAP                                            \
+  _IO(DFL_HE_CACHE_MAGIC, DFL_HE_CACHE_BASE + 4)
+
 struct dfl_he_cache_dma_unmap {
   /* Input */
   __u32 argsz;                         /* Structure length */
   __u32 flags;                         /* flags */
   __u64 user_addr;                     /* Process virtual address */
   __u64 length;                        /* Length of mapping (bytes)*/
-  __u64 csr_array[DFL_ARRAY_MAX_SIZE]; /* CSR  */
+  __u64 csr_array[DFL_ARRAY_MAX_SIZE]; /* CSR */
 };
 
 #endif /* _UAPI_LINUX_HE_CACHE_DFL_H */

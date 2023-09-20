@@ -144,7 +144,6 @@ bool sysfs_read_u64(const char *path, uint64_t *value) {
 namespace opae {
 namespace afu_test {
 
-namespace fpga = fpga::types;
 
 template <typename T>
 inline bool parse_match_int(const char *s, regmatch_t m, T &v, int radix = 10) {

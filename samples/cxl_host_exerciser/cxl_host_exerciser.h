@@ -24,28 +24,23 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <opae/cxx/core/events.h>
-#include <opae/cxx/core/shared_buffer.h>
-#include <opae/cxx/core/token.h>
 
 #include "he_cache_test.h"
 
+#define MEM_TG_FEATURE_ID 0x25
+#define MEM_TG_FEATURE_GUIDL 0x81599b5c2ebd4b23
+#define MEM_TG_FEATURE_GUIDH 0x0118e06b1fa349b9
+const char *HE_CACHE_AFU_ID = "0118E06B-1FA3-49B9-8159-9b5C2EBD4b23";
+
 namespace host_exerciser {
-using opae::fpga::types::event;
-using opae::fpga::types::shared_buffer;
-using opae::fpga::types::token;
 
 static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
 static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
 static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
-static const uint64_t LOG2_CL = 6;
-
 static const uint64_t BUFFER_SIZE_2MB = 2 * 1024 * 1024;
-
 static const uint64_t FPGA_32KB_CACHE_LINES = (32 * 1024) / 64;
-
 static const uint64_t FPGA_2MB_CACHE_LINES = (2 * 1024 * 1024) / 64;
 
 // Host execiser CSR Offset
@@ -59,19 +54,16 @@ enum {
   HE_DSM_BASE = 0x030,
   HE_CTL = 0x038,
   HE_INFO = 0x040,
-
   HE_WR_NUM_LINES = 0x048,
   HE_WR_BYTE_ENABLE = 0x050,
   HE_WR_CONFIG = 0x058,
   HE_WR_ADDR_TABLE_CTRL = 0x060,
   HE_WR_ADDR_TABLE_DATA = 0x068,
-
   HE_RD_NUM_LINES = 0x070,
   HE_RD_CONFIG = 0x078,
   HE_RD_ADDR_TABLE_CTRL = 0x080,
   HE_RD_ADDR_TABLE_DATA = 0x088,
   HE_ERROR_STATUS = 0x090,
-
   HE_ERROR_EXP_DATA = 0x098,
   HE_ERROR_ACT_DATA0 = 0x0A0,
   HE_ERROR_ACT_DATA1 = 0x0A8,
@@ -81,23 +73,16 @@ enum {
   HE_ERROR_ACT_DATA5 = 0x0C8,
   HE_ERROR_ACT_DATA6 = 0x0D0,
   HE_ERROR_ACT_DATA7 = 0x0D8,
-
 };
 
-// configures test mode
-typedef enum {
-  HOST_EXEMODE_READ = 0x0,
-  HOST_EXEMODE_WRITE = 0x1,
-  HOST_EXEMODE_ALL = 0x2,
-} host_exe_mode;
-
-// Write Traffic Opcode
+// Read Traffic Opcode
 typedef enum {
   RD_LINE_I = 0x0,
   RD_LINE_S = 0x1,
   RD_LINE_EM = 0x2,
 } he_rd_opcode;
 
+// Write Traffic Opcode
 typedef enum {
   WR_LINE_I = 0x0,
   WR_LINE_M = 0x1,
@@ -113,16 +98,16 @@ union he_dfh {
   enum { offset = HE_DFH };
   uint64_t value;
   struct {
-    uint16_t CcipVersionNumber : 12;
-    uint8_t AfuMajVersion : 4;
-    uint32_t NextDfhOffset : 24;
-    uint8_t EOL : 1;
-    uint32_t Reserved : 19;
-    uint8_t FeatureType : 4;
+    uint64_t CcipVersionNumber : 12;
+    uint64_t AfuMajVersion : 4;
+    uint64_t NextDfhOffset : 24;
+    uint64_t EOL : 1;
+    uint64_t Reserved : 19;
+    uint64_t FeatureType : 4;
   };
 };
 
-// DSM BASEL
+// DSM BASE
 union he_dsm_base {
   enum { offset = HE_DSM_BASE };
   uint64_t value;
@@ -139,7 +124,7 @@ union he_ctl {
     uint64_t ResetL : 1;
     uint64_t Start : 1;
     uint64_t ForcedTestCmpl : 1;
-    uint64_t bios_support : 1;
+    uint64_t bias_support : 1;
     uint64_t Reserved : 60;
   };
 };
@@ -184,7 +169,7 @@ union he_wr_config {
     uint64_t waitfor_completion : 1;
     uint64_t preread_sync_enable : 1;
     uint64_t postread_sync_enable : 1;
-    uint64_t daata_pattern : 2;
+    uint64_t data_pattern : 2;
     uint64_t cl_evict_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
@@ -233,7 +218,7 @@ union he_rd_config {
     uint64_t waitfor_completion : 1;
     uint64_t prewrite_sync_enable : 1;
     uint64_t postwrite_sync_enable : 1;
-    uint64_t daata_pattern : 2;
+    uint64_t data_pattern : 2;
     uint64_t cl_evict_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
@@ -262,7 +247,7 @@ union he_rd_addr_table_data {
   };
 };
 
-// HE_RD_ADDR_TABLE_DATA
+// ERROR_STATUS
 union he_err_status {
   enum { offset = HE_ERROR_STATUS };
   uint64_t value;
@@ -288,12 +273,6 @@ struct he_cache_dsm_status {
   uint32_t actual_data : 32;
   uint32_t expected_data : 32;
   uint32_t res5[2];
-};
-
-const std::map<std::string, uint32_t> he_modes = {
-    {"read", HOST_EXEMODE_READ},
-    {"write", HOST_EXEMODE_WRITE},
-    {"all", HOST_EXEMODE_ALL},
 };
 
 // configures test mode
@@ -323,7 +302,6 @@ const std::map<std::string, uint32_t> he_test_modes = {
     {"fpgawrcachehit", HE_FPGA_WR_CACHE_HIT},
     {"fpgardcachemiss", HE_FPGA_RD_CACHE_MISS},
     {"fpgawrcachemiss", HE_FPGA_WR_CACHE_MISS},
-
     {"hostrdcachehit", HE_HOST_RD_CACHE_HIT},
     {"hostwrcachehit", HE_HOST_WR_CACHE_HIT},
     {"hostrdcachemiss", HE_HOST_RD_CACHE_MISS},
@@ -381,66 +359,13 @@ std::map<uint32_t, uint32_t> addrtable_size = {
 
 };
 
-// he test type
-typedef enum {
-  HE_DISABLE_DATA_INTEGRITY_CHECK = 0x0,
-  HE_ENABLE_DATA_INTEGRITY_CHECK = 0x1,
-} he_data_integrity_check;
-
-struct MapKeyComparator {
-  bool operator()(const std::string &a, const std::string &b) const {
-    if (a.length() != b.length())
-      return (a.length() < b.length());
-    else
-      return (a < b);
-  }
-};
-
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
 
 class host_exerciser : public test_afu {
 public:
   host_exerciser()
-      : test_afu("host_exerciser", nullptr, "warning"), count_(1),
-      he_continuousmode_(false), he_test_all_(0), he_contmodetime_(0),
-      he_clock_mhz_(0),he_linerep_count_(10), he_stide_(0), he_target_(0), he_test_(0) {
-
-
-    // test
-    app_.add_option(
-            "--test", he_test_,
-            "host exerciser cache test {fpgardcachehit, fpgawrcachehit, all}")
-        ->transform(CLI::CheckedTransformer(he_test_modes))
-        ->default_val("fpgardcachehit");
-
-    // Configures test rollover or test termination
-    app_.add_option("--continuousmode", he_continuousmode_,
-                    "test rollover or test termination")
-        ->default_val("false");
-
-    // Continuous mode time
-    app_.add_option("--contmodetime", he_contmodetime_,
-                    "Continuous mode time in seconds")
-        ->default_val("1");
-
-    app_.add_option("--target", he_target_,
-                    "host exerciser run on host or fpga")
-        ->transform(CLI::CheckedTransformer(he_targets))
-        ->default_val("host");
-
-
-    app_.add_option("--stride", he_stide_, "Enable stride mode")
-        ->default_val("0");
-
-    app_.add_option("--linerepcount", he_linerep_count_, "Line repeat count")
-        ->transform(CLI::Range(1, 256))
-        ->default_val("10");
-
-    // Test all
-    app_.add_option("--testall", he_test_all_, "Run all tests")
-        ->default_val("false");
-  }
+      : test_afu("host_exerciser", nullptr, "warning"), count_(1) {}
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override {
     int res = exit_codes::not_run;
@@ -448,7 +373,7 @@ public:
     logger_->set_pattern("    %v");
     // Info prints details of an individual run. Turn it on if doing only one
     // test and the user hasn't changed level from the default.
-    if ((log_level_.compare("warning") == 0) && !he_test_all_)
+    if ((log_level_.compare("warning") == 0))
       logger_->set_level(spdlog::level::info);
 
     logger_->info("starting test run, count of {0:d}", count_);
@@ -476,24 +401,6 @@ public:
 
 public:
   uint32_t count_;
-  bool he_continuousmode_;
-  bool he_test_all_;
-  uint32_t he_contmodetime_;
-  uint32_t he_clock_mhz_;
-  uint32_t he_linerep_count_;
-  uint32_t he_stide_;
-  uint32_t he_target_;
-  uint32_t he_test_;
-  std::map<uint32_t, uint32_t> limits_;
-
-  uint32_t get_offset(uint32_t base, uint32_t i) const {
-    auto limit = limits_.find(base);
-    auto offset = base + sizeof(uint64_t) * i;
-    if (limit != limits_.end() && offset > limit->second - sizeof(uint64_t)) {
-      throw std::out_of_range("offset out range in csr space");
-    }
-    return offset;
-  }
 
   bool option_passed(std::string option_str) {
     if (app_.count(option_str) == 0)
@@ -501,4 +408,4 @@ public:
     return true;
   }
 };
-} // end of namespace cxl_host_exerciser
+} // namespace host_exerciser

@@ -24,30 +24,21 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+
 #include "cxl_host_exerciser.h"
-#include "cxl_host_exerciser_cmd.h"
 #include "he_cache_test.h"
-
-const char *HE_CACHE_AFU_ID = "0118E06B-1FA3-49B9-8159-9b5C2EBD4b23";
-
-#define MEM_TG_FEATURE_ID 0x25
-#define MEM_TG_FEATURE_GUIDL 0x81599b5c2ebd4b23
-#define MEM_TG_FEATURE_GUIDH 0x0118e06b1fa349b9
-
-using test_afu = opae::afu_test::afu;
-using opae::fpga::types::shared_buffer;
 
 namespace host_exerciser {
 
-class host_exerciser_cache : public host_exerciser_cmd {
+class he_cache_lpbk_cmd : public he_cmd {
 public:
-  host_exerciser_cache() {}
+  he_cache_lpbk_cmd() {}
+  virtual ~he_cache_lpbk_cmd() {}
 
-  virtual ~host_exerciser_cache() {}
-  virtual const char *name() const override { return "cache"; }
+  virtual const char *name() const override { return "lpbk"; }
 
   virtual const char *description() const override {
-    return "run simple cxl he cache test";
+    return "run simple cxl he lpbk test";
   }
 
   virtual const char *afu_id() const override { return HE_CACHE_AFU_ID; }
@@ -57,6 +48,34 @@ public:
   virtual uint64_t guidl() const override { return MEM_TG_FEATURE_GUIDL; }
 
   virtual uint64_t guidh() const override { return MEM_TG_FEATURE_GUIDH; }
-};
+  virtual void add_options(CLI::App *app) override {
+    // target host or fpga
+    app->add_option("--target", he_target_,
+                    "host exerciser run on host or fpga")
+        ->transform(CLI::CheckedTransformer(he_targets))
+        ->default_val("host");
+  }
 
+  virtual int run(test_afu *afu, CLI::App *app) {
+    (void)app;
+    //  int ret = 0;
+    cout << "HE LPBK run" << endl;
+    host_exe_ = dynamic_cast<host_exerciser *>(afu);
+
+    if (!verify_numa_node()) {
+      numa_node_ = 0;
+      cout << "numa nodes are available set numa node to 0" << endl;
+    };
+
+    // reset HE cache
+    he_ctl_.value = 0;
+    he_ctl_.ResetL = 0;
+    host_exe_->write64(HE_CTL, he_ctl_.value);
+
+    he_ctl_.value = 0;
+    he_ctl_.ResetL = 1;
+    host_exe_->write64(HE_CTL, he_ctl_.value);
+    return 0;
+  }
+};
 } // end of namespace host_exerciser

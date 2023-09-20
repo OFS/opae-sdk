@@ -33,7 +33,7 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
             ${spdlog_LIBRARIES}
             ${json-c_LIBRARIES}
             ${uuid_LIBRARIES}
-            numa
+            ${numa_LIBRARIES}
         COMPONENT samplebin
     )
     target_include_directories(cxl_host_exerciser
@@ -42,6 +42,4 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
            ${CMAKE_CURRENT_SOURCE_DIR}
             ${CLI11_INCLUDE_DIRS}
             ${spdlog_INCLUDE_DIRS})
-
-
 endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
