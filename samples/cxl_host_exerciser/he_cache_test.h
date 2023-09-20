@@ -26,22 +26,23 @@
 
 #pragma once
 
-#include <CLI/CLI.hpp>
 #include <future>
 #include <glob.h>
 #include <inttypes.h>
 #include <numa.h>
 #include <opae/cxx/core.h>
 #include <regex.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <CLI/CLI.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <opae/cxx/core.h>
 
 #include "dfl-he-cache.h"
 
