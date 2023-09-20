@@ -24,22 +24,33 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
+if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
+
+    if (fmt_LIBRARIES)
+        # if we found fmt before (from CMakeLists.txt)
+        # then we need to find it again from this directory
+        # so we can "import" the fmt::fmt link target
+        find_package(fmt)
+    endif (fmt_LIBRARIES)
+
     opae_add_executable(TARGET cxl_host_exerciser
         SOURCE cxl_host_exerciser.cpp
         LIBS
-            opae-c
             opae-cxx-core
+            opae-c
             ${spdlog_LIBRARIES}
             ${json-c_LIBRARIES}
             ${uuid_LIBRARIES}
             ${numa_LIBRARIES}
+            ${fmt_LIBRARIES}
         COMPONENT samplebin
     )
     target_include_directories(cxl_host_exerciser
         PRIVATE
            ${OPAE_INCLUDE_PATHS}
            ${CMAKE_CURRENT_SOURCE_DIR}
-            ${CLI11_INCLUDE_DIRS}
-            ${spdlog_INCLUDE_DIRS})
-endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
+           ${CLI11_INCLUDE_DIRS}
+           ${numa_INCLUDE_DIRS}
+           ${spdlog_INCLUDE_DIRS})
+
+endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
