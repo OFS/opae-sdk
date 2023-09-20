@@ -122,6 +122,8 @@ int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaReleaseBuffer");
 	adapter->fpgaGetIOAddress =
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaGetIOAddress");
+	adapter->fpgaBindSVA =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaBindSVA");
 	adapter->fpgaCreateEventHandle =
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaCreateEventHandle");
 	adapter->fpgaDestroyEventHandle =

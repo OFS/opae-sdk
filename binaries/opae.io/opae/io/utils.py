@@ -112,6 +112,13 @@ def put_dev_dict(file_name, dev_dict):
         pickle.dump(dev_dict, outf)
 
 
+def chown_pci_sva(pci_addr, uid, gid):
+    sva_bind_dev = os.path.join('/dev/dfl-pci-sva', pci_addr)
+    if os.path.exists(sva_bind_dev):
+        LOG.info('Setting owner of {}'.format(sva_bind_dev))
+        os.chown(sva_bind_dev, uid, gid)
+
+
 def vfio_init(pci_addr, new_owner='', force=False):
     vid_did = pci.vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
@@ -202,6 +209,7 @@ def vfio_init(pci_addr, new_owner='', force=False):
         os.chown(device, user, group)
         LOG.info('Changing permissions for {} to rw-rw----'.format(device))
         os.chmod(device, 0o660)
+        chown_pci_sva(pci_addr, user, group)
 
 
 def vfio_release(pci_addr):
@@ -244,6 +252,8 @@ def vfio_release(pci_addr):
             put_dev_dict(PICKLE_FILE, dev_dict)
         else:
             os.remove(PICKLE_FILE)
+
+    chown_pci_sva(pci_addr, 0, 0)
 
 
 class opae_register(Union):

@@ -162,6 +162,7 @@ int __attribute__((visibility("default"))) opae_plugin_configure(opae_api_adapte
 	adapter->fpgaPrepareBuffer = NULL;
 	adapter->fpgaReleaseBuffer = NULL;
 	adapter->fpgaGetIOAddress = NULL;
+	adapter->fpgaBindSVA = NULL;
 	/*
 	**	adapter->fpgaGetOPAECVersion = NULL;
 	**	adapter->fpgaGetOPAECVersionString = NULL;

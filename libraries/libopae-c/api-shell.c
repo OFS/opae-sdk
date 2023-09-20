@@ -953,6 +953,20 @@ fpga_result __OPAE_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		wrapped_handle->opae_handle, wsid, ioaddr);
 }
 
+fpga_result __OPAE_API__ fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	// Unimplemented fpgaBindSVA() is acceptable. Return not supported.
+	if (!wrapped_handle->adapter_table->fpgaBindSVA)
+		return FPGA_NOT_SUPPORTED;
+
+	return wrapped_handle->adapter_table->fpgaBindSVA(
+		wrapped_handle->opae_handle, pasid);
+}
+
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);
