@@ -45,6 +45,7 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
             ${fmt_LIBRARIES}
         COMPONENT samplebin
     )
+
     target_include_directories(cxl_host_exerciser
         PRIVATE
            ${OPAE_INCLUDE_PATHS}
@@ -52,5 +53,13 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
            ${CLI11_INCLUDE_DIRS}
            ${numa_INCLUDE_DIRS}
            ${spdlog_INCLUDE_DIRS})
+
+    target_compile_options(cxl_host_exerciser PUBLIC
+        -Wno-unused-result
+    )
+
+    target_compile_definitions(cxl_host_exerciser PUBLIC
+        ${spdlog_DEFINITIONS}
+    )
 
 endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
