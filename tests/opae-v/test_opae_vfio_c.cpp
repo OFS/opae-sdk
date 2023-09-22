@@ -3241,6 +3241,7 @@ TEST(opae_v, destroy_event_ok)
 
   ueh->magic = VFIO_EVENT_HANDLE_MAGIC;
   ueh->lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+  ueh->fd = open("/dev/null", O_RDONLY);
 
   fpga_event_handle eh = ueh;
   EXPECT_EQ(0, vfio_fpgaDestroyEventHandle(&eh));
