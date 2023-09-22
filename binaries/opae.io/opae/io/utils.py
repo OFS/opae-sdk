@@ -63,8 +63,12 @@ def hex_int(inp):
     return int(inp, 0)
 
 
-def load_driver(driver):
-    return subprocess.call(['modprobe', driver])
+def load_driver(driver, quiet=0):
+    cmd = ['modprobe']
+    if quiet:
+        cmd += ['-q']
+    cmd += [driver]
+    return subprocess.call(cmd)
 
 
 def get_bound_driver(pci_addr):
@@ -140,6 +144,7 @@ def vfio_init(pci_addr, new_owner='', force=False):
         LOG.info('Unbinding {} from {}'.format(msg, driver))
         unbind_driver(driver, pci_addr)
 
+    load_driver('dfl-pci-sva', quiet=1)
     load_driver('vfio-pci')
 
     print('Binding {} to vfio-pci'.format(msg))

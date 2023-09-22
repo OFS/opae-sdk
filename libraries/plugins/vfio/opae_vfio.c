@@ -716,6 +716,9 @@ fpga_result __VFIO_API__ vfio_fpgaOpen(fpga_token token, fpga_handle *handle, in
 	_handle->mmio_base = (volatile uint8_t *)mmio;
 	_handle->mmio_size = size;
 
+	_handle->sva_fd = -1;
+	_handle->pasid = -1;
+
 	_handle->flags = 0;
 #if defined(__i386__) || defined(__x86_64__) || defined(__ia64__)
 #if GCC_VERSION >= 40900
@@ -763,11 +766,11 @@ fpga_result __VFIO_API__ vfio_fpgaClose(fpga_handle handle)
 		OPAE_ERR("invalid token in handle");
 	}
 
-	if (h->sva_fd) {
+	if (h->sva_fd >= 0) {
 		// Release PASID and shared virtual addressing
 		opae_close(h->sva_fd);
-		h->sva_fd = 0;
-		h->pasid = 0;
+		h->sva_fd = -1;
+		h->pasid = -1;
 	}
 
 	close_vfio_pair(&h->vfio_pair);
@@ -1608,7 +1611,9 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 
 	h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
-	ASSERT_NOT_NULL(pasid);
+
+	if (pasid)
+		*pasid = -1;
 
 	struct opae_vfio *v = h->vfio_pair->device;
 	if (!v || !v->cont_pciaddr) {
@@ -1616,9 +1621,10 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 		goto out_unlock;
 	}
 
-	if (h->pasid) {
+	if (h->pasid >= 0) {
 		// vfio_fpgaBindSVA() was already called. Return the same result.
-		*pasid = h->pasid;
+		if (pasid)
+			*pasid = h->pasid;
 		goto out_unlock;
 	}
 
@@ -1635,12 +1641,13 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 	if (fd > 0) {
 		// Request a shared virtual addressing. On success, the PASID is
 		// returned.
-		int res = opae_ioctl(fd, DFL_PCI_SVA_BIND_DEV);
-		if (res >= 0) {
+		int bind_pasid = opae_ioctl(fd, DFL_PCI_SVA_BIND_DEV);
+		if (bind_pasid >= 0) {
 			// Success. Hold the file open. Closing the file would release
 			// the PASID and disable address sharing.
-			*pasid = res;
-			h->pasid = res;
+			if (pasid)
+				*pasid = bind_pasid;
+			h->pasid = bind_pasid;
 			h->sva_fd = fd;
 			goto out_unlock;
 		}
