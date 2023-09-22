@@ -44,6 +44,7 @@
 #define DFL_FPGA_BASE 0
 #define DFL_PORT_BASE 0x40
 #define DFL_FME_BASE 0x80
+#define DFL_PCI_SVA_BASE 0xf8
 
 /* Common IOCTLs for both FME and AFU file descriptor */
 
@@ -169,7 +170,7 @@ struct dfl_fpga_port_dma_unmap {
  *
  * @start: Index of the first irq.
  * @count: The number of eventfd handler.
- * @evtfds: Eventfd handler.
+ * @evtfds: Eventfd handlers.
  */
 struct dfl_fpga_irq_set {
 	__u32 start;
@@ -288,5 +289,23 @@ struct dfl_fpga_fme_port_pr {
 #define DFL_FPGA_FME_ERR_SET_IRQ	_IOW(DFL_FPGA_MAGIC,	\
 					     DFL_FME_BASE + 4,	\
 					     struct dfl_fpga_irq_set)
+
+/**
+ * DFL_PCI_SVA_BIND_DEV - _IO(DFL_FPGA_MAGIC, DFL_PCI_SVA_BASE + 0)
+ *
+ * Ensure that a PASID is present in the user process and enable the
+ * PASID on the IOMMU domain of the device associated with the file handle.
+ * Returns the PASID on success, -errno on failure.
+ */
+#define DFL_PCI_SVA_BIND_DEV		_IO(DFL_FPGA_MAGIC,	\
+					     DFL_PCI_SVA_BASE + 0)
+
+/**
+ * DFL_PCI_SVA_UNBIND_DEV - _IO(DFL_FPGA_MAGIC,	DFL_PCI_SVA_BASE + 1)
+ *
+ * Unbind the current PASID from the device.
+ */
+#define DFL_PCI_SVA_UNBIND_DEV		_IO(DFL_FPGA_MAGIC,	\
+					    DFL_PCI_SVA_BASE + 1)
 
 #endif /* _UAPI_LINUX_FPGA_DFL_H */
