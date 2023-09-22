@@ -48,5 +48,6 @@ opae_add_module_library(TARGET opae-v
 target_include_directories(opae-v
     PRIVATE
         ${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/plugins/xfpga
         ${uuid_INCLUDE}
 )

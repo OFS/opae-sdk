@@ -51,6 +51,7 @@
 
 #include "opae_vfio.h"
 #include "dfl.h"
+#include "fpga-dfl.h"
 
 #include "opae_int.h"
 #include "props.h"
@@ -760,6 +761,12 @@ fpga_result __VFIO_API__ vfio_fpgaClose(fpga_handle handle)
 		opae_free(t);
 	} else {
 		OPAE_ERR("invalid token in handle");
+	}
+
+	if (h->flags & OPAE_FLAG_SVA_FD_VALID) {
+		// Release PASID and shared virtual addressing
+		opae_close(h->sva_fd);
+		h->flags &= ~(OPAE_FLAG_SVA_FD_VALID | OPAE_FLAG_PASID_VALID);
 	}
 
 	close_vfio_pair(&h->vfio_pair);
@@ -1588,6 +1595,68 @@ fpga_result __VFIO_API__ vfio_fpgaGetIOAddress(fpga_handle handle,
 	*ioaddr = binfo->buffer_iova;
 
 	return FPGA_OK;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
+{
+	vfio_handle *h;
+	char path[PATH_MAX];
+	int fd;
+	int err;
+	fpga_result res = FPGA_OK;
+
+	h = handle_check_and_lock(handle);
+	ASSERT_NOT_NULL(h);
+
+	if (pasid)
+		*pasid = -1;
+
+	struct opae_vfio *v = h->vfio_pair->device;
+	if (!v || !v->cont_pciaddr) {
+		res = FPGA_NO_DRIVER;
+		goto out_unlock;
+	}
+
+	if (h->flags & OPAE_FLAG_PASID_VALID) {
+		// vfio_fpgaBindSVA() was already called. Return the same result.
+		if (pasid)
+			*pasid = h->pasid;
+		goto out_unlock;
+	}
+
+	// Currently, the dfl-pci driver provides support for allocating a PASID
+	// and binding it to the FPGA in the IOMMU. At some point, VFIO and the
+	// IOMMUFD will also support shared virtual addressing. When ready, this
+	// function can be updated to call libopaevfio.
+
+	// dfl-pci creates a device at /dev/dfl-pci-sva/<pci_addr> for all
+	// ports that support shared virtual memory. If the device isn't found
+	// then assume PASID is not supported, either by the host or the FPGA.
+	snprintf(path, sizeof(path), "/dev/dfl-pci-sva/%s", v->cont_pciaddr);
+	fd = opae_open(path, O_RDONLY);
+	if (fd >= 0) {
+		// Request a shared virtual addressing. On success, the PASID is
+		// returned.
+		int bind_pasid = opae_ioctl(fd, DFL_PCI_SVA_BIND_DEV);
+		if (bind_pasid >= 0) {
+			// Success. Hold the file open. Closing the file would release
+			// the PASID and disable address sharing.
+			if (pasid)
+				*pasid = bind_pasid;
+			h->pasid = bind_pasid;
+			h->sva_fd = fd;
+			h->flags |= (OPAE_FLAG_SVA_FD_VALID | OPAE_FLAG_PASID_VALID);
+			goto out_unlock;
+		}
+		opae_close(fd);
+	}
+
+	res = FPGA_NOT_SUPPORTED;
+
+out_unlock:
+	opae_mutex_unlock(err, &h->lock);
+
+	return res;
 }
 
 fpga_result __VFIO_API__ vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)

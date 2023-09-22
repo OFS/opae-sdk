@@ -135,6 +135,18 @@ fpga_result fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid);
 fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 			     uint64_t *ioaddr);
 
+/**
+ * Bind IOMMU shared virtual addressing
+ *
+ * When PCIe PASID, ATS and PRS capabilities are enabled, some platforms
+ * supporting binding the IOMMU to user space virtual addresses.
+ *
+ * @param[in]  handle   Handle to previously opened accelerator resource
+ * @param[out] pasid    Process address space ID, set if not NULL.
+ * @returns FPGA_OK on success and FPGA_NOT_SUPPORTED otherwise.
+ */
+fpga_result fpgaBindSVA(fpga_handle handle, uint32_t *pasid);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
