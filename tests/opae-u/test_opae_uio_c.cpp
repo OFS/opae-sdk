@@ -3295,6 +3295,7 @@ TEST(opae_u, destroy_event_ok)
 
   ueh->magic = UIO_EVENT_HANDLE_MAGIC;
   ueh->lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+  ueh->fd = open("/dev/null", O_RDONLY);
 
   fpga_event_handle eh = ueh;
   EXPECT_EQ(0, uio_fpgaDestroyEventHandle(&eh));
