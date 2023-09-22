@@ -45,7 +45,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <opae/cxx/core.h>
 
-#include "dfl-he-cache.h"
+#include "../../libraries/plugins/xfpga/fpga-dfl.h"
 
 using namespace std;
 
@@ -87,16 +87,16 @@ enum { MATCHES_SIZE = 6 };
 #define MiB(x) ((x)*1024 * 1024)
 #define GiB(x) ((x)*1024 * 1024 * 1024)
 
-#define DFL_HE_CACHE_DSM_BASE 0x030
-#define DFL_HE_CACHE_WR_ADDR_TABLE_DATA 0x068
-#define DFL_HE_CACHE_RD_ADDR_TABLE_DATA 0x088
+#define DFL_CXL_CACHE_DSM_BASE 0x030
+#define DFL_CXL_CACHE_WR_ADDR_TABLE_DATA 0x068
+#define DFL_CXL_CACHE_RD_ADDR_TABLE_DATA 0x088
 
 void *alloc_2mb_hugepage(void) {
   void *addr;
 
   addr = mmap(ADDR, MiB(2), PROTECTION, FLAGS_2M, 0, 0);
   if (addr == MAP_FAILED) {
-    printf("alloc_2mb_hugepage() failed: %s\n", strerror(errno));
+    cerr << "alloc_2mb_hugepage() failed:" << strerror(errno) << endl;
     addr = NULL;
   }
 
@@ -109,7 +109,7 @@ void *alloc_32kb_hugepage(void) {
 
   addr = mmap(ADDR, KiB(32), PROTECTION, FLAGS_4K, 0, 0);
   if (addr == MAP_FAILED) {
-    printf("alloc_1kb_hugepage() failed: %s\n", strerror(errno));
+    cerr << "alloc_32kb_hugepage() failed:" << strerror(errno) << endl;;
     addr = NULL;
   }
 
@@ -121,7 +121,7 @@ void *alloc_4kb_hugepage(void) {
 
   addr = mmap(ADDR, KiB(4), PROTECTION, FLAGS_4K, 0, 0);
   if (addr == MAP_FAILED) {
-    printf("alloc_1kb_hugepage() failed: %s\n", strerror(errno));
+    cerr << "alloc_4kb_hugepage() failed:" << strerror(errno) << endl;;
     addr = NULL;
   }
 
@@ -267,6 +267,9 @@ public:
         ->default_str(std::to_string(timeout_msec_));
   }
   virtual ~afu() {
+
+    if (fd_ > 0)
+        close(fd_);
     if (logger_)
       spdlog::drop(logger_->name());
   }
@@ -314,7 +317,7 @@ public:
         string substr_dev(str.substr(0, str.rfind("/")));
         globfree(&pglob);
 
-        substr_dev.append("/he-cache/he-cache*");
+        substr_dev.append("/dfl-cxl-cache/dfl-cxl-cache*");
         gres = glob(substr_dev.c_str(), GLOB_NOSORT, NULL, &pglob);
         if (gres) {
           cerr << "Failed pattern match" << substr_dev.c_str() << ":"
@@ -325,7 +328,7 @@ public:
         string str1(pglob.gl_pathv[0]);
         globfree(&pglob);
         dev_path_.append("/dev");
-        dev_path_.append(str1.substr(str1.rfind("/"), 13));
+        dev_path_.append(str1.substr(str1.rfind("/"), 16));
 
         return 0;
       }
@@ -357,7 +360,7 @@ public:
   int open_handle() {
 
     int res = 0;
-    cout << "dev_path_:" << dev_path_ << endl;
+    logger_->debug("dev_path_:{0}", dev_path_);
 
     fd_ = open(dev_path_.c_str(), O_RDWR);
     if (fd_ < 0) {
@@ -367,16 +370,15 @@ public:
 
     memset(&rinfo_, 0, sizeof(rinfo_));
     rinfo_.argsz = sizeof(rinfo_);
-    res = ioctl(fd_, DFL_HE_CACHE_GET_REGION_INFO, &rinfo_);
+    res = ioctl(fd_, DFL_CXL_CACHE_GET_REGION_INFO, &rinfo_);
     if (res) {
-      cerr << "ioctl() DFL_HE_CACHE_GET_REGION_INFO failed:" << strerror(errno)
+      cerr << "ioctl() DFL_CXL_CACHE_GET_REGION_INFO failed:" << strerror(errno)
            << endl;
       close(fd_);
       return 2;
     }
-
-    printf("MMIO region flags: 0x%x size: %llu offset: %llu\n", rinfo_.flags,
-           rinfo_.size, rinfo_.offset);
+    logger_->debug("MMIO region flags:0x:{0:x} size:0x {1:x} offset:0x {2:x}",
+        rinfo_.flags, rinfo_.size, rinfo_.offset);
 
     if (!map_mmio()) {
       cerr << "mmap failed:" << strerror(errno) << endl;
@@ -385,10 +387,10 @@ public:
     }
 
     volatile uint64_t *u64 = (volatile uint64_t *)mmio_base_;
-    printf("DFH     : 0x%016" PRIx64 "\n", *u64);
-    printf("DFH + 8 : 0x%016" PRIx64 "\n", *(u64 + 1));
-    printf("DFH + 16: 0x%016" PRIx64 "\n", *(u64 + 2));
-    printf("DFH + 24: 0x%016" PRIx64 "\n", *(u64 + 3));
+    logger_->debug("DFH     : 0x:{0:X}", *u64);
+    logger_->debug("DFH + 8 : 0x:{0:X}", *(u64 + 1));
+    logger_->debug("DFH + 16: 0x:{0:X}", *(u64 + 2));
+    logger_->debug("DFH + 24: 0x:{0:X}", *(u64 + 3));
 
     return exit_codes::not_run;
   }
@@ -483,54 +485,39 @@ public:
 
   command::ptr_t current_command() const { return current_command_; }
 
-  bool open_device() {
+  bool allocate_dsm(size_t len = KiB(4), uint32_t numa_node = 0) {
 
-    // std::cerr << "open\n" << dev_str;
-    fd_ = open(dev_path_.c_str(), O_RDWR);
-    if (fd_ < 0) {
-      printf("open() failed: %s\n", strerror(errno));
-      return false;
-    }
-
-    return true;
-  }
-
-  bool close_device() {
-    if (fd_ > 0)
-      close(fd_);
-    return true;
-  }
-
-  bool allocate_dsm(size_t len = KiB(4), uint32_t node = 0) {
     int res = 0;
     void *ptr = NULL;
-    struct dfl_he_cache_dma_map dma_map;
-    // cout << "allocate_dsm\n";
+    struct dfl_cxl_cache_dma_map dma_map;
 
     memset(&dma_map, 0, sizeof(dma_map));
-
     ptr = alloc_4kb_hugepage();
     if (!ptr) {
-      cerr << "failed to allocate 4k huge page:" << strerror(errno) << endl;
+      cerr << "Fails to allocate 4k huge page:" << strerror(errno) << endl;
       return false;
     }
 
+    cout << "DSM buffer numa node: " << numa_node << endl;
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
-    dma_map.numa_node = node;
-    dma_map.csr_array[0] = DFL_HE_CACHE_DSM_BASE; // 0x030
+    dma_map.numa_node = numa_node;
+    dma_map.csr_array[0] = DFL_CXL_CACHE_DSM_BASE; // 0x030
+
+    logger_->debug("Allocate DSM buffer user addr 0x:{0:x} length : {1:d} numa node : {2:d}",
+        dma_map.user_addr, dma_map.length, dma_map.numa_node);
 
     volatile uint64_t *u64 =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_DSM_BASE);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_DSM_BASE);
 
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_MAP, &dma_map);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_MAP, &dma_map);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_NODE_DSM_INFO failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_NODE_DSM_INFO failed" << strerror(errno)
            << endl;
       goto out_free;
     }
-    printf("DSM_BASE: 0x%016" PRIx64 "\n", *u64);
+    logger_->debug("DSM_BASE     : 0x:{0:x}", *u64);
 
     dsm_buffer_ = (uint8_t *)ptr;
     dsm_buf_len_ = len;
@@ -542,28 +529,30 @@ public:
   }
 
   bool free_dsm() {
-    struct dfl_he_cache_dma_unmap dma_unmap;
+
     int res = 0;
+    struct dfl_cxl_cache_dma_unmap dma_unmap;
 
-    // cout << "free_dsm\n" << endl;
     memset(&dma_unmap, 0, sizeof(dma_unmap));
-
     dma_unmap.argsz = sizeof(dma_unmap);
     dma_unmap.user_addr = (__u64)dsm_buffer_;
     dma_unmap.length = dsm_buf_len_;
-    dma_unmap.csr_array[0] = DFL_HE_CACHE_DSM_BASE; // 0x030
+    dma_unmap.csr_array[0] = DFL_CXL_CACHE_DSM_BASE; // 0x030
+
+    logger_->debug("free dsm user addr 0x:{0:x} length : {1:d} ",
+        dma_unmap.user_addr, dma_unmap.length);
 
     volatile uint64_t *u64 =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_DSM_BASE);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_DSM_BASE);
 
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
            << endl;
     }
-    printf("DSM_BASE: 0x%016" PRIx64 "\n", *u64);
-    free_memory(dsm_buffer_, dsm_buf_len_);
 
+    logger_->debug("DSM_BASE     : 0x:{0:x}", *u64);
+    free_memory(dsm_buffer_, dsm_buf_len_);
     return true;
   }
 
@@ -571,37 +560,37 @@ public:
 
     int res = 0;
     void *ptr = NULL;
-    struct dfl_he_cache_dma_map dma_map;
-
-    // cout << "allocate_cache_read\n";
+    struct dfl_cxl_cache_dma_map dma_map;
 
     memset(&dma_map, 0, sizeof(dma_map));
-
     ptr = alloc_2mb_hugepage();
     if (!ptr) {
-      cerr << "failed to allocate huge pages\n" << endl;
+      cerr << "Fails to allocate 2MB huge pages" << endl;
       return false;
     }
 
-    cout << "numa_node: " << numa_node << endl;
+    cout << "Read buffer numa node: " << numa_node << endl;
 
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.numa_node = numa_node;
-    dma_map.csr_array[0] = DFL_HE_CACHE_RD_ADDR_TABLE_DATA; // 0x88
+    dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA; // 0x88
+
+    logger_->debug("Allocate read buffer user addr 0x:{0:x} length : {1:d} numa node : {2:d}",
+        dma_map.user_addr, dma_map.length, dma_map.numa_node);
 
     volatile uint64_t *u64 =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_RD_ADDR_TABLE_DATA);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_RD_ADDR_TABLE_DATA);
 
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_MAP, &dma_map);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_MAP, &dma_map);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_MAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_MAP failed" << strerror(errno)
            << endl;
       goto out_free;
     }
-    printf("DFL_HE_CACHE_RD_ADDR_TABLE_DATA: 0x%016" PRIx64 "\n", *u64);
 
+    logger_->debug("DFL_CXL_CACHE_RD_ADDR_TABLE_DATA     : 0x:{0:x}", *u64);
     rd_buffer_ = (uint8_t *)ptr;
     rd_buf_len_ = len;
     return true;
@@ -612,64 +601,70 @@ public:
   }
 
   bool free_cache_read() {
-    struct dfl_he_cache_dma_unmap dma_unmap;
+
     int res = 0;
+    struct dfl_cxl_cache_dma_unmap dma_unmap;
 
     memset(&dma_unmap, 0, sizeof(dma_unmap));
-
     dma_unmap.argsz = sizeof(dma_unmap);
     dma_unmap.user_addr = (__u64)rd_buffer_;
     dma_unmap.length = rd_buf_len_;
-    dma_unmap.csr_array[0] = DFL_HE_CACHE_RD_ADDR_TABLE_DATA; // 0x88
+    dma_unmap.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA; // 0x88
+
+    logger_->debug("free read user addr 0x:{0:x} length : {1:d} ",
+        dma_unmap.user_addr, dma_unmap.length);
 
     volatile uint64_t *u64 =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_RD_ADDR_TABLE_DATA);
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_RD_ADDR_TABLE_DATA);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
            << endl;
     }
 
-    printf("DFL_HE_CACHE_RD_ADDR_TABLE_DATA: 0x%016" PRIx64 "\n", *u64);
+    logger_->debug("DFL_CXL_CACHE_RD_ADDR_TABLE_DATA     : 0x:{0:x}", *u64);
     free_memory(rd_buffer_, rd_buf_len_);
 
     return true;
   }
 
   bool allocate_cache_write(size_t len = MiB(2), uint32_t numa_node = 0) {
-    int res;
-    void *ptr;
-    struct dfl_he_cache_dma_map dma_map;
 
-    // std::cout << "allocate_cache_write" << endl;
+    int res  = 0;
+    void *ptr = NULL;
+    struct dfl_cxl_cache_dma_map dma_map;
 
     memset(&dma_map, 0, sizeof(dma_map));
-
     ptr = alloc_2mb_hugepage();
     if (!ptr) {
-      cerr << "failed to allocate huge pages\n" << endl;
+      cerr << "Fails to allocate 2MB huge pages" << endl;
       return false;
     }
 
+    cout << "Write buffer numa node: " << numa_node << endl;
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.numa_node = numa_node;
-    dma_map.csr_array[0] = DFL_HE_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+    dma_map.csr_array[0] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+
+    logger_->debug("Allocate write buffer user addr 0x:{0:x}\
+        length : {1:d} numa node : {2:d}",
+        dma_map.user_addr, dma_map.length, dma_map.numa_node);
 
     volatile uint64_t *u64 =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_WR_ADDR_TABLE_DATA);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_WR_ADDR_TABLE_DATA);
 
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_MAP, &dma_map);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_MAP, &dma_map);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_MAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_MAP failed" << strerror(errno)
            << endl;
       goto out_free;
     }
-    printf("\nDFL_HE_CACHE_WR_ADDR_TABLE_DATA: 0x%016" PRIx64 "\n", *u64);
 
+    logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64);
     wr_buffer_ = (uint8_t *)ptr;
-
+    wr_buf_len_ = len;
     return true;
 
   out_free:
@@ -678,28 +673,29 @@ public:
   }
 
   bool free_cache_write() {
-    struct dfl_he_cache_dma_unmap dma_unmap;
-    int res;
 
-    // cout << "free_cache_write" << endl;
+    int res = 0;
+    struct dfl_cxl_cache_dma_unmap dma_unmap;
+
     memset(&dma_unmap, 0, sizeof(dma_unmap));
-
     dma_unmap.argsz = sizeof(dma_unmap);
     dma_unmap.user_addr = (__u64)wr_buffer_;
     dma_unmap.length = wr_buf_len_;
-    dma_unmap.csr_array[0] = DFL_HE_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+    dma_unmap.csr_array[0] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+
+    logger_->debug("free write user addr 0x:{0:x} length : {1:d} ",
+        dma_unmap.user_addr, dma_unmap.length);
 
     volatile uint64_t *u64 =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_WR_ADDR_TABLE_DATA);
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_WR_ADDR_TABLE_DATA);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
            << endl;
     }
 
-    printf("\nDFL_HE_CACHE_WR_ADDR_TABLE_DATA: 0x%016" PRIx64 "\n", *u64);
+    logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64);
     free_memory(wr_buffer_, wr_buf_len_);
-
     return true;
   }
 
@@ -707,38 +703,41 @@ public:
 
     int res = 0;
     void *ptr = NULL;
-    struct dfl_he_cache_dma_map dma_map;
-
-    // cout<< "allocate_cache_read_write";
+    struct dfl_cxl_cache_dma_map dma_map;
 
     memset(&dma_map, 0, sizeof(dma_map));
     ptr = alloc_2mb_hugepage();
     if (!ptr) {
-      cerr << "failed to allocate huge pages\n" << endl;
+      cerr << "Fails to allocate 2MB huge pages" << endl;
       return false;
     }
+    cout << "Read/Write buffer numa node: " << numa_node << endl;
 
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.numa_node = numa_node;
-    dma_map.csr_array[0] = DFL_HE_CACHE_RD_ADDR_TABLE_DATA; // 0x88;
-    dma_map.csr_array[1] = DFL_HE_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+    dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA; // 0x88;
+    dma_map.csr_array[1] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+
+    logger_->debug("Allocate read/write buffer user addr 0x:{0:x}\
+        length : {1:d} numa node : {2:d}",
+        dma_map.user_addr, dma_map.length, dma_map.numa_node);
 
     volatile uint64_t *u64_wr =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_WR_ADDR_TABLE_DATA);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_WR_ADDR_TABLE_DATA);
     volatile uint64_t *u64_rd =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_RD_ADDR_TABLE_DATA);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_RD_ADDR_TABLE_DATA);
 
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_MAP, &dma_map);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_MAP, &dma_map);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_MAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_MAP failed" << strerror(errno)
            << endl;
       goto out_free;
     }
 
-    printf("\nDFL_HE_CACHE_WR_ADDR_TABLE_DATA: 0x%016" PRIx64 "\n", *u64_wr);
-    printf("\nDFL_HE_CACHE_RD_ADDR_TABLE_DATAs: 0x%016" PRIx64 "\n", *u64_rd);
+    logger_->debug("nDFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_rd);
+    logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_wr);
 
     rd_wr_buffer_ = (uint8_t *)ptr;
     rd_wr_buf_len_ = len;
@@ -751,32 +750,33 @@ public:
   }
 
   bool free_cache_read_write() {
-    struct dfl_he_cache_dma_unmap dma_unmap;
-    int res;
 
-    // cout << "free_cache_read_write\n" << endl;
+    int res = 0 ;
+    struct dfl_cxl_cache_dma_unmap dma_unmap;
 
     memset(&dma_unmap, 0, sizeof(dma_unmap));
-
     dma_unmap.argsz = sizeof(dma_unmap);
     dma_unmap.user_addr = (__u64)rd_wr_buffer_;
     dma_unmap.length = rd_wr_buf_len_;
-    dma_unmap.csr_array[0] = DFL_HE_CACHE_RD_ADDR_TABLE_DATA; // 0x88;
-    dma_unmap.csr_array[1] = DFL_HE_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+    dma_unmap.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA; // 0x88;
+    dma_unmap.csr_array[1] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA; // 0x68;
+
+    logger_->debug("free read/write user addr 0x:{0:x} length : {1:d} ",
+        dma_unmap.user_addr, dma_unmap.length);
 
     volatile uint64_t *u64_wr =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_WR_ADDR_TABLE_DATA);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_WR_ADDR_TABLE_DATA);
     volatile uint64_t *u64_rd =
-        (volatile uint64_t *)(mmio_base_ + DFL_HE_CACHE_RD_ADDR_TABLE_DATA);
+        (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_RD_ADDR_TABLE_DATA);
 
-    res = ioctl(fd_, DFL_HE_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
+    res = ioctl(fd_, DFL_CXL_CACHE_NUMA_DMA_UNMAP, &dma_unmap);
     if (res) {
-      cerr << "ioctl DFL_HE_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
+      cerr << "ioctl DFL_CXL_CACHE_NUMA_DMA_UNMAP failed" << strerror(errno)
            << endl;
     }
 
-    printf("\nDFL_HE_CACHE_WR_ADDR_TABLE_DATA: 0x%016" PRIx64 "\n", *u64_wr);
-    printf("\nDFL_HE_CACHE_RD_ADDR_TABLE_DATAs: 0x%016" PRIx64 "\n", *u64_rd);
+    logger_->debug("nDFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_rd);
+    logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_wr);
 
     free_memory(rd_wr_buffer_, rd_wr_buf_len_);
     rd_wr_buffer_ = NULL;
@@ -815,7 +815,7 @@ protected:
   uint8_t *rd_wr_buffer_;
   uint64_t rd_wr_buf_len_;
 
-  struct dfl_he_cache_region_info rinfo_;
+  struct dfl_cxl_cache_region_info rinfo_;
 
   std::string dev_path_;
 

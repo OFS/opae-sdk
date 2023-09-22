@@ -365,7 +365,7 @@ using test_command = opae::afu_test::command;
 class host_exerciser : public test_afu {
 public:
   host_exerciser()
-      : test_afu("host_exerciser", nullptr, "warning"), count_(1) {}
+      : test_afu("host_exerciser", nullptr, "info"), count_(1) {}
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override {
     int res = exit_codes::not_run;
@@ -374,7 +374,8 @@ public:
     // Info prints details of an individual run. Turn it on if doing only one
     // test and the user hasn't changed level from the default.
     if ((log_level_.compare("warning") == 0))
-      logger_->set_level(spdlog::level::info);
+       logger_->set_level(spdlog::level::info);
+
 
     logger_->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;

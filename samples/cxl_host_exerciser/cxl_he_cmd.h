@@ -61,18 +61,17 @@ public:
     if (!dsm_status)
       return;
 
-    std::cout << "\n********* DSM Status CSR Start *********" << std::endl;
-
-    std::cout << "test completed :" << dsm_status->test_completed << std::endl;
-    std::cout << "dsm number:" << dsm_status->dsm_number << std::endl;
-    std::cout << "error vector:" << dsm_status->err_vector << std::endl;
-    std::cout << "num ticks:" << dsm_status->num_ticks << std::endl;
-    std::cout << "num reads:" << dsm_status->num_reads << std::endl;
-    std::cout << "num writes:" << dsm_status->num_writes << std::endl;
-    std::cout << "penalty start:" << dsm_status->penalty_start << std::endl;
-    std::cout << "penalty end:" << dsm_status->penalty_end << std::endl;
-    std::cout << "actual data:" << dsm_status->actual_data << std::endl;
-    std::cout << "expected data:" << dsm_status->expected_data << std::endl;
+    cout << "\n********* DSM Status CSR Start *********" << endl;
+    cout << "test completed :" << dsm_status->test_completed << endl;
+    cout << "dsm number:" << dsm_status->dsm_number << endl;
+    cout << "error vector:" << dsm_status->err_vector << endl;
+    cout << "num ticks:" << dsm_status->num_ticks << endl;
+    cout << "num reads:" << dsm_status->num_reads << endl;
+    cout << "num writes:" << dsm_status->num_writes << endl;
+    cout << "penalty start:" << dsm_status->penalty_start << endl;
+    cout << "penalty end:" << dsm_status->penalty_end << endl;
+    cout << "actual data:" << dsm_status->actual_data << endl;
+    cout << "expected data:" << dsm_status->expected_data << endl;
 
     // print bandwidth
     if (dsm_status->num_ticks > 0) {
@@ -82,7 +81,7 @@ public:
       host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
     }
 
-    std::cout << "********* DSM Status CSR end *********" << std::endl;
+    cout << "********* DSM Status CSR end *********" << endl;
   }
 
   void host_exerciser_errors() {
@@ -145,7 +144,7 @@ public:
     while (0 == ((*status_ptr) & 0x1)) {
       usleep(HELPBK_TEST_SLEEP_INVL);
       if (--timeout == 0) {
-        cout << "HE LPBK TIME OUT" << std::endl;
+        cout << "HE LPBK TIME OUT" << endl;
 
         return false;
       }
@@ -156,36 +155,27 @@ public:
   bool verify_numa_node() {
 
     if (numa_available() < 0) {
-      printf("System does not support NUMA API!\n");
+      cerr << "System does not support NUMA API" << endl;
       return false;
     }
 
-    printf("SUpported NUMA API!\n");
-
     int n = numa_max_node();
-    printf("There are %d nodes on your system\n", n + 1);
+    cout << "There are %d nodes on your system:" << n + 1 << endl;
 
-    int cup_num = sched_getcpu();
-    printf("cup_num:%d\n", cup_num);
+    int cpu_num = sched_getcpu();
+    cout << "cpu num:" << cpu_num << endl;
 
-    int node = numa_node_of_cpu(cup_num);
-    printf("node:%d\n", node);
+    int numa_node = numa_node_of_cpu(cpu_num);
+    cout << "numa node:" << numa_node << endl;
 
     if (he_target_ == HE_TARGET_HOST) {
-      numa_node_ = node;
-      printf("HE_TARGET_HOST numa_node_:%d\n", numa_node_);
-
+      numa_node_ = numa_node;
+      cout << "HE_TARGET_HOST numa node:" << numa_node_ << endl;
     } else {
-      // find fpga numa node numebr
+      // find fpga numa node number
       numa_node_ = 2;
-      printf("HE_TARGET_FPGA numa_node_:%d\n", numa_node_);
+      cout << "HE_TARGET_FPGA numa node:" << numa_node_ << endl;
     }
-
-    int num_config_cpu = numa_num_configured_cpus();
-    printf("num_config_cpu:%d\n", num_config_cpu);
-
-    int num_task_nodes = numa_num_task_nodes();
-    printf("num_task_nodes:%d\n", num_task_nodes);
 
     return true;
   }
