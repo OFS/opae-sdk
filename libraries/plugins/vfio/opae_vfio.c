@@ -716,9 +716,6 @@ fpga_result __VFIO_API__ vfio_fpgaOpen(fpga_token token, fpga_handle *handle, in
 	_handle->mmio_base = (volatile uint8_t *)mmio;
 	_handle->mmio_size = size;
 
-	_handle->sva_fd = -1;
-	_handle->pasid = -1;
-
 	_handle->flags = 0;
 #if defined(__i386__) || defined(__x86_64__) || defined(__ia64__)
 #if GCC_VERSION >= 40900
@@ -766,11 +763,10 @@ fpga_result __VFIO_API__ vfio_fpgaClose(fpga_handle handle)
 		OPAE_ERR("invalid token in handle");
 	}
 
-	if (h->sva_fd >= 0) {
+	if (h->flags & OPAE_FLAG_SVA_FD_VALID) {
 		// Release PASID and shared virtual addressing
 		opae_close(h->sva_fd);
-		h->sva_fd = -1;
-		h->pasid = -1;
+		h->flags &= ~(OPAE_FLAG_SVA_FD_VALID | OPAE_FLAG_PASID_VALID);
 	}
 
 	close_vfio_pair(&h->vfio_pair);
@@ -1621,7 +1617,7 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 		goto out_unlock;
 	}
 
-	if (h->pasid >= 0) {
+	if (h->flags & OPAE_FLAG_PASID_VALID) {
 		// vfio_fpgaBindSVA() was already called. Return the same result.
 		if (pasid)
 			*pasid = h->pasid;
@@ -1649,6 +1645,7 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 				*pasid = bind_pasid;
 			h->pasid = bind_pasid;
 			h->sva_fd = fd;
+			h->flags |= (OPAE_FLAG_SVA_FD_VALID | OPAE_FLAG_PASID_VALID);
 			goto out_unlock;
 		}
 		opae_close(fd);

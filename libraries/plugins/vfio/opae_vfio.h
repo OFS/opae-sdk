@@ -102,6 +102,8 @@ typedef struct _vfio_handle {
 	int sva_fd;
 	int pasid;
 #define OPAE_FLAG_HAS_AVX512 (1u << 0)
+#define OPAE_FLAG_SVA_FD_VALID (1u << 1)  // Indicates sva_fd file handle is valid
+#define OPAE_FLAG_PASID_VALID (1u << 2)   // Indicates pasid is set
 	uint32_t flags;
 } vfio_handle;
 
