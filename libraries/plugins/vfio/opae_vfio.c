@@ -1638,7 +1638,7 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 	// then assume PASID is not supported, either by the host or the FPGA.
 	snprintf(path, sizeof(path), "/dev/dfl-pci-sva/%s", v->cont_pciaddr);
 	fd = opae_open(path, O_RDONLY);
-	if (fd > 0) {
+	if (fd >= 0) {
 		// Request a shared virtual addressing. On success, the PASID is
 		// returned.
 		int bind_pasid = opae_ioctl(fd, DFL_PCI_SVA_BIND_DEV);
