@@ -23,6 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/buffer.h>
 #include <opae/cxx/core/except.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
@@ -30,7 +31,6 @@
 #include <opae/manage.h>
 #include <opae/mmio.h>
 #include <opae/utils.h>
-#include <opae/buffer.h>
 
 namespace opae {
 namespace fpga {
@@ -131,8 +131,7 @@ token::ptr_t handle::get_token() const {
 }
 
 uint32_t handle::bind_sva() {
-  if (!pasid_)
-    ASSERT_FPGA_OK(fpgaBindSVA(handle_, &pasid_));
+  if (!pasid_) ASSERT_FPGA_OK(fpgaBindSVA(handle_, &pasid_));
   return pasid_;
 }
 
