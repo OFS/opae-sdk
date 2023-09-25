@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,12 +30,13 @@
 #include <opae/manage.h>
 #include <opae/mmio.h>
 #include <opae/utils.h>
+#include <opae/buffer.h>
 
 namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h) : handle_(h), token_(nullptr) {}
+handle::handle(fpga_handle h) : handle_(h), token_(nullptr), pasid_(0) {}
 
 handle::~handle() {
   close();
@@ -127,6 +128,12 @@ uint8_t *handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const {
 token::ptr_t handle::get_token() const {
   token::ptr_t p(new token(token_));
   return p;
+}
+
+uint32_t handle::bind_sva() {
+  if (!pasid_)
+    ASSERT_FPGA_OK(fpgaBindSVA(handle_, &pasid_));
+  return pasid_;
 }
 
 }  // end of namespace types
