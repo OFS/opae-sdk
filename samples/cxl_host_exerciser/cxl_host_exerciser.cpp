@@ -40,12 +40,11 @@ int main(int argc, char *argv[]) {
   app.register_command<host_exerciser::he_cache_lpbk_cmd>();
 
   // host exerciser signal handler
-  struct sigaction act_old, act_new;
-  memset(&act_old, 0, sizeof(act_old));
+  struct sigaction  act_new;
   memset(&act_new, 0, sizeof(act_new));
 
   act_new.sa_handler = he_sig_handler;
-  sigaction(SIGINT, &act_new, &act_old);
+  sigaction(SIGINT, &act_new, NULL);
 
   return app.main(argc, argv);
 }

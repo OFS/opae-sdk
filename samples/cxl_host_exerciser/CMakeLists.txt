@@ -50,6 +50,7 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
         PRIVATE
            ${OPAE_INCLUDE_PATHS}
            ${CMAKE_CURRENT_SOURCE_DIR}
+           ${OPAE_LIB_SOURCE}/plugins/xfpga/
            ${CLI11_INCLUDE_DIRS}
            ${numa_INCLUDE_DIRS}
            ${spdlog_INCLUDE_DIRS})

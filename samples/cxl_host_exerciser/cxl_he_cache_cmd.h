@@ -163,7 +163,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read();
@@ -196,7 +195,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read();
@@ -273,7 +271,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read_write();
@@ -307,7 +304,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read_write();
@@ -380,7 +376,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read();
@@ -453,7 +448,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read_write();
@@ -530,10 +524,8 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
-
       g_stop_thread = true;
       t1.join();
       sleep(1);
@@ -616,8 +608,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
-
       he_perf_counters();
       host_exerciser_errors();
       g_stop_thread = true;
@@ -695,7 +685,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_read();
@@ -769,7 +758,6 @@ public:
 
     // wait for completion
     if (!he_wait_test_completion()) {
-      cerr << "timeout error" << endl;
       he_perf_counters();
       host_exerciser_errors();
       host_exe_->free_cache_write();
@@ -896,7 +884,6 @@ protected:
   uint32_t he_contmodetime_;
   uint32_t he_linerep_count_;
   uint32_t he_stide_;
-  uint32_t he_target_;
   uint32_t he_test_;
   bool he_test_all_;
 };

@@ -140,12 +140,12 @@ public:
     /* Wait for test completion */
     uint32_t timeout = HELPBK_TEST_TIMEOUT;
 
+    cout << "Test started ......" << endl;
     volatile uint8_t *status_ptr = host_exe_->get_dsm();
     while (0 == ((*status_ptr) & 0x1)) {
       usleep(HELPBK_TEST_SLEEP_INVL);
       if (--timeout == 0) {
-        cout << "HE LPBK TIME OUT" << endl;
-
+        cout << "HE Cache time out error" << endl;
         return false;
       }
     }
@@ -162,11 +162,8 @@ public:
     int n = numa_max_node();
     cout << "There are %d nodes on your system:" << n + 1 << endl;
 
-    int cpu_num = sched_getcpu();
-    cout << "cpu num:" << cpu_num << endl;
-
-    int numa_node = numa_node_of_cpu(cpu_num);
-    cout << "numa node:" << numa_node << endl;
+    int numa_node = numa_node_of_cpu(sched_getcpu());
+    cout << "HE Cache app numa node:" << numa_node << endl;
 
     if (he_target_ == HE_TARGET_HOST) {
       numa_node_ = numa_node;
