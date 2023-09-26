@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -173,5 +173,14 @@ const char *handle_doc_write_csr64() {
       offset: The register offset.
       value: The 64-bit value to write to the register.
       csr_space: The CSR space to write from. Default is 0.
+  )opaedoc";
+}
+
+const char *handle_doc_bind_sva() {
+  return R"opaedoc(
+    Bind IOMMU shared virtual addressing.
+    When PCIe PASID, ATS and PRS capabilities are enabled, some platforms
+    support binding the IOMMU to user space virtual addresses.
+    Returns the non-zero PASID when supported, else 0.
   )opaedoc";
 }

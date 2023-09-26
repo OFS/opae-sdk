@@ -230,7 +230,8 @@ PYBIND11_MODULE(_opae, m) {
       .def("__getattr__", handle_get_sysobject, sysobject_doc_handle_get())
       .def("__getitem__", handle_get_sysobject, sysobject_doc_handle_get())
       .def("find", handle_find_sysobject, sysobject_doc_handle_find(),
-           py::arg("name"), py::arg("flags") = FPGA_OBJECT_GLOB);
+           py::arg("name"), py::arg("flags") = FPGA_OBJECT_GLOB)
+      .def("bind_sva", &handle::bind_sva, handle_doc_bind_sva());
 
   // define shared_buffer class
   m.def("allocate_shared_buffer", shared_buffer_allocate,
