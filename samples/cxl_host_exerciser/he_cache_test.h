@@ -39,11 +39,15 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 #include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <opae/cxx/core.h>
+
+
 
 #include "fpga-dfl.h"
 
