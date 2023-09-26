@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2022, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -169,6 +169,29 @@ TEST_P(handle_cxx_core, get_token) {
 
   token::ptr_t p;
   ASSERT_NO_THROW(p = tok->get_parent());
+}
+
+/**
+ * @test bind_sva
+ * Verify that handle::bind_sva can retrieve the pasid
+ * when supported.
+ */
+TEST_P(handle_cxx_core, bind_sva) {
+  handle_ = handle::open(tokens_[0], 0);
+  ASSERT_NE(nullptr, handle_.get());
+
+  uint32_t pasid = 0;
+  bool check_it = true; // only check if bind_sva is supported
+
+  try {
+    pasid = handle_->bind_sva();
+  } catch(opae::fpga::types::not_supported &ex) {
+    check_it = false;
+  }
+
+  if (check_it) {
+    ASSERT_NE(0, pasid);
+  }
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(handle_cxx_core);

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/buffer.h>
 #include <opae/cxx/core/except.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
@@ -35,7 +36,7 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h) : handle_(h), token_(nullptr) {}
+handle::handle(fpga_handle h) : handle_(h), token_(nullptr), pasid_(0) {}
 
 handle::~handle() {
   close();
@@ -127,6 +128,11 @@ uint8_t *handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const {
 token::ptr_t handle::get_token() const {
   token::ptr_t p(new token(token_));
   return p;
+}
+
+uint32_t handle::bind_sva() {
+  if (!pasid_) ASSERT_FPGA_OK(fpgaBindSVA(handle_, &pasid_));
+  return pasid_;
 }
 
 }  // end of namespace types
