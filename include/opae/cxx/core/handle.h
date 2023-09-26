@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -186,11 +186,19 @@ class handle {
    */
   token::ptr_t get_token() const;
 
+  /** Bind IOMMU shared virtual addressing
+   *
+   * @return the non-zero process address space ID on success
+   * or zero on failure.
+   */
+  uint32_t bind_sva();
+
  private:
   handle(fpga_handle h);
 
   fpga_handle handle_;
   fpga_token token_;
+  uint32_t pasid_;
 };
 
 }  // end of namespace types
