@@ -355,6 +355,7 @@ done
 %{_bindir}/mem_tg
 %{_bindir}/ofs.uio
 %{_bindir}/cxl_mem_tg
+%{_bindir}/cxl_host_exerciser
 
 %{python3_sitearch}/opae.diag*
 %{python3_sitearch}/opae/diag*
