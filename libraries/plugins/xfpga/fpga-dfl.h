@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@
 #define DFL_FPGA_BASE 0
 #define DFL_PORT_BASE 0x40
 #define DFL_FME_BASE 0x80
+#define DFL_CXL_CACHE_BASE 0xA0
 #define DFL_PCI_SVA_BASE 0xf8
 
 /* Common IOCTLs for both FME and AFU file descriptor */
@@ -135,12 +136,20 @@ struct dfl_fpga_port_region_info {
  * Map the dma memory per user_addr and length which are provided by caller.
  * Driver fills the iova in provided struct afu_port_dma_map.
  * This interface only accepts page-size aligned user memory for dma mapping.
+ *
+ * Setting only one of DFL_DMA_MAP_FLAG_READ or WRITE limits FPGA-initiated
+ * DMA requests to only reads or only writes. To be back-compatiable with
+ * legacy driver, setting neither flag is equivalent to setting both flags:
+ * both read and write are requests permitted.
+ *
  * Return: 0 on success, -errno on failure.
  */
 struct dfl_fpga_port_dma_map {
 	/* Input */
 	__u32 argsz;		/* Structure length */
-	__u32 flags;		/* Zero for now */
+	__u32 flags;
+#define DFL_DMA_MAP_FLAG_READ	(1 << 0)/* readable from device */
+#define DFL_DMA_MAP_FLAG_WRITE	(1 << 1)/* writable from device */
 	__u64 user_addr;        /* Process virtual address */
 	__u64 length;           /* Length of mapping (bytes)*/
 	/* Output */
@@ -307,5 +316,103 @@ struct dfl_fpga_fme_port_pr {
  */
 #define DFL_PCI_SVA_UNBIND_DEV		_IO(DFL_FPGA_MAGIC,	\
 					    DFL_PCI_SVA_BASE + 1)
+
+/**
+ * DFL_CXL_CACHE_GET_REGION_INFO - _IOWR(DFL_FPGA_MAGIC, DFL_CXL_CACHE_BASE + 0,
+ *                                      struct dfl_cxl_cache_region_info)
+ *
+ * Retrieve information about a device memory region.
+ * Caller provides struct dfl_cxl_cache_region_info with flags.
+ * Driver returns the region info in other fields.
+ * Return: 0 on success, -errno on failure.
+ */
+
+#define DFL_CXL_CACHE_GET_REGION_INFO _IO(DFL_FPGA_MAGIC, DFL_CXL_CACHE_BASE + 0)
+
+/**
+ * struct dfl_cxl_cache_region_info - CXL cache region information
+ * @argsz: structure length
+ * @flags: access permission
+ * @size: region size (bytes)
+ * @offset: region offset from start of device fd
+ *
+ * to retrieve  information about a device memory region
+ */
+struct dfl_cxl_cache_region_info {
+	__u32 argsz;
+	__u32 flags;
+#define DFL_CXL_CACHE_REGION_READ	BIT(0)
+#define DFL_CXL_CACHE_REGION_WRITE	BIT(1)
+#define DFL_CXL_CACHE_REGION_MMAP	BIT(2)
+	__u64 size;
+	__u64 offset;
+};
+
+/**
+ * DFL_CXL_CACHE_NUMA_BUFFER_MAP - _IOWR(DFL_FPGA_MAGIC, DFL_CXL_CACHE_BASE + 1,
+ *                                      struct dfl_cxl_cache_buffer_map)
+ *
+ * Map the user memory per user_addr, length and numa node which are
+ * provided by caller. The driver allocates memory on the numa node,
+ * converts the user's virtual addressto a continuous physical address,
+ * and writes the physical address to the cxl cache read/write address table CSR.
+ *
+ * This interface only accepts page-size aligned user memory for mapping.
+ * Return: 0 on success, -errno on failure.
+ */
+
+#define DFL_ARRAY_MAX_SIZE   0x10
+
+#define DFL_CXL_CACHE_NUMA_BUFFER_MAP    _IO(DFL_FPGA_MAGIC,  DFL_CXL_CACHE_BASE + 1)
+
+/**
+ * struct dfl_cxl_cache_buffer_map - maps user address to physical address.
+ * @argsz: structure length
+ * @flags: flags
+ * @user_addr: user mmap virtual address
+ * @length: length of mapping (bytes)
+ * @numa_node: Numa node number
+ * @csr_array: array of region address offset
+ *
+ * maps user allocated virtual address to physical address.
+ */
+struct dfl_cxl_cache_buffer_map {
+	__u32 argsz;
+	__u32 flags;
+	__u64 user_addr;
+	__u64 length;
+	__u32 numa_node;
+	__u64 csr_array[DFL_ARRAY_MAX_SIZE];
+};
+
+/**
+ * DFL_CXL_CACHE_NUMA_BUFFER_UNMAP - _IOWR(DFL_FPGA_MAGIC, DFL_CXL_CACHE_BASE + 1,
+ *                                      struct dfl_cxl_cache_buffer_unmap)
+ *
+ * Unmaps the user memory per user_addr and length which are provided by caller
+ * The driver deletes the physical pages of the user address and writes a zero
+ * to the read/write address table CSR.
+ * Return: 0 on success, -errno on failure.
+ */
+
+#define DFL_CXL_CACHE_NUMA_BUFFER_UNMAP  _IO(DFL_FPGA_MAGIC,  DFL_CXL_CACHE_BASE + 2)
+
+/**
+ * struct dfl_cxl_cache_buffer_unmap - unmaps user allocated memory.
+ * @argsz: structure length
+ * @flags: flags
+ * @user_addr: user mmap virtual address
+ * @length: length of mapping (bytes)
+ * @csr_array: array of region address offset
+ *
+ * unmaps user allocated memory.
+ */
+struct dfl_cxl_cache_buffer_unmap {
+	__u32 argsz;
+	__u32 flags;
+	__u64 user_addr;
+	__u64 length;
+	__u64 csr_array[DFL_ARRAY_MAX_SIZE];
+};
 
 #endif /* _UAPI_LINUX_FPGA_DFL_H */

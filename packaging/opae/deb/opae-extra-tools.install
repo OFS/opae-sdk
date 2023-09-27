@@ -18,6 +18,7 @@ usr/bin/fpga_dma_N3000_test
 usr/bin/fpga_dma_test
 usr/bin/host_exerciser
 usr/bin/cxl_mem_tg
+usr/bin/cxl_host_exerciser
 usr/bin/bist
 usr/bin/hps
 usr/bin/hssi
