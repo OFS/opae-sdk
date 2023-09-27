@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -52,3 +52,4 @@ const char *handle_doc_read_csr64();
 const char *handle_doc_write_csr32();
 const char *handle_doc_write_csr64();
 
+const char *handle_doc_bind_sva();
