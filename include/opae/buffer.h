@@ -139,7 +139,7 @@ fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
  * Bind IOMMU shared virtual addressing
  *
  * When PCIe PASID, ATS and PRS capabilities are enabled, some platforms
- * supporting binding the IOMMU to user space virtual addresses.
+ * support binding the IOMMU to user space virtual addresses.
  *
  * @param[in]  handle   Handle to previously opened accelerator resource
  * @param[out] pasid    Process address space ID, set if not NULL.

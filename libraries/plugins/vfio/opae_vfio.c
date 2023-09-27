@@ -1608,9 +1608,6 @@ fpga_result __VFIO_API__ vfio_fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 	h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
 
-	if (pasid)
-		*pasid = -1;
-
 	struct opae_vfio *v = h->vfio_pair->device;
 	if (!v || !v->cont_pciaddr) {
 		res = FPGA_NO_DRIVER;

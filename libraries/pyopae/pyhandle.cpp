@@ -181,6 +181,6 @@ const char *handle_doc_bind_sva() {
     Bind IOMMU shared virtual addressing.
     When PCIe PASID, ATS and PRS capabilities are enabled, some platforms
     support binding the IOMMU to user space virtual addresses.
-    Returns the non-zero PASID when supported, else 0.
+    Returns the PASID when supported, else (uint32_t)-1.
   )opaedoc";
 }
