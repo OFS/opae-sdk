@@ -36,7 +36,8 @@ namespace opae {
 namespace fpga {
 namespace types {
 
-handle::handle(fpga_handle h) : handle_(h), token_(nullptr), pasid_(0) {}
+handle::handle(fpga_handle h)
+    : handle_(h), token_(nullptr), pasid_((uint32_t)-1) {}
 
 handle::~handle() {
   close();
@@ -131,7 +132,12 @@ token::ptr_t handle::get_token() const {
 }
 
 uint32_t handle::bind_sva() {
-  if (!pasid_) ASSERT_FPGA_OK(fpgaBindSVA(handle_, &pasid_));
+  if (pasid_ == (uint32_t)-1) {
+    auto res = fpgaBindSVA(handle_, &pasid_);
+    if (res != FPGA_NOT_SUPPORTED) {
+      ASSERT_FPGA_OK(res);
+    }
+  }
   return pasid_;
 }
 

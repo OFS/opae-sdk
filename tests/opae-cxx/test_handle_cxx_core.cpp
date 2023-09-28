@@ -180,17 +180,9 @@ TEST_P(handle_cxx_core, bind_sva) {
   handle_ = handle::open(tokens_[0], 0);
   ASSERT_NE(nullptr, handle_.get());
 
-  uint32_t pasid = 0;
-  bool check_it = true; // only check if bind_sva is supported
-
-  try {
-    pasid = handle_->bind_sva();
-  } catch(opae::fpga::types::not_supported &ex) {
-    check_it = false;
-  }
-
-  if (check_it) {
-    ASSERT_NE(0, pasid);
+  uint32_t pasid = handle_->bind_sva();
+  if (pasid == (uint32_t)-1) {
+    ASSERT_EQ(FPGA_NOT_SUPPORTED, fpgaBindSVA(handle_->c_type(), &pasid));
   }
 }
 
