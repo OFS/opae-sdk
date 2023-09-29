@@ -34,7 +34,7 @@ except ImportError:
 version = {
     'major': 1,
     'minor': 4,
-    'patch': 3
+    'patch': 5
 }
 
 

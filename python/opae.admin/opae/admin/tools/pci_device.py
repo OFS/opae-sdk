@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 # Copyright(c) 2021-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -31,6 +31,7 @@ import time
 from argparse import ArgumentParser, FileType
 from opae.admin.sysfs import pcie_device, pci_node
 from opae.admin.utils.process import call_process
+from opae.admin.version import pretty_version
 
 
 PCI_ADDRESS_PATTERN = (r'^(?P<pci_address>'
@@ -189,10 +190,18 @@ class unplug(object):
         self.parser = ArgumentParser('pci_device [device] unplug')
         self.parser.add_argument('-d', '--debug', action='store_true',
                                  default=False, help='enable debug output')
+        self.parser.add_argument('-e', '--exclude', default=None,
+                                 type=pci_devices, help='do not unplug me')
 
     def __call__(self, device, args, *rest):
         myargs, rest = self.parser.parse_known_args(rest)
         debug = myargs.debug
+
+        exclude_node = None
+        if myargs.exclude:
+            exclude_devs = pcie_device.enum(myargs.exclude)
+            if exclude_devs:
+                exclude_node = exclude_devs[0].pci_node
 
         root = device.pci_node.root
 
@@ -203,21 +212,39 @@ class unplug(object):
             v0, v1 = root.aer
             root.aer = (0xFFFFFFFF, 0xFFFFFFFF)
 
-        self.unplug(root, args, debug)
+        unplug.unplug_node(root, debug, exclude_node)
 
         if v0:
             root.aer = (v0, v1)
 
-    def unplug(self, root, args, debug):
+    @staticmethod
+    def unplug_node(root, debug, exclude_node):
         if debug:
-            print('Unbinding drivers for leaf devices')
+            print('Unbinding drivers for leaf devices', end='')
+            if exclude_node:
+                print(f' except {exclude_node.pci_address}')
+            else:
+                print('')
+
         for e in root.endpoints:
+            unbind = True
+
+            if exclude_node and e == exclude_node:
+                unbind = False
+
+            if unbind:
+                if debug:
+                    print(f' unbind {e.pci_address}')
+                e.unbind()
+
+        remove = True
+        if exclude_node and exclude_node.root == root:
+            remove = False
+
+        if remove:
             if debug:
-                print(f' unbind {e.pci_address}')
-            e.unbind()
-        if debug:
-            print(f'Removing the root device {root.pci_address}')
-        root.remove()
+                print(f'Removing the root device {root.pci_address}')
+            root.remove()
 
 
 class plug(object):
@@ -289,6 +316,9 @@ def main():
     parser.add_argument('-E', '--other-endpoints', action='store_true',
                         default=False,
                         help='perform action on peer pcie devices')
+    parser.add_argument('-v', '--version', action='version',
+                        version=f"%(prog)s {pretty_version()}",
+                        help='display version information and exit')
     args, rest = parser.parse_known_args()
 
     if hasattr(args, 'action') and args.action == 'plug':
