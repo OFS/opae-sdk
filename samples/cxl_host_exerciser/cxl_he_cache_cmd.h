@@ -123,9 +123,9 @@ public:
     // HE_INFO
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES);
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
 
-    cout << "Read number Lines:" << FPGA_32KB_CACHE_LINES << endl;
+    cout << "Read number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Numa node:" << numa_node_ << endl;
@@ -156,10 +156,7 @@ public:
     }
 
     // Start test
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -170,7 +167,7 @@ public:
       return -1;
     }
 
-    he_perf_counters();
+    he_perf_counters(HE_CXL_RD_LATENCY);
 
     cout << "********** AFU Copied host cache to FPGA Cache successfully "
             "********** " << endl;
@@ -188,10 +185,7 @@ public:
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Start test
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -202,7 +196,7 @@ public:
       return -1;
     }
 
-    he_perf_counters();
+    he_perf_counters(HE_CXL_RD_LATENCY);
     host_exe_->free_dsm();
     host_exe_->free_cache_read();
 
@@ -230,9 +224,9 @@ public:
     // HE_INFO
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES);
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
 
-    cout << "Read/write number Lines:" << FPGA_32KB_CACHE_LINES << endl;
+    cout << "Read/write number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
@@ -264,10 +258,7 @@ public:
     }
 
     // Start test
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -294,13 +285,10 @@ public:
     wr_table_ctl_.value = 0;
     wr_table_ctl_.enable_address_stride = 1;
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
+    host_exe_->write64(HE_WR_NUM_LINES, FPGA_512CACHE_LINES);
 
-    host_exe_->write64(HE_WR_NUM_LINES, FPGA_32KB_CACHE_LINES);
     // Start test
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -337,9 +325,9 @@ public:
     // HE_INFO
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_2MB_CACHE_LINES);
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
 
-    cout << "Read number Lines:" << FPGA_2MB_CACHE_LINES << endl;
+    cout << "Read number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
 
@@ -368,11 +356,8 @@ public:
       return -1;
     }
 
-    // start test
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    // Start test
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -383,7 +368,7 @@ public:
       return -1;
     }
 
-    he_perf_counters();
+    he_perf_counters(HE_CXL_RD_LATENCY);
     host_exe_->free_cache_read();
     host_exe_->free_dsm();
 
@@ -407,9 +392,9 @@ public:
     // HE_INFO
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_WR_NUM_LINES, FPGA_2MB_CACHE_LINES);
+    host_exe_->write64(HE_WR_NUM_LINES, FPGA_512CACHE_LINES);
 
-    cout << "Read/write number Lines:" << FPGA_2MB_CACHE_LINES << endl;
+    cout << "Read/write number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
@@ -440,11 +425,8 @@ public:
       return -1;
     }
 
-    // start test
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    // Start test
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -467,7 +449,7 @@ public:
 
   int he_run_host_rd_cache_hit_test() {
 
-      cout << "********** 1 Host LLC Read cache hit test start**********" << endl;
+      cout << "**********  Host LLC Read cache hit test start**********" << endl;
     /*
     STEPS
     1) Allocate DSM, Read buffer
@@ -479,9 +461,9 @@ public:
     // HE_INFO
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES);
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
 
-    cout << "Read number Lines:" << FPGA_32KB_CACHE_LINES << endl;
+    cout << "Read number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
@@ -513,14 +495,11 @@ public:
     }
 
     cout << " create thread - moves read buffer to host cache " << endl;
-    std::thread t1(he_cache_thread, host_exe_->get_read(), BUFFER_SIZE_2MB);
+    std::thread t1(he_cache_thread, host_exe_->get_read(), BUFFER_SIZE_32KB);
     sleep(1);
 
-    // start
-    he_ctl_.Start = 1;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
-    he_ctl_.Start = 0;
-    host_exe_->write64(HE_CTL, he_ctl_.value);
+    // Start test
+    he_start_test();
 
     // wait for completion
     if (!he_wait_test_completion()) {
@@ -537,7 +516,7 @@ public:
     g_stop_thread = true;
     t1.join();
 
-    he_perf_counters();
+    he_perf_counters(HE_CXL_RD_LATENCY);
     sleep(1);
     host_exe_->free_cache_read();
     host_exe_->free_dsm();
@@ -564,8 +543,8 @@ public:
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
 
-    host_exe_->write64(HE_WR_NUM_LINES, FPGA_32KB_CACHE_LINES);
-    cout << "Write number Lines:" << FPGA_32KB_CACHE_LINES  << endl;
+    host_exe_->write64(HE_WR_NUM_LINES, FPGA_512CACHE_LINES);
+    cout << "Write number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
@@ -597,7 +576,7 @@ public:
     }
 
     cout << " create thread - moves read buffer to host cache " << endl;
-    std::thread t1(he_cache_thread, host_exe_->get_write(), BUFFER_SIZE_2MB);
+    std::thread t1(he_cache_thread, host_exe_->get_write(), BUFFER_SIZE_32KB);
     sleep(1);
 
     // start
@@ -645,8 +624,8 @@ public:
     // HE_INFO
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, FPGA_32KB_CACHE_LINES - 1);
-    cout << "Read/write number Lines:" << FPGA_32KB_CACHE_LINES - 1 << endl;
+    host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES );
+    cout << "Read/write number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
@@ -692,7 +671,7 @@ public:
       return -1;
     }
 
-    he_perf_counters();
+    he_perf_counters(HE_CXL_RD_LATENCY);
     host_exe_->free_cache_read();
     host_exe_->free_dsm();
 
@@ -795,6 +774,8 @@ public:
     he_ctl_.value = 0;
     he_ctl_.ResetL = 1;
     host_exe_->write64(HE_CTL, he_ctl_.value);
+
+    print_csr();
 
     if (he_test_all_ == true) {
       int retvalue = 0;

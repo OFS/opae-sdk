@@ -53,7 +53,7 @@ public:
     return (double)(num_lines * 64) / ((1000.0 / he_clock_mhz_ * num_ticks));
   }
 
-  void he_perf_counters() {
+  void he_perf_counters(he_cxl_latency cxl_latency = HE_CXL_LATENCY_NONE) {
     volatile he_cache_dsm_status *dsm_status = NULL;
 
     dsm_status = reinterpret_cast<he_cache_dsm_status *>(
@@ -81,7 +81,93 @@ public:
       host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
     }
 
+    if (cxl_latency == HE_CXL_RD_LATENCY) {
+        if (dsm_status->num_ticks > 0 && dsm_status->num_reads > 0) {
+            double latency = (double)((dsm_status->num_ticks / (double)dsm_status->num_reads)
+                *( 2.5));
+
+            host_exe_->logger_->info("Read Latency : {0:0.2f}  nanoseconds", latency);
+        }
+        else {
+            host_exe_->logger_->info("Read Latency: N/A");
+        }
+    }
+
     cout << "********* DSM Status CSR end *********" << endl;
+  }
+
+  void print_csr() {
+
+    host_exe_->logger_->debug("HE_DFH:0x{:x}", host_exe_->read64(HE_DFH));
+    host_exe_->logger_->debug("HE_ID_L:0x{:x}", host_exe_->read64(HE_ID_L));
+    host_exe_->logger_->debug("HE_ID_H:0x{:x}", host_exe_->read64(HE_ID_H));
+
+    host_exe_->logger_->debug("HE_SCRATCHPAD0:0x{:x}",
+    host_exe_->read64(HE_SCRATCHPAD0));
+
+    host_exe_->logger_->debug("HE_DSM_BASE:0x{:x}", host_exe_->read64(HE_DSM_BASE));
+
+    host_exe_->logger_->debug("HE_CTL:0x{:x}", host_exe_->read64(HE_CTL));
+
+    host_exe_->logger_->debug("HE_INFO:0x{:x}", host_exe_->read64(HE_INFO));
+
+    host_exe_->logger_->debug("HE_WR_NUM_LINES:0x{:x}",
+        host_exe_->read64(HE_WR_NUM_LINES));
+
+    host_exe_->logger_->debug("HE_WR_BYTE_ENABLE:0x{:x}",
+        host_exe_->read64(HE_WR_BYTE_ENABLE));
+
+    host_exe_->logger_->debug("HE_WR_CONFIG:0x{:x}",
+        host_exe_->read64(HE_WR_CONFIG));
+
+    host_exe_->logger_->debug("HE_WR_ADDR_TABLE_CTRL:0x{:x}",
+        host_exe_->read64(HE_WR_ADDR_TABLE_CTRL));
+
+    host_exe_->logger_->debug("HE_WR_ADDR_TABLE_DATA:0x{:x}",
+        host_exe_->read64(HE_WR_ADDR_TABLE_DATA));
+
+    host_exe_->logger_->debug("HE_RD_NUM_LINES:0x{:x}",
+        host_exe_->read64(HE_RD_NUM_LINES));
+
+    host_exe_->logger_->debug("HE_RD_CONFIG:0x{:x}",
+        host_exe_->read64(HE_WR_CONFIG));
+
+    host_exe_->logger_->debug("HE_RD_ADDR_TABLE_CTRL:0x{:x}",
+        host_exe_->read64(HE_RD_ADDR_TABLE_CTRL));
+
+    host_exe_->logger_->debug("HE_RD_ADDR_TABLE_DATA:0x{:x}",
+        host_exe_->read64(HE_RD_ADDR_TABLE_DATA));
+
+    host_exe_->logger_->debug("HE_ERROR_STATUS:0x{:x}",
+        host_exe_->read64(HE_ERROR_STATUS));
+
+    host_exe_->logger_->debug("HE_ERROR_EXP_DATA:0x{:x}",
+        host_exe_->read64(HE_ERROR_EXP_DATA));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA0:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA0));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA1:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA1));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA2:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA2));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA3:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA3));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA4:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA4));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA5:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA5));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA6:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA6));
+
+    host_exe_->logger_->debug("HE_ERROR_ACT_DATA7:0x{:x}",
+        host_exe_->read64(HE_ERROR_ACT_DATA7));
+
   }
 
   void host_exerciser_errors() {
@@ -150,6 +236,15 @@ public:
       }
     }
     return true;
+  }
+
+  void he_start_test() {
+      // start test
+      he_ctl_.Start = 1;
+      host_exe_->write64(HE_CTL, he_ctl_.value);
+      he_ctl_.Start = 0;
+      host_exe_->write64(HE_CTL, he_ctl_.value);
+
   }
 
   bool verify_numa_node() {

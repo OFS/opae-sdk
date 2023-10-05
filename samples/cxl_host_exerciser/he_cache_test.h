@@ -47,8 +47,6 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <opae/cxx/core.h>
 
-
-
 #include "fpga-dfl.h"
 
 using namespace std;
@@ -530,12 +528,10 @@ public:
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
-    dma_map.numa_node = numa_node;
     dma_map.csr_array[0] = DFL_CXL_CACHE_DSM_BASE;
 
     logger_->debug("Allocate DSM buffer user addr 0x:{0:x} length :"
-        "{1:d} numa node : {2:d}",
-        dma_map.user_addr, dma_map.length, dma_map.numa_node);
+        "{1:d}", dma_map.user_addr, dma_map.length);
 
     volatile uint64_t *u64 =
         (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_DSM_BASE);
@@ -585,6 +581,10 @@ public:
     return true;
   }
 
+  void reset_dsm() { 
+      memset(dsm_buffer_, 0, dsm_buf_len_);
+  }
+
   bool allocate_cache_read(size_t len = MiB(2), uint32_t numa_node = 0) {
 
     int res = 0;
@@ -602,12 +602,10 @@ public:
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
-    dma_map.numa_node = numa_node;
     dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA;
 
     logger_->debug("Allocate read buffer user addr 0x:{0:x} length :"
-        "{1:d} numa node : {2:d}",
-        dma_map.user_addr, dma_map.length, dma_map.numa_node);
+        "{1:d}", dma_map.user_addr, dma_map.length);
 
     volatile uint64_t *u64 =
         (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_RD_ADDR_TABLE_DATA);
@@ -672,12 +670,10 @@ public:
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
-    dma_map.numa_node = numa_node;
     dma_map.csr_array[0] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA;
 
     logger_->debug("Allocate write buffer user addr 0x:{0:x}\
-        length : {1:d} numa node : {2:d}",
-        dma_map.user_addr, dma_map.length, dma_map.numa_node);
+        length : {1:d}", dma_map.user_addr, dma_map.length);
 
     volatile uint64_t *u64 =
         (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_WR_ADDR_TABLE_DATA);
@@ -742,13 +738,11 @@ public:
     dma_map.argsz = sizeof(dma_map);
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
-    dma_map.numa_node = numa_node;
     dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA;
     dma_map.csr_array[1] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA;
 
     logger_->debug("Allocate read/write buffer user addr 0x:{0:x}\
-        length : {1:d} numa node : {2:d}",
-        dma_map.user_addr, dma_map.length, dma_map.numa_node);
+        length : {1:d}", dma_map.user_addr, dma_map.length);
 
     volatile uint64_t *u64_wr =
         (volatile uint64_t *)(mmio_base_ + DFL_CXL_CACHE_WR_ADDR_TABLE_DATA);

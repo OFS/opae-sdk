@@ -40,8 +40,10 @@ static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t BUFFER_SIZE_2MB = 2 * 1024 * 1024;
+static const uint64_t BUFFER_SIZE_32KB = 32* 1024;
 static const uint64_t FPGA_32KB_CACHE_LINES = (32 * 1024) / 64;
 static const uint64_t FPGA_2MB_CACHE_LINES = (2 * 1024 * 1024) / 64;
+static const uint64_t FPGA_512CACHE_LINES = 512;
 
 // Host execiser CSR Offset
 enum {
@@ -296,6 +298,15 @@ typedef enum {
   HE_TARGET_HOST = 0x0,
   HE_TARGET_FPGA = 0x1,
 } he_target;
+
+
+// he cxl cache latency
+typedef enum {
+    HE_CXL_LATENCY_NONE = 0x0,
+    HE_CXL_RD_LATENCY = 0x1,
+    HE_CXL_WR_LATENCY = 0x2,
+    HE_CXL_RD_WR_LATENCY = 0x3,
+} he_cxl_latency;
 
 const std::map<std::string, uint32_t> he_test_modes = {
     {"fpgardcachehit", HE_FPGA_RD_CACHE_HIT},
