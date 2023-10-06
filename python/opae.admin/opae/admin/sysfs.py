@@ -653,8 +653,8 @@ class sysfs_driver(sysfs_node):
         self.node('unbind').value = name
 
     def bind(self, device):
-        if not self.have_node('unbind'):
-            self.log.warn('unbind not supported')
+        if not self.have_node('bind'):
+            self.log.warn('bind not supported')
             return
         name = device.name if isinstance(device, sysfs_node) else device
         self.node('bind').value = name
