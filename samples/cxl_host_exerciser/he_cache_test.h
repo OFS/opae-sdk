@@ -60,6 +60,7 @@ enum { MATCHES_SIZE = 6 };
   "fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
 
 #define MAX_SIZE 256
+#define MAX_HE_CACHE_DEVICE 2
 
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
@@ -304,10 +305,12 @@ public:
 
   int find_dev_feature() {
     glob_t pglob;
+    glob_t dev_pglob;
     char feature_path[MAX_SIZE] = {0};
     int gres = 0;
     uint64_t value = 0;
     size_t i = 0;
+    size_t dev_index = 0;
 
     if (!pci_addr_.empty()) {
       if (snprintf(feature_path, sizeof(feature_path), FEATURE_DEV,
@@ -323,7 +326,7 @@ public:
       }
     }
 
-    gres = glob(feature_path, GLOB_NOSORT, NULL, &pglob);
+    gres = glob(feature_path, 0, NULL, &pglob);
     if (gres) {
       cerr << "Failed pattern match" << feature_path << ":" << strerror(errno)
            << endl;
@@ -339,27 +342,34 @@ public:
       }
 
       if (current_command()->featureid() == value) {
-        string str(pglob.gl_pathv[i]);
-        string substr_dev(str.substr(0, str.rfind("/")));
-        globfree(&pglob);
+          string str(pglob.gl_pathv[i]);
+          string substr_dev(str.substr(0, str.rfind("/")));
 
-        substr_dev.append("/dfl-cxl-cache/dfl-cxl-cache*");
-        gres = glob(substr_dev.c_str(), GLOB_NOSORT, NULL, &pglob);
-        if (gres) {
-          cerr << "Failed pattern match" << substr_dev.c_str() << ":"
-               << strerror(errno) << endl;
-          globfree(&pglob);
-          return 4;
-        }
-        string str1(pglob.gl_pathv[0]);
-        globfree(&pglob);
-        dev_path_.append("/dev");
-        dev_path_.append(str1.substr(str1.rfind("/"), 16));
+          substr_dev.append("/dfl-cxl-cache/dfl-cxl-cache*");
+          gres = glob(substr_dev.c_str(), GLOB_NOSORT, NULL, &dev_pglob);
+          if (gres) {
+              cerr << "Failed pattern match" << substr_dev.c_str() << ":"
+                  << strerror(errno) << endl;
+              globfree(&dev_pglob);
+              return 4;
+          }
 
-        return 0;
+          string str1(dev_pglob.gl_pathv[0]);
+          globfree(&dev_pglob);
+          dev_path_[dev_index].append("/dev");
+          dev_path_[dev_index].append(str1.substr(str1.rfind("/"), 16));
+          dev_index++;
       }
     }
 
+    if (pglob.gl_pathv) {
+        globfree(&pglob);
+    }
+
+    if (dev_index > 0) {
+        return 0;
+    }
+  
     return 5;
   }
 
@@ -383,12 +393,12 @@ public:
     return true;
   }
 
-  int open_handle() {
+  int open_handle(const char *dev) {
 
     int res = 0;
-    logger_->debug("dev_path_:{0}", dev_path_);
+    logger_->debug("CXL device:{0}", dev);
 
-    fd_ = open(dev_path_.c_str(), O_RDWR);
+    fd_ = open(dev, O_RDWR);
     if (fd_ < 0) {
       cerr << "open() failed:" << strerror(errno) << endl;
       return 1;
@@ -450,7 +460,13 @@ public:
       return exit_codes::exception;
     };
 
-    int res = open_handle();
+    int dev_index = 0;
+    CLI::Option* opt = app->get_option_no_throw("--device");
+    if (opt  && opt->count() == 1) {
+        dev_index = stoi(opt->results().at(0));
+    }
+
+    int res = open_handle(dev_path_[dev_index].c_str());
     if (res != exit_codes::not_run) {
       return res;
     }
@@ -837,7 +853,7 @@ protected:
 
   struct dfl_cxl_cache_region_info rinfo_;
 
-  std::string dev_path_;
+  std::string dev_path_[MAX_HE_CACHE_DEVICE];
 
   command::ptr_t current_command_;
   std::map<CLI::App *, command::ptr_t> commands_;

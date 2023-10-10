@@ -36,7 +36,8 @@ namespace host_exerciser {
 
 class he_cmd : public test_command {
 public:
-  he_cmd() : host_exe_(NULL), he_clock_mhz_(400), numa_node_(0), he_target_(0) {
+  he_cmd() : host_exe_(NULL), he_clock_mhz_(400), numa_node_(0), he_target_(0),
+    he_bias_(0) {
 
     he_ctl_.value = 0;
     he_info_.value = 0;
@@ -130,7 +131,7 @@ public:
         host_exe_->read64(HE_RD_NUM_LINES));
 
     host_exe_->logger_->debug("HE_RD_CONFIG:0x{:x}",
-        host_exe_->read64(HE_WR_CONFIG));
+        host_exe_->read64(HE_RD_CONFIG));
 
     host_exe_->logger_->debug("HE_RD_ADDR_TABLE_CTRL:0x{:x}",
         host_exe_->read64(HE_RD_ADDR_TABLE_CTRL));
@@ -240,11 +241,27 @@ public:
 
   void he_start_test() {
       // start test
-      he_ctl_.Start = 1;
-      host_exe_->write64(HE_CTL, he_ctl_.value);
+
+      switch (he_bias_) {
+      case HOSTMEM_BIAS:
+          he_ctl_.bias_support = 0x0;
+          break;
+
+      case FPGAMEM_HOST_BIAS:
+          he_ctl_.bias_support = 0x2;
+          break;
+
+      case FPGAMEM_DEVICE_BIAS:
+          he_ctl_.bias_support = 0x3;
+          break;
+      default:
+          he_ctl_.bias_support = 0x0;
+      }
+
       he_ctl_.Start = 0;
       host_exe_->write64(HE_CTL, he_ctl_.value);
-
+      he_ctl_.Start = 1;
+      host_exe_->write64(HE_CTL, he_ctl_.value);
   }
 
   bool verify_numa_node() {
@@ -277,6 +294,7 @@ protected:
   uint32_t he_clock_mhz_;
   uint32_t numa_node_;
   uint32_t he_target_;
+  uint32_t he_bias_;
 
   he_ctl he_ctl_;
   he_info he_info_;

@@ -39,10 +39,10 @@ static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
 static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
-static const uint64_t BUFFER_SIZE_2MB = 2 * 1024 * 1024;
-static const uint64_t BUFFER_SIZE_32KB = 32* 1024;
-static const uint64_t FPGA_32KB_CACHE_LINES = (32 * 1024) / 64;
-static const uint64_t FPGA_2MB_CACHE_LINES = (2 * 1024 * 1024) / 64;
+static const uint64_t BUFFER_SIZE_2MB = 2 * MB;
+static const uint64_t BUFFER_SIZE_32KB = 32* KB;
+static const uint64_t FPGA_32KB_CACHE_LINES = (32 * KB) / 64;
+static const uint64_t FPGA_2MB_CACHE_LINES = (2 * MB) / 64;
 static const uint64_t FPGA_512CACHE_LINES = 512;
 
 // Host execiser CSR Offset
@@ -126,8 +126,8 @@ union he_ctl {
     uint64_t ResetL : 1;
     uint64_t Start : 1;
     uint64_t ForcedTestCmpl : 1;
-    uint64_t bias_support : 1;
-    uint64_t Reserved : 60;
+    uint64_t bias_support : 2;
+    uint64_t Reserved : 59;
   };
 };
 
@@ -319,17 +319,36 @@ const std::map<std::string, uint32_t> he_test_modes = {
     {"hostwrcachemiss", HE_HOST_WR_CACHE_MISS},
 };
 
+// Bias Support
+typedef enum {
+    HOSTMEM_BIAS = 0x0,
+    HOST_BIAS_NA = 0x1,
+    FPGAMEM_HOST_BIAS = 0x2,
+    FPGAMEM_DEVICE_BIAS = 0x3,
+} he_bisa_support;
+
 const std::map<std::string, uint32_t> he_targets = {
     {"host", HE_TARGET_HOST},
     {"fpga", HE_TARGET_FPGA},
 };
 
-///////////////////////
-// Bias Support
+// Bias support
+const std::map<std::string, uint32_t> he_bias = {
+    {"hostmem", HOSTMEM_BIAS},
+    {"fpgamem_host_bias", FPGAMEM_HOST_BIAS},
+    {"fpgamem_device_bias", FPGAMEM_DEVICE_BIAS},
+};
+
+// he cxl cache device instance
 typedef enum {
-  HOST_BIOS = 0x0,
-  DEVIC_BIOA = 0x1,
-} he_ctl_bios_support;
+    HE_CXL_DEVICE0 = 0x0,
+    HE_CXL_DEVICE1 = 0x1,
+} he_cxl_dev;
+
+const std::map<std::string, uint32_t> he_cxl_device = {
+    {"/dev/dfl-cxl-cache.0", HE_CXL_DEVICE0},
+    {"/dev/dfl-cxl-cache.1", HE_CXL_DEVICE1},
+};
 
 // configures test mode
 typedef enum {
@@ -345,7 +364,6 @@ typedef enum {
   HE_ADDRTABLE_SIZE8 = 0x3,
   HE_ADDRTABLE_SIZE4 = 0x2,
   HE_ADDRTABLE_SIZE2 = 0x1,
-
 } he_addrtable_size;
 
 // he test type
@@ -357,7 +375,6 @@ typedef enum {
 const std::map<std::string, uint32_t> traffic_enable = {
     {"enable", HE_ENABLE_TRAFFIC_STAGE},
     {"skip", HE_SIP_SEQ_STAGE},
-
 };
 
 std::map<uint32_t, uint32_t> addrtable_size = {
