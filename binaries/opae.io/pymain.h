@@ -233,7 +233,7 @@ class script_action(base_action):
 
         with open(args.script_file) as f:
             sys.argv = [args.script_file] + args.script_args
-            exec(f.read(), globals=dict(globals()), locals={})
+            exec(f.read(), dict(globals()), {})
 
         raise SystemExit(0)
 

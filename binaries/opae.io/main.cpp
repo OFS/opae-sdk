@@ -432,12 +432,9 @@ int main(int argc, char *argv[])
         std::cerr << pyerr.what() << std::endl;
         return rc;
       }
-    } else if (pyerr.matches(PyExc_TypeError)) {
-      std::cerr << "No suitable accelerator device found." << std::endl;
-      return 2;
     } else {
       std::cerr << pyerr.what() << std::endl;
-      return 3;
+      return 2;
     }
   }
   if (!cli->is_interactive()) {
