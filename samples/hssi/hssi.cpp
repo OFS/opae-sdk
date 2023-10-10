@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
   signal(SIGTSTP, sig_handler);
   app.register_command<hssi_10g_cmd>();
   app.register_command<hssi_100g_cmd>();
+  app.register_command<hssi_200g_400g_cmd>();
   app.register_command<hssi_pkt_filt_10g_cmd>();
   app.register_command<hssi_pkt_filt_100g_cmd>();
   try {
