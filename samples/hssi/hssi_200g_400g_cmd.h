@@ -60,7 +60,7 @@
 #define CSR_STAT_RX_EOP_CNT_LSB           0x0040
 #define CSR_STAT_RX_EOP_CNT_MSB           0x0044
 #define CSR_STAT_RX_ERR_CNT_LSB           0x0048
-#define CSR_STAT_RX_ERR_CNT_LSB           0x004C
+#define CSR_STAT_RX_ERR_CNT_MSB           0x004C
 
 // START: OLD 100G TG registers, TODO delete
 #define CSR_SCRATCH               0x1000
@@ -440,23 +440,23 @@ public:
     */
 
     // TODO: clean this up
-    std::cout << "200G_400G loopback test" << std::endl
-              << "  port: " << port_[0] << std::endl
-              << "  eth_loopback: " << eth_loopback_ << std::endl
-              << "  num_packets: " << num_packets_ << std::endl
-              << "  gap: " << gap_ << std::endl
-              << "  src_address: " << src_addr_ << std::endl
-              << "    (bits): 0x" << std::hex << bin_src_addr << std::endl
-              << "  dest_address: " << dest_addr_ << std::endl
-              << "    (bits): 0x" << std::hex << bin_dest_addr << std::endl
-              << "  pattern: " << pattern_ << std::endl
-              << "  start size: " << start_size_ << std::endl
-              << "  end size: " << end_size_ << std::endl
-              << "  end select: " << end_select_ << std::endl
-              << "  eth: " << eth_ifc << std::endl
-              << "  continuous mode: " << continuous_ << std::endl
-              << "  monitor duration: " << std::dec << contmonitor_ << " sec" << std::endl
-              << std::endl;
+   //std::cout << "200G_400G loopback test" << std::endl
+   //          << "  port: " << port_[0] << std::endl
+   //          << "  eth_loopback: " << eth_loopback_ << std::endl
+   //          << "  num_packets: " << num_packets_ << std::endl
+   //          << "  gap: " << gap_ << std::endl
+   //          << "  src_address: " << src_addr_ << std::endl
+   //          << "    (bits): 0x" << std::hex << bin_src_addr << std::endl
+   //          << "  dest_address: " << dest_addr_ << std::endl
+   //          << "    (bits): 0x" << std::hex << bin_dest_addr << std::endl
+   //          << "  pattern: " << pattern_ << std::endl
+   //          << "  start size: " << start_size_ << std::endl
+   //          << "  end size: " << end_size_ << std::endl
+   //          << "  end select: " << end_select_ << std::endl
+   //          << "  eth: " << eth_ifc << std::endl
+   //          << "  continuous mode: " << continuous_ << std::endl
+   //          << "  monitor duration: " << std::dec << contmonitor_ << " sec" << std::endl
+   //          << std::endl;
 
     /* anandhve: Unsure what the point of this is
 
@@ -471,7 +471,7 @@ public:
     }
     */
 
-    ctrl_config config_data;
+//    ctrl_config config_data;
 
     /* anandhve: we read DFH to check the major rev and choose respective modes. I don't think this is relevant for 200-400G
     DFH dfh;
