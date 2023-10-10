@@ -29,7 +29,7 @@ from distutils.core import Extension, setup
 
 setup(
     name='opae.io',
-    version='0.2.7',
+    version='1.0.0',
     packages=find_namespace_packages(include=['opae.*']),
     ext_modules=[
         Extension('libvfio',
