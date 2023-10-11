@@ -554,7 +554,7 @@ public:
 
   std::ostream & print_registers(std::ostream &os, hssi_afu *hafu) const
   {
-    os << "anandhve: IGNORE base addresses, they are printed wrong here"  << std::endl <<
+    os << "anandhve: IGNORE base addresses, they are printed wrong here"  << std::endl;
     os << "0x40000 " << std::setw(21) << "ETH_AFU_DFH" << ": " <<
       int_to_hex(hafu->read64(ETH_AFU_DFH)) << std::endl;
     os << "0x40008 " << std::setw(21) << "ETH_AFU_ID_L" << ": " <<
