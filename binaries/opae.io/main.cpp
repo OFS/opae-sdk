@@ -45,9 +45,9 @@ struct vfio_device *the_device = nullptr;
 struct mmio_region *the_region = nullptr;
 
 const char *program = "opae.io";
-const int major = 0;
-const int minor = 2;
-const int patch = 7;
+const int major = 1;
+const int minor = 0;
+const int patch = 0;
 
 py::tuple version()
 {
@@ -195,8 +195,6 @@ class opae_io_cli {
     struct vfio_device *device_;
     struct mmio_region *region_;
 };
-
-void command_line_help(void);
 
 PYBIND11_EMBEDDED_MODULE(opae_io, m) {
   m.def("read_csr", &read_csr);
@@ -419,24 +417,29 @@ int main(int argc, char *argv[])
   auto pysys = py::module::import("sys");
   auto pyargs = args_to_list(argc, argv);
   pysys.attr("argv") = pyargs;
+
+  py::module main_mod = py::module::import("__main__");
+  main_mod.attr("_MODULE_SOURCE_CODE") = pymain;
+
   try {
     py::exec(pymain, globals);
   } catch(py::error_already_set &pyerr) {
-    //std::cerr << pyerr.what() << std::endl;
     if (pyerr.matches(PyExc_SystemExit)) {
-      std::cerr << "Command line parse failed." << std::endl;
-      return 1;
-    } else if (pyerr.matches(PyExc_TypeError)) {
-      std::cerr << "No suitable accelerator device found." << std::endl;
+      int rc = cli->return_code();
+      if ((rc == 99) || (rc == 100)) { // help or version requested
+        return rc;                     // -or- argparse failed.
+      } else if (rc != 0) {
+        std::cerr << pyerr.what() << std::endl;
+        return rc;
+      }
+    } else {
+      std::cerr << pyerr.what() << std::endl;
       return 2;
     }
   }
   if (!cli->is_interactive()) {
     return cli->return_code();
   }
-
-  //builtins.attr("the_device") = the_device;
-  //builtins.attr("the_region") = the_region;
 
   char *history = readline_init();
 
@@ -561,57 +564,4 @@ void readline_destroy(char *history)
     }
     free(history);
   }
-}
-
-void command_line_help(void)
-{
-  std::cout << "opae.io - peek and poke FPGA CSRs" << std::endl
-            << std::endl
-            << "\topae.io" << std::endl
-            << "\topae.io -v | --version" << std::endl
-            << "\topae.io -h | --help" << std::endl
-            << "\topae.io ls" << std::endl
-            << "\topae.io init <PCI_ADDRESS> <USER>[:<GROUP>]" << std::endl
-            << "\topae.io release <PCI_ADDRESS>" << std::endl
-            << "\topae.io <PCI_ADDRESS>" << std::endl
-            << "\topae.io <PCI_ADDRESS> <REGION_NUMBER>" << std::endl
-            << "\topae.io <PCI_ADDRESS> <REGION_NUMBER> peek <OFFSET>" << std::endl
-            << "\topae.io <PCI_ADDRESS> <REGION_NUMBER> poke <OFFSET> <VALUE>" << std::endl
-            << "\topae.io <SCRIPT> <ARG1> <ARG2> ... <ARGN>" << std::endl
-            << "\topae.io <PCI_ADDRESS> <REGION_NUMBER> <SCRIPT> <ARG1> <ARG2> ... <ARGN>" << std::endl
-            << std::endl;
-
-  std::cout << "EXAMPLES" << std::endl
-            << std::endl;
-
-  std::cout << "\tEnumerating FPGA's:" << std::endl
-            << std::endl
-            << "\t\t$ opae.io ls" << std::endl
-            << std::endl;
-
-  std::cout << "\tInitiating a session:" << std::endl
-            << std::endl
-            << "\t\t$ sudo opae.io init 0000:00:00.0 lab:lab" << std::endl
-            << std::endl;
-
-  std::cout << "\tTerminating a session:" << std::endl
-            << std::endl
-            << "\t\t$ sudo opae.io release 0000:00:00.0" << std::endl
-            << std::endl;
-
-  std::cout << "\tEntering an interactive Python environment:" << std::endl
-            << std::endl
-            << "\t\t$ opae.io 0000:00:00.0 0" << std::endl
-            << std::endl;
-
-  std::cout << "\tPeek & Poke from the command line:" << std::endl
-            << std::endl
-            << "\t\t$ opae.io 0000:00:00.0 0 peek 0x28" << std::endl
-            << "\t\t$ opae.io 0000:00:00.0 0 poke 0x28 0xbaddecaf" << std::endl
-            << std::endl;
-
-  std::cout << "\tExecuting a script:" << std::endl
-            << std::endl
-            << "\t\t$ opae.io 0000:00:00.0 0 script.py a b c" << std::endl
-            << std::endl;
 }
