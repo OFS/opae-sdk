@@ -302,7 +302,7 @@ class dump_action(base_action):
                           default='hex',
                           help='output format')
         dump.add_argument('-c', '--count', type=int, default=None,
-                          help='number of bytes to dump')
+                          help='number of qwords to dump')
 
     def execute(self, args):
         if not self.device:
