@@ -572,7 +572,6 @@ public:
     
     os << std::endl;
 
-    os << "0x " << std::setw(22) << "scratch" << ": " <<
 os << "0x " << CSR_HW_PC_CTRL           << ": " <<
 into_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
 os << "0x " << CSR_HW_TEST_LOOP_CNT     << ": " <<
