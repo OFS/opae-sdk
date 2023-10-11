@@ -126,7 +126,7 @@ public:
 
   virtual const char *name() const override
   {
-    return "hssi_200g_400";
+    return "hssi_200g_400g";
   }
 
   virtual const char *description() const override
@@ -536,7 +536,7 @@ public:
     hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
 
-    //print_registers(std::cout, hafu);
+    print_registers(std::cout, hafu);
 
     return test_afu::success;
   }
@@ -554,6 +554,7 @@ public:
 
   std::ostream & print_registers(std::ostream &os, hssi_afu *hafu) const
   {
+    os << "anandhve: IGNORE base addresses, they are printed wrong here"  << std::endl <<
     os << "0x40000 " << std::setw(21) << "ETH_AFU_DFH" << ": " <<
       int_to_hex(hafu->read64(ETH_AFU_DFH)) << std::endl;
     os << "0x40008 " << std::setw(21) << "ETH_AFU_ID_L" << ": " <<
@@ -571,30 +572,62 @@ public:
     
     os << std::endl;
 
-    os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_SCRATCH)) << std::endl;
-    os << "0x1001 " << std::setw(22) << "block_ID" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_BLOCK_ID)) << std::endl;
-    os << "0x1008 " << std::setw(22) << "pkt_size" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_PKT_SIZE)) << std::endl;
-    os << "0x1009 " << std::setw(22) << "ctrl0" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_CTRL0)) << std::endl;
-    os << "0x1010 " << std::setw(22) << "ctrl1" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_CTRL1)) << std::endl;
-    os << "0x1011 " << std::setw(22) << "dst_addr_lo" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_DST_ADDR_LO)) << std::endl;
-    os << "0x1012 " << std::setw(22) << "dst_addr_hi" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_DST_ADDR_HI)) << std::endl;
-    os << "0x1013 " << std::setw(22) << "src_addr_lo" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_LO)) << std::endl;
-    os << "0x1014 " << std::setw(22) << "src_addr_hi" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_HI)) << std::endl;
-    os << "0x1015 " << std::setw(22) << "rx_count" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RX_COUNT)) << std::endl;
-    os << "0x1016 " << std::setw(22) << "mlb_rst" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_MLB_RST)) << std::endl;
-    os << "0x1017 " << std::setw(22) << "tx_count" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_TX_COUNT)) << std::endl;
+    os << "0x " << std::setw(22) << "scratch" << ": " <<
+os << "0x " << CSR_HW_PC_CTRL           << ": " <<
+into_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
+os << "0x " << CSR_HW_TEST_LOOP_CNT     << ": " <<
+into_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
+os << "0x " << CSR_HW_TEST_ROM_ADDR     << ": " <<
+into_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
+os << "0x " << CSR_STAT_TX_SOP_CNT_LSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
+os << "0x " << CSR_STAT_TX_SOP_CNT_MSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
+os << "0x " << CSR_STAT_TX_EOP_CNT_LSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
+os << "0x " << CSR_STAT_TX_EOP_CNT_MSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
+os << "0x " << CSR_STAT_TX_ERR_CNT_LSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
+os << "0x " << CSR_STAT_TX_ERR_CNT_MSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
+os << "0x " << CSR_STAT_RX_SOP_CNT_LSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
+os << "0x " << CSR_STAT_RX_SOP_CNT_MSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
+os << "0x " << CSR_STAT_RX_EOP_CNT_LSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
+os << "0x " << CSR_STAT_RX_EOP_CNT_MSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
+os << "0x " << CSR_STAT_RX_ERR_CNT_LSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
+os << "0x " << CSR_STAT_RX_ERR_CNT_MSB  << ": " <<
+into_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
+
+  // os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_SCRATCH)) << std::endl;
+  // os << "0x1001 " << std::setw(22) << "block_ID" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_BLOCK_ID)) << std::endl;
+  // os << "0x1008 " << std::setw(22) << "pkt_size" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_PKT_SIZE)) << std::endl;
+  // os << "0x1009 " << std::setw(22) << "ctrl0" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_CTRL0)) << std::endl;
+  // os << "0x1010 " << std::setw(22) << "ctrl1" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_CTRL1)) << std::endl;
+  // os << "0x1011 " << std::setw(22) << "dst_addr_lo" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_DST_ADDR_LO)) << std::endl;
+  // os << "0x1012 " << std::setw(22) << "dst_addr_hi" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_DST_ADDR_HI)) << std::endl;
+  // os << "0x1013 " << std::setw(22) << "src_addr_lo" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_LO)) << std::endl;
+  // os << "0x1014 " << std::setw(22) << "src_addr_hi" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_HI)) << std::endl;
+  // os << "0x1015 " << std::setw(22) << "rx_count" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_RX_COUNT)) << std::endl;
+  // os << "0x1016 " << std::setw(22) << "mlb_rst" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_MLB_RST)) << std::endl;
+  // os << "0x1017 " << std::setw(22) << "tx_count" << ": " <<
+  //   int_to_hex(hafu->mbox_read(CSR_TX_COUNT)) << std::endl;
 
     return os;
   }
