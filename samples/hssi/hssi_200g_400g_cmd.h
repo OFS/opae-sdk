@@ -573,35 +573,35 @@ public:
     os << std::endl;
 
 os << "0x " << CSR_HW_PC_CTRL           << ": " <<
-into_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
 os << "0x " << CSR_HW_TEST_LOOP_CNT     << ": " <<
-into_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
 os << "0x " << CSR_HW_TEST_ROM_ADDR     << ": " <<
-into_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
 os << "0x " << CSR_STAT_TX_SOP_CNT_LSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
 os << "0x " << CSR_STAT_TX_SOP_CNT_MSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
 os << "0x " << CSR_STAT_TX_EOP_CNT_LSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
 os << "0x " << CSR_STAT_TX_EOP_CNT_MSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
 os << "0x " << CSR_STAT_TX_ERR_CNT_LSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
 os << "0x " << CSR_STAT_TX_ERR_CNT_MSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
 os << "0x " << CSR_STAT_RX_SOP_CNT_LSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
 os << "0x " << CSR_STAT_RX_SOP_CNT_MSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
 os << "0x " << CSR_STAT_RX_EOP_CNT_LSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
 os << "0x " << CSR_STAT_RX_EOP_CNT_MSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
 os << "0x " << CSR_STAT_RX_ERR_CNT_LSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
 os << "0x " << CSR_STAT_RX_ERR_CNT_MSB  << ": " <<
-into_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
+int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
 
   // os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
   //   int_to_hex(hafu->mbox_read(CSR_SCRATCH)) << std::endl;
