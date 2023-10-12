@@ -62,6 +62,7 @@ The main documentation for the site is organized into following sections:
    docs/fpga_tools/pci_device/pci_device
    docs/fpga_tools/opae.io/opae.io
    docs/fpga_tools/host_exerciser/host_exerciser
+   docs/fpga_tools/cxl_host_exerciser/cxl_host_exerciser
    docs/fpga_tools/hssi_ethernet/hssistats
    docs/fpga_tools/hssi_ethernet/hssimac
    docs/fpga_tools/hssi_ethernet/hssiloopback
