@@ -371,7 +371,6 @@ struct dfl_cxl_cache_region_info {
  * @flags: flags
  * @user_addr: user mmap virtual address
  * @length: length of mapping (bytes)
- * @numa_node: Numa node number
  * @csr_array: array of region address offset
  *
  * maps user allocated virtual address to physical address.
@@ -381,7 +380,6 @@ struct dfl_cxl_cache_buffer_map {
 	__u32 flags;
 	__u64 user_addr;
 	__u64 length;
-	__u32 numa_node;
 	__u64 csr_array[DFL_ARRAY_MAX_SIZE];
 };
 
