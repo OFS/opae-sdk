@@ -215,8 +215,8 @@ class unplug(object):
         debug = args.debug
 
         exclude_node = None
-        if myargs.exclude:
-            exclude_devs = pcie_device.enum(myargs.exclude)
+        if args.exclude:
+            exclude_devs = pcie_device.enum(args.exclude)
             if exclude_devs:
                 exclude_node = exclude_devs[0].pci_node
 
