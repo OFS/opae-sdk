@@ -239,6 +239,23 @@ class pci_node(sysfs_node):
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        return self._pci_address['pci_address'] == other._pci_address['pci_address']
+
+    @staticmethod
+    def pre_order_traverse(node, ex, visit):
+        if node not in ex:
+            visit(node)
+        for c in node.children:
+            pci_node.pre_order_traverse(c, ex, visit)
+
+    @staticmethod
+    def post_order_traverse(node, ex, visit):
+        for c in node.children:
+            pci_node.post_order_traverse(c, ex, visit)
+        if node not in ex:
+            visit(node)
+
     def _find_children(self):
         children = []
         for f in os.listdir(self.sysfs_path):
