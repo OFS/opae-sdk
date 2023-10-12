@@ -208,11 +208,17 @@ class unplug(object):
         unplug = subparser.add_parser('unplug')
         unplug.add_argument('-d', '--debug', action='store_true',
                             default=False, help='enable debug output')
-        #unplug.add_argument('-e', '--exclude', default=None,
-        #                    help='do not unplug the device specified here')
+        unplug.add_argument('-e', '--exclude', default=None, type=pci_devices,
+                            help='do not unplug the device specified here')
 
     def __call__(self, device, args):
         debug = args.debug
+
+        exclude_node = None
+        if args.exclude:
+            exclude_devs = pcie_device.enum(args.exclude)
+            if exclude_devs:
+                exclude_node = exclude_devs[0].pci_node
 
         root = device.pci_node.root
 
@@ -223,21 +229,39 @@ class unplug(object):
             v0, v1 = root.aer
             root.aer = (0xFFFFFFFF, 0xFFFFFFFF)
 
-        self.unplug(root, args, debug)
+        unplug.unplug_node(root, debug, exclude_node)
 
         if v0:
             root.aer = (v0, v1)
 
-    def unplug(self, root, args, debug):
+    @staticmethod
+    def unplug_node(root, debug, exclude_node):
         if debug:
-            print('Unbinding drivers for leaf devices')
+            print('Unbinding drivers for leaf devices', end='')
+            if exclude_node:
+                print(f' except {exclude_node.pci_address}')
+            else:
+                print('')
+
         for e in root.endpoints:
+            unbind = True
+
+            if exclude_node and e == exclude_node:
+                unbind = False
+
+            if unbind:
+                if debug:
+                    print(f' unbind {e.pci_address}')
+                e.unbind()
+
+        remove = True
+        if exclude_node and exclude_node.root == root:
+            remove = False
+
+        if remove:
             if debug:
-                print(f' unbind {e.pci_address}')
-            e.unbind()
-        if debug:
-            print(f'Removing the root device {root.pci_address}')
-        root.remove()
+                print(f'Removing the root device {root.pci_address}')
+            root.remove()
 
 
 class plug(object):
