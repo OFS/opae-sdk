@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,5 +26,5 @@
 
 from opae.io.utils import dfh_walk
 
-for offset, dfh in dfh_walk():
+for offset, dfh in dfh_walk(region=the_region):
     print('offset: 0x{:0x}\n{}'.format(offset, dfh))
