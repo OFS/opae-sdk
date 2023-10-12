@@ -200,17 +200,17 @@ class cxl_mem_tg : public test_afu {
 
     // Loops
     app_.add_option("--loops", loop_, "Number of read/write loops to be run")
-        ->default_val("1");
+        ->transform(CLI::Range(0, 268435456))->default_val(0);
 
     // Writes
     app_.add_option("-w,--writes", wcnt_,
                     "Number of unique write transactions per loop")
-        ->default_val("1");
+        ->transform(CLI::Range(0, 4095))->default_val(0);
 
     // Reads
     app_.add_option("-r,--reads", rcnt_,
                     "Number of unique read transactions per loop")
-        ->default_val("1");
+        ->transform(CLI::Range(0, 4095))->default_val("1");
 
     // Address Stride
     app_.add_option("--stride", stride_,

@@ -133,7 +133,7 @@ class cxl_tg_test : public test_command {
     tg_exe_->logger_->debug("TG performance ...");
 
     if (tg_exe_->status_ == TG_STATUS_TIMEOUT) {
-      std::cerr << "TG timeout" << std::endl;
+      cerr << "TG timeout" << endl;
     } else if (tg_exe_->status_ == TG_STATUS_ERROR) {
       uint32_t tg_fail_exp;
       uint32_t tg_fail_act;
@@ -141,39 +141,51 @@ class cxl_tg_test : public test_command {
       tg_fail_addr = tg_exe_->read64(TG_FIRST_FAIL_ADDR_L);
       tg_fail_exp = tg_exe_->read64(TG_FAIL_EXPECTED_DATA);
       tg_fail_act = tg_exe_->read64(TG_FAIL_READ_DATA);
-      std::cerr << "TG status error" << std::endl;
-      std::cout << "Failed at address 0x" << std::hex << tg_fail_addr
+      cerr << "TG status error" << std::endl;
+      cout << "Failed at address 0x" << std::hex << tg_fail_addr
                 << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act
-                << std::endl;
+                << endl;
     } else {
       tg_exe_->logger_->debug("TG pass");
     }
 
     uint64_t clk_count = tg_exe_->read64(MEM_TG_CLK_COUNT);
-    std::cout << "TG Read and Write Clock Cycles: " << std::dec << clk_count
-              << std::endl;
+    cout << "TG Read and Write Clock Cycles: " << dec << clk_count
+              << endl;
     uint64_t wr_clk_count = tg_exe_->read64(MEM_TG_WR_COUNT);
-    std::cout << "TG Write Clock Cycles: " << std::dec << wr_clk_count << std::endl;
+    cout << "TG Write Clock Cycles: " << dec << wr_clk_count << endl;
 
     uint64_t rd_clk_count = clk_count - wr_clk_count;
-    std::cout << "TG Read Clock Cycles: " << std::dec << rd_clk_count
-              << std::endl;
+    cout << "TG Read Clock Cycles: " << dec << rd_clk_count
+              << endl;
 
     uint64_t write_bytes =
         64 * (tg_exe_->loop_ * tg_exe_->wcnt_ * tg_exe_->bcnt_);
     uint64_t read_bytes =
         64 * (tg_exe_->loop_ * tg_exe_->rcnt_ * tg_exe_->bcnt_);
 
-    std::cout << "Write bytes: " << std::dec << write_bytes
-        << std::endl;
-    std::cout << "Read bytes: " << std::dec << read_bytes
-        << std::endl;
-    std::cout << "Write BW: " << bw_calc(write_bytes, wr_clk_count) << " GB/s"
-              << std::endl;
-    std::cout << "Read BW: " << bw_calc(read_bytes, rd_clk_count) << " GB/s"
-              << std::endl;
-    std::cout << "Total BW: " << bw_calc(write_bytes + read_bytes, clk_count) << " GB/s\n"
-        << std::endl;
+    cout << "Write bytes: " << std::dec << write_bytes
+        << endl;
+    cout << "Read bytes: " << std::dec << read_bytes
+        << endl;
+
+    if (wr_clk_count > 0)
+        cout << "Write BW: " << bw_calc(write_bytes, wr_clk_count) << " GB/s"
+            << endl;
+    else 
+        cout << "Write BW: N/A" << endl;
+
+    if (rd_clk_count > 0)
+        cout << "Read BW: " << bw_calc(read_bytes, rd_clk_count) << " GB/s"
+              << endl;
+    else
+        cout << "Read BW: N/A" << endl;
+
+    if (clk_count > 0)
+        cout << "Total BW: " << bw_calc(write_bytes + read_bytes, clk_count) << " GB/s\n"
+            << endl;
+    else 
+        cout << "Total BW: N/A" << endl;
   }
 
   void tg_print_fail_info() {
