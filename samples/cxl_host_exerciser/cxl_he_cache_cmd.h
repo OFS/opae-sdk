@@ -105,6 +105,7 @@ public:
         ->transform(CLI::CheckedTransformer(he_cxl_device))
         ->default_val("/dev/dfl-cxl-cache.0");
 
+    // Set sride
     app->add_option("--stride", he_stide_, "Set stride value")
         ->transform(CLI::Range(0, 3))->default_val("0");
 
@@ -137,6 +138,9 @@ public:
     he_info_.value = host_exe_->read64(HE_INFO);
     host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
 
+    // Set Stride to 3 for FPGA read/write cache hit/miss
+    he_stide_ = 3;
+
     cout << "Read number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
@@ -151,7 +155,10 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    rd_table_ctl_.enable_address_stride = 1;
+    if (he_stide_ > 0) {
+        rd_table_ctl_.enable_address_stride = 1;
+        rd_table_ctl_.stride = he_stide_;
+    }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Allocate DSM buffer
@@ -241,6 +248,9 @@ public:
     he_info_.value = host_exe_->read64(HE_INFO);
     host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
 
+    // Set Stride to 3 for FPGA read/write cache hit/miss
+    he_stide_ = 3;
+
     cout << "Read/write number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
@@ -256,7 +266,10 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    rd_table_ctl_.enable_address_stride = 1;
+    if (he_stide_ > 0) {
+        rd_table_ctl_.enable_address_stride = 1;
+        rd_table_ctl_.stride = he_stide_;
+    }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Allocate DSM buffer
@@ -295,6 +308,12 @@ public:
     he_wr_cfg_.write_traffic_enable = 1;
     he_wr_cfg_.opcode = WR_LINE_M;
     host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
+
+    // set RD_ADDR_TABLE_CTRL
+    he_rd_cfg_.value = 0;
+    host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
+    rd_table_ctl_.value = 0;
+    host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Set WR_ADDR_TABLE_CTRL
     wr_table_ctl_.value = 0;
@@ -344,6 +363,9 @@ public:
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
     host_exe_->write64(HE_RD_NUM_LINES, FPGA_512CACHE_LINES);
+
+    // Set Stride to 3 for FPGA read/write cache hit/miss
+    he_stide_ = 3;
 
     cout << "Read number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
@@ -414,6 +436,9 @@ public:
     // Set Read number Lines
     he_info_.value = host_exe_->read64(HE_INFO);
     host_exe_->write64(HE_WR_NUM_LINES, FPGA_512CACHE_LINES);
+
+    // Set Stride to 3 for FPGA read/write cache hit/miss
+    he_stide_ = 0x3;
 
     cout << "Read/write number Lines:" << FPGA_512CACHE_LINES << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
