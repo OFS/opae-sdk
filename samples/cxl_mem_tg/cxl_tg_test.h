@@ -41,6 +41,8 @@ using namespace std;
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::token;
 
+#define CXL_TG_BW_FACTOR   0.931323
+
 /*
 1) Write to TG_CLEAR with data=0xF to clear all the failure status registers.
 2) Configure the registers with the value specified in table 1 below.
@@ -84,7 +86,7 @@ class cxl_tg_test : public test_command {
 
   // Convert number of transactions to bandwidth (GB/s)
   double bw_calc(uint64_t xfer_bytes, uint64_t num_ticks) {
-    return (double)(xfer_bytes)* 0.931323 /
+    return (double)(xfer_bytes)* CXL_TG_BW_FACTOR /
            ((1000.0 / (double)(tg_exe_->mem_speed_/1000) * (double)num_ticks));
   }
 
@@ -311,6 +313,7 @@ class cxl_tg_test : public test_command {
     tg_exe_->write32(TG_RW_GEN_IDLE_COUNT, 0x1);
     tg_exe_->write32(TG_RW_GEN_LOOP_IDLE_COUNT, 0x1);
 
+    //Set Start address for writes to 0 (Fixed)
     tg_exe_->write32(TG_SEQ_START_ADDR_WR, 0x0000);
     tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x04, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x08, 0x0);
@@ -318,6 +321,7 @@ class cxl_tg_test : public test_command {
     tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x10, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x14, 0x0);
 
+    //Set address generator mode to 3 (Field unused)
     tg_exe_->write32(TG_ADDR_MODE_WR, 2);
     tg_exe_->write32(TG_ADDR_MODE_WR + 0x04 ,3 );
     tg_exe_->write32(TG_ADDR_MODE_WR + 0x08 ,3 );
@@ -327,12 +331,15 @@ class cxl_tg_test : public test_command {
 
     tg_exe_->write32(TG_SEQ_ADDR_INCR, 0x1);
 
+    //Set Start address for reads to 0 (Fixed)
     tg_exe_->write32(TG_SEQ_START_ADDR_RD, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x04, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x08, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x0C, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x10, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x14, 0x0);
+
+    //Set address generator mode to 3 (Field unused)
     tg_exe_->write32(TG_ADDR_MODE_RD, 2);
     tg_exe_->write32(TG_ADDR_MODE_RD +0x04,3 );
     tg_exe_->write32(TG_ADDR_MODE_RD +0x08,3 );
@@ -354,8 +361,9 @@ class cxl_tg_test : public test_command {
         data_seed = ~data_seed;
     }
 
+    // set Address Generator MSB Indices
     for (uint32_t i = 0; i < 5; i++) {
-        tg_exe_->write32(0x1680 + i * 4, 0x1a);
+        tg_exe_->write32(TG_ADDR_FIELD_MSB_INDEX + i * 4, 0x1a);
     }
     return 0;
   }
