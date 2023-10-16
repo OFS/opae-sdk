@@ -32,6 +32,9 @@
 #include "cxl_host_exerciser.h"
 #include "he_cache_test.h"
 
+#define HE_TEST_STARTED      "Test started ......"
+#define HE_PRTEST_SCENARIO   "Pretest scenario started ......"
+
 namespace host_exerciser {
 
 class he_cmd : public test_command {
@@ -223,11 +226,11 @@ public:
     return 0;
   }
 
-  bool he_wait_test_completion() {
+  bool he_wait_test_completion(const char* str = HE_TEST_STARTED) {
     /* Wait for test completion */
     uint32_t timeout = HELPBK_TEST_TIMEOUT;
 
-    cout << "Test started ......" << endl;
+    cout << str << endl;
     volatile uint8_t *status_ptr = host_exe_->get_dsm();
     while (0 == ((*status_ptr) & 0x1)) {
       usleep(HELPBK_TEST_SLEEP_INVL);
@@ -239,29 +242,38 @@ public:
     return true;
   }
 
+  bool he_set_bias_mode() {
+
+    // Target memory HOST set BIAS host
+    if (he_target_ == HE_TARGET_HOST) {
+        he_ctl_.bias_support = HOSTMEM_BIAS;
+        // Target memory FPGA set BIAS host/device
+        if (he_bias_ == HOSTMEM_BIAS) {
+            he_ctl_.bias_support = HOSTMEM_BIAS;
+        } else {
+            cerr << "Invalid configuration:Target memory host and bias device"
+                << endl;
+            return false;
+        }
+    } else {
+        // Target memory FPGA set BIAS host/device
+        if (he_bias_ == HOSTMEM_BIAS) {
+            he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
+        } else {
+            he_ctl_.bias_support = FPGAMEM_DEVICE_BIAS;
+        }
+    }
+
+    return true;
+  }
+
+
   void he_start_test() {
       // start test
-
-      switch (he_bias_) {
-      case HOSTMEM_BIAS:
-          he_ctl_.bias_support = 0x0;
-          break;
-
-      case FPGAMEM_HOST_BIAS:
-          he_ctl_.bias_support = 0x2;
-          break;
-
-      case FPGAMEM_DEVICE_BIAS:
-          he_ctl_.bias_support = 0x3;
-          break;
-      default:
-          he_ctl_.bias_support = 0x0;
-      }
-
-      he_ctl_.Start = 0;
-      host_exe_->write64(HE_CTL, he_ctl_.value);
-      he_ctl_.Start = 1;
-      host_exe_->write64(HE_CTL, he_ctl_.value);
+    he_ctl_.Start = 0;
+    host_exe_->write64(HE_CTL, he_ctl_.value);
+    he_ctl_.Start = 1;
+    host_exe_->write64(HE_CTL, he_ctl_.value);
   }
 
   bool verify_numa_node() {
@@ -272,7 +284,7 @@ public:
     }
 
     int n = numa_max_node();
-    cout << "There are %d nodes on your system:" << n + 1 << endl;
+    cout << "Number nodes on system:" << n + 1 << endl;
 
     int numa_node = numa_node_of_cpu(sched_getcpu());
     cout << "HE Cache app numa node:" << numa_node << endl;
