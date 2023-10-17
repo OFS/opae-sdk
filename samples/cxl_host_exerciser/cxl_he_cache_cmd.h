@@ -156,10 +156,13 @@ public:
     if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = he_stride_;
-    } else {
-        // Set Stride to 3 for FPGA read/write cache hit/miss
+    } else if (he_target_ == HE_TARGET_FPGA) {
+        // Set Stride to 3 for Target FPGA Memory
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = 3;
+    } else {
+        rd_table_ctl_.enable_address_stride = 1;
+        rd_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -205,10 +208,13 @@ public:
     if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = he_stride_;
-    } else {
-        // Set Stride to 3 for FPGA read/write cache hit/miss
+    } else if (he_target_ == HE_TARGET_FPGA) {
+        // Set Stride to 3 for Target FPGA Memory
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = 3;
+    } else {
+        rd_table_ctl_.enable_address_stride = 1;
+        rd_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -272,10 +278,13 @@ public:
     if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = he_stride_;
-    } else {
-        // Set Stride to 3 for FPGA read/write cache hit/miss
+    } else if (he_target_ == HE_TARGET_FPGA) {
+        // Set Stride to 3 for Target FPGA Memory
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = 3;
+    } else {
+        rd_table_ctl_.enable_address_stride = 1;
+        rd_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -327,10 +336,13 @@ public:
     if (he_stride_cmd_) {
         wr_table_ctl_.enable_address_stride = 1;
         wr_table_ctl_.stride = he_stride_;
-    } else {
-        // Set Stride to 3 for FPGA read/write cache hit/miss
+    } else if (he_target_ == HE_TARGET_FPGA) {
+        // Set Stride to 3 for Target FPGA Memory
         wr_table_ctl_.enable_address_stride = 1;
         wr_table_ctl_.stride = 3;
+    } else {
+        wr_table_ctl_.enable_address_stride = 1;
+        wr_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
     host_exe_->write64(HE_WR_NUM_LINES, FPGA_512CACHE_LINES);
@@ -391,10 +403,13 @@ public:
     if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = he_stride_;
-    } else {
-        // Set Stride to 3 for FPGA read/write cache hit/miss
+    } else if (he_target_ == HE_TARGET_FPGA) {
+        // Set Stride to 3 for Target FPGA Memory
         rd_table_ctl_.enable_address_stride = 1;
         rd_table_ctl_.stride = 3;
+    } else {
+        rd_table_ctl_.enable_address_stride = 1;
+        rd_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -467,10 +482,13 @@ public:
     if (he_stride_cmd_) {
         wr_table_ctl_.enable_address_stride = 1;
         wr_table_ctl_.stride = he_stride_;
-    } else {
-        // Set Stride to 3 for FPGA read/write cache hit/miss
+    } else if (he_target_ == HE_TARGET_FPGA) {
+        // Set Stride to 3 for Target FPGA Memory
         wr_table_ctl_.enable_address_stride = 1;
         wr_table_ctl_.stride = 3;
+    } else {
+        wr_table_ctl_.enable_address_stride = 1;
+        wr_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
 
@@ -540,10 +558,8 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    if (he_stride_cmd_) {
-        rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stride_;
-    }
+    rd_table_ctl_.enable_address_stride = 1;
+    rd_table_ctl_.stride = he_stride_;
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Allocate DSM buffer
@@ -624,10 +640,8 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     wr_table_ctl_.value = 0;
-    if (he_stride_cmd_) {
-        wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = he_stride_;
-    }
+    wr_table_ctl_.enable_address_stride = 1;
+    wr_table_ctl_.stride = he_stride_;
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
 
     // Allocate DSM buffer
@@ -705,10 +719,8 @@ public:
 
     // set RD_ADDR_TABLE_CTR
     rd_table_ctl_.value = 0;
-    if (he_stride_cmd_) {
-        rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stride_;
-    }
+    rd_table_ctl_.enable_address_stride = 1;
+    rd_table_ctl_.stride = he_stride_;
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Allocate DSM buffer
@@ -778,10 +790,8 @@ public:
 
     // set RD_ADDR_TABLE_CTR
     wr_table_ctl_.value = 0;
-    if (he_stride_cmd_) {
-        wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = he_stride_;
-    }
+    wr_table_ctl_.enable_address_stride = 1;
+    wr_table_ctl_.stride = he_stride_;
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
     // Allocate DSM buffer
