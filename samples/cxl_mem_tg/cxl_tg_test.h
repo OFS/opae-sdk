@@ -41,6 +41,8 @@ using namespace std;
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::token;
 
+#define CXL_TG_BW_FACTOR   0.931323
+
 /*
 1) Write to TG_CLEAR with data=0xF to clear all the failure status registers.
 2) Configure the registers with the value specified in table 1 below.
@@ -84,7 +86,7 @@ class cxl_tg_test : public test_command {
 
   // Convert number of transactions to bandwidth (GB/s)
   double bw_calc(uint64_t xfer_bytes, uint64_t num_ticks) {
-    return (double)(xfer_bytes) /
+    return (double)(xfer_bytes)* CXL_TG_BW_FACTOR /
            ((1000.0 / (double)(tg_exe_->mem_speed_/1000) * (double)num_ticks));
   }
 
@@ -96,8 +98,8 @@ class cxl_tg_test : public test_command {
     tg_exe_->logger_->debug("TG Status:0x{:x}", tg_exe_->read64(MEM_TG_STAT));
     tg_exe_->logger_->debug("TG Total clock count:0x{:x}",
                             tg_exe_->read64(MEM_TG_CLK_COUNT));
-    tg_exe_->logger_->debug("TG read Clock Count:0x{:x}",
-                            tg_exe_->read64(MEM_TG_RD_COUNT));
+    tg_exe_->logger_->debug("TG Write Clock Count:0x{:x}",
+                            tg_exe_->read64(MEM_TG_WR_COUNT));
     tg_exe_->logger_->debug("TG Frequency:{}", tg_exe_->read64(MEM_TG_CLK_FREQ));
     tg_exe_->logger_->debug("TG_LOOP_COUNT:0x{:x}",
                             tg_exe_->read32(TG_LOOP_COUNT));
@@ -133,7 +135,7 @@ class cxl_tg_test : public test_command {
     tg_exe_->logger_->debug("TG performance ...");
 
     if (tg_exe_->status_ == TG_STATUS_TIMEOUT) {
-      std::cerr << "TG timeout" << std::endl;
+      cerr << "TG timeout" << endl;
     } else if (tg_exe_->status_ == TG_STATUS_ERROR) {
       uint32_t tg_fail_exp;
       uint32_t tg_fail_act;
@@ -141,39 +143,51 @@ class cxl_tg_test : public test_command {
       tg_fail_addr = tg_exe_->read64(TG_FIRST_FAIL_ADDR_L);
       tg_fail_exp = tg_exe_->read64(TG_FAIL_EXPECTED_DATA);
       tg_fail_act = tg_exe_->read64(TG_FAIL_READ_DATA);
-      std::cerr << "TG status error" << std::endl;
-      std::cout << "Failed at address 0x" << std::hex << tg_fail_addr
+      cerr << "TG status error" << std::endl;
+      cout << "Failed at address 0x" << std::hex << tg_fail_addr
                 << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act
-                << std::endl;
+                << endl;
     } else {
       tg_exe_->logger_->debug("TG pass");
     }
 
     uint64_t clk_count = tg_exe_->read64(MEM_TG_CLK_COUNT);
-    std::cout << "TG Read and Write Clock Cycles: " << std::dec << clk_count
-              << std::endl;
-    uint64_t rd_clk_count = tg_exe_->read64(MEM_TG_RD_COUNT);
-    std::cout << "TG Read Clock Cycles: " << std::dec << rd_clk_count << std::endl;
+    cout << "TG Read and Write Clock Cycles: " << dec << clk_count
+              << endl;
+    uint64_t wr_clk_count = tg_exe_->read64(MEM_TG_WR_COUNT);
+    cout << "TG Write Clock Cycles: " << dec << wr_clk_count << endl;
 
-    uint64_t wr_clk_count = clk_count - rd_clk_count;
-    std::cout << "TG Write Clock Cycles: " << std::dec << wr_clk_count
-              << std::endl;
+    uint64_t rd_clk_count = clk_count - wr_clk_count;
+    cout << "TG Read Clock Cycles: " << dec << rd_clk_count
+              << endl;
 
     uint64_t write_bytes =
         64 * (tg_exe_->loop_ * tg_exe_->wcnt_ * tg_exe_->bcnt_);
     uint64_t read_bytes =
         64 * (tg_exe_->loop_ * tg_exe_->rcnt_ * tg_exe_->bcnt_);
 
-    std::cout << "Write bytes: " << std::dec << write_bytes
-        << std::endl;
-    std::cout << "Read bytes: " << std::dec << read_bytes
-        << std::endl;
-    std::cout << "Write BW: " << bw_calc(write_bytes, wr_clk_count) << " GB/s"
-              << std::endl;
-    std::cout << "Read BW: " << bw_calc(read_bytes, rd_clk_count) << " GB/s"
-              << std::endl;
-    std::cout << "Total BW: " << bw_calc(write_bytes + read_bytes, clk_count) << " GB/s\n"
-        << std::endl;
+    cout << "Write bytes: " << std::dec << write_bytes
+        << endl;
+    cout << "Read bytes: " << std::dec << read_bytes
+        << endl;
+
+    if (wr_clk_count > 0)
+        cout << "Write BW: " << bw_calc(write_bytes, wr_clk_count) << " GB/s"
+            << endl;
+    else 
+        cout << "Write BW: N/A" << endl;
+
+    if (rd_clk_count > 0)
+        cout << "Read BW: " << bw_calc(read_bytes, rd_clk_count) << " GB/s"
+              << endl;
+    else
+        cout << "Read BW: N/A" << endl;
+
+    if (clk_count > 0)
+        cout << "Total BW: " << bw_calc(write_bytes + read_bytes, clk_count) << " GB/s\n"
+            << endl;
+    else 
+        cout << "Total BW: N/A" << endl;
   }
 
   void tg_print_fail_info() {
@@ -269,6 +283,7 @@ class cxl_tg_test : public test_command {
     }
 
     tg_exe_->mem_speed_ = tg_exe_->read64(MEM_TG_CLK_FREQ);
+    std::cout  << "Memory clock frequency (kHz) : " << tg_exe_->mem_speed_ << std::endl;
     if (0 == tg_exe_->mem_speed_) {
       tg_exe_->mem_speed_ = TG_FREQ;
       std::cout << "Memory channel clock frequency unknown. Assuming "
@@ -295,24 +310,45 @@ class cxl_tg_test : public test_command {
     tg_exe_->write32(TG_WRITE_REPEAT_COUNT, 0x1);
     tg_exe_->write32(TG_READ_REPEAT_COUNT, 0x1);
 
-    tg_exe_->write32(TG_RW_GEN_IDLE_COUNT, 0x40);
-    tg_exe_->write32(TG_RW_GEN_LOOP_IDLE_COUNT, 0x200);
+    tg_exe_->write32(TG_RW_GEN_IDLE_COUNT, 0x1);
+    tg_exe_->write32(TG_RW_GEN_LOOP_IDLE_COUNT, 0x1);
 
+    //Set Start address for writes to 0 (Fixed)
     tg_exe_->write32(TG_SEQ_START_ADDR_WR, 0x0000);
     tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x04, 0x0);
-    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 8, 0x0);
-    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 12, 0x0);
-    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 16, 0x0);
-    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 20, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x08, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x0C, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x10, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_WR + 0x14, 0x0);
 
+    //Set address generator mode to 3 (Field unused)
     tg_exe_->write32(TG_ADDR_MODE_WR, 2);
-    tg_exe_->write32(TG_SEQ_ADDR_INCR, 0x3);
-    tg_exe_->write32(TG_SEQ_ADDR_INCR + 0x04, 0x0);
+    tg_exe_->write32(TG_ADDR_MODE_WR + 0x04 ,3 );
+    tg_exe_->write32(TG_ADDR_MODE_WR + 0x08 ,3 );
+    tg_exe_->write32(TG_ADDR_MODE_WR + 0x0C ,3 );
+    tg_exe_->write32(TG_ADDR_MODE_WR + 0x10 ,3 );
+    tg_exe_->write32(TG_ADDR_MODE_WR + 0x14 ,3 );
 
+    tg_exe_->write32(TG_SEQ_ADDR_INCR, 0x1);
+
+    //Set Start address for reads to 0 (Fixed)
     tg_exe_->write32(TG_SEQ_START_ADDR_RD, 0x0);
     tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x04, 0x0);
-    tg_exe_->write32(TG_ADDR_MODE_RD, 2);
+    tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x08, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x0C, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x10, 0x0);
+    tg_exe_->write32(TG_SEQ_START_ADDR_RD + 0x14, 0x0);
 
+    //Set address generator mode to 3 (Field unused)
+    tg_exe_->write32(TG_ADDR_MODE_RD, 2);
+    tg_exe_->write32(TG_ADDR_MODE_RD +0x04,3 );
+    tg_exe_->write32(TG_ADDR_MODE_RD +0x08,3 );
+    tg_exe_->write32(TG_ADDR_MODE_RD +0x0C,3 );
+    tg_exe_->write32(TG_ADDR_MODE_RD +0x10,3 );
+    tg_exe_->write32(TG_ADDR_MODE_RD +0x14,3 );
+
+    tg_exe_->write32(TG_USER_WORM_EN, 0);
+    tg_exe_->write32(TG_RETURN_TO_START_ADDR, 0);
     uint32_t data_seed = 0x55555555;
     tg_exe_->logger_->debug("configuring TG data seed");
 
@@ -322,10 +358,13 @@ class cxl_tg_test : public test_command {
         tg_exe_->write32(TG_BYTEEN_SEED + i * 4, 0xffffffff);
         tg_exe_->write32(TG_PPPG_SEL + i * 4, 0);
         tg_exe_->write32(TG_BYTEEN_SEL + i * 4, 0);
-        tg_exe_->write32(0x1680 + i * 4, 1);
         data_seed = ~data_seed;
     }
 
+    // set Address Generator MSB Indices
+    for (uint32_t i = 0; i < 5; i++) {
+        tg_exe_->write32(TG_ADDR_FIELD_MSB_INDEX + i * 4, 0x1a);
+    }
     return 0;
   }
 
