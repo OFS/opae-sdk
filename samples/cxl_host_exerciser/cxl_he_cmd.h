@@ -251,8 +251,7 @@ public:
         if (he_bias_ == HOSTMEM_BIAS) {
             he_ctl_.bias_support = HOSTMEM_BIAS;
         } else {
-            cerr << "Invalid configuration:Target memory host and bias device"
-                << endl;
+            cerr << "Wrong BIAS mode for specified target memory type" << endl;
             return false;
         }
     } else {

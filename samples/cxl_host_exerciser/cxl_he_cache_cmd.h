@@ -95,7 +95,7 @@ public:
         ->default_val("host");
 
     app->add_option("--bias", he_bias_,
-        "host exerciser run on host or device")
+        "CXL IP memory access Bias mode: host or device")
         ->transform(CLI::CheckedTransformer(he_bias))
         ->default_val("host");
 
