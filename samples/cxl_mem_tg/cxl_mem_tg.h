@@ -36,7 +36,7 @@ namespace cxl_mem_tg {
 using opae::fpga::types::token;
 const char *AFU_ID = "4DADEA34-2C78-48CB-A3DC-5B831F5CECBB";
 
-static const uint64_t MEM_TG_TEST_TIMEOUT = 30000;
+static const uint64_t MEM_TG_TEST_TIMEOUT = 3000000;
 static const uint64_t TEST_SLEEP_INVL = 100;
 static const uint64_t TG_CTRL_CLEAR = 0x8000000000000000;
 static const uint64_t TG_SLEEP = 300 / 1000;
@@ -80,7 +80,7 @@ enum {
   MEM_TG_CTRL = 0x0030,
   MEM_TG_STAT = 0x0038,
   MEM_TG_CLK_COUNT = 0x0050,
-  MEM_TG_RD_COUNT = 0x0058,
+  MEM_TG_WR_COUNT = 0x0058,
   MEM_TG_CLK_FREQ = 0x0060,
 };
 const int MEM_TG_CFG_OFFSET = 0x1000;
@@ -130,6 +130,7 @@ enum {
   TG_PPPG_SEL = MEM_TG_CFG_OFFSET + 0x05C0,
   TG_BYTEEN_SEL = MEM_TG_CFG_OFFSET + 0x0600,
   TG_ADDR_FIELD_RELATIVE_FREQ = MEM_TG_CFG_OFFSET + 0x0640,
+  TG_ADDR_FIELD_MSB_INDEX = MEM_TG_CFG_OFFSET + 0x0680,
   TG_BURSTLENGTH_OVERFLOW_OCCURRED = MEM_TG_CFG_OFFSET + 0x06C0,
   TG_BURSTLENGTH_FAIL_ADDR_L = MEM_TG_CFG_OFFSET + 0x0700,
   TG_BURSTLENGTH_FAIL_ADDR_H = MEM_TG_CFG_OFFSET + 0x0704,
@@ -171,7 +172,7 @@ union mem_tg0_count {
 
 // Memory Traffic Generator count
 union mem_tg1_count {
-  enum { offset = MEM_TG_RD_COUNT };
+  enum { offset = MEM_TG_WR_COUNT };
   uint64_t value;
   struct {
     uint64_t count : 64;
@@ -199,17 +200,17 @@ class cxl_mem_tg : public test_afu {
 
     // Loops
     app_.add_option("--loops", loop_, "Number of read/write loops to be run")
-        ->default_val("1");
+        ->transform(CLI::Range(1, 268435456))->default_val("1");
 
     // Writes
     app_.add_option("-w,--writes", wcnt_,
                     "Number of unique write transactions per loop")
-        ->default_val("1");
+        ->transform(CLI::Range(0, 4095))->default_val("1");
 
     // Reads
     app_.add_option("-r,--reads", rcnt_,
                     "Number of unique read transactions per loop")
-        ->default_val("1");
+        ->transform(CLI::Range(0, 4095))->default_val("1");
 
     // Address Stride
     app_.add_option("--stride", stride_,
@@ -249,10 +250,10 @@ class cxl_mem_tg : public test_afu {
  public:
   uint32_t count_;
   uint32_t mem_ch_;
-  uint32_t loop_;
-  uint32_t wcnt_;
-  uint32_t rcnt_;
-  uint32_t bcnt_;
+  uint64_t loop_;
+  uint64_t wcnt_;
+  uint64_t rcnt_;
+  uint64_t bcnt_;
   uint32_t stride_;
   uint32_t pattern_;
   uint64_t mem_speed_;
