@@ -50,8 +50,8 @@ class he_cache_cmd : public he_cmd {
 public:
   he_cache_cmd()
       : he_continuousmode_(false), he_contmodetime_(0), he_linerep_count_(0),
-        he_stide_(0), he_test_(0), he_test_all_(false), he_dev_instance_(0),
-        he_stide_cmd_(false) {}
+        he_stride_(0), he_test_(0), he_test_all_(false), he_dev_instance_(0),
+        he_stride_cmd_(false) {}
 
   virtual ~he_cache_cmd() {}
 
@@ -107,7 +107,7 @@ public:
         ->default_val("/dev/dfl-cxl-cache.0");
 
     // Set sride
-    app->add_option("--stride", he_stide_, "Set stride value")
+    app->add_option("--stride", he_stride_, "Set stride value")
         ->transform(CLI::Range(0, 3))->default_val("0");
 
     // Line repeat count
@@ -153,9 +153,9 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stide_;
+        rd_table_ctl_.stride = he_stride_;
     } else {
         // Set Stride to 3 for FPGA read/write cache hit/miss
         rd_table_ctl_.enable_address_stride = 1;
@@ -202,9 +202,9 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stide_;
+        rd_table_ctl_.stride = he_stride_;
     } else {
         // Set Stride to 3 for FPGA read/write cache hit/miss
         rd_table_ctl_.enable_address_stride = 1;
@@ -269,9 +269,9 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stide_;
+        rd_table_ctl_.stride = he_stride_;
     } else {
         // Set Stride to 3 for FPGA read/write cache hit/miss
         rd_table_ctl_.enable_address_stride = 1;
@@ -324,9 +324,9 @@ public:
 
     // Set WR_ADDR_TABLE_CTRL
     wr_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = he_stide_;
+        wr_table_ctl_.stride = he_stride_;
     } else {
         // Set Stride to 3 for FPGA read/write cache hit/miss
         wr_table_ctl_.enable_address_stride = 1;
@@ -388,9 +388,9 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stide_;
+        rd_table_ctl_.stride = he_stride_;
     } else {
         // Set Stride to 3 for FPGA read/write cache hit/miss
         rd_table_ctl_.enable_address_stride = 1;
@@ -464,9 +464,9 @@ public:
 
     // Set WR_ADDR_TABLE_CTRL
     wr_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = he_stide_;
+        wr_table_ctl_.stride = he_stride_;
     } else {
         // Set Stride to 3 for FPGA read/write cache hit/miss
         wr_table_ctl_.enable_address_stride = 1;
@@ -540,9 +540,9 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stide_;
+        rd_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -624,9 +624,9 @@ public:
 
     // set RD_ADDR_TABLE_CTRL
     wr_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = he_stide_;
+        wr_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
 
@@ -705,9 +705,9 @@ public:
 
     // set RD_ADDR_TABLE_CTR
     rd_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = he_stide_;
+        rd_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -778,9 +778,9 @@ public:
 
     // set RD_ADDR_TABLE_CTR
     wr_table_ctl_.value = 0;
-    if (he_stide_cmd_) {
+    if (he_stride_cmd_) {
         wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = he_stide_;
+        wr_table_ctl_.stride = he_stride_;
     }
     host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, rd_table_ctl_.value);
 
@@ -833,7 +833,7 @@ public:
 
     CLI::Option* opt = app->get_option_no_throw("--stride");
     if (opt && opt->count() == 1) {
-        he_stide_cmd_ = true;
+        he_stride_cmd_ = true;
     }
 
     // reset HE cache
@@ -937,11 +937,11 @@ protected:
   bool he_continuousmode_;
   uint32_t he_contmodetime_;
   uint32_t he_linerep_count_;
-  uint32_t he_stide_;
+  uint32_t he_stride_;
   uint32_t he_test_;
   bool he_test_all_;
   uint32_t he_dev_instance_;
-  bool he_stide_cmd_;
+  bool he_stride_cmd_;
 };
 
 void he_cache_thread(uint8_t *buf_ptr, uint64_t len) {
