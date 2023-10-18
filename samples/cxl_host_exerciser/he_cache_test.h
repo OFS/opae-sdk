@@ -456,7 +456,7 @@ public:
     logger_->set_level(spdlog::level::from_str(log_level_));
     current_command_ = test;
     if (find_dev_feature() != 0) {
-      cerr << "fails to find feature" << endl;
+      cerr << "Failed to find feature" << endl;
       return exit_codes::exception;
     };
 
@@ -536,7 +536,7 @@ public:
     memset(&dma_map, 0, sizeof(dma_map));
 
     if (!buffer_allocate(&ptr, len, numa_node)) {
-        cerr << "Fails to allocate 4k huge page:" << strerror(errno) << endl;
+        cerr << "Failed to allocate 4k huge page:" << strerror(errno) << endl;
         return false;
     }
 
@@ -610,7 +610,7 @@ public:
     memset(&dma_map, 0, sizeof(dma_map));
 
     if (!buffer_allocate(&ptr, len, numa_node)) {
-        cerr << "Fails to allocate 2MB huge page:" << strerror(errno) << endl;
+        cerr << "Failed to allocate 2MB huge page:" << strerror(errno) << endl;
         return false;
     }
     cout << "Read buffer numa node: " << numa_node << endl;
@@ -678,7 +678,7 @@ public:
 
     memset(&dma_map, 0, sizeof(dma_map));
     if (!buffer_allocate(&ptr, len, numa_node)) {
-        cerr << "Fails to allocate 2MB huge page:" << strerror(errno) << endl;
+        cerr << "Failed to allocate 2MB huge page:" << strerror(errno) << endl;
         return false;
     }
 
@@ -746,7 +746,7 @@ public:
 
     memset(&dma_map, 0, sizeof(dma_map));
     if (!buffer_allocate(&ptr, len, numa_node)) {
-        cerr << "Fails to allocate 2MB huge page:" << strerror(errno) << endl;
+        cerr << "Failed to allocate 2MB huge page:" << strerror(errno) << endl;
         return false;
     }
     cout << "Read/Write buffer numa node: " << numa_node << endl;

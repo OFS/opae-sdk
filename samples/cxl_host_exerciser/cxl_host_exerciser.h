@@ -334,9 +334,8 @@ const std::map<std::string, uint32_t> he_targets = {
 
 // Bias support
 const std::map<std::string, uint32_t> he_bias = {
-    {"hostmem", HOSTMEM_BIAS},
-    {"fpgamem_host_bias", FPGAMEM_HOST_BIAS},
-    {"fpgamem_device_bias", FPGAMEM_DEVICE_BIAS},
+    {"host", HOSTMEM_BIAS},
+    {"device", FPGAMEM_DEVICE_BIAS},
 };
 
 // he cxl cache device instance
