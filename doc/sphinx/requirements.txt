@@ -9,4 +9,4 @@ sphinx_fontawesome==0.0.6
 sphinx-markdown==1.0.2
 recommonmark==0.7.0
 breathe==4.33.1
-urllib3==1.26.17
+urllib3==1.26.18
