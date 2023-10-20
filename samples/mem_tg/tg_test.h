@@ -88,6 +88,8 @@ public:
 
       if (tg_exe_->status_ == TG_STATUS_TIMEOUT) {
         std::cout << "TG TIMEOUT" << std::endl;
+      } else if (tg_exe_->status_ == (uint32_t)(-1)) {
+	std::cout << "Error: Timed out in TG_STATUS_ACTIVE state. Consider increasing MEM_TG_TEST_TIMEOUT." << std::endl; 
       } else if (tg_exe_->status_ == TG_STATUS_ERROR) {
         uint32_t tg_fail_exp;
         uint32_t tg_fail_act;
@@ -104,6 +106,12 @@ public:
       uint32_t mem_ch_offset = (std::stoi(tg_exe_->mem_ch_[0])) << 0x3;
       uint64_t num_ticks = tg_exe_->read64(MEM_TG_CLOCKS + mem_ch_offset);
       std::cout << "Mem Clock Cycles: " << std::dec << num_ticks << std::endl;
+	
+      std::cout << "DEBUG: wcnt_ " << std::dec << tg_exe_->wcnt_ << std::endl;
+      std::cout << "DEBUG: rcnt_ " << std::dec << tg_exe_->rcnt_ << std::endl;
+      std::cout << "DEBUG: bcnt_ " << std::dec << tg_exe_->bcnt_ << std::endl;
+      std::cout << "DEBUG: loop_ " << std::dec << tg_exe_->loop_ << std::endl;
+      std::cout << "DEBUG: num_ticks " << std::dec << num_ticks << std::endl;
 
       uint64_t write_bytes = 64 * (tg_exe_->loop_*tg_exe_->wcnt_*tg_exe_->bcnt_);
       uint64_t read_bytes  = 64 * (tg_exe_->loop_*tg_exe_->rcnt_*tg_exe_->bcnt_);
@@ -116,7 +124,7 @@ public:
     bool tg_wait_test_completion (mem_tg *tg_exe_)
     {
         /* Wait for test completion */
-        uint32_t timeout = MEM_TG_TEST_TIMEOUT;
+        uint32_t timeout = MEM_TG_TEST_TIMEOUT * tg_exe_->loop_ * tg_exe_->bcnt_;
         // poll while active bit is set (channel status = {pass,fail,timeout,active})
         uint32_t tg_status = 0x1;
         tg_status = 0xF & (tg_exe_->read64(MEM_TG_STAT) >> (0x4*(std::stoi(tg_exe_->mem_ch_[0]))));
@@ -124,17 +132,20 @@ public:
           tg_status = 0xF & (tg_exe_->read64(MEM_TG_STAT) >> (0x4*(std::stoi(tg_exe_->mem_ch_[0]))));
           std::this_thread::yield();
           if (--timeout == 0) {
-            tg_exe_->status_ = tg_status;
-            return false;
+            tg_exe_->status_ = -1;
+            std::cout << "DEBUG: timeout error" << std::endl;
+	    return false;
           }
         }
       	if (tg_status == TG_STATUS_TIMEOUT) {
           tg_exe_->status_ = tg_status;
+	  std::cout << "DEBUG: status timeout" << std::endl;
           return false;
         }
 
         if (tg_status == TG_STATUS_ERROR) {
           tg_exe_->status_ = tg_status;
+	  std::cout << "DEBUG: status error" << std::endl;
           return false;
         }
         tg_exe_->status_ = tg_status;
