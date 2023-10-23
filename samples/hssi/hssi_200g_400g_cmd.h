@@ -486,11 +486,10 @@ public:
     // TODO error checking, lane status checking, etc. Whatever sim and HW EDs do.
 
     uint32_t reg;
-    uint64_t reg_read = 0;
     bool tg_200n_400;
     // Check if this AFU is for 200G or 400G
     tg_200n_400 = bool(hafu->read64(CSR_AFU_400G_TG_EN)); // Bit-0 = 0 for 200g, 1 for 400g
-    std::cout << "Detected " << tg_200n_400? "400G" : "200G" << " HE-HSSI AFU." << std::endl
+    std::cout << "Detected " << (tg_200n_400? "400G" : "200G") << " HE-HSSI AFU." << std::endl
 
     // Set ROM start/end address. 
     // These addresses are copied from the HSSI-SS F-Tile Example Design (ED) simulation system toplevel RTL file.
@@ -526,8 +525,8 @@ public:
 
     // TODO Set ROM loop count (default value is 1)
     printf("anandhve: Setting ROM loop count\n");
-    if (num_packets_ % 16 != 0) {
-      std::cout << "--num_packets <num> must be a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
+    if ( (num_packets_ % 16 != 0) || (num_packets_<=0)) {
+      std::cout << "--num_packets <num> must be >0 and a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
       return test_afu::error;
     }
     reg = num_packets_ / 16;
@@ -566,10 +565,6 @@ public:
 
     // TODO Set ROM loop count (default value is 1)
     printf("anandhve: Setting ROM loop count\n");
-    if (num_packets_ % 16 != 0) {
-      std::cout << "--num_packets <num> must be a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
-      return test_afu::error;
-    }
     reg = num_packets_ / 16;
     hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
 
@@ -628,35 +623,35 @@ public:
     
     os << std::endl;
 
-    os << "0x " << int_to_hex(CSR_HW_PC_CTRL)           << ": " <<
+    os << "0x " << int_to_hex(CSR_HW_PC_CTRL)           << " CSR_HW_PC_CTRL: " <<
     int_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
-    os << "0x " << int_to_hex(CSR_HW_TEST_LOOP_CNT)     << ": " <<
+    os << "0x " << int_to_hex(CSR_HW_TEST_LOOP_CNT)     << " CSR_HW_TEST_LOOP_CNT: " <<
     int_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
-    os << "0x " << int_to_hex(CSR_HW_TEST_ROM_ADDR)     << ": " <<
+    os << "0x " << int_to_hex(CSR_HW_TEST_ROM_ADDR)     << " CSR_HW_TEST_ROM_ADDR: " <<
     int_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_LSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_LSB)  << " CSR_STAT_TX_SOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_MSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_MSB)  << " CSR_STAT_TX_SOP_CNT_MSB : " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_LSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_LSB)  << " CSR_STAT_TX_EOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_MSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_MSB)  << " CSR_STAT_TX_EOP_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_LSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_LSB)  << " CSR_STAT_TX_ERR_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_MSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_MSB)  << " CSR_STAT_TX_ERR_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_LSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_LSB)  << " CSR_STAT_RX_SOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_MSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_MSB)  << " CSR_STAT_RX_SOP_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_LSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_LSB)  << " CSR_STAT_RX_EOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_MSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_MSB)  << " CSR_STAT_RX_EOP_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_LSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_LSB)  << " CSR_STAT_RX_ERR_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
-    os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << ": " <<
+    os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << " CSR_STAT_RX_ERR_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
 
   // os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
