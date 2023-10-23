@@ -489,7 +489,7 @@ public:
     bool tg_200n_400;
     // Check if this AFU is for 200G or 400G
     tg_200n_400 = bool(hafu->read64(CSR_AFU_400G_TG_EN)); // Bit-0 = 0 for 200g, 1 for 400g
-    std::cout << "Detected " << (tg_200n_400? "400G" : "200G") << " HE-HSSI AFU." << std::endl
+    std::cout << "Detected " << (tg_200n_400? "400G" : "200G") << " HE-HSSI AFU." << std::endl;
 
     // Set ROM start/end address. 
     // These addresses are copied from the HSSI-SS F-Tile Example Design (ED) simulation system toplevel RTL file.
