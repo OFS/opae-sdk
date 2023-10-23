@@ -44,6 +44,7 @@
 // into a distinct abstracted address space. In other words, the AFU may instantiate multiple
 // TGs where each TG is accessed through a separate Mailbox port.
 
+// Registers in the AFU CSR space. Other registers, in this space, are defined in hssi_afu.h
 #define CSR_AFU_400G_TG_EN                0x0058
 
 // 200G/400G traffic generator registers. This address space is accessed indirectly through the Mailbox
@@ -548,9 +549,19 @@ public:
     reg = 0x1;
     hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
-    printf("anandhve: Sleeping\n");
-    // TODO: Poll until all packets are sent. For now just sleep.
-    sleep(1); // unit = seconds
+    printf("anandhve: Waiting for all packets to be sent\n");
+    // Loop until the TX SOP Count matches the expected num_packets.
+    uint64_t tx_sop_count = 0;
+    const uint64_t interval = 100ULL;
+    while (tx_sop_count < num_packets) {
+      tx_sop_count = (hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB) << 32) | hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB);
+      if (!running()) {
+        reg = 0x00; // Stop the TG
+        hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+        return test_afu::error;
+      }
+      std::this_thread::sleep_for(std::chrono::microseconds(interval));      
+    }
 
     printf("anandhve: Stopping the TG and taking snapshot of counters\n");
     reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
