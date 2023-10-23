@@ -44,6 +44,8 @@
 // into a distinct abstracted address space. In other words, the AFU may instantiate multiple
 // TGs where each TG is accessed through a separate Mailbox port.
 
+#define CSR_AFU_400G_TG_EN                0x0058
+
 // 200G/400G traffic generator registers. This address space is accessed indirectly through the Mailbox
 // TODO: link to the spreadsheet in the public repo?
 #define CSR_HW_PC_CTRL                    0x0000
@@ -61,7 +63,10 @@
 #define CSR_STAT_RX_EOP_CNT_MSB           0x0044
 #define CSR_STAT_RX_ERR_CNT_LSB           0x0048
 #define CSR_STAT_RX_ERR_CNT_MSB           0x004C
-#define CSR_AFU_400G_TG_EN                0x0058
+#define CSR_STAT_TIMESTAMP_TG_START_LSB   0x0050
+#define CSR_STAT_TIMESTAMP_TG_START_MSB   0x0054
+#define CSR_STAT_TIMESTAMP_TG_END_LSB     0x0058
+#define CSR_STAT_TIMESTAMP_TG_END_MSB     0x005C
 
 // START: OLD 100G TG registers, TODO delete
 #define CSR_SCRATCH               0x1000
@@ -653,6 +658,15 @@ public:
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
     os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << " CSR_STAT_RX_ERR_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
+
+    os << "0x " << int_to_hex(CSR_STAT_TIMESTAMP_TG_START_LSB)  << " CSR_STAT_TIMESTAMP_TG_START_LSB: " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TIMESTAMP_TG_START_MSB)  << " CSR_STAT_TIMESTAMP_TG_START_MSB: " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_LSB)  << " CSR_STAT_TIMESTAMP_TG_END_LSB: " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_MSB)  << " CSR_STAT_TIMESTAMP_TG_END_MSB: " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_MSB)) << std::endl;            
 
   // os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
   //   int_to_hex(hafu->mbox_read(CSR_SCRATCH)) << std::endl;
