@@ -61,6 +61,7 @@
 #define CSR_STAT_RX_EOP_CNT_MSB           0x0044
 #define CSR_STAT_RX_ERR_CNT_LSB           0x0048
 #define CSR_STAT_RX_ERR_CNT_MSB           0x004C
+#define CSR_AFU_400G_TG_EN                0x0058
 
 // START: OLD 100G TG registers, TODO delete
 #define CSR_SCRATCH               0x1000
@@ -111,7 +112,7 @@ public:
   hssi_200g_400g_cmd() //TODO which of these are actually needed? Delete others
     : port_(0)
     , eth_loopback_("on")
-    , num_packets_(1)
+    , num_packets_(16)
     , gap_("none")
     , pattern_("random")
     , src_addr_("11:22:33:44:55:66")
@@ -484,6 +485,12 @@ public:
     
     // TODO error checking, lane status checking, etc. Whatever sim and HW EDs do.
 
+    uint32_t reg;
+    uint64_t reg_read = 0;
+    bool tg_200n_400;
+    // Check if this AFU is for 200G or 400G
+    tg_200n_400 = bool(hafu->read64(CSR_AFU_400G_TG_EN)); // Bit-0 = 0 for 200g, 1 for 400g
+    std::cout << "Detected " << tg_200n_400? "400G" : "200G" << " HE-HSSI AFU." << std::endl
 
     // Set ROM start/end address. 
     // These addresses are copied from the HSSI-SS F-Tile Example Design (ED) simulation system toplevel RTL file.
@@ -509,20 +516,28 @@ public:
     //          init_rom_end_addr   = 16'h0017;
     //      end        
     
-
-    uint32_t reg;
-
     // CSR_HW_TEST_ROM_ADDR[15:0]   = ROM start address
     // CSR_HW_TEST_ROM_ADDR[31:16]  = ROM end address
-    printf("anandhve: Setting start/end ROM address for 200G -- expecting 16 packets with size 65bytes\n");
+    printf("anandhve: Setting start/end ROM address -- packet size and num packets?\n");
     reg = 0;
-    reg |= (0x1F << 16); // Set end address for 200G. Start address is zero. TODO: need to discern between 200/400G.
+
+    reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
     hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
     // TODO Set ROM loop count (default value is 1)
     printf("anandhve: Setting ROM loop count\n");
-    reg = 0x1;
+    if (num_packets_ % 16 != 0) {
+      std::cout << "--num_packets <num> must be a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
+      return test_afu::error;
+    }
+    reg = num_packets_ / 16;
     hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
+
+    printf("Resetting traffic-generator counters\n");
+    reg = 0x180; // Set bit-7 = 1 (clear status regs), bit8 = 1 (clear counters themselves).
+    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+    reg = 0x0; // bit-7 must be manually cleared. bit-8 is self-clearing.
+    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
     printf("anandhve: Starting the TG\n");
     // Start the TG
@@ -533,26 +548,36 @@ public:
     // TODO: Poll until all packets are sent. For now just sleep.
     sleep(1); // unit = seconds
 
-    printf("anandhve: Stopping the TG\n");
-    //Stop the TG
-    reg = 0x0;
+    printf("anandhve: Stopping the TG and taking snapshot of counters\n");
+    reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
     hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
     print_registers(std::cout, hafu);
 
-
-    // PORT-12 stuff. NEed to clean this up
+    // PORT-12 stuff. NEed to clean this up. Perhaps factor into a loop
     printf("anandhve: Setting traffic control/mailbox port select to 1 (Ethernet port-12)\n");
     hafu->write64(TRAFFIC_CTRL_PORT_SEL, 1); // TODO: what is this port number? If 200G is on ports 0 and 4, does that match up here? Or would it be 0 and 1?
-    printf("anandhve: Setting start/end ROM address for 200G -- expecting 16 packets with size 65bytes\n");
+
+    printf("anandhve: Setting start/end ROM address -- packet size and num packets?\n");
     reg = 0;
-    reg |= (0x1F << 16); // Set end address for 200G. Start address is zero. TODO: need to discern between 200/400G.
+
+    reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
     hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
     // TODO Set ROM loop count (default value is 1)
     printf("anandhve: Setting ROM loop count\n");
-    reg = 0x1;
+    if (num_packets_ % 16 != 0) {
+      std::cout << "--num_packets <num> must be a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
+      return test_afu::error;
+    }
+    reg = num_packets_ / 16;
     hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
+
+    printf("Resetting traffic-generator counters\n");
+    reg = 0x180; // Set bit-7 = 1 (clear status regs), bit8 = 1 (clear counters themselves).
+    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+    reg = 0x0; // bit-7 must be manually cleared. bit-8 is self-clearing.
+    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
     printf("anandhve: Starting the TG\n");
     // Start the TG
@@ -563,13 +588,11 @@ public:
     // TODO: Poll until all packets are sent. For now just sleep.
     sleep(1); // unit = seconds
 
-    printf("anandhve: Stopping the TG\n");
-    //Stop the TG
-    reg = 0x0;
+    printf("anandhve: Stopping the TG and taking snapshot of counters\n");
+    reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
     hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
     print_registers(std::cout, hafu);
-
 
     return test_afu::success;
   }
@@ -605,36 +628,36 @@ public:
     
     os << std::endl;
 
-os << "0x " << int_to_hex(CSR_HW_PC_CTRL)           << ": " <<
-int_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
-os << "0x " << int_to_hex(CSR_HW_TEST_LOOP_CNT)     << ": " <<
-int_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
-os << "0x " << int_to_hex(CSR_HW_TEST_ROM_ADDR)     << ": " <<
-int_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_LSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_MSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_LSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_MSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_LSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_MSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_LSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_MSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_LSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_MSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_LSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
-os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << ": " <<
-int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_HW_PC_CTRL)           << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
+    os << "0x " << int_to_hex(CSR_HW_TEST_LOOP_CNT)     << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
+    os << "0x " << int_to_hex(CSR_HW_TEST_ROM_ADDR)     << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_LSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TX_SOP_CNT_MSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_LSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TX_EOP_CNT_MSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_LSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_TX_ERR_CNT_MSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_LSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_RX_SOP_CNT_MSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_LSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_RX_EOP_CNT_MSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_LSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
+    os << "0x " << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << ": " <<
+    int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
 
   // os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
   //   int_to_hex(hafu->mbox_read(CSR_SCRATCH)) << std::endl;
