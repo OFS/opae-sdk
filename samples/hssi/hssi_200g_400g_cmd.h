@@ -553,8 +553,8 @@ public:
     // Loop until the TX SOP Count matches the expected num_packets.
     uint64_t tx_sop_count = 0;
     const uint64_t interval = 100ULL;
-    while (tx_sop_count < num_packets) {
-      tx_sop_count = (hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB) << 32) | hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB);
+    while (tx_sop_count < num_packets_) {
+      tx_sop_count = ((uint64_t)hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB);
       if (!running()) {
         reg = 0x00; // Stop the TG
         hafu->mbox_write(CSR_HW_PC_CTRL, reg);
