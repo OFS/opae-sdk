@@ -440,170 +440,95 @@ public:
       return test_afu::error;
     }
 
-    /* anandhve: Unsure what the point of this is
-    std::string eth_ifc = eth_ifc_;
-    if (eth_ifc == "none")
-      eth_ifc = hafu->ethernet_interface();
-    */
-
-    // TODO: clean this up
-   //std::cout << "200G_400G loopback test" << std::endl
-   //          << "  port: " << port_[0] << std::endl
-   //          << "  eth_loopback: " << eth_loopback_ << std::endl
-   //          << "  num_packets: " << num_packets_ << std::endl
-   //          << "  gap: " << gap_ << std::endl
-   //          << "  src_address: " << src_addr_ << std::endl
-   //          << "    (bits): 0x" << std::hex << bin_src_addr << std::endl
-   //          << "  dest_address: " << dest_addr_ << std::endl
-   //          << "    (bits): 0x" << std::hex << bin_dest_addr << std::endl
-   //          << "  pattern: " << pattern_ << std::endl
-   //          << "  start size: " << start_size_ << std::endl
-   //          << "  end size: " << end_size_ << std::endl
-   //          << "  end select: " << end_select_ << std::endl
-   //          << "  eth: " << eth_ifc << std::endl
-   //          << "  continuous mode: " << continuous_ << std::endl
-   //          << "  monitor duration: " << std::dec << contmonitor_ << " sec" << std::endl
-   //          << std::endl;
-
-    /* anandhve: Unsure what the point of this is
-
-    if (eth_ifc == "") {
-      std::cout << "No eth interface, so not "
-                   "honoring --eth-loopback." << std::endl;
-    } else {
-      if (eth_loopback_ == "on")
-        enable_eth_loopback(eth_ifc, true);
-      else
-        enable_eth_loopback(eth_ifc, false);
-    }
-    */
-
-//    ctrl_config config_data;
-
-    /* anandhve: we read DFH to check the major rev and choose respective modes. I don't think this is relevant for 200-400G
-    DFH dfh;
-    dfh.csr = hafu->read64(ETH_AFU_DFH);
-    */
-
-    // Select the appropriate port on the Mailbox
-    printf("anandhve: Setting traffic control/mailbox port select to 0\n");
-    hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_[0]); // TODO: what is this port number? If 200G is on ports 0 and 4, does that match up here? Or would it be 0 and 1?
-    
-    // TODO error checking, lane status checking, etc. Whatever sim and HW EDs do.
-
-    uint32_t reg;
-    bool tg_200n_400;
     // Check if this AFU is for 200G or 400G
+    bool tg_200n_400;    
     tg_200n_400 = bool(hafu->read64(CSR_AFU_400G_TG_EN)); // Bit-0 = 0 for 200g, 1 for 400g
     std::cout << "Detected " << (tg_200n_400? "400G" : "200G") << " HE-HSSI AFU." << std::endl;
 
-    // Set ROM start/end address. 
-    // These addresses are copied from the HSSI-SS F-Tile Example Design (ED) simulation system toplevel RTL file.
-    // The ED is generated from the HSSI-SS IP GUI and includes .hex files to pre-populate the ROM with example data.
-    // The sim toplevel expects this ROM data and chooses addresses accordingly. 
-    // Below is a paste of the RTL that we will copy here.
-    
-    //  if (client_if==0) begin    //---Segmented IF
-    //      if ((port_profile=="10G") | (port_profile=="25G")) begin
-    //          init_rom_start_addr = 16'h0000;
-    //          init_rom_end_addr   = 16'h007F;
-    //      end else if ((port_profile=="40G") | (port_profile=="50G")) begin
-    //          init_rom_start_addr = 16'h0000;
-    //          init_rom_end_addr   = 16'h004A;
-    //      end else if (port_profile=="100G") begin
-    //          init_rom_start_addr = 16'h0000;
-    //          init_rom_end_addr   = 16'h002D;
-    //      end else if (port_profile=="200G") begin
-    //          init_rom_start_addr = 16'h0000;
-    //          init_rom_end_addr   = 16'h001F;
-    //      end else if (port_profile=="400G") begin
-    //          init_rom_start_addr = 16'h0000;
-    //          init_rom_end_addr   = 16'h0017;
-    //      end        
-    
-    // CSR_HW_TEST_ROM_ADDR[15:0]   = ROM start address
-    // CSR_HW_TEST_ROM_ADDR[31:16]  = ROM end address
-    printf("anandhve: Setting start/end ROM address -- packet size and num packets?\n");
-    reg = 0;
+    int num_ports = tg_200n_400? 1 : 2;
+    for (int i=0;i<num_ports;i++) {
+      // Select the appropriate port on the Mailbox
+      std::cout << "Setting traffic control/mailbox channel-select to " << i << std::endl;
+      hafu->write64(TRAFFIC_CTRL_PORT_SEL, i);
+      
+      // TODO error checking, lane status checking, etc. Whatever sim and HW EDs do.
 
-    reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
-    hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
-    // TODO Set ROM loop count (default value is 1)
-    printf("anandhve: Setting ROM loop count\n");
-    if ( (num_packets_ % 16 != 0) || (num_packets_<=0)) {
-      std::cout << "--num_packets <num> must be >0 and a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
-      return test_afu::error;
-    }
-    reg = num_packets_ / 16;
-    hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
+      // Set ROM start/end address. 
+      // These addresses are copied from the HSSI-SS F-Tile Example Design (ED) simulation system toplevel RTL file.
+      // The ED is generated from the HSSI-SS IP GUI and includes .hex files to pre-populate the ROM with example data.
+      // The sim toplevel expects this ROM data and chooses addresses accordingly. 
+      // Below is a paste of the RTL that we will copy here.
+      
+      //  if (client_if==0) begin    //---Segmented IF
+      //      if ((port_profile=="10G") | (port_profile=="25G")) begin
+      //          init_rom_start_addr = 16'h0000;
+      //          init_rom_end_addr   = 16'h007F;
+      //      end else if ((port_profile=="40G") | (port_profile=="50G")) begin
+      //          init_rom_start_addr = 16'h0000;
+      //          init_rom_end_addr   = 16'h004A;
+      //      end else if (port_profile=="100G") begin
+      //          init_rom_start_addr = 16'h0000;
+      //          init_rom_end_addr   = 16'h002D;
+      //      end else if (port_profile=="200G") begin
+      //          init_rom_start_addr = 16'h0000;
+      //          init_rom_end_addr   = 16'h001F;
+      //      end else if (port_profile=="400G") begin
+      //          init_rom_start_addr = 16'h0000;
+      //          init_rom_end_addr   = 16'h0017;
+      //      end        
+      
+      // CSR_HW_TEST_ROM_ADDR[15:0]   = ROM start address
+      // CSR_HW_TEST_ROM_ADDR[31:16]  = ROM end address
+      std::cout << "Setting start/end ROM address" << std::endl;
+      uint32_t reg;      
+      reg = 0;
+      reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
+      hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
-    printf("Resetting traffic-generator counters\n");
-    reg = 0x180; // Set bit-7 = 1 (clear status regs), bit8 = 1 (clear counters themselves).
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-    reg = 0x0; // bit-7 must be manually cleared. bit-8 is self-clearing.
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-
-    printf("anandhve: Starting the TG\n");
-    // Start the TG
-    reg = 0x1;
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-
-    printf("anandhve: Waiting for all packets to be sent\n");
-    // Loop until the TX SOP Count matches the expected num_packets.
-    uint64_t tx_sop_count = 0;
-    const uint64_t interval = 100ULL;
-    while (tx_sop_count < num_packets_) {
-      tx_sop_count = ((uint64_t)hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB);
-      if (!running()) {
-        reg = 0x00; // Stop the TG
-        hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+      // TODO Set ROM loop count (default value is 1)
+      if ( (num_packets_ % 16 != 0) || (num_packets_<=0)) {
+        std::cout << "--num_packets <num> must be >0 and a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
         return test_afu::error;
       }
-      std::this_thread::sleep_for(std::chrono::microseconds(interval));      
-    }
 
-    printf("anandhve: Stopping the TG and taking snapshot of counters\n");
-    reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+      reg = num_packets_ / 16;
+      std::cout << "num_packets = " num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
+      hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
 
-    print_registers(std::cout, hafu);
+      std::cout << "Resetting traffic-generator counters" << std::endl;
+      reg = 0x180; // Set bit-7 = 1 (clear status regs), bit8 = 1 (clear counters themselves).
+      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+      reg = 0x0; // bit-7 must be manually cleared. bit-8 is self-clearing.
+      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
-    // PORT-12 stuff. NEed to clean this up. Perhaps factor into a loop
-    printf("anandhve: Setting traffic control/mailbox port select to 1 (Ethernet port-12)\n");
-    hafu->write64(TRAFFIC_CTRL_PORT_SEL, 1); // TODO: what is this port number? If 200G is on ports 0 and 4, does that match up here? Or would it be 0 and 1?
+      std::cout << "Starting the traffic-generator." << std::endl;
+      // Start the TG
+      reg = 0x1;
+      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
-    printf("anandhve: Setting start/end ROM address -- packet size and num packets?\n");
-    reg = 0;
+      std::cout << "Waiting for all packets to be sent." << std::endl;
+      // Loop until the TX SOP Count matches the expected num_packets.
+      uint64_t tx_sop_count = 0;
+      const uint64_t interval = 100ULL;
+      while (tx_sop_count < num_packets_) {
+        tx_sop_count = ((uint64_t)hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB);
+        if (!running()) {
+          reg = 0x00; // Stop the TG
+          hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+          return test_afu::error;
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(interval));      
+      }
 
-    reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
-    hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
+      std::cout << "Stopping the traffic-generator and taking a snapshot of counters." << std::endl;
+      reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
+      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
-    // TODO Set ROM loop count (default value is 1)
-    printf("anandhve: Setting ROM loop count\n");
-    reg = num_packets_ / 16;
-    hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
-
-    printf("Resetting traffic-generator counters\n");
-    reg = 0x180; // Set bit-7 = 1 (clear status regs), bit8 = 1 (clear counters themselves).
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-    reg = 0x0; // bit-7 must be manually cleared. bit-8 is self-clearing.
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-
-    printf("anandhve: Starting the TG\n");
-    // Start the TG
-    reg = 0x1;
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-
-    printf("anandhve: Sleeping\n");
-    // TODO: Poll until all packets are sent. For now just sleep.
-    sleep(1); // unit = seconds
-
-    printf("anandhve: Stopping the TG and taking snapshot of counters\n");
-    reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
-    hafu->mbox_write(CSR_HW_PC_CTRL, reg);
-
-    print_registers(std::cout, hafu);
+      std::cout << std::endl << std::endl;
+      print_registers(std::cout, hafu);
+      std::cout << std::endl << std::endl;
+    } 
 
     return test_afu::success;
   }
