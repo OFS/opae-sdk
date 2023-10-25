@@ -521,8 +521,14 @@ public:
         std::this_thread::sleep_for(std::chrono::microseconds(interval));      
       }
 
-      std::cout << "Stopping the traffic-generator and taking a snapshot of counters." << std::endl;
+      std::cout << "Stopping the traffic-generator" << std::endl;
       reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
+      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+
+      std::cout << "Short sleep to allow packets to propagate" << std::endl;
+      sleep (1)
+      std::cout << "Taking snapshot of counters" << std::endl;
+      reg = 0x40; // Take snapshot (bit-6=1)
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << std::endl << std::endl;
@@ -546,7 +552,6 @@ public:
 
   std::ostream & print_registers(std::ostream &os, hssi_afu *hafu) const
   {
-    os << "anandhve: IGNORE base addresses, they are printed wrong here"  << std::endl;
     os << "0x40000 " << std::setw(21) << "ETH_AFU_DFH" << ": " <<
       int_to_hex(hafu->read64(ETH_AFU_DFH)) << std::endl;
     os << "0x40008 " << std::setw(21) << "ETH_AFU_ID_L" << ": " <<
