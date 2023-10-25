@@ -493,7 +493,7 @@ public:
       }
 
       reg = num_packets_ / 16;
-      std::cout << "num_packets = " num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
+      std::cout << "num_packets = " << num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
       hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
 
       std::cout << "Resetting traffic-generator counters" << std::endl;
