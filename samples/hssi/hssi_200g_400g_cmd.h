@@ -98,17 +98,8 @@
 #define CSR_RX_END_TIMESTAMP_LO   0x1025
 #define CSR_RX_END_TIMESTAMP_HI   0x1026
 
-#define STOP_BITS                 0xa
-#define ZERO                      0x0
-#define ONE                       0x1
-#define CSR_SHIFT                 32
-#define CONV_SEC                  402832031
-#define DATA_CNF_PKT_NUM          0x80000000
-#define DATA_CNF_CONTINUOUS_MODE  0x00000000
-#define DATA_CNF_FIXED_MODE       0x80000000
-#define CURSOR_UP                 "A"
-#define CURSOR_DOWN               "B"
-#define MAX_PORT                  2
+#define USER_CLKFREQ_N6001    470.00  // MHz. The HE-HSSI AFU is clocked by sys_pll|iopll_0_clk_sys
+
 
 // END reg
 
@@ -492,7 +483,8 @@ public:
         return test_afu::error;
       }
 
-      reg = num_packets_ / 16;
+      uint32_t rom_loop_count = num_packets_ / 16;
+      reg = rom_loop_count;
       std::cout << "num_packets = " << num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
       hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
 
@@ -534,6 +526,30 @@ public:
       std::cout << std::endl << std::endl;
       print_registers(std::cout, hafu);
       std::cout << std::endl << std::endl;
+
+      // Throughput calculation
+      double sample_period_ns = 1000 / USER_CLKFREQ_N6001;
+      uint64_t timestamp_start, timestamp_end, timestamp_duration_cycles, total_data_size_bits;
+      double timestamp_duration_ns;
+      timestamp_start = ((uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_LSB);
+      timestamp_end = ((uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_LSB);
+      assert (timestamp_end > timestamp_start);
+      timestamp_duration_cycles = timestamp_end - timestamp_start;
+      timestamp_duration_ns = timestamp_duration_cycles * sample_period_ns;
+      uint32_t payload_bytes_per_packet = 58;
+      uint32_t total_bytes_per_packet = 76;
+      uint32_t total_num_packets = 16 * rom_loop_count; // Each loop through the ROM sends 16 packets
+      uint32_t total_payload_size_bytes = payload_bytes_per_packet * total_num_packets; 
+      uint32_t total_size_bytes = total_bytes_per_packet * total_num_packets;
+      double throughput_payload_bytes_gbps = total_payload_size_bytes / timestamp_duration_ns;
+      double throughput_total_bytes_gbps = total_size_bytes / timestamp_duration_ns;
+
+      std::cout << "\tAFU clock frequency : "<< USER_CLKFREQ_N6001 << " MHz" << std::endl
+                << "\tTotal # packets transmitted: " << total_num_packets << <<std::endl
+                << "\tTotal payload transmitted: " << total_payload_size_bytes << " bytes" << std::endl
+                << "\tTotal data transmitted: " << total_size_bytes << " bytes" << std::endl
+                << "\tThroughput on payload data: " << throughput_payload_bytes_gbps << " Gbytes/sec = " << throughput_payload_bytes_gbps * 8 << " Gbits/sec" << std::endl
+                << "\tThroughput on total data: " << throughput_total_bytes_gbps << " Gbytes/sec = " << throughput_total_bytes_gbps * 8 << " Gbits/sec" << std::endl;
     } 
 
     return test_afu::success;
@@ -552,6 +568,7 @@ public:
 
   std::ostream & print_registers(std::ostream &os, hssi_afu *hafu) const
   {
+    
     os << "0x40000 " << std::setw(21) << "ETH_AFU_DFH" << ": " <<
       int_to_hex(hafu->read64(ETH_AFU_DFH)) << std::endl;
     os << "0x40008 " << std::setw(21) << "ETH_AFU_ID_L" << ": " <<
@@ -608,31 +625,6 @@ public:
     int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_LSB)) << std::endl;
     os << "0x " << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_MSB)  << " CSR_STAT_TIMESTAMP_TG_END_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_MSB)) << std::endl;            
-
-  // os << "0x1000 " << std::setw(22) << "scratch" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_SCRATCH)) << std::endl;
-  // os << "0x1001 " << std::setw(22) << "block_ID" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_BLOCK_ID)) << std::endl;
-  // os << "0x1008 " << std::setw(22) << "pkt_size" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_PKT_SIZE)) << std::endl;
-  // os << "0x1009 " << std::setw(22) << "ctrl0" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_CTRL0)) << std::endl;
-  // os << "0x1010 " << std::setw(22) << "ctrl1" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_CTRL1)) << std::endl;
-  // os << "0x1011 " << std::setw(22) << "dst_addr_lo" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_DST_ADDR_LO)) << std::endl;
-  // os << "0x1012 " << std::setw(22) << "dst_addr_hi" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_DST_ADDR_HI)) << std::endl;
-  // os << "0x1013 " << std::setw(22) << "src_addr_lo" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_LO)) << std::endl;
-  // os << "0x1014 " << std::setw(22) << "src_addr_hi" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_HI)) << std::endl;
-  // os << "0x1015 " << std::setw(22) << "rx_count" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_RX_COUNT)) << std::endl;
-  // os << "0x1016 " << std::setw(22) << "mlb_rst" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_MLB_RST)) << std::endl;
-  // os << "0x1017 " << std::setw(22) << "tx_count" << ": " <<
-  //   int_to_hex(hafu->mbox_read(CSR_TX_COUNT)) << std::endl;
 
     return os;
   }
