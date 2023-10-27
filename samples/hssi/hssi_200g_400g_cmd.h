@@ -518,7 +518,7 @@ public:
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << "Short sleep to allow packets to propagate" << std::endl;
-      sleep (1)
+      sleep (1);
       std::cout << "Taking snapshot of counters" << std::endl;
       reg = 0x40; // Take snapshot (bit-6=1)
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
@@ -529,7 +529,7 @@ public:
 
       // Throughput calculation
       double sample_period_ns = 1000 / USER_CLKFREQ_N6001;
-      uint64_t timestamp_start, timestamp_end, timestamp_duration_cycles, total_data_size_bits;
+      uint64_t timestamp_start, timestamp_end, timestamp_duration_cycles;
       double timestamp_duration_ns;
       timestamp_start = ((uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_LSB);
       timestamp_end = ((uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_MSB) << 32) | (uint64_t)hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_LSB);
@@ -545,7 +545,7 @@ public:
       double throughput_total_bytes_gbps = total_size_bytes / timestamp_duration_ns;
 
       std::cout << "\tAFU clock frequency : "<< USER_CLKFREQ_N6001 << " MHz" << std::endl
-                << "\tTotal # packets transmitted: " << total_num_packets << <<std::endl
+                << "\tTotal # packets transmitted: " << total_num_packets << std::endl
                 << "\tTotal payload transmitted: " << total_payload_size_bytes << " bytes" << std::endl
                 << "\tTotal data transmitted: " << total_size_bytes << " bytes" << std::endl
                 << "\tThroughput on payload data: " << throughput_payload_bytes_gbps << " Gbytes/sec = " << throughput_payload_bytes_gbps * 8 << " Gbits/sec" << std::endl
