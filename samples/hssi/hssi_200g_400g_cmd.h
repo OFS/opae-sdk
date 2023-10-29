@@ -476,7 +476,7 @@ public:
       uint32_t reg;      
       reg = 0;
       //reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
-      reg = (0x0311 << 16); //  anandhve 
+      reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       // TODO Set ROM loop count (default value is 1)
@@ -485,7 +485,9 @@ public:
         return test_afu::error;
       }
 
-      uint32_t rom_loop_count = num_packets_ / 16;
+      //uint32_t rom_loop_count = num_packets_ / 16;
+      uint32_t num_packets_per_rom_loop = 32; // annadhve for 1486 testing
+      uint32_t rom_loop_count = num_packets_ / num_packets_per_rom_loop; 
       reg = rom_loop_count;
       std::cout << "num_packets = " << num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
       hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
@@ -540,7 +542,7 @@ public:
       timestamp_duration_ns = timestamp_duration_cycles * sample_period_ns;
       uint64_t payload_bytes_per_packet = 58;
       uint64_t total_bytes_per_packet = 76;
-      uint64_t total_num_packets = 16 * rom_loop_count; // Each loop through the ROM sends 16 packets
+      uint64_t total_num_packets = num_packets_per_rom_loop * rom_loop_count;
       uint64_t total_payload_size_bytes = payload_bytes_per_packet * total_num_packets; 
       uint64_t total_size_bytes = total_bytes_per_packet * total_num_packets;
       double throughput_payload_bytes_gbps = total_payload_size_bytes / timestamp_duration_ns;
@@ -551,7 +553,8 @@ public:
                 << "\tTotal payload transmitted: " << total_payload_size_bytes << " bytes" << std::endl
                 << "\tTotal data transmitted: " << total_size_bytes << " bytes" << std::endl
                 << "\tThroughput on payload data: " << throughput_payload_bytes_gbps << " Gbytes/sec = " << throughput_payload_bytes_gbps * 8 << " Gbits/sec" << std::endl
-                << "\tThroughput on total data: " << throughput_total_bytes_gbps << " Gbytes/sec = " << throughput_total_bytes_gbps * 8 << " Gbits/sec" << std::endl;
+                << "\tThroughput on total data: " << throughput_total_bytes_gbps << " Gbytes/sec = " << throughput_total_bytes_gbps * 8 << " Gbits/sec" << std::endl
+                << "\tTotal duration ns: " << timestamp_duration_ns << " ns. Use data sizes from hssistats, divided by this number, to get throughput" << std::endl;
     } 
     std::cout << std::endl << std::endl << std::endl << std::endl;
 
