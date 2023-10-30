@@ -472,11 +472,12 @@ public:
       // CSR_HW_TEST_ROM_ADDR[15:0]   = ROM start address
       // CSR_HW_TEST_ROM_ADDR[31:16]  = ROM end address
       std::cout << "Setting start/end ROM address" << std::endl;
-      std::cout << "anandhve: ASSUMING 1518-BYTE PACKETS!" << std::endl;
+      std::cout << "anandhve: ASSUMING 1512-BYTE PACKETS!" << std::endl;
       uint32_t reg;      
       reg = 0;
       //reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
-      reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
+      //reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
+      reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       // TODO Set ROM loop count (default value is 1)
