@@ -109,7 +109,7 @@ public:
   hssi_200g_400g_cmd() //TODO which of these are actually needed? Delete others
     : port_(0)
     , eth_loopback_("on")
-    , num_packets_(16)
+    , num_packets_(32)
     , gap_("none")
     , pattern_("random")
     , src_addr_("11:22:33:44:55:66")
@@ -477,17 +477,18 @@ public:
       reg = 0;
       //reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
       //reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
-      reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
+      //reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
+      reg = (0x0C3B << 16); //  anandhve TODO this is for 1514 packet length testing, with rom depth 4096. sending 128 packets per ROM loop
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       // TODO Set ROM loop count (default value is 1)
-      if ( (num_packets_ % 16 != 0) || (num_packets_<=0)) {
-        std::cout << "--num_packets <num> must be >0 and a multiple of 16 since the traffic generator only sends this multiple." << std::endl;
+      uint32_t num_packets_per_rom_loop = 128; // annadhve for 1514 testing
+      if ( (num_packets_ % num_packets_per_rom_loop != 0) || (num_packets_<num_packets_per_rom_loop)) {
+        std::cout << "--num_packets <num> must be >=" << num_packets_per_rom_loop << " and a multiple of " << num_packets_per_rom_loop << " 32 since the traffic generator only sends this multiple." << std::endl;
         return test_afu::error;
       }
 
       //uint32_t rom_loop_count = num_packets_ / 16;
-      uint32_t num_packets_per_rom_loop = 32; // annadhve for 1486 testing
       uint32_t rom_loop_count = num_packets_ / num_packets_per_rom_loop; 
       reg = rom_loop_count;
       std::cout << "num_packets = " << num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
@@ -523,7 +524,7 @@ public:
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << "Short sleep to allow packets to propagate" << std::endl;
-      sleep (5); // TODO this is way too long, but making it long for testing
+      sleep (1); // TODO this is way too long, but making it long for testing
       std::cout << "Taking snapshot of counters" << std::endl;
       reg = 0x40; // Take snapshot (bit-6=1)
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
