@@ -109,7 +109,7 @@ public:
   hssi_200g_400g_cmd() //TODO which of these are actually needed? Delete others
     : port_(0)
     , eth_loopback_("on")
-    , num_packets_(32)
+    , num_packets_(128)
     , gap_("none")
     , pattern_("random")
     , src_addr_("11:22:33:44:55:66")
@@ -478,7 +478,8 @@ public:
       //reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
       //reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
       //reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
-      reg = (0x0C3B << 16); //  anandhve TODO this is for 1514 packet length testing, with rom depth 4096. sending 128 packets per ROM loop
+      //reg = (0x0C3B << 16); //  anandhve TODO this is for 1514 packet length testing, with rom depth 4096. sending 128 packets per ROM loop
+      reg |= tg_200n_400? (0x0659 << 16) : (0x0C3B << 16); // Set 200 vs 400 end address.  1514 packet length, 128 packets per ROM loop
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       // TODO Set ROM loop count (default value is 1)
