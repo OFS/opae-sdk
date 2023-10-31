@@ -479,11 +479,11 @@ public:
       //reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
       //reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
       //reg = (0x0C3B << 16); //  anandhve TODO this is for 1514 packet length testing, with rom depth 4096. sending 128 packets per ROM loop
-      reg |= tg_200n_400? (0x0659 << 16) : (0x0C3B << 16); // Set 200 vs 400 end address.  1514 packet length, 128 packets per ROM loop
+      reg |= tg_200n_400? (0x0659 << 16) : (0x0307 << 16); // Set 200 vs 400 end address.  1512 packet length, 128 packets per ROM loop
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       // TODO Set ROM loop count (default value is 1)
-      uint32_t num_packets_per_rom_loop = 128; // annadhve for 1514 testing
+      uint32_t num_packets_per_rom_loop = 32; // annadhve for 1514 testing
       if ( (num_packets_ % num_packets_per_rom_loop != 0) || (num_packets_<num_packets_per_rom_loop)) {
         std::cout << "--num_packets <num> must be >=" << num_packets_per_rom_loop << " and a multiple of " << num_packets_per_rom_loop << " 32 since the traffic generator only sends this multiple." << std::endl;
         return test_afu::error;
