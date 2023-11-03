@@ -83,20 +83,8 @@
 class hssi_200g_400g_cmd : public hssi_cmd
 {
 public:
-  hssi_200g_400g_cmd() //TODO which of these are actually needed? Delete others
-    : port_(0)
-    , eth_loopback_("on")
-    , num_packets_(128)
-    , gap_("none")
-    , pattern_("random")
-    , src_addr_("11:22:33:44:55:66")
-    , dest_addr_("77:88:99:aa:bb:cc")
-    , eth_ifc_("none")
-    , start_size_(64)
-    , end_size_(9600)
-    , end_select_("pkt_num")
-    , continuous_("off")
-    , contmonitor_(0)
+  hssi_200g_400g_cmd()
+    num_packets_(32)
   {}
 
   virtual const char *name() const override
