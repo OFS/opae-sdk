@@ -83,8 +83,8 @@
 class hssi_200g_400g_cmd : public hssi_cmd
 {
 public:
-  hssi_200g_400g_cmd()
-    num_packets_(32)
+  hssi_200g_400g_cmd() //TODO which of these are actually needed? Delete others
+    : num_packets_(32)
   {}
 
   virtual const char *name() const override
