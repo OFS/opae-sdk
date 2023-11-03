@@ -479,7 +479,7 @@ public:
       //reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
       //reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
       //reg = (0x0C3B << 16); //  anandhve TODO this is for 1514 packet length testing, with rom depth 4096. sending 128 packets per ROM loop
-      reg |= tg_200n_400? (0x0659 << 16) : (0x02FF << 16); // Set 200 vs 400 end address.  1486 packet lenght, 32 packets per ROM loop
+      reg |= tg_200n_400? (0x0191 << 16) : (0x02FF << 16); // Set 200 vs 400 end address.  1486 packet lenght, 32 packets per ROM loop
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       // TODO Set ROM loop count (default value is 1)
