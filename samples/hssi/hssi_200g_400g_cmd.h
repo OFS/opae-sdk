@@ -83,7 +83,7 @@
 class hssi_200g_400g_cmd : public hssi_cmd
 {
 public:
-  hssi_200g_400g_cmd() //TODO which of these are actually needed? Delete others
+  hssi_200g_400g_cmd()
     : num_packets_(32)
   {}
 
@@ -97,8 +97,7 @@ public:
     return "hssi 200G_400G test\n";
   }
 
-  // TODO: is there a way to print these to stdout with --help?
-  virtual void add_options(CLI::App *app) override // TODO cleanup
+  virtual void add_options(CLI::App *app) override
   {
     auto opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
@@ -221,7 +220,7 @@ public:
   virtual const char *afu_id() const override
   {
 
-    // From 200g_400g AFU register map spreadsheet TODO: link to it?
+    // From 200g_400g AFU register map spreadsheet
     // REGISTER NAME    ADDRESS     DEFAULT             DESCRIPTION
     // AFU_ID_L         0x0008      0xB18A51879087C674  AFU ID (Lower 64-bit)
     // AFU_ID_H         0x0010      0x71F59769AD6049ED  AFU ID (Upper 64-bit)
