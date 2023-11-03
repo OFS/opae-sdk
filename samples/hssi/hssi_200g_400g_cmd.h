@@ -248,6 +248,7 @@ public:
     os << "0x" << std::setw(21) << int_to_hex(AFU_SCRATCHPAD) << " AFU_SCRATCHPAD: " <<
     int_to_hex(hafu->mbox_read(AFU_SCRATCHPAD)) << std::endl;
     os << "0x" << std::setw(21) << int_to_hex(CSR_AFU_400G_TG_EN) << " CSR_AFU_400G_TG_EN: " <<
+    int_to_hex(hafu->mbox_read(CSR_AFU_400G_TG_EN)) << std::endl;
     
     os << std::endl;
     os << "Printing CSRs from Traffic Generator IP (behind the mailbox):" << std::endl;
