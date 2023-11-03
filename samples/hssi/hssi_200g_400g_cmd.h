@@ -28,13 +28,22 @@
 #include <cmath>
 #include <unistd.h>
 
+// The intention of this utility is to demonstrate simple use of the 200G/400G Ethernet subsystem so that a 
+// user may add their own complexity on top.
+
+// Code structure:
 // This class inherits hssi_cmd (which in turn inherits 'command') as part of the afu-test framework.
 // It implements a specific 'command' (which is essentially like a test / sequence of operations) to 
 // exercise the 200G-400G F-Tile HSSI Sub-System.
+
 // HSSI = "High Speed Serial Interface" which is better referred to as "Ethernet".
 // It expects a specific AFU (accelerator function unit) to be present in the FPGA (specified by afu_id()).
-// This corresponding AFU instantiates the 200G/400G HSSI-SS and a traffic generator (TG) to transmit/receive
-// packet data to the SS.
+// This corresponding AFU instantiates a traffic generator (TG) to transmit/receive
+// packet data to the HSSI-SS.
+
+// The run() function talks to the TG to create some test traffic flow and measure throughput.
+
+// The TG has very limited control -- you can only control the number of packets sent.
 // The following terms are synonymous: traffic generator, traffic controller, packet client.
 // The TG has its own control/status register (CSR) map that is abstracted behind a "Mailbox".
 // The Mailbox presents a small set of command registers that accept address, data, control.
@@ -69,39 +78,7 @@
 #define CSR_STAT_TIMESTAMP_TG_END_LSB     0x0058
 #define CSR_STAT_TIMESTAMP_TG_END_MSB     0x005C
 
-// START: OLD 100G TG registers, TODO delete
-#define CSR_SCRATCH               0x1000
-#define CSR_BLOCK_ID              0x1001
-#define CSR_PKT_SIZE              0x1008
-#define CSR_CTRL0                 0x1009
-#define CSR_CTRL1                 0x1010
-#define CSR_DST_ADDR_LO           0x1011
-#define CSR_DST_ADDR_HI           0x1012
-#define CSR_SRC_ADDR_LO           0x1013
-#define CSR_SRC_ADDR_HI           0x1014
-#define CSR_RX_COUNT              0x1015
-#define CSR_MLB_RST               0x1016
-#define CSR_TX_COUNT              0x1017
-#define CSR_STATS_CTRL            0x1018
-#define CSR_STATS_TX_CNT_LO       0x1019
-#define CSR_STATS_TX_CNT_HI       0x101A
-#define CSR_STATS_RX_CNT_LO       0x101B
-#define CSR_STATS_RX_CNT_HI       0x101C
-#define CSR_STATS_RX_GD_CNT_LO    0x101D
-#define CSR_STATS_RX_GD_CNT_HI    0x101E
-#define CSR_TX_START_TIMESTAMP_LO 0x101F
-#define CSR_TX_START_TIMESTAMP_HI 0x1020
-#define CSR_TX_END_TIMESTAMP_LO   0x1021
-#define CSR_TX_END_TIMESTAMP_HI   0x1022
-#define CSR_RX_START_TIMESTAMP_LO 0x1023
-#define CSR_RX_START_TIMESTAMP_HI 0x1024
-#define CSR_RX_END_TIMESTAMP_LO   0x1025
-#define CSR_RX_END_TIMESTAMP_HI   0x1026
-
 #define USER_CLKFREQ_N6001    470.00  // MHz. The HE-HSSI AFU is clocked by sys_pll|iopll_0_clk_sys
-
-
-// END reg
 
 class hssi_200g_400g_cmd : public hssi_cmd
 {
@@ -135,364 +112,53 @@ public:
   // TODO: is there a way to print these to stdout with --help?
   virtual void add_options(CLI::App *app) override // TODO cleanup
   {
-    auto opt = app->add_option("--port", port_,
-                               "QSFP port");
-    opt->check(CLI::Range(0, 7));
-
-    opt = app->add_option("--eth-loopback", eth_loopback_,
-                    "whether to enable loopback on the eth interface");
-    opt->check(CLI::IsMember({"on", "off"}))->default_str(eth_loopback_);
-
     opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
     opt->default_str(std::to_string(num_packets_));
-
-    opt = app->add_option("--gap", gap_,
-                          "inter-packet gap");
-    opt->check(CLI::IsMember({"random", "none"}))->default_str(gap_);
-
-    opt = app->add_option("--pattern", pattern_,
-                          "pattern mode");
-    opt->check(CLI::IsMember({"random", "fixed", "increment"}))->default_str(pattern_);
-
-    opt = app->add_option("--src-addr", src_addr_,
-                          "source MAC address");
-    opt->default_str(src_addr_);
-
-    opt = app->add_option("--dest-addr", dest_addr_,
-                          "destination MAC address");
-    opt->default_str(dest_addr_);
-
-    opt = app->add_option("--eth-ifc", eth_ifc_,
-                          "ethernet interface name");
-    opt->default_str(eth_ifc_);
-
-    opt = app->add_option("--start-size", start_size_,
-                          "packet size in bytes (lower limit for incr mode)");
-    opt->default_str(std::to_string(start_size_));
-
-    opt = app->add_option("--end-size", end_size_,
-                          "upper limit of packet size in bytes");
-    opt->default_str(std::to_string(end_size_));
-
-    opt = app->add_option("--end-select", end_select_,
-                          "end of packet generation control");
-    opt->check(CLI::IsMember({"pkt_num", "gen_idle"}))->default_str(end_select_);
-
-    opt = app->add_option("--continuous", continuous_,
-                          "continuous mode");
-    opt->check(CLI::IsMember({"on","off"}))->default_str(continuous_);
-
-    opt = app->add_option("--contmonitor", contmonitor_,
-                          "time period(in seconds) for performance monitor");
-    opt->default_str(std::to_string(contmonitor_));
-  }
-
-  uint64_t timestamp_in_seconds(uint64_t x) const
-  {
-    return round(x/CONV_SEC);
-  }
-
-  uint64_t total_per_second(uint64_t y, uint64_t z) const
-  {
-    if (timestamp_in_seconds(z) != 0)
-      return round(y/timestamp_in_seconds(z));
-    return 0;
-  }
-
-  typedef struct DFH {
-    union {
-      uint64_t csr;
-      struct {
-        uint64_t id : 12;
-        uint64_t major_rev : 4;
-        uint64_t next : 24;
-        uint64_t eol : 1;
-        uint64_t reserved41 : 7;
-        uint64_t minor_rev : 4;
-        uint64_t version : 8;
-        uint64_t type : 4;
-      };
-    };
-  } DFH;
-
-  typedef struct ctrl_config{
-    uint32_t pkt_size_data;
-    uint32_t ctrl0_data;
-    uint32_t ctrl1_data;
-  } ctrl_config;
-
-  typedef struct perf_data{
-    volatile uint64_t tx_count;
-    volatile uint64_t rx_count;
-    volatile uint64_t rx_good_packet_count;
-    volatile uint64_t rx_pkt_sec;
-    uint64_t bw;
-  } perf_data;
-
-  uint64_t data_64(uint32_t lowerbytes, uint32_t higherbytes) const
-  {
-    return (uint64_t)higherbytes << CSR_SHIFT | lowerbytes;
-  }
-
-  void read_performance(perf_data *perf, hssi_afu *hafu) const
-  {
-    perf->tx_count = data_64(hafu->mbox_read(CSR_STATS_TX_CNT_LO), hafu->mbox_read(CSR_STATS_TX_CNT_HI));
-    perf->rx_count = data_64(hafu->mbox_read(CSR_STATS_RX_CNT_LO), hafu->mbox_read(CSR_STATS_RX_CNT_HI));
-    perf->rx_good_packet_count = data_64(hafu->mbox_read(CSR_STATS_RX_GD_CNT_LO), hafu->mbox_read(CSR_STATS_RX_GD_CNT_HI));
-    perf->rx_pkt_sec = data_64(hafu->mbox_read(CSR_RX_END_TIMESTAMP_LO), hafu->mbox_read(CSR_RX_END_TIMESTAMP_HI));
-  }
-
-  void calc_performance(perf_data *old_perf, perf_data *new_perf, perf_data *perf, uint64_t size) const
-  {
-    perf->tx_count = new_perf->tx_count;
-    perf->rx_count = new_perf->rx_count;
-    perf->rx_good_packet_count = new_perf->rx_good_packet_count;
-    perf->rx_pkt_sec = total_per_second((new_perf->rx_count - old_perf->rx_count), (new_perf->rx_pkt_sec - old_perf->rx_pkt_sec));
-    perf->bw = (perf->rx_pkt_sec * size) >> 27;
-  }
-
-  uint8_t stall_enable(hssi_afu *hafu) const
-  {
-    volatile uint32_t reg;
-    reg = hafu->mbox_read(CSR_STATS_CTRL);
-    reg |= 1 << 1;
-    hafu->mbox_write(CSR_STATS_CTRL, reg);
-    return 1;
-  }
-
-  uint8_t stall_disable(hssi_afu *hafu) const
-  {
-    volatile uint32_t reg;
-    reg = hafu->mbox_read(CSR_STATS_CTRL);
-    reg &= ~(1 << 1);
-    hafu->mbox_write(CSR_STATS_CTRL, reg);
-    return 1;
-  }
-
-  void write_ctrl_config(hssi_afu *hafu, ctrl_config config_data) const
-  {
-    hafu->mbox_write(CSR_PKT_SIZE, config_data.pkt_size_data);
-    hafu->mbox_write(CSR_CTRL0, config_data.ctrl0_data);
-    hafu->mbox_write(CSR_CTRL1, config_data.ctrl1_data);
-  }
-
-  void write_csr_addr(hssi_afu *hafu, uint64_t bin_src_addr, uint64_t bin_dest_addr) const
-  {
-    hafu->mbox_write(CSR_SRC_ADDR_LO, static_cast<uint32_t>(bin_src_addr));
-    hafu->mbox_write(CSR_SRC_ADDR_HI, static_cast<uint32_t>(bin_src_addr >> 32));
-
-    hafu->mbox_write(CSR_DST_ADDR_LO, static_cast<uint32_t>(bin_dest_addr));
-    hafu->mbox_write(CSR_DST_ADDR_HI, static_cast<uint32_t>(bin_dest_addr >> 32));
-  }
-
-  std::ostream & print_monitor_headers(std::ostream &os, uint32_t max_timer) const
-  {
-    os<< std::dec << "\r\n"<<"Monitor mode for "<< max_timer <<" sec, Press 'q' to quit and 'r' to reset"<<"\r";
-    os<< "\r\n___________________________________________________________________________________________________\r\n";
-
-    os<< "\r\n"
-    << std::left
-    << "| "
-    << std::setw(5)
-    << "Port" << " | " << std::setw(7)
-    << "Time(sec)" << " | " << std::setw(15)
-    << "Tx count" << " | " << std::setw(15)
-    << "Rx count" << " | " << std::setw(15)
-    << "Rx good"  << " | " << std::setw(10)
-    << "Rx pkt/s" << " | " << std::setw(8)
-    << "BW" << " | "
-    << "\r";
-
-    os<< "\n---------------------------------------------------------------------------------------------------\r\n";
-    return os;
-  }
-
-  std::ostream & print_monitor_data(std::ostream &os, perf_data *data, int port, uint32_t timer) const
-  {
-    os << std::dec
-    << std::left
-    << "| "
-    << std::setw(5)
-    << port << " | " << std::setw(6)
-    << timer<< "   " << " | " << std::setw(15)
-    << data->tx_count << " | " << std::setw(15)
-    << data->rx_count << " | " << std::setw(15)
-    << data->rx_good_packet_count<< " | " << std::setw(10)
-    << data->rx_pkt_sec << " | " << std::setw(4)
-    << data->bw << "Gbps" << " | "
-    << "\r";
-    return os;
-  }
-
-  void select_port(int port, ctrl_config config_data, hssi_afu *hafu) const
-  {
-    /* Selects the port before performing read/write to traffic controller reg space */
-    hafu->write64(TRAFFIC_CTRL_PORT_SEL, port);
-    write_ctrl_config(hafu, config_data);
-    write_csr_addr(hafu, mac_bits_for(src_addr_), mac_bits_for(dest_addr_));
-  }
-
-  void capture_perf(perf_data *old_perf_data, hssi_afu *hafu) const
-  {
-    memset(old_perf_data, 0, sizeof(perf_data));
-    if (stall_enable(hafu))
-    {
-      read_performance(old_perf_data, hafu);
-      stall_disable(hafu);
-    }
-  }
-
-  std::ostream & run_monitor(std::ostream &os, perf_data *old_perf_data, int port, hssi_afu *hafu, uint32_t timer)
-  {
-    perf_data *cur_perf_data = (perf_data*)malloc(sizeof(perf_data));
-    perf_data *new_perf_data = (perf_data*)malloc(sizeof(perf_data));
-
-    memset(cur_perf_data, 0, sizeof(perf_data));
-
-    capture_perf(new_perf_data, hafu);
-    calc_performance(old_perf_data, new_perf_data, cur_perf_data, start_size_);
-
-    print_monitor_data(os, cur_perf_data, port, timer);
-    memcpy(old_perf_data, new_perf_data, sizeof(perf_data));
-
-    return os;
-  }
-
-  char get_user_input(char key) const
-  {
-    /* Waits for user input for 1 second */
-    key = '\0';      // initialized to null
-    std::thread t1([&](){
-      std::cin>>key;
-    });
-    t1.detach();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    return key;
-  }
-
-  void quit_monitor(uint8_t size, std::string move, hssi_afu *hafu) const
-  {
-    /* Quit the monitor*/
-    move_cursor(size, move);
-    hafu->mbox_write(CSR_CTRL0, DATA_CNF_PKT_NUM);
-    hafu->mbox_write(CSR_STATS_CTRL, ZERO);
-  }
-
-  void reset_monitor(std::vector<int> port_, std::string move, ctrl_config config_data, hssi_afu *hafu) const
-  {
-    /* Reset the monitor ports traffic data*/
-    uint8_t size = (uint8_t)port_.size();
-    for(uint8_t port=0; port < size; port++)
-      {
-        select_port(port_[port], config_data, hafu);
-        hafu->mbox_write(CSR_STATS_CTRL, ONE);
-        hafu->mbox_write(CSR_STATS_CTRL, ZERO);
-      }
-     move_cursor(1, move);
-  }
-
-  void move_cursor(uint8_t size, std::string move) const
-  {
-    /* Moves the cursor position (up/down) based on port size*/
-    std::ostringstream oss;
-
-    oss << "\x1b[" << (int)size << move;
-
-    std::cout << oss.str().c_str();
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override
   {
     (void)app;
 
-    /* anandhve: the concept of ports may not be relevant
-    if (port_.size() > MAX_PORT)
-    {
-      std::cerr<< "more than " << MAX_PORT << " ports are not supported"<<std::endl;
-      return test_afu::error;
-    }
-    */
-
-    if (port_.empty())
-        port_.push_back(0);
-
     hssi_afu *hafu = dynamic_cast<hssi_afu *>(afu);
 
-    uint64_t bin_src_addr = mac_bits_for(src_addr_);
-    if (bin_src_addr == INVALID_MAC) {
-      std::cerr << "invalid MAC address: " << src_addr_ << std::endl;
-      return test_afu::error;
-    }
-
-    uint64_t bin_dest_addr = mac_bits_for(dest_addr_);
-    if (bin_dest_addr == INVALID_MAC) {
-      std::cerr << "invalid MAC address: " << dest_addr_ << std::endl;
-      return test_afu::error;
-    }
-
-    // Check if this AFU is for 200G or 400G
+    // Check if this AFU is for 200G or 400G by reading a status reg in the AFU CSR region.
     bool tg_200n_400;    
     tg_200n_400 = bool(hafu->read64(CSR_AFU_400G_TG_EN)); // Bit-0 = 0 for 200g, 1 for 400g
     std::cout << "Detected " << (tg_200n_400? "400G" : "200G") << " HE-HSSI AFU." << std::endl;
 
+    // For 200G there are two Ethernet ports, #8 and #12.
+    // For 400G there is one Ethernet port, #8.
+    // These are connected to Mailbox channels 0 and 1, respectively.
     int num_ports = tg_200n_400? 1 : 2;
     for (int i=0;i<num_ports;i++) {
       // Select the appropriate port on the Mailbox
       std::cout << "Setting traffic control/mailbox channel-select to " << i << std::endl;
       hafu->write64(TRAFFIC_CTRL_PORT_SEL, i);
-      
-      // TODO error checking, lane status checking, etc. Whatever sim and HW EDs do.
-
-
+    
       // Set ROM start/end address. 
-      // These addresses are copied from the HSSI-SS F-Tile Example Design (ED) simulation system toplevel RTL file.
-      // The ED is generated from the HSSI-SS IP GUI and includes .hex files to pre-populate the ROM with example data.
-      // The sim toplevel expects this ROM data and chooses addresses accordingly. 
-      // Below is a paste of the RTL that we will copy here.
-      
-      //  if (client_if==0) begin    //---Segmented IF
-      //      if ((port_profile=="10G") | (port_profile=="25G")) begin
-      //          init_rom_start_addr = 16'h0000;
-      //          init_rom_end_addr   = 16'h007F;
-      //      end else if ((port_profile=="40G") | (port_profile=="50G")) begin
-      //          init_rom_start_addr = 16'h0000;
-      //          init_rom_end_addr   = 16'h004A;
-      //      end else if (port_profile=="100G") begin
-      //          init_rom_start_addr = 16'h0000;
-      //          init_rom_end_addr   = 16'h002D;
-      //      end else if (port_profile=="200G") begin
-      //          init_rom_start_addr = 16'h0000;
-      //          init_rom_end_addr   = 16'h001F;
-      //      end else if (port_profile=="400G") begin
-      //          init_rom_start_addr = 16'h0000;
-      //          init_rom_end_addr   = 16'h0017;
-      //      end        
-      
+      // The TG reads and transmits packet data from a 1024-word ROM. The ROM contents are fixed at FPGA compile-time.
+      // It contains packets of size 1486-bytes. Each loop through the ROM transmits 32 packets.
+      // The end-address (i.e. the final address to read from in each loop through the ROM) is different in 200G vs 400G.
       // CSR_HW_TEST_ROM_ADDR[15:0]   = ROM start address
       // CSR_HW_TEST_ROM_ADDR[31:16]  = ROM end address
       std::cout << "Setting start/end ROM address" << std::endl;
-      std::cout << "anandhve: ASSUMING 1512-BYTE PACKETS!" << std::endl;
       uint32_t reg;      
       reg = 0;
-      //reg |= tg_200n_400? (0x17 << 16) : (0x1F << 16); // Set 200 vs 400 end address.
-      //reg = (0x02FF << 16); //  anandhve TODO this is for 1486 packet length testing
-      //reg = (0x0308 << 16); //  anandhve TODO this is for 1512 packet length testing
-      //reg = (0x0C3B << 16); //  anandhve TODO this is for 1514 packet length testing, with rom depth 4096. sending 128 packets per ROM loop
-      reg |= tg_200n_400? (0x0191 << 16) : (0x02FF << 16); // Set 200 vs 400 end address.  1486 packet lenght, 32 packets per ROM loop
+      reg |= tg_200n_400? (0x0191 << 16) : (0x02FF << 16);
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
-      // TODO Set ROM loop count (default value is 1)
-      uint32_t num_packets_per_rom_loop = 32; // annadhve for 1514 testing
+      uint32_t num_packets_per_rom_loop = 32;
       if ( (num_packets_ % num_packets_per_rom_loop != 0) || (num_packets_<num_packets_per_rom_loop)) {
         std::cout << "--num_packets <num> must be >=" << num_packets_per_rom_loop << " and a multiple of " << num_packets_per_rom_loop << " 32 since the traffic generator only sends this multiple." << std::endl;
         return test_afu::error;
       }
 
-      //uint32_t rom_loop_count = num_packets_ / 16;
       uint32_t rom_loop_count = num_packets_ / num_packets_per_rom_loop; 
       reg = rom_loop_count;
       std::cout << "num_packets = " << num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
+      std::cout << "Packet length is fixed at 1486-bytes. 32 packets are sent for every ROM loop." << std::endl; // TODO it may be wrong to say 1486, depends on what hssistats reports. Check what payload it reports.
       hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
 
       std::cout << "Resetting traffic-generator counters" << std::endl;
@@ -525,7 +191,7 @@ public:
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << "Short sleep to allow packets to propagate" << std::endl;
-      sleep (1); // TODO this is way too long, but making it long for testing
+      sleep (1);
       std::cout << "Taking snapshot of counters" << std::endl;
       reg = 0x40; // Take snapshot (bit-6=1)
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
@@ -543,7 +209,7 @@ public:
       assert (timestamp_end > timestamp_start);
       timestamp_duration_cycles = timestamp_end - timestamp_start;
       timestamp_duration_ns = timestamp_duration_cycles * sample_period_ns;
-      uint64_t payload_bytes_per_packet = 58;
+      uint64_t payload_bytes_per_packet = 58; // TODO test 1486 in hardware and determine these numbers
       uint64_t total_bytes_per_packet = 76;
       uint64_t total_num_packets = num_packets_per_rom_loop * rom_loop_count;
       uint64_t total_payload_size_bytes = payload_bytes_per_packet * total_num_packets; 
@@ -555,9 +221,9 @@ public:
                 << "\tTotal # packets transmitted: " << total_num_packets << std::endl
                 << "\tTotal payload transmitted: " << total_payload_size_bytes << " bytes" << std::endl
                 << "\tTotal data transmitted: " << total_size_bytes << " bytes" << std::endl
+                << "\tTotal duration ns: " << timestamp_duration_ns << " ns." << std::endl
                 << "\tThroughput on payload data: " << throughput_payload_bytes_gbps << " Gbytes/sec = " << throughput_payload_bytes_gbps * 8 << " Gbits/sec" << std::endl
-                << "\tThroughput on total data: " << throughput_total_bytes_gbps << " Gbytes/sec = " << throughput_total_bytes_gbps * 8 << " Gbits/sec" << std::endl
-                << "\tTotal duration ns: " << timestamp_duration_ns << " ns. Use data sizes from hssistats, divided by this number, to get throughput" << std::endl;
+                << "\tThroughput on total data: " << throughput_total_bytes_gbps << " Gbytes/sec = " << throughput_total_bytes_gbps * 8 << " Gbits/sec" << std::endl;
     } 
     std::cout << std::endl << std::endl << std::endl << std::endl;
 
@@ -639,17 +305,5 @@ public:
   }
 
 protected:
-  std::vector<int> port_;
-  std::string eth_loopback_;
   uint32_t num_packets_;
-  std::string gap_;
-  std::string pattern_;
-  std::string src_addr_;
-  std::string dest_addr_;
-  std::string eth_ifc_;
-  uint32_t start_size_;
-  uint32_t end_size_;
-  std::string end_select_;
-  std::string continuous_;
-  uint32_t contmonitor_;
 };
