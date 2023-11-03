@@ -521,7 +521,7 @@ public:
       }
 
       std::cout << "Stopping the traffic-generator" << std::endl;
-      reg = 0x40; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
+      reg = 0x00; // Stop the TG (bit-0=0) and take snapshot (bit-6=1)
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << "Short sleep to allow packets to propagate" << std::endl;
