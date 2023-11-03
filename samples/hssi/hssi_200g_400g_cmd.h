@@ -100,7 +100,7 @@ public:
   // TODO: is there a way to print these to stdout with --help?
   virtual void add_options(CLI::App *app) override // TODO cleanup
   {
-    opt = app->add_option("--num-packets", num_packets_,
+    auto opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
     opt->default_str(std::to_string(num_packets_));
   }
