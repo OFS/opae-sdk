@@ -178,10 +178,11 @@ public:
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << "Short sleep to allow packets to propagate" << std::endl;
-      sleep (1);
-      std::cout << "Taking snapshot of counters" << std::endl;
-      reg = 0x40; // Take snapshot (bit-6=1)
-      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+      sleep (2);
+      //std::cout << "Taking snapshot of counters" << std::endl;
+      // anandhve todo remove this for now to test if snapshot timing is part of the problem
+      //reg = 0x40; // Take snapshot (bit-6=1)
+      //hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << std::endl << std::endl;
       print_registers(std::cout, hafu);
@@ -204,13 +205,13 @@ public:
       double throughput_payload_bytes_gbps = total_payload_size_bytes / timestamp_duration_ns;
       double throughput_total_bytes_gbps = total_size_bytes / timestamp_duration_ns;
 
-      std::cout << "AFU clock frequency : "<< USER_CLKFREQ_N6001 << std::setw(21) << " MHz" << std::endl
+      std::cout << "AFU clock frequency : "<< USER_CLKFREQ_N6001 << " MHz" << std::endl
                 << "Total # packets transmitted: " << total_num_packets << std::endl
-                << "Total payload transmitted: " << total_payload_size_bytes << std::setw(21) << " bytes" << std::endl
-                << "Total data transmitted: " << total_size_bytes << std::setw(21) << " bytes" << std::endl
-                << "Total duration ns: " << timestamp_duration_ns << std::setw(21) << " ns." << std::endl
-                << "Throughput on payload data: " << throughput_payload_bytes_gbps << std::setw(21) << " Gbytes/sec = " << throughput_payload_bytes_gbps * 8 << std::setw(21) << " Gbits/sec" << std::endl
-                << "Throughput on total data: " << throughput_total_bytes_gbps << std::setw(21) << " Gbytes/sec = " << throughput_total_bytes_gbps * 8 << std::setw(21) << " Gbits/sec" << std::endl
+                << "Total payload transmitted: " << total_payload_size_bytes << " bytes" << std::endl
+                << "Total data transmitted: " << total_size_bytes << " bytes" << std::endl
+                << "Total duration ns: " << timestamp_duration_ns << " ns." << std::endl
+                << "Throughput on payload data: " << throughput_payload_bytes_gbps << " Gbytes/sec = " << throughput_payload_bytes_gbps * 8 << " Gbits/sec" << std::endl
+                << "Throughput on total data: " << throughput_total_bytes_gbps << " Gbytes/sec = " << throughput_total_bytes_gbps * 8  << " Gbits/sec" << std::endl
                 << std::endl << std::endl << std::endl;
     } 
 
@@ -233,64 +234,64 @@ public:
 
     os << "Printing CSRs from base AFU region:" << std::endl;
     
-    os << "0x" << int_to_hex(ETH_AFU_DFH) << std::setw(21) << " ETH_AFU_DFH: " <<
-    int_to_hex(hafu->mbox_read(ETH_AFU_DFH)) << std::endl;
-    os << "0x" << int_to_hex(ETH_AFU_ID_L) << std::setw(21) << " ETH_AFU_ID_L: " <<
-    int_to_hex(hafu->mbox_read(ETH_AFU_ID_L)) << std::endl;
-    os << "0x" << int_to_hex(ETH_AFU_ID_H) << std::setw(21) << " ETH_AFU_ID_H: " <<
-    int_to_hex(hafu->mbox_read(ETH_AFU_ID_H)) << std::endl;
-    os << "0x" << int_to_hex(TRAFFIC_CTRL_CMD) << std::setw(21) << " TRAFFIC_CTRL_CMD: " <<
-    int_to_hex(hafu->mbox_read(TRAFFIC_CTRL_CMD)) << std::endl;
-    os << "0x" << int_to_hex(TRAFFIC_CTRL_DATA) << std::setw(21) << " TRAFFIC_CTRL_DATA: " <<
-    int_to_hex(hafu->mbox_read(TRAFFIC_CTRL_DATA)) << std::endl;
-    os << "0x" << int_to_hex(TRAFFIC_CTRL_PORT_SEL) << std::setw(21) << " TRAFFIC_CTRL_PORT_SEL: " <<
-    int_to_hex(hafu->mbox_read(TRAFFIC_CTRL_PORT_SEL)) << std::endl;
-    os << "0x" << int_to_hex(AFU_SCRATCHPAD) << std::setw(21) << " AFU_SCRATCHPAD: " <<
-    int_to_hex(hafu->mbox_read(AFU_SCRATCHPAD)) << std::endl;
-    os << "0x" << int_to_hex(CSR_AFU_400G_TG_EN) << std::setw(21) << " CSR_AFU_400G_TG_EN: " <<
-    int_to_hex(hafu->mbox_read(CSR_AFU_400G_TG_EN)) << std::endl;
+    os << int_to_hex(ETH_AFU_DFH) << std::setw(21) << " ETH_AFU_DFH: " <<
+    int_to_hex(hafu->read64(ETH_AFU_DFH)) << std::endl;
+    os << int_to_hex(ETH_AFU_ID_L) << std::setw(21) << " ETH_AFU_ID_L: " <<
+    int_to_hex(hafu->read64(ETH_AFU_ID_L)) << std::endl;
+    os << int_to_hex(ETH_AFU_ID_H) << std::setw(21) << " ETH_AFU_ID_H: " <<
+    int_to_hex(hafu->read64(ETH_AFU_ID_H)) << std::endl;
+    os << int_to_hex(TRAFFIC_CTRL_CMD) << std::setw(21) << " TRAFFIC_CTRL_CMD: " <<
+    int_to_hex(hafu->read64(TRAFFIC_CTRL_CMD)) << std::endl;
+    os << int_to_hex(TRAFFIC_CTRL_DATA) << std::setw(21) << " TRAFFIC_CTRL_DATA: " <<
+    int_to_hex(hafu->read64(TRAFFIC_CTRL_DATA)) << std::endl;
+    os << int_to_hex(TRAFFIC_CTRL_PORT_SEL) << std::setw(21) << " TRAFFIC_CTRL_PORT_SEL: " <<
+    int_to_hex(hafu->read64(TRAFFIC_CTRL_PORT_SEL)) << std::endl;
+    os << int_to_hex(AFU_SCRATCHPAD) << std::setw(21) << " AFU_SCRATCHPAD: " <<
+    int_to_hex(hafu->read64(AFU_SCRATCHPAD)) << std::endl;
+    os << int_to_hex(CSR_AFU_400G_TG_EN) << std::setw(21) << " CSR_AFU_400G_TG_EN: " <<
+    int_to_hex(hafu->read64(CSR_AFU_400G_TG_EN)) << std::endl;
     
     os << std::endl;
     os << "Printing CSRs from Traffic Generator IP (behind the mailbox):" << std::endl;
 
-    os << "0x" << int_to_hex(CSR_HW_PC_CTRL)           << std::setw(21) << " CSR_HW_PC_CTRL: " <<
-    int_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL         )) << std::endl;
-    os << "0x" << int_to_hex(CSR_HW_TEST_LOOP_CNT)     << std::setw(21) << " CSR_HW_TEST_LOOP_CNT: " <<
+    os << int_to_hex(CSR_HW_PC_CTRL) << std::setw(21) << " CSR_HW_PC_CTRL: " <<
+    int_to_hex(hafu->mbox_read(CSR_HW_PC_CTRL)) << std::endl;
+    os << int_to_hex(CSR_HW_TEST_LOOP_CNT) << std::setw(21) << " CSR_HW_TEST_LOOP_CNT: " <<
     int_to_hex(hafu->mbox_read(CSR_HW_TEST_LOOP_CNT   )) << std::endl;
-    os << "0x" << int_to_hex(CSR_HW_TEST_ROM_ADDR)     << std::setw(21) << " CSR_HW_TEST_ROM_ADDR: " <<
+    os << int_to_hex(CSR_HW_TEST_ROM_ADDR)     << std::setw(21) << " CSR_HW_TEST_ROM_ADDR: " <<
     int_to_hex(hafu->mbox_read(CSR_HW_TEST_ROM_ADDR   )) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TX_SOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_TX_SOP_CNT_LSB: " <<
+    os << int_to_hex(CSR_STAT_TX_SOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_TX_SOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TX_SOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_TX_SOP_CNT_MSB : " <<
+    os << int_to_hex(CSR_STAT_TX_SOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_TX_SOP_CNT_MSB : " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_SOP_CNT_MSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TX_EOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_TX_EOP_CNT_LSB: " <<
+    os << int_to_hex(CSR_STAT_TX_EOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_TX_EOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TX_EOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_TX_EOP_CNT_MSB: " <<
+    os << int_to_hex(CSR_STAT_TX_EOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_TX_EOP_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_EOP_CNT_MSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TX_ERR_CNT_LSB)  << std::setw(21) << " CSR_STAT_TX_ERR_CNT_LSB: " <<
+    os << int_to_hex(CSR_STAT_TX_ERR_CNT_LSB)  << std::setw(21) << " CSR_STAT_TX_ERR_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TX_ERR_CNT_MSB)  << std::setw(21) << " CSR_STAT_TX_ERR_CNT_MSB: " <<
+    os << int_to_hex(CSR_STAT_TX_ERR_CNT_MSB)  << std::setw(21) << " CSR_STAT_TX_ERR_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TX_ERR_CNT_MSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_RX_SOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_RX_SOP_CNT_LSB: " <<
+    os << int_to_hex(CSR_STAT_RX_SOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_RX_SOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_RX_SOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_RX_SOP_CNT_MSB: " <<
+    os << int_to_hex(CSR_STAT_RX_SOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_RX_SOP_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_SOP_CNT_MSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_RX_EOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_RX_EOP_CNT_LSB: " <<
+    os << int_to_hex(CSR_STAT_RX_EOP_CNT_LSB)  << std::setw(21) << " CSR_STAT_RX_EOP_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_RX_EOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_RX_EOP_CNT_MSB: " <<
+    os << int_to_hex(CSR_STAT_RX_EOP_CNT_MSB)  << std::setw(21) << " CSR_STAT_RX_EOP_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_EOP_CNT_MSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_RX_ERR_CNT_LSB)  << std::setw(21) << " CSR_STAT_RX_ERR_CNT_LSB: " <<
+    os << int_to_hex(CSR_STAT_RX_ERR_CNT_LSB)  << std::setw(21) << " CSR_STAT_RX_ERR_CNT_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << std::setw(21) << " CSR_STAT_RX_ERR_CNT_MSB: " <<
+    os << int_to_hex(CSR_STAT_RX_ERR_CNT_MSB)  << std::setw(21) << " CSR_STAT_RX_ERR_CNT_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_RX_ERR_CNT_MSB)) << std::endl;
 
-    os << "0x" << int_to_hex(CSR_STAT_TIMESTAMP_TG_START_LSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_START_LSB: " <<
+    os << int_to_hex(CSR_STAT_TIMESTAMP_TG_START_LSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_START_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TIMESTAMP_TG_START_MSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_START_MSB: " <<
+    os << int_to_hex(CSR_STAT_TIMESTAMP_TG_START_MSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_START_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_START_MSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_LSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_END_LSB: " <<
+    os << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_LSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_END_LSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_LSB)) << std::endl;
-    os << "0x" << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_MSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_END_MSB: " <<
+    os << int_to_hex(CSR_STAT_TIMESTAMP_TG_END_MSB)  << std::setw(21) << " CSR_STAT_TIMESTAMP_TG_END_MSB: " <<
     int_to_hex(hafu->mbox_read(CSR_STAT_TIMESTAMP_TG_END_MSB)) << std::endl;            
 
     return os;
