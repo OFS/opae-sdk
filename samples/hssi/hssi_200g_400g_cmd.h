@@ -57,7 +57,9 @@
 #define CSR_AFU_400G_TG_EN                0x0058
 
 // 200G/400G traffic generator registers. This address space is accessed indirectly through the Mailbox
-// TODO: link to the spreadsheet in the public repo?
+// The CSR map is defined in a spreadsheet, located here at the time of this writing: 
+// https://github.com/OFS/ofs-fim-common/tree/release/ofs-2023.2/src/common/he_hssi/HE_HSSI_TC_200_400G.xls
+
 #define CSR_HW_PC_CTRL                    0x0000
 #define CSR_HW_TEST_LOOP_CNT              0x0004
 #define CSR_HW_TEST_ROM_ADDR              0x0008
@@ -126,7 +128,7 @@ public:
     
       // Set ROM start/end address. 
       // The TG reads and transmits packet data from a 1024-word ROM. The ROM contents are fixed at FPGA compile-time.
-      // It contains packets of size 1486-bytes. Each loop through the ROM transmits 32 packets.
+      // It contains packets of size 1482-bytes. Each loop through the ROM transmits 32 packets.
       // The end-address (i.e. the final address to read from in each loop through the ROM) is different in 200G vs 400G.
       // CSR_HW_TEST_ROM_ADDR[15:0]   = ROM start address
       // CSR_HW_TEST_ROM_ADDR[31:16]  = ROM end address
@@ -137,15 +139,18 @@ public:
       hafu->mbox_write(CSR_HW_TEST_ROM_ADDR, reg);
 
       uint32_t num_packets_per_rom_loop = 32;
-      if ( (num_packets_ % num_packets_per_rom_loop != 0) || (num_packets_<num_packets_per_rom_loop)) {
+      if ( (num_packets_ % num_packets_per_rom_loop != 0) || (num_packets_ < num_packets_per_rom_loop)) {
         std::cout << "--num_packets <num> must be >=" << num_packets_per_rom_loop << std::setw(21) << " and a multiple of " << num_packets_per_rom_loop << std::setw(21) << " 32 since the traffic generator only sends this multiple." << std::endl;
         return test_afu::error;
       }
 
-      uint32_t rom_loop_count = num_packets_ / num_packets_per_rom_loop; 
+      uint32_t rom_loop_count = num_packets_ / num_packets_per_rom_loop;
+      // The ROM loopcount register in the TG is 32-bits. Since num_packets_ is itself only 32 bits, it's guaranteed we will not
+      // overflow rom_loop_count.
+
       reg = rom_loop_count;
       std::cout << "num_packets = " << num_packets_ << ". Setting ROM loop count to " << reg << std::endl;
-      std::cout << "Packet length is fixed at 1486-bytes. 32 packets are sent for every ROM loop." << std::endl; // TODO it may be wrong to say 1486, depends on what hssistats reports. Check what payload it reports.
+      std::cout << "Packet length is fixed at 1482-bytes. 32 packets are sent for every ROM loop." << std::endl;
       hafu->mbox_write(CSR_HW_TEST_LOOP_CNT, reg);
 
       std::cout << "Resetting traffic-generator counters" << std::endl;
@@ -178,11 +183,11 @@ public:
       hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << "Short sleep to allow packets to propagate" << std::endl;
-      sleep (2);
-      //std::cout << "Taking snapshot of counters" << std::endl;
-      // anandhve todo remove this for now to test if snapshot timing is part of the problem
-      //reg = 0x40; // Take snapshot (bit-6=1)
-      //hafu->mbox_write(CSR_HW_PC_CTRL, reg);
+      sleep (1);
+      std::cout << "Taking snapshot of counters" << std::endl;
+      
+      reg = 0x40; // Take snapshot (bit-6=1)
+      hafu->mbox_write(CSR_HW_PC_CTRL, reg);
 
       std::cout << std::endl << std::endl;
       print_registers(std::cout, hafu);
@@ -197,8 +202,8 @@ public:
       assert (timestamp_end > timestamp_start);
       timestamp_duration_cycles = timestamp_end - timestamp_start;
       timestamp_duration_ns = timestamp_duration_cycles * sample_period_ns;
-      uint64_t payload_bytes_per_packet = 58; // TODO test 1486 in hardware and determine these numbers
-      uint64_t total_bytes_per_packet = 76;
+      uint64_t payload_bytes_per_packet = 1464;
+      uint64_t total_bytes_per_packet = 1482;
       uint64_t total_num_packets = num_packets_per_rom_loop * rom_loop_count;
       uint64_t total_payload_size_bytes = payload_bytes_per_packet * total_num_packets; 
       uint64_t total_size_bytes = total_bytes_per_packet * total_num_packets;
