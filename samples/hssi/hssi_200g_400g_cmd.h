@@ -53,6 +53,9 @@
 // into a distinct abstracted address space. In other words, the AFU may instantiate multiple
 // TGs where each TG is accessed through a separate Mailbox port.
 
+// It is assumed that a 200G AFU uses two Mailbox channels (i.e. two traffic generators) and a 
+// 400G AFU uses one channel.
+
 // Registers in the AFU CSR space. Other registers, in this space, are defined in hssi_afu.h
 #define CSR_AFU_400G_TG_EN                0x0058
 
@@ -140,7 +143,7 @@ public:
 
       uint32_t num_packets_per_rom_loop = 32;
       if ( (num_packets_ % num_packets_per_rom_loop != 0) || (num_packets_ < num_packets_per_rom_loop)) {
-        std::cout << "--num_packets <num> must be >=" << num_packets_per_rom_loop << std::setw(21) << " and a multiple of " << num_packets_per_rom_loop << std::setw(21) << " 32 since the traffic generator only sends this multiple." << std::endl;
+        std::cout << "--num_packets <num> must be >=" << num_packets_per_rom_loop << std::setw(21) << " and a multiple of " << num_packets_per_rom_loop << std::setw(21) << " since the traffic generator only sends this multiple." << std::endl;
         return test_afu::error;
       }
 
