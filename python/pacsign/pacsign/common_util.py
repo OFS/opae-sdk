@@ -96,22 +96,20 @@ def exception_handler(etype, value, tb):
 
 
 def run_command(command, printed_cmd=None, return_code=0, allow_error=False):
-
     if printed_cmd is None:
         printed_cmd = command
-    p = subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        encoding="utf8",
-    )
-    returnmsg = p.communicate()[0]
-    assert p.returncode == 0 or allow_error, (
-        'Fail to run command "%s", error code %d =>\n%s'
-        % (printed_cmd, p.returncode, returnmsg)
-    )
-    return (p.returncode, returnmsg)
+
+    if isinstance(command, str):
+        command = command.split()
+
+    try:
+        p = subprocess.run(cmd, check=True, capture_output=True, encoding='ascii')
+    except subprocess.CalledProcessError:
+        assert allow_error, (
+            'Fail to run command "%s", error code %d =>\n%s'
+            % (printed_cmd, p.returncode, p.stderr)
+        )
+    return (p.returncode, p.stdout)
 
 
 def assert_in_error(boolean, string, *arg):
