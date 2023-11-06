@@ -423,7 +423,7 @@ public:
       else
         enable_eth_loopback(eth_ifc, false);
     }
-    ctrl_config config_data; //anandhve: I think this saves CSR data that we write.
+    ctrl_config config_data;
 
     DFH dfh;
     dfh.csr = hafu->read64(ETH_AFU_DFH);
@@ -435,7 +435,7 @@ public:
 
     reg = start_size_ | (end_size_ << 16);
     hafu->mbox_write(CSR_PKT_SIZE, reg);
-    config_data.pkt_size_data = reg; //anandhve: the CSR data for the PKT_SIZE register
+    config_data.pkt_size_data = reg;
 
     reg = num_packets_;
     if (dfh.major_rev < 2){
@@ -448,7 +448,7 @@ public:
         reg |= DATA_CNF_FIXED_MODE;
     }
 
-    hafu->mbox_write(CSR_CTRL0, reg); // anandhve: Sets number of packets to send, and fixed/incremental/random mode.
+    hafu->mbox_write(CSR_CTRL0, reg);
     config_data.ctrl0_data = reg;
 
     hafu->mbox_write(CSR_SRC_ADDR_LO, static_cast<uint32_t>(bin_src_addr));
@@ -478,7 +478,7 @@ public:
     if (eth_loopback_ == "off")
       reg |= 1 << 3;
 
-    hafu->mbox_write(CSR_CTRL1, reg); //anandhve: this starts the TG (sending packets out). Also sets gap, packet length mode, loopback control, etc
+    hafu->mbox_write(CSR_CTRL1, reg);
     config_data.ctrl1_data = reg;
 
     if(port_.size() > 1) // Supporting for 2nd port register setting
