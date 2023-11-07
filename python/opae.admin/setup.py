@@ -28,7 +28,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='opae.admin',
-    version='1.4.4',
+    version='1.4.6',
     packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': [

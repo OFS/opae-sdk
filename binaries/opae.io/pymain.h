@@ -31,24 +31,12 @@ import argparse
 import datetime
 import logging
 import os
-import pdb
 import sys
 import libvfio
 import uuid
 
 from opae.io import utils, pci
 from opae.io.utils import Path
-
-def default_parser():
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('command', nargs='?')
-    parser.add_argument('-d', '--device', type=pci.pci_address)
-    parser.add_argument('-r', '--region', type=int, default=0)
-    parser.add_argument('-a', '--access-mode', type=int, default=64, choices=[64, 32])
-    parser.add_argument('--version', action='store_true', default=False)
-    parser.add_argument('-h', '--help', action='store_true', default=False)
-    parser.add_argument('--pdb', action='store_true', default=False)
-    return parser
 
 
 class base_action(object):
@@ -58,15 +46,13 @@ class base_action(object):
         self.device = device
         self.region = region
         self.command = command
-        self.parser = argparse.ArgumentParser(prog=command)
-        self.add_args()
         if self.open_device:
             cli.update_device(device, region)
 
     def __call__(self, args):
         return_code = 0
         try:
-            self.execute(self.parse_args(args))
+            self.execute(args)
         except SystemExit as err:
             return_code = err.code if isinstance(err.code, int) else os.EX_USAGE
         except OSError as oserr:
@@ -75,21 +61,22 @@ class base_action(object):
 
         cli.return_code(return_code)
 
-    def parse_args(self, args):
-        return self.parser.parse_args(args)
-
-    def add_args(self):
-        pass
-
     def execute(self, args):
         raise NotImplemtedError('action not implemented')
 
+
 class ls_action(base_action):
-    def add_args(self):
-        self.parser.add_argument('-v', '--viddid', default={}, type=pci.vendev)
-        self.parser.add_argument('-s', '--sub-viddid', default={}, type=pci.vendev)
-        self.parser.add_argument('--all', action='store_true', default=False)
-        self.parser.add_argument('--system-class', action='store_true', default=False)
+    @staticmethod
+    def add_subparser(subparser):
+        ls = subparser.add_parser('ls')
+        ls.add_argument('-v', '--viddid', default={}, type=pci.vendev,
+                        help='the VID:DID of the desired PCIe device')
+        ls.add_argument('-s', '--sub-viddid', default={}, type=pci.vendev,
+                        help='the SVID:SDID of the desired PCIe device')
+        ls.add_argument('--all', action='store_true', default=False,
+                        help='list ALL PCIe devices')
+        ls.add_argument('--system-class', action='store_true', default=False,
+                        help='display the PCIe database class for the device')
 
     def execute(self, args):
         kwargs = args.viddid
@@ -98,104 +85,187 @@ class ls_action(base_action):
         utils.ls(all=args.all, system_class=args.system_class, **kwargs)
         raise SystemExit(0)
 
+
 class init_action(base_action):
-    def add_args(self):
-        self.parser.add_argument('user_group', default='root:root', nargs='?')
+    @staticmethod
+    def add_subparser(subparser):
+        init = subparser.add_parser('init')
+        init.add_argument('-d', '--device', dest='sdevice',
+                          metavar='DEVICE', type=pci.pci_address,
+                          help='the PCIe address of the FPGA device')
+        init.add_argument('user_group', nargs='?', default='root:root',
+                          help='the user:group for assigning device permissions')
 
     def execute(self, args):
         if not self.device:
             raise SystemExit('Need device for init.')
+
         utils.vfio_init(self.device, args.user_group)
         raise SystemExit(0)
 
+
 class release_action(base_action):
-    def add_args(self):
-        pass
+    @staticmethod
+    def add_subparser(subparser):
+        release = subparser.add_parser('release')
+        release.add_argument('-d', '--device', dest='sdevice',
+                             metavar='DEVICE', type=pci.pci_address,
+                             help='the PCIe address of the FPGA device')
 
     def execute(self, args):
         if not self.device:
             raise SystemExit('Need device for release.')
+
         utils.vfio_release(self.device)
         raise SystemExit(0)
+
 
 class peek_action(base_action):
     open_device = True
 
-    def add_args(self):
-        self.parser.add_argument('offset', type=utils.hex_int)
+    @staticmethod
+    def add_subparser(subparser):
+        peek = subparser.add_parser('peek')
+        peek.add_argument('-d', '--device', dest='sdevice',
+                          metavar='DEVICE', type=pci.pci_address,
+                          help='the PCIe address of the FPGA device')
+        peek.add_argument('-r', '--region', dest='sregion',
+                          metavar='REGION', type=int, default=0,
+                          help='the MMIO region of the FPGA device')
+        peek.add_argument('offset', type=utils.hex_int,
+                          help='the register offset to peek')
 
     def execute(self, args):
         if not self.device:
             raise SystemExit('Need device for peek.')
         if not self.region:
             raise SystemExit('Need region for peek.')
+
         rd = self.region.read64 if utils.ACCESS_MODE == 64 else self.region.read32
         print('0x{:0x}'.format(rd(args.offset)))
+
         raise SystemExit(0)
+
 
 class poke_action(base_action):
     open_device = True
 
-    def add_args(self):
-        self.parser.add_argument('offset', type=utils.hex_int)
-        self.parser.add_argument('value', type=utils.hex_int)
+    @staticmethod
+    def add_subparser(subparser):
+        poke = subparser.add_parser('poke')
+        poke.add_argument('-d', '--device', dest='sdevice',
+                          metavar='DEVICE', type=pci.pci_address,
+                          help='the PCIe address of the FPGA device')
+        poke.add_argument('-r', '--region', dest='sregion',
+                          metavar='REGION', type=int, default=0,
+                          help='the MMIO region of the FPGA device')
+        poke.add_argument('offset', type=utils.hex_int,
+                          help='the register offset to poke')
+        poke.add_argument('value', type=utils.hex_int,
+                          help='the value to poke into the register')
 
     def execute(self, args):
         if not self.device:
             raise SystemExit('Need device for poke.')
         if not self.region:
             raise SystemExit('Need region for poke.')
+
         wr = self.region.write64 if utils.ACCESS_MODE == 64 else self.region.write32
         wr(args.offset, args.value)
         raise SystemExit(0)
 
+
 class vf_token_action(base_action):
     open_device = True
 
-    def add_args(self):
-        self.parser.add_argument('vftoken', default=None)
+    @staticmethod
+    def add_subparser(subparser):
+        vf_token = subparser.add_parser('vf_token')
+        vf_token.add_argument('-d', '--device', dest='sdevice',
+                              metavar='DEVICE', type=pci.pci_address,
+                              help='the PCIe address of the FPGA device')
+        vf_token.add_argument('vftoken', default=None,
+                              help='the token (GUID) to use')
 
     def execute(self, args):
         if not self.device:
-            raise SystemExit('Need device for poke.')
+            raise SystemExit('Need device for vf_token.')
 
         try:
             token_uuid = uuid.UUID(args.vftoken)
             ret = self.device.set_vf_token(token_uuid.bytes)
             if ret:
-                print('Failed to set token')
-                raise SystemExit(1)
-            print(f'Successfully set vf token to {str(token_uuid)}')
+                print('Failed to set vf_token')
+                raise SystemExit(ret)
+            print(f'Successfully set vf_token to {str(token_uuid)}')
         except ValueError:
             print('Invalid vf_token')
             raise SystemExit(1)
 
         raise SystemExit(0)
 
+
 class script_action(base_action):
     open_device = True
 
-    def parse_args(self, args):
-        return args
+    @staticmethod
+    def add_subparser(subparser):
+        script = subparser.add_parser('script')
+        script.add_argument('-d', '--device', dest='sdevice',
+                            metavar='DEVICE', type=pci.pci_address,
+                            help='the PCIe address of the FPGA device')
+        script.add_argument('-r', '--region', dest='sregion',
+                            metavar='REGION', type=int, default=0,
+                            help='the MMIO region of the FPGA device')
+        script.add_argument('script_file', help='path to the desired script')
+        script.add_argument('script_args', nargs='*', default=[],
+                            help='script arguments')
 
     def execute(self, args):
-        g = dict(globals())
-        with open(self.command) as f:
-            sys.argv = [self.command] + args
-            exec(f.read(), g, g)
+        if not self.device:
+            raise SystemExit('Need device for script.')
+        if not self.region:
+            raise SystemExit('Need region for script.')
+
+        p = Path(args.script_file)
+        if not p.exists() or not p.is_file():
+            raise SystemExit(f'{args.script_file} does not exist or is not a file.')
+
+        with open(args.script_file) as f:
+            sys.argv = [args.script_file] + args.script_args
+            exec(f.read(), dict(globals()), {})
+
         raise SystemExit(0)
 
 
 class walk_action(base_action):
     open_device = True
 
-    def add_args(self):
-        self.parser.add_argument('--offset', nargs='?', type=utils.hex_int, default=0)
-        self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
-        self.parser.add_argument('-D', '--dump', action='store_true', default=False)
-        self.parser.add_argument('-c', '--count', type=int, default=None)
-        self.parser.add_argument('-y', '--delay', type=int, default=None)
-        self.parser.add_argument('-s', '--safe', action='store_true', default=False)
+    @staticmethod
+    def add_subparser(subparser):
+        walk = subparser.add_parser('walk')
+        walk.add_argument('-d', '--device', dest='sdevice',
+                          metavar='DEVICE', type=pci.pci_address,
+                          help='the PCIe address of the FPGA device')
+        walk.add_argument('-r', '--region', dest='sregion',
+                          metavar='REGION', type=int, default=0,
+                          help='the MMIO region of the FPGA device')
+        walk.add_argument('--offset', nargs='?',
+                          type=utils.hex_int, default=0,
+                          help='the start offset if any.')
+        walk.add_argument('-u', '--show-uuid', action='store_true',
+                          default=False,
+                          help='display IDs in human-readable format')
+        walk.add_argument('-D', '--dump', action='store_true',
+                          default=False,
+                          help='display the raw DFH contents')
+        walk.add_argument('-c', '--count', type=int, default=None,
+                          help='walk at most this number of DFH entries')
+        walk.add_argument('-y', '--delay', type=int, default=None,
+                          help='time to sleep after each printout')
+        walk.add_argument('-s', '--safe', action='store_true',
+                          default=False,
+                          help='check offsets for alignment before reading MMIO')
 
     def execute(self, args):
         if not self.device:
@@ -207,31 +277,54 @@ class walk_action(base_action):
         utils.walk(self.region, offset, args.show_uuid, args.count,
             args.delay, args.dump, args.safe)
 
+        raise SystemExit(0)
+
 
 class dump_action(base_action):
     open_device = True
 
-    def add_args(self):
-        self.parser.add_argument('--offset', nargs='?', type=utils.hex_int, default=0)
-        self.parser.add_argument('-o', '--output', type=argparse.FileType('wb'), default=sys.stdout)
-        self.parser.add_argument('-f', '--format', choices=['bin', 'hex'], default='hex')
-        self.parser.add_argument('-c', '--count', type=int, default=None)
+    @staticmethod
+    def add_subparser(subparser):
+        dump = subparser.add_parser('dump')
+        dump.add_argument('-d', '--device', dest='sdevice',
+                          metavar='DEVICE', type=pci.pci_address,
+                          help='the PCIe address of the FPGA device')
+        dump.add_argument('-r', '--region', dest='sregion',
+                          metavar='REGION', type=int, default=0,
+                          help='the MMIO region of the FPGA device')
+        dump.add_argument('--offset', nargs='?', type=utils.hex_int,
+                          default=0,
+                          help='starting MMIO offset to dump')
+        dump.add_argument('-o', '--output', type=argparse.FileType('wb'),
+                          default=sys.stdout,
+                          help='file to receive MMIO dump')
+        dump.add_argument('-f', '--format', choices=['bin', 'hex'],
+                          default='hex',
+                          help='output format')
+        dump.add_argument('-c', '--count', type=int, default=None,
+                          help='number of qwords to dump')
 
     def execute(self, args):
         if not self.device:
-            raise SystemExit('walk requires device.')
+            raise SystemExit('dump requires device.')
         if not self.region:
-            raise SystemExit('walk requires region.')
+            raise SystemExit('dump requires region.')
 
         offset = 0 if args.offset is None else args.offset
         utils.dump(self.region, offset, args.output, args.format, args.count)
 
+        raise SystemExit(0)
 
-class no_action(base_action):
+
+class interactive_action(base_action):
     open_device = True
 
-    def __call__(self, args):
+    @staticmethod
+    def add_subparser(subparser):
         pass
+
+    def __call__(self, args):
+        raise SystemExit(0)
 
 
 actions = {
@@ -243,22 +336,11 @@ actions = {
     'walk': walk_action,
     'dump': dump_action,
     'vf_token': vf_token_action,
+    'script': script_action,
 }
 
-def do_action(action, args):
-    try:
-        action.validate()
-    except ValueError as err:
-        print(err)
-        return os.EX_USAGE
-    try:
-        action(args)
-    except SystemExit as err:
-        return err.code
-    return 0
 
-
-def show_help():
+def show_legacy_help():
     help_msg = '''
   opae.io - peek and poke FPGA CSRs
       "opae.io"
@@ -308,30 +390,44 @@ def show_help():
 
 '''.strip()
     print(help_msg)
-    cli.return_code(0)
 
 
-def get_action(args):
+def get_action(argv, args):
     action_class = None
-    if args.command is None:
-        action_class = no_action
+    if args.which is None:
+        action_class = interactive_action
+    elif args.which in actions:
+        action_class = actions[args.which]
     else:
-        if Path(args.command).is_file():
-            action_class = script_action
-        elif args.command in actions:
-            action_class = actions[args.command]
-        else:
-            return None
+        return None
+
+    # Let the subparser's sdevice and sregion attributes
+    # override the main parser's device and region
+    # attributes.
+    if hasattr(args, 'sdevice') and args.sdevice:
+        dev = args.sdevice
+    else:
+        dev = args.device
+
+    if hasattr(args, 'sregion') and args.sregion:
+        reg = args.sregion
+    else:
+        reg = args.region
+
+    command = ' '.join(argv)
 
     if not action_class.open_device:
-        return action_class(args.device, command='opae.io {}'.format(args.command))
+        return action_class(device=dev, command=command)
+
     try:
-        device = utils.find_device(args.device)
+        device = utils.find_device(dev)
+        region = utils.find_region(device, reg) if device else None
     except OSError as err:
         cli.return_code(err.errno)
         device = None
-    region = utils.find_region(device, args.region) if device else None
-    return action_class(device, region, args.command)
+        region = None
+
+    return action_class(device=device, region=region, command=command)
 
 
 def setup_logging():
@@ -349,30 +445,59 @@ def setup_logging():
 
 def main(argv=None):
     setattr(builtins, 'LOG', setup_logging())
+
     prog, major, minor, patch = version()
     version_str = '{prog} {major}.{minor}.{patch}'.format(**locals())
 
     if argv is None:
         argv = sys.argv[1:]
 
-    parser = default_parser()
-    args, rest = parser.parse_known_args(argv)
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-d', '--device', type=pci.pci_address,
+                        help='the PCIe address of the FPGA device')
+    parser.add_argument('-r', '--region', type=int, default=0,
+                        help='the MMIO region of the FPGA device')
+    parser.add_argument('-a', '--access-mode', type=int, default=64,
+                        choices=[64, 32],
+                        help='access MMIO registers 32- or 64-bits at a time')
+    parser.add_argument('-v', '--version', action='store_true', default=False,
+                        help='display version information and exit')
+    parser.add_argument('-h', '--help', action='store_true', default=False,
+                        help='display help information and exit')
+    parser.add_argument('--legacy-help', action='store_true', default=False,
+                        help='display the legacy help and exit')
+    subparser = parser.add_subparsers(dest='which')
 
-    if not args or args.help or (argv == rest and len(rest)):
-        show_help()
+    for k in actions.keys():
+        actions[k].add_subparser(subparser)
+
+    try:
+        args = parser.parse_args()
+    except SystemExit as exc:
+        cli.return_code(100)
+        return
+
+    if not args or args.help:
+        parser.print_help()
+        cli.return_code(99)
+        return
+
+    if args.legacy_help:
+        show_legacy_help()
+        cli.return_code(99)
         return
 
     if args.version:
         print(version_str)
-        cli.return_code(0)
+        cli.return_code(99)
         return
 
-    action = get_action(args)
+    action = get_action(argv, args)
     if action is None:
-        show_help()
+        parser.print_help()
     else:
         utils.ACCESS_MODE = args.access_mode
-        action(rest)
+        action(args)
 
 if __name__ == '__main__':
     main()

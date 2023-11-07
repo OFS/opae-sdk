@@ -30,7 +30,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "opae.io"
-version = "0.2.7"
+version = "1.0.0"
 description = "opae.io provides Python bindings around the VFIO API"
 #readme = ""
 license = {text = "BSD-3-Clause"}

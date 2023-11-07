@@ -29,7 +29,6 @@ import errno
 import grp
 import json
 import os
-import pickle
 import pwd
 import re
 import struct
@@ -51,7 +50,7 @@ else:
 
 import libvfio
 
-PICKLE_FILE = '/var/lib/opae/opae.io.pickle'
+JSON_FILE = '/var/lib/opae/opae.io.json'
 ACCESS_MODE = 64
 
 
@@ -98,22 +97,23 @@ def bind_driver(driver, pci_addr):
 
 
 def get_dev_dict(file_name):
+    dev_dict = {}
     if os.path.isfile(file_name):
-        with open(file_name, 'rb') as inf:
+        with open(file_name, 'r') as inf:
             try:
-                dev_dict = pickle.load(inf)
-            except EOFError:
-                LOG.warn('Overwriting corrupted pickle file {}'.format(file_name))
-                dev_dict = dict()
-            return dev_dict
+                dev_dict = json.load(inf)
+            except json.JSONDecodeError as jde:
+                LOG.warn('{} at {} line {} col {}'.format(
+                         jde.msg, file_name, jde.lineno, jde.colno))
+    return dev_dict
 
 
 def put_dev_dict(file_name, dev_dict):
     d = os.path.dirname(file_name)
     if not os.path.isdir(d):
         os.makedirs(d)
-    with open(file_name, 'wb') as outf:
-        pickle.dump(dev_dict, outf)
+    with open(file_name, 'w') as outf:
+        json.dump(dev_dict, outf)
 
 
 def chown_pci_sva(pci_addr, uid, gid):
@@ -131,12 +131,10 @@ def vfio_init(pci_addr, new_owner='', force=False):
         int(vid_did[0], 16), int(vid_did[1], 16), pci_addr)
 
     if driver and driver != 'vfio-pci':
-        dev_dict = get_dev_dict(PICKLE_FILE)
-        if not dev_dict:
-            dev_dict = {}
+        dev_dict = get_dev_dict(JSON_FILE)
         dev_dict[pci_addr] = driver
         try:
-            put_dev_dict(PICKLE_FILE, dev_dict)
+            put_dev_dict(JSON_FILE, dev_dict)
         except PermissionError:
             LOG.warn('Do not have sufficient permissions to save current state')
             if not force:
@@ -244,19 +242,17 @@ def vfio_release(pci_addr):
 
     unbind_driver(driver, pci_addr)
 
-    dev_dict = get_dev_dict(PICKLE_FILE)
-    if not dev_dict:
-        return
-
-    driver = dev_dict.get(pci_addr)
-    if driver:
-        print('Rebinding {} to {}'.format(msg, driver))
-        bind_driver(driver, pci_addr)
-        del dev_dict[pci_addr]
-        if dev_dict:
-            put_dev_dict(PICKLE_FILE, dev_dict)
-        else:
-            os.remove(PICKLE_FILE)
+    dev_dict = get_dev_dict(JSON_FILE)
+    if dev_dict:
+        driver = dev_dict.get(pci_addr)
+        if driver:
+            print('Rebinding {} to {}'.format(msg, driver))
+            bind_driver(driver, pci_addr)
+            del dev_dict[pci_addr]
+            if dev_dict:
+                put_dev_dict(JSON_FILE, dev_dict)
+            else:
+                os.remove(JSON_FILE)
 
     chown_pci_sva(pci_addr, 0, 0)
 

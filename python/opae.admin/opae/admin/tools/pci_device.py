@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 # Copyright(c) 2021-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -31,6 +31,7 @@ import time
 from argparse import ArgumentParser, FileType
 from opae.admin.sysfs import pcie_device, pci_node
 from opae.admin.utils.process import call_process
+from opae.admin.version import pretty_version
 
 
 PCI_ADDRESS_PATTERN = (r'^(?P<pci_address>'
@@ -74,13 +75,23 @@ class pci_op(object):
             raise KeyError(f'{op} is not a valid operation')
         self.op = op
 
-    def __call__(self, pci_device, args, *other):
+    def __call__(self, pci_device, args):
         if not args.other_endpoints:
-            getattr(pci_device.pci_node, self.op)(*other)
+            self.do_op(pci_device, args)
         else:
             for p in pci_device.pci_node.root.endpoints:
                 if p.pci_address != args.device:
-                    getattr(p, self.op)(*other)
+                    self.do_op(p, args)
+
+    def do_op(self, pci_device, args):
+        if args.which == 'unbind':
+            pci_device.pci_node.unbind()
+        elif args.which == 'bind':
+            pci_device.pci_node.bind(args.driver)
+        elif args.which == 'remove':
+            pci_device.pci_node.remove()
+
+
 
 
 class pci_prop(object):
@@ -105,21 +116,36 @@ class pci_prop(object):
                         print(f'Could not set {self.op} to {value} for {p}')
 
 
-def rescan(pci_device, args, *rest):
+def rescan(pci_device, args):
     pci_device.pci_node.pci_bus.node('rescan').value = 1
 
 
 class aer(object):
-    def __init__(self):
-        self.parser = ArgumentParser('pci_device [device] aer')
-        self.parser.add_argument(
-            'action', choices=['dump', 'mask', 'clear'],
-            nargs='?', help='AER related operation to perform')
+    @staticmethod
+    def add_subparser(subparser):
+        aer = subparser.add_parser('aer')
 
-    def __call__(self, device, args, *rest):
-        myargs, rest = self.parser.parse_known_args(rest)
-        action = myargs.action or 'dump'
-        getattr(self, action)(device, *rest)
+        action = aer.add_subparsers(dest='aer_which')
+        action.add_parser('dump')
+        action.add_parser('clear')
+
+        mask = action.add_parser('mask')
+        mask.add_argument('values',
+                          nargs='*', default=[],
+                          help='show, print, all, off, <int> <int>')
+        mask.add_argument('-o', '--output', type=FileType('w'),
+                          default=sys.stdout,
+                          help='file to store values for show/print')
+        mask.add_argument('-i', '--input', type=FileType('r'),
+                          help='file to read values from')
+
+    def __call__(self, device, args):
+        if args.aer_which == 'dump':
+            self.dump(device)
+        elif args.aer_which == 'clear':
+            self.clear(device)
+        elif args.aer_which == 'mask':
+            self.mask(device, args)
 
     def clear(self, device):
         """
@@ -147,24 +173,16 @@ class aer(object):
                 print('-' * 64)
                 print()
 
-    def mask(self, device, *args):
-        parser = ArgumentParser('pci_device [device] aer mask')
-        parser.add_argument('values', nargs='*', default=[])
-        parser.add_argument('--root-port', action='store_true',
-                            default=False)
-        parser.add_argument('-o', '--output', type=FileType('w'),
-                            default=sys.stdout)
-        parser.add_argument('-i', '--input', type=FileType('r'))
-
-        my_args = parser.parse_args(args)
-        inp = my_args.input
+    def mask(self, device, args):
+        inp = args.input
         if inp:
-            values = my_args.input.readline().split()
+            values = inp.readline().split()
         else:
-            values = my_args.values
+            values = args.values
+
         if not values or values[0] in ['show', 'print']:
             v0, v1 = device.pci_node.aer
-            my_args.output.write(f'0x{v0:08x} 0x{v1:08x}\n')
+            args.output.write(f'0x{v0:08x} 0x{v1:08x}\n')
         elif values[0] == 'all':
             device.pci_node.aer = (0xFFFFFFFF, 0xFFFFFFFF)
         elif values[0] == 'off':
@@ -185,14 +203,22 @@ def topology(pci_device, args):
 
 
 class unplug(object):
-    def __init__(self):
-        self.parser = ArgumentParser('pci_device [device] unplug')
-        self.parser.add_argument('-d', '--debug', action='store_true',
-                                 default=False, help='enable debug output')
+    @staticmethod
+    def add_subparser(subparser):
+        unplug = subparser.add_parser('unplug')
+        unplug.add_argument('-d', '--debug', action='store_true',
+                            default=False, help='enable debug output')
+        unplug.add_argument('-e', '--exclude', default=None, type=pci_devices,
+                            help='do not unplug the device specified here')
 
-    def __call__(self, device, args, *rest):
-        myargs, rest = self.parser.parse_known_args(rest)
-        debug = myargs.debug
+    def __call__(self, device, args):
+        debug = args.debug
+
+        exclude_node = None
+        if args.exclude:
+            exclude_devs = pcie_device.enum(args.exclude)
+            if exclude_devs:
+                exclude_node = exclude_devs[0].pci_node
 
         root = device.pci_node.root
 
@@ -203,33 +229,50 @@ class unplug(object):
             v0, v1 = root.aer
             root.aer = (0xFFFFFFFF, 0xFFFFFFFF)
 
-        self.unplug(root, args, debug)
+        unplug.unplug_node(root, debug, exclude_node)
 
         if v0:
             root.aer = (v0, v1)
 
-    def unplug(self, root, args, debug):
+    @staticmethod
+    def unplug_node(root, debug, exclude_node):
         if debug:
-            print('Unbinding drivers for leaf devices')
+            print('Unbinding drivers for leaf devices', end='')
+            if exclude_node:
+                print(f' except {exclude_node.pci_address}')
+            else:
+                print('')
+
         for e in root.endpoints:
+            unbind = True
+
+            if exclude_node and e == exclude_node:
+                unbind = False
+
+            if unbind:
+                if debug:
+                    print(f' unbind {e.pci_address}')
+                e.unbind()
+
+        remove = True
+        if exclude_node and exclude_node.root == root:
+            remove = False
+
+        if remove:
             if debug:
-                print(f' unbind {e.pci_address}')
-            e.unbind()
-        if debug:
-            print(f'Removing the root device {root.pci_address}')
-        root.remove()
+                print(f'Removing the root device {root.pci_address}')
+            root.remove()
 
 
 class plug(object):
-    def __init__(self):
-        self.parser = ArgumentParser('pci_device [device] plug')
-        self.parser.add_argument('-d', '--debug', action='store_true',
-                                 default=False, help='enable debug output')
+    @staticmethod
+    def add_subparser(subparser):
+        plug = subparser.add_parser('plug')
+        plug.add_argument('-d', '--debug', action='store_true',
+                          default=False, help='enable debug output')
 
-    def __call__(self, device, args, *rest):
-        myargs, rest = self.parser.parse_known_args(rest)
-        debug = myargs.debug
-
+    def __call__(self, device, args):
+        debug = args.debug
         root = device.pci_node.root
 
         self.clear_device_status(root, debug)
@@ -266,32 +309,64 @@ class plug(object):
         call_process(f'{cmd}=FFFFFFFF')
 
 
+def add_unbind_subparser(subparser):
+    subparser.add_parser('unbind')
+
+
+def add_bind_subparser(subparser):
+    bind = subparser.add_parser('bind')
+    bind.add_argument('driver', help='driver to bind to the device')
+
+
+def add_rescan_subparser(subparser):
+    subparser.add_parser('rescan')
+
+
+def add_remove_subparser(subparser):
+    subparser.add_parser('remove')
+
+
+def add_vf_subparser(subparser):
+    vf = subparser.add_parser('vf')
+    vf.add_argument('numvfs', type=int,
+                    help='number of vfs to set')
+
+
+def add_topology_subparser(subparser):
+    subparser.add_parser('topology')
+
+
 def main():
-    actions = {'unbind': pci_op('unbind'),
-               'bind': pci_op('bind'),
-               'rescan': rescan,
-               'remove': pci_op('remove'),
-               'vf': pci_prop('sriov_numvfs', int),
-               'aer': aer(),
-               'topology': topology,
-               'unplug': unplug(),
-               'plug': plug()}
+    actions = {'unbind': (add_unbind_subparser, pci_op('unbind')),
+               'bind': (add_bind_subparser, pci_op('bind')),
+               'rescan': (add_rescan_subparser, rescan),
+               'remove': (add_remove_subparser, pci_op('remove')),
+               'vf': (add_vf_subparser, pci_prop('sriov_numvfs', int)),
+               'aer': (aer.add_subparser, aer()),
+               'topology': (add_topology_subparser, topology),
+               'unplug': (unplug.add_subparser, unplug()),
+               'plug': (plug.add_subparser, plug())}
 
     parser = ArgumentParser()
     parser.add_argument('devices', type=pci_devices,
                         metavar='device-filter',
-                        help=('pcie filter of device '
+                        help=('PCIe filter of device '
                               '([segment:]bus:device.function)'
                               ' or [vendor]:[device]'))
-    parser.add_argument('action', choices=sorted(actions.keys()),
-                        nargs='?',
-                        help='action to perform on device')
     parser.add_argument('-E', '--other-endpoints', action='store_true',
                         default=False,
-                        help='perform action on peer pcie devices')
-    args, rest = parser.parse_known_args()
+                        help='perform action on peer PCIe devices')
+    parser.add_argument('-v', '--version', action='version',
+                        version=f"%(prog)s {pretty_version()}",
+                        help='display version information and exit')
+    subparser = parser.add_subparsers(dest='which')
 
-    if hasattr(args, 'action') and args.action == 'plug':
+    for k in actions.keys():
+        actions[k][0](subparser)
+
+    args = parser.parse_args()
+
+    if hasattr(args, 'which') and args.which and args.which == 'plug':
         # Force a PCI bus rescan.
         with open('/sys/bus/pci/rescan', 'w') as fd:
             fd.write('1')
@@ -302,7 +377,13 @@ def main():
         raise SystemExit(f'{sys.argv[1]} not found')
 
     for dev in devices:
-        actions[args.action or 'topology'](dev, args, *rest)
+        if hasattr(args, 'which') and args.which:
+            if args.which == 'vf':
+                actions['vf'][1](dev, args, args.numvfs)
+            else:
+                actions[args.which][1](dev, args)
+        else:
+            actions['topology'][1](dev, args)
 
 
 if __name__ == '__main__':

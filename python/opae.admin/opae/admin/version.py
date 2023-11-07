@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2022, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@ except ImportError:
 version = {
     'major': 1,
     'minor': 4,
-    'patch': 3
+    'patch': 6
 }
 
 
