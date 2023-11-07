@@ -103,7 +103,7 @@ def run_command(command, printed_cmd=None, return_code=0, allow_error=False):
         command = command.split()
 
     try:
-        p = subprocess.run(cmd, check=True, capture_output=True, encoding='ascii')
+        p = subprocess.run(command, check=True, capture_output=True, encoding='ascii')
     except subprocess.CalledProcessError:
         assert allow_error, (
             'Fail to run command "%s", error code %d =>\n%s'
