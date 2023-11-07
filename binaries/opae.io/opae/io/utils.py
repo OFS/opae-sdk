@@ -123,9 +123,23 @@ def chown_pci_sva(pci_addr, uid, gid):
         os.chown(sva_bind_dev, uid, gid)
 
 
-def vfio_init(pci_addr, new_owner='', force=False):
+def enable_sriov(enable):
+    sriov = '/sys/module/vfio_pci/parameters/enable_sriov'
+    if os.path.exists(sriov):
+        LOG.info('Enabling SR-IOV for vfio-pci')
+        try:
+            with open(sriov, 'w') as outf:
+                outf.write('Y' if enable else 'N')
+        except OSError:
+            return False
+        return True
+    return False
+
+
+def vfio_init(pci_addr, new_owner='', force=False, **kwargs):
     vid_did = pci.vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
+    init_sriov = kwargs.get('enable_sriov')
 
     msg = '(0x{:04x},0x{:04x}) at {}'.format(
         int(vid_did[0], 16), int(vid_did[1], 16), pci_addr)
@@ -213,6 +227,9 @@ def vfio_init(pci_addr, new_owner='', force=False):
         LOG.info('Changing permissions for {} to rw-rw----'.format(device))
         os.chmod(device, 0o660)
         chown_pci_sva(pci_addr, user, group)
+
+    if init_sriov:
+        enable_sriov(True)
 
 
 def vfio_release(pci_addr):
