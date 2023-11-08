@@ -348,14 +348,16 @@ def main():
 
     print(args)
 
-    if not verify_pcie_address(args.addr.lower()):
+    addr = args.addr.lower()
+
+    if not verify_pcie_address(addr):
         sys.exit(1)
 
-    if not verify_fpga_device(args.addr.lower()):
+    if not verify_fpga_device(addr):
         print("Invalid fpga device")
         sys.exit(1)
 
-    fpgareg = FPGAREG(args.addr)
+    fpgareg = FPGAREG(addr)
 
     """ print pf0/fme registers """
     if args.reg == 'pcie' and not fpgareg.pf0_registers():
