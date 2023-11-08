@@ -125,15 +125,16 @@ def chown_pci_sva(pci_addr, uid, gid):
 
 def enable_sriov(enable):
     sriov = '/sys/module/vfio_pci/parameters/enable_sriov'
-    if os.path.exists(sriov):
-        LOG.info('Enabling SR-IOV for vfio-pci')
-        try:
-            with open(sriov, 'w') as outf:
-                outf.write('Y' if enable else 'N')
-        except OSError:
-            return False
-        return True
-    return False
+    if not os.path.exists(sriov):
+        return False
+
+    LOG.info('Enabling SR-IOV for vfio-pci')
+    try:
+        with open(sriov, 'w') as outf:
+            outf.write('Y' if enable else 'N')
+    except OSError:
+        return False
+    return True
 
 
 def vfio_init(pci_addr, new_owner='', force=False, **kwargs):
