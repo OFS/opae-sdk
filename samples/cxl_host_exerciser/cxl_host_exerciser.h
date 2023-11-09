@@ -216,7 +216,7 @@ union he_rd_config {
   uint64_t value;
   struct {
     uint64_t read_traffic_enable : 1;
-    uint64_t continuous_mode_Enable : 1;
+    uint64_t continuous_mode_enable : 1;
     uint64_t waitfor_completion : 1;
     uint64_t prewrite_sync_enable : 1;
     uint64_t postwrite_sync_enable : 1;

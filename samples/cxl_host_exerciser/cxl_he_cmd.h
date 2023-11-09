@@ -226,11 +226,10 @@ public:
     return 0;
   }
 
-  bool he_wait_test_completion(const char* str = HE_TEST_STARTED) {
+  bool he_wait_test_completion() {
     /* Wait for test completion */
     uint32_t timeout = HELPBK_TEST_TIMEOUT;
 
-    cout << str << endl;
     volatile uint8_t *status_ptr = host_exe_->get_dsm();
     while (0 == ((*status_ptr) & 0x1)) {
       usleep(HELPBK_TEST_SLEEP_INVL);
@@ -267,12 +266,14 @@ public:
   }
 
 
-  void he_start_test() {
+  void he_start_test(const char* str = HE_TEST_STARTED) {
       // start test
     he_ctl_.Start = 0;
     host_exe_->write64(HE_CTL, he_ctl_.value);
     he_ctl_.Start = 1;
     host_exe_->write64(HE_CTL, he_ctl_.value);
+
+    cout << str << endl;
   }
 
   bool verify_numa_node() {
@@ -299,6 +300,33 @@ public:
 
     return true;
   }
+
+
+  bool he_get_perf(double* perf_data, double* latency,
+      he_cxl_latency cxl_latency = HE_CXL_LATENCY_NONE) {
+      volatile he_cache_dsm_status* dsm_status = NULL;
+
+      dsm_status = reinterpret_cast<he_cache_dsm_status*>(
+          (uint8_t*)(host_exe_->get_dsm()));
+      if (!dsm_status)
+          return false;
+
+      if (dsm_status->num_ticks > 0) {
+          *perf_data =
+              he_num_xfers_to_bw(dsm_status->num_reads + dsm_status->num_writes,
+                  dsm_status->num_ticks);
+
+          if (cxl_latency == HE_CXL_RD_LATENCY && dsm_status->num_reads > 0) {
+              *latency = (double)((dsm_status->num_ticks / (double)dsm_status->num_reads)
+                  * (2.5));
+
+          }
+          return true;
+      }
+
+      return false;
+  }
+
 
 protected:
   host_exerciser *host_exe_;
