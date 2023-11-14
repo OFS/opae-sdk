@@ -772,7 +772,7 @@ public:
       goto out_free;
     }
 
-    logger_->debug("nDFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_rd);
+    logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_rd);
     logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_wr);
 
     rd_wr_buffer_ = (uint8_t *)ptr;
@@ -811,7 +811,7 @@ public:
            << endl;
     }
 
-    logger_->debug("nDFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_rd);
+    logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_rd);
     logger_->debug("DFL_CXL_CACHE_WR_ADDR_TABLE_DATA     : 0x:{0:x}", *u64_wr);
 
     buffer_release(rd_wr_buffer_, rd_wr_buf_len_);

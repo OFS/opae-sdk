@@ -327,6 +327,18 @@ public:
       return false;
   }
 
+  uint64_t get_ticks() {
+      volatile he_cache_dsm_status* dsm_status = NULL;
+
+      dsm_status = reinterpret_cast<he_cache_dsm_status*>(
+          (uint8_t*)(host_exe_->get_dsm()));
+      if (!dsm_status)
+          return 0;
+      if (dsm_status->num_ticks > 0)
+          return dsm_status->num_ticks;
+      else
+          return 0;
+  }
 
 protected:
   host_exerciser *host_exe_;
