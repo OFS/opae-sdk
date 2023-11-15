@@ -77,24 +77,23 @@ public:
     cout << "actual data:" << dsm_status->actual_data << endl;
     cout << "expected data:" << dsm_status->expected_data << endl;
 
+    double latency = 0;
+    double perf_data = 0;
     // print bandwidth
     if (dsm_status->num_ticks > 0) {
-      double perf_data =
-          he_num_xfers_to_bw(dsm_status->num_reads + dsm_status->num_writes,
-                             dsm_status->num_ticks);
-      host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
-    }
+        perf_data = he_num_xfers_to_bw(dsm_status->num_reads +
+            dsm_status->num_writes, dsm_status->num_ticks);
 
-    if (cxl_latency == HE_CXL_RD_LATENCY) {
-        if (dsm_status->num_ticks > 0 && dsm_status->num_reads > 0) {
-            double latency = (double)((dsm_status->num_ticks / (double)dsm_status->num_reads)
-                *( 2.5));
-
-            host_exe_->logger_->info("Read Latency : {0:0.2f}  nanoseconds", latency);
+        if (cxl_latency == HE_CXL_RD_LATENCY) {
+            //To convert clock ticks to nanoseconds,multiply the clock ticks by 2.5
+            latency = (double)(dsm_status->num_ticks * 2.5);
+            host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s Total transaction time: {1:0.2f}  nanoseconds",
+                perf_data, latency);
+        } else {
+            host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
         }
-        else {
-            host_exe_->logger_->info("Read Latency: N/A");
-        }
+    } else {
+        host_exe_->logger_->info("Read Latency: N/A");
     }
 
     cout << "********* DSM Status CSR end *********" << endl;
