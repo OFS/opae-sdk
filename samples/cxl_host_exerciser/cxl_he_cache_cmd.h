@@ -239,10 +239,8 @@ public:
         he_perf_counters(HE_CXL_RD_LATENCY);
 
     } else if(he_latency_iterations_ > 0) {
+
         // Latency iterations test
-        double perf_data         = 0;
-        double latency           = 0;
-        double total_perf_data   = 0;
         double total_latency     = 0;
 
         rd_table_ctl_.enable_address_stride = 1;
@@ -265,18 +263,14 @@ public:
                 return -1;
             }
 
-            if (he_get_perf(&perf_data, &latency, HE_CXL_RD_LATENCY)) {
-                total_perf_data = total_perf_data + perf_data;
-                total_latency = total_latency + latency;
-            }
-            host_exe_->logger_->info("Iteration: {0}  latency: {1:0.3f} nanoseconds \
-                     BandWidth: {2:0.3f} GB/s", i, latency, perf_data);
+            total_latency = total_latency + get_ticks();
+            host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
+                i, (double)(get_ticks() * LATENCY_FACTOR));
         } //end for loop
+
+        total_latency = total_latency * LATENCY_FACTOR;
         host_exe_->logger_->info("Average Latency: {0:0.3f} nanoseconds",
             total_latency / he_latency_iterations_);
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
-
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
@@ -424,39 +418,6 @@ public:
         // performance
         he_perf_counters();
 
-    } else if (he_latency_iterations_ > 0) {
-        // Latency iterations test
-        double perf_data = 0;
-        double total_perf_data = 0;
-
-        wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = 1;
-        host_exe_->write64(HE_WR_NUM_LINES, 1);
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-
-        for (uint64_t i = 0; i < he_latency_iterations_; i++) {
-            // Start test
-            he_start_test();
-
-            // wait for completion
-            if (!he_wait_test_completion()) {
-                he_perf_counters();
-                host_exerciser_errors();
-                host_exe_->free_cache_read_write();
-                host_exe_->free_dsm();
-                return -1;
-            }
-
-            if (he_get_perf(&perf_data, NULL)) {
-                total_perf_data = total_perf_data + perf_data;
-            }
-            host_exe_->logger_->info("Iteration: {0} BandWidth: {2:0.3f} GB/s",
-                i, perf_data);
-        } //end for loop
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
-
     } else {
         // fpga Write cache hit test
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -512,7 +473,7 @@ public:
     he_rd_cfg_.value = 0;
     he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
-    he_rd_cfg_.opcode = RD_LINE_S;
+    he_rd_cfg_.opcode = RD_LINE_I;
 
     // set RD_ADDR_TABLE_CTRL
     rd_table_ctl_.value = 0;
@@ -559,9 +520,6 @@ public:
     } else if (he_latency_iterations_ > 0) {
 
         // Latency loop test
-        double perf_data = 0;
-        double latency = 0;
-        double total_perf_data = 0;
         double total_latency = 0;
 
         rd_table_ctl_.enable_address_stride = 1;
@@ -583,17 +541,14 @@ public:
                 return -1;
             }
 
-            if (he_get_perf(&perf_data, &latency, HE_CXL_RD_LATENCY)) {
-                total_perf_data = total_perf_data + perf_data;
-                total_latency = total_latency + latency;
-            }
-            host_exe_->logger_->info("Iteration: {0}  latency: {1:0.3f} nanoseconds \
-                     BandWidth: {2:0.3f} GB/s", i, latency, perf_data);
-        } // end for loop
+            total_latency = total_latency + get_ticks();
+            host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
+                i, (double)(get_ticks() * LATENCY_FACTOR));
+        } //end for loop
+
+        total_latency = total_latency * LATENCY_FACTOR;
         host_exe_->logger_->info("Average Latency: {0:0.3f} nanoseconds",
             total_latency / he_latency_iterations_);
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
 
     } else {
         // fpga read cache hit test
@@ -694,39 +649,6 @@ public:
         // performance
         he_perf_counters();
 
-    } else if (he_latency_iterations_ > 0) {
-        // Latency loop test
-        double perf_data = 0;
-        double total_perf_data = 0;
-
-        wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = 1;
-        host_exe_->write64(HE_WR_NUM_LINES, 1);
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-
-        for (uint64_t i = 0; i < he_latency_iterations_; i++) {
-            // Start test
-            he_start_test();
-
-            // wait for completion
-            if (!he_wait_test_completion()) {
-                he_perf_counters();
-                host_exerciser_errors();
-                host_exe_->free_cache_write();
-                host_exe_->free_dsm();
-                return -1;
-            }
-
-            if (he_get_perf(&perf_data, NULL)) {
-                total_perf_data = total_perf_data + perf_data;
-            }
-            host_exe_->logger_->info("Iteration: {0} BandWidth: {2:0.3f} GB/s",
-                i, perf_data);
-        } //end for loop
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
-
     } else {
         // fpga Write cache hit test
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -782,7 +704,7 @@ public:
     he_rd_cfg_.value = 0;
     he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
-    he_rd_cfg_.opcode = RD_LINE_I;
+    he_rd_cfg_.opcode = RD_LINE_S;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
     // set RD_ADDR_TABLE_CTRL
@@ -825,10 +747,8 @@ public:
         he_perf_counters(HE_CXL_RD_LATENCY);
 
     } else if (he_latency_iterations_ > 0) {
+
         // Latency loop test
-        double perf_data = 0;
-        double latency = 0;
-        double total_perf_data = 0;
         double total_latency = 0;
 
         rd_table_ctl_.enable_address_stride = 1;
@@ -854,17 +774,14 @@ public:
                 return -1;
             }
 
-            if (he_get_perf(&perf_data, &latency, HE_CXL_RD_LATENCY)) {
-                total_perf_data = total_perf_data + perf_data;
-                total_latency = total_latency + latency;
-            }
-            host_exe_->logger_->info("Iteration: {0}  latency: {1:0.3f} nanoseconds \
-                     BandWidth: {2:0.3f} GB/s", i, latency, perf_data);
+            total_latency = total_latency + get_ticks();
+            host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
+                i, (double)(get_ticks() * LATENCY_FACTOR));
         } //end for loop
+
+        total_latency = total_latency * LATENCY_FACTOR;
         host_exe_->logger_->info("Average Latency: {0:0.3f} nanoseconds",
             total_latency / he_latency_iterations_);
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
 
     } else {
         // fpga read cache hit test
@@ -969,42 +886,6 @@ public:
         // performance
         he_perf_counters();
 
-    } else if (he_latency_iterations_ > 0) {
-        // Latency loop test
-        double perf_data = 0;
-        double total_perf_data = 0;
-
-        wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = 1;
-        host_exe_->write64(HE_WR_NUM_LINES, 1);
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-
-        for (uint64_t i = 0; i < he_latency_iterations_; i++) {
-            // Start test
-            he_start_test();
-
-            // wait for completion
-            if (!he_wait_test_completion()) {
-                he_perf_counters();
-                host_exerciser_errors();
-                g_stop_thread = true;
-                t1.join();
-                sleep(1);
-                host_exe_->free_cache_write();
-                host_exe_->free_dsm();
-                return -1;
-            }
-
-            if (he_get_perf(&perf_data, NULL)) {
-                total_perf_data = total_perf_data + perf_data;
-            }
-            host_exe_->logger_->info("Iteration: {0} BandWidth: {2:0.3f} GB/s",
-                i, perf_data);
-        } // end for loop
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
-
     } else {
         // fpga Write cache hit test
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
@@ -1103,10 +984,8 @@ public:
         he_perf_counters(HE_CXL_RD_LATENCY);
 
     } else if (he_latency_iterations_ > 0) {
+
         // Latency loop test
-        double perf_data = 0;
-        double latency = 0;
-        double total_perf_data = 0;
         double total_latency = 0;
 
         rd_table_ctl_.enable_address_stride = 1;
@@ -1129,17 +1008,14 @@ public:
                 return -1;
             }
 
-            if (he_get_perf(&perf_data, &latency, HE_CXL_RD_LATENCY)) {
-                total_perf_data = total_perf_data + perf_data;
-                total_latency = total_latency + latency;
-            }
-            host_exe_->logger_->info("Iteration: {0}  latency: {1:0.3f} nanoseconds \
-                     BandWidth: {2:0.3f} GB/s", i, latency, perf_data);
+            total_latency = total_latency + get_ticks();
+            host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
+                i, (double)(get_ticks() * LATENCY_FACTOR));
         } //end for loop
+
+        total_latency = total_latency * LATENCY_FACTOR;
         host_exe_->logger_->info("Average Latency: {0:0.3f} nanoseconds",
             total_latency / he_latency_iterations_);
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
 
     } else {
         // fpga read cache hit test
@@ -1232,39 +1108,6 @@ public:
 
         // performance
         he_perf_counters();
-
-    } else if (he_latency_iterations_ > 0) {
-        // Latency loop test
-        double perf_data = 0;
-        double total_perf_data = 0;
-
-        wr_table_ctl_.enable_address_stride = 1;
-        wr_table_ctl_.stride = 1;
-        host_exe_->write64(HE_WR_NUM_LINES, 1);
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-
-        for (uint64_t i = 0; i < he_latency_iterations_; i++) {
-            // Start test
-            he_start_test();
-
-            // wait for completion
-            if (!he_wait_test_completion()) {
-                he_perf_counters();
-                host_exerciser_errors();
-                host_exe_->free_cache_write();
-                host_exe_->free_dsm();
-                return -1;
-            }
-
-            if (he_get_perf(&perf_data, NULL)) {
-                total_perf_data = total_perf_data + perf_data;
-            }
-            host_exe_->logger_->info("Iteration: {0} BandWidth: {2:0.3f} GB/s",
-                i, perf_data);
-        } // end for loop
-        host_exe_->logger_->info("Average BandWidth: {0:0.3f} GB/s",
-            total_perf_data / he_latency_iterations_);
 
     } else {
         // fpga Write cache hit test
