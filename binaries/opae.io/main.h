@@ -222,6 +222,5 @@ private:
   opae_vfio *v_;
   vfio_device(opae_vfio *v)
     : v_(v){}
-  vfio_device(const vfio_device &);
 };
 
