@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2017-2020 Intel Corporation
+# Copyright(c) 2017-2023 Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -67,10 +67,9 @@ def main():
 
     cmdline[0] = os.path.join(cwd, cmdline[0])
     cmdline = cmdline + ['-t', args.target] + leftover
-    cmdline = ' '.join(cmdline)
 
     try:
-        subprocess.check_call(cmdline, shell=True)
+        subprocess.run(cmdline, check=True)
     except CalledProcessError as e:
         exit(e.returncode)
 
