@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2018-2019, Intel Corporation
+# Copyright(c) 2018-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -372,15 +372,13 @@ class FPGASTATS(COMMON):
             print("Ethernet Interface Name:", eth_name[1])
             print("------------------------------")
             try:
-                cmd = "ethtool  {}".format(eth_name[1])
+                cmd = ['ethtool', eth_name[1]]
                 print(cmd)
-                rc = subprocess.call(cmd, shell=True)
-                cmd = "ethtool -S {}".format(eth_name[1])
+                subprocess.run(cmd, check=True)
+
+                cmd = ['ethtool', '-S', eth_name[1]]
                 print(cmd)
-                rc = subprocess.call(cmd, shell=True)
-                if rc != 0:
-                    print("failed to '{}'".format(cmd))
-                    return None
+                subprocess.run(cmd, check=True)
             except subprocess.CalledProcessError as e:
                 print('failed call')
                 return None
