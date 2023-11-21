@@ -24,24 +24,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include <map>
 #include <numa.h>
 #include <unistd.h>
+
+#include <map>
 
 #include "cxl_he_cmd.h"
 #include "cxl_hello_fpga.h"
 #include "he_cache_test.h"
 
-#define HE_TEST_STARTED      "Test started ......"
-#define HE_PRTEST_SCENARIO   "Pretest scenario started ......"
+#define HE_TEST_STARTED "Test started ......"
 
 namespace hello_fpga {
 
 class he_cmd : public test_command {
-public:
-  he_cmd() : host_exe_(NULL), he_clock_mhz_(400), numa_node_(0), he_target_(0),
-    he_bias_(0) {
-
+ public:
+  he_cmd()
+      : host_exe_(NULL),
+        he_clock_mhz_(400),
+        numa_node_(0),
+        he_target_(0),
+        he_bias_(0) {
     he_ctl_.value = 0;
     he_info_.value = 0;
     he_rd_cfg_.value = 0;
@@ -62,8 +65,7 @@ public:
 
     dsm_status = reinterpret_cast<he_cache_dsm_status *>(
         (uint8_t *)(host_exe_->get_dsm()));
-    if (!dsm_status)
-      return;
+    if (!dsm_status) return;
 
     cout << "\n********* DSM Status CSR Start *********" << endl;
     cout << "test completed :" << dsm_status->test_completed << endl;
@@ -86,99 +88,98 @@ public:
     }
 
     if (cxl_latency == HE_CXL_RD_LATENCY) {
-        if (dsm_status->num_ticks > 0 && dsm_status->num_reads > 0) {
-            double latency = (double)((dsm_status->num_ticks / (double)dsm_status->num_reads)
-                *( 2.5));
+      if (dsm_status->num_ticks > 0 && dsm_status->num_reads > 0) {
+        double latency =
+            (double)((dsm_status->num_ticks / (double)dsm_status->num_reads) *
+                     (2.5));
 
-            host_exe_->logger_->info("Read Latency : {0:0.2f}  nanoseconds", latency);
-        }
-        else {
-            host_exe_->logger_->info("Read Latency: N/A");
-        }
+        host_exe_->logger_->info("Read Latency : {0:0.2f}  nanoseconds",
+                                 latency);
+      } else {
+        host_exe_->logger_->info("Read Latency: N/A");
+      }
     }
 
     cout << "********* DSM Status CSR end *********" << endl;
   }
 
   void print_csr() {
-
     host_exe_->logger_->debug("HE_DFH:0x{:x}", host_exe_->read64(HE_DFH));
     host_exe_->logger_->debug("HE_ID_L:0x{:x}", host_exe_->read64(HE_ID_L));
     host_exe_->logger_->debug("HE_ID_H:0x{:x}", host_exe_->read64(HE_ID_H));
 
     host_exe_->logger_->debug("HE_SCRATCHPAD0:0x{:x}",
-    host_exe_->read64(HE_SCRATCHPAD0));
+                              host_exe_->read64(HE_SCRATCHPAD0));
 
-    host_exe_->logger_->debug("HE_DSM_BASE:0x{:x}", host_exe_->read64(HE_DSM_BASE));
+    host_exe_->logger_->debug("HE_DSM_BASE:0x{:x}",
+                              host_exe_->read64(HE_DSM_BASE));
 
     host_exe_->logger_->debug("HE_CTL:0x{:x}", host_exe_->read64(HE_CTL));
 
     host_exe_->logger_->debug("HE_INFO:0x{:x}", host_exe_->read64(HE_INFO));
 
     host_exe_->logger_->debug("HE_WR_NUM_LINES:0x{:x}",
-        host_exe_->read64(HE_WR_NUM_LINES));
+                              host_exe_->read64(HE_WR_NUM_LINES));
 
     host_exe_->logger_->debug("HE_WR_BYTE_ENABLE:0x{:x}",
-        host_exe_->read64(HE_WR_BYTE_ENABLE));
+                              host_exe_->read64(HE_WR_BYTE_ENABLE));
 
     host_exe_->logger_->debug("HE_WR_CONFIG:0x{:x}",
-        host_exe_->read64(HE_WR_CONFIG));
+                              host_exe_->read64(HE_WR_CONFIG));
 
     host_exe_->logger_->debug("HE_WR_ADDR_TABLE_CTRL:0x{:x}",
-        host_exe_->read64(HE_WR_ADDR_TABLE_CTRL));
+                              host_exe_->read64(HE_WR_ADDR_TABLE_CTRL));
 
     host_exe_->logger_->debug("HE_WR_ADDR_TABLE_DATA:0x{:x}",
-        host_exe_->read64(HE_WR_ADDR_TABLE_DATA));
+                              host_exe_->read64(HE_WR_ADDR_TABLE_DATA));
 
     host_exe_->logger_->debug("HE_RD_NUM_LINES:0x{:x}",
-        host_exe_->read64(HE_RD_NUM_LINES));
+                              host_exe_->read64(HE_RD_NUM_LINES));
 
     host_exe_->logger_->debug("HE_RD_CONFIG:0x{:x}",
-        host_exe_->read64(HE_RD_CONFIG));
+                              host_exe_->read64(HE_RD_CONFIG));
 
     host_exe_->logger_->debug("HE_RD_ADDR_TABLE_CTRL:0x{:x}",
-        host_exe_->read64(HE_RD_ADDR_TABLE_CTRL));
+                              host_exe_->read64(HE_RD_ADDR_TABLE_CTRL));
 
     host_exe_->logger_->debug("HE_RD_ADDR_TABLE_DATA:0x{:x}",
-        host_exe_->read64(HE_RD_ADDR_TABLE_DATA));
+                              host_exe_->read64(HE_RD_ADDR_TABLE_DATA));
 
     host_exe_->logger_->debug("HE_ERROR_STATUS:0x{:x}",
-        host_exe_->read64(HE_ERROR_STATUS));
+                              host_exe_->read64(HE_ERROR_STATUS));
 
     host_exe_->logger_->debug("HE_ERROR_EXP_DATA:0x{:x}",
-        host_exe_->read64(HE_ERROR_EXP_DATA));
+                              host_exe_->read64(HE_ERROR_EXP_DATA));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA0:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA0));
+                              host_exe_->read64(HE_ERROR_ACT_DATA0));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA1:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA1));
+                              host_exe_->read64(HE_ERROR_ACT_DATA1));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA2:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA2));
+                              host_exe_->read64(HE_ERROR_ACT_DATA2));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA3:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA3));
+                              host_exe_->read64(HE_ERROR_ACT_DATA3));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA4:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA4));
+                              host_exe_->read64(HE_ERROR_ACT_DATA4));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA5:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA5));
+                              host_exe_->read64(HE_ERROR_ACT_DATA5));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA6:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA6));
+                              host_exe_->read64(HE_ERROR_ACT_DATA6));
 
     host_exe_->logger_->debug("HE_ERROR_ACT_DATA7:0x{:x}",
-        host_exe_->read64(HE_ERROR_ACT_DATA7));
-
+                              host_exe_->read64(HE_ERROR_ACT_DATA7));
   }
 
   void host_exerciser_errors() {
     he_err_status err_status;
     uint64_t err = 0;
-    if (host_exe_ == NULL)
-      return;
+    if (host_exe_ == NULL) return;
 
     err_status.value = host_exe_->read64(HE_ERROR_STATUS);
     if (err_status.data_error == 1) {
@@ -219,21 +220,19 @@ public:
   }
 
   int parse_input_options() {
-
-    if (!host_exe_)
-      return -1;
+    if (!host_exe_) return -1;
 
     return 0;
   }
 
-  bool he_wait_test_completion(const char* str = HE_TEST_STARTED) {
+  bool he_wait_test_completion(const char *str = HE_TEST_STARTED) {
     /* Wait for test completion */
-    uint32_t timeout = HELPBK_TEST_TIMEOUT;
+    uint32_t timeout = HE_CACHE_TEST_TIMEOUT;
 
     cout << str << endl;
     volatile uint8_t *status_ptr = host_exe_->get_dsm();
     while (0 == ((*status_ptr) & 0x1)) {
-      usleep(HELPBK_TEST_SLEEP_INVL);
+      usleep(HE_CACHE_TEST_SLEEP_INVL);
       if (--timeout == 0) {
         cout << "HE Cache time out error" << endl;
         return false;
@@ -243,32 +242,30 @@ public:
   }
 
   bool he_set_bias_mode() {
-
     // Target memory HOST set BIAS host
     if (he_target_ == HE_TARGET_HOST) {
+      he_ctl_.bias_support = HOSTMEM_BIAS;
+      // Target memory FPGA set BIAS host/device
+      if (he_bias_ == HOSTMEM_BIAS) {
         he_ctl_.bias_support = HOSTMEM_BIAS;
-        // Target memory FPGA set BIAS host/device
-        if (he_bias_ == HOSTMEM_BIAS) {
-            he_ctl_.bias_support = HOSTMEM_BIAS;
-        } else {
-            cerr << "Wrong BIAS mode for specified target memory type" << endl;
-            return false;
-        }
+      } else {
+        cerr << "Wrong BIAS mode for specified target memory type" << endl;
+        return false;
+      }
     } else {
-        // Target memory FPGA set BIAS host/device
-        if (he_bias_ == HOSTMEM_BIAS) {
-            he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
-        } else {
-            he_ctl_.bias_support = FPGAMEM_DEVICE_BIAS;
-        }
+      // Target memory FPGA set BIAS host/device
+      if (he_bias_ == HOSTMEM_BIAS) {
+        he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
+      } else {
+        he_ctl_.bias_support = FPGAMEM_DEVICE_BIAS;
+      }
     }
 
     return true;
   }
 
-
   void he_start_test() {
-      // start test
+    // start test
     he_ctl_.Start = 0;
     host_exe_->write64(HE_CTL, he_ctl_.value);
     he_ctl_.Start = 1;
@@ -276,7 +273,6 @@ public:
   }
 
   bool verify_numa_node() {
-
     if (numa_available() < 0) {
       cerr << "System does not support NUMA API" << endl;
       return false;
@@ -300,7 +296,7 @@ public:
     return true;
   }
 
-protected:
+ protected:
   hello_fpga *host_exe_;
   uint32_t he_clock_mhz_;
   uint32_t numa_node_;
@@ -314,4 +310,4 @@ protected:
   he_rd_addr_table_ctrl rd_table_ctl_;
   he_wr_addr_table_ctrl wr_table_ctl_;
 };
-} // end of namespace hello_fpga
+}  // end of namespace hello_fpga

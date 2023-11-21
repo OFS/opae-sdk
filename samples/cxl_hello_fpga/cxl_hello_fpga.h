@@ -35,17 +35,17 @@ const char *HE_CACHE_AFU_ID = "0118E06B-1FA3-49B9-8159-9b5C2EBD4b23";
 
 namespace hello_fpga {
 
-static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
-static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
+static const uint64_t HE_CACHE_TEST_TIMEOUT = 30000;
+static const uint64_t HE_CACHE_TEST_SLEEP_INVL = 100;
 static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t BUFFER_SIZE_2MB = 2 * MB;
-static const uint64_t BUFFER_SIZE_32KB = 32* KB;
+static const uint64_t BUFFER_SIZE_32KB = 32 * KB;
 static const uint64_t FPGA_32KB_CACHE_LINES = (32 * KB) / 64;
 static const uint64_t FPGA_2MB_CACHE_LINES = (2 * MB) / 64;
 static const uint64_t FPGA_512CACHE_LINES = 512;
-static const uint64_t HELLO_FPGA_NUMCACHE_LINES = 512;
+static const uint64_t HELLO_FPGA_NUMCACHE_LINES = 5;
 
 // Host execiser CSR Offset
 enum {
@@ -292,13 +292,12 @@ typedef enum {
   HE_TARGET_FPGA = 0x1,
 } he_target;
 
-
 // he cxl cache latency
 typedef enum {
-    HE_CXL_LATENCY_NONE = 0x0,
-    HE_CXL_RD_LATENCY = 0x1,
-    HE_CXL_WR_LATENCY = 0x2,
-    HE_CXL_RD_WR_LATENCY = 0x3,
+  HE_CXL_LATENCY_NONE = 0x0,
+  HE_CXL_RD_LATENCY = 0x1,
+  HE_CXL_WR_LATENCY = 0x2,
+  HE_CXL_RD_WR_LATENCY = 0x3,
 } he_cxl_latency;
 
 const std::map<std::string, uint32_t> he_test_modes = {
@@ -307,10 +306,10 @@ const std::map<std::string, uint32_t> he_test_modes = {
 
 // Bias Support
 typedef enum {
-    HOSTMEM_BIAS = 0x0,
-    HOST_BIAS_NA = 0x1,
-    FPGAMEM_HOST_BIAS = 0x2,
-    FPGAMEM_DEVICE_BIAS = 0x3,
+  HOSTMEM_BIAS = 0x0,
+  HOST_BIAS_NA = 0x1,
+  FPGAMEM_HOST_BIAS = 0x2,
+  FPGAMEM_DEVICE_BIAS = 0x3,
 } he_bisa_support;
 
 const std::map<std::string, uint32_t> he_targets = {
@@ -326,8 +325,8 @@ const std::map<std::string, uint32_t> he_bias = {
 
 // he cxl cache device instance
 typedef enum {
-    HE_CXL_DEVICE0 = 0x0,
-    HE_CXL_DEVICE1 = 0x1,
+  HE_CXL_DEVICE0 = 0x0,
+  HE_CXL_DEVICE1 = 0x1,
 } he_cxl_dev;
 
 const std::map<std::string, uint32_t> he_cxl_device = {
@@ -376,9 +375,8 @@ using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
 
 class hello_fpga : public test_afu {
-public:
-  hello_fpga()
-      : test_afu("hello_fpga", nullptr, "info"), count_(1) {}
+ public:
+  hello_fpga() : test_afu("hello_fpga", nullptr, "info"), count_(1) {}
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override {
     int res = exit_codes::not_run;
@@ -387,8 +385,7 @@ public:
     // Info prints details of an individual run. Turn it on if doing only one
     // test and the user hasn't changed level from the default.
     if ((log_level_.compare("warning") == 0))
-       logger_->set_level(spdlog::level::info);
-
+      logger_->set_level(spdlog::level::info);
 
     logger_->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;
@@ -399,8 +396,7 @@ public:
         res = test_afu::run(app, test);
         count++;
         logger_->debug("end iteration: {0:d}", count);
-        if (res)
-          break;
+        if (res) break;
       }
     } catch (std::exception &ex) {
       logger_->error(ex.what());
@@ -413,13 +409,12 @@ public:
     return res;
   }
 
-public:
+ public:
   uint32_t count_;
 
   bool option_passed(std::string option_str) {
-    if (app_.count(option_str) == 0)
-      return false;
+    if (app_.count(option_str) == 0) return false;
     return true;
   }
 };
-} // namespace hello_fpga
+}  // namespace hello_fpga

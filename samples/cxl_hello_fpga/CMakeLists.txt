@@ -55,7 +55,7 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
            ${numa_INCLUDE_DIRS}
            ${spdlog_INCLUDE_DIRS})
 
-    target_compile_options(cxl_hello_fpga PUBLIC
+       target_compile_options(cxl_hello_fpga PUBLIC
         -Wno-unused-result
     )
 

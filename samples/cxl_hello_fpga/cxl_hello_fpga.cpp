@@ -23,22 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <CLI/CLI.hpp>
-#include <iostream>
+#include "cxl_hello_fpga.h"
+
 #include <signal.h>
 
+#include <CLI/CLI.hpp>
+#include <iostream>
+
 #include "cxl_hello_fpga_cmd.h"
-#include "cxl_hello_fpga.h"
 
 void he_sig_handler(int);
 
 int main(int argc, char *argv[]) {
-
   hello_fpga::hello_fpga app;
   app.register_command<hello_fpga::he_cache_cmd>();
 
   // host exerciser signal handler
-  struct sigaction  act_new;
+  struct sigaction act_new;
   memset(&act_new, 0, sizeof(act_new));
 
   act_new.sa_handler = he_sig_handler;
