@@ -45,7 +45,7 @@ static const uint64_t BUFFER_SIZE_32KB = 32* KB;
 static const uint64_t FPGA_32KB_CACHE_LINES = (32 * KB) / 64;
 static const uint64_t FPGA_2MB_CACHE_LINES = (2 * MB) / 64;
 static const uint64_t FPGA_512CACHE_LINES = 512;
-static const uint64_t HELLO_FPGA_NUMCACHE_LINES = 512;
+static const uint64_t HELLO_FPGA_NUMCACHE_LINES = 5;
 
 // Host execiser CSR Offset
 enum {
