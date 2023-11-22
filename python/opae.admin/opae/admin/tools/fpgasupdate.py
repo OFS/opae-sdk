@@ -52,6 +52,9 @@ import shutil
 from opae.admin.fpga import fpga
 from opae.admin.utils.progress import progress
 from opae.admin.version import pretty_version
+import pacsign
+from pacsign import database
+from opae.admin.sysfs import sysfs_device, sysfs_node
 
 if sys.version_info[0] == 2:
     input = raw_input  # noqa pylint: disable=E0602
@@ -810,6 +813,24 @@ def main():
     if (pac.upload_dev.find_one(os.path.join('update', 'filename')) or
         pac.upload_dev.find_one('loading')):
         use_ioctl = False
+
+    # The BMC disallows updating the factory image if the current boot-page is also 'factory'.
+    # The idea is to always have at least one known-good image in the flash so that
+    # you can recover from subsequent bad images.
+    # The BMC checks for this condition but does not, at the moment, report any useful error details.
+    # We simply get a generic error back and can't report any detail to the user.
+    # So we explicitly check for this condition and disallow it here with a descriptive message.
+    boot_page = pac.fme.boot_page
+    if boot_page is None:
+        return 1, 'Secure update failed. Could not find **/fpga_boot_image sysfs entry.'
+
+    LOG.debug ("Boot page sysfs path: %s\n", boot_page.sysfs_path)
+    LOG.debug ("Boot page value: %s\n", boot_page.value)
+    LOG.debug ('Block0 Contype: %s\n',blk0['ConType'])
+
+    if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == database.CONTENT_FACTORY)):
+        LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
+        sys.exit(1)
 
     LOG.warning('Update starting. Please do not interrupt.')
 

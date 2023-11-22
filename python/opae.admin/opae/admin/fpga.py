@@ -231,6 +231,12 @@ class fme(region):
         return self.find_one('*-sec*.*.auto')
 
     @property
+    def boot_page(self):
+        pmci = self.pmci_bus
+        if pmci:
+            return pmci.find_one('**/fpga_boot_image')
+
+    @property
     def altr_asmip(self):
         return self.find_one('altr-asmip*.*.auto')
 
