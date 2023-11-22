@@ -820,6 +820,11 @@ def main():
     # The BMC checks for this condition but does not, at the moment, report any useful error details.
     # We simply get a generic error back and can't report any detail to the user.
     # So we explicitly check for this condition and disallow it here with a descriptive message.
+
+    # The bootpage is read from the fpga_boot_image sysfs entry. The 'fme' object has many sysfs_nodes
+    # for various items, including the boot_page, so we use that here. It simply returns a string
+    # indicating the boot page: fpga_factory, fpga_user1, or fpga_user2
+
     boot_page = pac.fme.boot_page
     if boot_page is None:
         LOG.error('Secure update failed. Could not find **/fpga_boot_image sysfs entry.')
@@ -827,11 +832,12 @@ def main():
 
     LOG.debug ("Boot page sysfs path: %s\n", boot_page.sysfs_path)
     LOG.debug ("Boot page value: %s\n", boot_page.value)
-    LOG.debug ('Block0 Contype: %s\n',blk0['ConType'])
+    LOG.debug ('Block0 ConType: %s\n', blk0['ConType'])
 
     # The binary is produced by the PACSign utility. 
     # database.CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
-    # the binary to indicate that the factory image is targeted.
+    # the binary to indicate that the factory image is targeted. ConType refers to 'content type'
+    # and indicates if the binary is factoryPR, static region, BMC-related etc.
     if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == database.CONTENT_FACTORY)):
         LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
         sys.exit(1)
