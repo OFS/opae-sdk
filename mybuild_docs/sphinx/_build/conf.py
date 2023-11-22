@@ -1,0 +1,202 @@
+# -*- coding: utf-8 -*-
+#
+
+import sys
+import os
+import shutil
+
+# Better fonts
+import sphinx_fontawesome
+
+from recommonmark.parser import CommonMarkParser
+from recommonmark.transform import AutoStructify
+# Enabled extensions
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.imgmath',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx_fontawesome',
+    'recommonmark',
+    'breathe'
+]
+
+# numpy style documentation with Napoleon
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
+
+# Use breathe to include doxygen documents
+breathe_projects = {'FPGA-API' : 'doxygen_xml/'}
+breathe_default_project = 'FPGA-API'
+
+# Do not use this; if _contrib markdown plugin was used
+source_parsers = { '.md': CommonMarkParser}
+
+# Add any paths that contain templates here, relative to this directory.
+templates_path = ['_templates']
+
+# The encoding of source files.
+source_encoding = 'utf-8-sig'
+
+# The suffix of source filenames.
+source_suffix = ['.md', '.rst']
+
+# The master toctree document.
+master_doc = 'index'
+
+# General information about the project.
+project = u'OPAE'
+copyright = u'2017 Intel Corporation'
+author = u'Intel DCG FPT SW'
+
+# The version info for the project you're documenting
+#
+# The short X.Y version.
+version = u'2.10.0'
+
+# The full version, including alpha/beta/rc tags.
+release = u'2.10.0'
+
+# This is also used if you do content translation via gettext catalogs.
+# Usually you set "language" from the command line for these cases.
+language = 'en'
+
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+# The default language to highlight source code in.
+highlight_language = 'c'
+
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = 'sphinx'
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = True
+
+# -- Options for HTML output ---------------------------------------------
+
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+
+# html_extra_path = ['../../doc/html']
+
+# Add any paths that contain custom themes here, relative to this directory.
+html_theme_path = ['_themes']
+
+import sphinx_rtd_theme
+html_theme_path += [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = "sphinx_rtd_theme"
+
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
+#html_theme_options = {}
+
+# The name for this set of Sphinx documents.  If None, it defaults to
+# "<project> v<release> documentation".
+html_title = u'OPAE'
+
+# Output file base name for HTML help builder.
+htmlhelp_basename = 'IntelFPGADocumentation'
+
+# -- Options for LaTeX output ---------------------------------------------
+
+latex_elements = {
+# The paper size ('letterpaper' or 'a4paper').
+#'papersize': 'letterpaper',
+
+# The font size ('10pt', '11pt' or '12pt').
+#'pointsize': '10pt',
+
+# Additional stuff for the LaTeX preamble.
+#'preamble': '',
+
+# Latex figure (float) alignment
+#'figure_align': 'htbp',
+}
+
+# Grouping the document tree into LaTeX files. List of tuples
+# (source start file, target name, title,
+#  author, documentclass [howto, manual, or own class]).
+
+# Split document toctrees
+quick_start_doc = 'docs/fpga_api/quick_start/readme'
+prog_guide_doc = 'docs/fpga_api/prog_guide/readme'
+drv_arch_doc = 'docs/drv_arch/drv_arch'
+hssi_tuner_doc = 'docs/fpga_tools/mhssi_tuner/readme'
+alaska_fw_loader_doc = 'docs/fpga_tools/alaska_fw_loader/readme'
+fpga_tools_doc = 'docs/fpga_tools/readme'
+api_build_doc = 'docs/build_chain/fpga_api/api_build'
+install_guide_doc = 'docs/install_guide/installation_guide'
+
+
+latex_documents = [
+    (quick_start_doc, 'quick_start.tex', u'Intel FPGA Quick Start Guide', u'FPT SW Development Team', 'howto'),
+    (prog_guide_doc, 'prog_guide.tex', u'Intel FPGA Programming Guide', u'FPT SW Development Team', 'howto'),
+    (fpga_tools_doc, 'fpga_tools.tex', u'Intel FPGA Tools', u'FPT SW Development Team', 'howto'),
+    (api_build_doc, 'api_build.tex', u'apiBuild', u'FPT SW Development Team', 'howto'),
+    (install_guide_doc, 'install_guide.tex', u'Intel FPGA Software Stack Installation Guide', u'FPT SW Development Team', 'howto'),
+    (drv_arch_doc, 'drv_arch.tex', u'FPGA Driver Architecture', u'FPT SW Development Team', 'manual'),
+    ]
+
+# -- Options for manual page output ---------------------------------------
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+#    (master_doc, 'intel-fpga', u'Intel FPGA Documentation',
+#     [author], 1),
+    ("docs/fpga_tools/fpgabist/fpgabist", 'fpgabist', u'Perform self-diagnostic tests on supported FPGA platforms', [author], 8),
+    ("docs/fpga_tools/fpgaport/fpgaport", 'fpgaport', u'Enable/Disable virtualization', [author], 8),
+    ("docs/fpga_tools/fpgaconf/fpgaconf", 'fpgaconf', u'Configure green bitstreams to an FPGA', [author], 8),
+    ("docs/fpga_tools/fpgad/fpgad", 'fpgad', u'Log errors and generate events', [author], 8),
+    ("docs/fpga_tools/fpgadiag/README", 'fpgadiag', u'FPGA diagnosis and testing tool', [author], 8),
+    ("docs/fpga_tools/fpgainfo/fpgainfo", 'fpgainfo', u'FPGA information tool', [author], 8),
+    ("docs/fpga_tools/fpgasupdate/fpgasupdate", 'fpgasupdate', u'FPGA Secure Update tool', [author], 8),
+    ("docs/fpga_tools/pac_hssi_config/pac_hssi_config", 'pac_hssi_config', u'Access Ethernet transceivers for designs', [author], 8),
+    ("docs/fpga_tools/mmlink/mmlink", 'mmlink', u'Enable remote SignalTAP debugging', [author], 8),
+    ("docs/fpga_tools/hssi/hssi", 'hssi', u'High Speed Serial Interface', [author], 8),
+    ("docs/fpga_tools/opaevfio/opaevfio", 'opaevfio', u'Bind/Unbind accelerator to/from vfio-pci', [author], 8),
+    ("docs/fpga_tools/userclk/userclk", 'userclk', u'Set AFU high and low clock frequency', [author], 8),
+    ("docs/fpga_tools/pci_device/pci_device", 'pci_device', u'Common operations for PCIe devices', [author], 8),
+    ("docs/fpga_tools/opae.io/opae.io", 'opae.io', u'User space access to PCIe devices', [author], 8),
+    ("docs/fpga_tools/host_exerciser/host_exerciser", 'host_exerciser', u'Host Exerciser lpbk and memory', [author], 8),
+    ("docs/fpga_tools/hssi_ethernet/hssistats", 'hssistats', u'High Speed Serial Interface ethernet statistics', [author], 8),
+    ("docs/fpga_tools/hssi_ethernet/hssimac", 'hssimac', u'High Speed Serial Interface ethernet max', [author], 8),
+    ("docs/fpga_tools/hssi_ethernet/hssiloopback", 'hssiloopback', u'High Speed Serial Interface ethernet loopback', [author], 8),
+    ("docs/fpga_tools/rsu/rsu", 'rsu', u'FPGA remote system update', [author], 8),
+    ("docs/fpga_tools/mem_tg/mem_tg", 'mem_tg', u'FPGA Memory traffic generator', [author], 8),
+    ("docs/fpga_tools/vabtool/vabtool", 'vabtool', u'Vendor Authenticated Boot script', [author], 8),
+    ("docs/fpga_tools/ofs.uio/ofs.uio", 'ofs.uio', u'User space access to DFL UIO device', [author], 8),
+    ("docs/fpga_api/fpga_api", 'fpga_api', u'OPAE C API', [author], 8),
+    ("docs/fpga_api/fpga_cxx_api", 'fpga_cxx_api', u'OPAE C++ API', [author], 8),
+    ("docs/fpga_api/fpga_python_api", 'fpga_python_api', u'OPAE Python API', [author], 8),
+    ("docs/fpga_api/plug_guide/readme", 'plug_guide', u'OPAE Plugin API', [author], 8),
+    ("docs/fpga_api/prog_guide/readme", 'prog_guide', u'OPAE Programming Guide', [author], 8),
+    ("docs/fpga_api/quick_start/readme", 'quick_start', u'OPAE Quick Start Guide', [author], 8),
+    ("index", 'index', u'Manual page index', [author], 8)
+
+]
+
+# If true, show URL addresses after external links.
+#man_show_urls = False
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
+
+# app setup hook to enable AutoStructify (for ```eval_rst blocks)
+def setup(app):
+    app.add_config_value('recommonmark_config', {
+        # 'url_resolver': lambda url: github_doc_root + url,
+        'auto_toc_tree_section': 'Contents',
+        'enable_eval_rst': True,
+        'enable_math': True,
+        'enable_inline_math': True,
+        }, True)
+    app.add_transform(AutoStructify)

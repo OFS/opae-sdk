@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__device__irq" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_device_irq</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__device__irq_1a8a7ea1141298b55129019cc8e1672bb9" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_device_irq::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Flags. See struct vfio_irq_info. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="107" column="10" bodyfile="include/opae/vfio.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__irq_1ae80f357cdeaa6c6e20031cedcaad5712" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_device_irq::index</definition>
+        <argsstring></argsstring>
+        <name>index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The IRQ index. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="108" column="10" bodyfile="include/opae/vfio.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__irq_1ae8531b9a37c51672f1e8693a8473cad2" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_device_irq::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of IRQs at this index. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="109" column="10" bodyfile="include/opae/vfio.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__irq_1a066566f8808335166498fbce4d8a5211" prot="public" static="no" mutable="no">
+        <type>int32_t *</type>
+        <definition>int32_t* opae_vfio_device_irq::event_fds</definition>
+        <argsstring></argsstring>
+        <name>event_fds</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Event file descriptors. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="110" column="9" bodyfile="include/opae/vfio.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__irq_1a59f2bf38b7882ff09232e83ba7dea984" prot="public" static="no" mutable="no">
+        <type>int32_t *</type>
+        <definition>int32_t* opae_vfio_device_irq::masks</definition>
+        <argsstring></argsstring>
+        <name>masks</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IRQ masks. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="111" column="9" bodyfile="include/opae/vfio.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__irq_1a80db0fd825bd3d7b73c4a70b86be60b5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__device__irq" kindref="compound">opae_vfio_device_irq</ref> *</type>
+        <definition>struct opae_vfio_device_irq* opae_vfio_device_irq::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to next in list. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="112" column="27" bodyfile="include/opae/vfio.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Interrupt info</para>
+<para>Describes an interrupt capability. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_vfio_device_irq</label>
+        <link refid="structopae__vfio__device__irq"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="106" column="1" bodyfile="include/opae/vfio.h" bodystart="106" bodyend="113"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__device__irq_1ae8531b9a37c51672f1e8693a8473cad2" prot="public" virt="non-virtual"><scope>opae_vfio_device_irq</scope><name>count</name></member>
+      <member refid="structopae__vfio__device__irq_1a066566f8808335166498fbce4d8a5211" prot="public" virt="non-virtual"><scope>opae_vfio_device_irq</scope><name>event_fds</name></member>
+      <member refid="structopae__vfio__device__irq_1a8a7ea1141298b55129019cc8e1672bb9" prot="public" virt="non-virtual"><scope>opae_vfio_device_irq</scope><name>flags</name></member>
+      <member refid="structopae__vfio__device__irq_1ae80f357cdeaa6c6e20031cedcaad5712" prot="public" virt="non-virtual"><scope>opae_vfio_device_irq</scope><name>index</name></member>
+      <member refid="structopae__vfio__device__irq_1a59f2bf38b7882ff09232e83ba7dea984" prot="public" virt="non-virtual"><scope>opae_vfio_device_irq</scope><name>masks</name></member>
+      <member refid="structopae__vfio__device__irq_1a80db0fd825bd3d7b73c4a70b86be60b5" prot="public" virt="non-virtual"><scope>opae_vfio_device_irq</scope><name>next</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classhssi__afu" kind="class" language="C++" prot="public">
+    <compoundname>hssi_afu</compoundname>
+    <basecompoundref refid="classopae_1_1afu__test_1_1afu" prot="public" virt="non-virtual">opae::afu_test::afu</basecompoundref>
+    <includes refid="hssi__afu_8h" local="no">/root/samples/hssi/hssi_afu.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classhssi__afu_1ab13aa4088100a9ac313862ae7d5c7edc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>hssi_afu::hssi_afu</definition>
+        <argsstring>()</argsstring>
+        <name>hssi_afu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="56" column="3" bodyfile="samples/hssi/hssi_afu.h" bodystart="56" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__afu_1a6eaa4d98775709e3833b8f91b9bf24c9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool hssi_afu::glob_ethernet_interface</definition>
+        <argsstring>(const std::string &amp;glob_pattern, std::string &amp;eth_ifc)</argsstring>
+        <name>glob_ethernet_interface</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>glob_pattern</declname>
+        </param>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>eth_ifc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="60" column="8" bodyfile="samples/hssi/hssi_afu.h" bodystart="60" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string hssi_afu::ethernet_interface</definition>
+        <argsstring>()</argsstring>
+        <name>ethernet_interface</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="89" column="15" bodyfile="samples/hssi/hssi_afu.h" bodystart="89" bodyend="118"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1properties_1ab2b9142ce432de4aff9c0a20e9bc4c42">opae::fpga::types::properties::get</references>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee" compoundref="hssi__10g__cmd_8h" startline="152" endline="319">hssi_10g_cmd::run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_afu::mbox_write</definition>
+        <argsstring>(uint64_t port_select, uint16_t offset, uint32_t data)</argsstring>
+        <name>mbox_write</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>port_select</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="120" column="8" bodyfile="samples/hssi/hssi_afu.h" bodystart="120" bodyend="124"/>
+        <references refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" compoundref="hssi__afu_8h" startline="43">TRAFFIC_CTRL_PORT_SEL</references>
+        <referencedby refid="classhssi__100g__cmd_1a711ab34a9639ea0ca56622e8aa355a69" compoundref="hssi__100g__cmd_8h" startline="337" endline="343">hssi_100g_cmd::quit_monitor</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" compoundref="hssi__100g__cmd_8h" startline="345" endline="356">hssi_100g_cmd::reset_monitor</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee" compoundref="hssi__10g__cmd_8h" startline="152" endline="319">hssi_10g_cmd::run</referencedby>
+        <referencedby refid="classhssi__200g__400g__cmd_1ac363df78df0704d447931248f8e889ed" compoundref="hssi__200g__400g__cmd_8h" startline="111" endline="263">hssi_200g_400g_cmd::run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1aaf54dae4a089c878c40bbb830994a3fe" compoundref="hssi__100g__cmd_8h" startline="227" endline="234">hssi_100g_cmd::stall_disable</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1aa60e47554dd2bae485f49d773255f7b0" compoundref="hssi__100g__cmd_8h" startline="218" endline="225">hssi_100g_cmd::stall_enable</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a06b70f259d026f9409986b9f0b3790d0" compoundref="hssi__100g__cmd_8h" startline="243" endline="250">hssi_100g_cmd::write_csr_addr</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" compoundref="hssi__100g__cmd_8h" startline="236" endline="241">hssi_100g_cmd::write_ctrl_config</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__afu_1a86638ffebd322c2f71d60e1ac6ba63ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_afu::mbox_write</definition>
+        <argsstring>(uint16_t offset, uint32_t data)</argsstring>
+        <name>mbox_write</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="126" column="8" bodyfile="samples/hssi/hssi_afu.h" bodystart="126" bodyend="177"/>
+        <references refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" compoundref="hssi__afu_8h" startline="48">ACK_TRANS</references>
+        <references refid="hssi__afu_8h_1a16b1ade4a60a95678d58b2fa6b9fcc10" compoundref="hssi__afu_8h" startline="49">AFU_CMD_SHIFT</references>
+        <references refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" compoundref="hssi__afu_8h" startline="52">NO_TIMEOUT</references>
+        <references refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" compoundref="hssi__afu_8h" startline="41">TRAFFIC_CTRL_CMD</references>
+        <references refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" compoundref="hssi__afu_8h" startline="42">TRAFFIC_CTRL_DATA</references>
+        <references refid="hssi__afu_8h_1af792feb13ae0c1eab8f95f64c8baa96d" compoundref="hssi__afu_8h" startline="47">WRITE_CMD</references>
+        <references refid="hssi__afu_8h_1abe6eab6a74c11bf2db22b5f73d41fd47" compoundref="hssi__afu_8h" startline="50">WRITE_DATA_SHIFT</references>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t hssi_afu::mbox_read</definition>
+        <argsstring>(uint64_t port_select, uint16_t offset)</argsstring>
+        <name>mbox_read</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>port_select</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="179" column="12" bodyfile="samples/hssi/hssi_afu.h" bodystart="179" bodyend="183"/>
+        <references refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" compoundref="hssi__afu_8h" startline="43">TRAFFIC_CTRL_PORT_SEL</references>
+        <referencedby refid="classhssi__100g__cmd_1adedc4e33cb2ef457b66822f80ec5373c" compoundref="hssi__100g__cmd_8h" startline="585" endline="630">hssi_100g_cmd::print_registers</referencedby>
+        <referencedby refid="classhssi__10g__cmd_1accc68e7c9f9a76c7a3fad9c62a3fe8be" compoundref="hssi__10g__cmd_8h" startline="326" endline="395">hssi_10g_cmd::print_registers</referencedby>
+        <referencedby refid="classhssi__200g__400g__cmd_1a69cf64d96002221fa5916edc02336b3f" compoundref="hssi__200g__400g__cmd_8h" startline="274" endline="370">hssi_200g_400g_cmd::print_registers</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">hssi_100g_cmd::read_performance</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee" compoundref="hssi__10g__cmd_8h" startline="152" endline="319">hssi_10g_cmd::run</referencedby>
+        <referencedby refid="classhssi__200g__400g__cmd_1ac363df78df0704d447931248f8e889ed" compoundref="hssi__200g__400g__cmd_8h" startline="111" endline="263">hssi_200g_400g_cmd::run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1aaf54dae4a089c878c40bbb830994a3fe" compoundref="hssi__100g__cmd_8h" startline="227" endline="234">hssi_100g_cmd::stall_disable</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1aa60e47554dd2bae485f49d773255f7b0" compoundref="hssi__100g__cmd_8h" startline="218" endline="225">hssi_100g_cmd::stall_enable</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__afu_1a8555e906fd776954d39ddf432a7996f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t hssi_afu::mbox_read</definition>
+        <argsstring>(uint16_t offset)</argsstring>
+        <name>mbox_read</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="185" column="12" bodyfile="samples/hssi/hssi_afu.h" bodystart="185" bodyend="239"/>
+        <references refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" compoundref="hssi__afu_8h" startline="48">ACK_TRANS</references>
+        <references refid="hssi__afu_8h_1a16b1ade4a60a95678d58b2fa6b9fcc10" compoundref="hssi__afu_8h" startline="49">AFU_CMD_SHIFT</references>
+        <references refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" compoundref="hssi__afu_8h" startline="52">NO_TIMEOUT</references>
+        <references refid="hssi__afu_8h_1a21623e2a5501c821da54dd76ffc1d077" compoundref="hssi__afu_8h" startline="46">READ_CMD</references>
+        <references refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" compoundref="hssi__afu_8h" startline="41">TRAFFIC_CTRL_CMD</references>
+        <references refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" compoundref="hssi__afu_8h" startline="42">TRAFFIC_CTRL_DATA</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>hssi_afu</label>
+        <link refid="classhssi__afu"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>hssi_afu</label>
+        <link refid="classhssi__afu"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_afu.h" line="54" column="1" bodyfile="samples/hssi/hssi_afu.h" bodystart="54" bodyend="241"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1afu_1a845e58d643b7c868c6dc84277dc88a81" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>afu</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1af29e9be9b338fcda6a5d02a0431bf522" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>afu_id_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>allocate_cache_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ae9f15c76d68e94b445c2c1c21f727d1a" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>allocate_cache_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ac2756579ad42be859b696a1880a703a2" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>allocate_cache_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>allocate_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1abe62e0407c33466b7d6bf5005276fdc3" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>app_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad3e39bbb116a49dce6c1043755ebf2df" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>cli</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4461ef32b1ec7b4bd81614a6491cb23e" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>command_fn</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a3a7e209b3faad4cfd9472cc19d6685f7" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>commands_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a2db800c668b606885c4f4c405f8da4bc" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>current_command</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a62081683d3d299f6a71540923eca6291" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>current_command_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a36d7214cdf09708a4eba033e21447434" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>dev_path_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a868b16ab618cfdbd8f8bd403b2ba2af7" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>dsm_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4784e4f7a10529f0f107c7f241b89767" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>dsm_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>error</name></member>
+      <member refid="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>ethernet_interface</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a8b98ec99513ca15fc4c00d45ccd64fa5" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>exception</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>exit_codes</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a99dd66842fa780a0ceb7dda617c4e38b" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>fd_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adacf6b9b42c1b28c391d8cc4d93023ca" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>find_dev_feature</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>free_cache_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adadb65558a3a54ba88e96b872d43b30d" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>free_cache_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4f75d9580bec86a37adc9829e038bcf4" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>free_cache_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>free_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>get_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a1ec221419c8668d8b14e1b7e6c056b98" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>get_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ac03cc5d56c562425a9bcbbe1c2edf7c0" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>get_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1abff0d8566f3e4bfe138f44eadab9b16f" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>get_write</name></member>
+      <member refid="classhssi__afu_1a6eaa4d98775709e3833b8f91b9bf24c9" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>glob_ethernet_interface</name></member>
+      <member refid="classhssi__afu_1ab13aa4088100a9ac313862ae7d5c7edc" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>hssi_afu</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a410d46e06fe9a836ec107a08cf8576a0" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>log_level_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>logger_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1acacf9a109b0c623a7cee83acae4582cf" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>main</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad08ddd74d13e31d4aacf22c87b81fc6e" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>map_mmio</name></member>
+      <member refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>mbox_read</name></member>
+      <member refid="classhssi__afu_1a8555e906fd776954d39ddf432a7996f8" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>mbox_read</name></member>
+      <member refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>mbox_write</name></member>
+      <member refid="classhssi__afu_1a86638ffebd322c2f71d60e1ac6ba63ea" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>mbox_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a9b40ebeb9a922bed3bdb079e6285b4e2" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>mmio_base_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1acb52665e466bb54609b5ac81d4dfd282" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>mmio_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aee6c870bd4c573cd06893f815232a1dc" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>name_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a0a753cba76e13abc6b16f98745712372" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>no_access</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a5b5cf74a6eb73cf60867b2f81a810624" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>not_found</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a04ee7cb880c09f91baf6c572a753154d" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>not_run</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a7af4fff79b88676402bff5f5274b941d" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>open_handle</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ae9b4f7f4daba866467f04e9c64d660ee" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>pci_addr_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad55f0e9505cb20d242e7c53005d2f462" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>rd_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a5fd0b4fdfb3009117ff4a9f79cf84743" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>rd_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a6a13abfbef7c0e17b35bf8dc11c06f00" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>rd_wr_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1afd43e84a2d933b6141298f89eae7d22e" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>rd_wr_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aec158ebde0d3442da9a1bf4979e73a0d" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>read32</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>read64</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a66b79e6a2f6e58f8379823f0d675a139" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>register_command</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a127d8571f7052515afc1d400c0981604" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>reset_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a607ed076daacf92b1482fba24edacd6e" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>rinfo_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d" prot="public" virt="virtual"><scope>hssi_afu</scope><name>run</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>success</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a75f121f0ea96c60091ca1223f5b29004" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>timeout_msec_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aba7d799aad72ececb2b9eb68c8919353" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>unmap_mmio</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a39bda33296e1b0fb5a486c349d098c77" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>wr_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ab6736eb6d461e288c0f7846c741bb511" prot="protected" virt="non-virtual"><scope>hssi_afu</scope><name>wr_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>write32</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" prot="public" virt="non-virtual"><scope>hssi_afu</scope><name>write64</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a9f5b3668c254e92f8f2506916f97a232" prot="public" virt="virtual"><scope>hssi_afu</scope><name>~afu</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

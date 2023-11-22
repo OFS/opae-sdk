@@ -1,0 +1,179 @@
+.TH "mem_tg::tg_test" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+mem_tg::tg_test
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/mem_tg/tg_test\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtg_test\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~tg_test\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "double \fBbw_calc\fP (uint64_t xfer_bytes, uint64_t num_ticks)"
+.br
+.ti -1c
+.RI "void \fBtg_perf\fP (\fBmem_tg\fP *\fBtg_exe_\fP)"
+.br
+.ti -1c
+.RI "bool \fBtg_wait_test_completion\fP (\fBmem_tg\fP *\fBtg_exe_\fP)"
+.br
+.ti -1c
+.RI "int \fBconfig_input_options\fP (\fBmem_tg\fP *\fBtg_exe_\fP)"
+.br
+.ti -1c
+.RI "int \fBrun_mem_test\fP (\fBmem_tg\fP *\fBtg_exe_\fP)"
+.br
+.ti -1c
+.RI "int \fBrun_thread_single_channel\fP (\fBmem_tg\fP *\fBtg_exe_\fP)"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP) override"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBtg_offset_\fP"
+.br
+.ti -1c
+.RI "\fBmem_tg\fP * \fBtg_exe_\fP"
+.br
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBtoken_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 52 of file tg_test\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "mem_tg::tg_test::tg_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 55 of file tg_test\&.h\&.
+.SS "virtual mem_tg::tg_test::~tg_test ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 60 of file tg_test\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* mem_tg::tg_test::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 62 of file tg_test\&.h\&.
+.SS "virtual const char* mem_tg::tg_test::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 67 of file tg_test\&.h\&.
+.SS "virtual const char* mem_tg::tg_test::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 72 of file tg_test\&.h\&.
+.PP
+References mem_tg::AFU_ID\&.
+.SS "double mem_tg::tg_test::bw_calc (uint64_t xfer_bytes, uint64_t num_ticks)\fC [inline]\fP"
+
+.PP
+Definition at line 78 of file tg_test\&.h\&.
+.PP
+References mem_tg::mem_tg::mem_speed_, and tg_exe_\&.
+.PP
+Referenced by tg_perf()\&.
+.SS "void mem_tg::tg_test::tg_perf (\fBmem_tg\fP * tg_exe_)\fC [inline]\fP"
+
+.PP
+Definition at line 83 of file tg_test\&.h\&.
+.PP
+References mem_tg::mem_tg::bcnt_, bw_calc(), mem_tg::mem_tg::loop_, mem_tg::mem_tg::mem_ch_, mem_tg::MEM_TG_CLOCKS, mem_tg::mem_tg::rcnt_, opae::afu_test::afu::read64(), mem_tg::mem_tg::status_, tg_exe_, mem_tg::TG_FAIL_EXPECTED_DATA, mem_tg::TG_FAIL_READ_DATA, mem_tg::TG_FIRST_FAIL_ADDR_L, mem_tg::mem_tg::tg_offset_, mem_tg::tg_print_mutex, mem_tg::TG_STATUS_ERROR, mem_tg::TG_STATUS_TIMEOUT, and mem_tg::mem_tg::wcnt_\&.
+.PP
+Referenced by run_mem_test()\&.
+.SS "bool mem_tg::tg_test::tg_wait_test_completion (\fBmem_tg\fP * tg_exe_)\fC [inline]\fP"
+
+.PP
+Definition at line 124 of file tg_test\&.h\&.
+.PP
+References mem_tg::mem_tg::bcnt_, mem_tg::mem_tg::loop_, mem_tg::mem_tg::mem_ch_, mem_tg::MEM_TG_STAT, mem_tg::MEM_TG_TEST_TIMEOUT, opae::afu_test::afu::read64(), mem_tg::mem_tg::status_, tg_exe_, mem_tg::TG_STATUS_ACTIVE, mem_tg::TG_STATUS_ERROR, and mem_tg::TG_STATUS_TIMEOUT\&.
+.PP
+Referenced by run_mem_test()\&.
+.SS "int mem_tg::tg_test::config_input_options (\fBmem_tg\fP * tg_exe_)\fC [inline]\fP"
+
+.PP
+Definition at line 155 of file tg_test\&.h\&.
+.PP
+References mem_tg::AFU_DFH, mem_tg::mem_tg::bcnt_, mem_tg::mem_tg::loop_, mem_tg::mem_tg::mem_ch_, mem_tg::MEM_TG_CFG_OFFSET, mem_tg::MEM_TG_CTRL, mem_tg::mem_tg::pattern_, mem_tg::mem_tg::rcnt_, opae::afu_test::afu::read64(), mem_tg::mem_tg::stride_, mem_tg::TG_ADDR_MODE_RD, mem_tg::TG_ADDR_MODE_WR, mem_tg::TG_ADDR_SEQ, mem_tg::TG_BURST_LENGTH, tg_exe_, mem_tg::TG_LOOP_COUNT, mem_tg::mem_tg::tg_offset_, mem_tg::TG_PPPG_SEL, mem_tg::TG_READ_COUNT, mem_tg::TG_SEQ_ADDR_INCR, mem_tg::TG_WRITE_COUNT, mem_tg::mem_tg::wcnt_, and opae::afu_test::afu::write32()\&.
+.PP
+Referenced by run_thread_single_channel()\&.
+.SS "int mem_tg::tg_test::run_mem_test (\fBmem_tg\fP * tg_exe_)\fC [inline]\fP"
+
+.PP
+Definition at line 181 of file tg_test\&.h\&.
+.PP
+References opae::afu_test::afu::logger_, mem_tg::tg_cv, tg_exe_, mem_tg::tg_num_threads, mem_tg::mem_tg::tg_offset_, tg_perf(), mem_tg::TG_START, mem_tg::tg_start_write_mutex, tg_wait_test_completion(), mem_tg::tg_waiting_threads_counter, and opae::afu_test::afu::write32()\&.
+.PP
+Referenced by run_thread_single_channel()\&.
+.SS "int mem_tg::tg_test::run_thread_single_channel (\fBmem_tg\fP * tg_exe_)\fC [inline]\fP"
+
+.PP
+Definition at line 209 of file tg_test\&.h\&.
+.PP
+References config_input_options(), run_mem_test(), and tg_exe_\&.
+.PP
+Referenced by run()\&.
+.SS "virtual int mem_tg::tg_test::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 218 of file tg_test\&.h\&.
+.PP
+References app, mem_tg::mem_tg::duplicate(), mem_tg::mem_tg::mem_ch_, mem_tg::mem_tg::mem_speed_, mem_tg::MEM_TG_CTRL, opae::afu_test::afu::read64(), run_thread_single_channel(), tg_exe_, mem_tg::tg_num_threads, mem_tg::tg_waiting_threads_counter, and token_\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t mem_tg::tg_test::tg_offset_\fC [protected]\fP"
+
+.PP
+Definition at line 312 of file tg_test\&.h\&.
+.SS "\fBmem_tg\fP* mem_tg::tg_test::tg_exe_\fC [protected]\fP"
+
+.PP
+Definition at line 313 of file tg_test\&.h\&.
+.PP
+Referenced by bw_calc(), config_input_options(), run(), run_mem_test(), run_thread_single_channel(), tg_perf(), and tg_wait_test_completion()\&.
+.SS "\fBtoken::ptr_t\fP mem_tg::tg_test::token_\fC [protected]\fP"
+
+.PP
+Definition at line 314 of file tg_test\&.h\&.
+.PP
+Referenced by run()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

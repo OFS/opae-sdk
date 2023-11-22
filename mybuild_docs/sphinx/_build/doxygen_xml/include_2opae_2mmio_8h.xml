@@ -1,0 +1,632 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="include_2opae_2mmio_8h" kind="file" language="C++">
+    <compoundname>mmio.h</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+    <includedby refid="fpga_8h" local="no">include/opae/fpga.h</includedby>
+    <includedby refid="hello__afu_8c" local="no">samples/hello_afu/sw/hello_afu.c</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="7">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="6">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="3">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="2">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>samples/hello_afu/sw/hello_afu.c</label>
+        <link refid="hello__afu_8c"/>
+      </node>
+      <node id="5">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaWriteMMIO64</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num, uint64_t offset, uint64_t value)</argsstring>
+        <name>fpgaWriteMMIO64</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Write 64 bit value to MMIO space</para>
+<para>This function will write to MMIO space of the target object at a specified offset.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened accelerator resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset into MMIO space </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to write (64 bit) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="63" column="13" declfile="include/opae/mmio.h" declline="63" declcolumn="13"/>
+        <referencedby refid="n5010-ctl_8c_1a6596f7a4b6b9ac8060d18e3f40f42334" compoundref="n5010-ctl_8c" startline="263" endline="283">fpga_set_switch</referencedby>
+        <referencedby refid="n5010-test_8c_1aef1214e09ce39997c1133269fd0936e9" compoundref="n5010-test_8c" startline="288" endline="310">fpga_start</referencedby>
+        <referencedby refid="n5010-test_8c_1aad710973341f9f1301a817df6b1b8090" compoundref="n5010-test_8c" startline="312" endline="332">fpga_stop</referencedby>
+        <referencedby refid="n5010-test_8c_1ae1108fb5be774c3a02c79b22d9e4e8a4" compoundref="n5010-test_8c" startline="476" endline="549">fpga_test_esram</referencedby>
+        <referencedby refid="n5010-test_8c_1a7d4ba0af37d28b2281e697ff461b8cbb" compoundref="n5010-test_8c" startline="551" endline="624">fpga_test_qdr</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaReadMMIO64</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num, uint64_t offset, uint64_t *value)</argsstring>
+        <name>fpgaReadMMIO64</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read 64 bit value from MMIO space</para>
+<para>This function will read from MMIO space of the target object at a specified offset.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened accelerator resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset into MMIO space </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory where read value is returned (64 bit) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="81" column="13" declfile="include/opae/mmio.h" declline="81" declcolumn="13"/>
+        <referencedby refid="hello__fpga_8c_1af5efd740b98ff6882ecbdde289da7b85" compoundref="hello__fpga_8c" startline="262" endline="312">find_nlb_n3000</referencedby>
+        <referencedby refid="n5010-test_8c_1a2d826077756d3ecead9f30e5d6eada51" compoundref="n5010-test_8c" startline="274" endline="286">fpga_banks</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a2e79fe0581ec5864faa636b5fe0e03a4" compoundref="n5010-ctl_8c" startline="180" endline="244">fpga_base</referencedby>
+        <referencedby refid="n5010-ctl_8c_1af1edf9b723cd625e1655f1f12eb21efa" compoundref="n5010-ctl_8c" startline="246" endline="260">fpga_dump</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a46c13d0ab2132699eac8a7830a536d7c" compoundref="n5010-ctl_8c" startline="285" endline="296">fpga_read_switch_port</referencedby>
+        <referencedby refid="n5010-test_8c_1a66f9a1b5d37745c9587641613bf50cd5" compoundref="n5010-test_8c" startline="415" endline="474">fpga_test_ddr_directed</referencedby>
+        <referencedby refid="n5010-test_8c_1a4a327a70c05938aa6ecda3e2e9225663" compoundref="n5010-test_8c" startline="365" endline="413">fpga_test_ddr_prbs</referencedby>
+        <referencedby refid="n5010-test_8c_1ae1108fb5be774c3a02c79b22d9e4e8a4" compoundref="n5010-test_8c" startline="476" endline="549">fpga_test_esram</referencedby>
+        <referencedby refid="n5010-test_8c_1ae92a916f3955b96edf4ef7ab5a667114" compoundref="n5010-test_8c" startline="626" endline="690">fpga_test_hbm</referencedby>
+        <referencedby refid="n5010-test_8c_1a7d4ba0af37d28b2281e697ff461b8cbb" compoundref="n5010-test_8c" startline="551" endline="624">fpga_test_qdr</referencedby>
+        <referencedby refid="n5010-test_8c_1a2973f7fa537bc9d89cbda5fdf88682e6" compoundref="n5010-test_8c" startline="334" endline="363">fpga_wait</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1ae538bfe7158d1911c5e749bbc063aa3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaWriteMMIO32</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num, uint64_t offset, uint32_t value)</argsstring>
+        <name>fpgaWriteMMIO32</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Write 32 bit value to MMIO space</para>
+<para>This function will write to MMIO space of the target object at a specified offset.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened accelerator resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset into MMIO space </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to write (32 bit) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="99" column="13" declfile="include/opae/mmio.h" declline="99" declcolumn="13"/>
+        <referencedby refid="hello__fpga_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__fpga_8c" startline="314" endline="544">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1a81dc89da3e94e26efff1af1eeebb7f5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaReadMMIO32</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num, uint64_t offset, uint32_t *value)</argsstring>
+        <name>fpgaReadMMIO32</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read 32 bit value from MMIO space</para>
+<para>This function will read from MMIO space of the target object at a specified offset.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened accelerator resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset into MMIO space </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory where read value is returned (32 bit) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="117" column="13" declfile="include/opae/mmio.h" declline="117" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1a9cf56711df0f234686426c58d8b00cb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaWriteMMIO512</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num, uint64_t offset, const void *value)</argsstring>
+        <name>fpgaWriteMMIO512</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Write 512 bit value to MMIO space</para>
+<para>512 bit MMIO writes may not be supported on all platforms.</para>
+<para>This function will write to MMIO space of the target object at a specified offset.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened accelerator resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset into MMIO space </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory holding value to write (512 bits) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="137" column="13" declfile="include/opae/mmio.h" declline="137" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1a2903267d37ea5c64522b0addce74da5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaMapMMIO</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num, uint64_t **mmio_ptr)</argsstring>
+        <name>fpgaMapMMIO</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <param>
+          <type>uint64_t **</type>
+          <declname>mmio_ptr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Map MMIO space</para>
+<para>This function will return a pointer to the specified MMIO space of the target object in process virtual memory, if supported by the target. Some MMIO spaces may be restricted to privileged processes, depending on the used handle and type.</para>
+<para>After mapping the respective MMIO space, you can access it through direct pointer operations (observing supported access sizes and alignments of the target platform and accelerator).</para>
+<para><simplesect kind="note"><para>Some targets (such as the ASE simulator) do not support memory-mapping of IO register spaces and will not return a pointer to an actually mapped space. Instead, they will return <computeroutput>FPGA_NOT_SUPPORTED</computeroutput>. Usually, these platforms still allow the application to issue MMIO operations using <ref refid="include_2opae_2mmio_8h_1a81dc89da3e94e26efff1af1eeebb7f5d" kindref="member">fpgaReadMMIO32()</ref>, <ref refid="include_2opae_2mmio_8h_1ae538bfe7158d1911c5e749bbc063aa3d" kindref="member">fpgaWriteMMIO32()</ref>, fpgeReadMMIO64(), and <ref refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" kindref="member">fpgaWriteMMIO64()</ref>.</para>
+</simplesect>
+If the caller passes in NULL for mmio_ptr, no mapping will be performed, and no virtual address will be returned, though the call will return <computeroutput>FPGA_OK</computeroutput>. This implies that all accesses will be performed through <ref refid="include_2opae_2mmio_8h_1a81dc89da3e94e26efff1af1eeebb7f5d" kindref="member">fpgaReadMMIO32()</ref>, <ref refid="include_2opae_2mmio_8h_1ae538bfe7158d1911c5e749bbc063aa3d" kindref="member">fpgaWriteMMIO32()</ref>, fpgeReadMMIO64(), and <ref refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" kindref="member">fpgaWriteMMIO64()</ref>. This is the only supported case for ASE.</para>
+<para>The number of available MMIO spaces can be retrieved through the num_mmio property (fpgaPropertyGetNumMMIO()).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">mmio_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory where a pointer to the MMIO space will be returned. May be NULL, in which case no pointer is returned. Returned address may be NULL if underlying platform does not support memory mapping for register access. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. FPGA_NO_ACCESS if the process&apos; permissions are not sufficient to map the requested MMIO space. FPGA_NOT_SUPPORTED if platform does not support memory mapped IO. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="182" column="13" declfile="include/opae/mmio.h" declline="182" declcolumn="13"/>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="include_2opae_2mmio_8h_1a8c8db22506e1fbfd16440c660bfee28f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaUnmapMMIO</definition>
+        <argsstring>(fpga_handle handle, uint32_t mmio_num)</argsstring>
+        <name>fpgaUnmapMMIO</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unmap MMIO space</para>
+<para>This function will unmap a previously mapped MMIO space of the target object, rendering any pointers to it invalid.</para>
+<para><simplesect kind="note"><para>This call is only supported by hardware targets, not by ASE simulation.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO space to access </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mmio.h" line="200" column="13" declfile="include/opae/mmio.h" declline="200" declcolumn="13"/>
+        <referencedby refid="n5010-ctl_8c_1ab3d638b8387fa4ec22627ec8a6b53e62" compoundref="n5010-ctl_8c" startline="156" endline="178">fpga_close</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions for mapping and accessing MMIO space. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Most FPGA accelerators provide access to control registers through memory-mappable address spaces, commonly referred to as &quot;MMIO spaces&quot;. This file provides functions to map, unmap, read, and write MMIO spaces.</para>
+<para>Note that an accelerator may have multiple MMIO spaces, denoted by the <computeroutput>mmio_num</computeroutput> argument of the APIs below. The meaning and properties of each MMIO space are up to the accelerator designer. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2017,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_MMIO_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_MMIO_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types_8h" kindref="compound">opae/types.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" kindref="member">fpgaWriteMMIO64</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num,<sp/>uint64_t<sp/>offset,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>value);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>offset,<sp/>uint64_t<sp/>*value);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="include_2opae_2mmio_8h_1ae538bfe7158d1911c5e749bbc063aa3d" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1ae538bfe7158d1911c5e749bbc063aa3d" kindref="member">fpgaWriteMMIO32</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num,<sp/>uint64_t<sp/>offset,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>value);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="include_2opae_2mmio_8h_1a81dc89da3e94e26efff1af1eeebb7f5d" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1a81dc89da3e94e26efff1af1eeebb7f5d" kindref="member">fpgaReadMMIO32</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>offset,<sp/>uint32_t<sp/>*value);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="include_2opae_2mmio_8h_1a9cf56711df0f234686426c58d8b00cb0" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1a9cf56711df0f234686426c58d8b00cb0" kindref="member">fpgaWriteMMIO512</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num,<sp/>uint64_t<sp/>offset,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*value);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182" refid="include_2opae_2mmio_8h_1a2903267d37ea5c64522b0addce74da5f" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1a2903267d37ea5c64522b0addce74da5f" kindref="member">fpgaMapMMIO</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num,<sp/>uint64_t<sp/>**mmio_ptr);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200" refid="include_2opae_2mmio_8h_1a8c8db22506e1fbfd16440c660bfee28f" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="include_2opae_2mmio_8h_1a8c8db22506e1fbfd16440c660bfee28f" kindref="member">fpgaUnmapMMIO</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_num);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__FPGA_MMIO_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/mmio.h"/>
+  </compounddef>
+</doxygen>

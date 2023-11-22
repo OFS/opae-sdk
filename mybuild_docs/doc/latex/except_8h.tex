@@ -1,0 +1,104 @@
+\doxysection{include/opae/cxx/core/except.h File Reference}
+\label{except_8h}\index{include/opae/cxx/core/except.h@{include/opae/cxx/core/except.h}}
+{\ttfamily \#include $<$opae/types\+\_\+enum.\+h$>$}\newline
+{\ttfamily \#include $<$cstdint$>$}\newline
+{\ttfamily \#include $<$exception$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}}
+\begin{DoxyCompactList}\small\item\em Identify a particular line in a source file. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except}{opae\+::fpga\+::types\+::except}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1invalid__param}{opae\+::fpga\+::types\+::invalid\+\_\+param}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1busy}{opae\+::fpga\+::types\+::busy}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1exception}{opae\+::fpga\+::types\+::exception}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1not__found}{opae\+::fpga\+::types\+::not\+\_\+found}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1no__memory}{opae\+::fpga\+::types\+::no\+\_\+memory}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1not__supported}{opae\+::fpga\+::types\+::not\+\_\+supported}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1no__driver}{opae\+::fpga\+::types\+::no\+\_\+driver}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1no__daemon}{opae\+::fpga\+::types\+::no\+\_\+daemon}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1no__access}{opae\+::fpga\+::types\+::no\+\_\+access}}
+\item 
+class \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1reconf__error}{opae\+::fpga\+::types\+::reconf\+\_\+error}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceopae}{opae}}
+\item 
+ \mbox{\hyperlink{namespaceopae_1_1fpga}{opae\+::fpga}}
+\item 
+ \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types}{opae\+::fpga\+::types}}
+\item 
+ \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail}{opae\+::fpga\+::types\+::detail}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{except_8h_a2abf016a3c51c9fcc40ac9468a897592}{OPAECXX\+\_\+\+HERE}}~  \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}}(\+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+func\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+)
+\begin{DoxyCompactList}\small\item\em Construct a src\+\_\+location object for the current source line. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{except_8h_a0daeed5d9e795aa1e0cce4d5469cdc94}{ASSERT\+\_\+\+FPGA\+\_\+\+OK}}(r)
+\begin{DoxyCompactList}\small\item\em Macro to check of result is FPGA\+\_\+\+OK If not, throw exception that corresponds to the result code. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef bool($\ast$ \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_a27ea035002c36a1c80c601a99b9fa3db}{opae\+::fpga\+::types\+::detail\+::exception\+\_\+fn}}) (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename T $>$ }\\constexpr bool \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_ad6802666a800e1d9b4ffe647a816083f}{opae\+::fpga\+::types\+::detail\+::is\+\_\+ok}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} result, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)
+\item 
+static void \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_afb71b5ca2216303a26cd91e01da63bc2}{opae\+::fpga\+::types\+::detail\+::assert\+\_\+fpga\+\_\+ok}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} result, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static exception\+\_\+fn \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_aaf5c7cfe3e7998add9471462d43ee1ff}{opae\+::fpga\+::types\+::detail\+::opae\+\_\+exceptions}} \mbox{[}12\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{except_8h_a2abf016a3c51c9fcc40ac9468a897592}} 
+\index{except.h@{except.h}!OPAECXX\_HERE@{OPAECXX\_HERE}}
+\index{OPAECXX\_HERE@{OPAECXX\_HERE}!except.h@{except.h}}
+\doxysubsubsection{\texorpdfstring{OPAECXX\_HERE}{OPAECXX\_HERE}}
+{\footnotesize\ttfamily \#define OPAECXX\+\_\+\+HERE~  \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}}(\+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+func\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+)}
+
+
+
+Construct a src\+\_\+location object for the current source line. 
+
+
+
+Definition at line 69 of file except.\+h.
+
+\mbox{\label{except_8h_a0daeed5d9e795aa1e0cce4d5469cdc94}} 
+\index{except.h@{except.h}!ASSERT\_FPGA\_OK@{ASSERT\_FPGA\_OK}}
+\index{ASSERT\_FPGA\_OK@{ASSERT\_FPGA\_OK}!except.h@{except.h}}
+\doxysubsubsection{\texorpdfstring{ASSERT\_FPGA\_OK}{ASSERT\_FPGA\_OK}}
+{\footnotesize\ttfamily \#define ASSERT\+\_\+\+FPGA\+\_\+\+OK(\begin{DoxyParamCaption}\item[{}]{r }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  opae::fpga::types::detail::assert\_fpga\_ok( \(\backslash\)}
+\DoxyCodeLine{      r, opae::fpga::types::src\_location(\_\_FILE\_\_, \_\_func\_\_, \_\_LINE\_\_));}
+
+\end{DoxyCode}
+
+
+Macro to check of result is FPGA\+\_\+\+OK If not, throw exception that corresponds to the result code. 
+
+
+
+Definition at line 334 of file except.\+h.
+

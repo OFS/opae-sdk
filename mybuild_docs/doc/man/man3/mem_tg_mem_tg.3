@@ -1,0 +1,185 @@
+.TH "mem_tg::mem_tg" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+mem_tg::mem_tg
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/mem_tg/mem_tg\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::afu\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBmem_tg\fP (const char *afu_id=\fBAFU_ID\fP)"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (CLI::App *\fBapp\fP, \fBtest_command::ptr_t\fP test) override"
+.br
+.ti -1c
+.RI "uint32_t \fBget_offset\fP (uint32_t base, uint32_t i) const"
+.br
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBget_token\fP ()"
+.br
+.ti -1c
+.RI "void \fBduplicate\fP (\fBmem_tg\fP *duplicate_obj) const"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBcount_\fP"
+.br
+.ti -1c
+.RI "std::vector< std::string > \fBmem_ch_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBloop_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBwcnt_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBrcnt_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBbcnt_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBstride_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBpattern_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBmem_speed_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBstatus_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBtg_offset_\fP"
+.br
+.ti -1c
+.RI "std::map< uint32_t, uint32_t > \fBlimits_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 139 of file mem_tg\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "mem_tg::mem_tg::mem_tg (const char * afu_id = \fC\fBAFU_ID\fP\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 141 of file mem_tg\&.h\&.
+.PP
+References mem_tg::tg_pattern\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual int mem_tg::mem_tg::run (CLI::App * app, \fBtest_command::ptr_t\fP test)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::afu\fP\&.
+.PP
+Definition at line 188 of file mem_tg\&.h\&.
+.PP
+References app, and opae::afu_test::afu::run()\&.
+.SS "uint32_t mem_tg::mem_tg::get_offset (uint32_t base, uint32_t i) const\fC [inline]\fP"
+
+.PP
+Definition at line 227 of file mem_tg\&.h\&.
+.SS "\fBtoken::ptr_t\fP mem_tg::mem_tg::get_token ()\fC [inline]\fP"
+
+.PP
+Definition at line 237 of file mem_tg\&.h\&.
+.SS "void mem_tg::mem_tg::duplicate (\fBmem_tg\fP * duplicate_obj) const\fC [inline]\fP"
+
+.PP
+Definition at line 245 of file mem_tg\&.h\&.
+.PP
+References opae::afu_test::afu::afu_id_, bcnt_, count_, opae::afu_test::afu::log_level_, opae::afu_test::afu::logger_, loop_, mem_speed_, opae::afu_test::afu::name_, pattern_, opae::afu_test::afu::pci_addr_, rcnt_, stride_, opae::afu_test::afu::timeout_msec_, and wcnt_\&.
+.PP
+Referenced by mem_tg::tg_test::run()\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t mem_tg::mem_tg::count_"
+
+.PP
+Definition at line 213 of file mem_tg\&.h\&.
+.PP
+Referenced by duplicate()\&.
+.SS "std::vector<std::string> mem_tg::mem_tg::mem_ch_"
+
+.PP
+Definition at line 214 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), mem_tg::tg_test::run(), mem_tg::tg_test::tg_perf(), and mem_tg::tg_test::tg_wait_test_completion()\&.
+.SS "uint32_t mem_tg::mem_tg::loop_"
+
+.PP
+Definition at line 215 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), duplicate(), mem_tg::tg_test::tg_perf(), and mem_tg::tg_test::tg_wait_test_completion()\&.
+.SS "uint32_t mem_tg::mem_tg::wcnt_"
+
+.PP
+Definition at line 216 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), duplicate(), and mem_tg::tg_test::tg_perf()\&.
+.SS "uint32_t mem_tg::mem_tg::rcnt_"
+
+.PP
+Definition at line 217 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), duplicate(), and mem_tg::tg_test::tg_perf()\&.
+.SS "uint32_t mem_tg::mem_tg::bcnt_"
+
+.PP
+Definition at line 218 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), duplicate(), mem_tg::tg_test::tg_perf(), and mem_tg::tg_test::tg_wait_test_completion()\&.
+.SS "uint32_t mem_tg::mem_tg::stride_"
+
+.PP
+Definition at line 219 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), and duplicate()\&.
+.SS "uint32_t mem_tg::mem_tg::pattern_"
+
+.PP
+Definition at line 220 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), and duplicate()\&.
+.SS "uint32_t mem_tg::mem_tg::mem_speed_"
+
+.PP
+Definition at line 221 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::bw_calc(), duplicate(), and mem_tg::tg_test::run()\&.
+.SS "uint32_t mem_tg::mem_tg::status_"
+
+.PP
+Definition at line 222 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::tg_perf(), and mem_tg::tg_test::tg_wait_test_completion()\&.
+.SS "uint64_t mem_tg::mem_tg::tg_offset_"
+
+.PP
+Definition at line 223 of file mem_tg\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), mem_tg::tg_test::run_mem_test(), and mem_tg::tg_test::tg_perf()\&.
+.SS "std::map<uint32_t, uint32_t> mem_tg::mem_tg::limits_"
+
+.PP
+Definition at line 225 of file mem_tg\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

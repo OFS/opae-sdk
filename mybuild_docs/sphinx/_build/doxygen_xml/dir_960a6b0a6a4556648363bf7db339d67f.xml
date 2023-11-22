@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_960a6b0a6a4556648363bf7db339d67f" kind="dir">
+    <compoundname>samples/hello_afu/sw</compoundname>
+    <innerfile refid="afu__json__info_8h">afu_json_info.h</innerfile>
+    <innerfile refid="hello__afu_8c">hello_afu.c</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/hello_afu/sw/"/>
+  </compounddef>
+</doxygen>

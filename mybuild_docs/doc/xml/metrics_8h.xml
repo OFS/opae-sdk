@@ -1,0 +1,437 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="metrics_8h" kind="file" language="C++">
+    <compoundname>metrics.h</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+    <includedby refid="fpga_8h" local="no">include/opae/fpga.h</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>include/opae/metrics.h</label>
+        <link refid="metrics_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="7">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="6">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="1">
+        <label>include/opae/metrics.h</label>
+        <link refid="metrics_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="2">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="metrics_8h_1ac4f079f737b78c4e9cd22b0d4dcd91aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetNumMetrics</definition>
+        <argsstring>(fpga_handle handle, uint64_t *num_metrics)</argsstring>
+        <name>fpgaGetNumMetrics</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>num_metrics</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Enumerates number of metrics</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened fpga resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">num_metrics</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of metrics are discovered in fpga resource</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not discovered </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/metrics.h" line="56" column="13" declfile="include/opae/metrics.h" declline="56" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="metrics_8h_1ac59305e77a52f5568f2eafc35277e1fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetMetricsInfo</definition>
+        <argsstring>(fpga_handle handle, fpga_metric_info *metric_info, uint64_t *num_metrics)</argsstring>
+        <name>fpgaGetMetricsInfo</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type><ref refid="structfpga__metric__info" kindref="compound">fpga_metric_info</ref> *</type>
+          <declname>metric_info</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>num_metrics</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve metrics information</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened fpga resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">metric_info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to array of metric info struct user allocates metrics info array</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">num_metrics</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of metric info array</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/metrics.h" line="73" column="13" declfile="include/opae/metrics.h" declline="73" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="metrics_8h_1a3c956af4516f141d95527cdd4d22f786" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetMetricsByIndex</definition>
+        <argsstring>(fpga_handle handle, uint64_t *metric_num, uint64_t num_metric_indexes, fpga_metric *metrics)</argsstring>
+        <name>fpgaGetMetricsByIndex</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>metric_num</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>num_metric_indexes</declname>
+        </param>
+        <param>
+          <type><ref refid="structfpga__metric" kindref="compound">fpga_metric</ref> *</type>
+          <declname>metrics</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve metrics values by index</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened fpga resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">metric_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to array of metric index user allocates metric array </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">num_metric_indexes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of metric array </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">metrics</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to array of metric struct</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/metrics.h" line="91" column="13" declfile="include/opae/metrics.h" declline="91" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="metrics_8h_1a2c19333a1eb6e0c51611fecaed2dc3a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetMetricsByName</definition>
+        <argsstring>(fpga_handle handle, char **metrics_names, uint64_t num_metric_names, fpga_metric *metrics)</argsstring>
+        <name>fpgaGetMetricsByName</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>char **</type>
+          <declname>metrics_names</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>num_metric_names</declname>
+        </param>
+        <param>
+          <type><ref refid="structfpga__metric" kindref="compound">fpga_metric</ref> *</type>
+          <declname>metrics</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve metric values by names</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened fpga resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">metrics_names</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to array of metrics name user allocates metrics name array </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">num_metric_names</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of metric name array </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">metrics</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to array of metric struct</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/metrics.h" line="109" column="13" declfile="include/opae/metrics.h" declline="109" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="metrics_8h_1af3cafc3244fdd6e387d5e05d6b58cd13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetMetricsThresholdInfo</definition>
+        <argsstring>(fpga_handle handle, struct metric_threshold *metric_thresholds, uint32_t *num_thresholds)</argsstring>
+        <name>fpgaGetMetricsThresholdInfo</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmetric__threshold" kindref="compound">metric_threshold</ref> *</type>
+          <declname>metric_thresholds</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>num_thresholds</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve metrics / sendor threshold information and values</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to previously opened fpga resource </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">metrics_threshold</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to array of metric thresholds user allocates threshold array memory Number of thresholds returns enumerated thresholds if user pass NULL metrics_thresholds </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">num_thresholds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of thresholds</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/metrics.h" line="131" column="13" declfile="include/opae/metrics.h" declline="131" declcolumn="13"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions for Discover/ Enumerates metrics and retrieves values. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2018,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_METRICS_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_METRICS_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types_8h" kindref="compound">opae/types.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="metrics_8h_1ac4f079f737b78c4e9cd22b0d4dcd91aa" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="metrics_8h_1ac4f079f737b78c4e9cd22b0d4dcd91aa" kindref="member">fpgaGetNumMetrics</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*num_metrics);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="metrics_8h_1ac59305e77a52f5568f2eafc35277e1fa" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="metrics_8h_1ac59305e77a52f5568f2eafc35277e1fa" kindref="member">fpgaGetMetricsInfo</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structfpga__metric__info" kindref="compound">fpga_metric_info</ref><sp/>*metric_info,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*num_metrics);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="metrics_8h_1a3c956af4516f141d95527cdd4d22f786" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="metrics_8h_1a3c956af4516f141d95527cdd4d22f786" kindref="member">fpgaGetMetricsByIndex</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*metric_num,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>num_metric_indexes,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structfpga__metric" kindref="compound">fpga_metric</ref><sp/>*metrics);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="metrics_8h_1a2c19333a1eb6e0c51611fecaed2dc3a9" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="metrics_8h_1a2c19333a1eb6e0c51611fecaed2dc3a9" kindref="member">fpgaGetMetricsByName</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**metrics_names,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>num_metric_names,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structfpga__metric" kindref="compound">fpga_metric</ref><sp/>*metrics);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="metrics_8h_1af3cafc3244fdd6e387d5e05d6b58cd13" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="metrics_8h_1af3cafc3244fdd6e387d5e05d6b58cd13" kindref="member">fpgaGetMetricsThresholdInfo</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmetric__threshold" kindref="compound">metric_threshold</ref><sp/>*metric_thresholds,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*num_thresholds);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__FPGA_METRICS_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/metrics.h"/>
+  </compounddef>
+</doxygen>

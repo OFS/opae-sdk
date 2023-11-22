@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionDFH_8____unnamed132____" kind="union" language="C++" prot="public">
+    <compoundname>DFH.__unnamed132__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionDFH_8____unnamed132_____1a1f8c50db95e9ead5645e32f8df5baa7b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>csr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="168" column="16"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionDFH_8____unnamed132_____1a1b25ff13903a30d9785091ae2ab500d2" prot="public" static="no" mutable="no">
+        <type>struct DFH::@131::@133</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>@134</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="178" column="7"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>DFH.__unnamed132__</label>
+        <link refid="unionDFH_8____unnamed132____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_100g_cmd.h" line="167" column="5" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="167" bodyend="179"/>
+    <listofallmembers>
+      <member refid="unionDFH_8____unnamed132_____1a1f8c50db95e9ead5645e32f8df5baa7b" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__</scope><name>csr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

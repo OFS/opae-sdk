@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__ctl_8____unnamed106____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_ctl.__unnamed106__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__ctl_8____unnamed106_____1a413c7c71e8225663455de88e7693026f" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>ResetL</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="180" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__ctl_8____unnamed106_____1aa6122a65eaa676f700ae68d393054a37" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Start</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="181" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__ctl_8____unnamed106_____1aff7373bf6fefae550cf7a7d7431a3cbc" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>ForcedTestCmpl</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="182" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__ctl_8____unnamed106_____1a942d4e37dd5607ab68e54755540d4a47" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved</name>
+        <bitfield> 29</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="183" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_ctl.__unnamed106__</label>
+        <link refid="structhost__exerciser_1_1he__ctl_8____unnamed106____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="179" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="179" bodyend="184"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__ctl_8____unnamed106_____1aff7373bf6fefae550cf7a7d7431a3cbc" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl.__unnamed106__</scope><name>ForcedTestCmpl</name></member>
+      <member refid="structhost__exerciser_1_1he__ctl_8____unnamed106_____1a942d4e37dd5607ab68e54755540d4a47" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl.__unnamed106__</scope><name>Reserved</name></member>
+      <member refid="structhost__exerciser_1_1he__ctl_8____unnamed106_____1a413c7c71e8225663455de88e7693026f" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl.__unnamed106__</scope><name>ResetL</name></member>
+      <member refid="structhost__exerciser_1_1he__ctl_8____unnamed106_____1aa6122a65eaa676f700ae68d393054a37" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl.__unnamed106__</scope><name>Start</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

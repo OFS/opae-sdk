@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__status0" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_status0</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__status0_1ad7e46e6a889b804f11aa0456f9a2aab7" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@119</name>
+        <enumvalue id="unionhost__exerciser_1_1he__status0_1ad7e46e6a889b804f11aa0456f9a2aab7a6c63f5e3a29f1c8037609d3967c96bdd" prot="public">
+          <name>offset</name>
+          <initializer>= HE_STATUS0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="247" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="247" bodyend="249"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__status0_1aa82dd2acf55f7c0314ce01198b07e204" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_status0::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="250" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="250" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1ac8ae82a49783ce23453d196c0dfe137b" compoundref="host__exerciser__cmd_8h" startline="65" endline="89">host_exerciser::host_exerciser_cmd::host_exerciser_status</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__status0_1a85f4a4dae4c7f18e2c6f7c289fae2ccf" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_status0::@120</type>
+        <definition>struct host_exerciser::he_status0::@120 host_exerciser::he_status0::@121</definition>
+        <argsstring></argsstring>
+        <name>@121</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="254" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_status0</label>
+        <link refid="unionhost__exerciser_1_1he__status0"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="246" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="246" bodyend="255"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__status0_1ad7e46e6a889b804f11aa0456f9a2aab7a6c63f5e3a29f1c8037609d3967c96bdd" prot="public" virt="non-virtual"><scope>host_exerciser::he_status0</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__status0_1aa82dd2acf55f7c0314ce01198b07e204" prot="public" virt="non-virtual"><scope>host_exerciser::he_status0</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

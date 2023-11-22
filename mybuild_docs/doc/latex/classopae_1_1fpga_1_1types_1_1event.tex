@@ -1,0 +1,217 @@
+\doxysection{opae\+::fpga\+::types\+::event Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1event}\index{opae::fpga::types::event@{opae::fpga::types::event}}
+
+
+Wraps fpga event routines in OPAE C.  
+
+
+
+
+{\ttfamily \#include $<$opae/cxx/core/events.\+h$>$}
+
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{type\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em C++ struct that is interchangeable with fpga\+\_\+event\+\_\+type enum. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event}{event}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a9b74e1205c51020e8725b6d739564baa}{$\sim$event}} ()
+\begin{DoxyCompactList}\small\item\em Destroy event and associated resources. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_aecd61a05a41f306168b93da471d34d56}{get}} ()
+\begin{DoxyCompactList}\small\item\em Get the fpga\+\_\+event\+\_\+handle contained in this object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a25cefc7f2b28be11f45efcbb242e8beb}{operator fpga\+\_\+event\+\_\+handle}} ()
+\begin{DoxyCompactList}\small\item\em Coversion operator for converting to fpga\+\_\+event\+\_\+handle objects. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a48c524ef2931034e37187ccde27b1ab8}{os\+\_\+object}} () const
+\begin{DoxyCompactList}\small\item\em Get OS Object from the event object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_aebb5fa8450368e3288b25c729b6dbacf}{register\+\_\+event}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} h, \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{event\+::type\+\_\+t}} t, int flags=0)
+\begin{DoxyCompactList}\small\item\em Factory function to create event objects. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a9c08908d257f2d172e623a16dc9d2b07}{event}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} h, \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{event\+::type\+\_\+t}} t, \mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}} event\+\_\+h)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_ad977259db55cfabca075e017a9e533e2}{handle\+\_\+}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{event\+::type\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a81cce03e252830b2e49d5d1a9b6dfd18}{type\+\_\+}}
+\item 
+\mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a6fedb2b8e81a38dfdd4e0fb05b6576ce}{event\+\_\+handle\+\_\+}}
+\item 
+int \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a069e9a4b3148da8f05ee5eeb5f9ba4aa}{os\+\_\+object\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Wraps fpga event routines in OPAE C. 
+
+Definition at line 40 of file events.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event}{event}}$>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{opae\+::fpga\+::types\+::event\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 42 of file events.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a9b74e1205c51020e8725b6d739564baa}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!````~event@{$\sim$event}}
+\index{````~event@{$\sim$event}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{$\sim$event()}{~event()}}
+{\footnotesize\ttfamily virtual opae\+::fpga\+::types\+::event\+::$\sim$event (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Destroy event and associated resources. 
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a9c08908d257f2d172e623a16dc9d2b07}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!event@{event}}
+\index{event@{event}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{event()}{event()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::event\+::event (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{h,  }\item[{\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{event\+::type\+\_\+t}}}]{t,  }\item[{\mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}}}]{event\+\_\+h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_aecd61a05a41f306168b93da471d34d56}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!get@{get}}
+\index{get@{get}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}} opae\+::fpga\+::types\+::event\+::get (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the fpga\+\_\+event\+\_\+handle contained in this object. 
+
+\begin{DoxyReturn}{Returns}
+The fpga\+\_\+event\+\_\+handle contained in this object 
+\end{DoxyReturn}
+
+
+Definition at line 70 of file events.\+h.
+
+
+
+References event\+\_\+handle\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a25cefc7f2b28be11f45efcbb242e8beb}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!operator fpga\_event\_handle@{operator fpga\_event\_handle}}
+\index{operator fpga\_event\_handle@{operator fpga\_event\_handle}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{operator fpga\_event\_handle()}{operator fpga\_event\_handle()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::event\+::operator \mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Coversion operator for converting to fpga\+\_\+event\+\_\+handle objects. 
+
+\begin{DoxyReturn}{Returns}
+The fpga\+\_\+event\+\_\+handle contained in this object 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_aebb5fa8450368e3288b25c729b6dbacf}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!register\_event@{register\_event}}
+\index{register\_event@{register\_event}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{register\_event()}{register\_event()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::event\+::register\+\_\+event (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{h,  }\item[{\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{event\+::type\+\_\+t}}}]{t,  }\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Factory function to create event objects. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em h} & A shared ptr of a resource handle \\
+\hline
+{\em t} & The resource type \\
+\hline
+{\em flags} & Event registration flags passed on to fpga\+Register\+Event\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared ptr to an event object 
+\end{DoxyReturn}
+
+
+Referenced by dummy\+\_\+afu\+::dummy\+\_\+afu\+::register\+\_\+interrupt(), and host\+\_\+exerciser\+::host\+\_\+exerciser\+::register\+\_\+interrupt().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a48c524ef2931034e37187ccde27b1ab8}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!os\_object@{os\_object}}
+\index{os\_object@{os\_object}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{os\_object()}{os\_object()}}
+{\footnotesize\ttfamily int opae\+::fpga\+::types\+::event\+::os\+\_\+object (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Get OS Object from the event object. 
+
+Get an OS specific object from the event which can be used to subscribe for events. On Linux, the object corresponds to a file descriptor that can be used with select/poll/epoll calls.
+
+\begin{DoxyReturn}{Returns}
+An integer object representing the OS object 
+\end{DoxyReturn}
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_ad977259db55cfabca075e017a9e533e2}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!handle\_@{handle\_}}
+\index{handle\_@{handle\_}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{handle\_}{handle\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::event\+::handle\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 104 of file events.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a81cce03e252830b2e49d5d1a9b6dfd18}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!type\_@{type\_}}
+\index{type\_@{type\_}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{type\_}{type\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1event_1_1type__t}{event\+::type\+\_\+t}} opae\+::fpga\+::types\+::event\+::type\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 105 of file events.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a6fedb2b8e81a38dfdd4e0fb05b6576ce}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!event\_handle\_@{event\_handle\_}}
+\index{event\_handle\_@{event\_handle\_}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{event\_handle\_}{event\_handle\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}} opae\+::fpga\+::types\+::event\+::event\+\_\+handle\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 106 of file events.\+h.
+
+
+
+Referenced by get().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1event_a069e9a4b3148da8f05ee5eeb5f9ba4aa}} 
+\index{opae::fpga::types::event@{opae::fpga::types::event}!os\_object\_@{os\_object\_}}
+\index{os\_object\_@{os\_object\_}!opae::fpga::types::event@{opae::fpga::types::event}}
+\doxysubsubsection{\texorpdfstring{os\_object\_}{os\_object\_}}
+{\footnotesize\ttfamily int opae\+::fpga\+::types\+::event\+::os\+\_\+object\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 107 of file events.\+h.
+

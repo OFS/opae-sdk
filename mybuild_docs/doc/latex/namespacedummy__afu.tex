@@ -1,0 +1,543 @@
+\doxysection{dummy\+\_\+afu Namespace Reference}
+\label{namespacedummy__afu}\index{dummy\_afu@{dummy\_afu}}
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classdummy__afu_1_1ddr__test}{ddr\+\_\+test}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1afu__dfh}{afu\+\_\+dfh}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1mem__test__ctrl}{mem\+\_\+test\+\_\+ctrl}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1ddr__test__ctrl}{ddr\+\_\+test\+\_\+ctrl}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1ddr__test__stat}{ddr\+\_\+test\+\_\+stat}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1ddr__test__bank0__stat}{ddr\+\_\+test\+\_\+bank0\+\_\+stat}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1ddr__test__bank1__stat}{ddr\+\_\+test\+\_\+bank1\+\_\+stat}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1ddr__test__bank2__stat}{ddr\+\_\+test\+\_\+bank2\+\_\+stat}}
+\item 
+union \mbox{\hyperlink{uniondummy__afu_1_1ddr__test__bank3__stat}{ddr\+\_\+test\+\_\+bank3\+\_\+stat}}
+\item 
+class \mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}}
+\item 
+class \mbox{\hyperlink{classdummy__afu_1_1lpbk__test}{lpbk\+\_\+test}}
+\item 
+class \mbox{\hyperlink{classdummy__afu_1_1mmio__test}{mmio\+\_\+test}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1afu__dfh_8____unnamed65____}{afu\+\_\+dfh.\+\_\+\+\_\+unnamed65\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1mem__test__ctrl_8____unnamed68____}{mem\+\_\+test\+\_\+ctrl.\+\_\+\+\_\+unnamed68\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____}{ddr\+\_\+test\+\_\+ctrl.\+\_\+\+\_\+unnamed71\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1ddr__test__stat_8____unnamed74____}{ddr\+\_\+test\+\_\+stat.\+\_\+\+\_\+unnamed74\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1ddr__test__bank0__stat_8____unnamed77____}{ddr\+\_\+test\+\_\+bank0\+\_\+stat.\+\_\+\+\_\+unnamed77\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1ddr__test__bank1__stat_8____unnamed80____}{ddr\+\_\+test\+\_\+bank1\+\_\+stat.\+\_\+\+\_\+unnamed80\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____}{ddr\+\_\+test\+\_\+bank2\+\_\+stat.\+\_\+\+\_\+unnamed83\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacedummy__afu_structdummy__afu_1_1ddr__test__bank3__stat_8____unnamed86____}{ddr\+\_\+test\+\_\+bank3\+\_\+stat.\+\_\+\+\_\+unnamed86\+\_\+\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{namespacedummy__afu_ac06b3900bd7a2d4ba2c3f19ea20f622d}{test\+\_\+afu}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}
+\item 
+using \mbox{\hyperlink{namespacedummy__afu_aa01df4dcd37386cbf0800129c6f3183c}{test\+\_\+command}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba2e87f72819846d7a53092b360755c7cd}{AFU\+\_\+\+DFH}} = 0x0000
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba7bc0113085a1537b87b9533c1d1b93e4}{AFU\+\_\+\+ID\+\_\+L}} = 0x0008
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046baa48ec3d788fa335ebc4bb4469bafc48c}{AFU\+\_\+\+ID\+\_\+H}} = 0x0010
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba222f7920be0e34b7907643cef6889fd4}{NEXT\+\_\+\+AFU}} = 0x0018
+, \newline
+\mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba1a9e79d25022f4af20b0fb5347f7a76e}{AFU\+\_\+\+DFH\+\_\+\+RSVD}} = 0x0020
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0}{SCRATCHPAD}} = 0x0028
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139}{MMIO\+\_\+\+TEST\+\_\+\+SCRATCHPAD}} = 0x1000
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a}{MEM\+\_\+\+TEST\+\_\+\+CTRL}} = 0x2040
+, \newline
+\mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bae4462a80036a5ac3aa3cada2418bc2a5}{MEM\+\_\+\+TEST\+\_\+\+STAT}} = 0x2048
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba50907b523a57b88d331c2224e057f8dd}{MEM\+\_\+\+TEST\+\_\+\+SRC\+\_\+\+ADDR}} = 0x2050
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba23997995c982f0e6a26fea04efa07c37}{MEM\+\_\+\+TEST\+\_\+\+DST\+\_\+\+ADDR}} = 0x2058
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046baf36a9e642b0ddac03c1f9938fb6789c3}{DDR\+\_\+\+TEST\+\_\+\+CTRL}} = 0x3000
+, \newline
+\mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046baab48d50e6990ff1a2a76fe12bd189a51}{DDR\+\_\+\+TEST\+\_\+\+STAT}} = 0x3008
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bada2d999413f409ffcf8f73006412f96f}{DDR\+\_\+\+TEST\+\_\+\+BANK0\+\_\+\+STAT}} = 0x3010
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba47ea5964b0401582a714a12a42998c83}{DDR\+\_\+\+TEST\+\_\+\+BANK1\+\_\+\+STAT}} = 0x3018
+, \mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba0edc832f3a1cb6b2be9e63b044a1570a}{DDR\+\_\+\+TEST\+\_\+\+BANK2\+\_\+\+STAT}} = 0x3020
+, \newline
+\mbox{\hyperlink{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bac7b6c66db9078f216f384bcdc09ae8d5}{DDR\+\_\+\+TEST\+\_\+\+BANK3\+\_\+\+STAT}} = 0x3028
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\int \mbox{\hyperlink{namespacedummy__afu_aef855a00ce0a89e5c9d10373084438ad}{check\+\_\+stat}} (std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$ logger, const char $\ast$name, T stat)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{namespacedummy__afu_a2331454a35bd7d061543b78f7708db09}{timeit\+\_\+wr}} (std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$ log, \mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$afu, uint32\+\_\+t count)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{namespacedummy__afu_ab7da4ff6c8571efbc707ba26cfba6723}{timeit\+\_\+rd}} (std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$ log, \mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$afu, uint32\+\_\+t count)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{namespacedummy__afu_ab2db23ee00af6f322f726f9017f60fdf}{write\+\_\+verify}} (\mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$afu, uint32\+\_\+t addr, T value)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{namespacedummy__afu_a8aa59ff4d5d11ffe262b3bcc1524046c}{write\+\_\+verify}} (\mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$afu, uint32\+\_\+t addr, uint32\+\_\+t i, uint64\+\_\+t value)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{dummy\_afu::afu\_dfh.\_\_unnamed65\_\_@{dummy\_afu::afu\_dfh.\_\_unnamed65\_\_}}\label{structdummy__afu_1_1afu__dfh_8____unnamed65____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::afu\+\_\+dfh.\+\_\+\+\_\+unnamed65\+\_\+\+\_\+}
+
+
+Definition at line 64 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_a10415075d26efaba20559f95374c3ba5}} 
+uint64\_t&
+FeatureID: 12&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a20ca4b072df0e27f10cd26da1364b28b}} 
+uint64\_t&
+FeatureRev: 4&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_abe762b71ccf0b32e81dd414b0dd31a9d}} 
+uint64\_t&
+NextDfhByteOffset: 24&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_aecd284e164bdc984d109aea9e86e695c}} 
+uint64\_t&
+EOL: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_aa66247353afee3549cf74e5ca33030be}} 
+uint64\_t&
+Reserved41: 19&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_ad3abdac08cd922b2c2e5fe50b23ae5b2}} 
+uint64\_t&
+FeatureType: 4&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::mem\_test\_ctrl.\_\_unnamed68\_\_@{dummy\_afu::mem\_test\_ctrl.\_\_unnamed68\_\_}}\label{structdummy__afu_1_1mem__test__ctrl_8____unnamed68____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::mem\+\_\+test\+\_\+ctrl.\+\_\+\+\_\+unnamed68\+\_\+\+\_\+}
+
+
+Definition at line 81 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_a238d901edc5daef041291938b01bf000}} 
+uint64\_t&
+StartTest: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a93876cb309016fa725517b046474c44b}} 
+uint64\_t&
+Reserved1: 63&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::ddr\_test\_ctrl.\_\_unnamed71\_\_@{dummy\_afu::ddr\_test\_ctrl.\_\_unnamed71\_\_}}\label{structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::ddr\+\_\+test\+\_\+ctrl.\+\_\+\+\_\+unnamed71\+\_\+\+\_\+}
+
+
+Definition at line 94 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_a63afce2e700bbbba301fd9a8c63e76dd}} 
+uint64\_t&
+DDRBank0StartTest: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a4b9b4dd11109036366c339e295c6671e}} 
+uint64\_t&
+DDRBank1StartTest: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a2839cffa7595242294856a029bf8b14b}} 
+uint64\_t&
+DDRBank2StartTest: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a69b14e807c3c4688b2f0a90b85227f1f}} 
+uint64\_t&
+DDRBank3StartTest: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a34deb90418b2775e73aee1a6d90defea}} 
+uint64\_t&
+Reserved4: 60&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::ddr\_test\_stat.\_\_unnamed74\_\_@{dummy\_afu::ddr\_test\_stat.\_\_unnamed74\_\_}}\label{structdummy__afu_1_1ddr__test__stat_8____unnamed74____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::ddr\+\_\+test\+\_\+stat.\+\_\+\+\_\+unnamed74\+\_\+\+\_\+}
+
+
+Definition at line 110 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_a518c2490375039e01f8742bb68ea1ffb}} 
+uint64\_t&
+NumDDRBank: 8&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_af1815ef33cbdfc91a6c12fc6ce34caec}} 
+uint64\_t&
+Reserved8: 56&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::ddr\_test\_bank0\_stat.\_\_unnamed77\_\_@{dummy\_afu::ddr\_test\_bank0\_stat.\_\_unnamed77\_\_}}\label{structdummy__afu_1_1ddr__test__bank0__stat_8____unnamed77____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::ddr\+\_\+test\+\_\+bank0\+\_\+stat.\+\_\+\+\_\+unnamed77\+\_\+\+\_\+}
+
+
+Definition at line 123 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_ae5896a6dd1997c0690acb5f4d22f376e}} 
+uint64\_t&
+TrafficGenTestPass: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a1bbe6c9cf15682789c37b5c2cfc0cb12}} 
+uint64\_t&
+TrafficGenTestFail: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a5ce4dd4e9bac3b3a0e1cfce3b0a3b4e5}} 
+uint64\_t&
+TrafficGenTestTimeout: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a4706630556e088ca1cf93236bc0169d1}} 
+uint64\_t&
+TrafficGenFSMState: 4&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a34deb90418b2775e73aee1a6d90defea}} 
+uint64\_t&
+Reserved4: 57&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::ddr\_test\_bank1\_stat.\_\_unnamed80\_\_@{dummy\_afu::ddr\_test\_bank1\_stat.\_\_unnamed80\_\_}}\label{structdummy__afu_1_1ddr__test__bank1__stat_8____unnamed80____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::ddr\+\_\+test\+\_\+bank1\+\_\+stat.\+\_\+\+\_\+unnamed80\+\_\+\+\_\+}
+
+
+Definition at line 139 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_ae5896a6dd1997c0690acb5f4d22f376e}} 
+uint64\_t&
+TrafficGenTestPass: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a1bbe6c9cf15682789c37b5c2cfc0cb12}} 
+uint64\_t&
+TrafficGenTestFail: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a5ce4dd4e9bac3b3a0e1cfce3b0a3b4e5}} 
+uint64\_t&
+TrafficGenTestTimeout: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a4706630556e088ca1cf93236bc0169d1}} 
+uint64\_t&
+TrafficGenFSMState: 4&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a34deb90418b2775e73aee1a6d90defea}} 
+uint64\_t&
+Reserved4: 57&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::ddr\_test\_bank2\_stat.\_\_unnamed83\_\_@{dummy\_afu::ddr\_test\_bank2\_stat.\_\_unnamed83\_\_}}\label{structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::ddr\+\_\+test\+\_\+bank2\+\_\+stat.\+\_\+\+\_\+unnamed83\+\_\+\+\_\+}
+
+
+Definition at line 155 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_ae5896a6dd1997c0690acb5f4d22f376e}} 
+uint64\_t&
+TrafficGenTestPass: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a1bbe6c9cf15682789c37b5c2cfc0cb12}} 
+uint64\_t&
+TrafficGenTestFail: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a5ce4dd4e9bac3b3a0e1cfce3b0a3b4e5}} 
+uint64\_t&
+TrafficGenTestTimeout: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a4706630556e088ca1cf93236bc0169d1}} 
+uint64\_t&
+TrafficGenFSMState: 4&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a34deb90418b2775e73aee1a6d90defea}} 
+uint64\_t&
+Reserved4: 57&
+\\
+\hline
+
+\end{DoxyFields}
+\index{dummy\_afu::ddr\_test\_bank3\_stat.\_\_unnamed86\_\_@{dummy\_afu::ddr\_test\_bank3\_stat.\_\_unnamed86\_\_}}\label{structdummy__afu_1_1ddr__test__bank3__stat_8____unnamed86____}
+\doxysubsubsection{struct dummy\+\_\+afu\+::ddr\+\_\+test\+\_\+bank3\+\_\+stat.\+\_\+\+\_\+unnamed86\+\_\+\+\_\+}
+
+
+Definition at line 171 of file dummy\+\_\+afu.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacedummy__afu_ae5896a6dd1997c0690acb5f4d22f376e}} 
+uint64\_t&
+TrafficGenTestPass: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a1bbe6c9cf15682789c37b5c2cfc0cb12}} 
+uint64\_t&
+TrafficGenTestFail: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a5ce4dd4e9bac3b3a0e1cfce3b0a3b4e5}} 
+uint64\_t&
+TrafficGenTestTimeout: 1&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a4706630556e088ca1cf93236bc0169d1}} 
+uint64\_t&
+TrafficGenFSMState: 4&
+\\
+\hline
+
+\mbox{\label{namespacedummy__afu_a34deb90418b2775e73aee1a6d90defea}} 
+uint64\_t&
+Reserved4: 57&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{namespacedummy__afu_ac06b3900bd7a2d4ba2c3f19ea20f622d}} 
+\index{dummy\_afu@{dummy\_afu}!test\_afu@{test\_afu}}
+\index{test\_afu@{test\_afu}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{test\_afu}{test\_afu}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{namespacedummy__afu_ac06b3900bd7a2d4ba2c3f19ea20f622d}{dummy\+\_\+afu\+::test\+\_\+afu}} = typedef \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}}
+
+
+
+Definition at line 180 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{namespacedummy__afu_aa01df4dcd37386cbf0800129c6f3183c}} 
+\index{dummy\_afu@{dummy\_afu}!test\_command@{test\_command}}
+\index{test\_command@{test\_command}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{test\_command}{test\_command}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{namespacedummy__afu_aa01df4dcd37386cbf0800129c6f3183c}{dummy\+\_\+afu\+::test\+\_\+command}} = typedef \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}}
+
+
+
+Definition at line 181 of file dummy\+\_\+afu.\+h.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046b}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_DFH@{AFU\_DFH}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!AFU\_DFH@{AFU\_DFH}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba2e87f72819846d7a53092b360755c7cd}} 
+AFU\+\_\+\+DFH&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_ID\_L@{AFU\_ID\_L}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!AFU\_ID\_L@{AFU\_ID\_L}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba7bc0113085a1537b87b9533c1d1b93e4}} 
+AFU\+\_\+\+ID\+\_\+L&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_ID\_H@{AFU\_ID\_H}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!AFU\_ID\_H@{AFU\_ID\_H}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046baa48ec3d788fa335ebc4bb4469bafc48c}} 
+AFU\+\_\+\+ID\+\_\+H&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{NEXT\_AFU@{NEXT\_AFU}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!NEXT\_AFU@{NEXT\_AFU}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba222f7920be0e34b7907643cef6889fd4}} 
+NEXT\+\_\+\+AFU&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_DFH\_RSVD@{AFU\_DFH\_RSVD}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!AFU\_DFH\_RSVD@{AFU\_DFH\_RSVD}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba1a9e79d25022f4af20b0fb5347f7a76e}} 
+AFU\+\_\+\+DFH\+\_\+\+RSVD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SCRATCHPAD@{SCRATCHPAD}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!SCRATCHPAD@{SCRATCHPAD}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0}} 
+SCRATCHPAD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MMIO\_TEST\_SCRATCHPAD@{MMIO\_TEST\_SCRATCHPAD}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!MMIO\_TEST\_SCRATCHPAD@{MMIO\_TEST\_SCRATCHPAD}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139}} 
+MMIO\+\_\+\+TEST\+\_\+\+SCRATCHPAD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TEST\_CTRL@{MEM\_TEST\_CTRL}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!MEM\_TEST\_CTRL@{MEM\_TEST\_CTRL}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a}} 
+MEM\+\_\+\+TEST\+\_\+\+CTRL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TEST\_STAT@{MEM\_TEST\_STAT}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!MEM\_TEST\_STAT@{MEM\_TEST\_STAT}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bae4462a80036a5ac3aa3cada2418bc2a5}} 
+MEM\+\_\+\+TEST\+\_\+\+STAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TEST\_SRC\_ADDR@{MEM\_TEST\_SRC\_ADDR}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!MEM\_TEST\_SRC\_ADDR@{MEM\_TEST\_SRC\_ADDR}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba50907b523a57b88d331c2224e057f8dd}} 
+MEM\+\_\+\+TEST\+\_\+\+SRC\+\_\+\+ADDR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TEST\_DST\_ADDR@{MEM\_TEST\_DST\_ADDR}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!MEM\_TEST\_DST\_ADDR@{MEM\_TEST\_DST\_ADDR}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba23997995c982f0e6a26fea04efa07c37}} 
+MEM\+\_\+\+TEST\+\_\+\+DST\+\_\+\+ADDR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DDR\_TEST\_CTRL@{DDR\_TEST\_CTRL}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!DDR\_TEST\_CTRL@{DDR\_TEST\_CTRL}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046baf36a9e642b0ddac03c1f9938fb6789c3}} 
+DDR\+\_\+\+TEST\+\_\+\+CTRL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DDR\_TEST\_STAT@{DDR\_TEST\_STAT}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!DDR\_TEST\_STAT@{DDR\_TEST\_STAT}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046baab48d50e6990ff1a2a76fe12bd189a51}} 
+DDR\+\_\+\+TEST\+\_\+\+STAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DDR\_TEST\_BANK0\_STAT@{DDR\_TEST\_BANK0\_STAT}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!DDR\_TEST\_BANK0\_STAT@{DDR\_TEST\_BANK0\_STAT}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bada2d999413f409ffcf8f73006412f96f}} 
+DDR\+\_\+\+TEST\+\_\+\+BANK0\+\_\+\+STAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DDR\_TEST\_BANK1\_STAT@{DDR\_TEST\_BANK1\_STAT}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!DDR\_TEST\_BANK1\_STAT@{DDR\_TEST\_BANK1\_STAT}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba47ea5964b0401582a714a12a42998c83}} 
+DDR\+\_\+\+TEST\+\_\+\+BANK1\+\_\+\+STAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DDR\_TEST\_BANK2\_STAT@{DDR\_TEST\_BANK2\_STAT}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!DDR\_TEST\_BANK2\_STAT@{DDR\_TEST\_BANK2\_STAT}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046ba0edc832f3a1cb6b2be9e63b044a1570a}} 
+DDR\+\_\+\+TEST\+\_\+\+BANK2\+\_\+\+STAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DDR\_TEST\_BANK3\_STAT@{DDR\_TEST\_BANK3\_STAT}!dummy\_afu@{dummy\_afu}}\index{dummy\_afu@{dummy\_afu}!DDR\_TEST\_BANK3\_STAT@{DDR\_TEST\_BANK3\_STAT}}}\mbox{\label{namespacedummy__afu_ae3ac4ffc32c20cde26b9d2090105046bac7b6c66db9078f216f384bcdc09ae8d5}} 
+DDR\+\_\+\+TEST\+\_\+\+BANK3\+\_\+\+STAT&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 36 of file dummy\+\_\+afu.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{namespacedummy__afu_aef855a00ce0a89e5c9d10373084438ad}} 
+\index{dummy\_afu@{dummy\_afu}!check\_stat@{check\_stat}}
+\index{check\_stat@{check\_stat}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{check\_stat()}{check\_stat()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+int dummy\+\_\+afu\+::check\+\_\+stat (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$}]{logger,  }\item[{const char $\ast$}]{name,  }\item[{T}]{stat }\end{DoxyParamCaption})}
+
+
+
+Definition at line 36 of file ddr.\+h.
+
+
+
+Referenced by dummy\+\_\+afu\+::ddr\+\_\+test\+::run().
+
+\mbox{\label{namespacedummy__afu_a2331454a35bd7d061543b78f7708db09}} 
+\index{dummy\_afu@{dummy\_afu}!timeit\_wr@{timeit\_wr}}
+\index{timeit\_wr@{timeit\_wr}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{timeit\_wr()}{timeit\_wr()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void dummy\+\_\+afu\+::timeit\+\_\+wr (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$}]{log,  }\item[{\mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$}]{afu,  }\item[{uint32\+\_\+t}]{count }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 33 of file mmio.\+h.
+
+
+
+References SCRATCHPAD.
+
+\mbox{\label{namespacedummy__afu_ab7da4ff6c8571efbc707ba26cfba6723}} 
+\index{dummy\_afu@{dummy\_afu}!timeit\_rd@{timeit\_rd}}
+\index{timeit\_rd@{timeit\_rd}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{timeit\_rd()}{timeit\_rd()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void dummy\+\_\+afu\+::timeit\+\_\+rd (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$}]{log,  }\item[{\mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$}]{afu,  }\item[{uint32\+\_\+t}]{count }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 48 of file mmio.\+h.
+
+
+
+References SCRATCHPAD.
+
+\mbox{\label{namespacedummy__afu_ab2db23ee00af6f322f726f9017f60fdf}} 
+\index{dummy\_afu@{dummy\_afu}!write\_verify@{write\_verify}}
+\index{write\_verify@{write\_verify}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{write\_verify()}{write\_verify()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void dummy\+\_\+afu\+::write\+\_\+verify (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$}]{afu,  }\item[{uint32\+\_\+t}]{addr,  }\item[{T}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 64 of file mmio.\+h.
+
+\mbox{\label{namespacedummy__afu_a8aa59ff4d5d11ffe262b3bcc1524046c}} 
+\index{dummy\_afu@{dummy\_afu}!write\_verify@{write\_verify}}
+\index{write\_verify@{write\_verify}!dummy\_afu@{dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{write\_verify()}{write\_verify()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void dummy\+\_\+afu\+::write\+\_\+verify (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classdummy__afu_1_1dummy__afu}{dummy\+\_\+afu}} $\ast$}]{afu,  }\item[{uint32\+\_\+t}]{addr,  }\item[{uint32\+\_\+t}]{i,  }\item[{uint64\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 79 of file mmio.\+h.
+

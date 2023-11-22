@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_59526f0ccfdb87a80341085265b2bf53" kind="dir">
+    <compoundname>samples/hssi</compoundname>
+    <innerfile refid="hssi_8cpp">hssi.cpp</innerfile>
+    <innerfile refid="hssi__100g__cmd_8h">hssi_100g_cmd.h</innerfile>
+    <innerfile refid="hssi__10g__cmd_8h">hssi_10g_cmd.h</innerfile>
+    <innerfile refid="hssi__200g__400g__cmd_8h">hssi_200g_400g_cmd.h</innerfile>
+    <innerfile refid="hssi__afu_8h">hssi_afu.h</innerfile>
+    <innerfile refid="hssi__cmd_8h">hssi_cmd.h</innerfile>
+    <innerfile refid="hssi__pkt__filt__100g__cmd_8h">hssi_pkt_filt_100g_cmd.h</innerfile>
+    <innerfile refid="hssi__pkt__filt__10g__cmd_8h">hssi_pkt_filt_10g_cmd.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/hssi/"/>
+  </compounddef>
+</doxygen>

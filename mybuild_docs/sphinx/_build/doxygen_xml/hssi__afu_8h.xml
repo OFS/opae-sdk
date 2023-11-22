@@ -1,0 +1,476 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="hssi__afu_8h" kind="file" language="C++">
+    <compoundname>hssi_afu.h</compoundname>
+    <includes local="no">iostream</includes>
+    <includes local="no">string</includes>
+    <includes local="no">sstream</includes>
+    <includes local="no">exception</includes>
+    <includes local="no">glob.h</includes>
+    <includes local="no">time.h</includes>
+    <includes local="yes">afu_test.h</includes>
+    <includedby refid="hssi_8cpp" local="yes">samples/hssi/hssi.cpp</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>glob.h</label>
+      </node>
+      <node id="8">
+        <label>afu_test.h</label>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="5">
+        <label>exception</label>
+      </node>
+      <node id="1">
+        <label>samples/hssi/hssi_afu.h</label>
+        <link refid="hssi__afu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>sstream</label>
+      </node>
+      <node id="7">
+        <label>time.h</label>
+      </node>
+      <node id="2">
+        <label>iostream</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>samples/hssi/hssi_afu.h</label>
+        <link refid="hssi__afu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/hssi/hssi.cpp</label>
+        <link refid="hssi_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classhssi__afu" prot="public">hssi_afu</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="hssi__afu_8h_1ac0baaf0917fee2104b9c6b44075298a2" prot="public" static="no">
+        <name>ETH_AFU_DFH</name>
+        <initializer>0x0000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="38" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1abe08ed7e56c85bcf7089b573333dd320" prot="public" static="no">
+        <name>ETH_AFU_ID_L</name>
+        <initializer>0x0008</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="39" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a8b95eb7d4b6d30992c5274633ab33fef" prot="public" static="no">
+        <name>ETH_AFU_ID_H</name>
+        <initializer>0x0010</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="40" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" prot="public" static="no">
+        <name>TRAFFIC_CTRL_CMD</name>
+        <initializer>0x0030</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="41" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" prot="public" static="no">
+        <name>TRAFFIC_CTRL_DATA</name>
+        <initializer>0x0038</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="42" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" prot="public" static="no">
+        <name>TRAFFIC_CTRL_PORT_SEL</name>
+        <initializer>0x0040</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="43" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1ab2b3c37ae1a49971b27a9fbdbcc4d1d3" prot="public" static="no">
+        <name>AFU_SCRATCHPAD</name>
+        <initializer>0x0048</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="44" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a21623e2a5501c821da54dd76ffc1d077" prot="public" static="no">
+        <name>READ_CMD</name>
+        <initializer>0x00000001ULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="46" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1af792feb13ae0c1eab8f95f64c8baa96d" prot="public" static="no">
+        <name>WRITE_CMD</name>
+        <initializer>0x00000002ULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="47" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" prot="public" static="no">
+        <name>ACK_TRANS</name>
+        <initializer>0x00000004ULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="48" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a16b1ade4a60a95678d58b2fa6b9fcc10" prot="public" static="no">
+        <name>AFU_CMD_SHIFT</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="49" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1abe6eab6a74c11bf2db22b5f73d41fd47" prot="public" static="no">
+        <name>WRITE_DATA_SHIFT</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="50" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" prot="public" static="no">
+        <name>NO_TIMEOUT</name>
+        <initializer>0xffffffffffffffffULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="52" column="9" bodyfile="samples/hssi/hssi_afu.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="hssi__afu_8h_1abc250359b0b249806cbba4173e9644b4" prot="public" static="no">
+        <type><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref></type>
+        <definition>using test_afu =  opae::afu_test::afu</definition>
+        <argsstring></argsstring>
+        <name>test_afu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_afu.h" line="35" column="1" bodyfile="samples/hssi/hssi_afu.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2020-2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;exception&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;glob.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;time.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;afu_test.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="hssi__afu_8h_1abc250359b0b249806cbba4173e9644b4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>=<sp/><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceopae_1_1fpga_1_1types" kindref="compound">opae::fpga::types</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="hssi__afu_8h_1ac0baaf0917fee2104b9c6b44075298a2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ETH_AFU_DFH<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x0000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="hssi__afu_8h_1abe08ed7e56c85bcf7089b573333dd320" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ETH_AFU_ID_L<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x0008</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="hssi__afu_8h_1a8b95eb7d4b6d30992c5274633ab33fef" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ETH_AFU_ID_H<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x0010</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TRAFFIC_CTRL_CMD<sp/><sp/><sp/><sp/><sp/><sp/>0x0030</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TRAFFIC_CTRL_DATA<sp/><sp/><sp/><sp/><sp/>0x0038</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TRAFFIC_CTRL_PORT_SEL<sp/>0x0040</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="hssi__afu_8h_1ab2b3c37ae1a49971b27a9fbdbcc4d1d3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_SCRATCHPAD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x0048</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="hssi__afu_8h_1a21623e2a5501c821da54dd76ffc1d077" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>READ_CMD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x00000001ULL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="hssi__afu_8h_1af792feb13ae0c1eab8f95f64c8baa96d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WRITE_CMD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x00000002ULL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ACK_TRANS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x00000004ULL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="hssi__afu_8h_1a16b1ade4a60a95678d58b2fa6b9fcc10" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_CMD_SHIFT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="hssi__afu_8h_1abe6eab6a74c11bf2db22b5f73d41fd47" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WRITE_DATA_SHIFT<sp/><sp/><sp/><sp/><sp/><sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NO_TIMEOUT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0xffffffffffffffffULL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="classhssi__afu" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="56" refid="classhssi__afu_1ab13aa4088100a9ac313862ae7d5c7edc" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classhssi__afu_1ab13aa4088100a9ac313862ae7d5c7edc" kindref="member">hssi_afu</ref>()</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/>:<sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref>(</highlight><highlight class="stringliteral">&quot;hssi&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>{}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="classhssi__afu_1a6eaa4d98775709e3833b8f91b9bf24c9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classhssi__afu_1a6eaa4d98775709e3833b8f91b9bf24c9" kindref="member">glob_ethernet_interface</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string<sp/>&amp;glob_pattern,<sp/>std::string<sp/>&amp;eth_ifc)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>glob_t<sp/>gl;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(glob(glob_pattern.c_str(),<sp/>0,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">,<sp/>&amp;gl))<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(gl.gl_pathv)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>globfree(&amp;gl);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!gl.gl_pathc)<sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(gl.gl_pathv)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>globfree(&amp;gl);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(gl.gl_pathc<sp/>&gt;<sp/>1)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Warning:<sp/>more<sp/>than<sp/>one<sp/>ethernet<sp/>interface<sp/>found.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/>ifc(gl.gl_pathv[0]);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos<sp/>=<sp/>ifc.rfind(</highlight><highlight class="stringliteral">&quot;/&quot;</highlight><highlight class="normal">)<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>eth_ifc<sp/>=<sp/>ifc.substr(pos);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(gl.gl_pathv)</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>globfree(&amp;gl);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" kindref="member">ethernet_interface</ref>()</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>props<sp/>=<sp/><ref refid="classopae_1_1fpga_1_1types_1_1properties_1ab2b9142ce432de4aff9c0a20e9bc4c42" kindref="member">properties::get</ref>(handle_);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>std::ostringstream<sp/>oss;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>oss<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;/sys/bus/pci/devices/&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(4)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;segment<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(2)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;bus<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(2)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;device<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(1)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;function<sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;/fpga_region/region*/dfl-fme.*/dfl-fme.*.*/net/*&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/>ifc;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(glob_ethernet_interface(oss.str(),<sp/>ifc))</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ifc;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>std::ostringstream<sp/>oss2;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>oss2<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;/sys/bus/pci/devices/&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(4)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;segment<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(2)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;bus<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(2)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;device<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::setw(1)<sp/>&lt;&lt;<sp/>std::setfill(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>props-&gt;function<sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;/fpga_region/region*/dfl-fme.*/dfl_dev.*/net/*&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(glob_ethernet_interface(oss2.str(),<sp/>ifc))</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ifc;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::string(</highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(uint64_t<sp/>port_select,<sp/>uint16_t<sp/>offset,<sp/>uint32_t<sp/>data)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>write64(<ref refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" kindref="member">TRAFFIC_CTRL_PORT_SEL</ref>,<sp/>port_select);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>mbox_write(offset,<sp/>data);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="classhssi__afu_1a86638ffebd322c2f71d60e1ac6ba63ea" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhssi__afu_1a86638ffebd322c2f71d60e1ac6ba63ea" kindref="member">mbox_write</ref>(uint16_t<sp/>offset,<sp/>uint32_t<sp/>data)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*mmio_base<sp/>=<sp/>handle_-&gt;mmio_ptr(0);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>val;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">timespec<sp/>ts;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>ticks;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/>max_ticks<sp/>=<sp/>10000ULL;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>val<sp/>=<sp/>(((uint64_t)data)<sp/>&lt;&lt;<sp/><ref refid="hssi__afu_8h_1abe6eab6a74c11bf2db22b5f73d41fd47" kindref="member">WRITE_DATA_SHIFT</ref>);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" kindref="member">TRAFFIC_CTRL_DATA</ref>))<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>val<sp/>=<sp/>(((uint64_t)offset)<sp/>&lt;&lt;<sp/><ref refid="hssi__afu_8h_1a16b1ade4a60a95678d58b2fa6b9fcc10" kindref="member">AFU_CMD_SHIFT</ref>)<sp/>|<sp/><ref refid="hssi__afu_8h_1af792feb13ae0c1eab8f95f64c8baa96d" kindref="member">WRITE_CMD</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>))<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>ticks<sp/>=<sp/>max_ticks;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>ts.tv_sec<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>ts.tv_nsec<sp/>=<sp/>100;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>=<sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>));</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>)</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nanosleep(&amp;ts,<sp/>NULL)<sp/>!=<sp/>-1<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ticks<sp/>!=<sp/><ref refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" kindref="member">NO_TIMEOUT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!ticks)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;mbox_write<sp/>timed<sp/>out<sp/>[a]&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/>msg<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(msg);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>--ticks;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>));</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>ticks<sp/>=<sp/>max_ticks;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>))<sp/>=<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>=<sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>));</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>))</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nanosleep(&amp;ts,<sp/>NULL)<sp/>!=<sp/>-1<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ticks<sp/>!=<sp/><ref refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" kindref="member">NO_TIMEOUT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!ticks)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;mbox_write<sp/>timed<sp/>out<sp/>[b]&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/>msg<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(msg);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>--ticks;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>);<sp/></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179" refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(uint64_t<sp/>port_select,<sp/>uint16_t<sp/>offset)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>write64(<ref refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" kindref="member">TRAFFIC_CTRL_PORT_SEL</ref>,<sp/>port_select);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>mbox_read(offset);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="classhssi__afu_1a8555e906fd776954d39ddf432a7996f8" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__afu_1a8555e906fd776954d39ddf432a7996f8" kindref="member">mbox_read</ref>(uint16_t<sp/>offset)</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*mmio_base<sp/>=<sp/>handle_-&gt;mmio_ptr(0);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>res<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>val;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">timespec<sp/>ts;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>ticks;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/>max_ticks<sp/>=<sp/>10000ULL;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>val<sp/>=<sp/>(((uint64_t)offset)<sp/>&lt;&lt;<sp/><ref refid="hssi__afu_8h_1a16b1ade4a60a95678d58b2fa6b9fcc10" kindref="member">AFU_CMD_SHIFT</ref>)<sp/>|<sp/><ref refid="hssi__afu_8h_1a21623e2a5501c821da54dd76ffc1d077" kindref="member">READ_CMD</ref>;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>))<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>ticks<sp/>=<sp/>max_ticks;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>ts.tv_sec<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>ts.tv_nsec<sp/>=<sp/>100;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>=<sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>));</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>)</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nanosleep(&amp;ts,<sp/>NULL)<sp/>!=<sp/>-1<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ticks<sp/>!=<sp/><ref refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" kindref="member">NO_TIMEOUT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!ticks)<sp/>{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;mbox_read<sp/>timed<sp/>out<sp/>[a]&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/>msg<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(msg);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>--ticks;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>));</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>val<sp/>=<sp/>*(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" kindref="member">TRAFFIC_CTRL_DATA</ref>);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>res<sp/>=<sp/>(uint32_t)val;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/>ticks<sp/>=<sp/>max_ticks;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>))<sp/>=<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>=<sp/>*((</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint64_t<sp/>*)(mmio_base<sp/>+<sp/><ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>));</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>))</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nanosleep(&amp;ts,<sp/>NULL)<sp/>!=<sp/>-1<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ticks<sp/>!=<sp/><ref refid="hssi__afu_8h_1a462fb2ba6f2af99ec3d021ded436bb65" kindref="member">NO_TIMEOUT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!ticks)<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;mbox_read<sp/>timed<sp/>out<sp/>[b]&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/>msg<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(msg);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>--ticks;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(val<sp/>&amp;<sp/><ref refid="hssi__afu_8h_1a859eb8f8ff2398eff21aab5346844144" kindref="member">ACK_TRANS</ref>);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="samples/hssi/hssi_afu.h"/>
+  </compounddef>
+</doxygen>

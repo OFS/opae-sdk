@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="uniondummy__afu_1_1ddr__test__ctrl" kind="union" language="C++" prot="public">
+    <compoundname>dummy_afu::ddr_test_ctrl</compoundname>
+    <includes refid="dummy__afu_8h" local="no">/root/samples/dummy_afu/dummy_afu.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="uniondummy__afu_1_1ddr__test__ctrl_1a2e9231688b257b0bf2fe224196c5f627" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@69</name>
+        <enumvalue id="uniondummy__afu_1_1ddr__test__ctrl_1a2e9231688b257b0bf2fe224196c5f627a84fd585fd7d91ae83ffa4d845392c746" prot="public">
+          <name>offset</name>
+          <initializer>= DDR_TEST_CTRL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="88" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="88" bodyend="90"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="uniondummy__afu_1_1ddr__test__ctrl_1a150f5e0256b7295210490e11080033ba" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t dummy_afu::ddr_test_ctrl::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="93" column="12" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="uniondummy__afu_1_1ddr__test__ctrl_1a7098f5fe5537898e1dc5685125e3ed1f" prot="public" static="no" mutable="no">
+        <type>struct dummy_afu::ddr_test_ctrl::@70</type>
+        <definition>struct dummy_afu::ddr_test_ctrl::@70 dummy_afu::ddr_test_ctrl::@71</definition>
+        <argsstring></argsstring>
+        <name>@71</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="100" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="uniondummy__afu_1_1ddr__test__ctrl_1ab39713f855d5b6624d09a5d39b8934d6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>dummy_afu::ddr_test_ctrl::ddr_test_ctrl</definition>
+        <argsstring>(uint64_t v)</argsstring>
+        <name>ddr_test_ctrl</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="92" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="92" bodyend="92"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::ddr_test_ctrl</label>
+        <link refid="uniondummy__afu_1_1ddr__test__ctrl"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="87" column="1" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="87" bodyend="101"/>
+    <listofallmembers>
+      <member refid="uniondummy__afu_1_1ddr__test__ctrl_1ab39713f855d5b6624d09a5d39b8934d6" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl</scope><name>ddr_test_ctrl</name></member>
+      <member refid="uniondummy__afu_1_1ddr__test__ctrl_1a2e9231688b257b0bf2fe224196c5f627a84fd585fd7d91ae83ffa4d845392c746" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl</scope><name>offset</name></member>
+      <member refid="uniondummy__afu_1_1ddr__test__ctrl_1a150f5e0256b7295210490e11080033ba" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

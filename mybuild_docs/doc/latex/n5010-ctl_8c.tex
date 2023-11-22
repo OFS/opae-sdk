@@ -1,0 +1,563 @@
+\doxysection{samples/n5010-\/ctl/n5010-\/ctl.c File Reference}
+\label{n5010-ctl_8c}\index{samples/n5010-\/ctl/n5010-\/ctl.c@{samples/n5010-\/ctl/n5010-\/ctl.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$error.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$signal.\+h$>$}\newline
+{\ttfamily \#include $<$getopt.\+h$>$}\newline
+{\ttfamily \#include $<$opae/fpga.\+h$>$}\newline
+{\ttfamily \#include $<$uuid/uuid.\+h$>$}\newline
+{\ttfamily \#include $<$endian.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}argsfilter.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}}
+\item 
+struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_a64d2514266ba20fce840e5648ef89199}{DFH\+\_\+\+EOL}}(h)~((h $>$$>$ 40) \& 1)
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_aa14c35cd3b1b02bd5b753c3d19c05308}{DFH\+\_\+\+NEXT}}(h)~((h $>$$>$ 16) \& 0xffffff)
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_aca731dc493c4ea43958cb0435cdaa571}{DFH\+\_\+\+TYPE}}(h)~((h $>$$>$ 60) \& 0xf)
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_a57df7e6b18c59c759284e4129b591829}{DFH\+\_\+\+TYPE\+\_\+\+AFU}}~1
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_a401e1a60d6381236216b6a130a6685bd}{MAX\+\_\+\+PORT}}~3
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_a6f07d0094e837d61131ab0b3aa8ab1fc}{INVALID\+\_\+\+PORT}}~(\mbox{\hyperlink{n5010-ctl_8c_a401e1a60d6381236216b6a130a6685bd}{MAX\+\_\+\+PORT}} + 1)
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_ae5b8e415198ec56ea5cf5fd1b07380df}{CVL0\+\_\+\+QSFP01\+\_\+\+SWITCH}}~0x28
+\item 
+\#define \mbox{\hyperlink{n5010-ctl_8c_a5c7a15c4dfb0142c7a87e6f70d7cd104}{CVL1\+\_\+\+QSFP23\+\_\+\+SWITCH}}~0x30
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{n5010-ctl_8c_a89a8322bea357674e81ba9cbdefe0378}{signal\+\_\+callback\+\_\+handler}} (int signum)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_af49d8292da513d31bb1a0a16861e230a}{fpga\+\_\+setread\+\_\+switch}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_a9ceebefbea1cedb27769eb8d6a78b6fb}{fpga\+\_\+read\+\_\+switch}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_a71f08c9d467b2c0d6627c2a19182406e}{fpga\+\_\+run}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_a8b18501a62f680f0b60aeaf03b0feaaf}{fpga\+\_\+open}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static void \mbox{\hyperlink{n5010-ctl_8c_ab3d638b8387fa4ec22627ec8a6b53e62}{fpga\+\_\+close}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_a2e79fe0581ec5864faa636b5fe0e03a4}{fpga\+\_\+base}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static void \mbox{\hyperlink{n5010-ctl_8c_af1edf9b723cd625e1655f1f12eb21efa}{fpga\+\_\+dump}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint64\+\_\+t offset, size\+\_\+t count)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_a6596f7a4b6b9ac8060d18e3f40f42334}{fpga\+\_\+set\+\_\+switch}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_a46c13d0ab2132699eac8a7830a536d7c}{fpga\+\_\+read\+\_\+switch\+\_\+port}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint32\+\_\+t cvl)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-ctl_8c_aa566e69cffeabc52ffa796bd9193ab03}{fpga\+\_\+run}} (\+\_\+\+\_\+attribute\+\_\+\+\_\+((unused)) struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static void \mbox{\hyperlink{n5010-ctl_8c_a9bd4308d463193b0188339cb5495a58f}{print\+\_\+usage}} (FILE $\ast$f)
+\item 
+static bool \mbox{\hyperlink{n5010-ctl_8c_abf670aede0d10582400b91cb54634821}{parse\+\_\+port}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, const char $\ast$port\+\_\+str)
+\item 
+static bool \mbox{\hyperlink{n5010-ctl_8c_a443cc7c174314015bd7fe2613c4d8245}{parse\+\_\+mode}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, const char $\ast$mode)
+\item 
+static int \mbox{\hyperlink{n5010-ctl_8c_adde1c5cf0a410d13f51b29238589fd42}{parse\+\_\+args}} (int argc, char $\ast$$\ast$argv, struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+int \mbox{\hyperlink{n5010-ctl_8c_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (int argc, char $\ast$$\ast$argv)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+char const  $\ast$ \mbox{\hyperlink{n5010-ctl_8c_a514ebab49a2fb401d7d7e220a97300e5}{default\+\_\+guid}} = \char`\"{}c48d4e2a-\/9121-\/497d-\/adc7-\/3640729ec6f7\char`\"{}
+\item 
+static volatile bool \mbox{\hyperlink{n5010-ctl_8c_acb99505dbfaf7824f8725dff90d47ca8}{stop}} = false
+\item 
+static const struct \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}} \mbox{\hyperlink{n5010-ctl_8c_a0583be682de6cecd33c5d44955e5ee66}{n5010\+\_\+test}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{n5010@{n5010}}\label{structn5010}
+\doxysubsubsection{struct n5010}
+
+
+Definition at line 76 of file n5010-\/ctl.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{n5010-test_8c_afcfc923993a0c3d7ed0919eae0ab8c7d}} 
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\_properties}}&
+filter&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_a0cd89aec173afe291731dbf496a15e89}} 
+\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\_token}}&
+token&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_a2a3c98ab8a1308a684bbb24cc837bbce}} 
+\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\_handle}}&
+handle&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ae7ae9573b72d429d0b60811d6f6d0256}} 
+\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\_guid}}&
+guid&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_abc1821c363984324ab8a00dca071a2a6}} 
+uint64\_t&
+base&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ab54ff35470c946192ab662a1602e8da8}} 
+const struct \mbox{\hyperlink{structn5010__test}{n5010\_test}} $\ast$&
+test&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_a67f77d17592900684681c485ed981f3d}} 
+uint64\_t&
+port&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ae68e58f88c71441c72ecb477b69f8523}} 
+bool&
+debug&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ad0222c8836fd4aeb7a6da6d56d3176d6}} 
+uint&
+open\_mode&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{n5010-ctl_8c_a64d2514266ba20fce840e5648ef89199}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!DFH\_EOL@{DFH\_EOL}}
+\index{DFH\_EOL@{DFH\_EOL}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_EOL}{DFH\_EOL}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+EOL(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 40) \& 1)}
+
+
+
+Definition at line 43 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_aa14c35cd3b1b02bd5b753c3d19c05308}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!DFH\_NEXT@{DFH\_NEXT}}
+\index{DFH\_NEXT@{DFH\_NEXT}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_NEXT}{DFH\_NEXT}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+NEXT(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 16) \& 0xffffff)}
+
+
+
+Definition at line 44 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_aca731dc493c4ea43958cb0435cdaa571}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!DFH\_TYPE@{DFH\_TYPE}}
+\index{DFH\_TYPE@{DFH\_TYPE}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_TYPE}{DFH\_TYPE}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+TYPE(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 60) \& 0xf)}
+
+
+
+Definition at line 45 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_a57df7e6b18c59c759284e4129b591829}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!DFH\_TYPE\_AFU@{DFH\_TYPE\_AFU}}
+\index{DFH\_TYPE\_AFU@{DFH\_TYPE\_AFU}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_TYPE\_AFU}{DFH\_TYPE\_AFU}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+TYPE\+\_\+\+AFU~1}
+
+
+
+Definition at line 46 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_a401e1a60d6381236216b6a130a6685bd}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!MAX\_PORT@{MAX\_PORT}}
+\index{MAX\_PORT@{MAX\_PORT}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_PORT}{MAX\_PORT}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+PORT~3}
+
+
+
+Definition at line 48 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_a6f07d0094e837d61131ab0b3aa8ab1fc}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!INVALID\_PORT@{INVALID\_PORT}}
+\index{INVALID\_PORT@{INVALID\_PORT}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{INVALID\_PORT}{INVALID\_PORT}}
+{\footnotesize\ttfamily \#define INVALID\+\_\+\+PORT~(\mbox{\hyperlink{n5010-ctl_8c_a401e1a60d6381236216b6a130a6685bd}{MAX\+\_\+\+PORT}} + 1)}
+
+
+
+Definition at line 49 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_ae5b8e415198ec56ea5cf5fd1b07380df}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!CVL0\_QSFP01\_SWITCH@{CVL0\_QSFP01\_SWITCH}}
+\index{CVL0\_QSFP01\_SWITCH@{CVL0\_QSFP01\_SWITCH}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{CVL0\_QSFP01\_SWITCH}{CVL0\_QSFP01\_SWITCH}}
+{\footnotesize\ttfamily \#define CVL0\+\_\+\+QSFP01\+\_\+\+SWITCH~0x28}
+
+
+
+Definition at line 50 of file n5010-\/ctl.\+c.
+
+\mbox{\label{n5010-ctl_8c_a5c7a15c4dfb0142c7a87e6f70d7cd104}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!CVL1\_QSFP23\_SWITCH@{CVL1\_QSFP23\_SWITCH}}
+\index{CVL1\_QSFP23\_SWITCH@{CVL1\_QSFP23\_SWITCH}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{CVL1\_QSFP23\_SWITCH}{CVL1\_QSFP23\_SWITCH}}
+{\footnotesize\ttfamily \#define CVL1\+\_\+\+QSFP23\+\_\+\+SWITCH~0x30}
+
+
+
+Definition at line 51 of file n5010-\/ctl.\+c.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{n5010-ctl_8c_a89a8322bea357674e81ba9cbdefe0378}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!signal\_callback\_handler@{signal\_callback\_handler}}
+\index{signal\_callback\_handler@{signal\_callback\_handler}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{signal\_callback\_handler()}{signal\_callback\_handler()}}
+{\footnotesize\ttfamily void signal\+\_\+callback\+\_\+handler (\begin{DoxyParamCaption}\item[{int}]{signum }\end{DoxyParamCaption})}
+
+
+
+Definition at line 58 of file n5010-\/ctl.\+c.
+
+
+
+References stop.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-ctl_8c_af49d8292da513d31bb1a0a16861e230a}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_setread\_switch@{fpga\_setread\_switch}}
+\index{fpga\_setread\_switch@{fpga\_setread\_switch}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_setread\_switch()}{fpga\_setread\_switch()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+setread\+\_\+switch (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 305 of file n5010-\/ctl.\+c.
+
+
+
+References fpga\+\_\+read\+\_\+switch(), fpga\+\_\+set\+\_\+switch(), INVALID\+\_\+\+PORT, and n5010\+::port.
+
+\mbox{\label{n5010-ctl_8c_a9ceebefbea1cedb27769eb8d6a78b6fb}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_read\_switch@{fpga\_read\_switch}}
+\index{fpga\_read\_switch@{fpga\_read\_switch}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_read\_switch()}{fpga\_read\_switch()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+read\+\_\+switch (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 298 of file n5010-\/ctl.\+c.
+
+
+
+References fpga\+\_\+read\+\_\+switch\+\_\+port().
+
+
+
+Referenced by fpga\+\_\+setread\+\_\+switch().
+
+\mbox{\label{n5010-ctl_8c_a71f08c9d467b2c0d6627c2a19182406e}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_run@{fpga\_run}}
+\index{fpga\_run@{fpga\_run}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_run()}{fpga\_run()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+run (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\label{n5010-ctl_8c_a8b18501a62f680f0b60aeaf03b0feaaf}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_open@{fpga\_open}}
+\index{fpga\_open@{fpga\_open}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_open()}{fpga\_open()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+open (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 107 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::filter, FPGA\+\_\+\+ACCELERATOR, FPGA\+\_\+\+NOT\+\_\+\+FOUND, FPGA\+\_\+\+OK, FPGA\+\_\+\+OPEN\+\_\+\+SHARED, fpga\+Close(), fpga\+Enumerate(), fpga\+Err\+Str(), fpga\+Map\+MMIO(), fpga\+Open(), fpga\+Properties\+Set\+GUID(), fpga\+Properties\+Set\+Object\+Type(), n5010\+::guid, n5010\+::handle, and n5010\+::token.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-ctl_8c_ab3d638b8387fa4ec22627ec8a6b53e62}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_close@{fpga\_close}}
+\index{fpga\_close@{fpga\_close}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_close()}{fpga\_close()}}
+{\footnotesize\ttfamily static void fpga\+\_\+close (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 156 of file n5010-\/ctl.\+c.
+
+
+
+References FPGA\+\_\+\+OK, fpga\+Close(), fpga\+Destroy\+Token(), fpga\+Err\+Str(), fpga\+Unmap\+MMIO(), n5010\+::handle, and n5010\+::token.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-ctl_8c_a2e79fe0581ec5864faa636b5fe0e03a4}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_base@{fpga\_base}}
+\index{fpga\_base@{fpga\_base}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_base()}{fpga\_base()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+base (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 180 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::base, DFH\+\_\+\+EOL, DFH\+\_\+\+NEXT, DFH\+\_\+\+TYPE, DFH\+\_\+\+TYPE\+\_\+\+AFU, FPGA\+\_\+\+NOT\+\_\+\+FOUND, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Read\+MMIO64(), n5010\+::guid, and n5010\+::handle.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-ctl_8c_af1edf9b723cd625e1655f1f12eb21efa}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_dump@{fpga\_dump}}
+\index{fpga\_dump@{fpga\_dump}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_dump()}{fpga\_dump()}}
+{\footnotesize\ttfamily static void fpga\+\_\+dump (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint64\+\_\+t}]{offset,  }\item[{size\+\_\+t}]{count }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 246 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::base, n5010\+::debug, fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-ctl_8c_a6596f7a4b6b9ac8060d18e3f40f42334}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_set\_switch@{fpga\_set\_switch}}
+\index{fpga\_set\_switch@{fpga\_set\_switch}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_set\_switch()}{fpga\_set\_switch()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+set\+\_\+switch (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 263 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::base, CVL0\+\_\+\+QSFP01\+\_\+\+SWITCH, CVL1\+\_\+\+QSFP23\+\_\+\+SWITCH, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Write\+MMIO64(), n5010\+::handle, and n5010\+::port.
+
+
+
+Referenced by fpga\+\_\+setread\+\_\+switch().
+
+\mbox{\label{n5010-ctl_8c_a46c13d0ab2132699eac8a7830a536d7c}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_read\_switch\_port@{fpga\_read\_switch\_port}}
+\index{fpga\_read\_switch\_port@{fpga\_read\_switch\_port}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_read\_switch\_port()}{fpga\_read\_switch\_port()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+read\+\_\+switch\+\_\+port (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint32\+\_\+t}]{cvl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 285 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::base, CVL0\+\_\+\+QSFP01\+\_\+\+SWITCH, CVL1\+\_\+\+QSFP23\+\_\+\+SWITCH, fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+
+
+Referenced by fpga\+\_\+read\+\_\+switch().
+
+\mbox{\label{n5010-ctl_8c_aa566e69cffeabc52ffa796bd9193ab03}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!fpga\_run@{fpga\_run}}
+\index{fpga\_run@{fpga\_run}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_run()}{fpga\_run()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+run (\begin{DoxyParamCaption}\item[{\+\_\+\+\_\+attribute\+\_\+\+\_\+((unused)) struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 319 of file n5010-\/ctl.\+c.
+
+
+
+References stop.
+
+\mbox{\label{n5010-ctl_8c_a9bd4308d463193b0188339cb5495a58f}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!print\_usage@{print\_usage}}
+\index{print\_usage@{print\_usage}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{print\_usage()}{print\_usage()}}
+{\footnotesize\ttfamily static void print\+\_\+usage (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 328 of file n5010-\/ctl.\+c.
+
+
+
+References default\+\_\+guid.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{n5010-ctl_8c_abf670aede0d10582400b91cb54634821}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!parse\_port@{parse\_port}}
+\index{parse\_port@{parse\_port}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{parse\_port()}{parse\_port()}}
+{\footnotesize\ttfamily static bool parse\+\_\+port (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{const char $\ast$}]{port\+\_\+str }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 344 of file n5010-\/ctl.\+c.
+
+
+
+References MAX\+\_\+\+PORT, and n5010\+::port.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{n5010-ctl_8c_a443cc7c174314015bd7fe2613c4d8245}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!parse\_mode@{parse\_mode}}
+\index{parse\_mode@{parse\_mode}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{parse\_mode()}{parse\_mode()}}
+{\footnotesize\ttfamily static bool parse\+\_\+mode (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 362 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+\_\+test, n5010\+\_\+test\+::name, and n5010\+::test.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{n5010-ctl_8c_adde1c5cf0a410d13f51b29238589fd42}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!parse\_args@{parse\_args}}
+\index{parse\_args@{parse\_args}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{parse\_args()}{parse\_args()}}
+{\footnotesize\ttfamily static int parse\+\_\+args (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv,  }\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 385 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::debug, default\+\_\+guid, n5010\+::guid, INVALID\+\_\+\+PORT, options, parse\+\_\+mode(), parse\+\_\+port(), n5010\+::port, and print\+\_\+usage().
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-ctl_8c_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!main@{main}}
+\index{main@{main}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Definition at line 440 of file n5010-\/ctl.\+c.
+
+
+
+References n5010\+::filter, fpga\+\_\+base(), fpga\+\_\+close(), fpga\+\_\+dump(), FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+\_\+open(), fpga\+Destroy\+Properties(), fpga\+Err\+Str(), fpga\+Get\+Properties(), n5010\+\_\+test\+::func, n5010\+\_\+test, parse\+\_\+args(), signal\+\_\+callback\+\_\+handler(), and n5010\+::test.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{n5010-ctl_8c_a514ebab49a2fb401d7d7e220a97300e5}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!default\_guid@{default\_guid}}
+\index{default\_guid@{default\_guid}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{default\_guid}{default\_guid}}
+{\footnotesize\ttfamily char const$\ast$ default\+\_\+guid = \char`\"{}c48d4e2a-\/9121-\/497d-\/adc7-\/3640729ec6f7\char`\"{}}
+
+
+
+Definition at line 53 of file n5010-\/ctl.\+c.
+
+
+
+Referenced by parse\+\_\+args(), and print\+\_\+usage().
+
+\mbox{\label{n5010-ctl_8c_acb99505dbfaf7824f8725dff90d47ca8}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!stop@{stop}}
+\index{stop@{stop}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{stop}{stop}}
+{\footnotesize\ttfamily volatile bool stop = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 57 of file n5010-\/ctl.\+c.
+
+
+
+Referenced by fpga\+\_\+run(), and signal\+\_\+callback\+\_\+handler().
+
+\mbox{\label{n5010-ctl_8c_a0583be682de6cecd33c5d44955e5ee66}} 
+\index{n5010-\/ctl.c@{n5010-\/ctl.c}!n5010\_test@{n5010\_test}}
+\index{n5010\_test@{n5010\_test}!n5010-\/ctl.c@{n5010-\/ctl.c}}
+\doxysubsubsection{\texorpdfstring{n5010\_test}{n5010\_test}}
+{\footnotesize\ttfamily const struct \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}} \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}}\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}setsw"{}},}
+\DoxyCodeLine{      .func = fpga\_setread\_switch,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}readsw"{}},}
+\DoxyCodeLine{      .func = fpga\_read\_switch,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}runsw"{}},}
+\DoxyCodeLine{      .func = fpga\_run,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Definition at line 89 of file n5010-\/ctl.\+c.
+
+
+
+Referenced by main(), and parse\+\_\+mode().
+

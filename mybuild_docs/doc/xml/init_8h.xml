@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="init_8h" kind="file" language="C++">
+    <compoundname>init.h</compoundname>
+    <includes refid="types__enum_8h" local="no">opae/types_enum.h</includes>
+    <includedby refid="fpga_8h" local="no">include/opae/fpga.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="1">
+        <label>include/opae/init.h</label>
+        <link refid="init_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="7">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="6">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="3">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="2">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/init.h</label>
+        <link refid="init_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="init_8h_1a095c12e79f0fa4ce99512280a1df4aa6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaInitialize</definition>
+        <argsstring>(const char *config_file)</argsstring>
+        <name>fpgaInitialize</name>
+        <param>
+          <type>const char *</type>
+          <declname>config_file</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Initialize the OPAE library.</para>
+<para>Initialize OPAE using the given configuration file path, or perform default initialization if config_file is NULL.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">config_file</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Path to OPAE configuration file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Whether OPAE initialized successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/init.h" line="50" column="13" declfile="include/opae/init.h" declline="50" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="init_8h_1a89e0739f47b2c9b3c9459912adee9cfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaFinalize</definition>
+        <argsstring>(void)</argsstring>
+        <name>fpgaFinalize</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Finalize the OPAE library.</para>
+<para><simplesect kind="return"><para>Whether OPAE finalized successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/init.h" line="57" column="13" declfile="include/opae/init.h" declline="57" declcolumn="13"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Initialization routine. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2018,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_INIT_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_INIT_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types__enum_8h" kindref="compound">opae/types_enum.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="init_8h_1a095c12e79f0fa4ce99512280a1df4aa6" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="init_8h_1a095c12e79f0fa4ce99512280a1df4aa6" kindref="member">fpgaInitialize</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*config_file);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="init_8h_1a89e0739f47b2c9b3c9459912adee9cfa" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="init_8h_1a89e0739f47b2c9b3c9459912adee9cfa" kindref="member">fpgaFinalize</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__FPGA_INIT_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/init.h"/>
+  </compounddef>
+</doxygen>

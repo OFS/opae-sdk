@@ -1,0 +1,85 @@
+.TH "samples/cxl_mem_tg/cxl_tg_test.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/cxl_mem_tg/cxl_tg_test.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <condition_variable>\fP
+.br
+\fC#include <future>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <mutex>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <thread>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+\fC#include 'cxl_mem_tg\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBcxl_mem_tg::cxl_tg_test\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBcxl_mem_tg\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBCXL_TG_BW_FACTOR\fP   0\&.931323"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBtest_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename X > std::string \fBint_to_hex\fP (X x)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define CXL_TG_BW_FACTOR   0\&.931323"
+
+.PP
+Definition at line 44 of file cxl_tg_test\&.h\&.
+.SH "Typedef Documentation"
+.PP 
+.SS "using \fBtest_afu\fP =  \fBopae::afu_test::afu\fP"
+
+.PP
+Definition at line 41 of file cxl_tg_test\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "template<typename X > std::string int_to_hex (X x)"
+
+.PP
+Definition at line 65 of file cxl_tg_test\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

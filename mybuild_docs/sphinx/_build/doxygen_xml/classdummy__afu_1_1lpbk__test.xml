@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classdummy__afu_1_1lpbk__test" kind="class" language="C++" prot="public">
+    <compoundname>dummy_afu::lpbk_test</compoundname>
+    <basecompoundref refid="classopae_1_1afu__test_1_1command" prot="public" virt="non-virtual">opae::afu_test::command</basecompoundref>
+    <includes refid="lpbk_8h" local="no">/root/samples/dummy_afu/lpbk.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classdummy__afu_1_1lpbk__test_1a18905dcda929cfd0d01c3e138a521fdf" prot="protected" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref></type>
+        <definition>shared_buffer::ptr_t dummy_afu::lpbk_test::source_</definition>
+        <argsstring></argsstring>
+        <name>source_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="68" column="24" bodyfile="samples/dummy_afu/lpbk.h" bodystart="68" bodyend="-1"/>
+        <referencedby refid="classdummy__afu_1_1lpbk__test_1a22a64a8f79ef8e002d3ff75534d2f8e0" compoundref="lpbk_8h" startline="50" endline="65">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classdummy__afu_1_1lpbk__test_1aff6e9778ec29dc1c2f8547863a3cbbdc" prot="protected" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref></type>
+        <definition>shared_buffer::ptr_t dummy_afu::lpbk_test::destination_</definition>
+        <argsstring></argsstring>
+        <name>destination_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="69" column="24" bodyfile="samples/dummy_afu/lpbk.h" bodystart="69" bodyend="-1"/>
+        <referencedby refid="classdummy__afu_1_1lpbk__test_1a22a64a8f79ef8e002d3ff75534d2f8e0" compoundref="lpbk_8h" startline="50" endline="65">run</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classdummy__afu_1_1lpbk__test_1acafe03f97d7f9d00cb9ca4739636d8b3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>dummy_afu::lpbk_test::lpbk_test</definition>
+        <argsstring>()</argsstring>
+        <name>lpbk_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="38" column="3" bodyfile="samples/dummy_afu/lpbk.h" bodystart="38" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="classdummy__afu_1_1lpbk__test_1a9eb12336596a64101201947174014603" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual dummy_afu::lpbk_test::~lpbk_test</definition>
+        <argsstring>()</argsstring>
+        <name>~lpbk_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="39" column="11" bodyfile="samples/dummy_afu/lpbk.h" bodystart="39" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="classdummy__afu_1_1lpbk__test_1a00af051356068d57e098ff6a19a265d6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* dummy_afu::lpbk_test::name</definition>
+        <argsstring>() const</argsstring>
+        <name>name</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052">name</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="40" column="22" bodyfile="samples/dummy_afu/lpbk.h" bodystart="40" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classdummy__afu_1_1lpbk__test_1a034296c117fca4fe17f50bd90a47da63" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* dummy_afu::lpbk_test::description</definition>
+        <argsstring>() const</argsstring>
+        <name>description</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="45" column="22" bodyfile="samples/dummy_afu/lpbk.h" bodystart="45" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classdummy__afu_1_1lpbk__test_1a22a64a8f79ef8e002d3ff75534d2f8e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int dummy_afu::lpbk_test::run</definition>
+        <argsstring>(test_afu *afu, CLI::App *app)</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd">run</reimplements>
+        <param>
+          <type><ref refid="namespacedummy__afu_1ac06b3900bd7a2d4ba2c3f19ea20f622d" kindref="member">test_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/lpbk.h" line="50" column="15" bodyfile="samples/dummy_afu/lpbk.h" bodystart="50" bodyend="65"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classdummy__afu_1_1lpbk__test_1aff6e9778ec29dc1c2f8547863a3cbbdc" compoundref="lpbk_8h" startline="69">destination_</references>
+        <references refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a" compoundref="dummy__afu_8h" startline="44">dummy_afu::MEM_TEST_CTRL</references>
+        <references refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba23997995c982f0e6a26fea04efa07c37" compoundref="dummy__afu_8h" startline="47">dummy_afu::MEM_TEST_DST_ADDR</references>
+        <references refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba50907b523a57b88d331c2224e057f8dd" compoundref="dummy__afu_8h" startline="46">dummy_afu::MEM_TEST_SRC_ADDR</references>
+        <references refid="classdummy__afu_1_1lpbk__test_1a18905dcda929cfd0d01c3e138a521fdf" compoundref="lpbk_8h" startline="68">source_</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="1">
+        <label>dummy_afu::lpbk_test</label>
+        <link refid="classdummy__afu_1_1lpbk__test"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="1">
+        <label>dummy_afu::lpbk_test</label>
+        <link refid="classdummy__afu_1_1lpbk__test"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/lpbk.h" line="35" column="1" bodyfile="samples/dummy_afu/lpbk.h" bodystart="36" bodyend="70"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>add_options</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>afu_id</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>command</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1a034296c117fca4fe17f50bd90a47da63" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>description</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1aff6e9778ec29dc1c2f8547863a3cbbdc" prot="protected" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>destination_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" virt="pure-virtual"><scope>dummy_afu::lpbk_test</scope><name>featureid</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" virt="pure-virtual"><scope>dummy_afu::lpbk_test</scope><name>guidh</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" virt="pure-virtual"><scope>dummy_afu::lpbk_test</scope><name>guidl</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1acafe03f97d7f9d00cb9ca4739636d8b3" prot="public" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>lpbk_test</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1a00af051356068d57e098ff6a19a265d6" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>name</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>ptr_t</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1a22a64a8f79ef8e002d3ff75534d2f8e0" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>run</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>running_</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1a18905dcda929cfd0d01c3e138a521fdf" prot="protected" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>source_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>dummy_afu::lpbk_test</scope><name>stop</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>~command</name></member>
+      <member refid="classdummy__afu_1_1lpbk__test_1a9eb12336596a64101201947174014603" prot="public" virt="virtual"><scope>dummy_afu::lpbk_test</scope><name>~lpbk_test</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

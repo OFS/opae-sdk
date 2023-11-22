@@ -1,0 +1,44 @@
+.TH "opae::fpga::types::not_supported" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::not_supported
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/except\&.h>\fP
+.PP
+Inherits \fBopae::fpga::types::except\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBnot_supported\fP (\fBsrc_location\fP loc) noexcept"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+\fBnot_supported\fP exception
+.PP
+\fBnot_supported\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NOT_SUPPORTED is returned from a call to an OPAE C API function 
+.PP
+Definition at line 212 of file except\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::not_supported::not_supported (\fBsrc_location\fP loc)\fC [inline]\fP, \fC [noexcept]\fP"
+\fBnot_supported\fP constructor
+.PP
+\fBParameters\fP
+.RS 4
+\fIloc\fP Location where the exception was constructed\&. 
+.RE
+.PP
+
+.PP
+Definition at line 218 of file except\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

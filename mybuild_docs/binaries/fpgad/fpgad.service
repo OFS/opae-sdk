@@ -1,0 +1,20 @@
+# Intel FPGA daemon
+[Unit]
+Description = FPGA monitor
+
+[Service]
+Type=simple
+StandardOutput=journal+console
+StandardError=journal+console
+EnvironmentFile=-/etc/sysconfig/fpgad.conf
+Restart=always
+RestartSec=10s
+SendSIGHUP=yes
+KillSignal=SIGHUP
+ExecStart=/usr/local/bin/fpgad \
+          -l $LOGFILE \
+          -p $PIDFILE
+RestartPreventExitStatus=1
+
+[Install]
+WantedBy=multi-user.target

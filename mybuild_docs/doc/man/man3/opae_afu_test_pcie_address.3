@@ -1,0 +1,67 @@
+.TH "opae::afu_test::pcie_address" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::afu_test::pcie_address
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/he_cache_test\&.h>\fP
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBpcie_address\fP \fBparse\fP (const char *s)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint32_t \fBfunction\fP: 3"
+.br
+.ti -1c
+.RI "uint32_t \fBdevice\fP: 5"
+.br
+.ti -1c
+.RI "uint32_t \fBbus\fP: 8"
+.br
+.ti -1c
+.RI "uint32_t \fBdomain\fP: 16"
+.br
+.ti -1c
+.RI "} \fBfields\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBvalue\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 186 of file he_cache_test\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "static \fBpcie_address\fP opae::afu_test::pcie_address::parse (const char * s)\fC [inline]\fP, \fC [static]\fP"
+
+.PP
+Definition at line 195 of file he_cache_test\&.h\&.
+.PP
+References fields, MATCHES_SIZE, opae::afu_test::parse_match_int(), and sbdf_pattern\&.
+.SH "Field Documentation"
+.PP 
+.SS "struct { \&.\&.\&. }  opae::afu_test::pcie_address::fields"
+
+.PP
+Referenced by parse()\&.
+.SS "uint32_t opae::afu_test::pcie_address::value"
+
+.PP
+Definition at line 193 of file he_cache_test\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

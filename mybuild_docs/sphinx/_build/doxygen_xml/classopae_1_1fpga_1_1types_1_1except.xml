@@ -1,0 +1,338 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1except" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::except</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">std::exception</basecompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1busy" prot="public" virt="non-virtual">opae::fpga::types::busy</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1exception" prot="public" virt="non-virtual">opae::fpga::types::exception</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1invalid__param" prot="public" virt="non-virtual">opae::fpga::types::invalid_param</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1no__access" prot="public" virt="non-virtual">opae::fpga::types::no_access</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1no__daemon" prot="public" virt="non-virtual">opae::fpga::types::no_daemon</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1no__driver" prot="public" virt="non-virtual">opae::fpga::types::no_driver</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1no__memory" prot="public" virt="non-virtual">opae::fpga::types::no_memory</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1not__found" prot="public" virt="non-virtual">opae::fpga::types::not_found</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1not__supported" prot="public" virt="non-virtual">opae::fpga::types::not_supported</derivedcompoundref>
+    <derivedcompoundref refid="classopae_1_1fpga_1_1types_1_1reconf__error" prot="public" virt="non-virtual">opae::fpga::types::reconf_error</derivedcompoundref>
+    <includes refid="except_8h" local="no">opae/cxx/core/except.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1except_1af8bfb55f096792ad770e5cd5110e929a" prot="public" static="yes" mutable="no">
+        <type>const std::size_t</type>
+        <definition>const std::size_t opae::fpga::types::except::MAX_EXCEPT</definition>
+        <argsstring></argsstring>
+        <name>MAX_EXCEPT</name>
+        <initializer>= 256</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="80" column="28" bodyfile="include/opae/cxx/core/except.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1except_1a21c2cbaa1fa87c94c40b32853659e70b" prot="protected" static="no" mutable="no">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae::fpga::types::except::res_</definition>
+        <argsstring></argsstring>
+        <name>res_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="113" column="15" bodyfile="include/opae/cxx/core/except.h" bodystart="113" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1except_1ae3ed4c7022f603abeeb98bcb0f583cf7" compoundref="except_8h" startline="110" endline="110">operator fpga_result</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1except_1ad4ee478e3ab82c0ed668a53601d2e457" prot="protected" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* opae::fpga::types::except::msg_</definition>
+        <argsstring></argsstring>
+        <name>msg_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="114" column="14" bodyfile="include/opae/cxx/core/except.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1except_1a52506f4e5b1af21ddfbecb251f028ec4" prot="protected" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref></type>
+        <definition>src_location opae::fpga::types::except::loc_</definition>
+        <argsstring></argsstring>
+        <name>loc_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="115" column="16" bodyfile="include/opae/cxx/core/except.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1except_1ab58e8409be0f32b8651a9dd54cadfaef" prot="protected" static="no" mutable="yes">
+        <type>char</type>
+        <definition>char opae::fpga::types::except::buf_[MAX_EXCEPT]</definition>
+        <argsstring>[MAX_EXCEPT]</argsstring>
+        <name>buf_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="116" column="16" bodyfile="include/opae/cxx/core/except.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1except_1a84db8167d096b004d28c45e0d600a507" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::except::except</definition>
+        <argsstring>(src_location loc) noexcept</argsstring>
+        <name>except</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref></type>
+          <declname>loc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>except constructor The fpga_result value is FPGA_EXCEPTION.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">loc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Location where the exception was constructed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="87" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1except_1a607953d122ae8c0c9abf9bbaaa2bd3b0" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::except::except</definition>
+        <argsstring>(fpga_result res, src_location loc) noexcept</argsstring>
+        <name>except</name>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref></type>
+          <declname>loc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>except constructor</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">res</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The fpga_result value associated with this exception. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">loc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Location where the exception was constructed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="94" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1except_1a4f48810eb0499e595115100915503e54" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::except::except</definition>
+        <argsstring>(fpga_result res, const char *msg, src_location loc) noexcept</argsstring>
+        <name>except</name>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>msg</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref></type>
+          <declname>loc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>except constructor</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">res</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The fpga_result value associated with this exception. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">msg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The error message as a string </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">loc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Location where the exception was constructed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="102" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1except_1af08375009434a1748d613712108204c9" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* opae::fpga::types::except::what</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>what</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert this except to an informative string. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="106" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1except_1ae3ed4c7022f603abeeb98bcb0f583cf7" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::except::operator fpga_result</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>operator fpga_result</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert this except to its fpga_result. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="110" column="3" bodyfile="include/opae/cxx/core/except.h" bodystart="110" bodyend="110"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1except_1a21c2cbaa1fa87c94c40b32853659e70b" compoundref="except_8h" startline="113">res_</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Generic OPAE exception</para>
+<para>An except tracks the source line of origin and an optional fpga_result. If no fpga_result is given, then FPGA_EXCEPTION is used. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>opae::fpga::types::invalid_param</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1invalid__param"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>opae::fpga::types::no_driver</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1no__driver"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>opae::fpga::types::no_memory</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1no__memory"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>opae::fpga::types::not_supported</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1not__supported"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opae::fpga::types::except</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1except"/>
+      </node>
+      <node id="9">
+        <label>opae::fpga::types::not_found</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1not__found"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae::fpga::types::busy</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1busy"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>opae::fpga::types::exception</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1exception"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>opae::fpga::types::no_daemon</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1no__daemon"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>opae::fpga::types::no_access</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1no__access"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae::fpga::types::reconf_error</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1reconf__error"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>opae::fpga::types::src_location</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1src__location"/>
+      </node>
+      <node id="1">
+        <label>opae::fpga::types::except</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1except"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>#loc_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/except.h" line="78" column="1" bodyfile="include/opae/cxx/core/except.h" bodystart="78" bodyend="117"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1ab58e8409be0f32b8651a9dd54cadfaef" prot="protected" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>buf_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1a84db8167d096b004d28c45e0d600a507" prot="public" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>except</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1a607953d122ae8c0c9abf9bbaaa2bd3b0" prot="public" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>except</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1a4f48810eb0499e595115100915503e54" prot="public" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>except</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1a52506f4e5b1af21ddfbecb251f028ec4" prot="protected" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>loc_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1af8bfb55f096792ad770e5cd5110e929a" prot="public" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>MAX_EXCEPT</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1ad4ee478e3ab82c0ed668a53601d2e457" prot="protected" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>msg_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1ae3ed4c7022f603abeeb98bcb0f583cf7" prot="public" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>operator fpga_result</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1a21c2cbaa1fa87c94c40b32853659e70b" prot="protected" virt="non-virtual"><scope>opae::fpga::types::except</scope><name>res_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1except_1af08375009434a1748d613712108204c9" prot="public" virt="virtual"><scope>opae::fpga::types::except</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

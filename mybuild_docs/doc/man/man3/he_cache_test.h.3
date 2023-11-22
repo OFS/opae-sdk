@@ -1,0 +1,316 @@
+.TH "samples/cxl_host_exerciser/he_cache_test.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/cxl_host_exerciser/he_cache_test.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <future>\fP
+.br
+\fC#include <glob\&.h>\fP
+.br
+\fC#include <inttypes\&.h>\fP
+.br
+\fC#include <numa\&.h>\fP
+.br
+\fC#include <opae/cxx/core\&.h>\fP
+.br
+\fC#include <regex\&.h>\fP
+.br
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <sys/ioctl\&.h>\fP
+.br
+\fC#include <sys/mman\&.h>\fP
+.br
+\fC#include <fcntl\&.h>\fP
+.br
+\fC#include <sys/syscall\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <CLI/CLI\&.hpp>\fP
+.br
+\fC#include <spdlog/spdlog\&.h>\fP
+.br
+\fC#include <spdlog/sinks/stdout_color_sinks\&.h>\fP
+.br
+\fC#include <spdlog/sinks/basic_file_sink\&.h>\fP
+.br
+\fC#include 'fpga\-dfl\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "union \fBopae::afu_test::pcie_address\fP"
+.br
+.ti -1c
+.RI "class \fBopae::afu_test::command\fP"
+.br
+.ti -1c
+.RI "class \fBopae::afu_test::afu\fP"
+.br
+.ti -1c
+.RI "struct \fBopae::afu_test::pcie_address\&.fields\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBopae\fP"
+.br
+.ti -1c
+.RI " \fBopae::afu_test\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBFEATURE_DEV\fP"
+.br
+.ti -1c
+.RI "#define \fBMAX_SIZE\fP   256"
+.br
+.ti -1c
+.RI "#define \fBMAX_HE_CACHE_DEVICE\fP   2"
+.br
+.ti -1c
+.RI "#define \fBPROTECTION\fP   (PROT_READ | PROT_WRITE)"
+.br
+.ti -1c
+.RI "#define \fBMAP_HUGETLB\fP   0x40000"
+.br
+.ti -1c
+.RI "#define \fBMAP_HUGE_SHIFT\fP   26"
+.br
+.ti -1c
+.RI "#define \fBMAP_2M_HUGEPAGE\fP   (0x15 << \fBMAP_HUGE_SHIFT\fP) /* 2 ^ 0x15 = 2M */"
+.br
+.ti -1c
+.RI "#define \fBMAP_1G_HUGEPAGE\fP   (0x1e << \fBMAP_HUGE_SHIFT\fP) /* 2 ^ 0x1e = 1G */"
+.br
+.ti -1c
+.RI "#define \fBADDR\fP   ((void *)(0x0UL))"
+.br
+.ti -1c
+.RI "#define \fBFLAGS_4K\fP   (MAP_PRIVATE | MAP_ANONYMOUS)"
+.br
+.ti -1c
+.RI "#define \fBFLAGS_2M\fP   (\fBFLAGS_4K\fP | \fBMAP_2M_HUGEPAGE\fP | \fBMAP_HUGETLB\fP)"
+.br
+.ti -1c
+.RI "#define \fBFLAGS_1G\fP   (\fBFLAGS_4K\fP | \fBMAP_1G_HUGEPAGE\fP | \fBMAP_HUGETLB\fP)"
+.br
+.ti -1c
+.RI "#define \fBKiB\fP(x)   ((x)*1024)"
+.br
+.ti -1c
+.RI "#define \fBMiB\fP(x)   ((x)*1024 * 1024)"
+.br
+.ti -1c
+.RI "#define \fBGiB\fP(x)   ((x)*1024 * 1024 * 1024)"
+.br
+.ti -1c
+.RI "#define \fBDFL_CXL_CACHE_DSM_BASE\fP   0x030"
+.br
+.ti -1c
+.RI "#define \fBDFL_CXL_CACHE_WR_ADDR_TABLE_DATA\fP   0x068"
+.br
+.ti -1c
+.RI "#define \fBDFL_CXL_CACHE_RD_ADDR_TABLE_DATA\fP   0x088"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBMATCHES_SIZE\fP = 6 }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBbuffer_allocate\fP (void **addr, uint64_t len, uint32_t numa_node)"
+.br
+.ti -1c
+.RI "bool \fBbuffer_release\fP (void *addr, uint64_t len)"
+.br
+.ti -1c
+.RI "bool \fBsysfs_read_u64\fP (const char *path, uint64_t *value)"
+.br
+.ti -1c
+.RI "template<typename T > bool \fBopae::afu_test::parse_match_int\fP (const char *s, regmatch_t m, T &v, int radix=10)"
+.br
+.ti -1c
+.RI "std::vector< std::string > \fBopae::afu_test::spdlog_levels\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBsbdf_pattern\fP"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct opae::afu_test::pcie_address\&.fields"
+.PP 
+Definition at line 187 of file he_cache_test\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIfunction: 3\fP 
+.br
+.PP
+uint32_t \fIdevice: 5\fP 
+.br
+.PP
+uint32_t \fIbus: 8\fP 
+.br
+.PP
+uint32_t \fIdomain: 16\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define FEATURE_DEV"
+\fBValue:\fP
+.PP
+.nf
+  "/sys/bus/pci/devices/%s/"                                                   \
+  "fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
+.fi
+.PP
+Definition at line 58 of file he_cache_test\&.h\&.
+.SS "#define MAX_SIZE   256"
+
+.PP
+Definition at line 62 of file he_cache_test\&.h\&.
+.SS "#define MAX_HE_CACHE_DEVICE   2"
+
+.PP
+Definition at line 63 of file he_cache_test\&.h\&.
+.SS "#define PROTECTION   (PROT_READ | PROT_WRITE)"
+
+.PP
+Definition at line 65 of file he_cache_test\&.h\&.
+.SS "#define MAP_HUGETLB   0x40000"
+
+.PP
+Definition at line 68 of file he_cache_test\&.h\&.
+.SS "#define MAP_HUGE_SHIFT   26"
+
+.PP
+Definition at line 71 of file he_cache_test\&.h\&.
+.SS "#define MAP_2M_HUGEPAGE   (0x15 << \fBMAP_HUGE_SHIFT\fP) /* 2 ^ 0x15 = 2M */"
+
+.PP
+Definition at line 74 of file he_cache_test\&.h\&.
+.SS "#define MAP_1G_HUGEPAGE   (0x1e << \fBMAP_HUGE_SHIFT\fP) /* 2 ^ 0x1e = 1G */"
+
+.PP
+Definition at line 75 of file he_cache_test\&.h\&.
+.SS "#define ADDR   ((void *)(0x0UL))"
+
+.PP
+Definition at line 83 of file he_cache_test\&.h\&.
+.SS "#define FLAGS_4K   (MAP_PRIVATE | MAP_ANONYMOUS)"
+
+.PP
+Definition at line 84 of file he_cache_test\&.h\&.
+.SS "#define FLAGS_2M   (\fBFLAGS_4K\fP | \fBMAP_2M_HUGEPAGE\fP | \fBMAP_HUGETLB\fP)"
+
+.PP
+Definition at line 85 of file he_cache_test\&.h\&.
+.SS "#define FLAGS_1G   (\fBFLAGS_4K\fP | \fBMAP_1G_HUGEPAGE\fP | \fBMAP_HUGETLB\fP)"
+
+.PP
+Definition at line 86 of file he_cache_test\&.h\&.
+.SS "#define KiB(x)   ((x)*1024)"
+
+.PP
+Definition at line 89 of file he_cache_test\&.h\&.
+.SS "#define MiB(x)   ((x)*1024 * 1024)"
+
+.PP
+Definition at line 90 of file he_cache_test\&.h\&.
+.SS "#define GiB(x)   ((x)*1024 * 1024 * 1024)"
+
+.PP
+Definition at line 91 of file he_cache_test\&.h\&.
+.SS "#define DFL_CXL_CACHE_DSM_BASE   0x030"
+
+.PP
+Definition at line 93 of file he_cache_test\&.h\&.
+.SS "#define DFL_CXL_CACHE_WR_ADDR_TABLE_DATA   0x068"
+
+.PP
+Definition at line 94 of file he_cache_test\&.h\&.
+.SS "#define DFL_CXL_CACHE_RD_ADDR_TABLE_DATA   0x088"
+
+.PP
+Definition at line 95 of file he_cache_test\&.h\&.
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIMATCHES_SIZE \fP\fP
+.PP
+Definition at line 57 of file he_cache_test\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "bool buffer_allocate (void ** addr, uint64_t len, uint32_t numa_node)"
+
+.PP
+Definition at line 98 of file he_cache_test\&.h\&.
+.PP
+References ADDR, FLAGS_1G, FLAGS_2M, FLAGS_4K, KiB, MiB, and PROTECTION\&.
+.PP
+Referenced by opae::afu_test::afu::allocate_cache_read(), opae::afu_test::afu::allocate_cache_read_write(), opae::afu_test::afu::allocate_cache_write(), and opae::afu_test::afu::allocate_dsm()\&.
+.SS "bool buffer_release (void * addr, uint64_t len)"
+
+.PP
+Definition at line 149 of file he_cache_test\&.h\&.
+.PP
+Referenced by opae::afu_test::afu::allocate_cache_read(), opae::afu_test::afu::allocate_cache_read_write(), opae::afu_test::afu::allocate_cache_write(), opae::afu_test::afu::allocate_dsm(), opae::afu_test::afu::free_cache_read(), opae::afu_test::afu::free_cache_read_write(), opae::afu_test::afu::free_cache_write(), and opae::afu_test::afu::free_dsm()\&.
+.SS "bool sysfs_read_u64 (const char * path, uint64_t * value)"
+
+.PP
+Definition at line 158 of file he_cache_test\&.h\&.
+.PP
+Referenced by opae::afu_test::afu::find_dev_feature()\&.
+.SH "Variable Documentation"
+.PP 
+.SS "const char* sbdf_pattern"
+\fBInitial value:\fP
+.PP
+.nf
+=
+    "(([0-9a-fA-F]{4}):)?([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\\&.([0-9])"
+.fi
+.PP
+Definition at line 54 of file he_cache_test\&.h\&.
+.PP
+Referenced by opae::afu_test::pcie_address::parse()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

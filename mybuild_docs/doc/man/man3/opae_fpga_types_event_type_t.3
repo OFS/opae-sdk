@@ -1,0 +1,84 @@
+.TH "opae::fpga::types::event::type_t" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::event::type_t \- C++ struct that is interchangeable with fpga_event_type enum\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/events\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtype_t\fP (\fBfpga_event_type\fP c_type)"
+.br
+.ti -1c
+.RI "\fBoperator fpga_event_type\fP ()"
+.br
+.in -1c
+.SS "Static Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "static constexpr \fBfpga_event_type\fP \fBinterrupt\fP = \fBFPGA_EVENT_INTERRUPT\fP"
+.br
+.ti -1c
+.RI "static constexpr \fBfpga_event_type\fP \fBerror\fP = \fBFPGA_EVENT_ERROR\fP"
+.br
+.ti -1c
+.RI "static constexpr \fBfpga_event_type\fP \fBpower_thermal\fP = \fBFPGA_EVENT_POWER_THERMAL\fP"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_event_type\fP \fBtype_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+C++ struct that is interchangeable with fpga_event_type enum\&. 
+.PP
+Definition at line 52 of file events\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::event::type_t::type_t (\fBfpga_event_type\fP c_type)\fC [inline]\fP"
+
+.PP
+Definition at line 53 of file events\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "opae::fpga::types::event::type_t::operator \fBfpga_event_type\fP ()\fC [inline]\fP"
+
+.PP
+Definition at line 55 of file events\&.h\&.
+.PP
+References type_\&.
+.SH "Field Documentation"
+.PP 
+.SS "constexpr \fBfpga_event_type\fP opae::fpga::types::event::type_t::interrupt = \fBFPGA_EVENT_INTERRUPT\fP\fC [static]\fP, \fC [constexpr]\fP"
+
+.PP
+Definition at line 57 of file events\&.h\&.
+.SS "constexpr \fBfpga_event_type\fP opae::fpga::types::event::type_t::error = \fBFPGA_EVENT_ERROR\fP\fC [static]\fP, \fC [constexpr]\fP"
+
+.PP
+Definition at line 58 of file events\&.h\&.
+.SS "constexpr \fBfpga_event_type\fP opae::fpga::types::event::type_t::power_thermal = \fBFPGA_EVENT_POWER_THERMAL\fP\fC [static]\fP, \fC [constexpr]\fP"
+
+.PP
+Definition at line 59 of file events\&.h\&.
+.SS "\fBfpga_event_type\fP opae::fpga::types::event::type_t::type_\fC [private]\fP"
+
+.PP
+Definition at line 62 of file events\&.h\&.
+.PP
+Referenced by operator fpga_event_type()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

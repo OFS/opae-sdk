@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__dsm__basel_8____unnamed97____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_dsm_basel.__unnamed97__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__basel_8____unnamed97_____1af2f33fb6529c50716b852abf71f13a5f" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>DsmBaseL</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="145" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_dsm_basel.__unnamed97__</label>
+        <link refid="structhost__exerciser_1_1he__dsm__basel_8____unnamed97____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="144" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="144" bodyend="146"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__dsm__basel_8____unnamed97_____1af2f33fb6529c50716b852abf71f13a5f" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_basel.__unnamed97__</scope><name>DsmBaseL</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

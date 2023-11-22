@@ -1,0 +1,453 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="samples_2dummy__afu_2mmio_8h" kind="file" language="C++">
+    <compoundname>mmio.h</compoundname>
+    <includes local="no">chrono</includes>
+    <includes refid="dummy__afu_8h" local="yes">dummy_afu.h</includes>
+    <includedby refid="dummy__afu_8cpp" local="yes">samples/dummy_afu/dummy_afu.cpp</includedby>
+    <incdepgraph>
+      <node id="11">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samples/dummy_afu/mmio.h</label>
+        <link refid="samples_2dummy__afu_2mmio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>cstdint</label>
+      </node>
+      <node id="9">
+        <label>stdint.h</label>
+      </node>
+      <node id="35">
+        <label>afu_test.h</label>
+      </node>
+      <node id="31">
+        <label>opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="27">
+        <label>map</label>
+      </node>
+      <node id="21">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="17">
+        <label>exception</label>
+      </node>
+      <node id="10">
+        <label>stddef.h</label>
+      </node>
+      <node id="15">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>dummy_afu.h</label>
+        <link refid="dummy__afu_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>vector</label>
+      </node>
+      <node id="23">
+        <label>array</label>
+      </node>
+      <node id="18">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>iostream</label>
+      </node>
+      <node id="30">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>chrono</label>
+      </node>
+      <node id="4">
+        <label>opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>thread</label>
+      </node>
+      <node id="26">
+        <label>type_traits</label>
+      </node>
+      <node id="22">
+        <label>algorithm</label>
+      </node>
+      <node id="20">
+        <label>stdio.h</label>
+      </node>
+      <node id="24">
+        <label>cstring</label>
+      </node>
+      <node id="28">
+        <label>memory</label>
+      </node>
+      <node id="33">
+        <label>initializer_list</label>
+      </node>
+      <node id="14">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>samples/dummy_afu/dummy_afu.cpp</label>
+        <link refid="dummy__afu_8cpp"/>
+      </node>
+      <node id="1">
+        <label>samples/dummy_afu/mmio.h</label>
+        <link refid="samples_2dummy__afu_2mmio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classdummy__afu_1_1mmio__test" prot="public">dummy_afu::mmio_test</innerclass>
+    <innernamespace refid="namespacedummy__afu">dummy_afu</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2020,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;chrono&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="dummy__afu_8h" kindref="compound">dummy_afu.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="33" refid="namespacedummy__afu_1a2331454a35bd7d061543b78f7708db09" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacedummy__afu_1a2331454a35bd7d061543b78f7708db09" kindref="member">timeit_wr</ref>(std::shared_ptr&lt;spdlog::logger&gt;<sp/>log,<sp/><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>*afu,<sp/>uint32_t<sp/>count)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">std::chrono;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>begin<sp/>=<sp/>high_resolution_clock::now();</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(<ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" kindref="member">SCRATCHPAD</ref>,<sp/>i);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>end<sp/>=<sp/>high_resolution_clock::now();</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>delta<sp/>=<sp/>duration_cast&lt;nanoseconds&gt;(end<sp/>-<sp/>begin).count();</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>width<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(T)*8;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/>log-&gt;debug(</highlight><highlight class="stringliteral">&quot;count:<sp/>{0},<sp/>op:<sp/>wr,<sp/>width:<sp/>{1},<sp/>mean:<sp/>{2}<sp/>nsec&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count,<sp/>width,<sp/>delta/count);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="48" refid="namespacedummy__afu_1ab7da4ff6c8571efbc707ba26cfba6723" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacedummy__afu_1ab7da4ff6c8571efbc707ba26cfba6723" kindref="member">timeit_rd</ref>(std::shared_ptr&lt;spdlog::logger&gt;<sp/>log,<sp/><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>*afu,<sp/>uint32_t<sp/>count)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">std::chrono;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>begin<sp/>=<sp/>high_resolution_clock::now();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;read&lt;T&gt;(<ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" kindref="member">SCRATCHPAD</ref>);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>end<sp/>=<sp/>high_resolution_clock::now();</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>delta<sp/>=<sp/>duration_cast&lt;nanoseconds&gt;(end<sp/>-<sp/>begin).count();</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>width<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(T)*8;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>log-&gt;debug(</highlight><highlight class="stringliteral">&quot;count:<sp/>{0},<sp/>op:<sp/>rd,<sp/>width:<sp/>{1},<sp/>mean:<sp/>{2}<sp/>nsec&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count,<sp/>width,<sp/>delta/count);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="64" refid="namespacedummy__afu_1ab2db23ee00af6f322f726f9017f60fdf" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacedummy__afu_1ab2db23ee00af6f322f726f9017f60fdf" kindref="member">write_verify</ref>(<ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>*afu,<sp/>uint32_t<sp/>addr,<sp/>T<sp/>value)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(addr,<sp/>0);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(afu-&gt;read&lt;T&gt;(addr)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::logic_error(</highlight><highlight class="stringliteral">&quot;mmio<sp/>write<sp/>failed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(addr,<sp/>value);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>rd_value<sp/>=<sp/>afu-&gt;read&lt;T&gt;(addr);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rd_value<sp/>!=<sp/>value)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::logic_error(</highlight><highlight class="stringliteral">&quot;mmio<sp/>write<sp/>failed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(addr,<sp/>0);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(afu-&gt;read&lt;T&gt;(addr)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::logic_error(</highlight><highlight class="stringliteral">&quot;mmio<sp/>write<sp/>failed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="79" refid="namespacedummy__afu_1a8aa59ff4d5d11ffe262b3bcc1524046c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacedummy__afu_1ab2db23ee00af6f322f726f9017f60fdf" kindref="member">write_verify</ref>(<ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>*afu,<sp/>uint32_t<sp/>addr,<sp/>uint32_t<sp/>i,<sp/>uint64_t<sp/>value)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(addr,<sp/>i,<sp/>0);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(afu-&gt;read&lt;T&gt;(addr,<sp/>i)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::logic_error(</highlight><highlight class="stringliteral">&quot;mmio<sp/>write<sp/>failed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(addr,<sp/>i,<sp/>value);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>rd_value<sp/>=<sp/>afu-&gt;read&lt;T&gt;(addr,<sp/>i);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rd_value<sp/>!=<sp/>value)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::logic_error(</highlight><highlight class="stringliteral">&quot;mmio<sp/>write<sp/>failed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>afu-&gt;write&lt;T&gt;(addr,<sp/>i,<sp/>0);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(afu-&gt;read&lt;T&gt;(addr,<sp/>i)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::logic_error(</highlight><highlight class="stringliteral">&quot;mmio<sp/>write<sp/>failed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="classdummy__afu_1_1mmio__test" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classdummy__afu_1_1mmio__test" kindref="compound">mmio_test</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">test_command</ref></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="96" refid="classdummy__afu_1_1mmio__test_1a5c31bd8c1bc38afb83f814f6406ca937" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classdummy__afu_1_1mmio__test_1a5c31bd8c1bc38afb83f814f6406ca937" kindref="member">mmio_test</ref>()</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/>:<sp/><ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>(1)</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/>,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a345f52c800f65b0f97f01756fa20e419" kindref="member">sp_index_</ref>(0)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/>,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a9df22c82e86ee0d2205676960c01094e" kindref="member">perf_</ref>(false)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" kindref="member">width_</ref>(64)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/>,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a97e5092750cb8d3e671b6fc6d66eebcc" kindref="member">op_</ref>(</highlight><highlight class="stringliteral">&quot;rd&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105" refid="classdummy__afu_1_1mmio__test_1a70bd0d084015442089e2fa1023351107" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1mmio__test_1a70bd0d084015442089e2fa1023351107" kindref="member">~mmio_test</ref>(){}</highlight></codeline>
+<codeline lineno="106" refid="classdummy__afu_1_1mmio__test_1a1bfdb1527b7284659cba26e0d6dc7777" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classdummy__afu_1_1mmio__test_1a1bfdb1527b7284659cba26e0d6dc7777" kindref="member">name</ref>()</highlight><highlight class="keyword"><sp/>const</highlight></codeline>
+<codeline lineno="107"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;mmio&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="classdummy__afu_1_1mmio__test_1ae11ac9f28ce155a19cac986cdb054fa2" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classdummy__afu_1_1mmio__test_1ae11ac9f28ce155a19cac986cdb054fa2" kindref="member">description</ref>()</highlight><highlight class="keyword"><sp/>const</highlight></codeline>
+<codeline lineno="112"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;run<sp/>mmio<sp/>test&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="classdummy__afu_1_1mmio__test_1ad4e1d2ed8ec389198b09a5ce9c940aa5" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1mmio__test_1ad4e1d2ed8ec389198b09a5ce9c940aa5" kindref="member">add_options</ref>(CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;-c,--count&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;number<sp/>of<sp/>repititions&quot;</highlight><highlight class="normal">)-&gt;default_str(std::to_string(<ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>));</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;-s,--scratchpad-index&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classdummy__afu_1_1mmio__test_1a345f52c800f65b0f97f01756fa20e419" kindref="member">sp_index_</ref>,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;index<sp/>in<sp/>the<sp/>scratchpad<sp/>array&quot;</highlight><highlight class="normal">)-&gt;check(CLI::Range(0,<sp/>63));</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_flag(</highlight><highlight class="stringliteral">&quot;--perf&quot;</highlight><highlight class="normal">,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a9df22c82e86ee0d2205676960c01094e" kindref="member">perf_</ref>,<sp/></highlight><highlight class="stringliteral">&quot;get<sp/>mmio<sp/>performace<sp/>numbers&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;-w,--width&quot;</highlight><highlight class="normal">,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" kindref="member">width_</ref>,<sp/></highlight><highlight class="stringliteral">&quot;mmio<sp/>width<sp/>for<sp/>mmio<sp/>performance<sp/>stats&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::IsMember({8,<sp/>16,<sp/>32,<sp/>64}))-&gt;default_str(std::to_string(<ref refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" kindref="member">width_</ref>));</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--op&quot;</highlight><highlight class="normal">,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a97e5092750cb8d3e671b6fc6d66eebcc" kindref="member">op_</ref>,<sp/></highlight><highlight class="stringliteral">&quot;operation<sp/>for<sp/>mmio<sp/>performance<sp/>stats&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::IsMember({</highlight><highlight class="stringliteral">&quot;rd&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;wr&quot;</highlight><highlight class="normal">}))-&gt;default_str(<ref refid="classdummy__afu_1_1mmio__test_1a97e5092750cb8d3e671b6fc6d66eebcc" kindref="member">op_</ref>);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="classdummy__afu_1_1mmio__test_1a11bd14e2eaedd19a9b759f30dcc845a7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1mmio__test_1a11bd14e2eaedd19a9b759f30dcc845a7" kindref="member">run</ref>(<ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>*afu,<sp/>CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>d_afu<sp/>=<sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="normal"><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(afu);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classdummy__afu_1_1mmio__test_1a9df22c82e86ee0d2205676960c01094e" kindref="member">perf_</ref>)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1mmio__test_1acd17b7274c884cc6f0b700e00c3c4db1" kindref="member">run_perf</ref>(d_afu,<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>sp_index<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;get_option(</highlight><highlight class="stringliteral">&quot;--scratchpad-index&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>start<sp/>=<sp/>*sp_index<sp/>?<sp/><ref refid="classdummy__afu_1_1mmio__test_1a345f52c800f65b0f97f01756fa20e419" kindref="member">sp_index_</ref><sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>end<sp/>=<sp/>*sp_index<sp/>?<sp/>start<sp/>+<sp/>1<sp/>:<sp/>64;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>dummy_value32<sp/>=<sp/>0xc0c0cafe;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>dummy_value64<sp/>=<sp/>0xc0c0cafeUL<sp/>&lt;&lt;<sp/>32;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>write_verify&lt;uint32_t&gt;(d_afu,<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" kindref="member">SCRATCHPAD</ref>,<sp/>dummy_value32);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>write_verify&lt;uint64_t&gt;(d_afu,<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" kindref="member">SCRATCHPAD</ref>,<sp/>dummy_value64);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>scratch_i<sp/>=<sp/>start;<sp/>scratch_i<sp/>&lt;<sp/>end;<sp/>++scratch_i)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>write_verify&lt;uint32_t&gt;(d_afu,<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139" kindref="member">MMIO_TEST_SCRATCHPAD</ref>,<sp/>scratch_i,<sp/>dummy_value32<sp/>|<sp/>scratch_i);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>write_verify&lt;uint64_t&gt;(d_afu,<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139" kindref="member">MMIO_TEST_SCRATCHPAD</ref>,<sp/>scratch_i,<sp/>dummy_value64<sp/>|<sp/>scratch_i);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="classdummy__afu_1_1mmio__test_1acd17b7274c884cc6f0b700e00c3c4db1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1mmio__test_1acd17b7274c884cc6f0b700e00c3c4db1" kindref="member">run_perf</ref>(<ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>*afu,<sp/>CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void(*perf_test)(std::shared_ptr&lt;spdlog::logger&gt;,<sp/><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref>*,<sp/>uint32_t);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;uint32_t,<sp/>perf_test&gt;<sp/>rd_tests</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{8,<sp/>timeit_rd&lt;uint8_t&gt;},</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{16,<sp/>timeit_rd&lt;uint16_t&gt;},</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{32,<sp/>timeit_rd&lt;uint32_t&gt;},</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{64,<sp/>timeit_rd&lt;uint64_t&gt;},</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;uint32_t,<sp/>perf_test&gt;<sp/>wr_tests</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{8,<sp/>timeit_wr&lt;uint8_t&gt;},</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{16,<sp/>timeit_wr&lt;uint16_t&gt;},</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{32,<sp/>timeit_wr&lt;uint32_t&gt;},</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{64,<sp/>timeit_wr&lt;uint64_t&gt;},</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>log<sp/>=<sp/>spdlog::get(this-&gt;<ref refid="classdummy__afu_1_1mmio__test_1a1bfdb1527b7284659cba26e0d6dc7777" kindref="member">name</ref>());</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classdummy__afu_1_1mmio__test_1a97e5092750cb8d3e671b6fc6d66eebcc" kindref="member">op_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;wr&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>wr_tests[<ref refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" kindref="member">width_</ref>](log,<sp/>afu,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>rd_tests[<ref refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" kindref="member">width_</ref>](log,<sp/>afu,<sp/><ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="181" refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classdummy__afu_1_1mmio__test_1a04fa6884b8ffc217cace4c2581eb1ac8" kindref="member">count_</ref>;</highlight></codeline>
+<codeline lineno="182" refid="classdummy__afu_1_1mmio__test_1a345f52c800f65b0f97f01756fa20e419" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classdummy__afu_1_1mmio__test_1a345f52c800f65b0f97f01756fa20e419" kindref="member">sp_index_</ref>;</highlight></codeline>
+<codeline lineno="183" refid="classdummy__afu_1_1mmio__test_1a9df22c82e86ee0d2205676960c01094e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1mmio__test_1a9df22c82e86ee0d2205676960c01094e" kindref="member">perf_</ref>;</highlight></codeline>
+<codeline lineno="184" refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classdummy__afu_1_1mmio__test_1a1475d7585eecd522b39b0767eff6e0a8" kindref="member">width_</ref>;</highlight></codeline>
+<codeline lineno="185" refid="classdummy__afu_1_1mmio__test_1a97e5092750cb8d3e671b6fc6d66eebcc" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classdummy__afu_1_1mmio__test_1a97e5092750cb8d3e671b6fc6d66eebcc" kindref="member">op_</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>dummy_afu</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="samples/dummy_afu/mmio.h"/>
+  </compounddef>
+</doxygen>

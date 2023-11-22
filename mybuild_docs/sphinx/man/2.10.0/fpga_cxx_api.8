@@ -1,0 +1,2235 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "FPGA_CXX_API" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+fpga_cxx_api \- OPAE C++ API
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.sp
+The reference documentation for the OPAE C++ Core API is grouped into the following
+sections:
+.INDENT 0.0
+.IP \(bu 2
+\fI\%Overview\fP
+.IP \(bu 2
+\fI\%Goals\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%Simplicity\fP
+.IP \(bu 2
+\fI\%Extensibility and Interoperability\fP
+.IP \(bu 2
+\fI\%Modern C++ Coding Practices\fP
+.IP \(bu 2
+\fI\%Error Handling\fP
+.IP \(bu 2
+\fI\%Coding Style\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Fundamental Types\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%Properties\fP
+.IP \(bu 2
+\fI\%pvalue.h\fP
+.IP \(bu 2
+\fI\%properties.h\fP
+.IP \(bu 2
+\fI\%Resource Classes\fP
+.IP \(bu 2
+\fI\%token.h\fP
+.IP \(bu 2
+\fI\%handle.h\fP
+.IP \(bu 2
+\fI\%shared_buffer.h\fP
+.IP \(bu 2
+\fI\%errors.h\fP
+.IP \(bu 2
+\fI\%events.h\fP
+.IP \(bu 2
+\fI\%sysobject.h\fP
+.IP \(bu 2
+\fI\%Exceptions\fP
+.IP \(bu 2
+\fI\%except.h\fP
+.IP \(bu 2
+\fI\%Misc\fP
+.IP \(bu 2
+\fI\%version.h\fP
+.UNINDENT
+.UNINDENT
+.SH OVERVIEW
+.sp
+The OPAE C++ API enables C++ developers with the means to use FPGA resources
+by integrating the OPAE software stack into C++ applications.
+.SH GOALS
+.SS Simplicity
+.sp
+Keep the API as small and lightweight as possible. Although features such as
+system validation and orchestration are beyond the scope of this API, using
+this API for their development should be relatively easy.
+.SS Extensibility and Interoperability
+.sp
+While keeping to the goal of simplicity, the OPAE C++ API is designed to allow
+for better reuse by either extending the API or by integrating with other
+languages.
+.SS Modern C++ Coding Practices
+.sp
+The OPAE C++ API uses the C++ 11 standard library and makes use of its features
+whenever practical. The OPAE C++ API is also designed to require the minimum
+number of third\-party libraries/dependencies.
+.SS Error Handling
+.sp
+The OPAE C++ API is designed to throw exceptions when appropriate. The
+structure of OPAE C++ exceptions is similar to the error codes in the
+OPAE C API. This gives users of the API more freedom on error handling
+while providing better debug information in cases of failure.
+.SS Coding Style
+.sp
+For formatting of the OPAE C++ API complies with most of the recommendations
+of the Google C++ style. For example, the OPAE C++ API uses:
+.INDENT 0.0
+.IP \(bu 2
+opening braces on the same line as their scope definition
+.IP \(bu 2
+spaces instead of tabs for indentation
+.IP \(bu 2
+indentation of two spaces
+.UNINDENT
+.SH FUNDAMENTAL TYPES
+.sp
+Basic types for the OPAE C++ API are found in the \fIopae::fpga::types\fP
+namespace. They serve as an adapter layer between the OPAE C API and
+the OPAE C++ layer. Aside from providing a C++ binding to the C
+fundamental types, these types also:
+.INDENT 0.0
+.IP \(bu 2
+manage the lifetime and scope of the corresponding C struct.
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+For example a C++ destructor will take care of calling the
+appropriate C function to release the data structure being
+wrapped.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+provide a friendly syntax for using the OPAE C type.
+.UNINDENT
+.sp
+Most classes in this namespace have a \fIc_type()\fP method that returns
+the C data structure being wrapped, making it easy to use the OPAE C++
+type with the OPAE C API. Alternatively, most classes in this namespace
+have implicit conversion operators that enable interoperability with
+the OPAE C API.
+.SS Properties
+.sp
+C++ class \fIproperties\fP wraps \fIfpga_properties\fP and uses \fIpvalue\fP
+and \fIguid_t\fP to get and set properties stored in an instance of
+an \fIfpga_properties\fP\&. \fIpvalue\fP and \fIguid_t\fP are designed to call
+an accessor method in the OPAE C API to either read property
+values or write them. Most accessor methods in the OPAE C API
+share a similar signature, so \fIpvalue\fP generalizes them into
+common operations that translate into calling the corresponding
+C API function. \fIguid_t\fP follows similar patterns when reading
+or assigning values.
+.SS pvalue.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B struct  guid_t 
+\fI#include <opae/cxx/core/pvalue.h>\fP
+.sp
+Representation of the guid member of a properties object. 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  guid_t(\fI\%fpga_properties\fP  *p) 
+Construct the \fI\%guid_t\fP given its containing fpga_properties. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  void  update() 
+Update the local cached copy of the guid. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  uint8_t*() 
+Return a raw pointer to the guid. 
+.INDENT 7.0
+.TP
+.B Return values
+\fBnullptr\fP – if the guid could not be queried. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  const  uint8_t  *c_type()  const 
+Return a raw pointer to the guid. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%guid_t\fP  &operator=(\fI\%fpga_guid\fP  g) 
+Assign from fpga_guid Sets the guid field of the associated properties object using the OPAE properties API. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBg\fP – \fB[in]\fP The given fpga_guid. 
+.TP
+.B Returns
+a reference to this \fI\%guid_t\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  bool  operator==(const  \fI\%fpga_guid\fP  &g) 
+Compare contents with an fpga_guid. 
+.INDENT 7.0
+.TP
+.B Return values
+\fBThe\fP – result of memcmp of the two objects. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  void  parse(const  char  *str) 
+Convert a string representation of a guid to binary. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstr\fP – \fB[in]\fP The guid string. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  bool  is_set()  const 
+Tracks whether the cached local copy of the guid is valid. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  void  invalidate() 
+Invalidate the cached local copy of the guid. 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_properties\fP  *props_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bool  is_set_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B std::array<uint8_t,  16>  data_ 
+.UNINDENT
+.sp
+Friends
+.INDENT 7.0
+.TP
+.B inline  friend  std::ostream  &operator<<(std::ostream  &ostr, const  \fI\%guid_t\fP  &g) 
+Send the string representation of the \fI\%guid_t\fP to the given stream. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B template<typename  T> struct  pvalue 
+\fI#include <opae/cxx/core/pvalue.h>\fP
+.sp
+Wraps OPAE properties defined in the OPAE C API by associating an \fBfpga_properties\fP reference with the getters and setters defined for a property. 
+.INDENT 7.0
+.TP
+.B Template Parameters
+\fBT\fP – The type of the property value being wrapped 
+.UNINDENT
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::conditional<std::is_same<\fI\%T\fP,  char*>::value,  \fI\%fpga_result\fP  (*)(\fI\%fpga_properties\fP,  \fI\%T\fP),  \fI\%fpga_result\fP  (*)(\fI\%fpga_properties\fP,  \fI\%T\fP*)>::type  getter_t 
+Define getter function as getter_t For \fBchar*\fP types, do not use T* as the second argument but instead use T. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B typedef  \fI\%fpga_result\fP  (*setter_t)(\fI\%fpga_properties\fP,  \fI\%T\fP) 
+Define the setter function as setter_t. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B typedef  std::conditional<std::is_same<\fI\%T\fP,  char*>::value,  typename  std::string,  \fI\%T\fP>::type  copy_t 
+Define the type of our copy variable For \fBchar*\fP types use std::string as the copy. 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  pvalue() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  pvalue(\fI\%fpga_properties\fP  *p, \fI\%getter_t\fP  g, \fI\%setter_t\fP  s) 
+pvalue contructor that takes in a reference to fpga_properties and corresponding accessor methods for a property 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBp\fP – A reference to an fpga_properties 
+.IP \(bu 2
+\fBg\fP – The getter function 
+.IP \(bu 2
+\fBs\fP – The setter function 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%pvalue\fP<\fI\%T\fP>  &operator=(const  \fI\%T\fP  &v) 
+Overload of \fB=\fP operator that calls the wrapped setter. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBv\fP – The value to set
+.TP
+.B Returns
+A reference to itself 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  bool  operator==(const  \fI\%T\fP  &other) 
+Compare a property for equality with a value. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBother\fP – The value being compared to
+.TP
+.B Returns
+Whether or not the property is equal to the value 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  void  update() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%copy_t\fP() 
+Implicit converter operator \- calls the wrapped getter. 
+.INDENT 7.0
+.TP
+.B Returns
+The property value after calling the getter or a default value of the value type 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_result\fP  get_value(\fI\%T\fP  &value)  const 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  bool  is_set()  const 
+Tracks whether the cached local copy of the pvalue is valid. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  void  invalidate() 
+Invalidate the cached local copy of the pvalue. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  void  update() 
+Template specialization of \fBchar*\fP type property updater. 
+.INDENT 7.0
+.TP
+.B Returns
+The result of the property getter function. 
+.UNINDENT
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_properties\fP  *props_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bool  is_set_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%getter_t\fP  get_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%setter_t\fP  set_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%copy_t\fP  copy_ 
+.UNINDENT
+.sp
+Friends
+.INDENT 7.0
+.TP
+.B inline  friend  std::ostream  &operator<<(std::ostream  &ostr, const  \fI\%pvalue\fP<\fI\%T\fP>  &p) 
+Stream overalod operator. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBostr\fP – The output stream 
+.IP \(bu 2
+\fBp\fP – A reference to a pvalue<T> object
+.UNINDENT
+.TP
+.B Returns
+The stream operator after streaming the property value 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS properties.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  properties 
+\fI#include <opae/cxx/core/properties.h>\fP
+.sp
+Wraps an OPAE fpga_properties object.
+.sp
+properties are information describing an accelerator resource that is identified by its token. The properties are used during enumeration to narrow the search for an accelerator resource, and after enumeration to provide the configuration of that resource. 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%properties\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B properties(const  \fI\%properties\fP  &p)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%properties\fP  &operator=(const  \fI\%properties\fP  &p)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B ~properties() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_properties\fP  c_type()  const 
+Get the underlying fpga_properties object. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%fpga_properties\fP()  const 
+Get the underlying fpga_properties object. 
+.UNINDENT
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<\fI\%fpga_objtype\fP>  type 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint32_t>  num_errors 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint16_t>  segment 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint8_t>  bus 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint8_t>  device 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint8_t>  function 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint8_t>  socket_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint32_t>  num_slots 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint64_t>  bbs_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<\fI\%fpga_version\fP>  bbs_version 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint16_t>  vendor_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint16_t>  device_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint16_t>  subsystem_vendor_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint16_t>  subsystem_device_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<char*>  model 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint64_t>  local_memory_size 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint64_t>  capabilities 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint32_t>  num_mmio 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint32_t>  num_interrupts 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<\fI\%fpga_accelerator_state\fP>  accelerator_state 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<uint64_t>  object_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<\fI\%fpga_token\fP>  parent 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%pvalue\fP<\fI\%fpga_interface\fP>  interface 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%guid_t\fP  guid 
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%properties\fP::\fI\%ptr_t\fP  get() 
+Create a new properties object. 
+.INDENT 7.0
+.TP
+.B Returns
+A properties smart pointer. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%properties\fP::\fI\%ptr_t\fP  get(\fI\%fpga_guid\fP  guid_in) 
+Create a new properties object from a guid. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBguid_in\fP – A guid to set in the properties 
+.TP
+.B Returns
+A properties smart pointer with its guid initialized to guid_in 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%properties\fP::\fI\%ptr_t\fP  get(\fI\%fpga_objtype\fP  objtype) 
+Create a new properties object from an fpga_objtype. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBobjtype\fP – An object type to set in the properties 
+.TP
+.B Returns
+A properties smart pointer with its object type set to objtype. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%properties\fP::\fI\%ptr_t\fP  get(std::shared_ptr<\fI\%token\fP>  t) 
+Retrieve the properties for a given token object. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBt\fP – \fB[in]\fP A token identifying the accelerator resource. 
+.TP
+.B Returns
+A properties smart pointer for the given token. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%properties\fP::\fI\%ptr_t\fP  get(\fI\%fpga_token\fP  t) 
+Retrieve the properties for a given fpga_token. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBt\fP – \fB[in]\fP An fpga_token identifying the accelerator resource. 
+.TP
+.B Returns
+A properties smart pointer for the given fpga_token. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%properties\fP::\fI\%ptr_t\fP  get(std::shared_ptr<\fI\%handle\fP>  h) 
+Retrieve the properties for a given handle object. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBh\fP – \fB[in]\fP A handle identifying the accelerator resource. 
+.TP
+.B Returns
+A properties smart pointer for the given handle. 
+.UNINDENT
+.UNINDENT
+.sp
+Public Static Attributes
+.INDENT 7.0
+.TP
+.B static  const  std::vector<\fI\%properties\fP::\fI\%ptr_t\fP>  none 
+An empty vector of properties. Useful for enumerating based on a “match all” criteria. 
+.UNINDENT
+.sp
+Private Functions
+.INDENT 7.0
+.TP
+.B properties(bool  alloc_props  =  true) 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_properties\fP  props_ 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Resource Classes
+.sp
+The \fItoken\fP, \fIhandle\fP, and \fIshared_buffer\fP classes are used to
+enumerate and access FPGA resources. \fIproperties\fP are used to
+narrow the search space for \fItoken\fP’s. Before enumerating the
+accelerator resources in the system, applications can produce
+one or more \fIproperties\fP objects whose values are set to the
+desired characteristics for the resource. For example, an
+application may search for an accelerator resource based on
+its guid.
+.sp
+Once one or more \fItoken\fP’s have been enumerated, the application
+must choose which \fItoken\fP’s to request. The \fItoken\fP is then
+converted to a \fIhandle\fP by requesting that a \fIhandle\fP object
+be allocated and opened for it.
+.sp
+Once a \fIhandle\fP has been successfully opened, the application
+can read and write the associated configuration and status
+space. Additionally, the application may use the \fIhandle\fP to
+allocate \fIshared_buffer\fP’s or to register \fIevent\fP’s. The
+\fIshared_buffer\fP and \fIevent\fP objects retain a reference to
+their owning \fIhandle\fP so that the \fIhandle\fP does not lose
+scope before freeing the \fIshared_buffer\fP and \fIevent\fP objects.
+.SS token.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  token 
+\fI#include <opae/cxx/core/token.h>\fP
+.sp
+Wraps the OPAE fpga_token primitive. token’s are created from an enumeration operation that uses properties describing an accelerator resource as search criteria. 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%token\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B ~token() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_token\fP  c_type()  const 
+Retrieve the underlying fpga_token primitive. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%fpga_token\fP()  const 
+Retrieve the underlying fpga_token primitive. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%ptr_t\fP  get_parent()  const 
+Retrieve the parent token, or an empty pointer if there is none. 
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  std::vector<\fI\%token\fP::\fI\%ptr_t\fP>  enumerate(const  std::vector<\fI\%properties\fP::\fI\%ptr_t\fP>  &props) 
+Obtain a vector of token smart pointers for given search criteria. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBprops\fP – \fB[in]\fP The search criteria. 
+.TP
+.B Returns
+A set of known tokens that match the search. 
+.UNINDENT
+.UNINDENT
+.sp
+Private Functions
+.INDENT 7.0
+.TP
+.B token(\fI\%fpga_token\fP  tok) 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_token\fP  token_ 
+.UNINDENT
+.sp
+Friends
+.INDENT 7.0
+.TP
+.B friend class handle
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS handle.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  handle 
+\fI#include <opae/cxx/core/handle.h>\fP
+.sp
+An allocated accelerator resource
+.sp
+Represents an accelerator resource that has been allocated by OPAE. Depending on the type of resource, its register space may be read/written using a handle object. 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%handle\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B handle(const  \fI\%handle\fP&)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%handle\fP  &operator=(const  \fI\%handle\fP&)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B virtual  ~handle() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_handle\fP  c_type()  const 
+Retrieve the underlying OPAE handle. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%fpga_handle\fP()  const 
+Retrieve the underlying OPAE handle. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  reconfigure(uint32_t  slot, const  uint8_t  *bitstream, size_t  size, int  flags) 
+Load a bitstream into an FPGA slot. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBslot\fP – The slot number to program 
+.IP \(bu 2
+\fBbitstream\fP – The bitstream binary data 
+.IP \(bu 2
+\fBsize\fP – The size of the bitstream 
+.IP \(bu 2
+\fBflags\fP – Flags that control behavior of reconfiguration. Value of 0 indicates no flags. FPGA_RECONF_FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use.
+.UNINDENT
+.TP
+.B Throws
+.INDENT 7.0
+.IP \(bu 2
+\fI\%invalid_param\fP – if the handle is not an FPGA device handle or if the other parameters are not valid. 
+.IP \(bu 2
+\fI\%exception\fP – if an internal error is encountered. 
+.IP \(bu 2
+\fI\%busy\fP – if the accelerator for the given slot is in use. 
+.IP \(bu 2
+\fI\%reconf_error\fP – if errors are reported by the driver (CRC or protocol errors). 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint32_t  read_csr32(uint64_t  offset, uint32_t  csr_space  =  0)  const 
+Read 32 bits from a CSR belonging to a resource associated with a handle. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The register offset 
+.IP \(bu 2
+\fBcsr_space\fP – \fB[in]\fP The CSR space to read from. Default is 0.
+.UNINDENT
+.TP
+.B Returns
+The 32\-bit value read from the CSR 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  write_csr32(uint64_t  offset, uint32_t  value, uint32_t  csr_space  =  0) 
+Write 32 bit to a CSR belonging to a resource associated with a handle. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The register offset. 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP The 32\-bit value to write to the register. 
+.IP \(bu 2
+\fBcsr_space\fP – \fB[in]\fP The CSR space to read from. Default is 0. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  read_csr64(uint64_t  offset, uint32_t  csr_space  =  0)  const 
+Read 64 bits from a CSR belonging to a resource associated with a handle. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The register offset 
+.IP \(bu 2
+\fBcsr_space\fP – \fB[in]\fP The CSR space to read from. Default is 0.
+.UNINDENT
+.TP
+.B Returns
+The 64\-bit value read from the CSR 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  write_csr64(uint64_t  offset, uint64_t  value, uint32_t  csr_space  =  0) 
+Write 64 bits to a CSR belonging to a resource associated with a handle. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The register offset. 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP The 64\-bit value to write to the register. 
+.IP \(bu 2
+\fBcsr_space\fP – \fB[in]\fP The CSR space to read from. Default is 0. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  write_csr512(uint64_t  offset, const  void  *value, uint32_t  csr_space  =  0) 
+Write 512 bits to a CSR belonging to a resource associated with a handle. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The register offset. 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP Pointer to the 512\-bit value to write to the register. 
+.IP \(bu 2
+\fBcsr_space\fP – \fB[in]\fP The CSR space to read from. Default is 0. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint8_t  *mmio_ptr(uint64_t  offset, uint32_t  csr_space  =  0)  const 
+Retrieve a pointer to the MMIO region. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The byte offset to add to MMIO base. 
+.IP \(bu 2
+\fBcsr_space\fP – \fB[in]\fP The desired CSR space. Default is 0. 
+.UNINDENT
+.TP
+.B Returns
+MMIO base + offset 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B virtual  void  reset() 
+Reset the accelerator identified by this handle 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_result\fP  close() 
+Close an accelerator resource (if opened)
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This is available for explicitly closing a handle. The destructor for handle will call close. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Returns
+fpga_result indication the result of closing the handle or FPGA_EXCEPTION if handle is not opened
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%token\fP::\fI\%ptr_t\fP  get_token()  const 
+Retrieve the token corresponding to this handle object. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint32_t  bind_sva() 
+Bind IOMMU shared virtual addressing
+.INDENT 7.0
+.TP
+.B Returns
+the non\-zero process address space ID on success or zero on failure. 
+.UNINDENT
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%handle\fP::\fI\%ptr_t\fP  open(\fI\%fpga_token\fP  token, int  flags) 
+Open an accelerator resource, given a raw fpga_token
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtoken\fP – \fB[in]\fP A token describing the accelerator resource to be allocated.
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP The flags parameter to \fI\%fpgaOpen()\fP\&.
+.UNINDENT
+.TP
+.B Returns
+pointer to the mmio base + offset for the given csr space 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%handle\fP::\fI\%ptr_t\fP  open(\fI\%token\fP::ptr_t  token, int  flags) 
+Open an accelerator resource, given a token object
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtoken\fP – \fB[in]\fP A token object describing the accelerator resource to be allocated.
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP The flags parameter to \fI\%fpgaOpen()\fP\&.
+.UNINDENT
+.TP
+.B Returns
+shared ptr to a handle object 
+.UNINDENT
+.UNINDENT
+.sp
+Private Functions
+.INDENT 7.0
+.TP
+.B handle(\fI\%fpga_handle\fP  h) 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_handle\fP  handle_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_token\fP  token_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint32_t  pasid_ 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS shared_buffer.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  shared_buffer 
+\fI#include <opae/cxx/core/shared_buffer.h>\fP
+.sp
+Host/AFU shared memory blocks
+.sp
+\fI\%shared_buffer\fP abstracts a memory block that may be shared between the host cpu and an accelerator. The block may be allocated by the \fI\%shared_buffer\fP class itself (see allocate), or it may be allocated elsewhere and then attached to a \fI\%shared_buffer\fP object via attach. 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::size_t  size_t 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%shared_buffer\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B shared_buffer(const  \fI\%shared_buffer\fP&)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%shared_buffer\fP  &operator=(const  \fI\%shared_buffer\fP&)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B virtual  ~shared_buffer() 
+\fI\%shared_buffer\fP destructor. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  release() 
+Disassociate the \fI\%shared_buffer\fP object from the resource used to create it. If the buffer was allocated using the allocate function then the buffer is freed. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  uint8_t  *c_type()  const 
+Retrieve the virtual address of the buffer base.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Instances of a shared buffer can only be created using either ‘allocate’ or ‘attach’ static factory function. Because these functions return a shared pointer (std::shared_ptr) to the instance, references to an instance are counted automatically by design of the shared_ptr class. Calling ‘\fI\%c_type()\fP’ function is provided to get access to the raw data but isn’t used in tracking its reference count. Assigning this to a variable should be done in limited scopes as this variable can be defined in an outer scope and may outlive the \fI\%shared_buffer\fP object. Once the reference count in the shared_ptr reaches zero, the \fI\%shared_buffer\fP object will be released and deallocated, turning any variables assigned from a call to ‘\fI\%c_type()\fP’ into dangling pointers. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%handle\fP::\fI\%ptr_t\fP  owner()  const 
+Retrieve the handle smart pointer associated with this buffer. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%size_t\fP  size()  const 
+Retrieve the length of the buffer in bytes. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  uint64_t  wsid()  const 
+Retrieve the underlying buffer’s workspace id. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  uint64_t  io_address()  const 
+Retrieve the address of the buffer suitable for programming into the accelerator device. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  fill(int  c) 
+Write c to each byte location in the buffer. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B int  compare(\fI\%ptr_t\fP  other, \fI\%size_t\fP  len)  const 
+Compare this \fI\%shared_buffer\fP (the first len bytes) to that held in other, using memcmp(). 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B template<typename  T> inline  \fI\%T\fP  read(\fI\%size_t\fP  offset)  const 
+Read a T\-sized block of memory at the given location. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBoffset\fP – \fB[in]\fP The byte offset from the start of the buffer. 
+.TP
+.B Returns
+A T from buffer base + offset. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B template<typename  T> inline  void  write(const  \fI\%T\fP  &value, \fI\%size_t\fP  offset) 
+Write a T\-sized block of memory to the given location. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP The value to write. 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The byte offset from the start of the buffer. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%shared_buffer\fP::\fI\%ptr_t\fP  allocate(\fI\%handle\fP::ptr_t  handle, \fI\%size_t\fP  len, bool  read_only  =  false) 
+\fI\%shared_buffer\fP factory method \- allocate a \fI\%shared_buffer\fP\&. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP The handle used to allocate the buffer. 
+.IP \(bu 2
+\fBlen\fP – \fB[in]\fP The length in bytes of the requested buffer. 
+.UNINDENT
+.TP
+.B Returns
+A valid \fI\%shared_buffer\fP smart pointer on success, or an empty smart pointer on failure. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%shared_buffer\fP::\fI\%ptr_t\fP  attach(\fI\%handle\fP::ptr_t  handle, uint8_t  *base, \fI\%size_t\fP  len, bool  read_only  =  false) 
+Attach a pre\-allocated buffer to a \fI\%shared_buffer\fP object.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP The handle used to attach the buffer. 
+.IP \(bu 2
+\fBbase\fP – \fB[in]\fP The base of the pre\-allocated memory. 
+.IP \(bu 2
+\fBlen\fP – \fB[in]\fP The size of the pre\-allocated memory, which must be a multiple of the page size. 
+.UNINDENT
+.TP
+.B Returns
+A valid \fI\%shared_buffer\fP smart pointer on success, or an empty smart pointer on failure. 
+.UNINDENT
+.UNINDENT
+.sp
+Protected Functions
+.INDENT 7.0
+.TP
+.B shared_buffer(\fI\%handle\fP::ptr_t  handle, \fI\%size_t\fP  len, uint8_t  *virt, uint64_t  wsid, uint64_t  io_address) 
+.UNINDENT
+.sp
+Protected Attributes
+.INDENT 7.0
+.TP
+.B \fI\%handle\fP::\fI\%ptr_t\fP  handle_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%size_t\fP  len_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint8_t  *virt_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  wsid_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  io_address_ 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS errors.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  error 
+\fI#include <opae/cxx/core/errors.h>\fP
+.sp
+An error object represents an error register for a resource. This is used to read out the raw value in the register. No parsing is done by this class. 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%error\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B error(const  \fI\%error\fP  &e)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%error\fP  &operator=(const  \fI\%error\fP  &e)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  std::string  name() 
+Get the error register name. 
+.INDENT 7.0
+.TP
+.B Returns
+A std::string object set to the error name. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  bool  can_clear() 
+Indicates whether an error register can be cleared. 
+.INDENT 7.0
+.TP
+.B Returns
+A boolean value indicating if the error register can be cleared. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  read_value() 
+Read the raw value contained in the associated error register. 
+.INDENT 7.0
+.TP
+.B Returns
+A 64\-bit value (unparsed) read from the error register 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  ~error() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_error_info\fP  c_type()  const 
+Get the C data structure. 
+.INDENT 7.0
+.TP
+.B Returns
+The \fI\%fpga_error_info\fP that contains the name and the can_clear boolean. 
+.UNINDENT
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%error\fP::\fI\%ptr_t\fP  get(\fI\%token\fP::\fI\%ptr_t\fP  tok, uint32_t  num) 
+Factory function for creating an error object. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtok\fP – The token object representing a resource. 
+.IP \(bu 2
+\fBnum\fP – The index of the error register. This must be lower than the num_errors property of the resource.
+.UNINDENT
+.TP
+.B Returns
+A shared_ptr containing the error object 
+.UNINDENT
+.UNINDENT
+.sp
+Private Functions
+.INDENT 7.0
+.TP
+.B error(\fI\%token\fP::ptr_t  token, uint32_t  num) 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%token\fP::\fI\%ptr_t\fP  token_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_error_info\fP  error_info_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint32_t  error_num_ 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS events.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  event 
+\fI#include <opae/cxx/core/events.h>\fP
+.sp
+Wraps fpga event routines in OPAE C. 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%event\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B virtual  ~event() 
+Destroy event and associated resources. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_event_handle\fP  get() 
+Get the fpga_event_handle contained in this object. 
+.INDENT 7.0
+.TP
+.B Returns
+The fpga_event_handle contained in this object 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B operator  \fI\%fpga_event_handle\fP() 
+Coversion operator for converting to fpga_event_handle objects. 
+.INDENT 7.0
+.TP
+.B Returns
+The fpga_event_handle contained in this object 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B int  os_object()  const 
+Get OS Object from the event object. 
+.sp
+Get an OS specific object from the event which can be used to subscribe for events. On Linux, the object corresponds to a file descriptor that can be used with select/poll/epoll calls.
+.INDENT 7.0
+.TP
+.B Returns
+An integer object representing the OS object 
+.UNINDENT
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%event\fP::\fI\%ptr_t\fP  register_event(\fI\%handle\fP::\fI\%ptr_t\fP  h, \fI\%event\fP::\fI\%type_t\fP  t, int  flags  =  0) 
+Factory function to create event objects. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh\fP – A shared ptr of a resource handle 
+.IP \(bu 2
+\fBt\fP – The resource type 
+.IP \(bu 2
+\fBflags\fP – Event registration flags passed on to fpgaRegisterEvent
+.UNINDENT
+.TP
+.B Returns
+A shared ptr to an event object 
+.UNINDENT
+.UNINDENT
+.sp
+Private Functions
+.INDENT 7.0
+.TP
+.B event(\fI\%handle\fP::\fI\%ptr_t\fP  h, \fI\%event\fP::type_t  t, \fI\%fpga_event_handle\fP  event_h) 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%handle\fP::\fI\%ptr_t\fP  handle_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%event\fP::\fI\%type_t\fP  type_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_event_handle\fP  event_handle_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B int  os_object_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B struct  type_t 
+\fI#include <opae/cxx/core/events.h>\fP
+.sp
+C++ struct that is interchangeable with fpga_event_type enum. 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  type_t(\fI\%fpga_event_type\fP  c_type) 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%fpga_event_type\fP() 
+.UNINDENT
+.sp
+Public Static Attributes
+.INDENT 7.0
+.TP
+.B static  constexpr  \fI\%fpga_event_type\fP  interrupt  =  \fI\%FPGA_EVENT_INTERRUPT\fP 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  constexpr  \fI\%fpga_event_type\fP  error  =  \fI\%FPGA_EVENT_ERROR\fP 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  constexpr  \fI\%fpga_event_type\fP  power_thermal  =  \fI\%FPGA_EVENT_POWER_THERMAL\fP 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_event_type\fP  type_ 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS sysobject.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  sysobject 
+\fI#include <opae/cxx/core/sysobject.h>\fP
+.sp
+Wraps the OPAE fpga_object primitive. sysobject’s are created from a call to fpgaTokenGetObject, fpgaHandleGetObject, or fpgaObjectGetObject 
+.sp
+Public Types
+.INDENT 7.0
+.TP
+.B typedef  std::shared_ptr<\fI\%sysobject\fP>  ptr_t 
+.UNINDENT
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B sysobject()  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B sysobject(const  \fI\%sysobject\fP  &o)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%sysobject\fP  &operator=(const  \fI\%sysobject\fP  &o)  =  delete 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%sysobject\fP::\fI\%ptr_t\fP  get(const  std::string  &name, int  flags  =  0) 
+Get a sysobject from an object. This will be read\-write if its parent was created from a handle.. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBname\fP – \fB[in]\fP An identifier representing an object belonging to this object. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects. Flags are defaulted to 0 meaning no flags.
+.UNINDENT
+.TP
+.B Returns
+A shared_ptr to a sysobject instance. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%sysobject\fP::\fI\%ptr_t\fP  get(int  index) 
+Get a sysobject from a container object. This will be read\-write if its parent was created from a handle.. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBindex\fP – \fB[in]\fP An index number to get.
+.TP
+.B Returns
+A shared_ptr to a sysobject instance. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B virtual  ~sysobject() 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint32_t  size()  const 
+Get the size (in bytes) of the object. 
+.INDENT 7.0
+.TP
+.B Returns
+The number of bytes that the object occupies in memory. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  read64(int  flags  =  0)  const 
+Read a 64\-bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBflags\fP – \fB[in]\fP Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data. If FPGA_OBJECT_RAW is used, then the data will be read as raw bytes into the uint64_t pointer variable. Flags are defaulted to 0 meaning no flags.
+.TP
+.B Returns
+A 64\-bit value from the object. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B void  write64(uint64_t  value, int  flags  =  0)  const 
+Write 64\-bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. 
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This operation will force a sync operation to update its cached buffer 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP The value to write to the object. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control how the object is written If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes. Flags are defaulted to 0 meaning no flags.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B std::vector<uint8_t>  bytes(int  flags  =  0)  const 
+Get all raw bytes from the object. 
+.INDENT 7.0
+.TP
+.B Parameters
+\fBflags\fP – \fB[in]\fP Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data.
+.TP
+.B Returns
+A vector of all bytes in the object. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B std::vector<uint8_t>  bytes(uint32_t  offset, uint32_t  size, int  flags  =  0)  const 
+Get a subset of raw bytes from the object. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP The bytes offset for the start of the returned vector. 
+.IP \(bu 2
+\fBsize\fP – \fB[in]\fP The number of bytes for the returned vector. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data.
+.UNINDENT
+.TP
+.B Returns
+A vector of size bytes in the object starting at offset. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enum  \fI\%fpga_sysobject_type\fP  type()  const 
+Get the object type (attribute or container) 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  \fI\%fpga_object\fP  c_type()  const 
+Retrieve the underlying fpga_object primitive. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%fpga_object\fP()  const 
+Retrieve the underlying fpga_object primitive. 
+.UNINDENT
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%sysobject\fP::\fI\%ptr_t\fP  get(\fI\%token\fP::\fI\%ptr_t\fP  t, const  std::string  &name, int  flags  =  0) 
+Get a sysobject from a token. This will be read\-only. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBt\fP – \fB[in]\fP Token object representing a resource. 
+.IP \(bu 2
+\fBname\fP – \fB[in]\fP An identifier representing an object belonging to a resource represented by the token. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.
+.UNINDENT
+.TP
+.B Returns
+A shared_ptr to a sysobject instance. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  \fI\%sysobject\fP::\fI\%ptr_t\fP  get(\fI\%handle\fP::\fI\%ptr_t\fP  h, const  std::string  &name, int  flags  =  0) 
+Get a sysobject from a handle. This will be read\-write. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBh\fP – \fB[in]\fP Handle object representing an open resource. 
+.IP \(bu 2
+\fBname\fP – \fB[in]\fP An identifier representing an object belonging to a resource represented by the handle. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.
+.UNINDENT
+.TP
+.B Returns
+A shared_ptr to a sysobject instance. 
+.UNINDENT
+.UNINDENT
+.sp
+Private Functions
+.INDENT 7.0
+.TP
+.B sysobject(\fI\%fpga_object\fP  sysobj, \fI\%token\fP::ptr_t  token, \fI\%handle\fP::\fI\%ptr_t\fP  hnd) 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B \fI\%fpga_object\fP  sysobject_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%token\fP::\fI\%ptr_t\fP  token_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%handle\fP::\fI\%ptr_t\fP  handle_ 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Exceptions
+.sp
+When the OPAE C++ API encounters an error from the OPAE C
+API, it captures the current source code location and
+the error code into an object of type \fIexcept\fP, then
+throws the \fIexcept\fP\&. Applications should implement the
+appropriate catch blocks required to respond to runtime
+exceptions.
+.SS except.h
+.sp
+Defines
+.INDENT 0.0
+.TP
+.B OPAECXX_HERE 
+Construct a src_location object for the current source line. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ASSERT_FPGA_OK(r) 
+Macro to check of result is FPGA_OK If not, throw exception that corresponds to the result code. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  src_location 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+Identify a particular line in a source file. 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B src_location(const  char  *file, const  char  *fn, int  line)  noexcept 
+\fI\%src_location\fP constructor 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfile\fP – \fB[in]\fP The source file name, typically \fBFILE\fP\&. 
+.IP \(bu 2
+\fBfn\fP – \fB[in]\fP The current function, typically \fBfunc\fP\&. 
+.IP \(bu 2
+\fBline\fP – \fB[in]\fP The current line number, typically \fBLINE\fP\&. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B src_location(const  \fI\%src_location\fP  &other)  noexcept 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%src_location\fP  &operator=(const  \fI\%src_location\fP  &other)  noexcept 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B const  char  *file()  const  noexcept 
+Retrieve the file name component of the location. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  const  char  *fn()  const  noexcept 
+Retrieve the function name component of the location. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  int  line()  const  noexcept 
+Retrieve the line number component of the location. 
+.UNINDENT
+.sp
+Private Members
+.INDENT 7.0
+.TP
+.B const  char  *file_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B const  char  *fn_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B int  line_ 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  except  :  public  std::exception 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+Generic OPAE exception
+.sp
+An except tracks the source line of origin and an optional fpga_result. If no fpga_result is given, then FPGA_EXCEPTION is used. 
+.sp
+Subclassed by \fI\%opae::fpga::types::busy\fP, \fI\%opae::fpga::types::exception\fP, \fI\%opae::fpga::types::invalid_param\fP, \fI\%opae::fpga::types::no_access\fP, \fI\%opae::fpga::types::no_daemon\fP, \fI\%opae::fpga::types::no_driver\fP, \fI\%opae::fpga::types::no_memory\fP, \fI\%opae::fpga::types::not_found\fP, \fI\%opae::fpga::types::not_supported\fP, \fI\%opae::fpga::types::reconf_error\fP
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B except(\fI\%src_location\fP  loc)  noexcept 
+except constructor The fpga_result value is FPGA_EXCEPTION.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B except(\fI\%fpga_result\fP  res, \fI\%src_location\fP  loc)  noexcept 
+except constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBres\fP – \fB[in]\fP The fpga_result value associated with this exception. 
+.IP \(bu 2
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B except(\fI\%fpga_result\fP  res, const  char  *msg, \fI\%src_location\fP  loc)  noexcept 
+except constructor
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBres\fP – \fB[in]\fP The fpga_result value associated with this exception. 
+.IP \(bu 2
+\fBmsg\fP – \fB[in]\fP The error message as a string 
+.IP \(bu 2
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B virtual  const  char  *what()  const  noexcept  override 
+Convert this except to an informative string. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inline  operator  \fI\%fpga_result\fP()  const  noexcept 
+Convert this except to its fpga_result. 
+.UNINDENT
+.sp
+Public Static Attributes
+.INDENT 7.0
+.TP
+.B static  const  std::size_t  MAX_EXCEPT  =  256 
+.UNINDENT
+.sp
+Protected Attributes
+.INDENT 7.0
+.TP
+.B \fI\%fpga_result\fP  res_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B const  char  *msg_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%src_location\fP  loc_ 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B mutable  char  buf_[\fI\%MAX_EXCEPT\fP] 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  invalid_param  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%invalid_param\fP exception
+.sp
+\fI\%invalid_param\fP tracks the source line of origin for exceptions thrown when the error code FPGA_INVALID_PARAM is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  invalid_param(\fI\%src_location\fP  loc)  noexcept 
+\fI\%invalid_param\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  busy  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+busy exception
+.sp
+busy tracks the source line of origin for exceptions thrown when the error code FPGA_BUSY is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  busy(\fI\%src_location\fP  loc)  noexcept 
+busy constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  exception  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+exception exception
+.sp
+exception tracks the source line of origin for exceptions thrown when the error code FPGA_EXCEPTION is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  exception(\fI\%src_location\fP  loc)  noexcept 
+exception constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  not_found  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%not_found\fP exception
+.sp
+\fI\%not_found\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NOT_FOUND is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  not_found(\fI\%src_location\fP  loc)  noexcept 
+\fI\%not_found\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  no_memory  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%no_memory\fP exception
+.sp
+\fI\%no_memory\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NO_MEMORY is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  no_memory(\fI\%src_location\fP  loc)  noexcept 
+\fI\%no_memory\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  not_supported  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%not_supported\fP exception
+.sp
+\fI\%not_supported\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NOT_SUPPORTED is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  not_supported(\fI\%src_location\fP  loc)  noexcept 
+\fI\%not_supported\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  no_driver  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%no_driver\fP exception
+.sp
+\fI\%no_driver\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NO_DRIVER is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  no_driver(\fI\%src_location\fP  loc)  noexcept 
+\fI\%no_driver\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  no_daemon  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%no_daemon\fP exception
+.sp
+\fI\%no_daemon\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NO_DAEMON is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  no_daemon(\fI\%src_location\fP  loc)  noexcept 
+\fI\%no_daemon\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  no_access  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%no_access\fP exception
+.sp
+\fI\%no_access\fP tracks the source line of origin for exceptions thrown when the error code FPGA_NO_ACCESS is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  no_access(\fI\%src_location\fP  loc)  noexcept 
+\fI\%no_access\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B class  reconf_error  :  public  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%except\fP 
+\fI#include <opae/cxx/core/except.h>\fP
+.sp
+\fI\%reconf_error\fP exception
+.sp
+\fI\%reconf_error\fP tracks the source line of origin for exceptions thrown when the error code FPGA_RECONF_ERROR is returned from a call to an OPAE C API function 
+.sp
+Public Functions
+.INDENT 7.0
+.TP
+.B inline  reconf_error(\fI\%src_location\fP  loc)  noexcept 
+\fI\%reconf_error\fP constructor
+.INDENT 7.0
+.TP
+.B Parameters
+\fBloc\fP – \fB[in]\fP Location where the exception was constructed. 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B namespace  detail 
+.sp
+Typedefs
+.INDENT 7.0
+.TP
+.B typedef  bool  (*exception_fn)(\fI\%fpga_result\fP,  const  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%src_location\fP  &loc) 
+typedef function pointer that returns bool if result is FPGA_OK 
+.UNINDENT
+.sp
+Functions
+.INDENT 7.0
+.TP
+.B template<typename  T> constexpr  bool  is_ok(\fI\%fpga_result\fP  result, const  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%src_location\fP  &loc) 
+is_ok is a template function that throws an excpetion of its template argument type if the result code is not FPGA_OK. Otherwise it returns true. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  inline  void  assert_fpga_ok(\fI\%fpga_result\fP  result, const  \fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%src_location\fP  &loc) 
+.UNINDENT
+.sp
+Variables
+.INDENT 7.0
+.TP
+.B static  \fI\%exception_fn\fP  opae_exceptions[12]  =  {\fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%invalid_param\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%busy\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%exception\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%not_found\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%no_memory\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%not_supported\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%no_driver\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%no_daemon\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%no_access\fP>,  \fI\%is_ok\fP<\fI\%opae\fP::\fI\%fpga\fP::\fI\%types\fP::\fI\%reconf_error\fP>} 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Misc
+.sp
+The \fIversion\fP class wraps the OPAE C version API.
+.SS version.h
+.INDENT 0.0
+.TP
+.B namespace  opae 
+.INDENT 7.0
+.TP
+.B namespace  fpga 
+.INDENT 7.0
+.TP
+.B namespace  types 
+.INDENT 7.0
+.TP
+.B class  version 
+\fI#include <opae/cxx/core/version.h>\fP
+.sp
+Public Static Functions
+.INDENT 7.0
+.TP
+.B static  \fI\%fpga_version\fP  as_struct() 
+Get the package version information as a struct. 
+.INDENT 7.0
+.TP
+.B Returns
+The package version as an \fB\fI\%fpga_version\fP\fP struct 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  std::string  as_string() 
+Get the package version information as a string. 
+.INDENT 7.0
+.TP
+.B Returns
+The package version as an \fBstd::string\fP object 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B static  std::string  build() 
+Get the package build information as a string. 
+.INDENT 7.0
+.TP
+.B Returns
+The package build as an \fBstd::string\fP object 
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

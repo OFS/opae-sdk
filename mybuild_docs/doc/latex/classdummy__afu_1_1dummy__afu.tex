@@ -1,0 +1,277 @@
+\doxysection{dummy\+\_\+afu\+::dummy\+\_\+afu Class Reference}
+\label{classdummy__afu_1_1dummy__afu}\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+
+
+{\ttfamily \#include $<$/root/samples/dummy\+\_\+afu/dummy\+\_\+afu.\+h$>$}
+
+Inheritance diagram for dummy\+\_\+afu\+::dummy\+\_\+afu\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classdummy__afu_1_1dummy__afu}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdummy__afu_1_1dummy__afu_aae0500ab86280590301a8f2035871ea2}{dummy\+\_\+afu}} (const char $\ast$afu\+\_\+id=\char`\"{}91c2a3a1-\/4a23-\/4e21-\/a7cd-\/2b36dbf2ed73\char`\"{})
+\item 
+virtual int \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a28786abacbd10d38cb75c7735b5f06d9}{run}} (CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}, \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{test\+\_\+command\+::ptr\+\_\+t}} test) override
+\item 
+{\footnotesize template$<$typename T $>$ }\\T \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a6cfa065131aeb2c767957a427a45ca55}{read}} (uint32\+\_\+t offset) const
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a8dbe9b9d6a378367d4ebd928a40aa7df}{write}} (uint32\+\_\+t offset, T value) const
+\item 
+{\footnotesize template$<$typename T $>$ }\\T \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_aba415621cca0fff2789c41e2f2a103ce}{read}} (uint32\+\_\+t offset, uint32\+\_\+t i) const
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a924a1ad3f5a424df863ddaf368daeaab}{write}} (uint32\+\_\+t offset, uint32\+\_\+t i, T value) const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a45941fbe75bbfbe64e1ad425576c51c8}{allocate}} (size\+\_\+t size)
+\item 
+void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a367b5eea5a958b43526f6caed83fa3cd}{fill}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} buffer)
+\item 
+void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_ab2520eacac74a76eeb451b2434d7bacf}{fill}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} buffer, uint32\+\_\+t value)
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}} \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_af04b7db0dd1a4cc07a892805e02b4a4f}{register\+\_\+interrupt}} ()
+\item 
+void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a41f2ecf19989492da3d175c1f1307c45}{interrupt\+\_\+wait}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event}{event}}, int timeout=-\/1)
+\item 
+void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a5b15cc613c3c02bca2247f52b281e316}{compare}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} b1, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} b2, uint32\+\_\+t count=0)
+\item 
+{\footnotesize template$<$class T $>$ }\\T \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a7338b50ed10fd0eb076ed439c6734bed}{read\+\_\+register}} ()
+\item 
+{\footnotesize template$<$class T $>$ }\\volatile T $\ast$ \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_aaaf5867f6ca84c1c1f6e6701b463b24e}{register\+\_\+ptr}} (uint32\+\_\+t offset)
+\item 
+{\footnotesize template$<$class T $>$ }\\void \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a8575458fcf22efea09c3feb33195e043}{write\+\_\+register}} (uint32\+\_\+t offset, T $\ast$reg)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_ad76648d08dd4f8ca7fcd93f2a0cf0a57}{get\+\_\+offset}} (uint32\+\_\+t base, uint32\+\_\+t i) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_ae6e804471d96d97b1fefd1be976b1525}{count\+\_\+}}
+\item 
+std\+::map$<$ uint32\+\_\+t, uint32\+\_\+t $>$ \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a559a248f4c1be5a66bf80d164bf5b5c4}{limits\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 183 of file dummy\+\_\+afu.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classdummy__afu_1_1dummy__afu_aae0500ab86280590301a8f2035871ea2}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!dummy\_afu@{dummy\_afu}}
+\index{dummy\_afu@{dummy\_afu}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{dummy\_afu()}{dummy\_afu()}}
+{\footnotesize\ttfamily dummy\+\_\+afu\+::dummy\+\_\+afu\+::dummy\+\_\+afu (\begin{DoxyParamCaption}\item[{const char $\ast$}]{afu\+\_\+id = {\ttfamily \char`\"{}91c2a3a1-\/4a23-\/4e21-\/a7cd-\/2b36dbf2ed73\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 185 of file dummy\+\_\+afu.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classdummy__afu_1_1dummy__afu_a28786abacbd10d38cb75c7735b5f06d9}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!run@{run}}
+\index{run@{run}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int dummy\+\_\+afu\+::dummy\+\_\+afu\+::run (\begin{DoxyParamCaption}\item[{CLI\+::\+App $\ast$}]{app,  }\item[{\mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{test\+\_\+command\+::ptr\+\_\+t}}}]{test }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a2b3d816eac276d4ec1aaa6e9a632b32d}{opae\+::afu\+\_\+test\+::afu}}.
+
+
+
+Definition at line 192 of file dummy\+\_\+afu.\+h.
+
+
+
+References app, and opae\+::afu\+\_\+test\+::afu\+::run().
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a6cfa065131aeb2c767957a427a45ca55}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!read@{read}}
+\index{read@{read}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{read()}{read()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+T dummy\+\_\+afu\+::dummy\+\_\+afu\+::read (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 220 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a8dbe9b9d6a378367d4ebd928a40aa7df}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!write@{write}}
+\index{write@{write}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{write()}{write()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void dummy\+\_\+afu\+::dummy\+\_\+afu\+::write (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{T}]{value }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 225 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_aba415621cca0fff2789c41e2f2a103ce}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!read@{read}}
+\index{read@{read}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{read()}{read()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+T dummy\+\_\+afu\+::dummy\+\_\+afu\+::read (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{i }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 230 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a924a1ad3f5a424df863ddaf368daeaab}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!write@{write}}
+\index{write@{write}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{write()}{write()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void dummy\+\_\+afu\+::dummy\+\_\+afu\+::write (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{i,  }\item[{T}]{value }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 235 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a45941fbe75bbfbe64e1ad425576c51c8}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!allocate@{allocate}}
+\index{allocate@{allocate}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{allocate()}{allocate()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} dummy\+\_\+afu\+::dummy\+\_\+afu\+::allocate (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 239 of file dummy\+\_\+afu.\+h.
+
+
+
+References opae\+::fpga\+::types\+::shared\+\_\+buffer\+::allocate().
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a367b5eea5a958b43526f6caed83fa3cd}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!fill@{fill}}
+\index{fill@{fill}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{fill()}{fill()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void dummy\+\_\+afu\+::dummy\+\_\+afu\+::fill (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}}}]{buffer }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 244 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_ab2520eacac74a76eeb451b2434d7bacf}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!fill@{fill}}
+\index{fill@{fill}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{fill()}{fill()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void dummy\+\_\+afu\+::dummy\+\_\+afu\+::fill (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}}}]{buffer,  }\item[{uint32\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 256 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_af04b7db0dd1a4cc07a892805e02b4a4f}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!register\_interrupt@{register\_interrupt}}
+\index{register\_interrupt@{register\_interrupt}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{register\_interrupt()}{register\_interrupt()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}} dummy\+\_\+afu\+::dummy\+\_\+afu\+::register\+\_\+interrupt (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 261 of file dummy\+\_\+afu.\+h.
+
+
+
+References FPGA\+\_\+\+EVENT\+\_\+\+INTERRUPT, and opae\+::fpga\+::types\+::event\+::register\+\_\+event().
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a41f2ecf19989492da3d175c1f1307c45}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!interrupt\_wait@{interrupt\_wait}}
+\index{interrupt\_wait@{interrupt\_wait}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{interrupt\_wait()}{interrupt\_wait()}}
+{\footnotesize\ttfamily void dummy\+\_\+afu\+::dummy\+\_\+afu\+::interrupt\+\_\+wait (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}}}]{event,  }\item[{int}]{timeout = {\ttfamily -\/1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 267 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a5b15cc613c3c02bca2247f52b281e316}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!compare@{compare}}
+\index{compare@{compare}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{compare()}{compare()}}
+{\footnotesize\ttfamily void dummy\+\_\+afu\+::dummy\+\_\+afu\+::compare (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}}}]{b1,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}}}]{b2,  }\item[{uint32\+\_\+t}]{count = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 280 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a7338b50ed10fd0eb076ed439c6734bed}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!read\_register@{read\_register}}
+\index{read\_register@{read\_register}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{read\_register()}{read\_register()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+T dummy\+\_\+afu\+::dummy\+\_\+afu\+::read\+\_\+register (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 290 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_aaaf5867f6ca84c1c1f6e6701b463b24e}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!register\_ptr@{register\_ptr}}
+\index{register\_ptr@{register\_ptr}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{register\_ptr()}{register\_ptr()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+volatile T$\ast$ dummy\+\_\+afu\+::dummy\+\_\+afu\+::register\+\_\+ptr (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 296 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a8575458fcf22efea09c3feb33195e043}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!write\_register@{write\_register}}
+\index{write\_register@{write\_register}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{write\_register()}{write\_register()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+void dummy\+\_\+afu\+::dummy\+\_\+afu\+::write\+\_\+register (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{T $\ast$}]{reg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 302 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_ad76648d08dd4f8ca7fcd93f2a0cf0a57}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!get\_offset@{get\_offset}}
+\index{get\_offset@{get\_offset}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{get\_offset()}{get\_offset()}}
+{\footnotesize\ttfamily uint32\+\_\+t dummy\+\_\+afu\+::dummy\+\_\+afu\+::get\+\_\+offset (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{base,  }\item[{uint32\+\_\+t}]{i }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [private]}}
+
+
+
+Definition at line 311 of file dummy\+\_\+afu.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classdummy__afu_1_1dummy__afu_ae6e804471d96d97b1fefd1be976b1525}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!count\_@{count\_}}
+\index{count\_@{count\_}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{count\_}{count\_}}
+{\footnotesize\ttfamily uint32\+\_\+t dummy\+\_\+afu\+::dummy\+\_\+afu\+::count\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 308 of file dummy\+\_\+afu.\+h.
+
+\mbox{\label{classdummy__afu_1_1dummy__afu_a559a248f4c1be5a66bf80d164bf5b5c4}} 
+\index{dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}!limits\_@{limits\_}}
+\index{limits\_@{limits\_}!dummy\_afu::dummy\_afu@{dummy\_afu::dummy\_afu}}
+\doxysubsubsection{\texorpdfstring{limits\_}{limits\_}}
+{\footnotesize\ttfamily std\+::map$<$uint32\+\_\+t, uint32\+\_\+t$>$ dummy\+\_\+afu\+::dummy\+\_\+afu\+::limits\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 309 of file dummy\+\_\+afu.\+h.
+

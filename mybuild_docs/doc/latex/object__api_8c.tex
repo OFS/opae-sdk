@@ -1,0 +1,517 @@
+\doxysection{samples/object\+\_\+api/object\+\_\+api.c File Reference}
+\label{object__api_8c}\index{samples/object\_api/object\_api.c@{samples/object\_api/object\_api.c}}
+
+
+A code sample illustrates the basic usage of the OPAE C Object API.  
+
+
+{\ttfamily \#include $<$opae/fpga.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$getopt.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$argsfilter.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}mock/opae\+\_\+std.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{object__api_8c_structnamed__object}{named\+\_\+object}}
+\item 
+struct \mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}}
+\item 
+struct \mbox{\hyperlink{object__api_8c_structtoken__group}{token\+\_\+group}}
+\item 
+struct \mbox{\hyperlink{object__api_8c_structconfig}{config}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{object__api_8c_a7635d12a96b25dd1760b4bc44130eed9}{ON\+\_\+\+ERR\+\_\+\+GOTO}}(res,  label,  desc)
+\item 
+\#define \mbox{\hyperlink{object__api_8c_a14d6fc1e8245723fc29c53beaaa5d7fa}{MAX\+\_\+\+CLEANUP}}~100
+\item 
+\#define \mbox{\hyperlink{object__api_8c_a38f61da696fc8113fbcb512f918c1c81}{ADD\+\_\+\+TO\+\_\+\+CLEANUP}}(func,  p)
+\item 
+\#define \mbox{\hyperlink{object__api_8c_a09886d6ba96e67553bf3c49ed8ade975}{MAX\+\_\+\+TOKENS}}~4
+\item 
+\#define \mbox{\hyperlink{object__api_8c_ac6a7bbe65decea8da048b4d5b2b58f46}{MAX\+\_\+\+GROUP\+\_\+\+OBJECTS}}~32
+\item 
+\#define \mbox{\hyperlink{object__api_8c_acc2c9cc08f0f7b8f21f835d3fa0f6435}{GETOPT\+\_\+\+STRING}}~\char`\"{}hv\char`\"{}
+\item 
+\#define \mbox{\hyperlink{object__api_8c_aa29fc676ed569b67c95f0ba51150b387}{USEC\+\_\+\+TO\+\_\+\+SEC}}~1000000
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}($\ast$ \mbox{\hyperlink{object__api_8c_a7ce0fba66c1863e475010b6ef14d66d1}{destroy\+\_\+f}}) (void $\ast$p)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{object__api_8c_aa11f434898b86d619a5ceb6a5d7bf066}{print\+\_\+err}} (const char $\ast$s, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} res)
+\item 
+\mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$ \mbox{\hyperlink{object__api_8c_a37d8cef8f07927f8c55c4b5c92bdc477}{init\+\_\+metric\+\_\+group}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, const char $\ast$name, \mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$group)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{object__api_8c_acf84beec79fddbce4024fb6b3ff977e5}{add\+\_\+clock}} (\mbox{\hyperlink{object__api_8c_structtoken__group}{token\+\_\+group}} $\ast$t\+\_\+group)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{object__api_8c_ad17e22d237013df1ad0ad90a5604eee2}{add\+\_\+counter}} (\mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$group, const char $\ast$name)
+\item 
+void \mbox{\hyperlink{object__api_8c_accfee7be7eb9741f2a6ca3281a46dce8}{print\+\_\+counters}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} clock, \mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$group)
+\item 
+void \mbox{\hyperlink{object__api_8c_a0bed8474bd33a912769360766f6b10d4}{help}} (void)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{object__api_8c_a3a1b6f72679286eae6f9eec936cc5533}{parse\+\_\+args}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\item 
+int \mbox{\hyperlink{object__api_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\mbox{\hyperlink{object__api_8c_a7ce0fba66c1863e475010b6ef14d66d1}{destroy\_f}} {\bfseries fn}\\
+void $\ast$ {\bfseries param}\\
+\} \mbox{\hyperlink{object__api_8c_a742025e52f6ec88c8341d1a90e5ec679}{cleanup}} \mbox{[}100\mbox{]}\\
+
+\end{tabbing}\item 
+STATIC int \mbox{\hyperlink{object__api_8c_a9f95f0bf91a23d61298714eb5147b475}{cleanup\+\_\+size}}
+\item 
+struct \mbox{\hyperlink{object__api_8c_structconfig}{config}} \mbox{\hyperlink{object__api_8c_ab61f552ece35d302b110b6c2e154226f}{options}} = \{ 1.\+0 \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A code sample illustrates the basic usage of the OPAE C Object API. 
+
+
+
+\doxysubsection{Data Structure Documentation}
+\index{named\_object@{named\_object}}\label{structnamed__object}
+\doxysubsubsection{struct named\+\_\+object}
+
+
+Definition at line 77 of file object\+\_\+api.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{object__api_8c_a3d81c56fb382b314f10925c9e5be78b6}} 
+const char $\ast$&
+name&
+\\
+\hline
+
+\mbox{\label{object__api_8c_aa4757f48068a9b3df2147f150705570e}} 
+\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\_object}}&
+object&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a84bcb0c225f1d4836f67933b4bba3021}} 
+uint64\_t&
+value&
+\\
+\hline
+
+\mbox{\label{object__api_8c_aa60add432596827c889e6e9e22957d88}} 
+uint64\_t&
+delta&
+\\
+\hline
+
+\end{DoxyFields}
+\index{metric\_group@{metric\_group}}\label{structmetric__group}
+\doxysubsubsection{struct metric\+\_\+group}
+
+
+Definition at line 84 of file object\+\_\+api.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{object__api_8c_a3aa3cf1268d2ae7783b4b295096be14f}} 
+const char $\ast$&
+name&
+\\
+\hline
+
+\mbox{\label{object__api_8c_ac8f8f854299ecb50f1de8960918bf99b}} 
+\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\_token}}&
+token&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a3f6d185fb89ae4822f85b88b2a7f8f60}} 
+\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\_object}}&
+object&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1}} 
+uint8\_t&
+bus&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a3645114207ff895c276f6d36cbe485ea}} 
+uint8\_t&
+device&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a6e18dd1bdbfd92fc4d4d4ff658b8718d}} 
+uint8\_t&
+function&
+\\
+\hline
+
+\mbox{\label{object__api_8c_aaac5ae86f698ed76dd5309bca67ae781}} 
+\mbox{\hyperlink{object__api_8c_structnamed__object}{named\_object}}&
+objects\mbox{[}32\mbox{]}&
+\\
+\hline
+
+\mbox{\label{object__api_8c_abb44d12920d2d9d1041b00254973ebe2}} 
+size\_t&
+count&
+\\
+\hline
+
+\end{DoxyFields}
+\index{token\_group@{token\_group}}\label{structtoken__group}
+\doxysubsubsection{struct token\+\_\+group}
+
+
+Definition at line 95 of file object\+\_\+api.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{object__api_8c_aff8b9ebac32292d61a68cdf373abcd07}} 
+\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\_token}}&
+token&
+\\
+\hline
+
+\mbox{\label{object__api_8c_acf0c62f0bafada1b09873fae376f9c83}} 
+\mbox{\hyperlink{object__api_8c_structmetric__group}{metric\_group}} $\ast$&
+groups&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a4d21c3b21093ffeb2d94e795ab5e6cde}} 
+size\_t&
+count&
+\\
+\hline
+
+\mbox{\label{object__api_8c_ad1a9c073ec875ad3619da1436c9beccd}} 
+\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\_object}}&
+clock&
+\\
+\hline
+
+\end{DoxyFields}
+\index{config@{config}}\label{structconfig}
+\doxysubsubsection{struct config}
+
+
+Definition at line 129 of file hello\+\_\+fpga.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{object__api_8c_a56a710b532c4f7d6213fbd173920ffca}} 
+int&
+open\_flags&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a860ca20f3c0dd13da4979632fb61f505}} 
+int&
+run\_n3000&
+\\
+\hline
+
+\mbox{\label{object__api_8c_a026c31834bf67496b4a0af04d40e2adb}} 
+float&
+interval\_sec&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{object__api_8c_a7635d12a96b25dd1760b4bc44130eed9}} 
+\index{object\_api.c@{object\_api.c}!ON\_ERR\_GOTO@{ON\_ERR\_GOTO}}
+\index{ON\_ERR\_GOTO@{ON\_ERR\_GOTO}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{ON\_ERR\_GOTO}{ON\_ERR\_GOTO}}
+{\footnotesize\ttfamily \#define ON\+\_\+\+ERR\+\_\+\+GOTO(\begin{DoxyParamCaption}\item[{}]{res,  }\item[{}]{label,  }\item[{}]{desc }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   \textcolor{keywordflow}{do} \{                                                                   \(\backslash\)}
+\DoxyCodeLine{      if ((res) != FPGA\_OK) \{                                        \(\backslash\)}
+\DoxyCodeLine{         print\_err((desc), (res));                              \(\backslash\)}
+\DoxyCodeLine{         goto label;                                            \(\backslash\)}
+\DoxyCodeLine{      \}                                                              \(\backslash\)}
+\DoxyCodeLine{   \} \textcolor{keywordflow}{while} (0)}
+
+\end{DoxyCode}
+
+
+Definition at line 49 of file object\+\_\+api.\+c.
+
+\mbox{\label{object__api_8c_a14d6fc1e8245723fc29c53beaaa5d7fa}} 
+\index{object\_api.c@{object\_api.c}!MAX\_CLEANUP@{MAX\_CLEANUP}}
+\index{MAX\_CLEANUP@{MAX\_CLEANUP}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_CLEANUP}{MAX\_CLEANUP}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+CLEANUP~100}
+
+
+
+Definition at line 59 of file object\+\_\+api.\+c.
+
+\mbox{\label{object__api_8c_a38f61da696fc8113fbcb512f918c1c81}} 
+\index{object\_api.c@{object\_api.c}!ADD\_TO\_CLEANUP@{ADD\_TO\_CLEANUP}}
+\index{ADD\_TO\_CLEANUP@{ADD\_TO\_CLEANUP}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{ADD\_TO\_CLEANUP}{ADD\_TO\_CLEANUP}}
+{\footnotesize\ttfamily \#define ADD\+\_\+\+TO\+\_\+\+CLEANUP(\begin{DoxyParamCaption}\item[{}]{func,  }\item[{}]{p }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordflow}{do} \{                          \(\backslash\)}
+\DoxyCodeLine{   if (cleanup\_size < MAX\_CLEANUP) \{                               \(\backslash\)}
+\DoxyCodeLine{      cleanup[cleanup\_size].fn = (destroy\_f)func;             \(\backslash\)}
+\DoxyCodeLine{      cleanup[cleanup\_size++].param = p;                      \(\backslash\)}
+\DoxyCodeLine{   \}                       \(\backslash\)}
+\DoxyCodeLine{\} \textcolor{keywordflow}{while} (0)}
+
+\end{DoxyCode}
+
+
+Definition at line 67 of file object\+\_\+api.\+c.
+
+\mbox{\label{object__api_8c_a09886d6ba96e67553bf3c49ed8ade975}} 
+\index{object\_api.c@{object\_api.c}!MAX\_TOKENS@{MAX\_TOKENS}}
+\index{MAX\_TOKENS@{MAX\_TOKENS}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_TOKENS}{MAX\_TOKENS}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+TOKENS~4}
+
+
+
+Definition at line 75 of file object\+\_\+api.\+c.
+
+\mbox{\label{object__api_8c_ac6a7bbe65decea8da048b4d5b2b58f46}} 
+\index{object\_api.c@{object\_api.c}!MAX\_GROUP\_OBJECTS@{MAX\_GROUP\_OBJECTS}}
+\index{MAX\_GROUP\_OBJECTS@{MAX\_GROUP\_OBJECTS}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_GROUP\_OBJECTS}{MAX\_GROUP\_OBJECTS}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+GROUP\+\_\+\+OBJECTS~32}
+
+
+
+Definition at line 76 of file object\+\_\+api.\+c.
+
+\mbox{\label{object__api_8c_acc2c9cc08f0f7b8f21f835d3fa0f6435}} 
+\index{object\_api.c@{object\_api.c}!GETOPT\_STRING@{GETOPT\_STRING}}
+\index{GETOPT\_STRING@{GETOPT\_STRING}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{GETOPT\_STRING}{GETOPT\_STRING}}
+{\footnotesize\ttfamily \#define GETOPT\+\_\+\+STRING~\char`\"{}hv\char`\"{}}
+
+
+
+Definition at line 217 of file object\+\_\+api.\+c.
+
+\mbox{\label{object__api_8c_aa29fc676ed569b67c95f0ba51150b387}} 
+\index{object\_api.c@{object\_api.c}!USEC\_TO\_SEC@{USEC\_TO\_SEC}}
+\index{USEC\_TO\_SEC@{USEC\_TO\_SEC}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{USEC\_TO\_SEC}{USEC\_TO\_SEC}}
+{\footnotesize\ttfamily \#define USEC\+\_\+\+TO\+\_\+\+SEC~1000000}
+
+
+
+Definition at line 258 of file object\+\_\+api.\+c.
+
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{object__api_8c_a7ce0fba66c1863e475010b6ef14d66d1}} 
+\index{object\_api.c@{object\_api.c}!destroy\_f@{destroy\_f}}
+\index{destroy\_f@{destroy\_f}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{destroy\_f}{destroy\_f}}
+{\footnotesize\ttfamily typedef \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}($\ast$ destroy\+\_\+f) (void $\ast$p)}
+
+
+
+Definition at line 58 of file object\+\_\+api.\+c.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{object__api_8c_aa11f434898b86d619a5ceb6a5d7bf066}} 
+\index{object\_api.c@{object\_api.c}!print\_err@{print\_err}}
+\index{print\_err@{print\_err}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{print\_err()}{print\_err()}}
+{\footnotesize\ttfamily void print\+\_\+err (\begin{DoxyParamCaption}\item[{const char $\ast$}]{s,  }\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{res }\end{DoxyParamCaption})}
+
+
+
+Definition at line 44 of file object\+\_\+api.\+c.
+
+
+
+References fpga\+Err\+Str().
+
+
+
+Referenced by init\+\_\+metric\+\_\+group(), main(), and print\+\_\+counters().
+
+\mbox{\label{object__api_8c_a37d8cef8f07927f8c55c4b5c92bdc477}} 
+\index{object\_api.c@{object\_api.c}!init\_metric\_group@{init\_metric\_group}}
+\index{init\_metric\_group@{init\_metric\_group}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{init\_metric\_group()}{init\_metric\_group()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}}$\ast$ init\+\_\+metric\+\_\+group (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{const char $\ast$}]{name,  }\item[{\mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$}]{group }\end{DoxyParamCaption})}
+
+
+
+Definition at line 106 of file object\+\_\+api.\+c.
+
+
+
+References metric\+\_\+group\+::bus, metric\+\_\+group\+::count, metric\+\_\+group\+::device, FPGA\+\_\+\+OBJECT\+\_\+\+GLOB, FPGA\+\_\+\+OK, fpga\+Destroy\+Properties(), fpga\+Get\+Properties(), fpga\+Properties\+Get\+Bus(), fpga\+Properties\+Get\+Device(), fpga\+Properties\+Get\+Function(), fpga\+Token\+Get\+Object(), metric\+\_\+group\+::function, metric\+\_\+group\+::name, metric\+\_\+group\+::object, print\+\_\+err(), and metric\+\_\+group\+::token.
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_acf84beec79fddbce4024fb6b3ff977e5}} 
+\index{object\_api.c@{object\_api.c}!add\_clock@{add\_clock}}
+\index{add\_clock@{add\_clock}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{add\_clock()}{add\_clock()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} add\+\_\+clock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{object__api_8c_structtoken__group}{token\+\_\+group}} $\ast$}]{t\+\_\+group }\end{DoxyParamCaption})}
+
+
+
+Definition at line 141 of file object\+\_\+api.\+c.
+
+
+
+References ADD\+\_\+\+TO\+\_\+\+CLEANUP, token\+\_\+group\+::clock, FPGA\+\_\+\+OBJECT\+\_\+\+GLOB, FPGA\+\_\+\+OK, fpga\+Destroy\+Object(), fpga\+Token\+Get\+Object(), and token\+\_\+group\+::token.
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_ad17e22d237013df1ad0ad90a5604eee2}} 
+\index{object\_api.c@{object\_api.c}!add\_counter@{add\_counter}}
+\index{add\_counter@{add\_counter}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{add\_counter()}{add\_counter()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} add\+\_\+counter (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$}]{group,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
+
+
+
+Definition at line 152 of file object\+\_\+api.\+c.
+
+
+
+References ADD\+\_\+\+TO\+\_\+\+CLEANUP, metric\+\_\+group\+::count, FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OBJECT\+\_\+\+GLOB, FPGA\+\_\+\+OK, fpga\+Destroy\+Object(), fpga\+Object\+Get\+Object(), named\+\_\+object\+::name, named\+\_\+object\+::object, metric\+\_\+group\+::object, metric\+\_\+group\+::objects, and named\+\_\+object\+::value.
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_accfee7be7eb9741f2a6ca3281a46dce8}} 
+\index{object\_api.c@{object\_api.c}!print\_counters@{print\_counters}}
+\index{print\_counters@{print\_counters}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{print\_counters()}{print\_counters()}}
+{\footnotesize\ttfamily void print\+\_\+counters (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{clock,  }\item[{\mbox{\hyperlink{object__api_8c_structmetric__group}{metric\+\_\+group}} $\ast$}]{group }\end{DoxyParamCaption})}
+
+
+
+Definition at line 171 of file object\+\_\+api.\+c.
+
+
+
+References metric\+\_\+group\+::bus, metric\+\_\+group\+::count, named\+\_\+object\+::delta, metric\+\_\+group\+::device, FPGA\+\_\+\+OBJECT\+\_\+\+SYNC, FPGA\+\_\+\+OK, fpga\+Object\+Read64(), metric\+\_\+group\+::function, named\+\_\+object\+::name, named\+\_\+object\+::object, metric\+\_\+group\+::objects, print\+\_\+err(), and named\+\_\+object\+::value.
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_a0bed8474bd33a912769360766f6b10d4}} 
+\index{object\_api.c@{object\_api.c}!help@{help}}
+\index{help@{help}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{help()}{help()}}
+{\footnotesize\ttfamily void help (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line 203 of file object\+\_\+api.\+c.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{object__api_8c_a3a1b6f72679286eae6f9eec936cc5533}} 
+\index{object\_api.c@{object\_api.c}!parse\_args@{parse\_args}}
+\index{parse\_args@{parse\_args}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{parse\_args()}{parse\_args()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} parse\+\_\+args (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Definition at line 218 of file object\+\_\+api.\+c.
+
+
+
+References FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, GETOPT\+\_\+\+STRING, and help().
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_a0ddf1224851353fc92bfbff6f499fa97}} 
+\index{object\_api.c@{object\_api.c}!main@{main}}
+\index{main@{main}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Definition at line 260 of file object\+\_\+api.\+c.
+
+
+
+References add\+\_\+clock(), add\+\_\+counter(), ADD\+\_\+\+TO\+\_\+\+CLEANUP, cleanup, cleanup\+\_\+size, token\+\_\+group\+::count, FPGA\+\_\+\+DEVICE, FPGA\+\_\+\+OK, fpga\+Destroy\+Object(), fpga\+Destroy\+Properties(), fpga\+Destroy\+Token(), fpga\+Enumerate(), fpga\+Get\+Properties(), fpga\+Properties\+Set\+Object\+Type(), token\+\_\+group\+::groups, init\+\_\+metric\+\_\+group(), config\+::interval\+\_\+sec, MAX\+\_\+\+TOKENS, metric\+\_\+group\+::object, ON\+\_\+\+ERR\+\_\+\+GOTO, options, parse\+\_\+args(), print\+\_\+counters(), print\+\_\+err(), token\+\_\+group\+::token, USEC\+\_\+\+TO\+\_\+\+SEC, and usleep().
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{object__api_8c_a742025e52f6ec88c8341d1a90e5ec679}} 
+\index{object\_api.c@{object\_api.c}!cleanup@{cleanup}}
+\index{cleanup@{cleanup}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{}{}}
+{\footnotesize\ttfamily struct \{ ... \}  cleanup\mbox{[} 100 \mbox{]}}
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_a9f95f0bf91a23d61298714eb5147b475}} 
+\index{object\_api.c@{object\_api.c}!cleanup\_size@{cleanup\_size}}
+\index{cleanup\_size@{cleanup\_size}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{cleanup\_size}{cleanup\_size}}
+{\footnotesize\ttfamily STATIC int cleanup\+\_\+size}
+
+
+
+Definition at line 65 of file object\+\_\+api.\+c.
+
+
+
+Referenced by main().
+
+\mbox{\label{object__api_8c_ab61f552ece35d302b110b6c2e154226f}} 
+\index{object\_api.c@{object\_api.c}!options@{options}}
+\index{options@{options}!object\_api.c@{object\_api.c}}
+\doxysubsubsection{\texorpdfstring{options}{options}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{object__api_8c_structconfig}{config}} options = \{ 1.\+0 \}}
+
+
+
+Referenced by main(), and parse\+\_\+args().
+

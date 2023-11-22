@@ -1,0 +1,102 @@
+.TH "opae_hash_map" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae_hash_map
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/hash_map\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBnum_buckets\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhash_seed\fP"
+.br
+.ti -1c
+.RI "\fBopae_hash_map_item\fP ** \fBbuckets\fP"
+.br
+.ti -1c
+.RI "int \fBflags\fP"
+.br
+.ti -1c
+.RI "void * \fBcleanup_context\fP"
+.br
+.RI "Optional second parameter to key_cleanup and value_cleanup\&. "
+.ti -1c
+.RI "uint32_t(* \fBkey_hash\fP )(uint32_t \fBnum_buckets\fP, uint32_t \fBhash_seed\fP, void *key)"
+.br
+.ti -1c
+.RI "int(* \fBkey_compare\fP )(void *keya, void *keyb)"
+.br
+.RI "(required) "
+.ti -1c
+.RI "void(* \fBkey_cleanup\fP )(void *key, void *context)"
+.br
+.RI "(optional) "
+.ti -1c
+.RI "void(* \fBvalue_cleanup\fP )(void *value, void *context)"
+.br
+.RI "(optional) "
+.in -1c
+.SH "Detailed Description"
+.PP 
+Hash map object\&.
+.PP
+This structure defines the internals of the hash map\&. Each of the parameters supplied to \fBopae_hash_map_init()\fP is stored in the structure\&. All parameters are required, except key_cleanup and value_cleanup, which may optionally be NULL\&. 
+.PP
+Definition at line 84 of file hash_map\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t opae_hash_map::num_buckets"
+
+.PP
+Definition at line 85 of file hash_map\&.h\&.
+.SS "uint32_t opae_hash_map::hash_seed"
+
+.PP
+Definition at line 86 of file hash_map\&.h\&.
+.SS "\fBopae_hash_map_item\fP** opae_hash_map::buckets"
+
+.PP
+Definition at line 87 of file hash_map\&.h\&.
+.SS "int opae_hash_map::flags"
+
+.PP
+Definition at line 88 of file hash_map\&.h\&.
+.SS "void* opae_hash_map::cleanup_context"
+
+.PP
+Optional second parameter to key_cleanup and value_cleanup\&. 
+.PP
+Definition at line 89 of file hash_map\&.h\&.
+.SS "uint32_t(* opae_hash_map::key_hash) (uint32_t \fBnum_buckets\fP, uint32_t \fBhash_seed\fP, void *key)"
+
+.PP
+Definition at line 90 of file hash_map\&.h\&.
+.SS "int(* opae_hash_map::key_compare) (void *keya, void *keyb)"
+
+.PP
+(required) 
+.PP
+Definition at line 93 of file hash_map\&.h\&.
+.SS "void(* opae_hash_map::key_cleanup) (void *key, void *context)"
+
+.PP
+(optional) 
+.PP
+Definition at line 94 of file hash_map\&.h\&.
+.SS "void(* opae_hash_map::value_cleanup) (void *value, void *context)"
+
+.PP
+(optional) 
+.PP
+Definition at line 95 of file hash_map\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__cfg_8____unnamed109____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_cfg.__unnamed109__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ab883db097e1612e1b9565a7641ba7aca" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>DelayEn</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="195" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a535863a82f163709557e59e2eb8139a7" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Continuous</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="196" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a41bc18d21cc3fd3011c9cc6eea7093f4" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TestMode</name>
+        <bitfield> 3</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="197" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1af2524811eba11dee000f9ed7bd5b0647" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>ReqLen</name>
+        <bitfield> 2</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="198" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ab6307735e860afcd790ab7669b4ba256" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>AtomicFunc</name>
+        <bitfield> 5</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="199" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a169a6f6b44766410bffebf76ff3dcf17" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Encoding</name>
+        <bitfield> 2</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="200" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a13fbb3d45a1015e30cef2cefd1461cf7" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Rsvd_19_14</name>
+        <bitfield> 6</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="201" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ae0cf447dd4dd6cd774637cabdb3fe8c0" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TputInterleave</name>
+        <bitfield> 3</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="202" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1af6635365e08b7c3bd682123ba84fbf4a" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TestCfg</name>
+        <bitfield> 5</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="203" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a802cc88e98f36ee11d967b0d082f1c65" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>IntrOnErr</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="204" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a74169b89c0cee2049ba63145b0d48546" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>IntrTestMode</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="205" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a2ca3e42a1c64ae9a73ef7afbb34f4166" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>ReqLen_High</name>
+        <bitfield> 2</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="206" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ad91da26f082f88fd9aa246286d3f777a" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Rsvd_63_32</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="207" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_cfg.__unnamed109__</label>
+        <link refid="structhost__exerciser_1_1he__cfg_8____unnamed109____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="194" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="194" bodyend="208"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ab6307735e860afcd790ab7669b4ba256" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>AtomicFunc</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a535863a82f163709557e59e2eb8139a7" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>Continuous</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ab883db097e1612e1b9565a7641ba7aca" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>DelayEn</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a169a6f6b44766410bffebf76ff3dcf17" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>Encoding</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a802cc88e98f36ee11d967b0d082f1c65" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>IntrOnErr</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a74169b89c0cee2049ba63145b0d48546" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>IntrTestMode</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1af2524811eba11dee000f9ed7bd5b0647" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>ReqLen</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a2ca3e42a1c64ae9a73ef7afbb34f4166" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>ReqLen_High</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a13fbb3d45a1015e30cef2cefd1461cf7" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>Rsvd_19_14</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ad91da26f082f88fd9aa246286d3f777a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>Rsvd_63_32</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1af6635365e08b7c3bd682123ba84fbf4a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>TestCfg</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1a41bc18d21cc3fd3011c9cc6eea7093f4" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>TestMode</name></member>
+      <member refid="structhost__exerciser_1_1he__cfg_8____unnamed109_____1ae0cf447dd4dd6cd774637cabdb3fe8c0" prot="public" virt="non-virtual"><scope>host_exerciser::he_cfg.__unnamed109__</scope><name>TputInterleave</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

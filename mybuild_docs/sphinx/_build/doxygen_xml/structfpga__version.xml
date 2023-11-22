@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structfpga__version" kind="struct" language="C++" prot="public">
+    <compoundname>fpga_version</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfpga__version_1ad7129ea29f56980bf4031b860102565f" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t fpga_version::major</definition>
+        <argsstring></argsstring>
+        <name>major</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Major version </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="143" column="9" bodyfile="include/opae/types.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__version_1a0f3eb4a91ba70d0a60f56174c685b762" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t fpga_version::minor</definition>
+        <argsstring></argsstring>
+        <name>minor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Minor version </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="144" column="9" bodyfile="include/opae/types.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__version_1a3c5b1d07c0628aa9b6f3bd086ed0d962" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t fpga_version::patch</definition>
+        <argsstring></argsstring>
+        <name>patch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Revision or patchlevel </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="145" column="10" bodyfile="include/opae/types.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Semantic version</para>
+<para>Data structure for expressing version identifiers following the semantic versioning scheme. Used in various properties for tracking component versions. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>fpga_version</label>
+        <link refid="structfpga__version"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="142" column="1" bodyfile="include/opae/types.h" bodystart="142" bodyend="146"/>
+    <listofallmembers>
+      <member refid="structfpga__version_1ad7129ea29f56980bf4031b860102565f" prot="public" virt="non-virtual"><scope>fpga_version</scope><name>major</name></member>
+      <member refid="structfpga__version_1a0f3eb4a91ba70d0a60f56174c685b762" prot="public" virt="non-virtual"><scope>fpga_version</scope><name>minor</name></member>
+      <member refid="structfpga__version_1a3c5b1d07c0628aa9b6f3bd086ed0d962" prot="public" virt="non-virtual"><scope>fpga_version</scope><name>patch</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

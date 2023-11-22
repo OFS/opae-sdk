@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55____" kind="struct" language="C++" prot="public">
+    <compoundname>cxl_mem_tg::mem_tg_status.__unnamed55__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1a6a78db517f38d353f35ea90e0bda5ea2" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>tg_status0</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="156" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1aa49dfa7fbe5bfa23db7a05e8bc1a35e8" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>tg_status1</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="157" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1ada25e0aee7b78074d825ae2861d7c43c" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>tg_status2</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="158" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1a04450fbc0102ac045df8cad55a3a3e75" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>tg_status3</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="159" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1af5227312123178cb13d634298515daeb" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Rsvd_63_16</name>
+        <bitfield> 48</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="160" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>cxl_mem_tg::mem_tg_status.__unnamed55__</label>
+        <link refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="155" column="3" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="155" bodyend="161"/>
+    <listofallmembers>
+      <member refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1af5227312123178cb13d634298515daeb" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status.__unnamed55__</scope><name>Rsvd_63_16</name></member>
+      <member refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1a6a78db517f38d353f35ea90e0bda5ea2" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status.__unnamed55__</scope><name>tg_status0</name></member>
+      <member refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1aa49dfa7fbe5bfa23db7a05e8bc1a35e8" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status.__unnamed55__</scope><name>tg_status1</name></member>
+      <member refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1ada25e0aee7b78074d825ae2861d7c43c" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status.__unnamed55__</scope><name>tg_status2</name></member>
+      <member refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55_____1a04450fbc0102ac045df8cad55a3a3e75" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status.__unnamed55__</scope><name>tg_status3</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

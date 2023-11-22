@@ -1,0 +1,194 @@
+\doxysection{samples/hssi/hssi\+\_\+afu.h File Reference}
+\label{hssi__afu_8h}\index{samples/hssi/hssi\_afu.h@{samples/hssi/hssi\_afu.h}}
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$sstream$>$}\newline
+{\ttfamily \#include $<$exception$>$}\newline
+{\ttfamily \#include $<$glob.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}afu\+\_\+test.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classhssi__afu}{hssi\+\_\+afu}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_ac0baaf0917fee2104b9c6b44075298a2}{ETH\+\_\+\+AFU\+\_\+\+DFH}}~0x0000
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_abe08ed7e56c85bcf7089b573333dd320}{ETH\+\_\+\+AFU\+\_\+\+ID\+\_\+L}}~0x0008
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a8b95eb7d4b6d30992c5274633ab33fef}{ETH\+\_\+\+AFU\+\_\+\+ID\+\_\+H}}~0x0010
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a461eab73cc68f8fa3a50edaae21cfee3}{TRAFFIC\+\_\+\+CTRL\+\_\+\+CMD}}~0x0030
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a3ce04cd0dea4df8da87b9f643cb4d069}{TRAFFIC\+\_\+\+CTRL\+\_\+\+DATA}}~0x0038
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a0a379a8f9138cdda028b7d15a52d9e39}{TRAFFIC\+\_\+\+CTRL\+\_\+\+PORT\+\_\+\+SEL}}~0x0040
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_ab2b3c37ae1a49971b27a9fbdbcc4d1d3}{AFU\+\_\+\+SCRATCHPAD}}~0x0048
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a21623e2a5501c821da54dd76ffc1d077}{READ\+\_\+\+CMD}}~0x00000001\+ULL
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_af792feb13ae0c1eab8f95f64c8baa96d}{WRITE\+\_\+\+CMD}}~0x00000002\+ULL
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a859eb8f8ff2398eff21aab5346844144}{ACK\+\_\+\+TRANS}}~0x00000004\+ULL
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a16b1ade4a60a95678d58b2fa6b9fcc10}{AFU\+\_\+\+CMD\+\_\+\+SHIFT}}~32
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_abe6eab6a74c11bf2db22b5f73d41fd47}{WRITE\+\_\+\+DATA\+\_\+\+SHIFT}}~32
+\item 
+\#define \mbox{\hyperlink{hssi__afu_8h_a462fb2ba6f2af99ec3d021ded436bb65}{NO\+\_\+\+TIMEOUT}}~0xffffffffffffffff\+ULL
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{hssi__afu_8h_abc250359b0b249806cbba4173e9644b4}{test\+\_\+afu}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{hssi__afu_8h_ac0baaf0917fee2104b9c6b44075298a2}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!ETH\_AFU\_DFH@{ETH\_AFU\_DFH}}
+\index{ETH\_AFU\_DFH@{ETH\_AFU\_DFH}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_AFU\_DFH}{ETH\_AFU\_DFH}}
+{\footnotesize\ttfamily \#define ETH\+\_\+\+AFU\+\_\+\+DFH~0x0000}
+
+
+
+Definition at line 38 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_abe08ed7e56c85bcf7089b573333dd320}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!ETH\_AFU\_ID\_L@{ETH\_AFU\_ID\_L}}
+\index{ETH\_AFU\_ID\_L@{ETH\_AFU\_ID\_L}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_AFU\_ID\_L}{ETH\_AFU\_ID\_L}}
+{\footnotesize\ttfamily \#define ETH\+\_\+\+AFU\+\_\+\+ID\+\_\+L~0x0008}
+
+
+
+Definition at line 39 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a8b95eb7d4b6d30992c5274633ab33fef}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!ETH\_AFU\_ID\_H@{ETH\_AFU\_ID\_H}}
+\index{ETH\_AFU\_ID\_H@{ETH\_AFU\_ID\_H}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_AFU\_ID\_H}{ETH\_AFU\_ID\_H}}
+{\footnotesize\ttfamily \#define ETH\+\_\+\+AFU\+\_\+\+ID\+\_\+H~0x0010}
+
+
+
+Definition at line 40 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a461eab73cc68f8fa3a50edaae21cfee3}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!TRAFFIC\_CTRL\_CMD@{TRAFFIC\_CTRL\_CMD}}
+\index{TRAFFIC\_CTRL\_CMD@{TRAFFIC\_CTRL\_CMD}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{TRAFFIC\_CTRL\_CMD}{TRAFFIC\_CTRL\_CMD}}
+{\footnotesize\ttfamily \#define TRAFFIC\+\_\+\+CTRL\+\_\+\+CMD~0x0030}
+
+
+
+Definition at line 41 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a3ce04cd0dea4df8da87b9f643cb4d069}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!TRAFFIC\_CTRL\_DATA@{TRAFFIC\_CTRL\_DATA}}
+\index{TRAFFIC\_CTRL\_DATA@{TRAFFIC\_CTRL\_DATA}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{TRAFFIC\_CTRL\_DATA}{TRAFFIC\_CTRL\_DATA}}
+{\footnotesize\ttfamily \#define TRAFFIC\+\_\+\+CTRL\+\_\+\+DATA~0x0038}
+
+
+
+Definition at line 42 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a0a379a8f9138cdda028b7d15a52d9e39}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!TRAFFIC\_CTRL\_PORT\_SEL@{TRAFFIC\_CTRL\_PORT\_SEL}}
+\index{TRAFFIC\_CTRL\_PORT\_SEL@{TRAFFIC\_CTRL\_PORT\_SEL}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{TRAFFIC\_CTRL\_PORT\_SEL}{TRAFFIC\_CTRL\_PORT\_SEL}}
+{\footnotesize\ttfamily \#define TRAFFIC\+\_\+\+CTRL\+\_\+\+PORT\+\_\+\+SEL~0x0040}
+
+
+
+Definition at line 43 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_ab2b3c37ae1a49971b27a9fbdbcc4d1d3}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!AFU\_SCRATCHPAD@{AFU\_SCRATCHPAD}}
+\index{AFU\_SCRATCHPAD@{AFU\_SCRATCHPAD}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{AFU\_SCRATCHPAD}{AFU\_SCRATCHPAD}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+SCRATCHPAD~0x0048}
+
+
+
+Definition at line 44 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a21623e2a5501c821da54dd76ffc1d077}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!READ\_CMD@{READ\_CMD}}
+\index{READ\_CMD@{READ\_CMD}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{READ\_CMD}{READ\_CMD}}
+{\footnotesize\ttfamily \#define READ\+\_\+\+CMD~0x00000001\+ULL}
+
+
+
+Definition at line 46 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_af792feb13ae0c1eab8f95f64c8baa96d}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!WRITE\_CMD@{WRITE\_CMD}}
+\index{WRITE\_CMD@{WRITE\_CMD}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{WRITE\_CMD}{WRITE\_CMD}}
+{\footnotesize\ttfamily \#define WRITE\+\_\+\+CMD~0x00000002\+ULL}
+
+
+
+Definition at line 47 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a859eb8f8ff2398eff21aab5346844144}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!ACK\_TRANS@{ACK\_TRANS}}
+\index{ACK\_TRANS@{ACK\_TRANS}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{ACK\_TRANS}{ACK\_TRANS}}
+{\footnotesize\ttfamily \#define ACK\+\_\+\+TRANS~0x00000004\+ULL}
+
+
+
+Definition at line 48 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a16b1ade4a60a95678d58b2fa6b9fcc10}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!AFU\_CMD\_SHIFT@{AFU\_CMD\_SHIFT}}
+\index{AFU\_CMD\_SHIFT@{AFU\_CMD\_SHIFT}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{AFU\_CMD\_SHIFT}{AFU\_CMD\_SHIFT}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+CMD\+\_\+\+SHIFT~32}
+
+
+
+Definition at line 49 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_abe6eab6a74c11bf2db22b5f73d41fd47}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!WRITE\_DATA\_SHIFT@{WRITE\_DATA\_SHIFT}}
+\index{WRITE\_DATA\_SHIFT@{WRITE\_DATA\_SHIFT}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{WRITE\_DATA\_SHIFT}{WRITE\_DATA\_SHIFT}}
+{\footnotesize\ttfamily \#define WRITE\+\_\+\+DATA\+\_\+\+SHIFT~32}
+
+
+
+Definition at line 50 of file hssi\+\_\+afu.\+h.
+
+\mbox{\label{hssi__afu_8h_a462fb2ba6f2af99ec3d021ded436bb65}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!NO\_TIMEOUT@{NO\_TIMEOUT}}
+\index{NO\_TIMEOUT@{NO\_TIMEOUT}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{NO\_TIMEOUT}{NO\_TIMEOUT}}
+{\footnotesize\ttfamily \#define NO\+\_\+\+TIMEOUT~0xffffffffffffffff\+ULL}
+
+
+
+Definition at line 52 of file hssi\+\_\+afu.\+h.
+
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{hssi__afu_8h_abc250359b0b249806cbba4173e9644b4}} 
+\index{hssi\_afu.h@{hssi\_afu.h}!test\_afu@{test\_afu}}
+\index{test\_afu@{test\_afu}!hssi\_afu.h@{hssi\_afu.h}}
+\doxysubsubsection{\texorpdfstring{test\_afu}{test\_afu}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{cxl__tg__test_8h_abc250359b0b249806cbba4173e9644b4}{test\+\_\+afu}} =  \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}}
+
+
+
+Definition at line 35 of file hssi\+\_\+afu.\+h.
+

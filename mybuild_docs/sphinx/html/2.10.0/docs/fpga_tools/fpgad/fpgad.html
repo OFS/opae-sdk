@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fpgad &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="fpgadiag" href="../fpgadiag/README.html" />
+    <link rel="prev" title="fpgaconf" href="../fpgaconf/fpgaconf.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">fpgad</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#arguments">ARGUMENTS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">TROUBLESHOOTING</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fpgad</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/fpgad/fpgad.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fpgad">
+<h1>fpgad<a class="headerlink" href="#fpgad" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgad</span> <span class="pre">--daemon</span> <span class="pre">[--version]</span> <span class="pre">[--directory=&lt;dir&gt;]</span> <span class="pre">[--logfile=&lt;file&gt;]</span> <span class="pre">[--pidfile=&lt;file&gt;]</span> <span class="pre">[--umask=&lt;mode&gt;]</span> <span class="pre">[--socket=&lt;sock&gt;]</span> <span class="pre">[--null-bitstream=&lt;file&gt;]</span></code>
+<code class="docutils literal notranslate"><span class="pre">fpgad</span> <span class="pre">[--socket=&lt;sock&gt;]</span> <span class="pre">[--null-bitstream=&lt;file&gt;]</span></code></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>fpgad monitors the device sensors, checking for sensor values that are out of the prescribed range.</p>
+<p>When any of the sensors is detected to be out of bounds, fpgad will focus on keeping the server from rebooting by masking PCIE AER, and send a message to system administrator. System administrator can take further actions like stop the application and stop the FPGA, but fpgad just focus on monitor the sensors and will not take any cooling actions.</p>
+<p>Note: fpgad must be running (as root) and actively monitoring devices when a sensor anomaly occurs in order to initiate Graceful Shutdown.  If fpgad is not loaded during such a sensor anomaly, the out-of-bounds scenario will not be detected, and the resulting effect on the hardware is undefined.</p>
+<div class="section" id="arguments">
+<h3>ARGUMENTS<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--version</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Prints</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">exits</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--daemon</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">specified</span><span class="p">,</span><span class="w"> </span><span class="n">fpgad</span><span class="w"> </span><span class="n">executes</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">system</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">process</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-D,</span> <span class="pre">--directory</span> <span class="pre">&lt;dir&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>When running in daemon mode, run from the specified directory.
+If omitted when daemonizing, `fpgad` uses /tmp.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-l,</span> <span class="pre">--logfile</span> <span class="pre">&lt;file&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">send</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">file</span><span class="p">.</span><span class="w"> </span><span class="n">When</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="n">goes</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">stdout</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">omitted</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">daemonizaing</span><span class="p">,</span><span class="w"> </span><span class="n">fpgad</span><span class="w"> </span><span class="n">uses</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">fpgad</span><span class="p">.</span><span class="n">log</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--pidfile</span> <span class="pre">&lt;file&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>When running in daemon mode, write the daemon&#39;s process id to a file.
+If omitted when daemonizing, fpgad uses /tmp/fpgad.pid.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-m,</span> <span class="pre">--umask</span> <span class="pre">&lt;mode&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="n">creation</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">umask</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">omitted</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">daemonizing</span><span class="p">,</span><span class="w"> </span><span class="n">fpgad</span><span class="w"> </span><span class="n">uses</span><span class="w"> </span><span class="mf">0.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--socket</span> <span class="pre">&lt;sock&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Listen</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">registration</span><span class="w"> </span><span class="n">requests</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">UNIX</span><span class="w"> </span><span class="n">domain</span><span class="w"> </span><span class="n">socket</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">specified</span><span class="w"> </span><span class="n">path</span><span class="p">.</span><span class="w"> </span>
+<span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">fpga_event_socket</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--null-bitstream</span> <span class="pre">&lt;file&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Specify the NULL bitstream to program when an AP6 event occurs. This option may be specified multiple
+times. The AF, if any, that matches the FPGA&#39;s PR interface ID is programmed when an AP6
+event occurs.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<h2>TROUBLESHOOTING<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>If you encounter any issues, you can get debug information in two ways:</p>
+<ol class="simple">
+<li><p>By examining the log file when in daemon mode.</p></li>
+<li><p>By running in non-daemon mode and viewing stdout.</p></li>
+</ol>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgad</span> <span class="pre">--daemon</span> <span class="pre">--null-bitstream=my_null_bits.gbs</span></code></p>
+<p>This command starts fpgad as a system daemon process:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl start fpgad</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+|2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | No changes from previous release. |
+|2020.09.02 | 2.0                                                                                                        |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fpgaconf/fpgaconf.html" class="btn btn-neutral float-left" title="fpgaconf" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fpgadiag/README.html" class="btn btn-neutral float-right" title="fpgadiag" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

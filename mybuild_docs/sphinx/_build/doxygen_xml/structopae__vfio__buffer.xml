@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__buffer" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_buffer</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__buffer_1a10c301384270143e76d93675740d2a05" prot="public" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* opae_vfio_buffer::buffer_ptr</definition>
+        <argsstring></argsstring>
+        <name>buffer_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Buffer virtual address. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="136" column="9" bodyfile="include/opae/vfio.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__buffer_1a52535a9a9d8c7a129fb313d14a96dc47" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t opae_vfio_buffer::buffer_size</definition>
+        <argsstring></argsstring>
+        <name>buffer_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Buffer size. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="137" column="8" bodyfile="include/opae/vfio.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__buffer_1a4bccc7115924108b58c421955a6b9775" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t opae_vfio_buffer::buffer_iova</definition>
+        <argsstring></argsstring>
+        <name>buffer_iova</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Buffer IOVA address. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="138" column="10" bodyfile="include/opae/vfio.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__buffer_1a9e334d32ec820b06a9d263bc158da2ed" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae_vfio_buffer::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>See opae_vfio_buffer_flags. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="139" column="5" bodyfile="include/opae/vfio.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>System DMA buffer</para>
+<para>Describes a system memory address space that is capable of DMA. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_vfio_buffer</label>
+        <link refid="structopae__vfio__buffer"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="135" column="1" bodyfile="include/opae/vfio.h" bodystart="135" bodyend="140"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__buffer_1a4bccc7115924108b58c421955a6b9775" prot="public" virt="non-virtual"><scope>opae_vfio_buffer</scope><name>buffer_iova</name></member>
+      <member refid="structopae__vfio__buffer_1a10c301384270143e76d93675740d2a05" prot="public" virt="non-virtual"><scope>opae_vfio_buffer</scope><name>buffer_ptr</name></member>
+      <member refid="structopae__vfio__buffer_1a52535a9a9d8c7a129fb313d14a96dc47" prot="public" virt="non-virtual"><scope>opae_vfio_buffer</scope><name>buffer_size</name></member>
+      <member refid="structopae__vfio__buffer_1a9e334d32ec820b06a9d263bc158da2ed" prot="public" virt="non-virtual"><scope>opae_vfio_buffer</scope><name>flags</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

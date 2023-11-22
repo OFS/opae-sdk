@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__rd__num__lines" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_rd_num_lines</compoundname>
+    <includes refid="cxl__host__exerciser_8h" local="no">/root/samples/cxl_host_exerciser/cxl_host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__rd__num__lines_1ad1062785e4abe0012138967a02c89e45" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@28</name>
+        <enumvalue id="unionhost__exerciser_1_1he__rd__num__lines_1ad1062785e4abe0012138967a02c89e45a90966ba5d0f0a4471e11870c43643c71" prot="public">
+          <name>offset</name>
+          <initializer>= HE_RD_NUM_LINES</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="206" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="206" bodyend="206"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__rd__num__lines_1a26aeecdae96ecde45c38c3d446bf3f81" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_rd_num_lines::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="207" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__rd__num__lines_1a0c0c33acb6cbe60536e55af354bac790" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_rd_num_lines::@29</type>
+        <definition>struct host_exerciser::he_rd_num_lines::@29 host_exerciser::he_rd_num_lines::@30</definition>
+        <argsstring></argsstring>
+        <name>@30</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="211" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_rd_num_lines</label>
+        <link refid="unionhost__exerciser_1_1he__rd__num__lines"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="205" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="205" bodyend="212"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__rd__num__lines_1ad1062785e4abe0012138967a02c89e45a90966ba5d0f0a4471e11870c43643c71" prot="public" virt="non-virtual"><scope>host_exerciser::he_rd_num_lines</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__rd__num__lines_1a26aeecdae96ecde45c38c3d446bf3f81" prot="public" virt="non-virtual"><scope>host_exerciser::he_rd_num_lines</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

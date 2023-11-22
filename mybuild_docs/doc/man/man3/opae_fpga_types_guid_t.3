@@ -1,0 +1,189 @@
+.TH "opae::fpga::types::guid_t" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::guid_t
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/pvalue\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBguid_t\fP (\fBfpga_properties\fP *p)"
+.br
+.ti -1c
+.RI "void \fBupdate\fP ()"
+.br
+.ti -1c
+.RI "\fBoperator uint8_t *\fP ()"
+.br
+.ti -1c
+.RI "const uint8_t * \fBc_type\fP () const"
+.br
+.ti -1c
+.RI "\fBguid_t\fP & \fBoperator=\fP (\fBfpga_guid\fP g)"
+.br
+.ti -1c
+.RI "bool \fBoperator==\fP (const \fBfpga_guid\fP &g)"
+.br
+.ti -1c
+.RI "void \fBparse\fP (const char *str)"
+.br
+.ti -1c
+.RI "bool \fBis_set\fP () const"
+.br
+.ti -1c
+.RI "void \fBinvalidate\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_properties\fP * \fBprops_\fP"
+.br
+.ti -1c
+.RI "bool \fBis_set_\fP"
+.br
+.ti -1c
+.RI "std::array< uint8_t, 16 > \fBdata_\fP"
+.br
+.in -1c
+.SS "Friends"
+
+.in +1c
+.ti -1c
+.RI "std::ostream & \fBoperator<<\fP (std::ostream &ostr, const \fBguid_t\fP &g)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Representation of the guid member of a properties object\&. 
+.PP
+Definition at line 44 of file pvalue\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::guid_t::guid_t (\fBfpga_properties\fP * p)\fC [inline]\fP"
+Construct the \fBguid_t\fP given its containing fpga_properties\&. 
+.PP
+Definition at line 47 of file pvalue\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "void opae::fpga::types::guid_t::update ()\fC [inline]\fP"
+Update the local cached copy of the guid\&. 
+.PP
+Definition at line 51 of file pvalue\&.h\&.
+.PP
+References ASSERT_FPGA_OK, data_, fpgaPropertiesGetGUID(), is_set_, and props_\&.
+.PP
+Referenced by operator uint8_t *()\&.
+.SS "opae::fpga::types::guid_t::operator uint8_t * ()\fC [inline]\fP"
+Return a raw pointer to the guid\&. 
+.PP
+\fBReturn values\fP
+.RS 4
+\fInullptr\fP if the guid could not be queried\&. 
+.RE
+.PP
+
+.PP
+Definition at line 61 of file pvalue\&.h\&.
+.PP
+References data_, and update()\&.
+.SS "const uint8_t* opae::fpga::types::guid_t::c_type () const\fC [inline]\fP"
+Return a raw pointer to the guid\&. 
+.PP
+Definition at line 68 of file pvalue\&.h\&.
+.PP
+References data_\&.
+.SS "\fBguid_t\fP& opae::fpga::types::guid_t::operator= (\fBfpga_guid\fP g)\fC [inline]\fP"
+Assign from fpga_guid Sets the guid field of the associated properties object using the OPAE properties API\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIg\fP The given fpga_guid\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+a reference to this \fBguid_t\fP\&. 
+.RE
+.PP
+
+.PP
+Definition at line 76 of file pvalue\&.h\&.
+.PP
+References ASSERT_FPGA_OK, data_, fpgaPropertiesSetGUID(), is_set_, and props_\&.
+.SS "bool opae::fpga::types::guid_t::operator== (const \fBfpga_guid\fP & g)\fC [inline]\fP"
+Compare contents with an fpga_guid\&. 
+.PP
+\fBReturn values\fP
+.RS 4
+\fIThe\fP result of memcmp of the two objects\&. 
+.RE
+.PP
+
+.PP
+Definition at line 89 of file pvalue\&.h\&.
+.PP
+References data_, and is_set()\&.
+.SS "void opae::fpga::types::guid_t::parse (const char * str)\fC [inline]\fP"
+Convert a string representation of a guid to binary\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIstr\fP The guid string\&. 
+.RE
+.PP
+
+.PP
+Definition at line 96 of file pvalue\&.h\&.
+.PP
+References ASSERT_FPGA_OK, data_, fpgaPropertiesSetGUID(), is_set_, OPAECXX_HERE, and props_\&.
+.SS "bool opae::fpga::types::guid_t::is_set () const\fC [inline]\fP"
+Tracks whether the cached local copy of the guid is valid\&. 
+.PP
+Definition at line 125 of file pvalue\&.h\&.
+.PP
+References is_set_\&.
+.PP
+Referenced by operator==()\&.
+.SS "void opae::fpga::types::guid_t::invalidate ()\fC [inline]\fP"
+Invalidate the cached local copy of the guid\&. 
+.PP
+Definition at line 129 of file pvalue\&.h\&.
+.PP
+References is_set_\&.
+.SH "Friends And Related Function Documentation"
+.PP 
+.SS "std::ostream& operator<< (std::ostream & ostr, const \fBguid_t\fP & g)\fC [friend]\fP"
+Send the string representation of the \fBguid_t\fP to the given stream\&. 
+.PP
+Definition at line 107 of file pvalue\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "\fBfpga_properties\fP* opae::fpga::types::guid_t::props_\fC [private]\fP"
+
+.PP
+Definition at line 132 of file pvalue\&.h\&.
+.PP
+Referenced by operator=(), parse(), and update()\&.
+.SS "bool opae::fpga::types::guid_t::is_set_\fC [private]\fP"
+
+.PP
+Definition at line 133 of file pvalue\&.h\&.
+.PP
+Referenced by invalidate(), is_set(), operator=(), parse(), and update()\&.
+.SS "std::array<uint8_t, 16> opae::fpga::types::guid_t::data_\fC [private]\fP"
+
+.PP
+Definition at line 134 of file pvalue\&.h\&.
+.PP
+Referenced by c_type(), operator uint8_t *(), operator=(), operator==(), parse(), and update()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespaceopae_1_1afu__test" kind="namespace" language="C++">
+    <compoundname>opae::afu_test</compoundname>
+    <innerclass refid="unionopae_1_1afu__test_1_1pcie__address" prot="public">opae::afu_test::pcie_address</innerclass>
+    <innerclass refid="classopae_1_1afu__test_1_1command" prot="public">opae::afu_test::command</innerclass>
+    <innerclass refid="classopae_1_1afu__test_1_1afu" prot="public">opae::afu_test::afu</innerclass>
+    <innerclass refid="structopae_1_1afu__test_1_1pcie__address_8fields" prot="public">opae::afu_test::pcie_address.fields</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceopae_1_1afu__test_1a51c524d228e9ad342ed2e1a45efe741b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool opae::afu_test::parse_match_int</definition>
+        <argsstring>(const char *s, regmatch_t m, T &amp;v, int radix=10)</argsstring>
+        <name>parse_match_int</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>regmatch_t</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>T &amp;</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>radix</declname>
+          <defval>10</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="178" column="13" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="178" bodyend="184"/>
+        <referencedby refid="unionopae_1_1afu__test_1_1pcie__address_1afb2617e2ed297046217e2a47de73f5ab" compoundref="he__cache__test_8h" startline="195" endline="226">opae::afu_test::pcie_address::parse</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceopae_1_1afu__test_1a86ee03f14e97bbb40476aacd85cc9868" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt;std::string&gt; opae::afu_test::spdlog_levels</definition>
+        <argsstring>()</argsstring>
+        <name>spdlog_levels</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="266" column="20" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="266" bodyend="266"/>
+        <referencedby refid="classopae_1_1afu__test_1_1afu_1a845e58d643b7c868c6dc84277dc88a81" compoundref="he__cache__test_8h" startline="281" endline="295">opae::afu_test::afu::afu</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/cxl_host_exerciser/he_cache_test.h" line="174" column="1"/>
+  </compounddef>
+</doxygen>

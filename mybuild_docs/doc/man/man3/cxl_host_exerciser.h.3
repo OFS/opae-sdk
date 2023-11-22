@@ -1,0 +1,572 @@
+.TH "samples/cxl_host_exerciser/cxl_host_exerciser.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/cxl_host_exerciser/cxl_host_exerciser.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'he_cache_test\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "union \fBhost_exerciser::he_dfh\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_dsm_base\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_ctl\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_info\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_wr_num_lines\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_wr_byte_enable\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_wr_config\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_wr_addr_table_ctrl\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_wr_addr_table_data\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_rd_num_lines\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_rd_config\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_rd_addr_table_ctrl\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_rd_addr_table_data\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_err_status\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_cache_dsm_status\fP"
+.br
+.ti -1c
+.RI "class \fBhost_exerciser::host_exerciser\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_dfh\&.__unnamed3__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_dsm_base\&.__unnamed6__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_ctl\&.__unnamed9__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_info\&.__unnamed12__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_wr_num_lines\&.__unnamed15__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_wr_byte_enable\&.__unnamed18__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_wr_config\&.__unnamed21__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_wr_addr_table_ctrl\&.__unnamed24__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_wr_addr_table_data\&.__unnamed27__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_rd_num_lines\&.__unnamed30__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_rd_config\&.__unnamed33__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_rd_addr_table_ctrl\&.__unnamed36__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_rd_addr_table_data\&.__unnamed39__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_err_status\&.__unnamed42__\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBhost_exerciser\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMEM_TG_FEATURE_ID\fP   0x25"
+.br
+.ti -1c
+.RI "#define \fBMEM_TG_FEATURE_GUIDL\fP   0x81599b5c2ebd4b23"
+.br
+.ti -1c
+.RI "#define \fBMEM_TG_FEATURE_GUIDH\fP   0x0118e06b1fa349b9"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBhost_exerciser::test_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.ti -1c
+.RI "using \fBhost_exerciser::test_command\fP = \fBopae::afu_test::command\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBhost_exerciser::HE_DFH\fP = 0x0000, \fBhost_exerciser::HE_ID_L\fP = 0x0008, \fBhost_exerciser::HE_ID_H\fP = 0x0010, \fBhost_exerciser::HE_DFH_RSVD0\fP = 0x0018, \fBhost_exerciser::HE_DFH_RSVD1\fP = 0x0020, \fBhost_exerciser::HE_SCRATCHPAD0\fP = 0x028, \fBhost_exerciser::HE_DSM_BASE\fP = 0x030, \fBhost_exerciser::HE_CTL\fP = 0x038, \fBhost_exerciser::HE_INFO\fP = 0x040, \fBhost_exerciser::HE_WR_NUM_LINES\fP = 0x048, \fBhost_exerciser::HE_WR_BYTE_ENABLE\fP = 0x050, \fBhost_exerciser::HE_WR_CONFIG\fP = 0x058, \fBhost_exerciser::HE_WR_ADDR_TABLE_CTRL\fP = 0x060, \fBhost_exerciser::HE_WR_ADDR_TABLE_DATA\fP = 0x068, \fBhost_exerciser::HE_RD_NUM_LINES\fP = 0x070, \fBhost_exerciser::HE_RD_CONFIG\fP = 0x078, \fBhost_exerciser::HE_RD_ADDR_TABLE_CTRL\fP = 0x080, \fBhost_exerciser::HE_RD_ADDR_TABLE_DATA\fP = 0x088, \fBhost_exerciser::HE_ERROR_STATUS\fP = 0x090, \fBhost_exerciser::HE_ERROR_EXP_DATA\fP = 0x098, \fBhost_exerciser::HE_ERROR_ACT_DATA0\fP = 0x0A0, \fBhost_exerciser::HE_ERROR_ACT_DATA1\fP = 0x0A8, \fBhost_exerciser::HE_ERROR_ACT_DATA2\fP = 0x0B0, \fBhost_exerciser::HE_ERROR_ACT_DATA3\fP = 0x0B8, \fBhost_exerciser::HE_ERROR_ACT_DATA4\fP = 0x0C0, \fBhost_exerciser::HE_ERROR_ACT_DATA5\fP = 0x0C8, \fBhost_exerciser::HE_ERROR_ACT_DATA6\fP = 0x0D0, \fBhost_exerciser::HE_ERROR_ACT_DATA7\fP = 0x0D8 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_rd_opcode\fP { \fBhost_exerciser::RD_LINE_I\fP = 0x0, \fBhost_exerciser::RD_LINE_S\fP = 0x1, \fBhost_exerciser::RD_LINE_EM\fP = 0x2 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_wr_opcode\fP { \fBhost_exerciser::WR_LINE_I\fP = 0x0, \fBhost_exerciser::WR_LINE_M\fP = 0x1, \fBhost_exerciser::WR_PUSH_I\fP = 0x2, \fBhost_exerciser::WR_BARRIER_FRNCE\fP = 0x3, \fBhost_exerciser::WR_FLUSH_CL\fP = 0x4, \fBhost_exerciser::WR_FLUSH_CL_HCOH\fP = 0x5, \fBhost_exerciser::WR_FLUSH_CL_DCOH\fP = 0x6 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_test_mode\fP { \fBhost_exerciser::HE_FPGA_RD_CACHE_HIT\fP = 0x0, \fBhost_exerciser::HE_FPGA_WR_CACHE_HIT\fP = 0x1, \fBhost_exerciser::HE_FPGA_RD_CACHE_MISS\fP = 0x2, \fBhost_exerciser::HE_FPGA_WR_CACHE_MISS\fP = 0x3, \fBhost_exerciser::HE_HOST_RD_CACHE_HIT\fP = 0x4, \fBhost_exerciser::HE_HOST_WR_CACHE_HIT\fP = 0x5, \fBhost_exerciser::HE_HOST_RD_CACHE_MISS\fP = 0x6, \fBhost_exerciser::HE_HOST_WR_CACHE_MISS\fP = 0x7 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_target\fP { \fBhost_exerciser::HE_TARGET_HOST\fP = 0x0, \fBhost_exerciser::HE_TARGET_FPGA\fP = 0x1 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_cxl_latency\fP { \fBhost_exerciser::HE_CXL_LATENCY_NONE\fP = 0x0, \fBhost_exerciser::HE_CXL_RD_LATENCY\fP = 0x1, \fBhost_exerciser::HE_CXL_WR_LATENCY\fP = 0x2, \fBhost_exerciser::HE_CXL_RD_WR_LATENCY\fP = 0x3 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_bisa_support\fP { \fBhost_exerciser::HOSTMEM_BIAS\fP = 0x0, \fBhost_exerciser::HOST_BIAS_NA\fP = 0x1, \fBhost_exerciser::FPGAMEM_HOST_BIAS\fP = 0x2, \fBhost_exerciser::FPGAMEM_DEVICE_BIAS\fP = 0x3 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_cxl_dev\fP { \fBhost_exerciser::HE_CXL_DEVICE0\fP = 0x0, \fBhost_exerciser::HE_CXL_DEVICE1\fP = 0x1 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_addrtable_size\fP { \fBhost_exerciser::HE_ADDRTABLE_SIZE4096\fP = 0xC, \fBhost_exerciser::HE_ADDRTABLE_SIZE2048\fP = 0xB, \fBhost_exerciser::HE_ADDRTABLE_SIZE1024\fP = 0xA, \fBhost_exerciser::HE_ADDRTABLE_SIZE512\fP = 0x9, \fBhost_exerciser::HE_ADDRTABLE_SIZE256\fP = 0x8, \fBhost_exerciser::HE_ADDRTABLE_SIZE128\fP = 0x7, \fBhost_exerciser::HE_ADDRTABLE_SIZE64\fP = 0x6, \fBhost_exerciser::HE_ADDRTABLE_SIZE32\fP = 0x5, \fBhost_exerciser::HE_ADDRTABLE_SIZE16\fP = 0x4, \fBhost_exerciser::HE_ADDRTABLE_SIZE8\fP = 0x3, \fBhost_exerciser::HE_ADDRTABLE_SIZE4\fP = 0x2, \fBhost_exerciser::HE_ADDRTABLE_SIZE2\fP = 0x1 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::he_traffic_enable\fP { \fBhost_exerciser::HE_ENABLE_TRAFFIC_STAGE\fP = 0x0, \fBhost_exerciser::HE_SIP_SEQ_STAGE\fP = 0x1 }"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBHE_CACHE_AFU_ID\fP = '0118E06B\-1FA3\-49B9\-8159\-9b5C2EBD4b23'"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::HELPBK_TEST_TIMEOUT\fP = 30000"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::HELPBK_TEST_SLEEP_INVL\fP = 100"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::CL\fP = 64"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::KB\fP = 1024"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::MB\fP = KB * 1024"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::BUFFER_SIZE_2MB\fP = 2 * \fBMB\fP"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::BUFFER_SIZE_32KB\fP = 32* KB"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::FPGA_32KB_CACHE_LINES\fP = (32 * KB) / 64"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::FPGA_2MB_CACHE_LINES\fP = (2 * \fBMB\fP) / 64"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::FPGA_512CACHE_LINES\fP = 512"
+.br
+.ti -1c
+.RI "static const double \fBhost_exerciser::LATENCY_FACTOR\fP = 2\&.5"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_test_modes\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_targets\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_bias\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_cxl_device\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::traffic_enable\fP"
+.br
+.ti -1c
+.RI "std::map< uint32_t, uint32_t > \fBhost_exerciser::addrtable_size\fP"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct host_exerciser::he_cache_dsm_status"
+.PP 
+Definition at line 266 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fItest_completed: 1\fP 
+.br
+.PP
+uint32_t \fIdsm_number: 15\fP 
+.br
+.PP
+uint32_t \fIres1: 16\fP 
+.br
+.PP
+uint32_t \fIerr_vector: 32\fP 
+.br
+.PP
+uint64_t \fInum_ticks: 64\fP 
+.br
+.PP
+uint32_t \fInum_reads: 32\fP 
+.br
+.PP
+uint32_t \fInum_writes: 32\fP 
+.br
+.PP
+uint32_t \fIpenalty_start: 32\fP 
+.br
+.PP
+uint32_t \fIpenalty_end: 32\fP 
+.br
+.PP
+uint32_t \fIactual_data: 32\fP 
+.br
+.PP
+uint32_t \fIexpected_data: 32\fP 
+.br
+.PP
+uint32_t \fIres5[2]\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_dfh\&.__unnamed3__"
+.PP 
+Definition at line 103 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fICcipVersionNumber: 12\fP 
+.br
+.PP
+uint64_t \fIAfuMajVersion: 4\fP 
+.br
+.PP
+uint64_t \fINextDfhOffset: 24\fP 
+.br
+.PP
+uint64_t \fIEOL: 1\fP 
+.br
+.PP
+uint64_t \fIReserved: 19\fP 
+.br
+.PP
+uint64_t \fIFeatureType: 4\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_dsm_base\&.__unnamed6__"
+.PP 
+Definition at line 117 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIDsmBase: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_ctl\&.__unnamed9__"
+.PP 
+Definition at line 126 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIResetL: 1\fP 
+.br
+.PP
+uint64_t \fIStart: 1\fP 
+.br
+.PP
+uint64_t \fIForcedTestCmpl: 1\fP 
+.br
+.PP
+uint64_t \fIbias_support: 2\fP 
+.br
+.PP
+uint64_t \fIReserved: 59\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_info\&.__unnamed12__"
+.PP 
+Definition at line 139 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIwrite_addr_table_size: 4\fP 
+.br
+.PP
+uint64_t \fIread_addr_table_size: 4\fP 
+.br
+.PP
+uint64_t \fIReserved: 56\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_wr_num_lines\&.__unnamed15__"
+.PP 
+Definition at line 150 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIwrite_num_lines: 16\fP 
+.br
+.PP
+uint64_t \fIreserved: 48\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_wr_byte_enable\&.__unnamed18__"
+.PP 
+Definition at line 160 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIwrite_byte_enable: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_wr_config\&.__unnamed21__"
+.PP 
+Definition at line 169 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIwrite_traffic_enable: 1\fP 
+.br
+.PP
+uint64_t \fIcontinuous_mode_enable: 1\fP 
+.br
+.PP
+uint64_t \fIwaitfor_completion: 1\fP 
+.br
+.PP
+uint64_t \fIpreread_sync_enable: 1\fP 
+.br
+.PP
+uint64_t \fIpostread_sync_enable: 1\fP 
+.br
+.PP
+uint64_t \fIdata_pattern: 2\fP 
+.br
+.PP
+uint64_t \fIcl_evict_enable: 1\fP 
+.br
+.PP
+uint64_t \fIopcode: 4\fP 
+.br
+.PP
+uint64_t \fIline_repeat_count: 8\fP 
+.br
+.PP
+uint64_t \fIreserved: 44\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_wr_addr_table_ctrl\&.__unnamed24__"
+.PP 
+Definition at line 187 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIenable_address_table: 1\fP 
+.br
+.PP
+uint64_t \fIenable_address_stride: 1\fP 
+.br
+.PP
+uint64_t \fIstride: 2\fP 
+.br
+.PP
+uint64_t \fIreserved: 60\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_wr_addr_table_data\&.__unnamed27__"
+.PP 
+Definition at line 199 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIaddress_table_value: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_rd_num_lines\&.__unnamed30__"
+.PP 
+Definition at line 208 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIread_num_lines: 16\fP 
+.br
+.PP
+uint64_t \fIreserved: 48\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_rd_config\&.__unnamed33__"
+.PP 
+Definition at line 218 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIread_traffic_enable: 1\fP 
+.br
+.PP
+uint64_t \fIcontinuous_mode_enable: 1\fP 
+.br
+.PP
+uint64_t \fIwaitfor_completion: 1\fP 
+.br
+.PP
+uint64_t \fIprewrite_sync_enable: 1\fP 
+.br
+.PP
+uint64_t \fIpostwrite_sync_enable: 1\fP 
+.br
+.PP
+uint64_t \fIdata_pattern: 2\fP 
+.br
+.PP
+uint64_t \fIcl_evict_enable: 1\fP 
+.br
+.PP
+uint64_t \fIopcode: 4\fP 
+.br
+.PP
+uint64_t \fIline_repeat_count: 8\fP 
+.br
+.PP
+uint64_t \fIreserved: 44\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_rd_addr_table_ctrl\&.__unnamed36__"
+.PP 
+Definition at line 236 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIenable_address_table: 1\fP 
+.br
+.PP
+uint64_t \fIenable_address_stride: 1\fP 
+.br
+.PP
+uint64_t \fIstride: 2\fP 
+.br
+.PP
+uint64_t \fIreserved: 60\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_rd_addr_table_data\&.__unnamed39__"
+.PP 
+Definition at line 248 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIaddress_table_value: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_err_status\&.__unnamed42__"
+.PP 
+Definition at line 257 of file cxl_host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIdata_error: 1\fP 
+.br
+.PP
+uint64_t \fIrsvd1: 15\fP 
+.br
+.PP
+uint64_t \fIerr_index: 16\fP 
+.br
+.PP
+uint64_t \fIrsvd2: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define MEM_TG_FEATURE_ID   0x25"
+
+.PP
+Definition at line 30 of file cxl_host_exerciser\&.h\&.
+.SS "#define MEM_TG_FEATURE_GUIDL   0x81599b5c2ebd4b23"
+
+.PP
+Definition at line 31 of file cxl_host_exerciser\&.h\&.
+.SS "#define MEM_TG_FEATURE_GUIDH   0x0118e06b1fa349b9"
+
+.PP
+Definition at line 32 of file cxl_host_exerciser\&.h\&.
+.SH "Variable Documentation"
+.PP 
+.SS "const char* HE_CACHE_AFU_ID = '0118E06B\-1FA3\-49B9\-8159\-9b5C2EBD4b23'"
+
+.PP
+Definition at line 33 of file cxl_host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::afu_id(), and host_exerciser::he_cache_lpbk_cmd::afu_id()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

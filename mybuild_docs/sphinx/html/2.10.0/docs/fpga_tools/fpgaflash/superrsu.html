@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>super-rsu &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>super-rsu</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/fpgaflash/superrsu.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="super-rsu">
+<h1>super-rsu<a class="headerlink" href="#super-rsu" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">super-rsu [-h] [-n] [--verify] | [ [--log-level {trace,debug,error,warn,info,notset}]</span>
+<span class="go">          [--log-file &lt;filename&gt;] [--rsu-only] [--with-rsu] [--force-flash] ]</span>
+<span class="go"> 	  rsu_config</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>super-rsu is a tool that can be used for flashing image files and commanding an
+Intel PAC device to perform RSU (remote system update - or a board reboot).
+Performing an RSU on an Intel PAC device will cause it to reload any firmware
+or programmable logic and restart its execution, a requirement for any updated
+firmware or programmable logic to take effect.</p>
+<p>At the core of super-rsu is its configuration file (referred to in this
+document as ‘rsu_config’) which is essentially a manifest file for
+identifying both the target device and the binary images (and their versions)
+to be flashed.</p>
+<p>At a high level, the flow of super-rsu should be:</p>
+<ol class="simple">
+<li><p>Read and parse rsu_config file</p></li>
+<li><p>Use product identifiers (like vendor, device and any additional vendor, device
+pairs that may be present in the PCIe bus) to locate all compatible
+devices on the PCIe bus.</p></li>
+<li><p>For every device found on the system, update the device using the flash
+images defined in the “flash” section in the rsu_config data (or nvmupdate
+section).
+Each item in the “flash” section is a “flash spec” that contains:</p>
+<ul class="simple">
+<li><p>The flash type (“user”, “bmc_fw”, “bmc_img”, …)</p></li>
+<li><p>The filename of the image to flash. super-rsu will look for this file
+first in the same directory of the rsu_config file, and then look in the
+current working directory.</p></li>
+<li><p>The version of the image.</p></li>
+<li><p>An optional “force” indicator</p></li>
+<li><p>An optional “requires” indicator
+The “nvmupdate” section is used to describe an Ethernet firmware file and
+its version.</p></li>
+</ul>
+</li>
+<li><p>Using the data in the “nvmupdate” and “flash” sections, the update routine
+involves:</p></li>
+</ol>
+<ul class="simple">
+<li><p>If an “nvmupdate” section is present:</p>
+<ol class="simple">
+<li><p>Locate the file on the file system to use to flash the Ethernet device.</p></li>
+<li><p>Call nvmupdate to get an “inventory” of devices matching the vendor and
+device id in this section.</p></li>
+<li><p>Use this data to dynamically generate an nvmupdate compatible
+configuration file.</p></li>
+<li><p>Call nvmupdate with the generated configuration file to flash the
+Ethernet interfaces in the Vista Creek card (if version reported by
+system does not match the version in this section).</p></li>
+</ol>
+</li>
+<li><p>For each spec in the “flash” section:</p>
+<ol class="simple">
+<li><p>Locate the file on the file system to use to flash.</p></li>
+<li><p>Compare the version listed in the “flash spec” to version reported by
+the target component.</p></li>
+<li><p>Create a task to call fpgaflash if either of the following conditions is
+met (and the revision specified is compatible):</p>
+<ul>
+<li><p>The “force” indicator is present and set to true.</p></li>
+<li><p>The version in the spec does not match the version reported by the
+system OR the flash type is factory type.</p></li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>For each task created from the “flash” section:</p>
+<ol class="simple">
+<li><p>Call fpgaflash with the command line arguments that correspond to the
+flash type and the file name in the spec used to create the task.
+This opens and controls the execution of fpgaflash in another process.</p></li>
+</ol>
+</li>
+</ul>
+<p><em>NOTE</em>: If the system reports a revision for one of the components
+being flashed, this revision must be in the set of revisions listed
+in the manifest.
+Example: if the system reports ‘a’ for bmc_img and the manifest includes
+‘ab’, then the image will be flashed.</p>
+<p><em>NOTE</em>: Each update routine is run in a thread specific to a device located
+on the PCIe bus. Every task in an update routine involves opening a new process
+that is controlled and managed by its update routine thread.
+If a task includes a timeout and the timeout is reached, a termination request
+will be sent to its process and it will be counted as a failure. If a global
+timeout is reached in the main thread, a termination request will be sent to each
+thread performing the update. Consequently, the update routine will give the
+current task extra time before terminating the process.
+The RSU operation will only be performed if requested with either <code class="docutils literal notranslate"><span class="pre">--with-rsu</span></code>
+command line argument or with the <code class="docutils literal notranslate"><span class="pre">--rsu-only</span></code> command line argument.
+The former will perform the RSU command upon successful completion of flash
+operations. The latter will skip the process of version matching and flashing
+images and will only perform the RSU command. It is recommended that super-rsu
+be executed again if any flash operation is interrupted.</p>
+</div>
+<div class="section" id="positional-arguments">
+<h2>POSITIONAL ARGUMENTS<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">rsu</span> <span class="pre">config</span></code></p>
+<p>Specifies the name of the file containing the RSU configuration (in JSON
+format)</p>
+</div>
+<div class="section" id="optional-arguments">
+<h2>OPTIONAL ARGUMENTS<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p>
+<p>Print usage information.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--verify</span></code></p>
+<p>Compare versions of flashable components on the system against the manifest.
+Return non-zero exit if compatible components are not up to date.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--dry-run</span></code></p>
+<p>Don’t perform any updates, just a dry run.
+This will print out commands that can be executed
+in a Linux shell.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--log-level</span> <span class="pre">{trace,debug,error,warn,info,notset}</span></code></p>
+<p>Log level to use. Default is ‘info’.</p>
+<p>`–log-file <filename> (default: /tmp/super-rsu.log)</p>
+<p>Emit log messages (with DEBUG level) to filename
+<em>NOTE</em>: The default log file (/tmp/super-rsu.log) is set to rollover every
+time super-rsu is executed. This will create numbered backups before
+truncating the log file. The maximum number of backups is 50.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--rsu-only</span></code></p>
+<p>Only perform the RSU command.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--with-rsu</span></code></p>
+<p>Perform RSU after updating flash components(experimental)</p>
+<p><code class="docutils literal notranslate"><span class="pre">--force-flash</span></code></p>
+<p>Flash all images regardless of versions matching or not.</p>
+</div>
+<div class="section" id="configuration">
+<h2>CONFIGURATION<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>The following is the JSON schema expected by super-rsu. Any deviance from
+this schema may result in errors executing super-rsu.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;definitions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://json-schema.org/draft-07/schema#&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://example.com/root.json&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Root Schema&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;product&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;vendor&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;device&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;flash&quot;</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;nvmupdate&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;product&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/product&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Product Schema&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;n3000&quot;</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^(.*)$&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;vendor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/vendor&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Vendor Schema&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;0x8086&quot;</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^((0x)?[A-Fa-f0-9]{4})$&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/device&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Device Schema&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;0x0b30&quot;</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^((0x)?[A-Fa-f0-9]{4})$&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;nvmupdate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The nvmupdate Schema&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;vendor&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;device&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;filename&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;version&quot;</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;interfaces&quot;</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;vendor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/vendor&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The nvmupdate Vendor Schema&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">             </span><span class="s2">&quot;0x8086&quot;</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^((0x)?[A-Fa-f0-9]{4})$&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/device&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The nvmupdate Device Schema&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;0x0d58&quot;</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^((0x)?[A-Fa-f0-9]{4})$&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;interfaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/interfaces&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The nvmupdate Interfaces Schema&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/filename&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The nvmupdate Filename Schema&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;PSG_XL710_6p80_XLAUI_NCSI_CFGID2p61_Dual_DID_0D58_800049C6.bin&quot;</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^(.*)$&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/version&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The nvmupdate Version Schema&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;800049C6&quot;</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^((0x)?[A-Fa-f0-9]{8})$&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/timeout&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Timeout Schema&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;10m&quot;</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^([0-9]+(\\.[0-9]+)?([dhms]))+$&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;flash&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Flash Schema&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Items Schema&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;filename&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;version&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;revision&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">	</span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;force&quot;</span><span class="p">,</span>
+<span class="w">	  </span><span class="s2">&quot;timeout&quot;</span><span class="p">,</span>
+<span class="w">	  </span><span class="s2">&quot;requires&quot;</span>
+<span class="w">	</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/enabled&quot;</span><span class="p">,</span>
+<span class="w">	    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+<span class="w">	    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Enabled Schema&quot;</span><span class="p">,</span>
+<span class="w">	    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;true&quot;</span>
+<span class="w">	  </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/filename&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Filename Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;vista_creek_qspi_xip_v1.0.6.ihex&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^(.*)$&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/type&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Type Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;bmc_fw&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bmc_fw&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bmc_img&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dtb&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;factory_only&quot;</span><span class="p">,</span>
+<span class="w">	    </span><span class="s2">&quot;phy_eeprom&quot;</span><span class="p">]</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/version&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Version Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;1.0.6&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^\\d+\\.\\d+\\.\\d+$&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;force&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/force&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Force Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="kc">true</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/revision&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Revision Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;C&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^([A-Za-z])$&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/nvmupdate/timeout&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Timeout Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;10m&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^([0-9]+(\.[0-9]+)?([dhms]))+$&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;requires&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/properties/flash/items/properties/requires&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The Requires Schema&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;bmc_img &gt;= 1.0.12&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^(([a-z_]+) ((&lt;&gt;!=)?=) ([0-9a-z\\.]+)$&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

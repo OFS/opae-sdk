@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fpgaport &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fpgaport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/fpgaport/fpgaport.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fpgaport">
+<h1>fpgaport<a class="headerlink" href="#fpgaport" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">fpgaport [-h] [-N NUMVFS] [-X] [--debug] {assign,release} device [port]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">fpgaport</span></code> enables and disables virtualization. It assigns
+and releases control of the port to the virtual function (VF). By default, the driver
+assigns the port to the physical function (PF) in the non-virtualization use case.</p>
+</div>
+<div class="section" id="positional-arguments">
+<h2>POSITIONAL ARGUMENTS<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">{assign,</span> <span class="pre">release}</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Action</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">perform</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">device</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="n">being</span><span class="w"> </span><span class="n">targeted</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">action</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">port</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">port</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="optional-arguments">
+<h2>OPTIONAL ARGUMENTS<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-N</span> <span class="pre">NUMVFS,</span> <span class="pre">--numvfs</span> <span class="pre">NUMVFS</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Create</span><span class="w"> </span><span class="n">NUMVFS</span><span class="w"> </span><span class="n">virtual</span><span class="w"> </span><span class="n">functions</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">typical</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">1.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-X,</span> <span class="pre">--destroy-vfs</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Destroy</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">virtual</span><span class="w"> </span><span class="n">functions</span><span class="w"> </span><span class="n">prior</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">assigning</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--debug</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Display</span><span class="w"> </span><span class="n">additional</span><span class="w"> </span><span class="n">log</span><span class="w"> </span><span class="n">information</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Print</span><span class="w"> </span><span class="n">usage</span><span class="w"> </span><span class="n">information</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example">
+<h2>EXAMPLE<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgaport</span> <span class="pre">release</span> <span class="pre">/dev/dfl-fme.0</span> <span class="pre">0</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Release</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">physical</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">control</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">fpgaport</span> <span class="pre">assign</span> <span class="pre">/dev/dfl-fme.0</span> <span class="pre">0</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Assign</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">physical</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">control</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+| 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | No changes from previous release.  |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+.TH "samples/object_api/object_api.c" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/object_api/object_api.c \- A code sample illustrates the basic usage of the OPAE C Object API\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/fpga\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <getopt\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <argsfilter\&.h>\fP
+.br
+\fC#include 'mock/opae_std\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBnamed_object\fP"
+.br
+.ti -1c
+.RI "struct \fBmetric_group\fP"
+.br
+.ti -1c
+.RI "struct \fBtoken_group\fP"
+.br
+.ti -1c
+.RI "struct \fBconfig\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBON_ERR_GOTO\fP(res,  label,  desc)"
+.br
+.ti -1c
+.RI "#define \fBMAX_CLEANUP\fP   100"
+.br
+.ti -1c
+.RI "#define \fBADD_TO_CLEANUP\fP(func,  p)"
+.br
+.ti -1c
+.RI "#define \fBMAX_TOKENS\fP   4"
+.br
+.ti -1c
+.RI "#define \fBMAX_GROUP_OBJECTS\fP   32"
+.br
+.ti -1c
+.RI "#define \fBGETOPT_STRING\fP   'hv'"
+.br
+.ti -1c
+.RI "#define \fBUSEC_TO_SEC\fP   1000000"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef \fBfpga_result\fP(* \fBdestroy_f\fP) (void *p)"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBprint_err\fP (const char *s, \fBfpga_result\fP res)"
+.br
+.ti -1c
+.RI "\fBmetric_group\fP * \fBinit_metric_group\fP (\fBfpga_token\fP token, const char *name, \fBmetric_group\fP *group)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBadd_clock\fP (\fBtoken_group\fP *t_group)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBadd_counter\fP (\fBmetric_group\fP *group, const char *name)"
+.br
+.ti -1c
+.RI "void \fBprint_counters\fP (\fBfpga_object\fP clock, \fBmetric_group\fP *group)"
+.br
+.ti -1c
+.RI "void \fBhelp\fP (void)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBparse_args\fP (int argc, char *argv[])"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "\fBdestroy_f\fP \fBfn\fP"
+.br
+.ti -1c
+.RI "void * \fBparam\fP"
+.br
+.ti -1c
+.RI "} \fBcleanup\fP [100]"
+.br
+.ti -1c
+.RI "STATIC int \fBcleanup_size\fP"
+.br
+.ti -1c
+.RI "struct \fBconfig\fP \fBoptions\fP = { 1\&.0 }"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+A code sample illustrates the basic usage of the OPAE C Object API\&. 
+
+
+.PP
+Definition in file \fBobject_api\&.c\fP\&.
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct named_object"
+.PP 
+Definition at line 77 of file object_api\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+const char * \fIname\fP 
+.br
+.PP
+\fBfpga_object\fP \fIobject\fP 
+.br
+.PP
+uint64_t \fIvalue\fP 
+.br
+.PP
+uint64_t \fIdelta\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct metric_group"
+.PP 
+Definition at line 84 of file object_api\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+const char * \fIname\fP 
+.br
+.PP
+\fBfpga_token\fP \fItoken\fP 
+.br
+.PP
+\fBfpga_object\fP \fIobject\fP 
+.br
+.PP
+uint8_t \fIbus\fP 
+.br
+.PP
+uint8_t \fIdevice\fP 
+.br
+.PP
+uint8_t \fIfunction\fP 
+.br
+.PP
+\fBnamed_object\fP \fIobjects[32]\fP 
+.br
+.PP
+size_t \fIcount\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct token_group"
+.PP 
+Definition at line 95 of file object_api\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+\fBfpga_token\fP \fItoken\fP 
+.br
+.PP
+\fBmetric_group\fP * \fIgroups\fP 
+.br
+.PP
+size_t \fIcount\fP 
+.br
+.PP
+\fBfpga_object\fP \fIclock\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct config"
+.PP 
+Definition at line 129 of file hello_fpga\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+int \fIopen_flags\fP 
+.br
+.PP
+int \fIrun_n3000\fP 
+.br
+.PP
+float \fIinterval_sec\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define ON_ERR_GOTO(res, label, desc)"
+\fBValue:\fP
+.PP
+.nf
+ do {                                                                   \
+      if ((res) != FPGA_OK) {                                        \
+         print_err((desc), (res));                              \
+         goto label;                                            \
+      }                                                              \
+   } while (0)
+.fi
+.PP
+Definition at line 49 of file object_api\&.c\&.
+.SS "#define MAX_CLEANUP   100"
+
+.PP
+Definition at line 59 of file object_api\&.c\&.
+.SS "#define ADD_TO_CLEANUP(func, p)"
+\fBValue:\fP
+.PP
+.nf
+do {                         \
+   if (cleanup_size < MAX_CLEANUP) {                               \
+      cleanup[cleanup_size]\&.fn = (destroy_f)func;             \
+      cleanup[cleanup_size++]\&.param = p;                      \
+   }                       \
+} while (0)
+.fi
+.PP
+Definition at line 67 of file object_api\&.c\&.
+.SS "#define MAX_TOKENS   4"
+
+.PP
+Definition at line 75 of file object_api\&.c\&.
+.SS "#define MAX_GROUP_OBJECTS   32"
+
+.PP
+Definition at line 76 of file object_api\&.c\&.
+.SS "#define GETOPT_STRING   'hv'"
+
+.PP
+Definition at line 217 of file object_api\&.c\&.
+.SS "#define USEC_TO_SEC   1000000"
+
+.PP
+Definition at line 258 of file object_api\&.c\&.
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef \fBfpga_result\fP(* destroy_f) (void *p)"
+
+.PP
+Definition at line 58 of file object_api\&.c\&.
+.SH "Function Documentation"
+.PP 
+.SS "void print_err (const char * s, \fBfpga_result\fP res)"
+
+.PP
+Definition at line 44 of file object_api\&.c\&.
+.PP
+References fpgaErrStr()\&.
+.PP
+Referenced by init_metric_group(), main(), and print_counters()\&.
+.SS "\fBmetric_group\fP* init_metric_group (\fBfpga_token\fP token, const char * name, \fBmetric_group\fP * group)"
+
+.PP
+Definition at line 106 of file object_api\&.c\&.
+.PP
+References metric_group::bus, metric_group::count, metric_group::device, FPGA_OBJECT_GLOB, FPGA_OK, fpgaDestroyProperties(), fpgaGetProperties(), fpgaPropertiesGetBus(), fpgaPropertiesGetDevice(), fpgaPropertiesGetFunction(), fpgaTokenGetObject(), metric_group::function, metric_group::name, metric_group::object, print_err(), and metric_group::token\&.
+.PP
+Referenced by main()\&.
+.SS "\fBfpga_result\fP add_clock (\fBtoken_group\fP * t_group)"
+
+.PP
+Definition at line 141 of file object_api\&.c\&.
+.PP
+References ADD_TO_CLEANUP, token_group::clock, FPGA_OBJECT_GLOB, FPGA_OK, fpgaDestroyObject(), fpgaTokenGetObject(), and token_group::token\&.
+.PP
+Referenced by main()\&.
+.SS "\fBfpga_result\fP add_counter (\fBmetric_group\fP * group, const char * name)"
+
+.PP
+Definition at line 152 of file object_api\&.c\&.
+.PP
+References ADD_TO_CLEANUP, metric_group::count, FPGA_EXCEPTION, FPGA_OBJECT_GLOB, FPGA_OK, fpgaDestroyObject(), fpgaObjectGetObject(), named_object::name, named_object::object, metric_group::object, metric_group::objects, and named_object::value\&.
+.PP
+Referenced by main()\&.
+.SS "void print_counters (\fBfpga_object\fP clock, \fBmetric_group\fP * group)"
+
+.PP
+Definition at line 171 of file object_api\&.c\&.
+.PP
+References metric_group::bus, metric_group::count, named_object::delta, metric_group::device, FPGA_OBJECT_SYNC, FPGA_OK, fpgaObjectRead64(), metric_group::function, named_object::name, named_object::object, metric_group::objects, print_err(), and named_object::value\&.
+.PP
+Referenced by main()\&.
+.SS "void help (void)"
+
+.PP
+Definition at line 203 of file object_api\&.c\&.
+.PP
+Referenced by parse_args()\&.
+.SS "\fBfpga_result\fP parse_args (int argc, char * argv[])"
+
+.PP
+Definition at line 218 of file object_api\&.c\&.
+.PP
+References FPGA_EXCEPTION, FPGA_OK, GETOPT_STRING, and help()\&.
+.PP
+Referenced by main()\&.
+.SS "int main (int argc, char * argv[])"
+
+.PP
+Definition at line 260 of file object_api\&.c\&.
+.PP
+References add_clock(), add_counter(), ADD_TO_CLEANUP, cleanup, cleanup_size, token_group::count, FPGA_DEVICE, FPGA_OK, fpgaDestroyObject(), fpgaDestroyProperties(), fpgaDestroyToken(), fpgaEnumerate(), fpgaGetProperties(), fpgaPropertiesSetObjectType(), token_group::groups, init_metric_group(), config::interval_sec, MAX_TOKENS, metric_group::object, ON_ERR_GOTO, options, parse_args(), print_counters(), print_err(), token_group::token, USEC_TO_SEC, and usleep()\&.
+.SH "Variable Documentation"
+.PP 
+.SS "struct { \&.\&.\&. }  cleanup[ 100 ]"
+
+.PP
+Referenced by main()\&.
+.SS "STATIC int cleanup_size"
+
+.PP
+Definition at line 65 of file object_api\&.c\&.
+.PP
+Referenced by main()\&.
+.SS "struct \fBconfig\fP options = { 1\&.0 }"
+
+.PP
+Referenced by main(), and parse_args()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

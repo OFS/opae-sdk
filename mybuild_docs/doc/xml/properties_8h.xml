@@ -1,0 +1,2884 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="properties_8h" kind="file" language="C++">
+    <compoundname>properties.h</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+    <includedby refid="cxx_2core_2properties_8h" local="no">include/opae/cxx/core/properties.h</includedby>
+    <includedby refid="pvalue_8h" local="no">include/opae/cxx/core/pvalue.h</includedby>
+    <includedby refid="fpga_8h" local="no">include/opae/fpga.h</includedby>
+    <includedby refid="hello__afu_8c" local="no">samples/hello_afu/sw/hello_afu.c</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>include/opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h</label>
+        <link refid="cxl__he__cache__lpbk__cmd_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>include/opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>samples/host_exerciser/host_exerciser.cpp</label>
+        <link refid="host__exerciser_8cpp"/>
+      </node>
+      <node id="29">
+        <label>samples/mem_tg/mem_tg.h</label>
+        <link refid="mem__tg_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>samples/dummy_afu/dummy_afu.cpp</label>
+        <link refid="dummy__afu_8cpp"/>
+      </node>
+      <node id="18">
+        <label>samples/dummy_afu/mmio.h</label>
+        <link refid="samples_2dummy__afu_2mmio_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.h</label>
+        <link refid="cxl__mem__tg_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="6">
+        <label>samples/cxl_host_exerciser/he_cache_test.h</label>
+        <link refid="he__cache__test_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.h</label>
+        <link refid="cxl__host__exerciser_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="24">
+        <label>include/opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>samples/host_exerciser/host_exerciser.h</label>
+        <link refid="host__exerciser_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.cpp</label>
+        <link refid="cxl__host__exerciser_8cpp"/>
+      </node>
+      <node id="17">
+        <label>samples/dummy_afu/lpbk.h</label>
+        <link refid="lpbk_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="23">
+        <label>samples/host_exerciser/host_exerciser_mem.h</label>
+        <link refid="host__exerciser__mem_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>include/opae/cxx/core/sysobject.h</label>
+        <link refid="cxx_2core_2sysobject_8h"/>
+      </node>
+      <node id="5">
+        <label>include/opae/cxx/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>samples/dummy_afu/dummy_afu.h</label>
+        <link refid="dummy__afu_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="28">
+        <label>samples/cxl_mem_tg/cxl_tg_test.h</label>
+        <link refid="cxl__tg__test_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>include/opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>samples/mem_tg/tg_test.h</label>
+        <link refid="tg__test_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>samples/host_exerciser/host_exerciser_cmd.h</label>
+        <link refid="host__exerciser__cmd_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>include/opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>include/opae/cxx/core/errors.h</label>
+        <link refid="errors_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.cpp</label>
+        <link refid="cxl__mem__tg_8cpp"/>
+      </node>
+      <node id="30">
+        <label>samples/mem_tg/mem_tg.cpp</label>
+        <link refid="mem__tg_8cpp"/>
+      </node>
+      <node id="10">
+        <label>samples/cxl_host_exerciser/cxl_he_cmd.h</label>
+        <link refid="cxl__he__cmd_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>samples/dummy_afu/ddr.h</label>
+        <link refid="ddr_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>include/opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>samples/hello_afu/sw/hello_afu.c</label>
+        <link refid="hello__afu_8c"/>
+      </node>
+      <node id="36">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+      <node id="7">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_cmd.h</label>
+        <link refid="cxl__he__cache__cmd_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>include/opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>samples/host_exerciser/host_exerciser_lpbk.h</label>
+        <link refid="host__exerciser__lpbk_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="properties_8h_1a027ca0f8c45573c378179d7f57971128" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetPropertiesFromHandle</definition>
+        <argsstring>(fpga_handle handle, fpga_properties *prop)</argsstring>
+        <name>fpgaGetPropertiesFromHandle</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref> *</type>
+          <declname>prop</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a fpga_properties object</para>
+<para>Initializes the memory pointed at by <computeroutput>prop</computeroutput> to represent a properties object, and populates it with the properties of the resource referred to by <computeroutput>handle</computeroutput>. Individual properties can then be queried using fpgaPropertiesGet*() accessor functions.</para>
+<para><simplesect kind="note"><para><ref refid="properties_8h_1a027ca0f8c45573c378179d7f57971128" kindref="member">fpgaGetPropertiesFromHandle()</ref> will allocate memory for the created properties object returned in <computeroutput>prop</computeroutput>. It is the responsibility of the caller to free this memory after use by calling <ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties()</ref>.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Open handle to get properties for. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a variable of type fpga_properties </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NO_MEMORY if no memory could be allocated to create the <computeroutput>fpga_properties</computeroutput> object. FPGA_EXCEPTION if an exception happend while initializing the <computeroutput>fpga_properties</computeroutput> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="75" column="13" declfile="include/opae/properties.h" declline="75" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a010d3b6839fc8763e66e4f953682a489" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaGetProperties</definition>
+        <argsstring>(fpga_token token, fpga_properties *prop)</argsstring>
+        <name>fpgaGetProperties</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref> *</type>
+          <declname>prop</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a fpga_properties object</para>
+<para>Initializes the memory pointed at by <computeroutput>prop</computeroutput> to represent a properties object, and populates it with the properties of the resource referred to by <computeroutput>token</computeroutput>. Individual properties can then be queried using fpgaPropertiesGet*() accessor functions.</para>
+<para>If <computeroutput>token</computeroutput> is NULL, an &quot;empty&quot; properties object is created to be used as a filter for <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref>. All individual fields are set to <computeroutput>don</computeroutput>t care`, which implies that the fpga_properties object would match all FPGA resources if used for an <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref> query. The matching criteria can be further refined by using fpgaSet* functions on the properties object, or the object can be populated with the actual properties of a resource by using <ref refid="properties_8h_1a56a1c04d0c8f8eb1785969934f31a41a" kindref="member">fpgaUpdateProperties()</ref>.</para>
+<para><simplesect kind="note"><para><ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref> will allocate memory for the created properties object returned in <computeroutput>prop</computeroutput>. It is the responsibility of the caller to free this memory after use by calling <ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties()</ref>.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Token to get properties for. Can be NULL, which will create an empty properties object to be used as a filter for <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a variable of type fpga_properties </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_NO_MEMORY if no memory could be allocated to create the <computeroutput>fpga_properties</computeroutput> object. FPGA_EXCEPTION if an exception happend while initializing the <computeroutput>fpga_properties</computeroutput> object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="105" column="13" declfile="include/opae/properties.h" declline="105" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+        <referencedby refid="n5010-test_8c_1ab750b2af83dc6cbb0aa2d9a9d1b25079" compoundref="n5010-test_8c" startline="736" endline="805">parse_args</referencedby>
+        <referencedby refid="hello__fpga_8c_1a888b04133611aa43ed28c4e4f9f319ae" compoundref="hello__fpga_8c" startline="235" endline="260">probe_for_ase</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a56a1c04d0c8f8eb1785969934f31a41a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaUpdateProperties</definition>
+        <argsstring>(fpga_token token, fpga_properties prop)</argsstring>
+        <name>fpgaUpdateProperties</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Update a fpga_properties object</para>
+<para>Populates the properties object &apos;prop&apos; with properties of the resource referred to by &apos;token&apos;. Unlike <ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref>, this call will not create a new properties object or allocate memory for it, but use a previously created properties object.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Token to retrieve properties for </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>fpga_properties object to update </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if <computeroutput>token</computeroutput> or <computeroutput>prop</computeroutput> are not valid objects. FPGA_NOT_FOUND if the resource referred to by <computeroutput>token</computeroutput> was not found. FPGA_NO_DRIVER if not driver is loaded. FPGA_EXCEPTION if an internal exception occured when trying to update <computeroutput>prop</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="122" column="13" declfile="include/opae/properties.h" declline="122" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a9ef3dc600c085ecf513b9e3f2867ffd6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaClearProperties</definition>
+        <argsstring>(fpga_properties prop)</argsstring>
+        <name>fpgaClearProperties</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Clear a fpga_properties object</para>
+<para>Sets all fields of the properties object pointed at by &apos;prop&apos; to &apos;don&apos;t care&apos;, which implies that the fpga_properties object would match all FPGA resources if used for an <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref> query. The matching criteria can be further refined by using fpgaSet* functions on the properties object.</para>
+<para>Instead of creating a new fpga_properties object every time, this function can be used to re-use fpga_properties objects from previous queries.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>fpga_properties object to clear </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if <computeroutput>prop</computeroutput> is not a valid object. FPGA_EXCEPTION if an * internal exception occured when trying to access <computeroutput>prop</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="140" column="13" declfile="include/opae/properties.h" declline="140" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1ac51c19bdd763a98e143a938c47963905" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaCloneProperties</definition>
+        <argsstring>(fpga_properties src, fpga_properties *dst)</argsstring>
+        <name>fpgaCloneProperties</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref> *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Clone a fpga_properties object</para>
+<para>Creates a copy of an fpga_properties object.</para>
+<para><simplesect kind="note"><para>This call creates a new properties object and allocates memory for it. Both the &apos;src&apos; and the newly created &apos;dst&apos; objects will eventually need to be destroyed using <ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties()</ref>.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>fpga_properties object to copy </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New fpga_properties object cloned from &apos;src&apos; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if <computeroutput>src</computeroutput> is not a valid object, or if <computeroutput>dst</computeroutput> is NULL. FPGA_NO_MEMORY if there was not enough memory to allocate an <computeroutput>fpga_properties</computeroutput> object for <computeroutput>dst</computeroutput>. FPGA_EXCEPTION if an internal exception occurred either accessing <computeroutput>src</computeroutput> or updating <computeroutput>dst</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="158" column="13" declfile="include/opae/properties.h" declline="158" declcolumn="13"/>
+        <referencedby refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" compoundref="hello__events_8c" startline="204" endline="226">find_fpga</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaDestroyProperties</definition>
+        <argsstring>(fpga_properties *prop)</argsstring>
+        <name>fpgaDestroyProperties</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref> *</type>
+          <declname>prop</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Destroy a fpga_properties object</para>
+<para>Destroys an existing fpga_properties object that the caller has previously created using <ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref> or <ref refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" kindref="member">fpgaCloneProperties()</ref>.</para>
+<para><simplesect kind="note"><para><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties()</ref> requires the address of an fpga_properties object, similar to <ref refid="properties_8h_1a027ca0f8c45573c378179d7f57971128" kindref="member">fpgaGetPropertiesFromHandle()</ref>, <ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref>, and <ref refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" kindref="member">fpgaCloneProperties()</ref>. Passing any other value results in undefined behavior.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the fpga_properties object to destroy </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM is <computeroutput>prop</computeroutput> is not a valid object. FPGA_EXCEPTION if an internal exception occurrred while trying to access <computeroutput>prop</computeroutput>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="176" column="13" declfile="include/opae/properties.h" declline="176" declcolumn="13"/>
+        <referencedby refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" compoundref="hello__events_8c" startline="204" endline="226">find_fpga</referencedby>
+        <referencedby refid="n5010-test_8c_1ab3d638b8387fa4ec22627ec8a6b53e62" compoundref="n5010-test_8c" startline="175" endline="200">fpga_close</referencedby>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+        <referencedby refid="hello__fpga_8c_1a888b04133611aa43ed28c4e4f9f319ae" compoundref="hello__fpga_8c" startline="235" endline="260">probe_for_ase</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1aa3d6d131a85e9c7cff4844c0931c1591" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetParent</definition>
+        <argsstring>(const fpga_properties prop, fpga_token *parent)</argsstring>
+        <name>fpgaPropertiesGetParent</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the token of the parent object</para>
+<para>Returns the token of the parent of the queried resource in &apos;*parent&apos;.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a token variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_NOT_FOUND if resource does not have a parent (e.g. an FPGA_DEVICE resource does not have parents). Also see &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="190" column="13" declfile="include/opae/properties.h" declline="190" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1aa395756270c64e2d2e4e03ad37931f2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetParent</definition>
+        <argsstring>(fpga_properties prop, fpga_token parent)</argsstring>
+        <name>fpgaPropertiesSetParent</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>parent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the token of the parent object</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a token variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="201" column="13" declfile="include/opae/properties.h" declline="201" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a5e4e034d981c29a65bbeafdd05d2fa87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetObjectType</definition>
+        <argsstring>(const fpga_properties prop, fpga_objtype *objtype)</argsstring>
+        <name>fpgaPropertiesGetObjectType</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref> *</type>
+          <declname>objtype</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the object type of a resource</para>
+<para>Returns the object type of the queried resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">objtype</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to an object type variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="213" column="13" declfile="include/opae/properties.h" declline="213" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a3724caa06200e0d3f0b56611c379d75b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetObjectType</definition>
+        <argsstring>(fpga_properties prop, fpga_objtype objtype)</argsstring>
+        <name>fpgaPropertiesSetObjectType</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref></type>
+          <declname>objtype</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the object type of a resource</para>
+<para>Sets the object type of the resource. * Currently supported object types are FPGA_DEVICE and FPGA_ACCELERATOR.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">objtype</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object type of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="226" column="13" declfile="include/opae/properties.h" declline="226" declcolumn="13"/>
+        <referencedby refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" compoundref="hello__events_8c" startline="204" endline="226">find_fpga</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+        <referencedby refid="hello__fpga_8c_1a888b04133611aa43ed28c4e4f9f319ae" compoundref="hello__fpga_8c" startline="235" endline="260">probe_for_ase</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a5a086b105275b0506e6338e9797d0439" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetSegment</definition>
+        <argsstring>(const fpga_properties prop, uint16_t *segment)</argsstring>
+        <name>fpgaPropertiesGetSegment</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>segment</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the PCI segment number of a resource</para>
+<para>Returns the segment number of the queried resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a PCI segment variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="238" column="13" declfile="include/opae/properties.h" declline="238" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a2ff66f524bfbd8f84b0b657d92edb07f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetSegment</definition>
+        <argsstring>(fpga_properties prop, uint16_t segment)</argsstring>
+        <name>fpgaPropertiesSetSegment</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>segment</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the PCI segment number of a resource</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">segment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PCI segment number of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="247" column="13" declfile="include/opae/properties.h" declline="247" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a29eda789a7322042dfa8d558d13205a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetBus</definition>
+        <argsstring>(const fpga_properties prop, uint8_t *bus)</argsstring>
+        <name>fpgaPropertiesGetBus</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bus</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the PCI bus number of a resource</para>
+<para>Returns the bus number the queried resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a PCI bus variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="259" column="13" declfile="include/opae/properties.h" declline="259" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a3a10650ea23b050090d1b2759c9ec8f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetBus</definition>
+        <argsstring>(fpga_properties prop, uint8_t bus)</argsstring>
+        <name>fpgaPropertiesSetBus</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>bus</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the PCI bus number of a resource</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PCI bus number of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="268" column="13" declfile="include/opae/properties.h" declline="268" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1abf2d527c4625bfd1558bb722c3c89380" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetDevice</definition>
+        <argsstring>(const fpga_properties prop, uint8_t *device)</argsstring>
+        <name>fpgaPropertiesGetDevice</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>device</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the PCI device number of a resource</para>
+<para>Returns the device number the queried resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">device</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a PCI device variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="280" column="13" declfile="include/opae/properties.h" declline="280" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a73ea87129bcea24df9aaabcc2bd40760" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetDevice</definition>
+        <argsstring>(fpga_properties prop, uint8_t device)</argsstring>
+        <name>fpgaPropertiesSetDevice</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>device</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the PCI device number of a resource</para>
+<para>Enforces the limitation on the number of devices as specified in the PCI spec.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">device</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PCI device number of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="294" column="13" declfile="include/opae/properties.h" declline="294" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a789a2548aaea9b2069b964f58a931bf6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetFunction</definition>
+        <argsstring>(const fpga_properties prop, uint8_t *function)</argsstring>
+        <name>fpgaPropertiesGetFunction</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>function</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the PCI function number of a resource</para>
+<para>Returns the function number the queried resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to PCI function variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="307" column="13" declfile="include/opae/properties.h" declline="307" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a14045d2b80968dda5af4987b6246d17a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetFunction</definition>
+        <argsstring>(fpga_properties prop, uint8_t function)</argsstring>
+        <name>fpgaPropertiesSetFunction</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>function</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the PCI function number of a resource</para>
+<para>Enforces the limitation on the number of functions as specified in the PCI spec.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PCI function number of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="321" column="13" declfile="include/opae/properties.h" declline="321" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a9978cb8bc354d2bbd644ed1a96395c8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetSocketID</definition>
+        <argsstring>(const fpga_properties prop, uint8_t *socket_id)</argsstring>
+        <name>fpgaPropertiesGetSocketID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>socket_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the socket id of a resource</para>
+<para>Returns the socket id of the queried resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">socket_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a socket id variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="336" column="13" declfile="include/opae/properties.h" declline="336" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a51707174f2df674af9bc1171bde7f1ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetSocketID</definition>
+        <argsstring>(fpga_properties prop, uint8_t socket_id)</argsstring>
+        <name>fpgaPropertiesSetSocketID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>socket_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the socket id of the resource</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">socket_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Socket id of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="347" column="13" declfile="include/opae/properties.h" declline="347" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1ac3237ae88feff35ba0c285e27cac58a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetDeviceID</definition>
+        <argsstring>(const fpga_properties prop, uint16_t *device_id)</argsstring>
+        <name>fpgaPropertiesGetDeviceID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>device_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the device id of the resource</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">device_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a device id variable of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="358" column="13" declfile="include/opae/properties.h" declline="358" declcolumn="13"/>
+        <referencedby refid="hello__fpga_8c_1a888b04133611aa43ed28c4e4f9f319ae" compoundref="hello__fpga_8c" startline="235" endline="260">probe_for_ase</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1acfac3eea769b7872c1d6d7102de708aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetDeviceID</definition>
+        <argsstring>(fpga_properties prop, uint16_t device_id)</argsstring>
+        <name>fpgaPropertiesSetDeviceID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>device_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the device id of the resource</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">device_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Device id of the resource &apos;prop&apos; is associated with </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="368" column="13" declfile="include/opae/properties.h" declline="368" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1ad1a50fcb3a74c0acf89d2f4e75989085" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetNumSlots</definition>
+        <argsstring>(const fpga_properties prop, uint32_t *num_slots)</argsstring>
+        <name>fpgaPropertiesGetNumSlots</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>num_slots</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the number of slots of an FPGA resource property</para>
+<para>Returns the number of slots present in an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">num_slots</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to number of slots variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="381" column="13" declfile="include/opae/properties.h" declline="381" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a2338b49011195241a3ba5ad16f85dde8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetNumSlots</definition>
+        <argsstring>(fpga_properties prop, uint32_t num_slots)</argsstring>
+        <name>fpgaPropertiesSetNumSlots</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num_slots</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the number of slots of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">num_slots</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of slots of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="393" column="13" declfile="include/opae/properties.h" declline="393" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1aa387edbec93d9588d6338d11aace653f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetBBSID</definition>
+        <argsstring>(const fpga_properties prop, uint64_t *bbs_id)</argsstring>
+        <name>fpgaPropertiesGetBBSID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>bbs_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the BBS ID of an FPGA resource property</para>
+<para>Returns the blue bitstream id of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">bbs_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a bbs id variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="406" column="13" declfile="include/opae/properties.h" declline="406" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a456be39e014b2fb03b160ab010ddb189" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetBBSID</definition>
+        <argsstring>(fpga_properties prop, uint64_t bbs_id)</argsstring>
+        <name>fpgaPropertiesSetBBSID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>bbs_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the BBS ID of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">bbs_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Blue bitstream id of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="419" column="13" declfile="include/opae/properties.h" declline="419" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a08186263b04a5193471469e9d70ae372" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetBBSVersion</definition>
+        <argsstring>(const fpga_properties prop, fpga_version *bbs_version)</argsstring>
+        <name>fpgaPropertiesGetBBSVersion</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="structfpga__version" kindref="compound">fpga_version</ref> *</type>
+          <declname>bbs_version</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the BBS Version of an FPGA resource property</para>
+<para>Returns the blue bitstream version of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">bbs_version</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a bbs version variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="434" column="13" declfile="include/opae/properties.h" declline="434" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a9e3bfec10b26500718ae0afef146f06a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetBBSVersion</definition>
+        <argsstring>(fpga_properties prop, fpga_version version)</argsstring>
+        <name>fpgaPropertiesSetBBSVersion</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="structfpga__version" kindref="compound">fpga_version</ref></type>
+          <declname>version</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the BBS Version of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">version</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Blue bitstream version of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="446" column="13" declfile="include/opae/properties.h" declline="446" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a03408aebf73915938507c529bba6aeb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetVendorID</definition>
+        <argsstring>(const fpga_properties prop, uint16_t *vendor_id)</argsstring>
+        <name>fpgaPropertiesGetVendorID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>vendor_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the vendor id of an FPGA resource property</para>
+<para>Returns the vendor id of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">vendor_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a vendor id variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="462" column="13" declfile="include/opae/properties.h" declline="462" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a1393cac49b4c34fa23e95367bc14d811" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetVendorID</definition>
+        <argsstring>(fpga_properties prop, uint16_t vendor_id)</argsstring>
+        <name>fpgaPropertiesSetVendorID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>vendor_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the vendor id of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">vendor_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vendor id of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="476" column="13" declfile="include/opae/properties.h" declline="476" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a8c00a2915132284aea5faa0d72dfd5e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetModel</definition>
+        <argsstring>(const fpga_properties prop, char *model)</argsstring>
+        <name>fpgaPropertiesGetModel</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>model</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the model of an FPGA resource property</para>
+<para>Returns the model of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">model</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Model of the FPGA resource (string of minimum FPGA_MODEL_LENGTH length </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="492" column="13" declfile="include/opae/properties.h" declline="492" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1acd4fc992cbb34efe619e387f923c4c05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetModel</definition>
+        <argsstring>(fpga_properties prop, char *model)</argsstring>
+        <name>fpgaPropertiesSetModel</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>model</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the model of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">model</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Model of the FPGA resource (string of maximum FPGA_MODEL_LENGTH length </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="507" column="13" declfile="include/opae/properties.h" declline="507" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1aeff04e09cc045f314695b4aac0e5516a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetLocalMemorySize</definition>
+        <argsstring>(const fpga_properties prop, uint64_t *lms)</argsstring>
+        <name>fpgaPropertiesGetLocalMemorySize</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>lms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the local memory size of an FPGA resource property</para>
+<para>Returns the local memory size of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">lms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a memory size variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="523" column="13" declfile="include/opae/properties.h" declline="523" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1af491fd7a2621aa66de5059168afe3792" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetLocalMemorySize</definition>
+        <argsstring>(fpga_properties prop, uint64_t lms)</argsstring>
+        <name>fpgaPropertiesSetLocalMemorySize</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>lms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the local memory size of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">lms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Local memory size of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="537" column="13" declfile="include/opae/properties.h" declline="537" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a9b80ec35fbe0498f332782ca5d8ec2ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetCapabilities</definition>
+        <argsstring>(const fpga_properties prop, uint64_t *capabilities)</argsstring>
+        <name>fpgaPropertiesGetCapabilities</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>capabilities</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the capabilities FPGA resource property</para>
+<para>Returns the capabilities of an FPGA. Capabilities is a bitfield value</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">capabilities</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a capabilities variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="554" column="13" declfile="include/opae/properties.h" declline="554" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a45bad0a5baa2cb1f582af571d6ed3917" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetCapabilities</definition>
+        <argsstring>(fpga_properties prop, uint64_t capabilities)</argsstring>
+        <name>fpgaPropertiesSetCapabilities</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>capabilities</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the capabilities of an FPGA resource property</para>
+<para>Capabilities is a bitfield value</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_DEVICE </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">capabilities</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capabilities of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>.</para>
+</simplesect>
+<simplesect kind="note"><para>This API is not currently supported. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="571" column="13" declfile="include/opae/properties.h" declline="571" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a5728ceaf03173772069df0610b4646d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetGUID</definition>
+        <argsstring>(const fpga_properties prop, fpga_guid *guid)</argsstring>
+        <name>fpgaPropertiesGetGUID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref> *</type>
+          <declname>guid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the GUID of a resource</para>
+<para>Returns the GUID of an FPGA or accelerator object.</para>
+<para>For an accelerator, the GUID uniquely identifies a specific accelerator context type, i.e. different accelerators will have different GUIDs. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e.g. to determine whether a given bitstream would be compatible.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">guid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a GUID of the slot variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="588" column="13" declfile="include/opae/properties.h" declline="588" declcolumn="13"/>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" compoundref="pvalue_8h" startline="51" endline="56">opae::fpga::types::guid_t::update</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a71ad1e59994b2c8b04ea036a64515117" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetGUID</definition>
+        <argsstring>(fpga_properties prop, fpga_guid guid)</argsstring>
+        <name>fpgaPropertiesSetGUID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref></type>
+          <declname>guid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the GUID of a resource</para>
+<para>Sets the GUID of an FPGA or accelerator object.</para>
+<para>For an accelerator, the GUID uniquely identifies a specific accelerator context type, i.e. different accelerators will have different GUIDs. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e.g. to determine whether a given bitstream would be compatible.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">guid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a GUID of the slot variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="605" column="13" declfile="include/opae/properties.h" declline="605" declcolumn="13"/>
+        <referencedby refid="hello__fpga_8c_1ae703894d2d572a2c40252494470ab1f1" compoundref="hello__fpga_8c" startline="206" endline="232">find_fpga</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1ab131fdece38cc112bd08244ede8a0f29" compoundref="pvalue_8h" startline="76" endline="84">opae::fpga::types::guid_t::operator=</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1a79ba0567868025a34ffebc3eb24ddd5d" compoundref="pvalue_8h" startline="96" endline="103">opae::fpga::types::guid_t::parse</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a7b70efbf6892e9daaf3700b21cc50f0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetNumMMIO</definition>
+        <argsstring>(const fpga_properties prop, uint32_t *mmio_spaces)</argsstring>
+        <name>fpgaPropertiesGetNumMMIO</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>mmio_spaces</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the number of mmio spaces</para>
+<para>Returns the number of mmio spaces of an AFU properties structure.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_ACCELERATOR </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">mmio_spaces</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a variable for number of mmio spaces </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="617" column="13" declfile="include/opae/properties.h" declline="617" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a1695e0bf61ee5188401bd230db022314" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetNumMMIO</definition>
+        <argsstring>(fpga_properties prop, uint32_t mmio_spaces)</argsstring>
+        <name>fpgaPropertiesSetNumMMIO</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mmio_spaces</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the number of mmio spaces</para>
+<para>Sets the number of mmio spaces of an AFU properties structure.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_ACCELERATOR </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">mmio_spaces</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of MMIO spaces of the accelerator </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="630" column="13" declfile="include/opae/properties.h" declline="630" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a33ee7ad6994f3df0a044d9052627f8c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetNumInterrupts</definition>
+        <argsstring>(const fpga_properties prop, uint32_t *num_interrupts)</argsstring>
+        <name>fpgaPropertiesGetNumInterrupts</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>num_interrupts</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the number of interrupts</para>
+<para>Returns the number of interrupts of an accelerator properties structure.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_ACCELERATOR </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">num_interrupts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a variable for number of interrupts </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="644" column="13" declfile="include/opae/properties.h" declline="644" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1ace3b67e6acb69bef8d8d8b32dab7a044" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetNumInterrupts</definition>
+        <argsstring>(fpga_properties prop, uint32_t num_interrupts)</argsstring>
+        <name>fpgaPropertiesSetNumInterrupts</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num_interrupts</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the number of interrupts</para>
+<para>Sets the number of interrupts of an accelerator properties structure.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_ACCELERATOR </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">num_interrupts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of interrupts of the accelerator </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="658" column="13" declfile="include/opae/properties.h" declline="658" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a1e18fdf7c532bf564576b361874fccf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetAcceleratorState</definition>
+        <argsstring>(const fpga_properties prop, fpga_accelerator_state *state)</argsstring>
+        <name>fpgaPropertiesGetAcceleratorState</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" kindref="member">fpga_accelerator_state</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the state of a accelerator resource property</para>
+<para>Returns the accelerator state of a accelerator.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query - must be of type FPGA_ACCELERATOR </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a accelerator state variable of the accelerator </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="671" column="13" declfile="include/opae/properties.h" declline="671" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a1a3f5725be24b3fc10625dfd604ed86d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetAcceleratorState</definition>
+        <argsstring>(fpga_properties prop, fpga_accelerator_state state)</argsstring>
+        <name>fpgaPropertiesSetAcceleratorState</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" kindref="member">fpga_accelerator_state</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the state of an accelerator resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify - must be of type FPGA_ACCELERATOR </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>accelerator state of the accelerator resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="683" column="13" declfile="include/opae/properties.h" declline="683" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a409e32267db6f5040d881d5d533c36fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetObjectID</definition>
+        <argsstring>(const fpga_properties prop, uint64_t *object_id)</argsstring>
+        <name>fpgaPropertiesGetObjectID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>object_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the object ID of a resource</para>
+<para>Returns the object ID of a resource. The object ID is a 64 bit identifier that is unique within a single node or system. It represents a similar concept as the token, but can be used across processes (e.g. passed on the command line).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">object_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a 64bit memory location to store the object ID in </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="699" column="13" declfile="include/opae/properties.h" declline="699" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a022ad3dc80ab2fba7e512c6c2215258a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetObjectID</definition>
+        <argsstring>(const fpga_properties prop, uint64_t object_id)</argsstring>
+        <name>fpgaPropertiesSetObjectID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>object_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the object ID of a resource</para>
+<para>Sets the object ID of a resource. The object ID is a 64 bit identifier that is unique within a single node or system. It represents a similar concept as the token, but can be used across processes (e.g. passed on the command line).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">object_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A 64bit value to use as the object ID </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="715" column="13" declfile="include/opae/properties.h" declline="715" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a6cfb80c2a4fe8fd7be1ac4ecd72985b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetNumErrors</definition>
+        <argsstring>(const fpga_properties prop, uint32_t *num_errors)</argsstring>
+        <name>fpgaPropertiesGetNumErrors</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>num_errors</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the number of errors that can be reported by a resource</para>
+<para>Returns the number of error registers understood by a resource.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">num_errors</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a 32 bit memory location to store the number of supported errors in </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="729" column="13" declfile="include/opae/properties.h" declline="729" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1ac8be299c378aff53410dda6081975038" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetNumErrors</definition>
+        <argsstring>(const fpga_properties prop, uint32_t num_errors)</argsstring>
+        <name>fpgaPropertiesSetNumErrors</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num_errors</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the number of error registers</para>
+<para>Set the number of error registers understood by a resource to enumerate.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">num_errors</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of errors </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="742" column="13" declfile="include/opae/properties.h" declline="742" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a8fe0f0d91d844aeaced5b761c22940b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetInterface</definition>
+        <argsstring>(const fpga_properties prop, fpga_interface *interface)</argsstring>
+        <name>fpgaPropertiesGetInterface</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref> *</type>
+          <declname>interface</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the OPAE plugin interface implemented by a resource</para>
+<para>Returns the plugin interface enumerator.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">interface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to an fpga_interface location to store the interface in </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="755" column="13" declfile="include/opae/properties.h" declline="755" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a29e51f74386de3ecedde125157b24057" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetInterface</definition>
+        <argsstring>(const fpga_properties prop, fpga_interface interface)</argsstring>
+        <name>fpgaPropertiesSetInterface</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref></type>
+          <declname>interface</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the OPAE plugin interface implemented by a resource</para>
+<para>Set the plugin interface enumerator.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">interface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The interface enumerator to set </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>See &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="767" column="13" declfile="include/opae/properties.h" declline="767" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a8e58481bfe2c97de9a4582d8acbbc356" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetSubsystemVendorID</definition>
+        <argsstring>(const fpga_properties prop, uint16_t *subsystem_vendor_id)</argsstring>
+        <name>fpgaPropertiesGetSubsystemVendorID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>subsystem_vendor_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the subsystem vendor id of an FPGA resource property</para>
+<para>Returns the subsystem vendor id of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">subsystem_vendor_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a vendor id variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="780" column="13" declfile="include/opae/properties.h" declline="780" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a26296be1fc4c0f53d37e84c1d7741963" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetSubsystemVendorID</definition>
+        <argsstring>(fpga_properties prop, uint16_t subsystem_vendor_id)</argsstring>
+        <name>fpgaPropertiesSetSubsystemVendorID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>subsystem_vendor_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the subsystem vendor id of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">subsystem_vendor_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Subsystem Vendor id of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="792" column="13" declfile="include/opae/properties.h" declline="792" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1ac5eb7e22334b5dff483a6542b12644c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesGetSubsystemDeviceID</definition>
+        <argsstring>(const fpga_properties prop, uint16_t *subsystem_device_id)</argsstring>
+        <name>fpgaPropertiesGetSubsystemDeviceID</name>
+        <param>
+          <type>const <ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>subsystem_device_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the subsystem device id of an FPGA resource property</para>
+<para>Returns the subsystem device id of an FPGA.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to query </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">subsystem_device_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a device id variable of the FPGA </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="805" column="13" declfile="include/opae/properties.h" declline="805" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="properties_8h_1a66d64cd10bb9b834e389f6d4d618e556" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaPropertiesSetSubsystemDeviceID</definition>
+        <argsstring>(fpga_properties prop, uint16_t subsystem_device_id)</argsstring>
+        <name>fpgaPropertiesSetSubsystemDeviceID</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>subsystem_device_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set the subsystem device id of an FPGA resource property</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">prop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties object to modify </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">subsystem_device_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Subsystem Device id of the FPGA resource </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. See also &quot;Accessor Return Values&quot; in <ulink url="#properties-h">properties.h</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/properties.h" line="817" column="13" declfile="include/opae/properties.h" declline="817" declcolumn="13"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions for examining and manipulating <computeroutput>fpga_properties</computeroutput> objects. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>In OPAE, <computeroutput>fpga_properties</computeroutput> objects are used both for obtaining information about resources and for selectively enumerating resources based on their properties. This file provides accessor functions (get/set) to allow reading and writing individual items of an <computeroutput>fpga_properties</computeroutput> object. Generally, not all object types supported by OPAE carry all properties. If you call a property accessor method on a <computeroutput>fpga_properties</computeroutput> object that does not support this particular property, it will return FPGA_INVALID_PARAM.</para>
+<sect1 id="properties_8h_1autotoc_md0">
+<title>Accessor Return Values</title>
+<para>In addition to the return values specified in the documentation below, all accessor functions return FPGA_OK on success, FPGA_INVALID_PARAM if you pass NULL or invalid parameters (i.e. non-initialized properties objects), FPGA_EXCEPTION if an internal exception occurred trying to access the properties object, FPGA_NOT_FOUND if the requested property is not part of the supplied properties object. </para>
+</sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2017-2021,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_PROPERTIES_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_PROPERTIES_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types_8h" kindref="compound">opae/types.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="properties_8h_1a027ca0f8c45573c378179d7f57971128" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a027ca0f8c45573c378179d7f57971128" kindref="member">fpgaGetPropertiesFromHandle</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,<sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>*prop);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties</ref>(<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>token,<sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>*prop);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="properties_8h_1a56a1c04d0c8f8eb1785969934f31a41a" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a56a1c04d0c8f8eb1785969934f31a41a" kindref="member">fpgaUpdateProperties</ref>(<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>token,<sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140" refid="properties_8h_1a9ef3dc600c085ecf513b9e3f2867ffd6" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a9ef3dc600c085ecf513b9e3f2867ffd6" kindref="member">fpgaClearProperties</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" kindref="member">fpgaCloneProperties</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>src,<sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>*dst);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176" refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>*prop);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190" refid="properties_8h_1aa3d6d131a85e9c7cff4844c0931c1591" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1aa3d6d131a85e9c7cff4844c0931c1591" kindref="member">fpgaPropertiesGetParent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>*parent);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="properties_8h_1aa395756270c64e2d2e4e03ad37931f2d" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1aa395756270c64e2d2e4e03ad37931f2d" kindref="member">fpgaPropertiesSetParent</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>parent);</highlight></codeline>
+<codeline lineno="213" refid="properties_8h_1a5e4e034d981c29a65bbeafdd05d2fa87" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a5e4e034d981c29a65bbeafdd05d2fa87" kindref="member">fpgaPropertiesGetObjectType</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref><sp/>*objtype);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226" refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b" kindref="member">fpgaPropertiesSetObjectType</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref><sp/>objtype);</highlight></codeline>
+<codeline lineno="238" refid="properties_8h_1a5a086b105275b0506e6338e9797d0439" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a5a086b105275b0506e6338e9797d0439" kindref="member">fpgaPropertiesGetSegment</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,<sp/>uint16_t<sp/>*segment);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247" refid="properties_8h_1a2ff66f524bfbd8f84b0b657d92edb07f" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a2ff66f524bfbd8f84b0b657d92edb07f" kindref="member">fpgaPropertiesSetSegment</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,<sp/>uint16_t<sp/>segment);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259" refid="properties_8h_1a29eda789a7322042dfa8d558d13205a1" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a29eda789a7322042dfa8d558d13205a1" kindref="member">fpgaPropertiesGetBus</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,<sp/>uint8_t<sp/>*bus);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268" refid="properties_8h_1a3a10650ea23b050090d1b2759c9ec8f7" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a3a10650ea23b050090d1b2759c9ec8f7" kindref="member">fpgaPropertiesSetBus</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,<sp/>uint8_t<sp/>bus);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280" refid="properties_8h_1abf2d527c4625bfd1558bb722c3c89380" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1abf2d527c4625bfd1558bb722c3c89380" kindref="member">fpgaPropertiesGetDevice</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*device);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294" refid="properties_8h_1a73ea87129bcea24df9aaabcc2bd40760" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a73ea87129bcea24df9aaabcc2bd40760" kindref="member">fpgaPropertiesSetDevice</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>device);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="307" refid="properties_8h_1a789a2548aaea9b2069b964f58a931bf6" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a789a2548aaea9b2069b964f58a931bf6" kindref="member">fpgaPropertiesGetFunction</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*</highlight><highlight class="keyword">function</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321" refid="properties_8h_1a14045d2b80968dda5af4987b6246d17a" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a14045d2b80968dda5af4987b6246d17a" kindref="member">fpgaPropertiesSetFunction</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/></highlight><highlight class="keyword">function</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336" refid="properties_8h_1a9978cb8bc354d2bbd644ed1a96395c8c" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a9978cb8bc354d2bbd644ed1a96395c8c" kindref="member">fpgaPropertiesGetSocketID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*socket_id);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="347" refid="properties_8h_1a51707174f2df674af9bc1171bde7f1ba" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a51707174f2df674af9bc1171bde7f1ba" kindref="member">fpgaPropertiesSetSocketID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>socket_id);</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight></codeline>
+<codeline lineno="358" refid="properties_8h_1ac3237ae88feff35ba0c285e27cac58a5" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1ac3237ae88feff35ba0c285e27cac58a5" kindref="member">fpgaPropertiesGetDeviceID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*device_id);</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="368" refid="properties_8h_1acfac3eea769b7872c1d6d7102de708aa" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1acfac3eea769b7872c1d6d7102de708aa" kindref="member">fpgaPropertiesSetDeviceID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>device_id);</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381" refid="properties_8h_1ad1a50fcb3a74c0acf89d2f4e75989085" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1ad1a50fcb3a74c0acf89d2f4e75989085" kindref="member">fpgaPropertiesGetNumSlots</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*num_slots);</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="393" refid="properties_8h_1a2338b49011195241a3ba5ad16f85dde8" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a2338b49011195241a3ba5ad16f85dde8" kindref="member">fpgaPropertiesSetNumSlots</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>num_slots);</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"></highlight></codeline>
+<codeline lineno="406" refid="properties_8h_1aa387edbec93d9588d6338d11aace653f" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1aa387edbec93d9588d6338d11aace653f" kindref="member">fpgaPropertiesGetBBSID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*bbs_id);</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight></codeline>
+<codeline lineno="419" refid="properties_8h_1a456be39e014b2fb03b160ab010ddb189" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a456be39e014b2fb03b160ab010ddb189" kindref="member">fpgaPropertiesSetBBSID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>bbs_id);</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight></codeline>
+<codeline lineno="422"><highlight class="normal"></highlight></codeline>
+<codeline lineno="434" refid="properties_8h_1a08186263b04a5193471469e9d70ae372" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a08186263b04a5193471469e9d70ae372" kindref="member">fpgaPropertiesGetBBSVersion</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structfpga__version" kindref="compound">fpga_version</ref><sp/>*bbs_version);</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"></highlight></codeline>
+<codeline lineno="446" refid="properties_8h_1a9e3bfec10b26500718ae0afef146f06a" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a9e3bfec10b26500718ae0afef146f06a" kindref="member">fpgaPropertiesSetBBSVersion</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structfpga__version" kindref="compound">fpga_version</ref><sp/>version);</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"></highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="462" refid="properties_8h_1a03408aebf73915938507c529bba6aeb3" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a03408aebf73915938507c529bba6aeb3" kindref="member">fpgaPropertiesGetVendorID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="463"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*vendor_id);</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"></highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="476" refid="properties_8h_1a1393cac49b4c34fa23e95367bc14d811" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a1393cac49b4c34fa23e95367bc14d811" kindref="member">fpgaPropertiesSetVendorID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>vendor_id);</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"></highlight></codeline>
+<codeline lineno="492" refid="properties_8h_1a8c00a2915132284aea5faa0d72dfd5e5" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a8c00a2915132284aea5faa0d72dfd5e5" kindref="member">fpgaPropertiesGetModel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*model);</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"></highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight></codeline>
+<codeline lineno="507" refid="properties_8h_1acd4fc992cbb34efe619e387f923c4c05" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1acd4fc992cbb34efe619e387f923c4c05" kindref="member">fpgaPropertiesSetModel</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*model);</highlight></codeline>
+<codeline lineno="509"><highlight class="normal"></highlight></codeline>
+<codeline lineno="510"><highlight class="normal"></highlight></codeline>
+<codeline lineno="523" refid="properties_8h_1aeff04e09cc045f314695b4aac0e5516a" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1aeff04e09cc045f314695b4aac0e5516a" kindref="member">fpgaPropertiesGetLocalMemorySize</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*lms);</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"></highlight></codeline>
+<codeline lineno="526"><highlight class="normal"></highlight></codeline>
+<codeline lineno="537" refid="properties_8h_1af491fd7a2621aa66de5059168afe3792" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1af491fd7a2621aa66de5059168afe3792" kindref="member">fpgaPropertiesSetLocalMemorySize</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>lms);</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"></highlight></codeline>
+<codeline lineno="554" refid="properties_8h_1a9b80ec35fbe0498f332782ca5d8ec2ab" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a9b80ec35fbe0498f332782ca5d8ec2ab" kindref="member">fpgaPropertiesGetCapabilities</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*capabilities);</highlight></codeline>
+<codeline lineno="556"><highlight class="normal"></highlight></codeline>
+<codeline lineno="557"><highlight class="normal"></highlight></codeline>
+<codeline lineno="571" refid="properties_8h_1a45bad0a5baa2cb1f582af571d6ed3917" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a45bad0a5baa2cb1f582af571d6ed3917" kindref="member">fpgaPropertiesSetCapabilities</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>capabilities);</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"></highlight></codeline>
+<codeline lineno="588" refid="properties_8h_1a5728ceaf03173772069df0610b4646d7" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a5728ceaf03173772069df0610b4646d7" kindref="member">fpgaPropertiesGetGUID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref><sp/>*guid);</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"></highlight></codeline>
+<codeline lineno="605" refid="properties_8h_1a71ad1e59994b2c8b04ea036a64515117" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a71ad1e59994b2c8b04ea036a64515117" kindref="member">fpgaPropertiesSetGUID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,<sp/><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref><sp/>guid);</highlight></codeline>
+<codeline lineno="606"><highlight class="normal"></highlight></codeline>
+<codeline lineno="617" refid="properties_8h_1a7b70efbf6892e9daaf3700b21cc50f0c" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a7b70efbf6892e9daaf3700b21cc50f0c" kindref="member">fpgaPropertiesGetNumMMIO</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*mmio_spaces);</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"></highlight></codeline>
+<codeline lineno="630" refid="properties_8h_1a1695e0bf61ee5188401bd230db022314" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a1695e0bf61ee5188401bd230db022314" kindref="member">fpgaPropertiesSetNumMMIO</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="631"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mmio_spaces);</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight></codeline>
+<codeline lineno="644" refid="properties_8h_1a33ee7ad6994f3df0a044d9052627f8c0" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a33ee7ad6994f3df0a044d9052627f8c0" kindref="member">fpgaPropertiesGetNumInterrupts</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*num_interrupts);</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"></highlight></codeline>
+<codeline lineno="658" refid="properties_8h_1ace3b67e6acb69bef8d8d8b32dab7a044" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1ace3b67e6acb69bef8d8d8b32dab7a044" kindref="member">fpgaPropertiesSetNumInterrupts</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="659"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>num_interrupts);</highlight></codeline>
+<codeline lineno="660"><highlight class="normal"></highlight></codeline>
+<codeline lineno="671" refid="properties_8h_1a1e18fdf7c532bf564576b361874fccf3" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a1e18fdf7c532bf564576b361874fccf3" kindref="member">fpgaPropertiesGetAcceleratorState</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" kindref="member">fpga_accelerator_state</ref><sp/>*state);</highlight></codeline>
+<codeline lineno="673"><highlight class="normal"></highlight></codeline>
+<codeline lineno="674"><highlight class="normal"></highlight></codeline>
+<codeline lineno="683" refid="properties_8h_1a1a3f5725be24b3fc10625dfd604ed86d" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a1a3f5725be24b3fc10625dfd604ed86d" kindref="member">fpgaPropertiesSetAcceleratorState</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="684"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" kindref="member">fpga_accelerator_state</ref><sp/>state);</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"></highlight></codeline>
+<codeline lineno="699" refid="properties_8h_1a409e32267db6f5040d881d5d533c36fb" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a409e32267db6f5040d881d5d533c36fb" kindref="member">fpgaPropertiesGetObjectID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="700"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*object_id);</highlight></codeline>
+<codeline lineno="701"><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="normal"></highlight></codeline>
+<codeline lineno="715" refid="properties_8h_1a022ad3dc80ab2fba7e512c6c2215258a" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a022ad3dc80ab2fba7e512c6c2215258a" kindref="member">fpgaPropertiesSetObjectID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>object_id);</highlight></codeline>
+<codeline lineno="717"><highlight class="normal"></highlight></codeline>
+<codeline lineno="718"><highlight class="normal"></highlight></codeline>
+<codeline lineno="729" refid="properties_8h_1a6cfb80c2a4fe8fd7be1ac4ecd72985b5" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a6cfb80c2a4fe8fd7be1ac4ecd72985b5" kindref="member">fpgaPropertiesGetNumErrors</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="730"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*num_errors);</highlight></codeline>
+<codeline lineno="731"><highlight class="normal"></highlight></codeline>
+<codeline lineno="732"><highlight class="normal"></highlight></codeline>
+<codeline lineno="742" refid="properties_8h_1ac8be299c378aff53410dda6081975038" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1ac8be299c378aff53410dda6081975038" kindref="member">fpgaPropertiesSetNumErrors</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="743"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>num_errors);</highlight></codeline>
+<codeline lineno="744"><highlight class="normal"></highlight></codeline>
+<codeline lineno="755" refid="properties_8h_1a8fe0f0d91d844aeaced5b761c22940b0" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a8fe0f0d91d844aeaced5b761c22940b0" kindref="member">fpgaPropertiesGetInterface</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="756"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref><sp/>*interface);</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"></highlight></codeline>
+<codeline lineno="767" refid="properties_8h_1a29e51f74386de3ecedde125157b24057" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a29e51f74386de3ecedde125157b24057" kindref="member">fpgaPropertiesSetInterface</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="768"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref><sp/>interface);</highlight></codeline>
+<codeline lineno="769"><highlight class="normal"></highlight></codeline>
+<codeline lineno="780" refid="properties_8h_1a8e58481bfe2c97de9a4582d8acbbc356" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a8e58481bfe2c97de9a4582d8acbbc356" kindref="member">fpgaPropertiesGetSubsystemVendorID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="781"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*subsystem_vendor_id);</highlight></codeline>
+<codeline lineno="782"><highlight class="normal"></highlight></codeline>
+<codeline lineno="783"><highlight class="normal"></highlight></codeline>
+<codeline lineno="792" refid="properties_8h_1a26296be1fc4c0f53d37e84c1d7741963" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a26296be1fc4c0f53d37e84c1d7741963" kindref="member">fpgaPropertiesSetSubsystemVendorID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="793"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>subsystem_vendor_id);</highlight></codeline>
+<codeline lineno="794"><highlight class="normal"></highlight></codeline>
+<codeline lineno="805" refid="properties_8h_1ac5eb7e22334b5dff483a6542b12644c9" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1ac5eb7e22334b5dff483a6542b12644c9" kindref="member">fpgaPropertiesGetSubsystemDeviceID</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="806"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*subsystem_device_id);</highlight></codeline>
+<codeline lineno="807"><highlight class="normal"></highlight></codeline>
+<codeline lineno="808"><highlight class="normal"></highlight></codeline>
+<codeline lineno="817" refid="properties_8h_1a66d64cd10bb9b834e389f6d4d618e556" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="properties_8h_1a66d64cd10bb9b834e389f6d4d618e556" kindref="member">fpgaPropertiesSetSubsystemDeviceID</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>prop,</highlight></codeline>
+<codeline lineno="818"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>subsystem_device_id);</highlight></codeline>
+<codeline lineno="819"><highlight class="normal"></highlight></codeline>
+<codeline lineno="820"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="821"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="822"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="823"><highlight class="normal"></highlight></codeline>
+<codeline lineno="824"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__FPGA_PROPERTIES_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="825"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/properties.h"/>
+  </compounddef>
+</doxygen>

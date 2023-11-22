@@ -1,0 +1,108 @@
+.TH "opae::fpga::types::src_location" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::src_location \- Identify a particular line in a source file\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/except\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBsrc_location\fP (const char *\fBfile\fP, const char *\fBfn\fP, int \fBline\fP) noexcept"
+.br
+.ti -1c
+.RI "\fBsrc_location\fP (const \fBsrc_location\fP &other) noexcept"
+.br
+.ti -1c
+.RI "\fBsrc_location\fP & \fBoperator=\fP (const \fBsrc_location\fP &other) noexcept"
+.br
+.ti -1c
+.RI "const char * \fBfile\fP () const noexcept"
+.br
+.ti -1c
+.RI "const char * \fBfn\fP () const noexcept"
+.br
+.ti -1c
+.RI "int \fBline\fP () const noexcept"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBfile_\fP"
+.br
+.ti -1c
+.RI "const char * \fBfn_\fP"
+.br
+.ti -1c
+.RI "int \fBline_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Identify a particular line in a source file\&. 
+.PP
+Definition at line 37 of file except\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::src_location::src_location (const char * file, const char * fn, int line)\fC [noexcept]\fP"
+\fBsrc_location\fP constructor 
+.PP
+\fBParameters\fP
+.RS 4
+\fIfile\fP The source file name, typically \fBFILE\fP\&. 
+.br
+\fIfn\fP The current function, typically \fBfunc\fP\&. 
+.br
+\fIline\fP The current line number, typically \fBLINE\fP\&. 
+.RE
+.PP
+
+.SS "opae::fpga::types::src_location::src_location (const \fBsrc_location\fP & other)\fC [noexcept]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBsrc_location\fP& opae::fpga::types::src_location::operator= (const \fBsrc_location\fP & other)\fC [noexcept]\fP"
+
+.SS "const char* opae::fpga::types::src_location::file () const\fC [noexcept]\fP"
+Retrieve the file name component of the location\&. 
+.SS "const char* opae::fpga::types::src_location::fn () const\fC [inline]\fP, \fC [noexcept]\fP"
+Retrieve the function name component of the location\&. 
+.PP
+Definition at line 56 of file except\&.h\&.
+.PP
+References fn_\&.
+.SS "int opae::fpga::types::src_location::line () const\fC [inline]\fP, \fC [noexcept]\fP"
+Retrieve the line number component of the location\&. 
+.PP
+Definition at line 60 of file except\&.h\&.
+.PP
+References line_\&.
+.SH "Field Documentation"
+.PP 
+.SS "const char* opae::fpga::types::src_location::file_\fC [private]\fP"
+
+.PP
+Definition at line 63 of file except\&.h\&.
+.SS "const char* opae::fpga::types::src_location::fn_\fC [private]\fP"
+
+.PP
+Definition at line 64 of file except\&.h\&.
+.PP
+Referenced by fn()\&.
+.SS "int opae::fpga::types::src_location::line_\fC [private]\fP"
+
+.PP
+Definition at line 65 of file except\&.h\&.
+.PP
+Referenced by line()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

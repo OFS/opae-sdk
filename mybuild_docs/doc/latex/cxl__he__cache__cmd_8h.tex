@@ -1,0 +1,95 @@
+\doxysection{samples/cxl\+\_\+host\+\_\+exerciser/cxl\+\_\+he\+\_\+cache\+\_\+cmd.h File Reference}
+\label{cxl__he__cache__cmd_8h}\index{samples/cxl\_host\_exerciser/cxl\_he\_cache\_cmd.h@{samples/cxl\_host\_exerciser/cxl\_he\_cache\_cmd.h}}
+{\ttfamily \#include \char`\"{}cxl\+\_\+he\+\_\+cmd.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}cxl\+\_\+host\+\_\+exerciser.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}he\+\_\+cache\+\_\+test.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespacehost__exerciser}{host\+\_\+exerciser}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{cxl__he__cache__cmd_8h_a6c7ba74ad57863d1342878d2c703e660}{UNUSED\+\_\+\+PARAM}}(x)~((void)x)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{cxl__he__cache__cmd_8h_acc3f2f6f7a74a429062c2fdcfd98e86c}{he\+\_\+sig\+\_\+handler}} (int)
+\item 
+void \mbox{\hyperlink{namespacehost__exerciser_a63cc59095cdb804e9d969dbd8445b35d}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+thread}} (uint8\+\_\+t $\ast$buf\+\_\+ptr, uint64\+\_\+t len)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile bool \mbox{\hyperlink{cxl__he__cache__cmd_8h_a4f532053bdd1e2f076153f1063783b6e}{g\+\_\+he\+\_\+exit}} = false
+\item 
+static volatile bool \mbox{\hyperlink{cxl__he__cache__cmd_8h_a35a6655d1abb4deeabbe0fdebc1bd68c}{g\+\_\+stop\+\_\+thread}} = false
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{cxl__he__cache__cmd_8h_a6c7ba74ad57863d1342878d2c703e660}} 
+\index{cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}!UNUSED\_PARAM@{UNUSED\_PARAM}}
+\index{UNUSED\_PARAM@{UNUSED\_PARAM}!cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{UNUSED\_PARAM}{UNUSED\_PARAM}}
+{\footnotesize\ttfamily \#define UNUSED\+\_\+\+PARAM(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~((void)x)}
+
+
+
+Definition at line 32 of file cxl\+\_\+he\+\_\+cache\+\_\+cmd.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{cxl__he__cache__cmd_8h_acc3f2f6f7a74a429062c2fdcfd98e86c}} 
+\index{cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}!he\_sig\_handler@{he\_sig\_handler}}
+\index{he\_sig\_handler@{he\_sig\_handler}!cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{he\_sig\_handler()}{he\_sig\_handler()}}
+{\footnotesize\ttfamily void he\+\_\+sig\+\_\+handler (\begin{DoxyParamCaption}\item[{int}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line 39 of file cxl\+\_\+he\+\_\+cache\+\_\+cmd.\+h.
+
+
+
+References g\+\_\+he\+\_\+exit, and g\+\_\+stop\+\_\+thread.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{cxl__he__cache__cmd_8h_a4f532053bdd1e2f076153f1063783b6e}} 
+\index{cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}!g\_he\_exit@{g\_he\_exit}}
+\index{g\_he\_exit@{g\_he\_exit}!cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{g\_he\_exit}{g\_he\_exit}}
+{\footnotesize\ttfamily volatile bool g\+\_\+he\+\_\+exit = false}
+
+
+
+Definition at line 35 of file cxl\+\_\+he\+\_\+cache\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+continuousmode(), and he\+\_\+sig\+\_\+handler().
+
+\mbox{\label{cxl__he__cache__cmd_8h_a35a6655d1abb4deeabbe0fdebc1bd68c}} 
+\index{cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}!g\_stop\_thread@{g\_stop\_thread}}
+\index{g\_stop\_thread@{g\_stop\_thread}!cxl\_he\_cache\_cmd.h@{cxl\_he\_cache\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{g\_stop\_thread}{g\_stop\_thread}}
+{\footnotesize\ttfamily volatile bool g\+\_\+stop\+\_\+thread = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 36 of file cxl\+\_\+he\+\_\+cache\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+thread(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), and he\+\_\+sig\+\_\+handler().
+

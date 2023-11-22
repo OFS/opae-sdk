@@ -1,0 +1,114 @@
+.TH "include/opae/error.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/error.h \- Functions for reading and clearing errors in resources\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaReadError\fP (\fBfpga_token\fP token, uint32_t error_num, uint64_t *value)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaClearError\fP (\fBfpga_token\fP token, uint32_t error_num)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaClearAllErrors\fP (\fBfpga_token\fP token)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetErrorInfo\fP (\fBfpga_token\fP token, uint32_t error_num, struct \fBfpga_error_info\fP *error_info)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions for reading and clearing errors in resources\&. 
+
+Many FPGA resources have the ability to track the occurrence of errors\&. This file provides functions to retrieve information about errors within resources\&. 
+.PP
+Definition in file \fBerror\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaReadError (\fBfpga_token\fP token, uint32_t error_num, uint64_t * value)"
+Read error value
+.PP
+This function will read the value of error register \fCerror_num\fP of the resource referenced by \fCtoken\fP into the memory location pointed to by \fCvalue\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token to accelerator resource to query 
+.br
+\fIerror_num\fP Number of error register to read 
+.br
+\fIvalue\fP Pointer to memory to store error value into (64 bit) 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid\&. FPGA_EXCEPTION if an internal exception occurred while trying to access the token\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaClearError (\fBfpga_token\fP token, uint32_t error_num)"
+Clear error register
+.PP
+This function will clear the error register \fCerror_num\fP of the resource referenced by \fCtoken\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token to accelerator resource to query 
+.br
+\fIerror_num\fP Number of error register to clear 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid\&. FPGA_EXCEPTION if an internal exception occurred while trying to access the token, and FPGA_BUSY if error could not be cleared\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaClearAllErrors (\fBfpga_token\fP token)"
+Clear all error registers of a particular resource
+.PP
+This function will clear all error registers of the resource referenced by \fCtoken\fP, observing the necessary order of clearing errors, if any\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token to accelerator resource to query 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid\&. FPGA_EXCEPTION if an internal exception occurred while trying to access the token, and FPGA_BUSY if error could not be cleared\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetErrorInfo (\fBfpga_token\fP token, uint32_t error_num, struct \fBfpga_error_info\fP * error_info)"
+Get information about a particular error register
+.PP
+This function will populate a \fC\fBfpga_error_info\fP\fP struct with information about error number \fCerror_num\fP of the resource referenced by \fCtoken\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token to accelerator resource to query 
+.br
+\fIerror_num\fP Error register to retrieve information about 
+.br
+\fIerror_info\fP Pointer to memory to store information into 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid\&. FPGA_EXCEPTION if an internal exception occurred while trying to access the token\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

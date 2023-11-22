@@ -1,0 +1,1796 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacehost__exerciser" kind="namespace" language="C++">
+    <compoundname>host_exerciser</compoundname>
+    <innerclass refid="classhost__exerciser_1_1he__cache__cmd" prot="public">host_exerciser::he_cache_cmd</innerclass>
+    <innerclass refid="classhost__exerciser_1_1he__cache__lpbk__cmd" prot="public">host_exerciser::he_cache_lpbk_cmd</innerclass>
+    <innerclass refid="classhost__exerciser_1_1he__cmd" prot="public">host_exerciser::he_cmd</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__dfh" prot="public">host_exerciser::he_dfh</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__dsm__base" prot="public">host_exerciser::he_dsm_base</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__ctl" prot="public">host_exerciser::he_ctl</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__info" prot="public">host_exerciser::he_info</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__wr__num__lines" prot="public">host_exerciser::he_wr_num_lines</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__wr__byte__enable" prot="public">host_exerciser::he_wr_byte_enable</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__wr__config" prot="public">host_exerciser::he_wr_config</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl" prot="public">host_exerciser::he_wr_addr_table_ctrl</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__wr__addr__table__data" prot="public">host_exerciser::he_wr_addr_table_data</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__rd__num__lines" prot="public">host_exerciser::he_rd_num_lines</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__rd__config" prot="public">host_exerciser::he_rd_config</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl" prot="public">host_exerciser::he_rd_addr_table_ctrl</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__rd__addr__table__data" prot="public">host_exerciser::he_rd_addr_table_data</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__err__status" prot="public">host_exerciser::he_err_status</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__cache__dsm__status" prot="public">host_exerciser::he_cache_dsm_status</innerclass>
+    <innerclass refid="classhost__exerciser_1_1host__exerciser" prot="public">host_exerciser::host_exerciser</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__dsm__basel" prot="public">host_exerciser::he_dsm_basel</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__dsm__baseh" prot="public">host_exerciser::he_dsm_baseh</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__num__lines" prot="public">host_exerciser::he_num_lines</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__cfg" prot="public">host_exerciser::he_cfg</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__inact__thresh" prot="public">host_exerciser::he_inact_thresh</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__interrupt0" prot="public">host_exerciser::he_interrupt0</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__swtest__msg" prot="public">host_exerciser::he_swtest_msg</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__status0" prot="public">host_exerciser::he_status0</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__status1" prot="public">host_exerciser::he_status1</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__error" prot="public">host_exerciser::he_error</innerclass>
+    <innerclass refid="unionhost__exerciser_1_1he__stride" prot="public">host_exerciser::he_stride</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__dsm__status" prot="public">host_exerciser::he_dsm_status</innerclass>
+    <innerclass refid="structhost__exerciser_1_1MapKeyComparator" prot="public">host_exerciser::MapKeyComparator</innerclass>
+    <innerclass refid="classhost__exerciser_1_1host__exerciser__cmd" prot="public">host_exerciser::host_exerciser_cmd</innerclass>
+    <innerclass refid="classhost__exerciser_1_1host__exerciser__lpbk" prot="public">host_exerciser::host_exerciser_lpbk</innerclass>
+    <innerclass refid="classhost__exerciser_1_1host__exerciser__mem" prot="public">host_exerciser::host_exerciser_mem</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__dfh_8____unnamed3____" prot="public">host_exerciser::he_dfh.__unnamed3__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__dfh_8____unnamed94____" prot="public">host_exerciser::he_dfh.__unnamed94__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__dsm__base_8____unnamed6____" prot="public">host_exerciser::he_dsm_base.__unnamed6__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__ctl_8____unnamed9____" prot="public">host_exerciser::he_ctl.__unnamed9__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__ctl_8____unnamed106____" prot="public">host_exerciser::he_ctl.__unnamed106__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__info_8____unnamed12____" prot="public">host_exerciser::he_info.__unnamed12__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15____" prot="public">host_exerciser::he_wr_num_lines.__unnamed15__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__wr__byte__enable_8____unnamed18____" prot="public">host_exerciser::he_wr_byte_enable.__unnamed18__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__wr__config_8____unnamed21____" prot="public">host_exerciser::he_wr_config.__unnamed21__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24____" prot="public">host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__wr__addr__table__data_8____unnamed27____" prot="public">host_exerciser::he_wr_addr_table_data.__unnamed27__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__rd__num__lines_8____unnamed30____" prot="public">host_exerciser::he_rd_num_lines.__unnamed30__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__rd__config_8____unnamed33____" prot="public">host_exerciser::he_rd_config.__unnamed33__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__rd__addr__table__ctrl_8____unnamed36____" prot="public">host_exerciser::he_rd_addr_table_ctrl.__unnamed36__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__rd__addr__table__data_8____unnamed39____" prot="public">host_exerciser::he_rd_addr_table_data.__unnamed39__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__err__status_8____unnamed42____" prot="public">host_exerciser::he_err_status.__unnamed42__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__dsm__basel_8____unnamed97____" prot="public">host_exerciser::he_dsm_basel.__unnamed97__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__dsm__baseh_8____unnamed100____" prot="public">host_exerciser::he_dsm_baseh.__unnamed100__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__num__lines_8____unnamed103____" prot="public">host_exerciser::he_num_lines.__unnamed103__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__cfg_8____unnamed109____" prot="public">host_exerciser::he_cfg.__unnamed109__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__inact__thresh_8____unnamed112____" prot="public">host_exerciser::he_inact_thresh.__unnamed112__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__interrupt0_8____unnamed115____" prot="public">host_exerciser::he_interrupt0.__unnamed115__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__swtest__msg_8____unnamed118____" prot="public">host_exerciser::he_swtest_msg.__unnamed118__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__status0_8____unnamed121____" prot="public">host_exerciser::he_status0.__unnamed121__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__status1_8____unnamed124____" prot="public">host_exerciser::he_status1.__unnamed124__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__error_8____unnamed127____" prot="public">host_exerciser::he_error.__unnamed127__</innerclass>
+    <innerclass refid="structhost__exerciser_1_1he__stride_8____unnamed130____" prot="public">host_exerciser::he_stride.__unnamed130__</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@0</name>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa96f5f9ad616abbff98f88fd8d3749eec" prot="public">
+          <name>HE_DFH</name>
+          <initializer>= 0x0000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa994517cdf13de8a08a6fbcebc5d4b7eb" prot="public">
+          <name>HE_ID_L</name>
+          <initializer>= 0x0008</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa89326af32d3ac7eb75a59785c9ff1ee3" prot="public">
+          <name>HE_ID_H</name>
+          <initializer>= 0x0010</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa0547c29b0609234864bd196f04e9e101" prot="public">
+          <name>HE_DFH_RSVD0</name>
+          <initializer>= 0x0018</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aaf9a43fa5b1790303e01e463acba370a8" prot="public">
+          <name>HE_DFH_RSVD1</name>
+          <initializer>= 0x0020</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa712f6bdeef038f12b2943223e36a3702" prot="public">
+          <name>HE_SCRATCHPAD0</name>
+          <initializer>= 0x028</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a9940ff171541be267a8cf74277844b32" prot="public">
+          <name>HE_DSM_BASE</name>
+          <initializer>= 0x030</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" prot="public">
+          <name>HE_CTL</name>
+          <initializer>= 0x038</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" prot="public">
+          <name>HE_INFO</name>
+          <initializer>= 0x040</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a3b1b6c8c2fcbf57ad624de1077356fd4" prot="public">
+          <name>HE_WR_NUM_LINES</name>
+          <initializer>= 0x048</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab8930a0aeafce2a45089f931c333f205" prot="public">
+          <name>HE_WR_BYTE_ENABLE</name>
+          <initializer>= 0x050</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab29c859275463170cc2bbb6e2fb0297c" prot="public">
+          <name>HE_WR_CONFIG</name>
+          <initializer>= 0x058</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a1adff58b128d7f57593d15ed67a54fc6" prot="public">
+          <name>HE_WR_ADDR_TABLE_CTRL</name>
+          <initializer>= 0x060</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a6d77f005b2d7e53be9d91ef0593eadda" prot="public">
+          <name>HE_WR_ADDR_TABLE_DATA</name>
+          <initializer>= 0x068</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" prot="public">
+          <name>HE_RD_NUM_LINES</name>
+          <initializer>= 0x070</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" prot="public">
+          <name>HE_RD_CONFIG</name>
+          <initializer>= 0x078</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" prot="public">
+          <name>HE_RD_ADDR_TABLE_CTRL</name>
+          <initializer>= 0x080</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a300dc5ac788c901d20f421a24af98d7f" prot="public">
+          <name>HE_RD_ADDR_TABLE_DATA</name>
+          <initializer>= 0x088</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248aca954c7b87a79cfff2d4d6f6c8e23eb1" prot="public">
+          <name>HE_ERROR_STATUS</name>
+          <initializer>= 0x090</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a2845aa2671b2f9a6235667aa6bc76ce0" prot="public">
+          <name>HE_ERROR_EXP_DATA</name>
+          <initializer>= 0x098</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a76ad387e8d2fb4639563c8e0272aa28c" prot="public">
+          <name>HE_ERROR_ACT_DATA0</name>
+          <initializer>= 0x0A0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8cbbda04e37bbff5290a1ac024909baa" prot="public">
+          <name>HE_ERROR_ACT_DATA1</name>
+          <initializer>= 0x0A8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a2daca8866beee6f107128bb3bb23d2cb" prot="public">
+          <name>HE_ERROR_ACT_DATA2</name>
+          <initializer>= 0x0B0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ad8040e2bd695023243cd93bc540b1ae9" prot="public">
+          <name>HE_ERROR_ACT_DATA3</name>
+          <initializer>= 0x0B8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a872972b8d10fc0f8c38eb8bffc6a9537" prot="public">
+          <name>HE_ERROR_ACT_DATA4</name>
+          <initializer>= 0x0C0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248aac19634eecfe2a67e232d483d5b07f7d" prot="public">
+          <name>HE_ERROR_ACT_DATA5</name>
+          <initializer>= 0x0C8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a237210f2c6acd07b79645c8196c00d7f" prot="public">
+          <name>HE_ERROR_ACT_DATA6</name>
+          <initializer>= 0x0D0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8253c945a94fbb2dd2a45ae100ae6683" prot="public">
+          <name>HE_ERROR_ACT_DATA7</name>
+          <initializer>= 0x0D8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="50" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="50" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_rd_opcode</name>
+        <enumvalue id="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a8615bca5d3aa6d3f844bd4f9c5f07e2e" prot="public">
+          <name>RD_LINE_I</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a383b82e47fbec58b8a1b328d3be3ab35" prot="public">
+          <name>RD_LINE_S</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a19aaf26804a3b10760a8347133f35937" prot="public">
+          <name>RD_LINE_EM</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="82" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="82" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34df" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_wr_opcode</name>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa9f9b0eb93b101bd67e617acc0e38a671" prot="public">
+          <name>WR_LINE_I</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfae5bc76f014dcbb30bf9377d595d738c7" prot="public">
+          <name>WR_LINE_M</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa56f244dab07fac79a257306c87d88468" prot="public">
+          <name>WR_PUSH_I</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa8ed760c5fa905aaf07983d90158f4287" prot="public">
+          <name>WR_BARRIER_FRNCE</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa5b357c8754747c7c1e90b2accb3c656a" prot="public">
+          <name>WR_FLUSH_CL</name>
+          <initializer>= 0x4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa28048131a444e8a31d7eaf6fbe710730" prot="public">
+          <name>WR_FLUSH_CL_HCOH</name>
+          <initializer>= 0x5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfad0dd56b280f7707ad776a5bcb48ff068" prot="public">
+          <name>WR_FLUSH_CL_DCOH</name>
+          <initializer>= 0x6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="89" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="89" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_test_mode</name>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ad211a335379d690f23f9561bdd1e4aea" prot="public">
+          <name>HE_FPGA_RD_CACHE_HIT</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ae25066dd8d70eddfe8b4fb3f9771c92a" prot="public">
+          <name>HE_FPGA_WR_CACHE_HIT</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979afc8a66080da962c0f662ff19ec429a0b" prot="public">
+          <name>HE_FPGA_RD_CACHE_MISS</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ac7679022e0d491948f9439be39524836" prot="public">
+          <name>HE_FPGA_WR_CACHE_MISS</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979a237b3d2bbc5e51b408936c8879e0ef8e" prot="public">
+          <name>HE_HOST_RD_CACHE_HIT</name>
+          <initializer>= 0x4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979a67f17167a9df28c18e6125573d488bfa" prot="public">
+          <name>HE_HOST_WR_CACHE_HIT</name>
+          <initializer>= 0x5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ac1f7a621fcee208489af401304507857" prot="public">
+          <name>HE_HOST_RD_CACHE_MISS</name>
+          <initializer>= 0x6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ab048697a1ec0a6ef71078d01dab304ee" prot="public">
+          <name>HE_HOST_WR_CACHE_MISS</name>
+          <initializer>= 0x7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="282" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="282" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_target</name>
+        <enumvalue id="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a7f8712a5623abfd073edf0859128ab8e" prot="public">
+          <name>HE_TARGET_HOST</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a1253eee565e44c426c6a34eadfaa0821" prot="public">
+          <name>HE_TARGET_FPGA</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="298" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="298" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_cxl_latency</name>
+        <enumvalue id="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4a92dbb5ac604c6744a28687c41d70d2c2" prot="public">
+          <name>HE_CXL_LATENCY_NONE</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" prot="public">
+          <name>HE_CXL_RD_LATENCY</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4a12ca9c21fbca0f9853b3e22b8578faaf" prot="public">
+          <name>HE_CXL_WR_LATENCY</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4a2553554934734ab40d12a7b9d72f025c" prot="public">
+          <name>HE_CXL_RD_WR_LATENCY</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="305" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="305" bodyend="310"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_bisa_support</name>
+        <enumvalue id="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15aa4d06aaac0f2a27387b5fc9461a75ca3" prot="public">
+          <name>HOSTMEM_BIAS</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15a23ba95206a39722ed39c434ba4058846" prot="public">
+          <name>HOST_BIAS_NA</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15ad7cf526a75d59ecc712f3208c999a816" prot="public">
+          <name>FPGAMEM_HOST_BIAS</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15a53f78272c191221a7b8d94466d9ee76a" prot="public">
+          <name>FPGAMEM_DEVICE_BIAS</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="324" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="324" bodyend="329"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a9fb8d62824f4c57e9f79549c21b80592" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_cxl_dev</name>
+        <enumvalue id="namespacehost__exerciser_1a9fb8d62824f4c57e9f79549c21b80592adab5ca75a104003678a8720b1c8ad694" prot="public">
+          <name>HE_CXL_DEVICE0</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a9fb8d62824f4c57e9f79549c21b80592a8c25ad936358399012804259bdf95788" prot="public">
+          <name>HE_CXL_DEVICE1</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="343" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="343" bodyend="346"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_addrtable_size</name>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255ae12fcf27fe2cbc28ad429f8b1d469410" prot="public">
+          <name>HE_ADDRTABLE_SIZE4096</name>
+          <initializer>= 0xC</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a8714dd9f55a88e0d1c8c5ab0822bb1fc" prot="public">
+          <name>HE_ADDRTABLE_SIZE2048</name>
+          <initializer>= 0xB</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a6d094ba063a90590e5e1e753ef740f8c" prot="public">
+          <name>HE_ADDRTABLE_SIZE1024</name>
+          <initializer>= 0xA</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a1ceb659f01e34a669743bd97fd793507" prot="public">
+          <name>HE_ADDRTABLE_SIZE512</name>
+          <initializer>= 0x9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a96f0b218e77aeaf8c7e78f18a050793d" prot="public">
+          <name>HE_ADDRTABLE_SIZE256</name>
+          <initializer>= 0x8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a1fa2286f9d42bde78410951d6e70cb4f" prot="public">
+          <name>HE_ADDRTABLE_SIZE128</name>
+          <initializer>= 0x7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a06c7e799fd21e744e4a83d6741559a0a" prot="public">
+          <name>HE_ADDRTABLE_SIZE64</name>
+          <initializer>= 0x6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a7956f4187e400ed80b82ccac3de88acb" prot="public">
+          <name>HE_ADDRTABLE_SIZE32</name>
+          <initializer>= 0x5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255aeb0ac8e8b22329ca7c4b25278dd6af95" prot="public">
+          <name>HE_ADDRTABLE_SIZE16</name>
+          <initializer>= 0x4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a7f88fa903cae0f7c61e174de96b25073" prot="public">
+          <name>HE_ADDRTABLE_SIZE8</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255ab943ac256680c233c1b70966c3d2077d" prot="public">
+          <name>HE_ADDRTABLE_SIZE4</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255ae665c4520f174df79c45d4d5fb9c5d2b" prot="public">
+          <name>HE_ADDRTABLE_SIZE2</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="354" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="354" bodyend="367"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a619d5ce8b001ff40b27522d1be17bc7e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>he_traffic_enable</name>
+        <enumvalue id="namespacehost__exerciser_1a619d5ce8b001ff40b27522d1be17bc7ead216c542fdaa45ed1cc9e1c71c8df72b" prot="public">
+          <name>HE_ENABLE_TRAFFIC_STAGE</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a619d5ce8b001ff40b27522d1be17bc7eacbe77aa1bda4e8827b71c6bf5beedf4d" prot="public">
+          <name>HE_SIP_SEQ_STAGE</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="370" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="370" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409a" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@91</name>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa96f5f9ad616abbff98f88fd8d3749eec" prot="public">
+          <name>HE_DFH</name>
+          <initializer>= 0x0000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa994517cdf13de8a08a6fbcebc5d4b7eb" prot="public">
+          <name>HE_ID_L</name>
+          <initializer>= 0x0008</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa89326af32d3ac7eb75a59785c9ff1ee3" prot="public">
+          <name>HE_ID_H</name>
+          <initializer>= 0x0010</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa0547c29b0609234864bd196f04e9e101" prot="public">
+          <name>HE_DFH_RSVD0</name>
+          <initializer>= 0x0018</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aaf9a43fa5b1790303e01e463acba370a8" prot="public">
+          <name>HE_DFH_RSVD1</name>
+          <initializer>= 0x0020</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa712f6bdeef038f12b2943223e36a3702" prot="public">
+          <name>HE_SCRATCHPAD0</name>
+          <initializer>= 0x028</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aadacb6d1d03994d938c33005ab3eef726" prot="public">
+          <name>HE_SCRATCHPAD1</name>
+          <initializer>= 0x0104</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa33453ac7a61a0e1b3ede18bff3cef947" prot="public">
+          <name>HE_SCRATCHPAD2</name>
+          <initializer>= 0x0108</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa0f0436ad7cb26fd22fbdf4fd3264f309" prot="public">
+          <name>HE_DSM_BASEL</name>
+          <initializer>= 0x0110</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa0351bf59f34601c8d81894f0897e6cde" prot="public">
+          <name>HE_DSM_BASEH</name>
+          <initializer>= 0x0114</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa7e7c47794d23f20fef4489d3b71c0122" prot="public">
+          <name>HE_SRC_ADDR</name>
+          <initializer>= 0x0120</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa14be24d91af1512e70b6ca78c7694101" prot="public">
+          <name>HE_DST_ADDR</name>
+          <initializer>= 0x0128</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aab5e8a172abefb6c61695f517de783395" prot="public">
+          <name>HE_NUM_LINES</name>
+          <initializer>= 0x0130</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" prot="public">
+          <name>HE_CTL</name>
+          <initializer>= 0x038</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aaf48cdfa6534904b034ff9641dab6b34f" prot="public">
+          <name>HE_CFG</name>
+          <initializer>= 0x0140</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa12797e3cf3c370e7151ec1b257ad82e5" prot="public">
+          <name>HE_INACT_THRESH</name>
+          <initializer>= 0x0148</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aaaf7d586e7208f7ea7b598601d02e3d0e" prot="public">
+          <name>HE_INTERRUPT0</name>
+          <initializer>= 0x0150</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa04279c71f1e9c5a535cfe8515bb52f12" prot="public">
+          <name>HE_SWTEST_MSG</name>
+          <initializer>= 0x0158</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa196cabd4f8f2a096cf6312f2c719d409" prot="public">
+          <name>HE_STATUS0</name>
+          <initializer>= 0x0160</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa5bd3e4e22deae78be590cf3c51949174" prot="public">
+          <name>HE_STATUS1</name>
+          <initializer>= 0x0168</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aad24b45a44d85621225d9f8215457623f" prot="public">
+          <name>HE_ERROR</name>
+          <initializer>= 0x0170</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa878952b31118fec2cb65f1f0d039d8f1" prot="public">
+          <name>HE_STRIDE</name>
+          <initializer>= 0x0178</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa2f434e10b654a82eaad847a090e164ef" prot="public">
+          <name>HE_INFO0</name>
+          <initializer>= 0x0180</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="49" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="49" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1af465fb34b1359b3f4f82b8393a21fbca" prot="public" static="no" strong="no">
+        <type></type>
+        <name>host_exe_mode</name>
+        <enumvalue id="namespacehost__exerciser_1af465fb34b1359b3f4f82b8393a21fbcaa6631ee58c265dc79c90c5c2b526b9192" prot="public">
+          <name>HOST_EXEMODE_LPBK1</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af465fb34b1359b3f4f82b8393a21fbcaa1ea63bb1d444f6bed6a46303b90ab7be" prot="public">
+          <name>HOST_EXEMODE_READ</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af465fb34b1359b3f4f82b8393a21fbcaab65e84c23fdb71a2b385ce3593b78b04" prot="public">
+          <name>HOST_EXEMODE_WRITE</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1af465fb34b1359b3f4f82b8393a21fbcaa7a915772549100ded4d3a36df386fbe3" prot="public">
+          <name>HOST_EXEMODE_TRPUT</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="76" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="76" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1ab6410838913a9fb5e26f2d0291cc3fa0" prot="public" static="no" strong="no">
+        <type></type>
+        <name>hostexe_req_len</name>
+        <enumvalue id="namespacehost__exerciser_1ab6410838913a9fb5e26f2d0291cc3fa0aab7592a31c4b72cf471ea23e0d8367d9" prot="public">
+          <name>HOSTEXE_CLS_1</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ab6410838913a9fb5e26f2d0291cc3fa0ace806856e806e5cc8b9c78b91a328d4c" prot="public">
+          <name>HOSTEXE_CLS_2</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ab6410838913a9fb5e26f2d0291cc3fa0a08cc11d8a56708a49ca49a13932cd698" prot="public">
+          <name>HOSTEXE_CLS_4</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ab6410838913a9fb5e26f2d0291cc3fa0aff641659fe8c6a51abd942fae0ccd2e2" prot="public">
+          <name>HOSTEXE_CLS_8</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ab6410838913a9fb5e26f2d0291cc3fa0affdb50fd72b4b6b60d754f421f7f35f7" prot="public">
+          <name>HOSTEXE_CLS_16</name>
+          <initializer>= 0x4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="84" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="84" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84" prot="public" static="no" strong="no">
+        <type></type>
+        <name>hostexe_atomic_func</name>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84aca03793e71244ba100cbbb44e4523979" prot="public">
+          <name>HOSTEXE_ATOMIC_OFF</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84a9e355a7bceadb9f9ffb0786d26670926" prot="public">
+          <name>HOSTEXE_ATOMIC_FADD_4</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84af631fb94c0d4adf7d6f3567d3293c3e4" prot="public">
+          <name>HOSTEXE_ATOMIC_FADD_8</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84a4e635662561727a4d1f8903658862503" prot="public">
+          <name>HOSTEXE_ATOMIC_SWAP_4</name>
+          <initializer>= 0x5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84a9af1bd83b6aca61b4422036cbef2da34" prot="public">
+          <name>HOSTEXE_ATOMIC_SWAP_8</name>
+          <initializer>= 0x7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84abb08f60e74724813b14692184afec582" prot="public">
+          <name>HOSTEXE_ATOMIC_CAS_4</name>
+          <initializer>= 0x9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1a4e377e3c6ebfeb2a97c78584d8e75c84aafb548060eed16af2fd9c9ad87b09e01" prot="public">
+          <name>HOSTEXE_ATOMIC_CAS_8</name>
+          <initializer>= 0xb</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="93" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="93" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1ae17003a3398959b9d3f26abdc9c84456" prot="public" static="no" strong="no">
+        <type></type>
+        <name>hostexe_encoding</name>
+        <enumvalue id="namespacehost__exerciser_1ae17003a3398959b9d3f26abdc9c84456a043d79b53e107d6653db3a845fb66556" prot="public">
+          <name>HOSTEXE_ENCODING_DEFAULT</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ae17003a3398959b9d3f26abdc9c84456a1d5ec8224b5922cee68164f7e7fbb401" prot="public">
+          <name>HOSTEXE_ENCODING_DM</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ae17003a3398959b9d3f26abdc9c84456afff5d203a4ffba51d8d78231ba8c4884" prot="public">
+          <name>HOSTEXE_ENCODING_PU</name>
+          <initializer>= 0x2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1ae17003a3398959b9d3f26abdc9c84456a05f5799651cb2b0d71bca3615e22802d" prot="public">
+          <name>HOSTEXE_ENCODING_RANDOM</name>
+          <initializer>= 0x3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="107" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="107" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespacehost__exerciser_1abe4c0db8055b8c2abb6cd96f72bc1890" prot="public" static="no" strong="no">
+        <type></type>
+        <name>hostexe_test_mode</name>
+        <enumvalue id="namespacehost__exerciser_1abe4c0db8055b8c2abb6cd96f72bc1890a3e8ad9fc752d1b50e0f0725b87c410b7" prot="public">
+          <name>HOSTEXE_TEST_ROLLOVER</name>
+          <initializer>= 0x0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacehost__exerciser_1abe4c0db8055b8c2abb6cd96f72bc1890a90f94357ec7daa6c0d2a473deded4a0a" prot="public">
+          <name>HOSTEXE_TEST_TERMINATION</name>
+          <initializer>= 0x1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="115" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="115" bodyend="118"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespacehost__exerciser_1a3396b0a2f5f048347375ed7968bf936f" prot="public" static="no">
+        <type><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref></type>
+        <definition>typedef opae::afu_test::afu host_exerciser::test_afu</definition>
+        <argsstring></argsstring>
+        <name>test_afu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="390" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="390" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="namespacehost__exerciser_1a9047898033282bdb49d6657d7532fe2f" prot="public" static="no">
+        <type><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">opae::afu_test::command</ref></type>
+        <definition>typedef opae::afu_test::command host_exerciser::test_command</definition>
+        <argsstring></argsstring>
+        <name>test_command</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="391" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="391" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespacehost__exerciser_1a4d5f99e45d6527c0a2e376d00329612a" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::HELPBK_TEST_TIMEOUT</definition>
+        <argsstring></argsstring>
+        <name>HELPBK_TEST_TIMEOUT</name>
+        <initializer>= 30000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="37" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="37" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a23e2128ba0753d1b767983a6cf8f11d8" compoundref="host__exerciser__cmd_8h" startline="204" endline="225">host_exerciser::host_exerciser_cmd::he_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a37f4cd6ba67fd8899f4218bba01b2b96" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::HELPBK_TEST_SLEEP_INVL</definition>
+        <argsstring></argsstring>
+        <name>HELPBK_TEST_SLEEP_INVL</name>
+        <initializer>= 100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="38" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="38" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a23e2128ba0753d1b767983a6cf8f11d8" compoundref="host__exerciser__cmd_8h" startline="204" endline="225">host_exerciser::host_exerciser_cmd::he_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a3c15318d7b073d9b79b270aab66d37a3" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::CL</definition>
+        <argsstring></argsstring>
+        <name>CL</name>
+        <initializer>= 64</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="39" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="39" bodyend="-1"/>
+        <referencedby refid="namespacehost__exerciser_1a63cc59095cdb804e9d969dbd8445b35d" compoundref="cxl__he__cache__cmd_8h" startline="1265" endline="1290">he_cache_thread</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a1d77b83392d4cb0e0f21677ce73fffdd" compoundref="host__exerciser__cmd_8h" startline="295" endline="374">host_exerciser::host_exerciser_cmd::he_compare_buffer</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a3f45f83a1b1baf50f08787d25b866d33" compoundref="host__exerciser__cmd_8h" startline="273" endline="293">host_exerciser::host_exerciser_cmd::he_dump_buffer</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a9bf1efb0f48fe335643cf4e7d77dadd7" compoundref="host__exerciser__cmd_8h" startline="243" endline="271">host_exerciser::host_exerciser_cmd::he_init_src_buffer</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a9b75ff69ffc1f2078b5e9fb5c3f74830" compoundref="host__exerciser__cmd_8h" startline="146" endline="187">host_exerciser::host_exerciser_cmd::he_perf_counters</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" compoundref="host__exerciser__cmd_8h" startline="730" endline="823">host_exerciser::host_exerciser_cmd::run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::KB</definition>
+        <argsstring></argsstring>
+        <name>KB</name>
+        <initializer>= 1024</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="40" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1ae3548651828dac1b7e2adec934493f98" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::MB</definition>
+        <argsstring></argsstring>
+        <name>MB</name>
+        <initializer>= <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref> * 1024</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="41" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::BUFFER_SIZE_2MB</definition>
+        <argsstring></argsstring>
+        <name>BUFFER_SIZE_2MB</name>
+        <initializer>= 2 * <ref refid="namespacehost__exerciser_1ae3548651828dac1b7e2adec934493f98" kindref="member">MB</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="42" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="42" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a0a736cbba6907deb25688e3082084e56" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::BUFFER_SIZE_32KB</definition>
+        <argsstring></argsstring>
+        <name>BUFFER_SIZE_32KB</name>
+        <initializer>= 32* <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="43" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="43" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1af766e4d826b22e69e7b7ea58d14989dd" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::FPGA_32KB_CACHE_LINES</definition>
+        <argsstring></argsstring>
+        <name>FPGA_32KB_CACHE_LINES</name>
+        <initializer>= (32 * <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref>) / 64</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="44" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a32fc2a41fc6262bcfac663c1e72547d7" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::FPGA_2MB_CACHE_LINES</definition>
+        <argsstring></argsstring>
+        <name>FPGA_2MB_CACHE_LINES</name>
+        <initializer>= (2 * <ref refid="namespacehost__exerciser_1ae3548651828dac1b7e2adec934493f98" kindref="member">MB</ref>) / 64</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="45" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a5c57d1dc4cb0cc9df9983da2498ceb0d" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::FPGA_512CACHE_LINES</definition>
+        <argsstring></argsstring>
+        <name>FPGA_512CACHE_LINES</name>
+        <initializer>= 512</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="46" column="23" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a7181c0e391f834ad9cdda3e578176b3a" prot="public" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double host_exerciser::LATENCY_FACTOR</definition>
+        <argsstring></argsstring>
+        <name>LATENCY_FACTOR</name>
+        <initializer>= 2.5</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="47" column="21" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="47" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a9236a519bfc92f2e8a8cf399433bf29b" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_test_modes</definition>
+        <argsstring></argsstring>
+        <name>he_test_modes</name>
+        <initializer>= {
+    {&quot;fpgardcachehit&quot;, HE_FPGA_RD_CACHE_HIT},
+    {&quot;fpgawrcachehit&quot;, HE_FPGA_WR_CACHE_HIT},
+    {&quot;fpgardcachemiss&quot;, HE_FPGA_RD_CACHE_MISS},
+    {&quot;fpgawrcachemiss&quot;, HE_FPGA_WR_CACHE_MISS},
+    {&quot;hostrdcachehit&quot;, HE_HOST_RD_CACHE_HIT},
+    {&quot;hostwrcachehit&quot;, HE_HOST_WR_CACHE_HIT},
+    {&quot;hostrdcachemiss&quot;, HE_HOST_RD_CACHE_MISS},
+    {&quot;hostwrcachemiss&quot;, HE_HOST_WR_CACHE_MISS},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="312" column="16" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="312" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">host_exerciser::he_cache_cmd::add_options</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1aa029adb74bb308968e3ab7ce3036610d" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_targets</definition>
+        <argsstring></argsstring>
+        <name>he_targets</name>
+        <initializer>= {
+    {&quot;host&quot;, HE_TARGET_HOST},
+    {&quot;fpga&quot;, HE_TARGET_FPGA},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="331" column="16" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="331" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">host_exerciser::he_cache_cmd::add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a113c110ac6b3f414a087ed3019adafeb" compoundref="cxl__he__cache__lpbk__cmd_8h" startline="51" endline="57">host_exerciser::he_cache_lpbk_cmd::add_options</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a06c6876e392a9a89941d649a7162f8c9" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_bias</definition>
+        <argsstring></argsstring>
+        <name>he_bias</name>
+        <initializer>= {
+    {&quot;host&quot;, HOSTMEM_BIAS},
+    {&quot;device&quot;, FPGAMEM_DEVICE_BIAS},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="337" column="16" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="337" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">host_exerciser::he_cache_cmd::add_options</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a7d0aa3fa8a77d912617648e824ab251f" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_cxl_device</definition>
+        <argsstring></argsstring>
+        <name>he_cxl_device</name>
+        <initializer>= {
+    {&quot;/dev/dfl-cxl-cache.0&quot;, HE_CXL_DEVICE0},
+    {&quot;/dev/dfl-cxl-cache.1&quot;, HE_CXL_DEVICE1},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="348" column="16" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="348" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">host_exerciser::he_cache_cmd::add_options</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1ace4c7dc1522d8416d8c6162641bc8083" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::traffic_enable</definition>
+        <argsstring></argsstring>
+        <name>traffic_enable</name>
+        <initializer>= {
+    {&quot;enable&quot;, HE_ENABLE_TRAFFIC_STAGE},
+    {&quot;skip&quot;, HE_SIP_SEQ_STAGE},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="375" column="16" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="375" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a55022611ecb6aba94c51e3620f980b7f" prot="public" static="no" mutable="no">
+        <type>std::map&lt; uint32_t, uint32_t &gt;</type>
+        <definition>std::map&lt;uint32_t, uint32_t&gt; host_exerciser::addrtable_size</definition>
+        <argsstring></argsstring>
+        <name>addrtable_size</name>
+        <initializer>= {
+    {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255ae12fcf27fe2cbc28ad429f8b1d469410" kindref="member">HE_ADDRTABLE_SIZE4096</ref>, 4096}, {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a8714dd9f55a88e0d1c8c5ab0822bb1fc" kindref="member">HE_ADDRTABLE_SIZE2048</ref>, 2048},
+    {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a6d094ba063a90590e5e1e753ef740f8c" kindref="member">HE_ADDRTABLE_SIZE1024</ref>, 1024}, {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a1ceb659f01e34a669743bd97fd793507" kindref="member">HE_ADDRTABLE_SIZE512</ref>, 512},
+    {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a96f0b218e77aeaf8c7e78f18a050793d" kindref="member">HE_ADDRTABLE_SIZE256</ref>, 256},   {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a1fa2286f9d42bde78410951d6e70cb4f" kindref="member">HE_ADDRTABLE_SIZE128</ref>, 128},
+    {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a06c7e799fd21e744e4a83d6741559a0a" kindref="member">HE_ADDRTABLE_SIZE64</ref>, 64},     {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a7956f4187e400ed80b82ccac3de88acb" kindref="member">HE_ADDRTABLE_SIZE32</ref>, 32},
+    {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255aeb0ac8e8b22329ca7c4b25278dd6af95" kindref="member">HE_ADDRTABLE_SIZE16</ref>, 16},     {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255a7f88fa903cae0f7c61e174de96b25073" kindref="member">HE_ADDRTABLE_SIZE8</ref>, 8},
+    {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255ab943ac256680c233c1b70966c3d2077d" kindref="member">HE_ADDRTABLE_SIZE4</ref>, 4},       {<ref refid="namespacehost__exerciser_1aef8f7bf36f75de53c23f271a69d18255ae665c4520f174df79c45d4d5fb9c5d2b" kindref="member">HE_ADDRTABLE_SIZE2</ref>, 2},
+
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="380" column="10" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="380" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a4d5f99e45d6527c0a2e376d00329612a" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::HELPBK_TEST_TIMEOUT</definition>
+        <argsstring></argsstring>
+        <name>HELPBK_TEST_TIMEOUT</name>
+        <initializer>= 30000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="38" column="23" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a37f4cd6ba67fd8899f4218bba01b2b96" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::HELPBK_TEST_SLEEP_INVL</definition>
+        <argsstring></argsstring>
+        <name>HELPBK_TEST_SLEEP_INVL</name>
+        <initializer>= 100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="39" column="23" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a3c15318d7b073d9b79b270aab66d37a3" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::CL</definition>
+        <argsstring></argsstring>
+        <name>CL</name>
+        <initializer>= 64</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="40" column="23" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::KB</definition>
+        <argsstring></argsstring>
+        <name>KB</name>
+        <initializer>= 1024</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="41" column="23" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1ae3548651828dac1b7e2adec934493f98" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::MB</definition>
+        <argsstring></argsstring>
+        <name>MB</name>
+        <initializer>= <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref> * 1024</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="42" column="23" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1aaf2fdab399a1e5df1decd13aaff46648" prot="public" static="yes" mutable="no">
+        <type>const uint64_t</type>
+        <definition>const uint64_t host_exerciser::LOG2_CL</definition>
+        <argsstring></argsstring>
+        <name>LOG2_CL</name>
+        <initializer>= 6</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="43" column="23" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="43" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1aede1dc5b8f51b0a9119abb2cab54dd30" compoundref="host__exerciser__cmd_8h" startline="119" endline="121">host_exerciser::host_exerciser_cmd::cacheline_aligned_addr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1afc614c0a041ef93b39806f91153b822f" prot="public" static="yes" mutable="no">
+        <type>const size_t</type>
+        <definition>const size_t host_exerciser::LPBK1_DSM_SIZE</definition>
+        <argsstring></argsstring>
+        <name>LPBK1_DSM_SIZE</name>
+        <initializer>= 2 * <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="44" column="21" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="44" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" compoundref="host__exerciser__cmd_8h" startline="730" endline="823">host_exerciser::host_exerciser_cmd::run</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1aa97f70a05e8316fa5b6039effbceb8d2" compoundref="host__exerciser__cmd_8h" startline="503" endline="597">host_exerciser::host_exerciser_cmd::run_single_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1ab4b46ce5277ad6a137e9d753cc54f7c8" prot="public" static="yes" mutable="no">
+        <type>const size_t</type>
+        <definition>const size_t host_exerciser::LPBK1_BUFFER_SIZE</definition>
+        <argsstring></argsstring>
+        <name>LPBK1_BUFFER_SIZE</name>
+        <initializer>= 64 * <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="45" column="21" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="45" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a9b75ff69ffc1f2078b5e9fb5c3f74830" compoundref="host__exerciser__cmd_8h" startline="146" endline="187">host_exerciser::host_exerciser_cmd::he_perf_counters</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" compoundref="host__exerciser__cmd_8h" startline="730" endline="823">host_exerciser::host_exerciser_cmd::run</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1ae6e828551852c834e830f9bfeb13bbd5" compoundref="host__exerciser__cmd_8h" startline="600" endline="728">host_exerciser::host_exerciser_cmd::run_all_tests</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a4a48249a14d845c7ad6c2913209cbfe5" prot="public" static="yes" mutable="no">
+        <type>const size_t</type>
+        <definition>const size_t host_exerciser::LPBK1_BUFFER_ALLOCATION_SIZE</definition>
+        <argsstring></argsstring>
+        <name>LPBK1_BUFFER_ALLOCATION_SIZE</name>
+        <initializer>= 64 * <ref refid="namespacehost__exerciser_1a4f74c9687586e00027a417a41a34d05b" kindref="member">KB</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="46" column="21" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="46" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" compoundref="host__exerciser__cmd_8h" startline="730" endline="823">host_exerciser::host_exerciser_cmd::run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a9dc7a132365a9a2e883166de316d3579" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_modes</definition>
+        <argsstring></argsstring>
+        <name>he_modes</name>
+        <initializer>= {
+  { &quot;lpbk&quot;, HOST_EXEMODE_LPBK1},
+  { &quot;read&quot;, HOST_EXEMODE_READ},
+  { &quot;write&quot;, HOST_EXEMODE_WRITE},
+  { &quot;trput&quot;, HOST_EXEMODE_TRPUT},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="315" column="16" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="315" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1af476538e4a9b2399a7f3b4bcffb5d5bc" compoundref="host__exerciser_8h" startline="377" endline="422">host_exerciser::host_exerciser::host_exerciser</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a2ea0bead4a89cf726adea06214201dc3" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t, <ref refid="structhost__exerciser_1_1MapKeyComparator" kindref="compound">MapKeyComparator</ref> &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t, MapKeyComparator&gt; host_exerciser::he_req_cls_len</definition>
+        <argsstring></argsstring>
+        <name>he_req_cls_len</name>
+        <initializer>= {
+  { &quot;cl_1&quot;, HOSTEXE_CLS_1},
+  { &quot;cl_2&quot;, HOSTEXE_CLS_2},
+  { &quot;cl_4&quot;, HOSTEXE_CLS_4},
+  { &quot;cl_8&quot;, HOSTEXE_CLS_8},
+  { &quot;cl_16&quot;, HOSTEXE_CLS_16},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="333" column="16" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="333" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1af476538e4a9b2399a7f3b4bcffb5d5bc" compoundref="host__exerciser_8h" startline="377" endline="422">host_exerciser::host_exerciser::host_exerciser</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1ae6e828551852c834e830f9bfeb13bbd5" compoundref="host__exerciser__cmd_8h" startline="600" endline="728">host_exerciser::host_exerciser_cmd::run_all_tests</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a3384e6ab4680f2301d6a9db29c196edf" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_req_atomic_func</definition>
+        <argsstring></argsstring>
+        <name>he_req_atomic_func</name>
+        <initializer>= {
+  { &quot;off&quot;, HOSTEXE_ATOMIC_OFF},
+  { &quot;fadd_4&quot;, HOSTEXE_ATOMIC_FADD_4},
+  { &quot;fadd_8&quot;, HOSTEXE_ATOMIC_FADD_8},
+  { &quot;swap_4&quot;, HOSTEXE_ATOMIC_SWAP_4},
+  { &quot;swap_8&quot;, HOSTEXE_ATOMIC_SWAP_8},
+  { &quot;cas_4&quot;, HOSTEXE_ATOMIC_CAS_4},
+  { &quot;cas_8&quot;, HOSTEXE_ATOMIC_CAS_8},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="341" column="16" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="341" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1af476538e4a9b2399a7f3b4bcffb5d5bc" compoundref="host__exerciser_8h" startline="377" endline="422">host_exerciser::host_exerciser::host_exerciser</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1ae6e828551852c834e830f9bfeb13bbd5" compoundref="host__exerciser__cmd_8h" startline="600" endline="728">host_exerciser::host_exerciser_cmd::run_all_tests</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a5e3a5f37a59e69f383e1d72cae05e9f4" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_req_encoding</definition>
+        <argsstring></argsstring>
+        <name>he_req_encoding</name>
+        <initializer>= {
+  { &quot;default&quot;, HOSTEXE_ENCODING_DEFAULT},
+  { &quot;dm&quot;, HOSTEXE_ENCODING_DM},
+  { &quot;pu&quot;, HOSTEXE_ENCODING_PU},
+  { &quot;random&quot;, HOSTEXE_ENCODING_RANDOM},
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="351" column="16" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="351" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1af476538e4a9b2399a7f3b4bcffb5d5bc" compoundref="host__exerciser_8h" startline="377" endline="422">host_exerciser::host_exerciser::host_exerciser</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a7891643f1c1433756f12022500d93dff" prot="public" static="no" mutable="no">
+        <type>const std::map&lt; std::string, uint32_t &gt;</type>
+        <definition>const std::map&lt;std::string, uint32_t&gt; host_exerciser::he_test_mode</definition>
+        <argsstring></argsstring>
+        <name>he_test_mode</name>
+        <initializer>= {
+  { &quot;test_rollover&quot;, HOSTEXE_TEST_ROLLOVER},
+  { &quot;test_termination&quot;, HOSTEXE_TEST_TERMINATION}
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="358" column="16" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="358" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacehost__exerciser_1a4ca77ad5a2b9a9762842871600fbf1d8" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* host_exerciser::interleave_help</definition>
+        <argsstring></argsstring>
+        <name>interleave_help</name>
+        <initializer>= R&quot;desc(Interleave requests pattern to use in throughput mode {0, 1, 2}
+indicating one of the following series of read/write requests:
+0: rd-wr-rd-wr
+1: rd-rd-wr-wr
+2: rd-rd-rd-rd-wr-wr-wr-wr)desc&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="368" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="368" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1af476538e4a9b2399a7f3b4bcffb5d5bc" compoundref="host__exerciser_8h" startline="377" endline="422">host_exerciser::host_exerciser::host_exerciser</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespacehost__exerciser_1a63cc59095cdb804e9d969dbd8445b35d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void host_exerciser::he_cache_thread</definition>
+        <argsstring>(uint8_t *buf_ptr, uint64_t len)</argsstring>
+        <name>he_cache_thread</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_ptr</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1265" column="6" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1265" bodyend="1290" declfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" declline="47" declcolumn="6"/>
+        <references refid="namespacehost__exerciser_1a3c15318d7b073d9b79b270aab66d37a3" compoundref="cxl__host__exerciser_8h" startline="39">CL</references>
+        <references refid="cxl__he__cache__cmd_8h_1a35a6655d1abb4deeabbe0fdebc1bd68c" compoundref="cxl__he__cache__cmd_8h" startline="36">g_stop_thread</references>
+        <references refid="cxl__he__cache__cmd_8h_1a6c7ba74ad57863d1342878d2c703e660" compoundref="cxl__he__cache__cmd_8h" startline="32">UNUSED_PARAM</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="45" column="1"/>
+  </compounddef>
+</doxygen>

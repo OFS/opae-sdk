@@ -1,0 +1,105 @@
+.TH "include/opae/version.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/version.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBFPGA_VERSION_STR_MAX\fP   10"
+.br
+.ti -1c
+.RI "#define \fBFPGA_BUILD_STR_MAX\fP   41"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetOPAECVersion\fP (\fBfpga_version\fP *version)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetOPAECVersionString\fP (char *version_str, size_t len)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetOPAECBuildString\fP (char *build_str, size_t len)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define FPGA_VERSION_STR_MAX   10"
+
+.PP
+Definition at line 60 of file version\&.h\&.
+.SS "#define FPGA_BUILD_STR_MAX   41"
+
+.PP
+Definition at line 73 of file version\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaGetOPAECVersion (\fBfpga_version\fP * version)"
+Get version information about the OPAE library
+.PP
+Retrieve major version, minor version, and revision information about the OPAE library\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIversion\fP FPGA version 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if any of the output parameters is NULL, FPGA_OK otherwise\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetOPAECVersionString (char * version_str, size_t len)"
+Get version information about the OPAE library as a string
+.PP
+Retrieve major version, minor version, and revision information about the OPAE library, encoded in a human-readable string (e\&.g\&. '1\&.0\&.0')\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIversion_str\fP String to copy version information into 
+.br
+\fIlen\fP Length of \fCversion_str\fP 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if \fCversion_str\fP is NULL, FPGA_EXCEPTION if the version string cannot be copied into \fCversion_str\fP, FPGA_OK otherwise\&. 
+.RE
+.PP
+
+.PP
+Referenced by parse_args()\&.
+.SS "\fBfpga_result\fP fpgaGetOPAECBuildString (char * build_str, size_t len)"
+Get build information about the OPAE library as a string
+.PP
+Retrieve the build identifier of the OPAE library\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIbuild_str\fP String to copy build information into 
+.br
+\fIlen\fP Length of \fCbuild_str\fP 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if \fCbuild_str\fP is NULL, FPGA_EXCEPTION if the version string cannot be copied into \fCbuild_str\fP, FPGA_OK otherwise\&. 
+.RE
+.PP
+
+.PP
+Referenced by parse_args()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

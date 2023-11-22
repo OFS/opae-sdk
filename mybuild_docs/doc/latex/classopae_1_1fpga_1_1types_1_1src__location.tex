@@ -1,0 +1,150 @@
+\doxysection{opae\+::fpga\+::types\+::src\+\_\+location Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1src__location}\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+
+
+Identify a particular line in a source file.  
+
+
+
+
+{\ttfamily \#include $<$opae/cxx/core/except.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_aa873a93570e4652a4ca9e806d94fa7f6}{src\+\_\+location}} (const char $\ast$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a82f6ed23a0d1d947b0f1754ed066e45d}{file}}, const char $\ast$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a85e8edcb82dd85fbbb53c327541bd667}{fn}}, int \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a9dfb5ebf31b205490604b1ee60359cff}{line}}) noexcept
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a0df0d9a994b3c66491ac4ee85ba5cba5}{src\+\_\+location}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} \&other) noexcept
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} \& \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a51cbdd224603d8523c99ccb21f1908fa}{operator=}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} \&other) noexcept
+\item 
+const char $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a82f6ed23a0d1d947b0f1754ed066e45d}{file}} () const noexcept
+\item 
+const char $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a85e8edcb82dd85fbbb53c327541bd667}{fn}} () const noexcept
+\item 
+int \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a9dfb5ebf31b205490604b1ee60359cff}{line}} () const noexcept
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a5f8a4ed4689e7dbafb4b6d78057c064c}{file\+\_\+}}
+\item 
+const char $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_a1bb3647316406de3745e3f65af4108e6}{fn\+\_\+}}
+\item 
+int \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location_ae2b7d039ac7da1702409ee07028ab6cf}{line\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Identify a particular line in a source file. 
+
+Definition at line 37 of file except.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_aa873a93570e4652a4ca9e806d94fa7f6}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!src\_location@{src\_location}}
+\index{src\_location@{src\_location}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{src\_location()}{src\_location()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::src\+\_\+location\+::src\+\_\+location (\begin{DoxyParamCaption}\item[{const char $\ast$}]{file,  }\item[{const char $\ast$}]{fn,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} constructor 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em file} & The source file name, typically {\bfseries{FILE}}. \\
+\hline
+\mbox{\texttt{ in}}  & {\em fn} & The current function, typically {\bfseries{func}}. \\
+\hline
+\mbox{\texttt{ in}}  & {\em line} & The current line number, typically {\bfseries{LINE}}. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a0df0d9a994b3c66491ac4ee85ba5cba5}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!src\_location@{src\_location}}
+\index{src\_location@{src\_location}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{src\_location()}{src\_location()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::src\+\_\+location\+::src\+\_\+location (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a51cbdd224603d8523c99ccb21f1908fa}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}}\& opae\+::fpga\+::types\+::src\+\_\+location\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a82f6ed23a0d1d947b0f1754ed066e45d}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!file@{file}}
+\index{file@{file}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{file()}{file()}}
+{\footnotesize\ttfamily const char$\ast$ opae\+::fpga\+::types\+::src\+\_\+location\+::file (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+Retrieve the file name component of the location. \mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a85e8edcb82dd85fbbb53c327541bd667}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!fn@{fn}}
+\index{fn@{fn}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{fn()}{fn()}}
+{\footnotesize\ttfamily const char$\ast$ opae\+::fpga\+::types\+::src\+\_\+location\+::fn (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+Retrieve the function name component of the location. 
+
+Definition at line 56 of file except.\+h.
+
+
+
+References fn\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a9dfb5ebf31b205490604b1ee60359cff}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!line@{line}}
+\index{line@{line}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{line()}{line()}}
+{\footnotesize\ttfamily int opae\+::fpga\+::types\+::src\+\_\+location\+::line (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+Retrieve the line number component of the location. 
+
+Definition at line 60 of file except.\+h.
+
+
+
+References line\+\_\+.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a5f8a4ed4689e7dbafb4b6d78057c064c}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!file\_@{file\_}}
+\index{file\_@{file\_}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{file\_}{file\_}}
+{\footnotesize\ttfamily const char$\ast$ opae\+::fpga\+::types\+::src\+\_\+location\+::file\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 63 of file except.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_a1bb3647316406de3745e3f65af4108e6}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!fn\_@{fn\_}}
+\index{fn\_@{fn\_}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{fn\_}{fn\_}}
+{\footnotesize\ttfamily const char$\ast$ opae\+::fpga\+::types\+::src\+\_\+location\+::fn\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 64 of file except.\+h.
+
+
+
+Referenced by fn().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1src__location_ae2b7d039ac7da1702409ee07028ab6cf}} 
+\index{opae::fpga::types::src\_location@{opae::fpga::types::src\_location}!line\_@{line\_}}
+\index{line\_@{line\_}!opae::fpga::types::src\_location@{opae::fpga::types::src\_location}}
+\doxysubsubsection{\texorpdfstring{line\_}{line\_}}
+{\footnotesize\ttfamily int opae\+::fpga\+::types\+::src\+\_\+location\+::line\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 65 of file except.\+h.
+
+
+
+Referenced by line().
+

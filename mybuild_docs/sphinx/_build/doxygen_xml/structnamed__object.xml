@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structnamed__object" kind="struct" language="C++" prot="public">
+    <compoundname>named_object</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* named_object::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="78" column="12" bodyfile="samples/object_api/object_api.c" bodystart="78" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnamed__object_1aa4757f48068a9b3df2147f150705570e" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+        <definition>fpga_object named_object::object</definition>
+        <argsstring></argsstring>
+        <name>object</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="79" column="13" bodyfile="samples/object_api/object_api.c" bodystart="79" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t named_object::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="80" column="10" bodyfile="samples/object_api/object_api.c" bodystart="80" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnamed__object_1aa60add432596827c889e6e9e22957d88" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t named_object::delta</definition>
+        <argsstring></argsstring>
+        <name>delta</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="81" column="10" bodyfile="samples/object_api/object_api.c" bodystart="81" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>named_object</label>
+        <link refid="structnamed__object"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/object_api/object_api.c" line="77" column="1" bodyfile="samples/object_api/object_api.c" bodystart="77" bodyend="82"/>
+    <listofallmembers>
+      <member refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" prot="public" virt="non-virtual"><scope>named_object</scope><name>delta</name></member>
+      <member refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" prot="public" virt="non-virtual"><scope>named_object</scope><name>name</name></member>
+      <member refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" prot="public" virt="non-virtual"><scope>named_object</scope><name>object</name></member>
+      <member refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" prot="public" virt="non-virtual"><scope>named_object</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

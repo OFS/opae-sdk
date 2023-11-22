@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fpga_tools &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fpga_tools</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/docs/fpga_tools/readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fpga-tools">
+<h1>fpga_tools<a class="headerlink" href="#fpga-tools" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="fpgainfo">
+<h1>fpgainfo<a class="headerlink" href="#fpgainfo" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p><em>fpgainfo</em> - FPGA information tool</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">fpgainfo [-h | --help] [-s | --socket-id] &lt;command&gt; [&lt;args&gt;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>fpgainfo is a tool to show FPGA information derived from sysfs files. The command argument
+is one of the following: errors, power, temp and is used to specify what type of information
+to report. Some commands may also have other arguments/options that can be used to control the
+behavior of that command.</p>
+</div>
+<div class="section" id="common-options">
+<h2>COMMON OPTIONS<a class="headerlink" href="#common-options" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Print</span><span class="w"> </span><span class="n">help</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">exit</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--socket-id,</span> <span class="pre">-s</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Socket</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">BBS</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">0</span>
+</pre></div>
+</div>
+<div class="section" id="fpgainfo-commands">
+<h3>FPGAINFO COMMANDS<a class="headerlink" href="#fpgainfo-commands" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">errors</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">resource</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">specified</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">argument</span><span class="p">.</span>
+<span class="n">Error</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">parsed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">display</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">human</span><span class="w"> </span><span class="n">readable</span><span class="w"> </span><span class="n">form</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">power</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="n">power</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">hardware</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">watts</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">temp</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">temperature</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">degrees</span><span class="w"> </span><span class="n">Farenheit</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="errors-options">
+<h3>ERRORS OPTIONS<a class="headerlink" href="#errors-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--clear,</span> <span class="pre">-c</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">given</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">resource</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="errors-arguments">
+<h3>ERRORS ARGUMENTS<a class="headerlink" href="#errors-arguments" title="Permalink to this headline">¶</a></h3>
+<p>The first argument to the <code class="docutils literal notranslate"><span class="pre">errors</span></code> command is used to specify what kind of
+resource to act on. It must be one of the following:
+<code class="docutils literal notranslate"><span class="pre">fme</span></code>,<code class="docutils literal notranslate"><span class="pre">port</span></code>,<code class="docutils literal notranslate"><span class="pre">first_error</span></code>,<code class="docutils literal notranslate"><span class="pre">pcie0</span></code>,<code class="docutils literal notranslate"><span class="pre">pcie1</span></code>,<code class="docutils literal notranslate"><span class="pre">bbs</span></code>,<code class="docutils literal notranslate"><span class="pre">gbs</span></code>,<code class="docutils literal notranslate"><span class="pre">all</span></code>
+More details on the errors reported for the resource can be found below:</p>
+</div>
+<div class="section" id="errors-resources">
+<h3>ERRORS RESOURCES<a class="headerlink" href="#errors-resources" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">fme</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">pertaining</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FME</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">port</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">pertaining</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PORT</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">first_error</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">encountered</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pcie0</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">pertaining</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIE0</span><span class="w"> </span><span class="n">lane</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pcie1</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">pertaining</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIE1</span><span class="w"> </span><span class="n">lane</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">bbs</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">pertaining</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">BBS</span><span class="w"> </span><span class="p">(</span><span class="n">blue</span><span class="w"> </span><span class="n">bitstream</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">gbs</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">pertaining</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">GBS</span><span class="w"> </span><span class="p">(</span><span class="n">green</span><span class="w"> </span><span class="n">bitstream</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">all</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Show</span><span class="o">/</span><span class="n">clear</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">resources</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This command shows the current power consumtion:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo power</span>
+</pre></div>
+</div>
+<p>This command shows the current temperature reading:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo temp</span>
+</pre></div>
+</div>
+<p>This command shows the errors for the FME resource:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo errors fme</span>
+</pre></div>
+</div>
+<p>This command clears all the errors on all resources:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo errors all -c</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="fpgaconf">
+<h1>fpgaconf<a class="headerlink" href="#fpgaconf" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>NAME<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>fpgadiag - Configure a green bitstream to an FPGA</p>
+</div>
+<div class="section" id="id2">
+<h2>SYNOPSIS<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgaconf</span> <span class="pre">[-hvn]</span> <span class="pre">[-b</span> <span class="pre">&lt;bus&gt;]</span> <span class="pre">[-d</span> <span class="pre">&lt;device&gt;]</span> <span class="pre">[-f</span> <span class="pre">&lt;function&gt;]</span> <span class="pre">[-s</span> <span class="pre">&lt;socket&gt;]</span> <span class="pre">&lt;gbs&gt;</span></code></p>
+</div>
+<div class="section" id="id3">
+<h2>DESCRIPTION<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>fpgaconf writes accelerator configuration bitstreams (also referred to as “green
+bitstreams” to an FPGA device recognized by OPAE. In the process, it also checks
+the green bitstream file for compatibility with the targeted FPGA and its
+current infrastructure bitstream (the “blue bistream”). fpgaconf takes the
+following arguments:</p>
+<p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Print</span><span class="w"> </span><span class="n">usage</span><span class="w"> </span><span class="n">information</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--verbose</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Print</span><span class="w"> </span><span class="n">more</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="n">enumerating</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">configuring</span><span class="p">.</span><span class="w"> </span><span class="n">Can</span><span class="w"> </span><span class="n">be</span>
+<span class="n">given</span><span class="w"> </span><span class="n">more</span><span class="w"> </span><span class="n">than</span><span class="w"> </span><span class="n">once</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--dry-run</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Perform</span><span class="w"> </span><span class="n">enumeration</span><span class="p">,</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">operations</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">side</span><span class="o">-</span><span class="n">effects</span><span class="w"> </span><span class="p">(</span><span class="n">like</span><span class="w"> </span><span class="n">the</span>
+<span class="n">actual</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bitstream</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-b,</span> <span class="pre">--bus</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PCI</span><span class="w"> </span><span class="n">bus</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">target</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--device</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PCI</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">target</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-f,</span> <span class="pre">--function</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PCI</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">target</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--socket</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Socket</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">target</span>
+</pre></div>
+</div>
+<p>fpgaconf will enumerate available FPGA devices in the system and select
+compatible FPGAs for configuration. If there are more than one candidate FPGAs
+that are compatible with the given green bitstream, fpgaconf will exit and ask
+you to be more specific in selecting the target FPGAs (e.g. by specifying a
+socket number, or a PCIe bus/device/function).</p>
+</div>
+<div class="section" id="id4">
+<h2>EXAMPLES<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgaconf</span> <span class="pre">my_green_bitstream.gbs</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Program</span><span class="w"> </span><span class="s">&quot;my_green_bitstream.gbs&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">compatible</span><span class="w"> </span><span class="n">FPGA</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">fpgaconf</span> <span class="pre">-v</span> <span class="pre">-s</span> <span class="pre">0</span> <span class="pre">my_green_bitstream.gbs</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Program</span><span class="w"> </span><span class="s">&quot;my_green_bitstream.gbs&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">socket</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">compatible</span><span class="p">,</span>
+<span class="k">while</span><span class="w"> </span><span class="n">printing</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">slightly</span><span class="w"> </span><span class="n">more</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="n">information</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="fpgad">
+<h1>fpgad<a class="headerlink" href="#fpgad" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id5">
+<h2>NAME<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>fpgad - log errors and generate events</p>
+</div>
+<div class="section" id="id6">
+<h2>SYNOPSIS<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgad</span> <span class="pre">--daemon</span> <span class="pre">[--directory=&lt;dir&gt;]</span> <span class="pre">[--logfile=&lt;file&gt;]</span> <span class="pre">[--pidfile=&lt;file&gt;]</span> <span class="pre">[--umask=&lt;mode&gt;]</span> <span class="pre">[--socket=&lt;sock&gt;]</span> <span class="pre">[--null-bitstream=&lt;file&gt;]</span></code>
+<code class="docutils literal notranslate"><span class="pre">fpgad</span> <span class="pre">[--socket=&lt;sock&gt;]</span> <span class="pre">[--null-bitstream=&lt;file&gt;]</span></code></p>
+</div>
+<div class="section" id="id7">
+<h2>DESCRIPTION<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>Periodically monitors/reports the error status reflected in the device driver’s error status sysfs files.
+Establishes the channel by which events are communicated to the OPAE application. Programs a NULL bitstream
+in response to AP6 event.</p>
+<p>fpgad is required to be running before API calls <code class="docutils literal notranslate"><span class="pre">fpgaRegisterEvent</span></code> and <code class="docutils literal notranslate"><span class="pre">fpgaUnregisterEvent</span></code> will succeed.</p>
+<p>Use SIGINT to stop fpgad.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--daemon</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">given</span><span class="p">,</span><span class="w"> </span><span class="n">fpgad</span><span class="w"> </span><span class="n">executes</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">system</span><span class="w"> </span><span class="n">demon</span><span class="w"> </span><span class="n">process</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-D,</span> <span class="pre">--directory</span> <span class="pre">&lt;dir&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">execute</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">given</span><span class="w"> </span><span class="n">directory</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">omitted</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">daemonizing</span><span class="p">,</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">used</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-l,</span> <span class="pre">--logfile</span> <span class="pre">&lt;file&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">send</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">file</span><span class="p">.</span><span class="w"> </span><span class="n">When</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">sent</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">stdout</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">omitted</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">daemonizaing</span><span class="p">,</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">fpgad</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">used</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--pidfile</span> <span class="pre">&lt;file&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>When running in daemon mode, write the daemon&#39;s process id to file.
+If omitted when daemonizing, /tmp/fpgad.pid is used.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-m,</span> <span class="pre">--umask</span> <span class="pre">&lt;mode&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">When</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">daemon</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="n">creation</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">umask</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">omitted</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">daemonizing</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">used</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--socket</span> <span class="pre">&lt;sock&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Listen</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">registration</span><span class="w"> </span><span class="n">requests</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">sock</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">socket</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">is</span>
+<span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">fpga_event_socket</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--null-bitstream</span> <span class="pre">&lt;file&gt;</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Specify the NULL bitstream to program when an AP6 event occurs. This option may be given multiple
+times. The bitstream, if any, that matches the FPGA&#39;s PR interface id will be programmed when AP6
+is detected.
+</pre></div>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<h2>TROUBLESHOOTING<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>If any issues are encountered, try the following for additional debug information:</p>
+<ol class="simple">
+<li><p>Examine the log file when in daemon mode.</p></li>
+<li><p>Run in non-daemon mode and view stdout.</p></li>
+</ol>
+</div>
+<div class="section" id="id8">
+<h2>EXAMPLES<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgad</span> <span class="pre">--daemon</span> <span class="pre">--null-bitstream=my_null_bits.gbs</span></code></p>
+</div>
+<div class="section" id="see-also">
+<h2>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<p>umask</p>
+</div>
+</div>
+<div class="section" id="fpgadiag">
+<h1>fpgadiag<a class="headerlink" href="#fpgadiag" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id9">
+<h2>NAME<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p><em>fpgadiag</em> - FPGA diagnosis and testing tool.</p>
+</div>
+<div class="section" id="id10">
+<h2>SYNOPSIS<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">fpgadiag [-m | --mode=] &lt;mode&gt; [-t | --target=] &lt;target&gt; [options]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id11">
+<h2>DESCRIPTION<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<p><em>fpgadiag</em> includes several tests to diagnose, test and report on the FPGA hardware.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> chooses which test to run. <code class="docutils literal notranslate"><span class="pre">&lt;target&gt;</span></code> specifies on what platform to
+run the test. <code class="docutils literal notranslate"><span class="pre">&lt;target&gt;</span></code> can be either <code class="docutils literal notranslate"><span class="pre">fpga</span></code> or <code class="docutils literal notranslate"><span class="pre">ase</span></code>, where <code class="docutils literal notranslate"><span class="pre">ase</span></code> stands for
+“AFU Simulation Environment”.</p>
+<p>The tests that can be selected by <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> include:</p>
+<p><strong>lpbk1</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>The test performs loopback test on the number of cachelines specified with 
+the `BEGIN` option. _fpgadiag_ sets up source and  destination buffers in 
+main memory. The FPGA then performs a memcpy from a source buffer to the 
+destination buffer, one cacheline at a time. 
+
+A cacheline is 64 bytes. When `BEGIN = END`, you perform one iteration. When 
+`BEGIN = END + x`, you perform `x` iterations. The first iteration consists 
+of copying `BEGIN` cachelines; the second iteration consists of copying 
+`BEGIN+1` cache lines; the third iteration consists of copying `BEGIN+3` 
+cache lines, etc. 
+
+The latency is shown as the number of clock ticks. 
+
+When you specify `MULTI-CL`, you copy `MULTI-CL` cache lines at a time.
+There is always a WrFence. `WR-FENCE` chooses what virtual channel the 
+WrFence occurs on. 
+
+If you specify continuous mode with `--cont`, the program runs an iteration
+until the timeout specified in `TIMEOUT` completes.
+</pre></div>
+</div>
+<p><strong>read</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="n">performs</span><span class="w"> </span><span class="n">only</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">read</span><span class="p">,</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">memcpy</span><span class="p">.</span><span class="w"> </span><span class="n">It</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">measure</span><span class="w"> </span><span class="n">read</span><span class="w"> </span>
+<span class="n">bandwidth</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><strong>write</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">measure</span><span class="w"> </span><span class="n">write</span><span class="w"> </span><span class="n">bandwidth</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><strong>trput</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="n">measures</span><span class="w"> </span><span class="n">both</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">write</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">performing</span><span class="w"> </span><span class="mi">50</span><span class="o">%</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="n">and</span><span class="w"> </span>
+<span class="mi">50</span><span class="o">%</span><span class="w"> </span><span class="n">write</span><span class="w"> </span><span class="n">tests</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><strong>sw</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">send</span><span class="o">-</span><span class="n">and</span><span class="o">-</span><span class="n">respond</span><span class="w"> </span><span class="p">(</span><span class="n">ping</span><span class="o">-</span><span class="n">pong</span><span class="p">)</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="n">where</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">side</span><span class="w"> </span><span class="n">sends</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">and</span><span class="w"> </span>
+<span class="n">waits</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">answer</span><span class="p">.</span>
+</pre></div>
+</div>
+<p>Each test requires presence of one of these bitstreams, as documented below.
+Before running a test, make sure its required bitstream is properly configured
+on the platform.</p>
+<ul class="simple">
+<li><p><strong>nlb mode 0</strong> for the <code class="docutils literal notranslate"><span class="pre">lpbk1</span></code> test.</p></li>
+<li><p><strong>nlb mode 3</strong> for the <code class="docutils literal notranslate"><span class="pre">trput</span></code>, <code class="docutils literal notranslate"><span class="pre">read</span></code>, and <code class="docutils literal notranslate"><span class="pre">write</span></code> tests.</p></li>
+<li><p><strong>nlb mode 7</strong> for the <code class="docutils literal notranslate"><span class="pre">sw</span></code> test.</p></li>
+</ul>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id12">
+<h3>Common options<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Print</span><span class="w"> </span><span class="n">help</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">exit</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--target=,</span> <span class="pre">-t</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Values</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="k">switch</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">fpga</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">ase</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">fpga</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--mode=,</span> <span class="pre">-m</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>The test to run. Values accepted for this switch are `lpbk1`, `read`,
+`write`, `trput`, `sw`
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--config=,</span> <span class="pre">-c</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">specifies</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">test</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">specified</span><span class="w"> </span><span class="n">both</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">command</span><span class="w"> </span>
+<span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">prevails</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--socket-id=,</span> <span class="pre">-s</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Socket</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">BBS</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--bus-number=,</span> <span class="pre">-B</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Bus</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--device=,</span> <span class="pre">-D</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Device</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--function=,</span> <span class="pre">-F</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Function</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--freq=,</span> <span class="pre">-T</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Clock</span><span class="w"> </span><span class="n">frequency</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">Hz</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">400</span><span class="w"> </span><span class="n">MHz</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--suppress-hdr,</span> <span class="pre">-S</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Suppress</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="n">output</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--csv,</span> <span class="pre">-V</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Comma</span><span class="w"> </span><span class="n">separated</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">format</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lpbk1-test-options">
+<h3><strong>lpbk1</strong> test options<a class="headerlink" href="#lpbk1-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Accelerator</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">D8424DC4</span><span class="o">-</span><span class="n">A4A3</span><span class="o">-</span><span class="n">C413</span><span class="o">-</span><span class="n">F89E</span><span class="mi">-433683</span><span class="n">F9040B</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-U</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="p">(</span><span class="n">microseconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">milliseconds</span><span class="w"> </span>
+<span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">hours</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=,</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="read-test-options">
+<h3><strong>read</strong> test options<a class="headerlink" href="#read-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Accelerator</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">F7DF405C</span><span class="o">-</span><span class="n">BD7A</span><span class="o">-</span><span class="n">CF72</span><span class="mi">-22</span><span class="n">F1</span><span class="mi">-44</span><span class="n">B0B93ACD18</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="p">(</span><span class="n">microseconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">milliseconds</span><span class="w"> </span>
+<span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">hours</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=,</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--warm-fpga-cache</span> <span class="pre">-H;</span> <span class="pre">--cool-fpga-cache</span> <span class="pre">-M</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Attempt</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">hits</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="n">Attempt</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span>
+<span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cool-cpu-cache,</span> <span class="pre">-C</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Attempt</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cpu</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="write-test-options">
+<h3><strong>write</strong> test options<a class="headerlink" href="#write-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Accelerator</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">F7DF405C</span><span class="o">-</span><span class="n">BD7A</span><span class="o">-</span><span class="n">CF72</span><span class="mi">-22</span><span class="n">F1</span><span class="mi">-44</span><span class="n">B0B93ACD18</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="p">(</span><span class="n">microseconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">milliseconds</span><span class="w"> </span>
+<span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">hours</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--warm-fpga-cache</span> <span class="pre">-H;</span> <span class="pre">--cool-fpga-cache</span> <span class="pre">-M</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Attempt</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">hits</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="n">Attempt</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span>
+<span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cool-cpu-cache,</span> <span class="pre">-C</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Attempt</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cpu</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Can be auto, vl0, vh0, vh1, random. Default=`WRITE-VC`
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--alt-wr-pattern,</span> <span class="pre">-l</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Alternate</span><span class="w"> </span><span class="n">Write</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="trput-test-options">
+<h3><strong>trput</strong> test options<a class="headerlink" href="#trput-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Accelerator</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">F7DF405C</span><span class="o">-</span><span class="n">BD7A</span><span class="o">-</span><span class="n">CF72</span><span class="mi">-22</span><span class="n">F1</span><span class="mi">-44</span><span class="n">B0B93ACD18</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">off</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="p">(</span><span class="n">microseconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">milliseconds</span><span class="w"> </span>
+<span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">hours</span><span class="w"> </span><span class="n">portion</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=,</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Can be  auto, vl0, vh0, vh1. Default=`WRITE-VC`
+</pre></div>
+</div>
+</div>
+<div class="section" id="sw-test-options">
+<h3><strong>sw</strong> test options<a class="headerlink" href="#sw-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Accelerator</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">7</span><span class="n">BAF4DEA</span><span class="o">-</span><span class="n">A57C</span><span class="o">-</span><span class="n">E91E</span><span class="mi">-168</span><span class="n">A</span><span class="mi">-455</span><span class="n">D9BDA88A3</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Can be auto, vl0, vh0, vh1. Default=`WRITE-VC`
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--notice=,</span> <span class="pre">-N</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">poll</span><span class="p">,</span><span class="w"> </span><span class="n">csr</span><span class="o">-</span><span class="n">write</span><span class="p">,</span><span class="w"> </span><span class="n">umsg</span><span class="o">-</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">umsg</span><span class="o">-</span><span class="n">hint</span><span class="p">.</span><span class="w"> </span><span class="n">Default</span><span class="o">=</span><span class="n">poll</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id13">
+<h2>EXAMPLES<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<p>This command starts an <code class="docutils literal notranslate"><span class="pre">lpbk1</span></code> test on the FPGA on bus <code class="docutils literal notranslate"><span class="pre">0x5e</span></code>. The test
+copies 57535, 57536, 57537, …, up to 65535 cache lines, one line at a time.
+The test output is printed in the CSV format with header suppressed.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag --mode=lpbk1 --target=fpga -SV --bus-number=0x5e --begin=57535</span>
+<span class="go">--end=65535 --cache-hint=rdline-I --cache-policy=wrpush-I --multi-cl=1</span>
+<span class="go">--write-vc=vl0 --read-vc=vh1 --wrfence-vc=auto</span>
+</pre></div>
+</div>
+<p>This command starts a <code class="docutils literal notranslate"><span class="pre">read</span></code> test on the FPGA located on bus <code class="docutils literal notranslate"><span class="pre">0xbe</span></code>. The test
+reads 2045 cache lines in the continuous mode with a 15-second timeout period.
+Data is accessed with a strided pattern with a 10-byte stride length.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag --mode=read --target=fpga -SV --bus-number=0xbe --begin=2045 --cont</span>
+<span class="go">--timeout-sec=15   --cache-hint=rdline-I --multi-cl=1 -a=10 --write-vc=vh1</span>
+<span class="go">--read-vc=auto --wrfence-vc=auto</span>
+</pre></div>
+</div>
+<p>This command starts an <code class="docutils literal notranslate"><span class="pre">sw</span></code> test on the FPGA located on bus <code class="docutils literal notranslate"><span class="pre">0xbe</span></code>. The test
+notifies completion using a CSR write.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag --mode=sw --target=fpga -SV --bus-number=0xbe --begin=4 --end=8192</span>
+<span class="go">--cache-hint=rdline-I --cache-policy=wrline-I --notice=csr-write --write-vc=vl0</span>
+<span class="go">--wrfence-vc=auto --read-vc=random </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id14">
+<h2>TROUBLESHOOTING<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<p>When a test fails to run or gives errors, check the following:</p>
+<ul class="simple">
+<li><p>Is Intel FPGA driver properly installed?
+See <a class="reference external" href="/fpga-doc/docs/install_guide/installation_guide.html">Installation Guide</a>
+for driver installation instructions.</p></li>
+<li><p>Are FPGA port permissions set properly? Check the permission bits of the
+port, for example, <code class="docutils literal notranslate"><span class="pre">/dev/intel-fpga-port-0</span></code>. Users need READ and WRITE
+permissions to run <code class="docutils literal notranslate"><span class="pre">fpgadiag</span></code> tests.</p></li>
+<li><p>Is hugepage properly configured on the system?
+See <a class="reference external" href="/fpga-doc/docs/install_guide/installation_guide.html">Installation Guide</a>
+for hugepage configuration steps.</p></li>
+<li><p>Is the required bitstream loaded? See <a class="reference external" href="#description">DESCRIPTION</a> for
+information about what bitstream is required by which test.</p></li>
+<li><p>Are <code class="docutils literal notranslate"><span class="pre">--begin</span></code> and <code class="docutils literal notranslate"><span class="pre">--end</span></code> values set properly? <code class="docutils literal notranslate"><span class="pre">--end</span></code> must be no
+smaller than the <code class="docutils literal notranslate"><span class="pre">--begin</span></code>. Also, <code class="docutils literal notranslate"><span class="pre">--begin</span></code> must be a multiple of the
+<code class="docutils literal notranslate"><span class="pre">--multi-cl</span></code> value.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--warm-fpga-cache</span></code> and <code class="docutils literal notranslate"><span class="pre">--cool-fpga-cache</span></code> options in the <code class="docutils literal notranslate"><span class="pre">read</span></code>
+and <code class="docutils literal notranslate"><span class="pre">write</span></code> tests are mutually exclusive.</p></li>
+<li><p>The timeout options are only meaningful for the continuous mode
+(with the <code class="docutils literal notranslate"><span class="pre">--cont</span></code> option).</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="mmlink">
+<h1>mmlink<a class="headerlink" href="#mmlink" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id15">
+<h2>NAME<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
+<p>MMLink - Debugging RTL.</p>
+</div>
+<div class="section" id="id16">
+<h2>SYNOPSIS<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">mmlink</span> <span class="pre">[-B</span> <span class="pre">&lt;bus&gt;]</span> <span class="pre">[-D</span> <span class="pre">&lt;device&gt;]</span> <span class="pre">[-F</span> <span class="pre">&lt;function&gt;]</span> <span class="pre">[-S</span> <span class="pre">&lt;socket&gt;]</span> <span class="pre">[-P</span> <span class="pre">&lt;TCP</span> <span class="pre">port&gt;]</span> <span class="pre">[-I</span> <span class="pre">&lt;IP</span> <span class="pre">Address&gt;]</span></code></p>
+</div>
+<div class="section" id="id17">
+<h2>DESCRIPTION<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
+<p>Remote signaltap is software  tool used for debug RTL (AFU), effectively a signal trace capability that Quartus places into a green bitstream.
+Remote Signal Tap provides  access the RST part of the Port MMIO space, and then runs the remote protocol on top.</p>
+</div>
+<div class="section" id="id18">
+<h2>EXAMPLES<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">./mmlink</span>&#160; <span class="pre">-B</span> <span class="pre">0x5e</span> <span class="pre">-P</span> <span class="pre">3333</span></code></p>
+<p>MMLink app starts and listens for connection.</p>
+</div>
+<div class="section" id="id19">
+<h2>OPTIONS<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-B,--bus</span></code> FPGA Bus number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-D,--device</span></code> FPGA Device number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-F,--functio</span></code> FPGA function number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-S,--socket</span></code> FPGA socket number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-P,--port</span></code> TCP port number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-I,--ip</span> </code> IP address of FPGA system.</p>
+</div>
+<div class="section" id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<p>Driver privilege:</p>
+<p>Change AFU driver privilege to user .</p>
+<p>command: chmod 777 /dev/intel-fpga-port.0</p>
+<p>set memlock:</p>
+<p>command: ulimit -l 10000</p>
+</div>
+</div>
+<div class="section" id="coreidle">
+<h1>coreidle<a class="headerlink" href="#coreidle" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id20">
+<h2>NAME<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
+<p>coreidle - idles cores for shared TDP sockets to run online cores at maximum capacity.</p>
+</div>
+<div class="section" id="id21">
+<h2>SYNOPSIS<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">coreidle</span> <span class="pre">[-B</span> <span class="pre">&lt;bus&gt;]</span> <span class="pre">[-D</span> <span class="pre">&lt;device&gt;]</span> <span class="pre">[-F</span> <span class="pre">&lt;function&gt;]</span> <span class="pre">[-S</span> <span class="pre">&lt;socket&gt;]</span> <span class="pre">[-G</span> <span class="pre">&lt;GBS</span> <span class="pre">path&gt;]</span> </code></p>
+</div>
+<div class="section" id="id22">
+<h2>DESCRIPTION<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
+<p>This tools parses input GBS, extracts power from metadata ,calculates fpga power, number of online and idle cores.
+It moves threads from idle cores to online cores.</p>
+</div>
+<div class="section" id="id23">
+<h2>EXAMPLES<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">./coreidle</span>&#160; <span class="pre">-B</span> <span class="pre">0x5e</span> <span class="pre">-G</span> <span class="pre">/home/lab/gbs/mode0.gbs</span></code></p>
+<p>Idle cores to run online cores at maximum capacity.</p>
+</div>
+<div class="section" id="id24">
+<h2>OPTIONS<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-B,--bus</span></code> FPGA Bus number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-D,--device</span></code> FPGA Device number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-F,--functio</span></code> FPGA function number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-S,--socket</span></code> FPGA socket number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-G,--gbs</span></code> Green bitstream file path.</p>
+</div>
+</div>
+<div class="section" id="fpgamux">
+<h1>fpgamux<a class="headerlink" href="#fpgamux" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id25">
+<h2>NAME<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fpgamux</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Software</span><span class="w"> </span><span class="n">MUX</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="n">multiple</span><span class="w"> </span><span class="n">AFU</span><span class="w"> </span><span class="p">(</span><span class="n">accelerator</span><span class="w"> </span><span class="n">functional</span><span class="w"> </span><span class="n">unit</span><span class="p">)</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">GBS</span><span class="w"> </span><span class="p">(</span><span class="n">green</span><span class="w"> </span><span class="n">bitsream</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id26">
+<h2>SYNOPSIS<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">fpgamux [-h] [-S|--socket-id SOCKET_ID] [-B|--bus-number BUS] [-D|--device DEVICE] [-F|--function FUNCTION]</span>
+<span class="go">          [-G|--guid GUID] -m|--muxfile MUXFILE.json</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id27">
+<h2>DESCRIPTION<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h2>
+<p>fpgamux is a testing tool to interact with multiple AFUs that have been synthesized into one GBS along with
+the CCIP-MUX BBB (basic building block). The CCIP-MUX uses upper bits in the MMIO addresses to route MMIO
+reads/writes to the AFU running on the corresponding CCIP-MUX port. fpgamux uses a configuration file that
+lists the software components and configuration to use.</p>
+<p>.. note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">Only</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="p">(</span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="p">)</span><span class="w"> </span><span class="n">AFU</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">discoverable</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">OPAE</span><span class="w"> </span><span class="n">driver</span><span class="p">.</span><span class="w"> </span><span class="n">Enumerating</span><span class="w"> </span><span class="n">acceleration</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">find</span>
+<span class="w">  </span><span class="n">the</span><span class="w"> </span><span class="n">accelerator</span><span class="w"> </span><span class="n">associated</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">AFU</span><span class="w"> </span><span class="n">only</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">software</span><span class="w"> </span><span class="n">component</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">will</span>
+<span class="w">  </span><span class="n">be</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">determine</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">GUID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">enumeration</span><span class="p">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">overridden</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="o">-</span><span class="n">G</span><span class="o">|--</span><span class="n">guid</span><span class="w"> </span><span class="n">option</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id28">
+<h2>OPTIONS<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">S</span><span class="w"> </span><span class="n">SOCKET_ID</span><span class="p">,</span><span class="w"> </span><span class="o">--</span><span class="n">socket</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="n">SOCKET_ID</span>
+<span class="w">   </span><span class="n">socket</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">resource</span>
+
+<span class="o">-</span><span class="n">B</span><span class="w"> </span><span class="n">BUS</span><span class="p">,</span><span class="w"> </span><span class="o">--</span><span class="n">bus</span><span class="w"> </span><span class="n">BUS</span>
+<span class="w">   </span><span class="n">bus</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">resource</span>
+
+<span class="o">-</span><span class="n">D</span><span class="w"> </span><span class="n">DEVICE</span><span class="p">,</span><span class="w"> </span><span class="o">--</span><span class="n">device</span><span class="w"> </span><span class="n">DEVICE</span>
+<span class="w">   </span><span class="n">device</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">resource</span>
+
+
+<span class="o">-</span><span class="n">F</span><span class="w"> </span><span class="n">FUNCTION</span><span class="p">,</span><span class="w"> </span><span class="o">--</span><span class="n">function</span><span class="w"> </span><span class="n">FUNCTION</span>
+<span class="w">   </span><span class="n">function</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">resource</span>
+
+<span class="o">-</span><span class="n">G</span><span class="p">,</span><span class="w"> </span><span class="o">--</span><span class="n">guid</span>
+<span class="w">   </span><span class="n">specify</span><span class="w"> </span><span class="n">what</span><span class="w"> </span><span class="n">guid</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">accelerator</span><span class="w"> </span><span class="n">enumeration</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>CONFIGURATION<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>fpgamux uses a configuration file (in JSON format) to determine what software components to instantiate and
+how to configure them for interacting with the AFUs in the GBS. This schema for this is listed below:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;app&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;fpga_app&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;String&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;config&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Object&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id29">
+<h2>EXAMPLES<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h2>
+<p>An example configuration with two components is listed below:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;app&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb0&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb0&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;config&quot;</span><span class="w"> </span><span class="o">:</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;begin&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;end&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;multi-cl&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cont&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cache-policy&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;wrline-M&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cache-hint&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;rdline-I&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;read-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh0&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;write-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;wrfence-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;write-vc&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-usec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-msec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-sec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-min&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-hour&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;freq&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">400000000</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;app&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb3&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb3&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;config&quot;</span><span class="w"> </span><span class="o">:</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;mode&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;read&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;begin&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;end&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;multi-cl&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;strided-access&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cont&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;warm-fpga-cache&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cool-fpga-cache&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cool-cpu-cache&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cache-policy&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;wrline-M&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;cache-hint&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;rdline-I&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;read-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh0&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;write-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;wrfence-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;write-vc&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;alt-wr-pattern&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-usec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-msec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-sec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-min&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;timeout-hour&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;freq&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">400000000</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="userclk">
+<h1>userclk<a class="headerlink" href="#userclk" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id30">
+<h2>NAME<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h2>
+<p>userclk - to set afu high and low clock frequency.</p>
+</div>
+<div class="section" id="id31">
+<h2>SYNOPSIS<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">userclk</span> <span class="pre">[-B</span> <span class="pre">&lt;bus&gt;]</span> <span class="pre">[-D</span> <span class="pre">&lt;device&gt;]</span> <span class="pre">[-F</span> <span class="pre">&lt;function&gt;]</span> <span class="pre">[-S</span> <span class="pre">&lt;socket&gt;]</span> <span class="pre">[-P</span> <span class="pre">&lt;Port</span> <span class="pre">id&gt;]</span> <span class="pre">[-H</span> <span class="pre">&lt;User</span> <span class="pre">clock</span> <span class="pre">high</span> <span class="pre">frequency&gt;]</span> <span class="pre">-L</span> <span class="pre">&lt;User</span> <span class="pre">clock</span> <span class="pre">low</span> <span class="pre">frequency&gt;]</span></code></p>
+</div>
+<div class="section" id="id32">
+<h2>DESCRIPTION<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h2>
+<p>userclk tool used to set high and low clock frequency to acceleration function unit.</p>
+</div>
+<div class="section" id="id33">
+<h2>EXAMPLES<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">./userclk</span>&#160; <span class="pre">-B</span> <span class="pre">0x5e</span> <span class="pre">-H</span> <span class="pre">400</span> <span class="pre">-L</span> <span class="pre">200</span></code></p>
+<p>Sets AFU frequency.</p>
+</div>
+<div class="section" id="id34">
+<h2>OPTIONS<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-B,--bus</span></code> FPGA Bus number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-D,--device</span></code> FPGA Device number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-F,--functio</span></code> FPGA function number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-S,--socket</span></code> FPGA socket number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-P,--port</span></code> Port id.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-H,--freq-high</span> </code> User clock high frequency.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-L,--freq-low</span> </code> User clock low frequency.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

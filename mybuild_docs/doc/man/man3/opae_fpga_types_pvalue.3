@@ -1,0 +1,312 @@
+.TH "opae::fpga::types::pvalue< T >" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::pvalue< T > \- Wraps OPAE properties defined in the OPAE C API by associating an \fCfpga_properties\fP reference with the getters and setters defined for a property\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/pvalue\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::conditional< std::is_same< T, char * >::value, \fBfpga_result\fP(*)(\fBfpga_properties\fP, T), \fBfpga_result\fP(*)(\fBfpga_properties\fP, T *)>::type \fBgetter_t\fP"
+.br
+.RI "Define getter function as getter_t For \fCchar*\fP types, do not use T* as the second argument but instead use T\&. "
+.ti -1c
+.RI "typedef \fBfpga_result\fP(* \fBsetter_t\fP) (\fBfpga_properties\fP, T)"
+.br
+.RI "Define the setter function as setter_t\&. "
+.ti -1c
+.RI "typedef std::conditional< std::is_same< T, char * >::value, typename std::string, T >::type \fBcopy_t\fP"
+.br
+.RI "Define the type of our copy variable For \fCchar*\fP types use std::string as the copy\&. "
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBpvalue\fP ()"
+.br
+.ti -1c
+.RI "\fBpvalue\fP (\fBfpga_properties\fP *p, \fBgetter_t\fP g, \fBsetter_t\fP s)"
+.br
+.RI "pvalue contructor that takes in a reference to fpga_properties and corresponding accessor methods for a property "
+.ti -1c
+.RI "\fBpvalue\fP< T > & \fBoperator=\fP (const T &v)"
+.br
+.RI "Overload of \fC=\fP operator that calls the wrapped setter\&. "
+.ti -1c
+.RI "bool \fBoperator==\fP (const T &other)"
+.br
+.RI "Compare a property for equality with a value\&. "
+.ti -1c
+.RI "void \fBupdate\fP ()"
+.br
+.ti -1c
+.RI "\fBoperator copy_t\fP ()"
+.br
+.RI "Implicit converter operator - calls the wrapped getter\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBget_value\fP (T &value) const"
+.br
+.ti -1c
+.RI "bool \fBis_set\fP () const"
+.br
+.ti -1c
+.RI "void \fBinvalidate\fP ()"
+.br
+.ti -1c
+.RI "void \fBupdate\fP ()"
+.br
+.RI "Template specialization of \fCchar*\fP type property updater\&. "
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_properties\fP * \fBprops_\fP"
+.br
+.ti -1c
+.RI "bool \fBis_set_\fP"
+.br
+.ti -1c
+.RI "\fBgetter_t\fP \fBget_\fP"
+.br
+.ti -1c
+.RI "\fBsetter_t\fP \fBset_\fP"
+.br
+.ti -1c
+.RI "\fBcopy_t\fP \fBcopy_\fP"
+.br
+.in -1c
+.SS "Friends"
+
+.in +1c
+.ti -1c
+.RI "std::ostream & \fBoperator<<\fP (std::ostream &ostr, const \fBpvalue\fP< T > &p)"
+.br
+.RI "Stream overalod operator\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.SS "template<typename T>
+.br
+struct opae::fpga::types::pvalue< T >"
+Wraps OPAE properties defined in the OPAE C API by associating an \fCfpga_properties\fP reference with the getters and setters defined for a property\&. 
+
+
+.PP
+\fBTemplate Parameters\fP
+.RS 4
+\fIT\fP The type of the property value being wrapped 
+.RE
+.PP
+
+.PP
+Definition at line 145 of file pvalue\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "template<typename T > typedef std::conditional< std::is_same<T, char *>::value, \fBfpga_result\fP (*)(\fBfpga_properties\fP, T), \fBfpga_result\fP (*)(\fBfpga_properties\fP, T *)>::type \fBopae::fpga::types::pvalue\fP< T >::\fBgetter_t\fP"
+
+.PP
+Define getter function as getter_t For \fCchar*\fP types, do not use T* as the second argument but instead use T\&. 
+.PP
+Definition at line 153 of file pvalue\&.h\&.
+.SS "template<typename T > typedef \fBfpga_result\fP(* \fBopae::fpga::types::pvalue\fP< T >::setter_t) (\fBfpga_properties\fP, T)"
+
+.PP
+Define the setter function as setter_t\&. 
+.PP
+Definition at line 159 of file pvalue\&.h\&.
+.SS "template<typename T > typedef std::conditional<std::is_same<T, char *>::value, typename std::string, T>::type \fBopae::fpga::types::pvalue\fP< T >::\fBcopy_t\fP"
+
+.PP
+Define the type of our copy variable For \fCchar*\fP types use std::string as the copy\&. 
+.PP
+Definition at line 166 of file pvalue\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "template<typename T > \fBopae::fpga::types::pvalue\fP< T >::\fBpvalue\fP ()\fC [inline]\fP"
+
+.PP
+Definition at line 168 of file pvalue\&.h\&.
+.SS "template<typename T > \fBopae::fpga::types::pvalue\fP< T >::\fBpvalue\fP (\fBfpga_properties\fP * p, \fBgetter_t\fP g, \fBsetter_t\fP s)\fC [inline]\fP"
+
+.PP
+pvalue contructor that takes in a reference to fpga_properties and corresponding accessor methods for a property 
+.PP
+\fBParameters\fP
+.RS 4
+\fIp\fP A reference to an fpga_properties 
+.br
+\fIg\fP The getter function 
+.br
+\fIs\fP The setter function 
+.RE
+.PP
+
+.PP
+Definition at line 178 of file pvalue\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "template<typename T > \fBpvalue\fP<T>& \fBopae::fpga::types::pvalue\fP< T >::operator= (const T & v)\fC [inline]\fP"
+
+.PP
+Overload of \fC=\fP operator that calls the wrapped setter\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The value to set
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A reference to itself 
+.RE
+.PP
+
+.PP
+Definition at line 188 of file pvalue\&.h\&.
+.PP
+References ASSERT_FPGA_OK, opae::fpga::types::pvalue< T >::copy_, opae::fpga::types::pvalue< T >::is_set_, opae::fpga::types::pvalue< T >::props_, and opae::fpga::types::pvalue< T >::set_\&.
+.SS "template<typename T > bool \fBopae::fpga::types::pvalue\fP< T >::operator== (const T & other)\fC [inline]\fP"
+
+.PP
+Compare a property for equality with a value\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIother\fP The value being compared to
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Whether or not the property is equal to the value 
+.RE
+.PP
+
+.PP
+Definition at line 203 of file pvalue\&.h\&.
+.PP
+References opae::fpga::types::pvalue< T >::copy_, and opae::fpga::types::pvalue< T >::is_set()\&.
+.SS "template<typename T > void \fBopae::fpga::types::pvalue\fP< T >::update ()\fC [inline]\fP"
+
+.PP
+Definition at line 205 of file pvalue\&.h\&.
+.PP
+References ASSERT_FPGA_OK, opae::fpga::types::pvalue< T >::copy_, opae::fpga::types::pvalue< T >::get_, opae::fpga::types::pvalue< T >::is_set_, and opae::fpga::types::pvalue< T >::props_\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::operator copy_t()\&.
+.SS "template<typename T > \fBopae::fpga::types::pvalue\fP< T >::operator \fBcopy_t\fP ()\fC [inline]\fP"
+
+.PP
+Implicit converter operator - calls the wrapped getter\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The property value after calling the getter or a default value of the value type 
+.RE
+.PP
+
+.PP
+Definition at line 216 of file pvalue\&.h\&.
+.PP
+References opae::fpga::types::pvalue< T >::copy_, and opae::fpga::types::pvalue< T >::update()\&.
+.SS "template<typename T > \fBfpga_result\fP \fBopae::fpga::types::pvalue\fP< T >::get_value (T & value) const\fC [inline]\fP"
+
+.PP
+Definition at line 222 of file pvalue\&.h\&.
+.PP
+References opae::fpga::types::pvalue< T >::get_, and opae::fpga::types::pvalue< T >::props_\&.
+.SS "template<typename T > bool \fBopae::fpga::types::pvalue\fP< T >::is_set () const\fC [inline]\fP"
+Tracks whether the cached local copy of the pvalue is valid\&. 
+.PP
+Definition at line 249 of file pvalue\&.h\&.
+.PP
+References opae::fpga::types::pvalue< T >::is_set_\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::operator==()\&.
+.SS "template<typename T > void \fBopae::fpga::types::pvalue\fP< T >::invalidate ()\fC [inline]\fP"
+Invalidate the cached local copy of the pvalue\&. 
+.PP
+Definition at line 253 of file pvalue\&.h\&.
+.PP
+References opae::fpga::types::pvalue< T >::is_set_\&.
+.SS "void \fBopae::fpga::types::pvalue\fP< char * >::update ()\fC [inline]\fP"
+
+.PP
+Template specialization of \fCchar*\fP type property updater\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The result of the property getter function\&. 
+.RE
+.PP
+
+.PP
+Definition at line 269 of file pvalue\&.h\&.
+.PP
+References ASSERT_FPGA_OK\&.
+.SH "Friends And Related Function Documentation"
+.PP 
+.SS "template<typename T > std::ostream& operator<< (std::ostream & ostr, const \fBpvalue\fP< T > & p)\fC [friend]\fP"
+
+.PP
+Stream overalod operator\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIostr\fP The output stream 
+.br
+\fIp\fP A reference to a pvalue<T> object
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The stream operator after streaming the property value 
+.RE
+.PP
+
+.PP
+Definition at line 232 of file pvalue\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "template<typename T > \fBfpga_properties\fP* \fBopae::fpga::types::pvalue\fP< T >::props_\fC [private]\fP"
+
+.PP
+Definition at line 256 of file pvalue\&.h\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::get_value(), opae::fpga::types::pvalue< T >::operator=(), and opae::fpga::types::pvalue< T >::update()\&.
+.SS "template<typename T > bool \fBopae::fpga::types::pvalue\fP< T >::is_set_\fC [private]\fP"
+
+.PP
+Definition at line 257 of file pvalue\&.h\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::invalidate(), opae::fpga::types::pvalue< T >::is_set(), opae::fpga::types::pvalue< T >::operator=(), and opae::fpga::types::pvalue< T >::update()\&.
+.SS "template<typename T > \fBgetter_t\fP \fBopae::fpga::types::pvalue\fP< T >::get_\fC [private]\fP"
+
+.PP
+Definition at line 258 of file pvalue\&.h\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::get_value(), and opae::fpga::types::pvalue< T >::update()\&.
+.SS "template<typename T > \fBsetter_t\fP \fBopae::fpga::types::pvalue\fP< T >::set_\fC [private]\fP"
+
+.PP
+Definition at line 259 of file pvalue\&.h\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::operator=()\&.
+.SS "template<typename T > \fBcopy_t\fP \fBopae::fpga::types::pvalue\fP< T >::copy_\fC [private]\fP"
+
+.PP
+Definition at line 260 of file pvalue\&.h\&.
+.PP
+Referenced by opae::fpga::types::pvalue< T >::operator copy_t(), opae::fpga::types::pvalue< T >::operator=(), opae::fpga::types::pvalue< T >::operator==(), and opae::fpga::types::pvalue< T >::update()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

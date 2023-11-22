@@ -1,0 +1,720 @@
+\doxysection{cxl\+\_\+mem\+\_\+tg Namespace Reference}
+\label{namespacecxl__mem__tg}\index{cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+union \mbox{\hyperlink{unioncxl__mem__tg_1_1mem__tg__ctl}{mem\+\_\+tg\+\_\+ctl}}
+\item 
+union \mbox{\hyperlink{unioncxl__mem__tg_1_1mem__tg__status}{mem\+\_\+tg\+\_\+status}}
+\item 
+union \mbox{\hyperlink{unioncxl__mem__tg_1_1mem__tg0__count}{mem\+\_\+tg0\+\_\+count}}
+\item 
+union \mbox{\hyperlink{unioncxl__mem__tg_1_1mem__tg1__count}{mem\+\_\+tg1\+\_\+count}}
+\item 
+class \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg}{cxl\+\_\+mem\+\_\+tg}}
+\item 
+class \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__tg__test}{cxl\+\_\+tg\+\_\+test}}
+\item 
+struct \mbox{\hyperlink{namespacecxl__mem__tg_structcxl__mem__tg_1_1mem__tg__ctl_8____unnamed52____}{mem\+\_\+tg\+\_\+ctl.\+\_\+\+\_\+unnamed52\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacecxl__mem__tg_structcxl__mem__tg_1_1mem__tg__status_8____unnamed55____}{mem\+\_\+tg\+\_\+status.\+\_\+\+\_\+unnamed55\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacecxl__mem__tg_structcxl__mem__tg_1_1mem__tg0__count_8____unnamed58____}{mem\+\_\+tg0\+\_\+count.\+\_\+\+\_\+unnamed58\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacecxl__mem__tg_structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61____}{mem\+\_\+tg1\+\_\+count.\+\_\+\+\_\+unnamed61\+\_\+\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{namespacecxl__mem__tg_ae21fb3ab55ae8cb59106b87200d95a7d}{test\+\_\+afu}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}
+\item 
+using \mbox{\hyperlink{namespacecxl__mem__tg_ab54b53736c1e8bd7876a69f2baef17b2}{test\+\_\+command}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \mbox{\hyperlink{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3a7cbd86dff0180f632d573ef7e5a55057}{TG\+\_\+\+STATUS\+\_\+\+ACTIVE}} = 0x1
+, \mbox{\hyperlink{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3a8e63adddabc288e5498f2f4df66f0b27}{TG\+\_\+\+STATUS\+\_\+\+TIMEOUT}} = 0x2
+, \mbox{\hyperlink{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3ad6d2ca96385ead5241bb420e1e7ae64e}{TG\+\_\+\+STATUS\+\_\+\+ERROR}} = 0x4
+, \mbox{\hyperlink{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3aa0b11c71d367595e2a12c20197b44ce9}{TG\+\_\+\+STATUS\+\_\+\+PASS}} = 0x8
+ \}
+\item 
+enum \{ \mbox{\hyperlink{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2ae50331c964539f5dd5c26007735d4ed3}{TG\+\_\+\+ADDR\+\_\+\+RAND}} = 0
+, \mbox{\hyperlink{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2ab7e300ecb7930052b948a653ddcaa184}{TG\+\_\+\+ADDR\+\_\+\+SEQ}} = 1
+, \mbox{\hyperlink{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2af669ed7de6b50d6000674e9427d25182}{TG\+\_\+\+ADDR\+\_\+\+RAND\+\_\+\+SEQ}} = 2
+, \mbox{\hyperlink{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2a92b5675ef5ee0396ead56070a486e58e}{TG\+\_\+\+ADDR\+\_\+\+ONE\+\_\+\+HOT}} = 3
+ \}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa7407f4233717e1d98f8a776390eb82af}{TG\+\_\+\+DATA\+\_\+\+FIXED}} = 0
+, \mbox{\hyperlink{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa657e027c0dafddd6b1507f6cce1194ad}{TG\+\_\+\+DATA\+\_\+\+PRBS7}} = 1
+, \mbox{\hyperlink{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa17eadd59787408f22df400c34c6a1b0a}{TG\+\_\+\+DATA\+\_\+\+PRBS15}} = 2
+, \mbox{\hyperlink{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaae5e9b7fe639f5d85614b3a1759b7c659}{TG\+\_\+\+DATA\+\_\+\+PRBS31}} = 3
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa71564d8355c494d5a258cb5c26b4fc98}{TG\+\_\+\+DATA\+\_\+\+ROTATING}} = 4
+ \}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea01597032eab3f760346c82fbc788ec5c}{AFU\+\_\+\+DFH}} = 0x0000
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eae1b3a54124834078d9db7680c3caa7bd}{AFU\+\_\+\+ID\+\_\+L}} = 0x0008
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea5debc24069234094ad6ba398106c65fb}{AFU\+\_\+\+ID\+\_\+H}} = 0x0010
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eaaa35301298cf8446efb61505e0798fa0}{NEXT\+\_\+\+AFU}} = 0x0018
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea0664bd36175dd3d76875ebaa52980af6}{AFU\+\_\+\+DFH\+\_\+\+RSVD}} = 0x0020
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea762eb285e7fc88be1e742b50533c5f9a}{SCRATCHPAD}} = 0x0028
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea4756bce556cb643e0aa2c409f21f0c37}{MEM\+\_\+\+TG\+\_\+\+CTRL}} = 0x0030
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eadd994b8040392db4076101038b417fe4}{MEM\+\_\+\+TG\+\_\+\+STAT}} = 0x0038
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea88d8b198bfb44c9dcad46aa0ab207970}{MEM\+\_\+\+TG\+\_\+\+CLK\+\_\+\+COUNT}} = 0x0050
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eaf6d9bbd396589527f372a7b48f1a4d92}{MEM\+\_\+\+TG\+\_\+\+WR\+\_\+\+COUNT}} = 0x0058
+, \mbox{\hyperlink{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea0fd9d1b39b6d59014ef01787ec3a4eef}{MEM\+\_\+\+TG\+\_\+\+CLK\+\_\+\+FREQ}} = 0x0060
+ \}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a21e0b7931a80741eb0c73747a3fe4377}{TG\+\_\+\+VERSION}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x000
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9afbeb224f5b1d32e9b55b1ce8fcc9e32c}{TG\+\_\+\+START}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x004
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad02dea59ee54f68764340c1c233829b1}{TG\+\_\+\+LOOP\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x008
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aab71456eea9b0ccecabf1e0891954a0e}{TG\+\_\+\+WRITE\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x00C
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a411d376733b772443344588a2cac4458}{TG\+\_\+\+READ\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x010
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aa30e3bd5cec3f3cd992e6121bdbab09e}{TG\+\_\+\+WRITE\+\_\+\+REPEAT\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x014
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a90a29710d3b2099c1795a61d2622076e}{TG\+\_\+\+READ\+\_\+\+REPEAT\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x018
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab821353518367c2fcd2ab57a9c6e7840}{TG\+\_\+\+BURST\+\_\+\+LENGTH}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01C
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a88ec11b1fb1a062f02451c50b0016949}{TG\+\_\+\+CLEAR}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x020
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab64e524dd316d881cc22757087d33439}{TG\+\_\+\+RW\+\_\+\+GEN\+\_\+\+IDLE\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x038
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aed6f3dfb644b6e070fefcaf16e2e1d11}{TG\+\_\+\+RW\+\_\+\+GEN\+\_\+\+LOOP\+\_\+\+IDLE\+\_\+\+COUNT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x03C
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ae286a4c714c99b08b1002ee3ed1a587f}{TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+WR}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x040
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a7709164257a8f5718596b5ab2c472ad4}{TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+WR}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x080
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad39fc44c8edf2e15dad6d831aa6fe819}{TG\+\_\+\+RETURN\+\_\+\+TO\+\_\+\+START\+\_\+\+ADDR}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0\+C0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9acf979f868802b88029d479d18111f465}{TG\+\_\+\+SEQ\+\_\+\+ADDR\+\_\+\+INCR}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0100
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a201705870a4fa204363246058cb2076e}{TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+RD}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x140
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a9ce33fc8beaf69c76c4ce3776805d1c4}{TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+RD}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x180
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9af157488b545676cc548397859997b02a}{TG\+\_\+\+PASS}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x1\+C0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a0b00917713940ec859e81f0a86dc562f}{TG\+\_\+\+FAIL}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x1\+C4
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a6c4409c3d1f07c62bcd75fd3b05467fe}{TG\+\_\+\+FAIL\+\_\+\+COUNT\+\_\+L}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x1\+C8
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a1382e3f82472ef4eb8dcbbb17e377285}{TG\+\_\+\+FAIL\+\_\+\+COUNT\+\_\+H}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+CC
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9afaf1344c0006254f6f4947ed9728bee6}{TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+L}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+D0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aa10c574348ce256ce6987b453ab10f70}{TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+H}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+D4
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a810379cbef2d3d1791fb853c8a7d3792}{TG\+\_\+\+TOTAL\+\_\+\+READ\+\_\+\+COUNT\+\_\+L}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+D8
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab3188e1e50ec3ed8a6eed8dafd7e3bfe}{TG\+\_\+\+TOTAL\+\_\+\+READ\+\_\+\+COUNT\+\_\+H}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+DC
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a397a7f61b4c32a69262d9db33ec35fda}{TG\+\_\+\+TEST\+\_\+\+COMPLETE}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+E0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad69950385bd5a8260e9262d3473d65e9}{TG\+\_\+\+INVERT\+\_\+\+BYTEEN}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+E4
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab7a46ab46b32d143ea74bd68d6e1708c}{TG\+\_\+\+RESTART\+\_\+\+DEFAULT\+\_\+\+TRAFFIC}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+E8
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a138084b5a721464cfb312d4d675410bf}{TG\+\_\+\+USER\+\_\+\+WORM\+\_\+\+EN}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+EC
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a50c1a9359d982b1f90a076434a82062b}{TG\+\_\+\+TEST\+\_\+\+BYTEEN}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+F0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9acd7be04dcb9016fd18b247be44487e93}{TG\+\_\+\+TIMEOUT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+F4
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aad2624687ce89631f8307ceb034b86e8}{TG\+\_\+\+NUM\+\_\+\+DATA\+\_\+\+GEN}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+F8
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a6d207aa57db45407a6d02d79c5a0f7e3}{TG\+\_\+\+NUM\+\_\+\+BYTEEN\+\_\+\+GEN}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x01\+FC
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a8f351711d6e1137882a8248bb4536fb8}{TG\+\_\+\+RDATA\+\_\+\+WIDTH}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0200
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab50773a7b547928a51e3ebb30a00b0fa}{TG\+\_\+\+ERROR\+\_\+\+REPORT}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0208
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a75cfc6f2b701f77e83465a606133b241}{TG\+\_\+\+PNF}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0240
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a0452589b12a20397977344288abae82f}{TG\+\_\+\+FAIL\+\_\+\+EXPECTED\+\_\+\+DATA}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0340
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a26ef0000b2f002b1fe653aeb6d2677ee}{TG\+\_\+\+FAIL\+\_\+\+READ\+\_\+\+DATA}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0440
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad19fda5e987a2fae893421a426f6766d}{TG\+\_\+\+DATA\+\_\+\+SEED}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0540
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab95729a6c6553c58502a0f1306f1b004}{TG\+\_\+\+BYTEEN\+\_\+\+SEED}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0580
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9adf412af7a4ff3287fe327afee84e348d}{TG\+\_\+\+PPPG\+\_\+\+SEL}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x05\+C0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a3c528143f8a6d19ca435a0f458cc29b8}{TG\+\_\+\+BYTEEN\+\_\+\+SEL}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0600
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aece950f87a9fd52ec05f2326d00499fd}{TG\+\_\+\+ADDR\+\_\+\+FIELD\+\_\+\+RELATIVE\+\_\+\+FREQ}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0640
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aeb51b5206be439a4f73216c8737b15f2}{TG\+\_\+\+ADDR\+\_\+\+FIELD\+\_\+\+MSB\+\_\+\+INDEX}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0680
+, \newline
+\mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a4373da92590dd537b2f82603b269fd6f}{TG\+\_\+\+BURSTLENGTH\+\_\+\+OVERFLOW\+\_\+\+OCCURRED}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x06\+C0
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a8382e8133ee151e0c00c1993011deeaa}{TG\+\_\+\+BURSTLENGTH\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+L}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0700
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a0e3799ef4889e3dae68d80346fee6d61}{TG\+\_\+\+BURSTLENGTH\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+H}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0704
+, \mbox{\hyperlink{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a533db7920ef8344cb657bc340e903227}{TG\+\_\+\+WORM\+\_\+\+MODE\+\_\+\+TARGETTED\+\_\+\+DATA}} = MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET + 0x0740
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \mbox{\hyperlink{namespacecxl__mem__tg_a7187f3c940e7b0bede33c18321170c26}{AFU\+\_\+\+ID}} = \char`\"{}4DADEA34-\/2C78-\/48CB-\/A3\+DC-\/5B831\+F5\+CECBB\char`\"{}
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacecxl__mem__tg_a7488ec5ac28f6679e818452cb7b347ec}{MEM\+\_\+\+TG\+\_\+\+TEST\+\_\+\+TIMEOUT}} = 3000000
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacecxl__mem__tg_ae2fec4e55f5f8fbfb78d0c38ec1e3289}{TEST\+\_\+\+SLEEP\+\_\+\+INVL}} = 100
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacecxl__mem__tg_a7e452dc886e26cc1525c4533efbfd1c8}{TG\+\_\+\+CTRL\+\_\+\+CLEAR}} = 0x8000000000000000
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacecxl__mem__tg_adf88f83a1ea74efb4228b2e7de8d8ae8}{TG\+\_\+\+SLEEP}} = 300 / 1000
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacecxl__mem__tg_ad72ec47242a649d327e0bde858f7f2b5}{TG\+\_\+\+FREQ}} = 400 $\ast$ 1000
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t $>$ \mbox{\hyperlink{namespacecxl__mem__tg_a4adbfbc2d17a8a0c2a818f243385336a}{tg\+\_\+pattern}}
+\item 
+const int \mbox{\hyperlink{namespacecxl__mem__tg_afb32111a410e98fdae3118bc9a2c9277}{MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET}} = 0x1000
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{cxl\_mem\_tg::mem\_tg\_ctl.\_\_unnamed52\_\_@{cxl\_mem\_tg::mem\_tg\_ctl.\_\_unnamed52\_\_}}\label{structcxl__mem__tg_1_1mem__tg__ctl_8____unnamed52____}
+\doxysubsubsection{struct cxl\+\_\+mem\+\_\+tg\+::mem\+\_\+tg\+\_\+ctl.\+\_\+\+\_\+unnamed52\+\_\+\+\_\+}
+
+
+Definition at line 144 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacecxl__mem__tg_a6d34c45ffdac925a16d3b3c2047ce174}} 
+uint64\_t&
+tg\_capability: 4&
+\\
+\hline
+
+\mbox{\label{namespacecxl__mem__tg_ae660654513e1a8d461652d3b08845337}} 
+uint64\_t&
+Rsvd\_63\_3: 59&
+\\
+\hline
+
+\mbox{\label{namespacecxl__mem__tg_a87e6ccccd6c09e1f75b9761c7f80f224}} 
+uint64\_t&
+counter\_clear: 1&
+\\
+\hline
+
+\end{DoxyFields}
+\index{cxl\_mem\_tg::mem\_tg\_status.\_\_unnamed55\_\_@{cxl\_mem\_tg::mem\_tg\_status.\_\_unnamed55\_\_}}\label{structcxl__mem__tg_1_1mem__tg__status_8____unnamed55____}
+\doxysubsubsection{struct cxl\+\_\+mem\+\_\+tg\+::mem\+\_\+tg\+\_\+status.\+\_\+\+\_\+unnamed55\+\_\+\+\_\+}
+
+
+Definition at line 155 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacecxl__mem__tg_a6a78db517f38d353f35ea90e0bda5ea2}} 
+uint64\_t&
+tg\_status0: 4&
+\\
+\hline
+
+\mbox{\label{namespacecxl__mem__tg_aa49dfa7fbe5bfa23db7a05e8bc1a35e8}} 
+uint64\_t&
+tg\_status1: 4&
+\\
+\hline
+
+\mbox{\label{namespacecxl__mem__tg_ada25e0aee7b78074d825ae2861d7c43c}} 
+uint64\_t&
+tg\_status2: 4&
+\\
+\hline
+
+\mbox{\label{namespacecxl__mem__tg_a04450fbc0102ac045df8cad55a3a3e75}} 
+uint64\_t&
+tg\_status3: 4&
+\\
+\hline
+
+\mbox{\label{namespacecxl__mem__tg_af5227312123178cb13d634298515daeb}} 
+uint64\_t&
+Rsvd\_63\_16: 48&
+\\
+\hline
+
+\end{DoxyFields}
+\index{cxl\_mem\_tg::mem\_tg0\_count.\_\_unnamed58\_\_@{cxl\_mem\_tg::mem\_tg0\_count.\_\_unnamed58\_\_}}\label{structcxl__mem__tg_1_1mem__tg0__count_8____unnamed58____}
+\doxysubsubsection{struct cxl\+\_\+mem\+\_\+tg\+::mem\+\_\+tg0\+\_\+count.\+\_\+\+\_\+unnamed58\+\_\+\+\_\+}
+
+
+Definition at line 168 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacecxl__mem__tg_ae2942a04780e223b215eb8b663cf5353}} 
+uint64\_t&
+count: 64&
+\\
+\hline
+
+\end{DoxyFields}
+\index{cxl\_mem\_tg::mem\_tg1\_count.\_\_unnamed61\_\_@{cxl\_mem\_tg::mem\_tg1\_count.\_\_unnamed61\_\_}}\label{structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61____}
+\doxysubsubsection{struct cxl\+\_\+mem\+\_\+tg\+::mem\+\_\+tg1\+\_\+count.\+\_\+\+\_\+unnamed61\+\_\+\+\_\+}
+
+
+Definition at line 177 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacecxl__mem__tg_ae2942a04780e223b215eb8b663cf5353}} 
+uint64\_t&
+count: 64&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{namespacecxl__mem__tg_ae21fb3ab55ae8cb59106b87200d95a7d}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!test\_afu@{test\_afu}}
+\index{test\_afu@{test\_afu}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{test\_afu}{test\_afu}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{namespacecxl__mem__tg_ae21fb3ab55ae8cb59106b87200d95a7d}{cxl\+\_\+mem\+\_\+tg\+::test\+\_\+afu}} = typedef \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}}
+
+
+
+Definition at line 182 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_ab54b53736c1e8bd7876a69f2baef17b2}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!test\_command@{test\_command}}
+\index{test\_command@{test\_command}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{test\_command}{test\_command}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{namespacecxl__mem__tg_ab54b53736c1e8bd7876a69f2baef17b2}{cxl\+\_\+mem\+\_\+tg\+::test\+\_\+command}} = typedef \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}}
+
+
+
+Definition at line 183 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_STATUS\_ACTIVE@{TG\_STATUS\_ACTIVE}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_STATUS\_ACTIVE@{TG\_STATUS\_ACTIVE}}}\mbox{\label{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3a7cbd86dff0180f632d573ef7e5a55057}} 
+TG\+\_\+\+STATUS\+\_\+\+ACTIVE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_STATUS\_TIMEOUT@{TG\_STATUS\_TIMEOUT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_STATUS\_TIMEOUT@{TG\_STATUS\_TIMEOUT}}}\mbox{\label{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3a8e63adddabc288e5498f2f4df66f0b27}} 
+TG\+\_\+\+STATUS\+\_\+\+TIMEOUT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_STATUS\_ERROR@{TG\_STATUS\_ERROR}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_STATUS\_ERROR@{TG\_STATUS\_ERROR}}}\mbox{\label{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3ad6d2ca96385ead5241bb420e1e7ae64e}} 
+TG\+\_\+\+STATUS\+\_\+\+ERROR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_STATUS\_PASS@{TG\_STATUS\_PASS}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_STATUS\_PASS@{TG\_STATUS\_PASS}}}\mbox{\label{namespacecxl__mem__tg_a9346c08ca8d6da1adde540395a909db3aa0b11c71d367595e2a12c20197b44ce9}} 
+TG\+\_\+\+STATUS\+\_\+\+PASS&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 45 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_RAND@{TG\_ADDR\_RAND}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_RAND@{TG\_ADDR\_RAND}}}\mbox{\label{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2ae50331c964539f5dd5c26007735d4ed3}} 
+TG\+\_\+\+ADDR\+\_\+\+RAND&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_SEQ@{TG\_ADDR\_SEQ}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_SEQ@{TG\_ADDR\_SEQ}}}\mbox{\label{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2ab7e300ecb7930052b948a653ddcaa184}} 
+TG\+\_\+\+ADDR\+\_\+\+SEQ&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_RAND\_SEQ@{TG\_ADDR\_RAND\_SEQ}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_RAND\_SEQ@{TG\_ADDR\_RAND\_SEQ}}}\mbox{\label{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2af669ed7de6b50d6000674e9427d25182}} 
+TG\+\_\+\+ADDR\+\_\+\+RAND\+\_\+\+SEQ&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_ONE\_HOT@{TG\_ADDR\_ONE\_HOT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_ONE\_HOT@{TG\_ADDR\_ONE\_HOT}}}\mbox{\label{namespacecxl__mem__tg_aa4af1bf553a1eaba8cd8f49e614476e2a92b5675ef5ee0396ead56070a486e58e}} 
+TG\+\_\+\+ADDR\+\_\+\+ONE\+\_\+\+HOT&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 52 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdea}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_DATA\_FIXED@{TG\_DATA\_FIXED}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_DATA\_FIXED@{TG\_DATA\_FIXED}}}\mbox{\label{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa7407f4233717e1d98f8a776390eb82af}} 
+TG\+\_\+\+DATA\+\_\+\+FIXED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_DATA\_PRBS7@{TG\_DATA\_PRBS7}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_DATA\_PRBS7@{TG\_DATA\_PRBS7}}}\mbox{\label{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa657e027c0dafddd6b1507f6cce1194ad}} 
+TG\+\_\+\+DATA\+\_\+\+PRBS7&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_DATA\_PRBS15@{TG\_DATA\_PRBS15}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_DATA\_PRBS15@{TG\_DATA\_PRBS15}}}\mbox{\label{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa17eadd59787408f22df400c34c6a1b0a}} 
+TG\+\_\+\+DATA\+\_\+\+PRBS15&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_DATA\_PRBS31@{TG\_DATA\_PRBS31}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_DATA\_PRBS31@{TG\_DATA\_PRBS31}}}\mbox{\label{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaae5e9b7fe639f5d85614b3a1759b7c659}} 
+TG\+\_\+\+DATA\+\_\+\+PRBS31&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_DATA\_ROTATING@{TG\_DATA\_ROTATING}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_DATA\_ROTATING@{TG\_DATA\_ROTATING}}}\mbox{\label{namespacecxl__mem__tg_aa1d50ccef06b3cce729d5a785c2cfdeaa71564d8355c494d5a258cb5c26b4fc98}} 
+TG\+\_\+\+DATA\+\_\+\+ROTATING&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 59 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09e}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_DFH@{AFU\_DFH}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!AFU\_DFH@{AFU\_DFH}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea01597032eab3f760346c82fbc788ec5c}} 
+AFU\+\_\+\+DFH&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_ID\_L@{AFU\_ID\_L}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!AFU\_ID\_L@{AFU\_ID\_L}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eae1b3a54124834078d9db7680c3caa7bd}} 
+AFU\+\_\+\+ID\+\_\+L&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_ID\_H@{AFU\_ID\_H}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!AFU\_ID\_H@{AFU\_ID\_H}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea5debc24069234094ad6ba398106c65fb}} 
+AFU\+\_\+\+ID\+\_\+H&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{NEXT\_AFU@{NEXT\_AFU}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!NEXT\_AFU@{NEXT\_AFU}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eaaa35301298cf8446efb61505e0798fa0}} 
+NEXT\+\_\+\+AFU&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{AFU\_DFH\_RSVD@{AFU\_DFH\_RSVD}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!AFU\_DFH\_RSVD@{AFU\_DFH\_RSVD}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea0664bd36175dd3d76875ebaa52980af6}} 
+AFU\+\_\+\+DFH\+\_\+\+RSVD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SCRATCHPAD@{SCRATCHPAD}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!SCRATCHPAD@{SCRATCHPAD}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea762eb285e7fc88be1e742b50533c5f9a}} 
+SCRATCHPAD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TG\_CTRL@{MEM\_TG\_CTRL}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_CTRL@{MEM\_TG\_CTRL}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea4756bce556cb643e0aa2c409f21f0c37}} 
+MEM\+\_\+\+TG\+\_\+\+CTRL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TG\_STAT@{MEM\_TG\_STAT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_STAT@{MEM\_TG\_STAT}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eadd994b8040392db4076101038b417fe4}} 
+MEM\+\_\+\+TG\+\_\+\+STAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TG\_CLK\_COUNT@{MEM\_TG\_CLK\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_CLK\_COUNT@{MEM\_TG\_CLK\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea88d8b198bfb44c9dcad46aa0ab207970}} 
+MEM\+\_\+\+TG\+\_\+\+CLK\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TG\_WR\_COUNT@{MEM\_TG\_WR\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_WR\_COUNT@{MEM\_TG\_WR\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09eaf6d9bbd396589527f372a7b48f1a4d92}} 
+MEM\+\_\+\+TG\+\_\+\+WR\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MEM\_TG\_CLK\_FREQ@{MEM\_TG\_CLK\_FREQ}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_CLK\_FREQ@{MEM\_TG\_CLK\_FREQ}}}\mbox{\label{namespacecxl__mem__tg_a8ba6380a3d80e0f4b6ec8ef2529ae09ea0fd9d1b39b6d59014ef01787ec3a4eef}} 
+MEM\+\_\+\+TG\+\_\+\+CLK\+\_\+\+FREQ&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 73 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_VERSION@{TG\_VERSION}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_VERSION@{TG\_VERSION}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a21e0b7931a80741eb0c73747a3fe4377}} 
+TG\+\_\+\+VERSION&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_START@{TG\_START}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_START@{TG\_START}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9afbeb224f5b1d32e9b55b1ce8fcc9e32c}} 
+TG\+\_\+\+START&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_LOOP\_COUNT@{TG\_LOOP\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_LOOP\_COUNT@{TG\_LOOP\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad02dea59ee54f68764340c1c233829b1}} 
+TG\+\_\+\+LOOP\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_WRITE\_COUNT@{TG\_WRITE\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_WRITE\_COUNT@{TG\_WRITE\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aab71456eea9b0ccecabf1e0891954a0e}} 
+TG\+\_\+\+WRITE\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_READ\_COUNT@{TG\_READ\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_READ\_COUNT@{TG\_READ\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a411d376733b772443344588a2cac4458}} 
+TG\+\_\+\+READ\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_WRITE\_REPEAT\_COUNT@{TG\_WRITE\_REPEAT\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_WRITE\_REPEAT\_COUNT@{TG\_WRITE\_REPEAT\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aa30e3bd5cec3f3cd992e6121bdbab09e}} 
+TG\+\_\+\+WRITE\+\_\+\+REPEAT\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_READ\_REPEAT\_COUNT@{TG\_READ\_REPEAT\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_READ\_REPEAT\_COUNT@{TG\_READ\_REPEAT\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a90a29710d3b2099c1795a61d2622076e}} 
+TG\+\_\+\+READ\+\_\+\+REPEAT\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_BURST\_LENGTH@{TG\_BURST\_LENGTH}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_BURST\_LENGTH@{TG\_BURST\_LENGTH}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab821353518367c2fcd2ab57a9c6e7840}} 
+TG\+\_\+\+BURST\+\_\+\+LENGTH&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_CLEAR@{TG\_CLEAR}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_CLEAR@{TG\_CLEAR}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a88ec11b1fb1a062f02451c50b0016949}} 
+TG\+\_\+\+CLEAR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_RW\_GEN\_IDLE\_COUNT@{TG\_RW\_GEN\_IDLE\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_RW\_GEN\_IDLE\_COUNT@{TG\_RW\_GEN\_IDLE\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab64e524dd316d881cc22757087d33439}} 
+TG\+\_\+\+RW\+\_\+\+GEN\+\_\+\+IDLE\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_RW\_GEN\_LOOP\_IDLE\_COUNT@{TG\_RW\_GEN\_LOOP\_IDLE\_COUNT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_RW\_GEN\_LOOP\_IDLE\_COUNT@{TG\_RW\_GEN\_LOOP\_IDLE\_COUNT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aed6f3dfb644b6e070fefcaf16e2e1d11}} 
+TG\+\_\+\+RW\+\_\+\+GEN\+\_\+\+LOOP\+\_\+\+IDLE\+\_\+\+COUNT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_SEQ\_START\_ADDR\_WR@{TG\_SEQ\_START\_ADDR\_WR}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_SEQ\_START\_ADDR\_WR@{TG\_SEQ\_START\_ADDR\_WR}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ae286a4c714c99b08b1002ee3ed1a587f}} 
+TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+WR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_MODE\_WR@{TG\_ADDR\_MODE\_WR}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_MODE\_WR@{TG\_ADDR\_MODE\_WR}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a7709164257a8f5718596b5ab2c472ad4}} 
+TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+WR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_RETURN\_TO\_START\_ADDR@{TG\_RETURN\_TO\_START\_ADDR}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_RETURN\_TO\_START\_ADDR@{TG\_RETURN\_TO\_START\_ADDR}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad39fc44c8edf2e15dad6d831aa6fe819}} 
+TG\+\_\+\+RETURN\+\_\+\+TO\+\_\+\+START\+\_\+\+ADDR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_SEQ\_ADDR\_INCR@{TG\_SEQ\_ADDR\_INCR}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_SEQ\_ADDR\_INCR@{TG\_SEQ\_ADDR\_INCR}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9acf979f868802b88029d479d18111f465}} 
+TG\+\_\+\+SEQ\+\_\+\+ADDR\+\_\+\+INCR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_SEQ\_START\_ADDR\_RD@{TG\_SEQ\_START\_ADDR\_RD}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_SEQ\_START\_ADDR\_RD@{TG\_SEQ\_START\_ADDR\_RD}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a201705870a4fa204363246058cb2076e}} 
+TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+RD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_MODE\_RD@{TG\_ADDR\_MODE\_RD}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_MODE\_RD@{TG\_ADDR\_MODE\_RD}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a9ce33fc8beaf69c76c4ce3776805d1c4}} 
+TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+RD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_PASS@{TG\_PASS}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_PASS@{TG\_PASS}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9af157488b545676cc548397859997b02a}} 
+TG\+\_\+\+PASS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FAIL@{TG\_FAIL}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FAIL@{TG\_FAIL}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a0b00917713940ec859e81f0a86dc562f}} 
+TG\+\_\+\+FAIL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FAIL\_COUNT\_L@{TG\_FAIL\_COUNT\_L}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FAIL\_COUNT\_L@{TG\_FAIL\_COUNT\_L}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a6c4409c3d1f07c62bcd75fd3b05467fe}} 
+TG\+\_\+\+FAIL\+\_\+\+COUNT\+\_\+L&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FAIL\_COUNT\_H@{TG\_FAIL\_COUNT\_H}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FAIL\_COUNT\_H@{TG\_FAIL\_COUNT\_H}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a1382e3f82472ef4eb8dcbbb17e377285}} 
+TG\+\_\+\+FAIL\+\_\+\+COUNT\+\_\+H&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FIRST\_FAIL\_ADDR\_L@{TG\_FIRST\_FAIL\_ADDR\_L}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FIRST\_FAIL\_ADDR\_L@{TG\_FIRST\_FAIL\_ADDR\_L}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9afaf1344c0006254f6f4947ed9728bee6}} 
+TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+L&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FIRST\_FAIL\_ADDR\_H@{TG\_FIRST\_FAIL\_ADDR\_H}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FIRST\_FAIL\_ADDR\_H@{TG\_FIRST\_FAIL\_ADDR\_H}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aa10c574348ce256ce6987b453ab10f70}} 
+TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+H&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_TOTAL\_READ\_COUNT\_L@{TG\_TOTAL\_READ\_COUNT\_L}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_TOTAL\_READ\_COUNT\_L@{TG\_TOTAL\_READ\_COUNT\_L}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a810379cbef2d3d1791fb853c8a7d3792}} 
+TG\+\_\+\+TOTAL\+\_\+\+READ\+\_\+\+COUNT\+\_\+L&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_TOTAL\_READ\_COUNT\_H@{TG\_TOTAL\_READ\_COUNT\_H}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_TOTAL\_READ\_COUNT\_H@{TG\_TOTAL\_READ\_COUNT\_H}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab3188e1e50ec3ed8a6eed8dafd7e3bfe}} 
+TG\+\_\+\+TOTAL\+\_\+\+READ\+\_\+\+COUNT\+\_\+H&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_TEST\_COMPLETE@{TG\_TEST\_COMPLETE}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_TEST\_COMPLETE@{TG\_TEST\_COMPLETE}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a397a7f61b4c32a69262d9db33ec35fda}} 
+TG\+\_\+\+TEST\+\_\+\+COMPLETE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_INVERT\_BYTEEN@{TG\_INVERT\_BYTEEN}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_INVERT\_BYTEEN@{TG\_INVERT\_BYTEEN}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad69950385bd5a8260e9262d3473d65e9}} 
+TG\+\_\+\+INVERT\+\_\+\+BYTEEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_RESTART\_DEFAULT\_TRAFFIC@{TG\_RESTART\_DEFAULT\_TRAFFIC}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_RESTART\_DEFAULT\_TRAFFIC@{TG\_RESTART\_DEFAULT\_TRAFFIC}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab7a46ab46b32d143ea74bd68d6e1708c}} 
+TG\+\_\+\+RESTART\+\_\+\+DEFAULT\+\_\+\+TRAFFIC&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_USER\_WORM\_EN@{TG\_USER\_WORM\_EN}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_USER\_WORM\_EN@{TG\_USER\_WORM\_EN}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a138084b5a721464cfb312d4d675410bf}} 
+TG\+\_\+\+USER\+\_\+\+WORM\+\_\+\+EN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_TEST\_BYTEEN@{TG\_TEST\_BYTEEN}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_TEST\_BYTEEN@{TG\_TEST\_BYTEEN}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a50c1a9359d982b1f90a076434a82062b}} 
+TG\+\_\+\+TEST\+\_\+\+BYTEEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_TIMEOUT@{TG\_TIMEOUT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_TIMEOUT@{TG\_TIMEOUT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9acd7be04dcb9016fd18b247be44487e93}} 
+TG\+\_\+\+TIMEOUT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_NUM\_DATA\_GEN@{TG\_NUM\_DATA\_GEN}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_NUM\_DATA\_GEN@{TG\_NUM\_DATA\_GEN}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aad2624687ce89631f8307ceb034b86e8}} 
+TG\+\_\+\+NUM\+\_\+\+DATA\+\_\+\+GEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_NUM\_BYTEEN\_GEN@{TG\_NUM\_BYTEEN\_GEN}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_NUM\_BYTEEN\_GEN@{TG\_NUM\_BYTEEN\_GEN}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a6d207aa57db45407a6d02d79c5a0f7e3}} 
+TG\+\_\+\+NUM\+\_\+\+BYTEEN\+\_\+\+GEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_RDATA\_WIDTH@{TG\_RDATA\_WIDTH}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_RDATA\_WIDTH@{TG\_RDATA\_WIDTH}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a8f351711d6e1137882a8248bb4536fb8}} 
+TG\+\_\+\+RDATA\+\_\+\+WIDTH&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ERROR\_REPORT@{TG\_ERROR\_REPORT}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ERROR\_REPORT@{TG\_ERROR\_REPORT}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab50773a7b547928a51e3ebb30a00b0fa}} 
+TG\+\_\+\+ERROR\+\_\+\+REPORT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_PNF@{TG\_PNF}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_PNF@{TG\_PNF}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a75cfc6f2b701f77e83465a606133b241}} 
+TG\+\_\+\+PNF&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FAIL\_EXPECTED\_DATA@{TG\_FAIL\_EXPECTED\_DATA}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FAIL\_EXPECTED\_DATA@{TG\_FAIL\_EXPECTED\_DATA}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a0452589b12a20397977344288abae82f}} 
+TG\+\_\+\+FAIL\+\_\+\+EXPECTED\+\_\+\+DATA&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_FAIL\_READ\_DATA@{TG\_FAIL\_READ\_DATA}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FAIL\_READ\_DATA@{TG\_FAIL\_READ\_DATA}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a26ef0000b2f002b1fe653aeb6d2677ee}} 
+TG\+\_\+\+FAIL\+\_\+\+READ\+\_\+\+DATA&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_DATA\_SEED@{TG\_DATA\_SEED}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_DATA\_SEED@{TG\_DATA\_SEED}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ad19fda5e987a2fae893421a426f6766d}} 
+TG\+\_\+\+DATA\+\_\+\+SEED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_BYTEEN\_SEED@{TG\_BYTEEN\_SEED}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_BYTEEN\_SEED@{TG\_BYTEEN\_SEED}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9ab95729a6c6553c58502a0f1306f1b004}} 
+TG\+\_\+\+BYTEEN\+\_\+\+SEED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_PPPG\_SEL@{TG\_PPPG\_SEL}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_PPPG\_SEL@{TG\_PPPG\_SEL}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9adf412af7a4ff3287fe327afee84e348d}} 
+TG\+\_\+\+PPPG\+\_\+\+SEL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_BYTEEN\_SEL@{TG\_BYTEEN\_SEL}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_BYTEEN\_SEL@{TG\_BYTEEN\_SEL}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a3c528143f8a6d19ca435a0f458cc29b8}} 
+TG\+\_\+\+BYTEEN\+\_\+\+SEL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_FIELD\_RELATIVE\_FREQ@{TG\_ADDR\_FIELD\_RELATIVE\_FREQ}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_FIELD\_RELATIVE\_FREQ@{TG\_ADDR\_FIELD\_RELATIVE\_FREQ}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aece950f87a9fd52ec05f2326d00499fd}} 
+TG\+\_\+\+ADDR\+\_\+\+FIELD\+\_\+\+RELATIVE\+\_\+\+FREQ&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_ADDR\_FIELD\_MSB\_INDEX@{TG\_ADDR\_FIELD\_MSB\_INDEX}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_ADDR\_FIELD\_MSB\_INDEX@{TG\_ADDR\_FIELD\_MSB\_INDEX}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9aeb51b5206be439a4f73216c8737b15f2}} 
+TG\+\_\+\+ADDR\+\_\+\+FIELD\+\_\+\+MSB\+\_\+\+INDEX&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_BURSTLENGTH\_OVERFLOW\_OCCURRED@{TG\_BURSTLENGTH\_OVERFLOW\_OCCURRED}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_BURSTLENGTH\_OVERFLOW\_OCCURRED@{TG\_BURSTLENGTH\_OVERFLOW\_OCCURRED}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a4373da92590dd537b2f82603b269fd6f}} 
+TG\+\_\+\+BURSTLENGTH\+\_\+\+OVERFLOW\+\_\+\+OCCURRED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_BURSTLENGTH\_FAIL\_ADDR\_L@{TG\_BURSTLENGTH\_FAIL\_ADDR\_L}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_BURSTLENGTH\_FAIL\_ADDR\_L@{TG\_BURSTLENGTH\_FAIL\_ADDR\_L}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a8382e8133ee151e0c00c1993011deeaa}} 
+TG\+\_\+\+BURSTLENGTH\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+L&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_BURSTLENGTH\_FAIL\_ADDR\_H@{TG\_BURSTLENGTH\_FAIL\_ADDR\_H}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_BURSTLENGTH\_FAIL\_ADDR\_H@{TG\_BURSTLENGTH\_FAIL\_ADDR\_H}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a0e3799ef4889e3dae68d80346fee6d61}} 
+TG\+\_\+\+BURSTLENGTH\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+H&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TG\_WORM\_MODE\_TARGETTED\_DATA@{TG\_WORM\_MODE\_TARGETTED\_DATA}!cxl\_mem\_tg@{cxl\_mem\_tg}}\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_WORM\_MODE\_TARGETTED\_DATA@{TG\_WORM\_MODE\_TARGETTED\_DATA}}}\mbox{\label{namespacecxl__mem__tg_a001f2f66547e050fa059f9843621d0f9a533db7920ef8344cb657bc340e903227}} 
+TG\+\_\+\+WORM\+\_\+\+MODE\+\_\+\+TARGETTED\+\_\+\+DATA&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 89 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{namespacecxl__mem__tg_a7187f3c940e7b0bede33c18321170c26}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!AFU\_ID@{AFU\_ID}}
+\index{AFU\_ID@{AFU\_ID}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{AFU\_ID}{AFU\_ID}}
+{\footnotesize\ttfamily const char$\ast$ cxl\+\_\+mem\+\_\+tg\+::\+AFU\+\_\+\+ID = \char`\"{}4DADEA34-\/2C78-\/48CB-\/A3\+DC-\/5B831\+F5\+CECBB\char`\"{}}
+
+
+
+Definition at line 37 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_a7488ec5ac28f6679e818452cb7b347ec}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_TEST\_TIMEOUT@{MEM\_TG\_TEST\_TIMEOUT}}
+\index{MEM\_TG\_TEST\_TIMEOUT@{MEM\_TG\_TEST\_TIMEOUT}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{MEM\_TG\_TEST\_TIMEOUT}{MEM\_TG\_TEST\_TIMEOUT}}
+{\footnotesize\ttfamily const uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+TEST\+\_\+\+TIMEOUT = 3000000\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 39 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+Referenced by cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test\+::tg\+\_\+wait\+\_\+test\+\_\+completion().
+
+\mbox{\label{namespacecxl__mem__tg_ae2fec4e55f5f8fbfb78d0c38ec1e3289}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TEST\_SLEEP\_INVL@{TEST\_SLEEP\_INVL}}
+\index{TEST\_SLEEP\_INVL@{TEST\_SLEEP\_INVL}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{TEST\_SLEEP\_INVL}{TEST\_SLEEP\_INVL}}
+{\footnotesize\ttfamily const uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::\+TEST\+\_\+\+SLEEP\+\_\+\+INVL = 100\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 40 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_a7e452dc886e26cc1525c4533efbfd1c8}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_CTRL\_CLEAR@{TG\_CTRL\_CLEAR}}
+\index{TG\_CTRL\_CLEAR@{TG\_CTRL\_CLEAR}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{TG\_CTRL\_CLEAR}{TG\_CTRL\_CLEAR}}
+{\footnotesize\ttfamily const uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::\+TG\+\_\+\+CTRL\+\_\+\+CLEAR = 0x8000000000000000\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 41 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{namespacecxl__mem__tg_adf88f83a1ea74efb4228b2e7de8d8ae8}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_SLEEP@{TG\_SLEEP}}
+\index{TG\_SLEEP@{TG\_SLEEP}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{TG\_SLEEP}{TG\_SLEEP}}
+{\footnotesize\ttfamily const uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::\+TG\+\_\+\+SLEEP = 300 / 1000\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 42 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+Referenced by cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test\+::tg\+\_\+clear().
+
+\mbox{\label{namespacecxl__mem__tg_ad72ec47242a649d327e0bde858f7f2b5}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!TG\_FREQ@{TG\_FREQ}}
+\index{TG\_FREQ@{TG\_FREQ}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{TG\_FREQ}{TG\_FREQ}}
+{\footnotesize\ttfamily const uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::\+TG\+\_\+\+FREQ = 400 $\ast$ 1000\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 43 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+Referenced by cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test\+::config\+\_\+input\+\_\+options().
+
+\mbox{\label{namespacecxl__mem__tg_a4adbfbc2d17a8a0c2a818f243385336a}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!tg\_pattern@{tg\_pattern}}
+\index{tg\_pattern@{tg\_pattern}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{tg\_pattern}{tg\_pattern}}
+{\footnotesize\ttfamily const std\+::map$<$std\+::string, uint32\+\_\+t$>$ cxl\+\_\+mem\+\_\+tg\+::tg\+\_\+pattern}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{    \{\textcolor{stringliteral}{"{}fixed"{}}, TG\_DATA\_FIXED\},   \{\textcolor{stringliteral}{"{}prbs7"{}}, TG\_DATA\_PRBS7\},}
+\DoxyCodeLine{    \{\textcolor{stringliteral}{"{}prbs15"{}}, TG\_DATA\_PRBS15\}, \{\textcolor{stringliteral}{"{}prbs31"{}}, TG\_DATA\_PRBS31\},}
+\DoxyCodeLine{    \{\textcolor{stringliteral}{"{}rot1"{}}, TG\_DATA\_PRBS31\},}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Definition at line 67 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+Referenced by cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg().
+
+\mbox{\label{namespacecxl__mem__tg_afb32111a410e98fdae3118bc9a2c9277}} 
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!MEM\_TG\_CFG\_OFFSET@{MEM\_TG\_CFG\_OFFSET}}
+\index{MEM\_TG\_CFG\_OFFSET@{MEM\_TG\_CFG\_OFFSET}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{MEM\_TG\_CFG\_OFFSET}{MEM\_TG\_CFG\_OFFSET}}
+{\footnotesize\ttfamily const int cxl\+\_\+mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET = 0x1000}
+
+
+
+Definition at line 86 of file cxl\+\_\+mem\+\_\+tg.\+h.
+

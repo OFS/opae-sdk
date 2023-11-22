@@ -1,0 +1,1 @@
+cmd='./autogen.sh;&&;./configure'

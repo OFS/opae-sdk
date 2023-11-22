@@ -1,0 +1,239 @@
+\doxysection{opae\+::fpga\+::types\+::error Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1error}\index{opae::fpga::types::error@{opae::fpga::types::error}}
+
+
+An error object represents an error register for a resource. This is used to read out the raw value in the register. No parsing is done by this class.  
+
+
+
+
+{\ttfamily \#include $<$opae/cxx/core/errors.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a1ebeb4e4a63d9807d50c13b98a07ac2f}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a81fa63e406170f777b19ede3889845be}{error}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}} \&e)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}} \& \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a736a48278182c76699a959192ab23bf7}{operator=}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}} \&e)=delete
+\item 
+std\+::string \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a30ead52bd6a86f4a3cc7045e9dce0c20}{name}} ()
+\begin{DoxyCompactList}\small\item\em Get the error register name. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a7adabe502dd600e493263d684359e7ac}{can\+\_\+clear}} ()
+\begin{DoxyCompactList}\small\item\em Indicates whether an error register can be cleared. \end{DoxyCompactList}\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_acc656f405ba3e3b500604ad64ff0b970}{read\+\_\+value}} ()
+\begin{DoxyCompactList}\small\item\em Read the raw value contained in the associated error register. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a98daa1df4a7d000945797a3259153a6d}{$\sim$error}} ()
+\item 
+\mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a9817aa22e5e5ba22a32bd203ebdf22a8}{c\+\_\+type}} () const
+\begin{DoxyCompactList}\small\item\em Get the C data structure. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a1ebeb4e4a63d9807d50c13b98a07ac2f}{error\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a75af4be53a11d3e79639a84c79209567}{get}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} tok, uint32\+\_\+t num)
+\begin{DoxyCompactList}\small\item\em Factory function for creating an error object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a1acdf18b1cb09e0ee1539a6f845c8251}{error}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token}{token}}, uint32\+\_\+t num)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a8fed4f6624e3d0644525642468c52d60}{token\+\_\+}}
+\item 
+\mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a686b42984c8fce14c6ebfb102d8a9a64}{error\+\_\+info\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_afb19c6ae95eb21e047925477adc9f3b4}{error\+\_\+num\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+An error object represents an error register for a resource. This is used to read out the raw value in the register. No parsing is done by this class. 
+
+Definition at line 42 of file errors.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a1ebeb4e4a63d9807d50c13b98a07ac2f}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}}$>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a1ebeb4e4a63d9807d50c13b98a07ac2f}{opae\+::fpga\+::types\+::error\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 44 of file errors.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a81fa63e406170f777b19ede3889845be}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!error@{error}}
+\index{error@{error}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{error()}{error()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::error\+::error (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}} \&}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a98daa1df4a7d000945797a3259153a6d}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!````~error@{$\sim$error}}
+\index{````~error@{$\sim$error}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{$\sim$error()}{~error()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::error\+::$\sim$error (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 82 of file errors.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a1acdf18b1cb09e0ee1539a6f845c8251}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!error@{error}}
+\index{error@{error}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{error()}{error()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::error\+::error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}}}]{token,  }\item[{uint32\+\_\+t}]{num }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a736a48278182c76699a959192ab23bf7}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}}\& opae\+::fpga\+::types\+::error\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error}{error}} \&}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a75af4be53a11d3e79639a84c79209567}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!get@{get}}
+\index{get@{get}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1error_a1ebeb4e4a63d9807d50c13b98a07ac2f}{error\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::error\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}}}]{tok,  }\item[{uint32\+\_\+t}]{num }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Factory function for creating an error object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tok} & The token object representing a resource. \\
+\hline
+{\em num} & The index of the error register. This must be lower than the num\+\_\+errors property of the resource.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared\+\_\+ptr containing the error object 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a30ead52bd6a86f4a3cc7045e9dce0c20}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!name@{name}}
+\index{name@{name}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{name()}{name()}}
+{\footnotesize\ttfamily std\+::string opae\+::fpga\+::types\+::error\+::name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the error register name. 
+
+\begin{DoxyReturn}{Returns}
+A std\+::string object set to the error name. 
+\end{DoxyReturn}
+
+
+Definition at line 66 of file errors.\+h.
+
+
+
+References error\+\_\+info\+\_\+, and fpga\+\_\+error\+\_\+info\+::name.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a7adabe502dd600e493263d684359e7ac}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!can\_clear@{can\_clear}}
+\index{can\_clear@{can\_clear}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{can\_clear()}{can\_clear()}}
+{\footnotesize\ttfamily bool opae\+::fpga\+::types\+::error\+::can\+\_\+clear (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Indicates whether an error register can be cleared. 
+
+\begin{DoxyReturn}{Returns}
+A boolean value indicating if the error register can be cleared. 
+\end{DoxyReturn}
+
+
+Definition at line 73 of file errors.\+h.
+
+
+
+References fpga\+\_\+error\+\_\+info\+::can\+\_\+clear, and error\+\_\+info\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_acc656f405ba3e3b500604ad64ff0b970}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!read\_value@{read\_value}}
+\index{read\_value@{read\_value}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{read\_value()}{read\_value()}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::error\+::read\+\_\+value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read the raw value contained in the associated error register. 
+
+\begin{DoxyReturn}{Returns}
+A 64-\/bit value (unparsed) read from the error register 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a9817aa22e5e5ba22a32bd203ebdf22a8}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!c\_type@{c\_type}}
+\index{c\_type@{c\_type}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{c\_type()}{c\_type()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} opae\+::fpga\+::types\+::error\+::c\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the C data structure. 
+
+\begin{DoxyReturn}{Returns}
+The \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} that contains the name and the can\+\_\+clear boolean. 
+\end{DoxyReturn}
+
+
+Definition at line 90 of file errors.\+h.
+
+
+
+References error\+\_\+info\+\_\+.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a8fed4f6624e3d0644525642468c52d60}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!token\_@{token\_}}
+\index{token\_@{token\_}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{token\_}{token\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::error\+::token\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 94 of file errors.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_a686b42984c8fce14c6ebfb102d8a9a64}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!error\_info\_@{error\_info\_}}
+\index{error\_info\_@{error\_info\_}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{error\_info\_}{error\_info\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} opae\+::fpga\+::types\+::error\+::error\+\_\+info\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 95 of file errors.\+h.
+
+
+
+Referenced by c\+\_\+type(), can\+\_\+clear(), and name().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1error_afb19c6ae95eb21e047925477adc9f3b4}} 
+\index{opae::fpga::types::error@{opae::fpga::types::error}!error\_num\_@{error\_num\_}}
+\index{error\_num\_@{error\_num\_}!opae::fpga::types::error@{opae::fpga::types::error}}
+\doxysubsubsection{\texorpdfstring{error\_num\_}{error\_num\_}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::fpga\+::types\+::error\+::error\+\_\+num\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 96 of file errors.\+h.
+

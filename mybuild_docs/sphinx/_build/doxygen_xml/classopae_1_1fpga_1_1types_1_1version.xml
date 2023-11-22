@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1version" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::version</compoundname>
+    <includes refid="cxx_2core_2version_8h" local="no">opae/cxx/core/version.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1version_1a7e528dea61cf0bd424848ba091aae300" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structfpga__version" kindref="compound">fpga_version</ref></type>
+        <definition>static fpga_version opae::fpga::types::version::as_struct</definition>
+        <argsstring>()</argsstring>
+        <name>as_struct</name>
+        <briefdescription>
+<para>Get the package version information as a struct. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The package version as an <computeroutput><ref refid="structfpga__version" kindref="compound">fpga_version</ref></computeroutput> struct </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/version.h" line="40" column="23"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1version_1aa5683b008ba67e352c4ccc08a310b8bd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string opae::fpga::types::version::as_string</definition>
+        <argsstring>()</argsstring>
+        <name>as_string</name>
+        <briefdescription>
+<para>Get the package version information as a string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The package version as an <computeroutput>std::string</computeroutput> object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/version.h" line="45" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1version_1acf36384ad94dfdd0c13c7595b37aeccf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string opae::fpga::types::version::build</definition>
+        <argsstring>()</argsstring>
+        <name>build</name>
+        <briefdescription>
+<para>Get the package build information as a string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The package build as an <computeroutput>std::string</computeroutput> object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/version.h" line="50" column="22"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::version</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1version"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/version.h" line="35" column="1" bodyfile="include/opae/cxx/core/version.h" bodystart="35" bodyend="51"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1version_1aa5683b008ba67e352c4ccc08a310b8bd" prot="public" virt="non-virtual"><scope>opae::fpga::types::version</scope><name>as_string</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1version_1a7e528dea61cf0bd424848ba091aae300" prot="public" virt="non-virtual"><scope>opae::fpga::types::version</scope><name>as_struct</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1version_1acf36384ad94dfdd0c13c7595b37aeccf" prot="public" virt="non-virtual"><scope>opae::fpga::types::version</scope><name>build</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

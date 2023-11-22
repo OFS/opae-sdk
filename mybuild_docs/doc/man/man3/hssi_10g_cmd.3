@@ -1,0 +1,250 @@
+.TH "hssi_10g_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+hssi_10g_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/hssi/hssi_10g_cmd\&.h>\fP
+.PP
+Inherits \fBhssi_cmd\fP\&.
+.PP
+Inherited by \fBhssi_pkt_filt_10g_cmd\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhssi_10g_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "std::ostream & \fBprint_registers\fP (std::ostream &os, \fBhssi_afu\fP *hafu) const"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBport_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBdst_port_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBsrc_port_\fP"
+.br
+.ti -1c
+.RI "std::string \fBeth_loopback_\fP"
+.br
+.ti -1c
+.RI "std::string \fBhe_loopback_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBnum_packets_\fP"
+.br
+.ti -1c
+.RI "std::string \fBrandom_length_\fP"
+.br
+.ti -1c
+.RI "std::string \fBrandom_payload_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBpacket_length_\fP"
+.br
+.ti -1c
+.RI "std::string \fBsrc_addr_\fP"
+.br
+.ti -1c
+.RI "std::string \fBdest_addr_\fP"
+.br
+.ti -1c
+.RI "std::string \fBeth_ifc_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBrnd_seed0_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBrnd_seed1_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBrnd_seed2_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 59 of file hssi_10g_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "hssi_10g_cmd::hssi_10g_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 62 of file hssi_10g_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* hssi_10g_cmd::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_10g_cmd\fP\&.
+.PP
+Definition at line 80 of file hssi_10g_cmd\&.h\&.
+.SS "virtual const char* hssi_10g_cmd::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_10g_cmd\fP\&.
+.PP
+Definition at line 85 of file hssi_10g_cmd\&.h\&.
+.SS "virtual void hssi_10g_cmd::add_options (CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_10g_cmd\fP\&.
+.PP
+Definition at line 90 of file hssi_10g_cmd\&.h\&.
+.PP
+References app, dest_addr_, dst_port_, eth_ifc_, eth_loopback_, he_loopback_, num_packets_, packet_length_, port_, random_length_, random_payload_, rnd_seed0_, rnd_seed1_, rnd_seed2_, src_addr_, and src_port_\&.
+.PP
+Referenced by hssi_pkt_filt_10g_cmd::add_options()\&.
+.SS "virtual int hssi_10g_cmd::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_10g_cmd\fP\&.
+.PP
+Definition at line 152 of file hssi_10g_cmd\&.h\&.
+.PP
+References app, hssi_cmd::clock_freq_for(), CSR_DEST_ADDR0, CSR_DEST_ADDR1, CSR_MAC_LOOP, CSR_NUM_PACKETS, CSR_PACKET_LENGTH, CSR_PACKET_TX_COUNT, CSR_RANDOM_LENGTH, CSR_RANDOM_PAYLOAD, CSR_RND_SEED0, CSR_RND_SEED1, CSR_RND_SEED2, CSR_RX_END_TSTAMP, CSR_RX_STA_TSTAMP, CSR_SRC_ADDR0, CSR_SRC_ADDR1, CSR_START, CSR_STOP, CSR_TX_END_TSTAMP, CSR_TX_STA_TSTAMP, dest_addr_, dst_port_, hssi_cmd::enable_eth_loopback(), opae::afu_test::afu::error, eth_ifc_, eth_loopback_, hssi_afu::ethernet_interface(), he_loopback_, INVALID_CLOCK_FREQ, INVALID_MAC, INVALID_PORT, hssi_cmd::mac_bits_for(), hssi_afu::mbox_read(), hssi_afu::mbox_write(), num_packets_, packet_length_, port_, print_registers(), random_length_, random_payload_, rnd_seed0_, rnd_seed1_, rnd_seed2_, opae::afu_test::command::running(), hssi_cmd::show_eth_stats(), src_addr_, src_port_, opae::afu_test::afu::success, and USER_CLKFREQ_S10\&.
+.PP
+Referenced by hssi_pkt_filt_10g_cmd::run()\&.
+.SS "virtual const char* hssi_10g_cmd::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 321 of file hssi_10g_cmd\&.h\&.
+.SS "std::ostream& hssi_10g_cmd::print_registers (std::ostream & os, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 326 of file hssi_10g_cmd\&.h\&.
+.PP
+References AFU_SCRATCHPAD, CSR_AVST_RX_ERR, CSR_DEST_ADDR0, CSR_DEST_ADDR1, CSR_MAC_LOOP, CSR_NUM_PACKETS, CSR_NUM_PKT, CSR_PACKET_LENGTH, CSR_PACKET_TX_COUNT, CSR_PKT_BAD, CSR_PKT_GOOD, CSR_RANDOM_LENGTH, CSR_RANDOM_PAYLOAD, CSR_RND_SEED0, CSR_RND_SEED1, CSR_RND_SEED2, CSR_RX_END_TSTAMP, CSR_RX_STA_TSTAMP, CSR_SRC_ADDR0, CSR_SRC_ADDR1, CSR_START, CSR_STOP, CSR_TX_END_TSTAMP, CSR_TX_STA_TSTAMP, dst_port_, ETH_AFU_DFH, ETH_AFU_ID_H, ETH_AFU_ID_L, hssi_cmd::int_to_hex(), hssi_afu::mbox_read(), opae::afu_test::afu::read64(), src_port_, TRAFFIC_CTRL_CMD, TRAFFIC_CTRL_DATA, and TRAFFIC_CTRL_PORT_SEL\&.
+.PP
+Referenced by run()\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t hssi_10g_cmd::port_\fC [protected]\fP"
+
+.PP
+Definition at line 398 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::dst_port_\fC [protected]\fP"
+
+.PP
+Definition at line 399 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), print_registers(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::src_port_\fC [protected]\fP"
+
+.PP
+Definition at line 400 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), print_registers(), and run()\&.
+.SS "std::string hssi_10g_cmd::eth_loopback_\fC [protected]\fP"
+
+.PP
+Definition at line 401 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_10g_cmd::he_loopback_\fC [protected]\fP"
+
+.PP
+Definition at line 402 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::num_packets_\fC [protected]\fP"
+
+.PP
+Definition at line 403 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_10g_cmd::random_length_\fC [protected]\fP"
+
+.PP
+Definition at line 404 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_10g_cmd::random_payload_\fC [protected]\fP"
+
+.PP
+Definition at line 405 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::packet_length_\fC [protected]\fP"
+
+.PP
+Definition at line 406 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_10g_cmd::src_addr_\fC [protected]\fP"
+
+.PP
+Definition at line 407 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_10g_cmd::dest_addr_\fC [protected]\fP"
+
+.PP
+Definition at line 408 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), run(), and hssi_pkt_filt_10g_cmd::run()\&.
+.SS "std::string hssi_10g_cmd::eth_ifc_\fC [protected]\fP"
+
+.PP
+Definition at line 409 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::rnd_seed0_\fC [protected]\fP"
+
+.PP
+Definition at line 410 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::rnd_seed1_\fC [protected]\fP"
+
+.PP
+Definition at line 411 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_10g_cmd::rnd_seed2_\fC [protected]\fP"
+
+.PP
+Definition at line 412 of file hssi_10g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

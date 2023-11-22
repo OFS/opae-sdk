@@ -1,0 +1,181 @@
+.TH "samples/cxl_mem_tg/cxl_mem_tg.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/cxl_mem_tg/cxl_mem_tg.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/cxx/core/token\&.h>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "union \fBcxl_mem_tg::mem_tg_ctl\fP"
+.br
+.ti -1c
+.RI "union \fBcxl_mem_tg::mem_tg_status\fP"
+.br
+.ti -1c
+.RI "union \fBcxl_mem_tg::mem_tg0_count\fP"
+.br
+.ti -1c
+.RI "union \fBcxl_mem_tg::mem_tg1_count\fP"
+.br
+.ti -1c
+.RI "class \fBcxl_mem_tg::cxl_mem_tg\fP"
+.br
+.ti -1c
+.RI "struct \fBcxl_mem_tg::mem_tg_ctl\&.__unnamed52__\fP"
+.br
+.ti -1c
+.RI "struct \fBcxl_mem_tg::mem_tg_status\&.__unnamed55__\fP"
+.br
+.ti -1c
+.RI "struct \fBcxl_mem_tg::mem_tg0_count\&.__unnamed58__\fP"
+.br
+.ti -1c
+.RI "struct \fBcxl_mem_tg::mem_tg1_count\&.__unnamed61__\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBcxl_mem_tg\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBcxl_mem_tg::test_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.ti -1c
+.RI "using \fBcxl_mem_tg::test_command\fP = \fBopae::afu_test::command\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBcxl_mem_tg::TG_STATUS_ACTIVE\fP = 0x1, \fBcxl_mem_tg::TG_STATUS_TIMEOUT\fP = 0x2, \fBcxl_mem_tg::TG_STATUS_ERROR\fP = 0x4, \fBcxl_mem_tg::TG_STATUS_PASS\fP = 0x8 }"
+.br
+.ti -1c
+.RI "enum { \fBcxl_mem_tg::TG_ADDR_RAND\fP = 0, \fBcxl_mem_tg::TG_ADDR_SEQ\fP = 1, \fBcxl_mem_tg::TG_ADDR_RAND_SEQ\fP = 2, \fBcxl_mem_tg::TG_ADDR_ONE_HOT\fP = 3 }"
+.br
+.ti -1c
+.RI "enum { \fBcxl_mem_tg::TG_DATA_FIXED\fP = 0, \fBcxl_mem_tg::TG_DATA_PRBS7\fP = 1, \fBcxl_mem_tg::TG_DATA_PRBS15\fP = 2, \fBcxl_mem_tg::TG_DATA_PRBS31\fP = 3, \fBcxl_mem_tg::TG_DATA_ROTATING\fP = 4 }"
+.br
+.ti -1c
+.RI "enum { \fBcxl_mem_tg::AFU_DFH\fP = 0x0000, \fBcxl_mem_tg::AFU_ID_L\fP = 0x0008, \fBcxl_mem_tg::AFU_ID_H\fP = 0x0010, \fBcxl_mem_tg::NEXT_AFU\fP = 0x0018, \fBcxl_mem_tg::AFU_DFH_RSVD\fP = 0x0020, \fBcxl_mem_tg::SCRATCHPAD\fP = 0x0028, \fBcxl_mem_tg::MEM_TG_CTRL\fP = 0x0030, \fBcxl_mem_tg::MEM_TG_STAT\fP = 0x0038, \fBcxl_mem_tg::MEM_TG_CLK_COUNT\fP = 0x0050, \fBcxl_mem_tg::MEM_TG_WR_COUNT\fP = 0x0058, \fBcxl_mem_tg::MEM_TG_CLK_FREQ\fP = 0x0060 }"
+.br
+.ti -1c
+.RI "enum { \fBcxl_mem_tg::TG_VERSION\fP = MEM_TG_CFG_OFFSET + 0x000, \fBcxl_mem_tg::TG_START\fP = MEM_TG_CFG_OFFSET + 0x004, \fBcxl_mem_tg::TG_LOOP_COUNT\fP = MEM_TG_CFG_OFFSET + 0x008, \fBcxl_mem_tg::TG_WRITE_COUNT\fP = MEM_TG_CFG_OFFSET + 0x00C, \fBcxl_mem_tg::TG_READ_COUNT\fP = MEM_TG_CFG_OFFSET + 0x010, \fBcxl_mem_tg::TG_WRITE_REPEAT_COUNT\fP = MEM_TG_CFG_OFFSET + 0x014, \fBcxl_mem_tg::TG_READ_REPEAT_COUNT\fP = MEM_TG_CFG_OFFSET + 0x018, \fBcxl_mem_tg::TG_BURST_LENGTH\fP = MEM_TG_CFG_OFFSET + 0x01C, \fBcxl_mem_tg::TG_CLEAR\fP = MEM_TG_CFG_OFFSET + 0x020, \fBcxl_mem_tg::TG_RW_GEN_IDLE_COUNT\fP = MEM_TG_CFG_OFFSET + 0x038, \fBcxl_mem_tg::TG_RW_GEN_LOOP_IDLE_COUNT\fP = MEM_TG_CFG_OFFSET + 0x03C, \fBcxl_mem_tg::TG_SEQ_START_ADDR_WR\fP = MEM_TG_CFG_OFFSET + 0x040, \fBcxl_mem_tg::TG_ADDR_MODE_WR\fP = MEM_TG_CFG_OFFSET + 0x080, \fBcxl_mem_tg::TG_RETURN_TO_START_ADDR\fP = MEM_TG_CFG_OFFSET + 0x0C0, \fBcxl_mem_tg::TG_SEQ_ADDR_INCR\fP = MEM_TG_CFG_OFFSET + 0x0100, \fBcxl_mem_tg::TG_SEQ_START_ADDR_RD\fP = MEM_TG_CFG_OFFSET + 0x140, \fBcxl_mem_tg::TG_ADDR_MODE_RD\fP = MEM_TG_CFG_OFFSET + 0x180, \fBcxl_mem_tg::TG_PASS\fP = MEM_TG_CFG_OFFSET + 0x1C0, \fBcxl_mem_tg::TG_FAIL\fP = MEM_TG_CFG_OFFSET + 0x1C4, \fBcxl_mem_tg::TG_FAIL_COUNT_L\fP = MEM_TG_CFG_OFFSET + 0x1C8, \fBcxl_mem_tg::TG_FAIL_COUNT_H\fP = MEM_TG_CFG_OFFSET + 0x01CC, \fBcxl_mem_tg::TG_FIRST_FAIL_ADDR_L\fP = MEM_TG_CFG_OFFSET + 0x01D0, \fBcxl_mem_tg::TG_FIRST_FAIL_ADDR_H\fP = MEM_TG_CFG_OFFSET + 0x01D4, \fBcxl_mem_tg::TG_TOTAL_READ_COUNT_L\fP = MEM_TG_CFG_OFFSET + 0x01D8, \fBcxl_mem_tg::TG_TOTAL_READ_COUNT_H\fP = MEM_TG_CFG_OFFSET + 0x01DC, \fBcxl_mem_tg::TG_TEST_COMPLETE\fP = MEM_TG_CFG_OFFSET + 0x01E0, \fBcxl_mem_tg::TG_INVERT_BYTEEN\fP = MEM_TG_CFG_OFFSET + 0x01E4, \fBcxl_mem_tg::TG_RESTART_DEFAULT_TRAFFIC\fP = MEM_TG_CFG_OFFSET + 0x01E8, \fBcxl_mem_tg::TG_USER_WORM_EN\fP = MEM_TG_CFG_OFFSET + 0x01EC, \fBcxl_mem_tg::TG_TEST_BYTEEN\fP = MEM_TG_CFG_OFFSET + 0x01F0, \fBcxl_mem_tg::TG_TIMEOUT\fP = MEM_TG_CFG_OFFSET + 0x01F4, \fBcxl_mem_tg::TG_NUM_DATA_GEN\fP = MEM_TG_CFG_OFFSET + 0x01F8, \fBcxl_mem_tg::TG_NUM_BYTEEN_GEN\fP = MEM_TG_CFG_OFFSET + 0x01FC, \fBcxl_mem_tg::TG_RDATA_WIDTH\fP = MEM_TG_CFG_OFFSET + 0x0200, \fBcxl_mem_tg::TG_ERROR_REPORT\fP = MEM_TG_CFG_OFFSET + 0x0208, \fBcxl_mem_tg::TG_PNF\fP = MEM_TG_CFG_OFFSET + 0x0240, \fBcxl_mem_tg::TG_FAIL_EXPECTED_DATA\fP = MEM_TG_CFG_OFFSET + 0x0340, \fBcxl_mem_tg::TG_FAIL_READ_DATA\fP = MEM_TG_CFG_OFFSET + 0x0440, \fBcxl_mem_tg::TG_DATA_SEED\fP = MEM_TG_CFG_OFFSET + 0x0540, \fBcxl_mem_tg::TG_BYTEEN_SEED\fP = MEM_TG_CFG_OFFSET + 0x0580, \fBcxl_mem_tg::TG_PPPG_SEL\fP = MEM_TG_CFG_OFFSET + 0x05C0, \fBcxl_mem_tg::TG_BYTEEN_SEL\fP = MEM_TG_CFG_OFFSET + 0x0600, \fBcxl_mem_tg::TG_ADDR_FIELD_RELATIVE_FREQ\fP = MEM_TG_CFG_OFFSET + 0x0640, \fBcxl_mem_tg::TG_ADDR_FIELD_MSB_INDEX\fP = MEM_TG_CFG_OFFSET + 0x0680, \fBcxl_mem_tg::TG_BURSTLENGTH_OVERFLOW_OCCURRED\fP = MEM_TG_CFG_OFFSET + 0x06C0, \fBcxl_mem_tg::TG_BURSTLENGTH_FAIL_ADDR_L\fP = MEM_TG_CFG_OFFSET + 0x0700, \fBcxl_mem_tg::TG_BURSTLENGTH_FAIL_ADDR_H\fP = MEM_TG_CFG_OFFSET + 0x0704, \fBcxl_mem_tg::TG_WORM_MODE_TARGETTED_DATA\fP = MEM_TG_CFG_OFFSET + 0x0740 }"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBcxl_mem_tg::AFU_ID\fP = '4DADEA34\-2C78\-48CB\-A3DC\-5B831F5CECBB'"
+.br
+.ti -1c
+.RI "static const uint64_t \fBcxl_mem_tg::MEM_TG_TEST_TIMEOUT\fP = 3000000"
+.br
+.ti -1c
+.RI "static const uint64_t \fBcxl_mem_tg::TEST_SLEEP_INVL\fP = 100"
+.br
+.ti -1c
+.RI "static const uint64_t \fBcxl_mem_tg::TG_CTRL_CLEAR\fP = 0x8000000000000000"
+.br
+.ti -1c
+.RI "static const uint64_t \fBcxl_mem_tg::TG_SLEEP\fP = 300 / 1000"
+.br
+.ti -1c
+.RI "static const uint64_t \fBcxl_mem_tg::TG_FREQ\fP = 400 * 1000"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBcxl_mem_tg::tg_pattern\fP"
+.br
+.ti -1c
+.RI "const int \fBcxl_mem_tg::MEM_TG_CFG_OFFSET\fP = 0x1000"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct cxl_mem_tg::mem_tg_ctl\&.__unnamed52__"
+.PP 
+Definition at line 144 of file cxl_mem_tg\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fItg_capability: 4\fP 
+.br
+.PP
+uint64_t \fIRsvd_63_3: 59\fP 
+.br
+.PP
+uint64_t \fIcounter_clear: 1\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct cxl_mem_tg::mem_tg_status\&.__unnamed55__"
+.PP 
+Definition at line 155 of file cxl_mem_tg\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fItg_status0: 4\fP 
+.br
+.PP
+uint64_t \fItg_status1: 4\fP 
+.br
+.PP
+uint64_t \fItg_status2: 4\fP 
+.br
+.PP
+uint64_t \fItg_status3: 4\fP 
+.br
+.PP
+uint64_t \fIRsvd_63_16: 48\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct cxl_mem_tg::mem_tg0_count\&.__unnamed58__"
+.PP 
+Definition at line 168 of file cxl_mem_tg\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIcount: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct cxl_mem_tg::mem_tg1_count\&.__unnamed61__"
+.PP 
+Definition at line 177 of file cxl_mem_tg\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIcount: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

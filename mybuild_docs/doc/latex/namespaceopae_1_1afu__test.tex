@@ -1,0 +1,87 @@
+\doxysection{opae\+::afu\+\_\+test Namespace Reference}
+\label{namespaceopae_1_1afu__test}\index{opae::afu\_test@{opae::afu\_test}}
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+union \mbox{\hyperlink{unionopae_1_1afu__test_1_1pcie__address}{pcie\+\_\+address}}
+\item 
+class \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{command}}
+\item 
+class \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}}
+\item 
+struct \mbox{\hyperlink{namespaceopae_1_1afu__test_structopae_1_1afu__test_1_1pcie__address_8fields}{pcie\+\_\+address.\+fields}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename T $>$ }\\bool \mbox{\hyperlink{namespaceopae_1_1afu__test_a51c524d228e9ad342ed2e1a45efe741b}{parse\+\_\+match\+\_\+int}} (const char $\ast$s, regmatch\+\_\+t m, T \&v, int radix=10)
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{namespaceopae_1_1afu__test_a86ee03f14e97bbb40476aacd85cc9868}{spdlog\+\_\+levels}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{opae::afu\_test::pcie\_address.fields@{opae::afu\_test::pcie\_address.fields}}\label{structopae_1_1afu__test_1_1pcie__address_8fields}
+\doxysubsubsection{struct opae\+::afu\+\_\+test\+::pcie\+\_\+address.\+fields}
+
+
+Definition at line 187 of file he\+\_\+cache\+\_\+test.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespaceopae_1_1afu__test_ac1c425268e68385d1ab5074c17a94f14}} 
+uint32\_t&
+function: 3&
+\\
+\hline
+
+\mbox{\label{namespaceopae_1_1afu__test_a913f9c49dcb544e2087cee284f4a00b7}} 
+uint32\_t&
+device: 5&
+\\
+\hline
+
+\mbox{\label{namespaceopae_1_1afu__test_ad20f83ee6933aa1ea047fe5cbd9c1fd5}} 
+uint32\_t&
+bus: 8&
+\\
+\hline
+
+\mbox{\label{namespaceopae_1_1afu__test_aad5f82e879a9c5d6b5b442eb37e50551}} 
+uint32\_t&
+domain: 16&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{namespaceopae_1_1afu__test_a51c524d228e9ad342ed2e1a45efe741b}} 
+\index{opae::afu\_test@{opae::afu\_test}!parse\_match\_int@{parse\_match\_int}}
+\index{parse\_match\_int@{parse\_match\_int}!opae::afu\_test@{opae::afu\_test}}
+\doxysubsubsection{\texorpdfstring{parse\_match\_int()}{parse\_match\_int()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+bool opae\+::afu\+\_\+test\+::parse\+\_\+match\+\_\+int (\begin{DoxyParamCaption}\item[{const char $\ast$}]{s,  }\item[{regmatch\+\_\+t}]{m,  }\item[{T \&}]{v,  }\item[{int}]{radix = {\ttfamily 10} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 178 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::pcie\+\_\+address\+::parse().
+
+\mbox{\label{namespaceopae_1_1afu__test_a86ee03f14e97bbb40476aacd85cc9868}} 
+\index{opae::afu\_test@{opae::afu\_test}!spdlog\_levels@{spdlog\_levels}}
+\index{spdlog\_levels@{spdlog\_levels}!opae::afu\_test@{opae::afu\_test}}
+\doxysubsubsection{\texorpdfstring{spdlog\_levels()}{spdlog\_levels()}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::string$>$ opae\+::afu\+\_\+test\+::spdlog\+\_\+levels (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 266 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::afu\+::afu().
+

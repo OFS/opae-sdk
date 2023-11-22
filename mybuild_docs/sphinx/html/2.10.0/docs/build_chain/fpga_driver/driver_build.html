@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building the OPAE Intel FPGA driver (out-of-tree) &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Building the OPAE Intel FPGA driver (out-of-tree)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/build_chain/fpga_driver/driver_build.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="building-the-opae-intel-fpga-driver-out-of-tree">
+<h1>Building the OPAE Intel FPGA driver (out-of-tree)<a class="headerlink" href="#building-the-opae-intel-fpga-driver-out-of-tree" title="Permalink to this headline">¶</a></h1>
+<p>The Intel FPGA driver included with OPAE SDK releases is packaged as an RPM or
+DEB package as well as a source tarball. Starting with OPAE SDK release of 1.4,
+the driver can be built from source out-of-tree but requires the following
+packages:</p>
+<p>For RPM package managers (Red Hat, CentOS, Fedora, etc.)</p>
+<ul class="simple">
+<li><p>kernel-headers</p></li>
+<li><p>kernel-devel</p></li>
+<li><p>gcc</p></li>
+<li><p>make</p></li>
+</ul>
+<p>For DEB package managers (Debian, Ubuntu, etc.)</p>
+<ul class="simple">
+<li><p>kernel-headers-generic</p></li>
+<li><p>gcc</p></li>
+<li><p>make</p></li>
+</ul>
+<p>After installation of necessary distribution packages, follow the steps in the
+example below to build the Intel Kernel driver.
+<em>NOTE</em> The example below references Intel FPGA Kernel driver version 2.0.2. but
+can be applied to later versions.</p>
+<div class="highlight-{.bash} notranslate"><div class="highlight"><pre><span></span>
+tar zxf opae-intel-fpga-driver-2.0.2-1.tar.gz
+cd opae-intel-fpga-driver-2.0.2
+make
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

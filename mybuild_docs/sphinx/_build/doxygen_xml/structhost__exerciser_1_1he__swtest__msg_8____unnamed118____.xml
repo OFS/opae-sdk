@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__swtest__msg_8____unnamed118____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_swtest_msg.__unnamed118__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__swtest__msg_8____unnamed118_____1a85ae47f248bb592cde3612a8e939ce1e" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>swtest_msg</name>
+        <bitfield> 64</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="241" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_swtest_msg.__unnamed118__</label>
+        <link refid="structhost__exerciser_1_1he__swtest__msg_8____unnamed118____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="240" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="240" bodyend="242"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__swtest__msg_8____unnamed118_____1a85ae47f248bb592cde3612a8e939ce1e" prot="public" virt="non-virtual"><scope>host_exerciser::he_swtest_msg.__unnamed118__</scope><name>swtest_msg</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

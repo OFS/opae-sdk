@@ -1,0 +1,1168 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="types__enum_8h" kind="file" language="C++">
+    <compoundname>types_enum.h</compoundname>
+    <includedby refid="errors_8h" local="no">include/opae/cxx/core/errors.h</includedby>
+    <includedby refid="events_8h" local="no">include/opae/cxx/core/events.h</includedby>
+    <includedby refid="except_8h" local="no">include/opae/cxx/core/except.h</includedby>
+    <includedby refid="hash__map_8h" local="no">include/opae/hash_map.h</includedby>
+    <includedby refid="init_8h" local="no">include/opae/init.h</includedby>
+    <includedby refid="types_8h" local="no">include/opae/types.h</includedby>
+    <invincdepgraph>
+      <node id="7">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h</label>
+        <link refid="cxl__he__cache__lpbk__cmd_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>include/opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>samples/host_exerciser/host_exerciser.cpp</label>
+        <link refid="host__exerciser_8cpp"/>
+      </node>
+      <node id="49">
+        <label>include/opae/error.h</label>
+        <link refid="error_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>samples/mem_tg/mem_tg.h</label>
+        <link refid="mem__tg_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>samples/dummy_afu/dummy_afu.cpp</label>
+        <link refid="dummy__afu_8cpp"/>
+      </node>
+      <node id="15">
+        <label>samples/dummy_afu/mmio.h</label>
+        <link refid="samples_2dummy__afu_2mmio_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.h</label>
+        <link refid="cxl__mem__tg_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="4">
+        <label>samples/cxl_host_exerciser/he_cache_test.h</label>
+        <link refid="he__cache__test_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.h</label>
+        <link refid="cxl__host__exerciser_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>include/opae/userclk.h</label>
+        <link refid="userclk_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="60">
+        <label>include/opae/version.h</label>
+        <link refid="version_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>include/opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>samples/host_exerciser/host_exerciser.h</label>
+        <link refid="host__exerciser_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>include/opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.cpp</label>
+        <link refid="cxl__host__exerciser_8cpp"/>
+      </node>
+      <node id="1">
+        <label>include/opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>samples/dummy_afu/lpbk.h</label>
+        <link refid="lpbk_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>include/opae/cxx/core/version.h</label>
+        <link refid="cxx_2core_2version_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="52">
+        <label>include/opae/manage.h</label>
+        <link refid="manage_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>include/opae/metrics.h</label>
+        <link refid="metrics_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>include/opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>include/opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>include/opae/sysobject.h</label>
+        <link refid="sysobject_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>samples/host_exerciser/host_exerciser_mem.h</label>
+        <link refid="host__exerciser__mem_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>include/opae/cxx/core/sysobject.h</label>
+        <link refid="cxx_2core_2sysobject_8h"/>
+      </node>
+      <node id="3">
+        <label>include/opae/cxx/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>samples/dummy_afu/dummy_afu.h</label>
+        <link refid="dummy__afu_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="30">
+        <label>samples/cxl_mem_tg/cxl_tg_test.h</label>
+        <link refid="cxl__tg__test_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>include/opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>include/opae/event.h</label>
+        <link refid="event_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>samples/mem_tg/tg_test.h</label>
+        <link refid="tg__test_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>samples/host_exerciser/host_exerciser_cmd.h</label>
+        <link refid="host__exerciser__cmd_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>include/opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>include/opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>include/opae/cxx/core/errors.h</label>
+        <link refid="errors_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>include/opae/umsg.h</label>
+        <link refid="umsg_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.cpp</label>
+        <link refid="cxl__mem__tg_8cpp"/>
+      </node>
+      <node id="35">
+        <label>include/opae/vfio.h</label>
+        <link refid="vfio_8h"/>
+      </node>
+      <node id="32">
+        <label>samples/mem_tg/mem_tg.cpp</label>
+        <link refid="mem__tg_8cpp"/>
+      </node>
+      <node id="48">
+        <label>include/opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>include/opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>include/opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>samples/cxl_host_exerciser/cxl_he_cmd.h</label>
+        <link refid="cxl__he__cmd_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>samples/dummy_afu/ddr.h</label>
+        <link refid="ddr_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>include/opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>include/opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>include/opae/init.h</label>
+        <link refid="init_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>samples/hello_afu/sw/hello_afu.c</label>
+        <link refid="hello__afu_8c"/>
+      </node>
+      <node id="40">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+      <node id="34">
+        <label>include/opae/hash_map.h</label>
+        <link refid="hash__map_8h"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_cmd.h</label>
+        <link refid="cxl__he__cache__cmd_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>include/opae/log.h</label>
+        <link refid="log_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>include/opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>samples/host_exerciser/host_exerciser_lpbk.h</label>
+        <link refid="host__exerciser__lpbk_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_result</name>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" prot="public">
+          <name>FPGA_OK</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Operation completed successfully </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9" prot="public">
+          <name>FPGA_INVALID_PARAM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Invalid parameter supplied </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7785c48a8a9ab76b21bcd1627832fdd4" prot="public">
+          <name>FPGA_BUSY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Resource is busy </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" prot="public">
+          <name>FPGA_EXCEPTION</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>An exception occurred </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c" prot="public">
+          <name>FPGA_NOT_FOUND</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>A required resource was not found </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da01318ecc0ead885cee673d213bb4eeab" prot="public">
+          <name>FPGA_NO_MEMORY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Not enough memory to complete operation </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da51eacd9111ef14917f0b958bfeda4f66" prot="public">
+          <name>FPGA_NOT_SUPPORTED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Requested operation is not supported </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8b18856fa126c4b659346cf5decda0b5" prot="public">
+          <name>FPGA_NO_DRIVER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Driver is not loaded </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6daefcce3ebcef5f12e194f3812b43c7322" prot="public">
+          <name>FPGA_NO_DAEMON</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA Daemon (fpgad) is not running </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da6c7a58c1e0907394fe270a539b104b0e" prot="public">
+          <name>FPGA_NO_ACCESS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Insufficient privileges or permissions </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da4fe9aead9176152c1e47e600d5415e56" prot="public">
+          <name>FPGA_RECONF_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Error while reconfiguring FPGA </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>OPAE C API function return codes</para>
+<para>Every public API function exported by the OPAE C library will return one of these codes. Usually, FPGA_OK denotes successful completion of the requested operation, while any return code <emphasis>other</emphasis> than FPGA_OK indicates an error or other deviation from the expected behavior. Users of the OPAE C API should always check the return codes of the APIs they call, and not use output parameters of functions that did not execute successfully.</para>
+<para>The <ref refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32" kindref="member">fpgaErrStr()</ref> function converts error codes into printable messages.</para>
+<para>OPAE also has a logging mechanism that allows a developer to get more information about why a particular call failed with a specific message. If enabled, any function that returns an error code different from FPGA_OK will also print out a message with further details. This mechanism can be enabled by setting the environment variable <computeroutput>LIBOPAE_LOG</computeroutput> to 1 before running the respective application. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="57" column="1" bodyfile="include/opae/types_enum.h" bodystart="57" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_event_type</name>
+        <enumvalue id="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6a4927c38c144629dfd0ac7b798853d18f" prot="public">
+          <name>FPGA_EVENT_INTERRUPT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Interrupt generated by an accelerator </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800" prot="public">
+          <name>FPGA_EVENT_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Infrastructure error event </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ac5bbf42f4aadeb692ba00bc87d2a1d63" prot="public">
+          <name>FPGA_EVENT_POWER_THERMAL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Infrastructure thermal event </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>FPGA events</para>
+<para>OPAE currently defines the following event types that applications can register for. Note that not all FPGA resources and target platforms may support all event types. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="78" column="1" bodyfile="include/opae/types_enum.h" bodystart="78" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_accelerator_state</name>
+        <enumvalue id="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbeaa1212584ffe16949e0ed25c04a679786" prot="public">
+          <name>FPGA_ACCELERATOR_ASSIGNED</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>accelerator is opened exclusively by another process </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbea35c1c5720c92650e289c592abfd5e2b8" prot="public">
+          <name>FPGA_ACCELERATOR_UNASSIGNED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>accelerator is free to be opened </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>accelerator state </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="93" column="1" bodyfile="include/opae/types_enum.h" bodystart="93" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_objtype</name>
+        <enumvalue id="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" prot="public">
+          <name>FPGA_DEVICE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_DEVICE objects represent FPGA devices and their management functionality. These objects can be opened (typically requires a certain privilege level or access permissions) and used for management functions like fpgaReconfigreSlot(). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7" prot="public">
+          <name>FPGA_ACCELERATOR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_ACCELERATOR objects represent allocatable units for accessing accelerated functions on the FPGA. They are frequently opened for interacting via control registers (MMIO), shared memory, or other, possibly platform-specific functions. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>OPAE FPGA resources (objects)</para>
+<para>These are the FPGA resources currently supported by the OPAE object model. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="105" column="1" bodyfile="include/opae/types_enum.h" bodystart="105" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_interface</name>
+        <enumvalue id="types__enum_8h_1a9b433f944fba4b80dd796dec286412cbada6c2b32c7c5e8eba60cebe80b38355c" prot="public">
+          <name>FPGA_IFC_DFL</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_IFC_DFL indicates that the plugin interface is the Device Feature List driver suite. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba950d486b953b25fc8729fca05ea10962" prot="public">
+          <name>FPGA_IFC_VFIO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_IFC_VFIO indicates that the plugin interface is the vfio-pci driver. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba77bd30a60ce179d221303a4577d9ae17" prot="public">
+          <name>FPGA_IFC_SIM_DFL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_IFC_SIM_DFL indicates that the plugin interface is the AFU Simulation Environment simulating DFL drivers. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba6d64205e510545526e3b01ad672293da" prot="public">
+          <name>FPGA_IFC_SIM_VFIO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_IFC_SIM_VFIO indicates that the plugin interface is the AFU Simulation Environment simulating vfio-pci. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba47104e3152df9613560b18b507995691" prot="public">
+          <name>FPGA_IFC_UIO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>FPGA_IFC_UIO indicates that the plugin interface is the uio-dfl driver. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>OPAE plugin interface</para>
+<para>These are the supported plugin interfaces. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="122" column="1" bodyfile="include/opae/types_enum.h" bodystart="122" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_buffer_flags</name>
+        <enumvalue id="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5a625a9b51ada35d27da1079ff747d04db" prot="public">
+          <name>FPGA_BUF_PREALLOCATED</name>
+          <initializer>= (1u &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Use existing buffer </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5abc99b8f3e50fb4eac1dbbeae4aca7957" prot="public">
+          <name>FPGA_BUF_QUIET</name>
+          <initializer>= (1u &lt;&lt; 1)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Suppress error messages </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5ae69aa057dde55423090ab4f7b9f3c200" prot="public">
+          <name>FPGA_BUF_READ_ONLY</name>
+          <initializer>= (1u &lt;&lt; 2)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Buffer is read-only </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Buffer flags</para>
+<para>These flags can be passed to the <ref refid="buffer_8h_1aac3ed0146bc42c35f99610a319e87303" kindref="member">fpgaPrepareBuffer()</ref> function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="145" column="1" bodyfile="include/opae/types_enum.h" bodystart="145" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_open_flags</name>
+        <enumvalue id="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" prot="public">
+          <name>FPGA_OPEN_SHARED</name>
+          <initializer>= (1u &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Open FPGA resource for shared access </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Open flags</para>
+<para>These flags can be passed to the <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref> function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="156" column="1" bodyfile="include/opae/types_enum.h" bodystart="156" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_reconf_flags</name>
+        <enumvalue id="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7a3eb0a410afacbd5b85d308fc51fc8cd8" prot="public">
+          <name>FPGA_RECONF_FORCE</name>
+          <initializer>= (1u &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Reconfigure the slot without checking if it is in use </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7a4e1616b36eedc9094a04666edcfa36f1" prot="public">
+          <name>FPGA_RECONF_SKIP_USRCLK</name>
+          <initializer>= (1u &lt;&lt; 1)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Don&apos;t configure AFU user clocks as part of PR </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Reconfiguration flags</para>
+<para>These flags can be passed to the <ref refid="manage_8h_1a6e5d00d445c69c94cb122224c47bf735" kindref="member">fpgaReconfigureSlot()</ref> function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="166" column="1" bodyfile="include/opae/types_enum.h" bodystart="166" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a9cacfdee4baf5ca62998913596412afb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_sysobject_flags</name>
+        <enumvalue id="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231" prot="public">
+          <name>FPGA_OBJECT_SYNC</name>
+          <initializer>= (1u &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Synchronize data from driver </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" prot="public">
+          <name>FPGA_OBJECT_GLOB</name>
+          <initializer>= (1u &lt;&lt; 1)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Treat names as glob expressions </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbacfaa8f881c5a8a3dd212e4fb4d070bf4" prot="public">
+          <name>FPGA_OBJECT_RAW</name>
+          <initializer>=
+		(1u &lt;&lt; 2)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Read or write object data as raw bytes </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbade8c9f9040403d5e7e08e3aede541844" prot="public">
+          <name>FPGA_OBJECT_RECURSE_ONE</name>
+          <initializer>=
+		(1u
+		 &lt;&lt; 3)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Create subobjects one level down from containers </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba33387b602459cddf06b3eeab96eca47b" prot="public">
+          <name>FPGA_OBJECT_RECURSE_ALL</name>
+          <initializer>=
+		(1u
+		 &lt;&lt; 4)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Create subobjects all levels from from containers </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="173" column="1" bodyfile="include/opae/types_enum.h" bodystart="173" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_sysobject_type</name>
+        <enumvalue id="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299a9fdf8108c74c6fd8dec16f3c1bd7b46c" prot="public">
+          <name>FPGA_OBJECT_CONTAINER</name>
+          <initializer>=
+		(1u &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Represents a group of objects </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299ae05d85061319b15fc4fc8fbcbf6cf12c" prot="public">
+          <name>FPGA_OBJECT_ATTRIBUTE</name>
+          <initializer>=
+		(1u &lt;&lt; 1)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>An object with an attribute value that can be read/written </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="186" column="1" bodyfile="include/opae/types_enum.h" bodystart="186" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1a04334291d3fe08ee2385f534629f3094" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_metric_type</name>
+        <enumvalue id="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a19df4d36912e022021758321d7dfaca1" prot="public">
+          <name>FPGA_METRIC_TYPE_POWER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a1b615b52e8ec5f4339139567bcabd9d0" prot="public">
+          <name>FPGA_METRIC_TYPE_THERMAL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a0090631e9c7498fcb11d73aae843d4c0" prot="public">
+          <name>FPGA_METRIC_TYPE_PERFORMANCE_CTR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a04334291d3fe08ee2385f534629f3094afcaecf93ad13bf9558197c925c87d6c2" prot="public">
+          <name>FPGA_METRIC_TYPE_AFU</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1a04334291d3fe08ee2385f534629f3094aeccc87ae6dc265c54200f71aad44d43b" prot="public">
+          <name>FPGA_METRIC_TYPE_UNKNOWN</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>fpga metrics types opae defines power,thermal, performance counter and afu metric types </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="198" column="1" bodyfile="include/opae/types_enum.h" bodystart="198" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="enum" id="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcc" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fpga_metric_datatype</name>
+        <enumvalue id="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca7e4011246e4e6ce4c62cbcd54c6b6446" prot="public">
+          <name>FPGA_METRIC_DATATYPE_INT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca42b7558a3659d44b5291a68329ac59ba" prot="public">
+          <name>FPGA_METRIC_DATATYPE_FLOAT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca0ef125e071fb8bb97d89e083055b350a" prot="public">
+          <name>FPGA_METRIC_DATATYPE_DOUBLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca42af89cdb2fd1aaf8209950ff080a684" prot="public">
+          <name>FPGA_METRIC_DATATYPE_BOOL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bccad5f469dac4b7a5961008918926f399dc" prot="public">
+          <name>FPGA_METRIC_DATATYPE_UNKNOWN</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Metrics data type </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types_enum.h" line="210" column="1" bodyfile="include/opae/types_enum.h" bodystart="210" bodyend="216"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Definitions of enumerated types for the OPAE C API. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This file defines return and error codes, event and object types, states, and flags as used or reported by OPAE C API functions. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2017-2022,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_TYPES_ENUM_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_TYPES_ENUM_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="58" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9" kindref="member">FPGA_INVALID_PARAM</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7785c48a8a9ab76b21bcd1627832fdd4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7785c48a8a9ab76b21bcd1627832fdd4" kindref="member">FPGA_BUSY</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c" kindref="member">FPGA_NOT_FOUND</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da01318ecc0ead885cee673d213bb4eeab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da01318ecc0ead885cee673d213bb4eeab" kindref="member">FPGA_NO_MEMORY</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da51eacd9111ef14917f0b958bfeda4f66" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da51eacd9111ef14917f0b958bfeda4f66" kindref="member">FPGA_NOT_SUPPORTED</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8b18856fa126c4b659346cf5decda0b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8b18856fa126c4b659346cf5decda0b5" kindref="member">FPGA_NO_DRIVER</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6daefcce3ebcef5f12e194f3812b43c7322" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6daefcce3ebcef5f12e194f3812b43c7322" kindref="member">FPGA_NO_DAEMON</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da6c7a58c1e0907394fe270a539b104b0e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da6c7a58c1e0907394fe270a539b104b0e" kindref="member">FPGA_NO_ACCESS</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da4fe9aead9176152c1e47e600d5415e56" kindref="member">FPGA_RECONF_ERROR</ref><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da4fe9aead9176152c1e47e600d5415e56" refkind="member"><highlight class="normal">}<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="79" refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6a4927c38c144629dfd0ac7b798853d18f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6a4927c38c144629dfd0ac7b798853d18f" kindref="member">FPGA_EVENT_INTERRUPT</ref><sp/>=<sp/>0,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800" kindref="member">FPGA_EVENT_ERROR</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ac5bbf42f4aadeb692ba00bc87d2a1d63" kindref="member">FPGA_EVENT_POWER_THERMAL</ref><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82" refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ac5bbf42f4aadeb692ba00bc87d2a1d63" refkind="member"><highlight class="normal">}<sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6" kindref="member">fpga_event_type</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>TODO:<sp/>consider<sp/>adding<sp/>lifecycle<sp/>events<sp/>in<sp/>the<sp/>future</highlight></codeline>
+<codeline lineno="85"><highlight class="comment"><sp/>*<sp/>to<sp/>help<sp/>with<sp/>orchestration.<sp/><sp/>Need<sp/>a<sp/>complete<sp/>specification</highlight></codeline>
+<codeline lineno="86"><highlight class="comment"><sp/>*<sp/>before<sp/>including<sp/>them<sp/>in<sp/>the<sp/>API.<sp/><sp/>Proposed<sp/>events:</highlight></codeline>
+<codeline lineno="87"><highlight class="comment"><sp/>*<sp/>FPGA_EVENT_APPEAR</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/>*<sp/>FPGA_EVENT_DISAPPEAR</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/>*<sp/>FPGA_EVENT_CHANGE</highlight></codeline>
+<codeline lineno="90"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="95" refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbeaa1212584ffe16949e0ed25c04a679786" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbeaa1212584ffe16949e0ed25c04a679786" kindref="member">FPGA_ACCELERATOR_ASSIGNED</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbea35c1c5720c92650e289c592abfd5e2b8" kindref="member">FPGA_ACCELERATOR_UNASSIGNED</ref></highlight></codeline>
+<codeline lineno="98" refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbea35c1c5720c92650e289c592abfd5e2b8" refkind="member"><highlight class="normal">}<sp/><ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" kindref="member">fpga_accelerator_state</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="109" refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" kindref="member">FPGA_DEVICE</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7" kindref="member">FPGA_ACCELERATOR</ref></highlight></codeline>
+<codeline lineno="115" refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7" refkind="member"><highlight class="normal">}<sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="125" refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cbada6c2b32c7c5e8eba60cebe80b38355c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cbada6c2b32c7c5e8eba60cebe80b38355c" kindref="member">FPGA_IFC_DFL</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="128" refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba950d486b953b25fc8729fca05ea10962" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba950d486b953b25fc8729fca05ea10962" kindref="member">FPGA_IFC_VFIO</ref>,</highlight></codeline>
+<codeline lineno="131" refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba77bd30a60ce179d221303a4577d9ae17" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba77bd30a60ce179d221303a4577d9ae17" kindref="member">FPGA_IFC_SIM_DFL</ref>,</highlight></codeline>
+<codeline lineno="134" refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba6d64205e510545526e3b01ad672293da" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba6d64205e510545526e3b01ad672293da" kindref="member">FPGA_IFC_SIM_VFIO</ref>,</highlight></codeline>
+<codeline lineno="137" refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba47104e3152df9613560b18b507995691" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cba47104e3152df9613560b18b507995691" kindref="member">FPGA_IFC_UIO</ref>,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">}<sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145" refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5" kindref="member">fpga_buffer_flags</ref><sp/>{</highlight></codeline>
+<codeline lineno="146" refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5a625a9b51ada35d27da1079ff747d04db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5a625a9b51ada35d27da1079ff747d04db" kindref="member">FPGA_BUF_PREALLOCATED</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>0),<sp/></highlight></codeline>
+<codeline lineno="147" refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5abc99b8f3e50fb4eac1dbbeae4aca7957" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5abc99b8f3e50fb4eac1dbbeae4aca7957" kindref="member">FPGA_BUF_QUIET</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>1),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5ae69aa057dde55423090ab4f7b9f3c200" kindref="member">FPGA_BUF_READ_ONLY</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>2)<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="149" refid="types__enum_8h_1a99f1b7a7fb02d7fa8e5823749b9005e5ae69aa057dde55423090ab4f7b9f3c200" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156" refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6" kindref="member">fpga_open_flags</ref><sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" kindref="member">FPGA_OPEN_SHARED</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="159" refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7" kindref="member">fpga_reconf_flags</ref><sp/>{</highlight></codeline>
+<codeline lineno="168" refid="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7a3eb0a410afacbd5b85d308fc51fc8cd8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7a3eb0a410afacbd5b85d308fc51fc8cd8" kindref="member">FPGA_RECONF_FORCE</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>0),</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7a4e1616b36eedc9094a04666edcfa36f1" kindref="member">FPGA_RECONF_SKIP_USRCLK</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>1)</highlight></codeline>
+<codeline lineno="171" refid="types__enum_8h_1a9a4d903f00f7511b06eea9809d81aae7a4e1616b36eedc9094a04666edcfa36f1" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173" refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afb" kindref="member">fpga_sysobject_flags</ref><sp/>{</highlight></codeline>
+<codeline lineno="174" refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231" kindref="member">FPGA_OBJECT_SYNC</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>0),<sp/></highlight></codeline>
+<codeline lineno="175" refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" kindref="member">FPGA_OBJECT_GLOB</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>1),<sp/></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbacfaa8f881c5a8a3dd212e4fb4d070bf4" kindref="member">FPGA_OBJECT_RAW</ref><sp/>=</highlight></codeline>
+<codeline lineno="177" refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbacfaa8f881c5a8a3dd212e4fb4d070bf4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>2),<sp/></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbade8c9f9040403d5e7e08e3aede541844" kindref="member">FPGA_OBJECT_RECURSE_ONE</ref><sp/>=</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(1u</highlight></codeline>
+<codeline lineno="180" refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbade8c9f9040403d5e7e08e3aede541844" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>3),<sp/></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba33387b602459cddf06b3eeab96eca47b" kindref="member">FPGA_OBJECT_RECURSE_ALL</ref><sp/>=</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(1u</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>4)<sp/></highlight></codeline>
+<codeline lineno="184" refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba33387b602459cddf06b3eeab96eca47b" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" kindref="member">fpga_sysobject_type</ref><sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299a9fdf8108c74c6fd8dec16f3c1bd7b46c" kindref="member">FPGA_OBJECT_CONTAINER</ref><sp/>=</highlight></codeline>
+<codeline lineno="188" refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299a9fdf8108c74c6fd8dec16f3c1bd7b46c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>0),<sp/></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299ae05d85061319b15fc4fc8fbcbf6cf12c" kindref="member">FPGA_OBJECT_ATTRIBUTE</ref><sp/>=</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>1)<sp/></highlight></codeline>
+<codeline lineno="192" refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299ae05d85061319b15fc4fc8fbcbf6cf12c" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198" refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094" kindref="member">fpga_metric_type</ref><sp/>{</highlight></codeline>
+<codeline lineno="199" refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a19df4d36912e022021758321d7dfaca1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a19df4d36912e022021758321d7dfaca1" kindref="member">FPGA_METRIC_TYPE_POWER</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>power</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200" refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a1b615b52e8ec5f4339139567bcabd9d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a1b615b52e8ec5f4339139567bcabd9d0" kindref="member">FPGA_METRIC_TYPE_THERMAL</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>Thermal</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a0090631e9c7498fcb11d73aae843d4c0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094a0090631e9c7498fcb11d73aae843d4c0" kindref="member">FPGA_METRIC_TYPE_PERFORMANCE_CTR</ref>,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>Performance<sp/>counter</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202" refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094afcaecf93ad13bf9558197c925c87d6c2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094afcaecf93ad13bf9558197c925c87d6c2" kindref="member">FPGA_METRIC_TYPE_AFU</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>AFU</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094aeccc87ae6dc265c54200f71aad44d43b" kindref="member">FPGA_METRIC_TYPE_UNKNOWN</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Unknown</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204" refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094aeccc87ae6dc265c54200f71aad44d43b" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210" refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcc" kindref="member">fpga_metric_datatype</ref><sp/>{</highlight></codeline>
+<codeline lineno="211" refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca7e4011246e4e6ce4c62cbcd54c6b6446" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca7e4011246e4e6ce4c62cbcd54c6b6446" kindref="member">FPGA_METRIC_DATATYPE_INT</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>datatype<sp/>integer</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212" refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca42b7558a3659d44b5291a68329ac59ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca42b7558a3659d44b5291a68329ac59ba" kindref="member">FPGA_METRIC_DATATYPE_FLOAT</ref>,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>datatype<sp/>float</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213" refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca0ef125e071fb8bb97d89e083055b350a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca0ef125e071fb8bb97d89e083055b350a" kindref="member">FPGA_METRIC_DATATYPE_DOUBLE</ref>,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>datatype<sp/>double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214" refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca42af89cdb2fd1aaf8209950ff080a684" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcca42af89cdb2fd1aaf8209950ff080a684" kindref="member">FPGA_METRIC_DATATYPE_BOOL</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>datatype<sp/>bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bccad5f469dac4b7a5961008918926f399dc" kindref="member">FPGA_METRIC_DATATYPE_UNKNOWN</ref><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>datatype<sp/>unknown</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216" refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bccad5f469dac4b7a5961008918926f399dc" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__FPGA_TYPES_ENUM_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/types_enum.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,143 @@
+.TH "samples/hssi/hssi_afu.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/hssi/hssi_afu.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <exception>\fP
+.br
+\fC#include <glob\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBhssi_afu\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBETH_AFU_DFH\fP   0x0000"
+.br
+.ti -1c
+.RI "#define \fBETH_AFU_ID_L\fP   0x0008"
+.br
+.ti -1c
+.RI "#define \fBETH_AFU_ID_H\fP   0x0010"
+.br
+.ti -1c
+.RI "#define \fBTRAFFIC_CTRL_CMD\fP   0x0030"
+.br
+.ti -1c
+.RI "#define \fBTRAFFIC_CTRL_DATA\fP   0x0038"
+.br
+.ti -1c
+.RI "#define \fBTRAFFIC_CTRL_PORT_SEL\fP   0x0040"
+.br
+.ti -1c
+.RI "#define \fBAFU_SCRATCHPAD\fP   0x0048"
+.br
+.ti -1c
+.RI "#define \fBREAD_CMD\fP   0x00000001ULL"
+.br
+.ti -1c
+.RI "#define \fBWRITE_CMD\fP   0x00000002ULL"
+.br
+.ti -1c
+.RI "#define \fBACK_TRANS\fP   0x00000004ULL"
+.br
+.ti -1c
+.RI "#define \fBAFU_CMD_SHIFT\fP   32"
+.br
+.ti -1c
+.RI "#define \fBWRITE_DATA_SHIFT\fP   32"
+.br
+.ti -1c
+.RI "#define \fBNO_TIMEOUT\fP   0xffffffffffffffffULL"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBtest_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define ETH_AFU_DFH   0x0000"
+
+.PP
+Definition at line 38 of file hssi_afu\&.h\&.
+.SS "#define ETH_AFU_ID_L   0x0008"
+
+.PP
+Definition at line 39 of file hssi_afu\&.h\&.
+.SS "#define ETH_AFU_ID_H   0x0010"
+
+.PP
+Definition at line 40 of file hssi_afu\&.h\&.
+.SS "#define TRAFFIC_CTRL_CMD   0x0030"
+
+.PP
+Definition at line 41 of file hssi_afu\&.h\&.
+.SS "#define TRAFFIC_CTRL_DATA   0x0038"
+
+.PP
+Definition at line 42 of file hssi_afu\&.h\&.
+.SS "#define TRAFFIC_CTRL_PORT_SEL   0x0040"
+
+.PP
+Definition at line 43 of file hssi_afu\&.h\&.
+.SS "#define AFU_SCRATCHPAD   0x0048"
+
+.PP
+Definition at line 44 of file hssi_afu\&.h\&.
+.SS "#define READ_CMD   0x00000001ULL"
+
+.PP
+Definition at line 46 of file hssi_afu\&.h\&.
+.SS "#define WRITE_CMD   0x00000002ULL"
+
+.PP
+Definition at line 47 of file hssi_afu\&.h\&.
+.SS "#define ACK_TRANS   0x00000004ULL"
+
+.PP
+Definition at line 48 of file hssi_afu\&.h\&.
+.SS "#define AFU_CMD_SHIFT   32"
+
+.PP
+Definition at line 49 of file hssi_afu\&.h\&.
+.SS "#define WRITE_DATA_SHIFT   32"
+
+.PP
+Definition at line 50 of file hssi_afu\&.h\&.
+.SS "#define NO_TIMEOUT   0xffffffffffffffffULL"
+
+.PP
+Definition at line 52 of file hssi_afu\&.h\&.
+.SH "Typedef Documentation"
+.PP 
+.SS "using \fBtest_afu\fP =  \fBopae::afu_test::afu\fP"
+
+.PP
+Definition at line 35 of file hssi_afu\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

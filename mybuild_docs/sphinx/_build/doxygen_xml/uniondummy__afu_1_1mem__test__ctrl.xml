@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="uniondummy__afu_1_1mem__test__ctrl" kind="union" language="C++" prot="public">
+    <compoundname>dummy_afu::mem_test_ctrl</compoundname>
+    <includes refid="dummy__afu_8h" local="no">/root/samples/dummy_afu/dummy_afu.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="uniondummy__afu_1_1mem__test__ctrl_1ad4f50101bc511fd663c221f8384c10ce" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@66</name>
+        <enumvalue id="uniondummy__afu_1_1mem__test__ctrl_1ad4f50101bc511fd663c221f8384c10cead77d8b6de99fa585c67d093213b1a39e" prot="public">
+          <name>offset</name>
+          <initializer>= MEM_TEST_CTRL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="75" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="75" bodyend="77"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="uniondummy__afu_1_1mem__test__ctrl_1a9c14b3653f5071a114a11cda827847d3" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t dummy_afu::mem_test_ctrl::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="80" column="12" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="uniondummy__afu_1_1mem__test__ctrl_1a7d7cb67f69f90115b6a44fd5270f6849" prot="public" static="no" mutable="no">
+        <type>struct dummy_afu::mem_test_ctrl::@67</type>
+        <definition>struct dummy_afu::mem_test_ctrl::@67 dummy_afu::mem_test_ctrl::@68</definition>
+        <argsstring></argsstring>
+        <name>@68</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="84" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="uniondummy__afu_1_1mem__test__ctrl_1a0d74ae4d2ec938b7ba7cd49b2ef5828a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>dummy_afu::mem_test_ctrl::mem_test_ctrl</definition>
+        <argsstring>(uint64_t v)</argsstring>
+        <name>mem_test_ctrl</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="79" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="79" bodyend="79"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::mem_test_ctrl</label>
+        <link refid="uniondummy__afu_1_1mem__test__ctrl"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="74" column="1" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="74" bodyend="85"/>
+    <listofallmembers>
+      <member refid="uniondummy__afu_1_1mem__test__ctrl_1a0d74ae4d2ec938b7ba7cd49b2ef5828a" prot="public" virt="non-virtual"><scope>dummy_afu::mem_test_ctrl</scope><name>mem_test_ctrl</name></member>
+      <member refid="uniondummy__afu_1_1mem__test__ctrl_1ad4f50101bc511fd663c221f8384c10cead77d8b6de99fa585c67d093213b1a39e" prot="public" virt="non-virtual"><scope>dummy_afu::mem_test_ctrl</scope><name>offset</name></member>
+      <member refid="uniondummy__afu_1_1mem__test__ctrl_1a9c14b3653f5071a114a11cda827847d3" prot="public" virt="non-virtual"><scope>dummy_afu::mem_test_ctrl</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

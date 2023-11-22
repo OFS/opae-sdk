@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unioncxl__mem__tg_1_1mem__tg__status" kind="union" language="C++" prot="public">
+    <compoundname>cxl_mem_tg::mem_tg_status</compoundname>
+    <includes refid="cxl__mem__tg_8h" local="no">/root/samples/cxl_mem_tg/cxl_mem_tg.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unioncxl__mem__tg_1_1mem__tg__status_1ac8b6a489b14ba2987089db65edb906d4" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@53</name>
+        <enumvalue id="unioncxl__mem__tg_1_1mem__tg__status_1ac8b6a489b14ba2987089db65edb906d4a7fe5ab5b3039f80443210df5817b5b19" prot="public">
+          <name>offset</name>
+          <initializer>= MEM_TG_STAT</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="153" column="3" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="153" bodyend="153"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unioncxl__mem__tg_1_1mem__tg__status_1a8d3557bfa4cdee21e16f8c81f8e916ad" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::mem_tg_status::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="154" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unioncxl__mem__tg_1_1mem__tg__status_1a9def3c8e68611ab0545a6c9dbabb8a88" prot="public" static="no" mutable="no">
+        <type>struct cxl_mem_tg::mem_tg_status::@54</type>
+        <definition>struct cxl_mem_tg::mem_tg_status::@54 cxl_mem_tg::mem_tg_status::@55</definition>
+        <argsstring></argsstring>
+        <name>@55</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="161" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>cxl_mem_tg::mem_tg_status</label>
+        <link refid="unioncxl__mem__tg_1_1mem__tg__status"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="152" column="1" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="152" bodyend="162"/>
+    <listofallmembers>
+      <member refid="unioncxl__mem__tg_1_1mem__tg__status_1ac8b6a489b14ba2987089db65edb906d4a7fe5ab5b3039f80443210df5817b5b19" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status</scope><name>offset</name></member>
+      <member refid="unioncxl__mem__tg_1_1mem__tg__status_1a8d3557bfa4cdee21e16f8c81f8e916ad" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_status</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

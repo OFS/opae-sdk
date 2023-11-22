@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ofs.uio &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="prev" title="vabtool" href="../vabtool/vabtool.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ofs.uio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options">OPTIONS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#peek">Peek</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#poke">Poke</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mailbox-read">Mailbox Read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mailbox-write">Mailbox Write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mailbox-dump">Mailbox Dump</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bit-size">Bit size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcie-address">PCIe Address</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uio-region-index">UIO region index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mailbox-command-status-csr-offset">Mailbox command status csr offset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>ofs.uio</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/ofs.uio/ofs.uio.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ofs-uio">
+<h1>ofs.uio<a class="headerlink" href="#ofs-uio" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[-h]</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--uio</span> <span class="pre">uiox]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--region-index</span> <span class="pre">REGION_INDEX]</span> <span class="pre">[--mailbox-cmdcsr</span> <span class="pre">offset]</span> <span class="pre">[--bit-size</span> <span class="pre">{8,16,32,64}]</span> <span class="pre">[--peek</span> <span class="pre">offset]</span> <span class="pre">[--poke</span> <span class="pre">offset</span> <span class="pre">value]</span> <span class="pre">[--mailbox-read</span> <span class="pre">offset]</span> <span class="pre">[--mailbox-dump</span> <span class="pre">address</span> <span class="pre">size]</span> <span class="pre">[--mailbox-write</span> <span class="pre">address</span> <span class="pre">value]</span></code><br></p>
+<p><code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uiox]</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uiox]</span> <span class="pre">[--poke</span> <span class="pre">offset</span> <span class="pre">value]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uiox]</span> <span class="pre">[--mailbox-read</span> <span class="pre">address]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uiox]</span> <span class="pre">[--mailbox-write</span> <span class="pre">address</span> <span class="pre">value]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uiox]</span> <span class="pre">[--mailbox-dump</span> <span class="pre">address</span> <span class="pre">size]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--poke</span> <span class="pre">offset</span> <span class="pre">value]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--mailbox-read</span> <span class="pre">address]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--mailbox-write</span> <span class="pre">address</span> <span class="pre">value]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--mailbox-dump</span> <span class="pre">address</span> <span class="pre">size]</span> </code><br></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ofs.uio</span></code> is a tool that provides user space access to DFL UIO devices,
+command line options like peek, poke, mailbox-read, mailbox-write, mailbox-dump to
+access Configuration and Status Registers (CSRs).</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="peek">
+<h3>Peek<a class="headerlink" href="#peek" title="Permalink to this headline">¶</a></h3>
+<p>Peek/Read UIO CSR offset<br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br></p>
+</div>
+<div class="section" id="poke">
+<h3>Poke<a class="headerlink" href="#poke" title="Permalink to this headline">¶</a></h3>
+<p>Poke/Write value to UIO CSR offset<br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">[--poke</span> <span class="pre">offset</span> <span class="pre">value]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--poke</span> <span class="pre">offset</span> <span class="pre">value]</span> </code><br></p>
+</div>
+<div class="section" id="mailbox-read">
+<h3>Mailbox Read<a class="headerlink" href="#mailbox-read" title="Permalink to this headline">¶</a></h3>
+<p>Read CSR address using mailbox<br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">[--mailbox-read</span> <span class="pre">address]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--mailbox-read</span> <span class="pre">address]</span> </code><br></p>
+</div>
+<div class="section" id="mailbox-write">
+<h3>Mailbox Write<a class="headerlink" href="#mailbox-write" title="Permalink to this headline">¶</a></h3>
+<p>Write value to CSR address using mailbox <br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">[--mailbox-write</span> <span class="pre">address</span> <span class="pre">value]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--mailbox-write</span> <span class="pre">address</span> <span class="pre">value]</span> </code><br></p>
+</div>
+<div class="section" id="mailbox-dump">
+<h3>Mailbox Dump<a class="headerlink" href="#mailbox-dump" title="Permalink to this headline">¶</a></h3>
+<p>Reads/Dumps block size of CSR address using mailbox<br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">[--mailbox-dump</span> <span class="pre">address</span> <span class="pre">size]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--mailbox-dump</span> <span class="pre">address</span> <span class="pre">size]</span> </code><br></p>
+</div>
+<div class="section" id="bit-size">
+<h3>Bit size<a class="headerlink" href="#bit-size" title="Permalink to this headline">¶</a></h3>
+<p>Read/Write bit-field 8,16,32,64 sizes<br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">--bit-size</span> <span class="pre">8</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">--bit-size</span> <span class="pre">32</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br></p>
+</div>
+<div class="section" id="pcie-address">
+<h3>PCIe Address<a class="headerlink" href="#pcie-address" title="Permalink to this headline">¶</a></h3>
+<p>PCIE_ADDR PCIe address of FPGA device<br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br></p>
+</div>
+<div class="section" id="uio-region-index">
+<h3>UIO region index<a class="headerlink" href="#uio-region-index" title="Permalink to this headline">¶</a></h3>
+<p>UIO region index, default region index is 0 <br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">--region-index</span> <span class="pre">0</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">--region-index</span> <span class="pre">1</span> <span class="pre">[--peek</span> <span class="pre">offset]</span></code><br></p>
+</div>
+<div class="section" id="mailbox-command-status-csr-offset">
+<h3>Mailbox command status csr offset<a class="headerlink" href="#mailbox-command-status-csr-offset" title="Permalink to this headline">¶</a></h3>
+<p>Mailbox command status csr offset,
+default value set to dfl pcie subsystem system feature mailbox command status register offset 0x28 <br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--uio</span> <span class="pre">uio]</span> <span class="pre">--mailbox-cmdcsr</span> <span class="pre">0xa8</span> <span class="pre">[--mailbox-read</span> <span class="pre">address]</span> </code><br>
+<code class="docutils literal notranslate"><span class="pre">ofs.uio</span> <span class="pre">[--pcie-address</span> <span class="pre">PCIE_ADDRESS]</span> <span class="pre">[--feature-id</span> <span class="pre">FEATURE_ID]</span> <span class="pre">--mailbox-cmdcsr</span> <span class="pre">0xa8</span>&#160; <span class="pre">[--mailbox-read</span> <span class="pre">address]</span> </code><br></p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Peek/Read</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio0</span><span class="w"> </span><span class="o">--</span><span class="n">peek</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">peek</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x3000000010002015</span>
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">peek</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">peek</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x3000000100000020</span>
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x15</span><span class="w"> </span><span class="o">--</span><span class="n">peek</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">peek</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x3000000010002015</span>
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio0</span><span class="w"> </span><span class="o">--</span><span class="n">peek</span><span class="w"> </span><span class="mh">0x0</span><span class="w"> </span><span class="o">--</span><span class="n">bit</span><span class="o">-</span><span class="n">size</span><span class="w"> </span><span class="mi">32</span>
+<span class="n">peek</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x10002015</span>
+</pre></div>
+</div>
+<p>Poke/Write</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">peek</span><span class="w"> </span><span class="mh">0x8</span>
+<span class="n">peek</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">poke</span><span class="w">  </span><span class="mh">0x8</span><span class="w"> </span><span class="mh">0xabcdd12345</span>
+<span class="n">poke</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="mh">0xabcdd12345</span>
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x15</span><span class="w"> </span><span class="o">--</span><span class="n">peek</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">peek</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x15</span><span class="w"> </span><span class="o">--</span><span class="n">poke</span><span class="w">  </span><span class="mh">0x8</span><span class="w"> </span><span class="mh">0x1234</span>
+<span class="n">poke</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="mh">0x1234</span>
+</pre></div>
+</div>
+<p>Mailbox Read</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">read</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxRead</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x1000000</span>
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">read</span><span class="w"> </span><span class="mh">0x8</span>
+<span class="n">MailboxRead</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x110c000</span>
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x20</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">read</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxRead</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x1000000</span>
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x20</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">read</span><span class="w"> </span><span class="mh">0x8</span><span class="w"> </span>
+<span class="n">MailboxRead</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x110c000</span>
+</pre></div>
+</div>
+<p>Mailbox Write</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">write</span><span class="w"> </span><span class="mh">0x0</span><span class="w"> </span><span class="mh">0x1234</span>
+<span class="n">MailboxWrite</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="mh">0x1234</span>
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">read</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxRead</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="mh">0x1234</span>
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x20</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">write</span><span class="w"> </span><span class="mh">0x0</span><span class="w"> </span><span class="mh">0x1234</span>
+<span class="n">MailboxWrite</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="mh">0x1234</span>
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x20</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">read</span><span class="w"> </span><span class="mh">0x0</span><span class="w"> </span>
+<span class="n">MailboxRead</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="mh">0x1234</span>
+</pre></div>
+</div>
+<p>Mailbox Dump</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">uio</span><span class="w"> </span><span class="n">uio6</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">dump</span><span class="w"> </span><span class="mh">0x0</span><span class="w"> </span><span class="mh">0x10</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x1000000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x4</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x1000000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x110c000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0xc</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x110c000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x10</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x14</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x18</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x1c</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x20</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x24</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x28</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x2c</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x34</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x38</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x3c</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+
+
+
+<span class="n">ofs</span><span class="p">.</span><span class="n">uio</span><span class="w"> </span><span class="o">--</span><span class="n">pcie</span><span class="o">-</span><span class="n">address</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="o">--</span><span class="n">feature</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="mh">0x20</span><span class="w"> </span><span class="o">--</span><span class="n">mailbox</span><span class="o">-</span><span class="n">dump</span><span class="w"> </span><span class="mh">0x0</span><span class="w"> </span><span class="mh">0x10</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x1000000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x4</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x1000000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x110c000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0xc</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x110c000</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x10</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x14</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x18</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x1c</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x20</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x24</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x28</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x2c</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x34</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x38</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+<span class="n">MailboxDump</span><span class="p">(</span><span class="mh">0x3c</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="mh">0x0</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>Document Version | Intel Acceleration Stack Version | Changes
+—————–|———————————-|——–
+2021.01.25 | IOFS EA | Initial release.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../vabtool/vabtool.html" class="btn btn-neutral float-left" title="vabtool" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

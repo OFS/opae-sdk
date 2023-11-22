@@ -1,0 +1,51 @@
+.TH "include/opae/utils.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/utils.h \- Utility functions and macros for the FPGA API\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBfpgaErrStr\fP (\fBfpga_result\fP e)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Utility functions and macros for the FPGA API\&. 
+
+
+.PP
+Definition in file \fButils\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "const char* fpgaErrStr (\fBfpga_result\fP e)"
+Return human-readable error message
+.PP
+Returns a pointer to a human-readable error message corresponding to the provided fpga_error error code\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIe\fP Error code (as returned by another FPGA API function 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Pointer to a descriptive error message string 
+.RE
+.PP
+
+.PP
+Referenced by fpga_banks(), fpga_base(), fpga_close(), fpga_open(), fpga_set_switch(), fpga_start(), fpga_stop(), fpga_test_ddr_directed(), fpga_test_ddr_prbs(), fpga_test_esram(), fpga_test_hbm(), fpga_test_qdr(), fpga_wait(), main(), parse_args(), and print_err()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,3 @@
+repository='https://github.com/CLIUtils/CLI11.git'
+module=''
+tag='origin'

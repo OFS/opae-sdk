@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="cxx_2core_2sysobject_8h" kind="file" language="C++">
+    <compoundname>sysobject.h</compoundname>
+    <includes refid="handle_8h" local="no">opae/cxx/core/handle.h</includes>
+    <includes refid="token_8h" local="no">opae/cxx/core/token.h</includes>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">vector</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2">
+        <label>opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>cstdint</label>
+      </node>
+      <node id="6">
+        <label>stdint.h</label>
+      </node>
+      <node id="16">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="24">
+        <label>map</label>
+      </node>
+      <node id="18">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="14">
+        <label>exception</label>
+      </node>
+      <node id="7">
+        <label>stddef.h</label>
+      </node>
+      <node id="12">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/cxx/core/sysobject.h</label>
+        <link refid="cxx_2core_2sysobject_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>vector</label>
+      </node>
+      <node id="20">
+        <label>array</label>
+      </node>
+      <node id="15">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>iostream</label>
+      </node>
+      <node id="27">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>type_traits</label>
+      </node>
+      <node id="19">
+        <label>algorithm</label>
+      </node>
+      <node id="17">
+        <label>stdio.h</label>
+      </node>
+      <node id="21">
+        <label>cstring</label>
+      </node>
+      <node id="25">
+        <label>memory</label>
+      </node>
+      <node id="11">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="classopae_1_1fpga_1_1types_1_1sysobject" prot="public">opae::fpga::types::sysobject</innerclass>
+    <innernamespace refid="namespaceopae">opae</innernamespace>
+    <innernamespace refid="namespaceopae_1_1fpga">opae::fpga</innernamespace>
+    <innernamespace refid="namespaceopae_1_1fpga_1_1types">opae::fpga::types</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2018,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="handle_8h" kindref="compound">opae/cxx/core/handle.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="token_8h" kindref="compound">opae/cxx/core/token.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types_8h" kindref="compound">opae/types.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceopae" kindref="compound">opae</ref><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceopae_1_1fpga_1_1types" kindref="compound">fpga</ref><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">types<sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="classopae_1_1fpga_1_1types_1_1sysobject" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;sysobject&gt;<sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">ptr_t</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a113c998356671d5e03d526b8c1c8e5aa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a113c998356671d5e03d526b8c1c8e5aa" kindref="member">sysobject</ref>()<sp/>=<sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classopae_1_1fpga_1_1types_1_1sysobject_1ac687a5693b259d5e0390361225e999fc" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1ac687a5693b259d5e0390361225e999fc" kindref="member">sysobject</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref><sp/>&amp;o)<sp/>=<sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="classopae_1_1fpga_1_1types_1_1sysobject_1adf8b59f15dbd3d4514e0397cf5133a07" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref><sp/>&amp;<ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1adf8b59f15dbd3d4514e0397cf5133a07" kindref="member">operator=</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref><sp/>&amp;o)<sp/>=<sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="classopae_1_1fpga_1_1types_1_1sysobject_1af82679125fec13b5731ab619808f2ccb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1af82679125fec13b5731ab619808f2ccb" kindref="member">get</ref>(<ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref><sp/>t,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string<sp/>&amp;name,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a91b4775d5e1d6520ce6fba54db990bb7" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a91b4775d5e1d6520ce6fba54db990bb7" kindref="member">get</ref>(<ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref><sp/>h,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string<sp/>&amp;name,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a8722a8fdb2c7de416e8f47280d1c1888" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a8722a8fdb2c7de416e8f47280d1c1888" kindref="member">get</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string<sp/>&amp;name,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classopae_1_1fpga_1_1types_1_1sysobject_1afdbd6396094b0c1c274fa64c18c88119" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1afdbd6396094b0c1c274fa64c18c88119" kindref="member">get</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a8f86033c1116397d837a2b6a92ddbbf4" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a8f86033c1116397d837a2b6a92ddbbf4" kindref="member">~sysobject</ref>();</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="classopae_1_1fpga_1_1types_1_1sysobject_1ae9374e6aa30648d2c364888bed55c71f" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1ae9374e6aa30648d2c364888bed55c71f" kindref="member">size</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a4120492ac81789a245d8384497a4d374" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a4120492ac81789a245d8384497a4d374" kindref="member">read64</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a71b53fc73a644e490252f57e28939618" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a71b53fc73a644e490252f57e28939618" kindref="member">write64</ref>(uint64_t<sp/>value,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a119935a32c66e6a6d3e7e700a3181863" refkind="member"><highlight class="normal"><sp/><sp/>std::vector&lt;uint8_t&gt;<sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a119935a32c66e6a6d3e7e700a3181863" kindref="member">bytes</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a9e248a37ffa6f6f33fd50d5d81b7b90d" refkind="member"><highlight class="normal"><sp/><sp/>std::vector&lt;uint8_t&gt;<sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a9e248a37ffa6f6f33fd50d5d81b7b90d" kindref="member">bytes</ref>(uint32_t<sp/>offset,<sp/>uint32_t<sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1ae9374e6aa30648d2c364888bed55c71f" kindref="member">size</ref>,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>=<sp/>0)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" kindref="member">fpga_sysobject_type</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1af16b5a7266e18ac298884f72f4a941a3" kindref="member">type</ref>()<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a13b45599ddc9e902bf6cfabf20e02768" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a13b45599ddc9e902bf6cfabf20e02768" kindref="member">c_type</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" kindref="member">sysobject_</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="classopae_1_1fpga_1_1types_1_1sysobject_1ac1cb2fa7b43facfdbc70d5a033e394c1" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">operator</highlight><highlight class="normal"><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" kindref="member">sysobject_</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="192" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a152cbb0823356ecb633b295a2c45fd43" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a152cbb0823356ecb633b295a2c45fd43" kindref="member">sysobject</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>sysobj,<sp/><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1token" kindref="compound">token</ref>,<sp/><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref><sp/>hnd);</highlight></codeline>
+<codeline lineno="193" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" kindref="member">sysobject_</ref>;</highlight></codeline>
+<codeline lineno="194" refid="classopae_1_1fpga_1_1types_1_1sysobject_1a9b4075f8e189e37c5992f724dc7380b4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a9b4075f8e189e37c5992f724dc7380b4" kindref="member">token_</ref>;</highlight></codeline>
+<codeline lineno="195" refid="classopae_1_1fpga_1_1types_1_1sysobject_1acb5d249e9d682ef0f228a0296b7fe851" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1acb5d249e9d682ef0f228a0296b7fe851" kindref="member">handle_</ref>;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>types</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>fpga</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>opae</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/cxx/core/sysobject.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,304 @@
+\doxysection{samples/hssi/hssi\+\_\+10g\+\_\+cmd.h File Reference}
+\label{hssi__10g__cmd_8h}\index{samples/hssi/hssi\_10g\_cmd.h@{samples/hssi/hssi\_10g\_cmd.h}}
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+cmd.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classhssi__10g__cmd}{hssi\+\_\+10g\+\_\+cmd}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_af40e5b66e5d16497e47e8b10fc7e9a44}{CSR\+\_\+\+NUM\+\_\+\+PACKETS}}~0x3c00
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a24b333e7caef952009c18ad2e26badce}{CSR\+\_\+\+RANDOM\+\_\+\+LENGTH}}~0x3c01
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_acf50e8198c1decdb5f3264099db2fea8}{CSR\+\_\+\+RANDOM\+\_\+\+PAYLOAD}}~0x3c02
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a2154daea96bd7d69f410acb711d86b03}{CSR\+\_\+\+START}}~0x3c03
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_afae4a4b81a4217f713ed1aab257fbc31}{CSR\+\_\+\+STOP}}~0x3c04
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a59ea99e840facf8745bcaa0b2e00886e}{CSR\+\_\+\+SRC\+\_\+\+ADDR0}}~0x3c05
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_af7bf5ece5127db0085135197d0d40436}{CSR\+\_\+\+SRC\+\_\+\+ADDR1}}~0x3c06
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a2c69118ddfb7e4103b35f7730c1a57b9}{CSR\+\_\+\+DEST\+\_\+\+ADDR0}}~0x3c07
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_aa9a5a168e6cb93107ba02389bd91a117}{CSR\+\_\+\+DEST\+\_\+\+ADDR1}}~0x3c08
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a313cf0cae4a33761d5d25dc87b871445}{CSR\+\_\+\+PACKET\+\_\+\+TX\+\_\+\+COUNT}}~0x3c09
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a1ce90b64e0156aaf617121855559acd7}{CSR\+\_\+\+RND\+\_\+\+SEED0}}~0x3c0a
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a204070435ba257c6b00152dee5e73ea4}{CSR\+\_\+\+RND\+\_\+\+SEED1}}~0x3c0b
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a002555ad38e153b807633299fa9d672c}{CSR\+\_\+\+RND\+\_\+\+SEED2}}~0x3c0c
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a9015b2280acc5e2d1e518f764b9e754b}{CSR\+\_\+\+PACKET\+\_\+\+LENGTH}}~0x3c0d
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a7188a68123d2f47bc0b80a47c80e9496}{CSR\+\_\+\+TX\+\_\+\+STA\+\_\+\+TSTAMP}}~0x3cf4
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a6486622d431be951809ba69f98b916ac}{CSR\+\_\+\+TX\+\_\+\+END\+\_\+\+TSTAMP}}~0x3cf5
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a73e849a9472ea96b16645083c5f71544}{CSR\+\_\+\+NUM\+\_\+\+PKT}}~0x3d00
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a4ea062053ff71409ce9535f3e35546a6}{CSR\+\_\+\+PKT\+\_\+\+GOOD}}~0x3d01
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a4dbb799ec3d5b286fda4e3251029925f}{CSR\+\_\+\+PKT\+\_\+\+BAD}}~0x3d02
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_ad95d174ae6c1a6d25aba40f36403bbab}{CSR\+\_\+\+AVST\+\_\+\+RX\+\_\+\+ERR}}~0x3d07
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a0e6c344157d3583b61ca93c43e09ed1b}{CSR\+\_\+\+RX\+\_\+\+STA\+\_\+\+TSTAMP}}~0x3d0b
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a3f6ae7720cd10eaa8ddbb8adf7d566d9}{CSR\+\_\+\+RX\+\_\+\+END\+\_\+\+TSTAMP}}~0x3d0c
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a9d63f6ba744592cdac940e37951018c9}{CSR\+\_\+\+MAC\+\_\+\+LOOP}}~0x3e00
+\item 
+\#define \mbox{\hyperlink{hssi__10g__cmd_8h_a6f07d0094e837d61131ab0b3aa8ab1fc}{INVALID\+\_\+\+PORT}}~99
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{hssi__10g__cmd_8h_af40e5b66e5d16497e47e8b10fc7e9a44}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_NUM\_PACKETS@{CSR\_NUM\_PACKETS}}
+\index{CSR\_NUM\_PACKETS@{CSR\_NUM\_PACKETS}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_NUM\_PACKETS}{CSR\_NUM\_PACKETS}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+NUM\+\_\+\+PACKETS~0x3c00}
+
+
+
+Definition at line 31 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a24b333e7caef952009c18ad2e26badce}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RANDOM\_LENGTH@{CSR\_RANDOM\_LENGTH}}
+\index{CSR\_RANDOM\_LENGTH@{CSR\_RANDOM\_LENGTH}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RANDOM\_LENGTH}{CSR\_RANDOM\_LENGTH}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RANDOM\+\_\+\+LENGTH~0x3c01}
+
+
+
+Definition at line 32 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_acf50e8198c1decdb5f3264099db2fea8}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RANDOM\_PAYLOAD@{CSR\_RANDOM\_PAYLOAD}}
+\index{CSR\_RANDOM\_PAYLOAD@{CSR\_RANDOM\_PAYLOAD}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RANDOM\_PAYLOAD}{CSR\_RANDOM\_PAYLOAD}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RANDOM\+\_\+\+PAYLOAD~0x3c02}
+
+
+
+Definition at line 33 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a2154daea96bd7d69f410acb711d86b03}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_START@{CSR\_START}}
+\index{CSR\_START@{CSR\_START}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_START}{CSR\_START}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+START~0x3c03}
+
+
+
+Definition at line 34 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_afae4a4b81a4217f713ed1aab257fbc31}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_STOP@{CSR\_STOP}}
+\index{CSR\_STOP@{CSR\_STOP}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STOP}{CSR\_STOP}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STOP~0x3c04}
+
+
+
+Definition at line 35 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a59ea99e840facf8745bcaa0b2e00886e}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_SRC\_ADDR0@{CSR\_SRC\_ADDR0}}
+\index{CSR\_SRC\_ADDR0@{CSR\_SRC\_ADDR0}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_SRC\_ADDR0}{CSR\_SRC\_ADDR0}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+SRC\+\_\+\+ADDR0~0x3c05}
+
+
+
+Definition at line 36 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_af7bf5ece5127db0085135197d0d40436}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_SRC\_ADDR1@{CSR\_SRC\_ADDR1}}
+\index{CSR\_SRC\_ADDR1@{CSR\_SRC\_ADDR1}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_SRC\_ADDR1}{CSR\_SRC\_ADDR1}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+SRC\+\_\+\+ADDR1~0x3c06}
+
+
+
+Definition at line 37 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a2c69118ddfb7e4103b35f7730c1a57b9}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_DEST\_ADDR0@{CSR\_DEST\_ADDR0}}
+\index{CSR\_DEST\_ADDR0@{CSR\_DEST\_ADDR0}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_DEST\_ADDR0}{CSR\_DEST\_ADDR0}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+DEST\+\_\+\+ADDR0~0x3c07}
+
+
+
+Definition at line 38 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_aa9a5a168e6cb93107ba02389bd91a117}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_DEST\_ADDR1@{CSR\_DEST\_ADDR1}}
+\index{CSR\_DEST\_ADDR1@{CSR\_DEST\_ADDR1}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_DEST\_ADDR1}{CSR\_DEST\_ADDR1}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+DEST\+\_\+\+ADDR1~0x3c08}
+
+
+
+Definition at line 39 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a313cf0cae4a33761d5d25dc87b871445}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_PACKET\_TX\_COUNT@{CSR\_PACKET\_TX\_COUNT}}
+\index{CSR\_PACKET\_TX\_COUNT@{CSR\_PACKET\_TX\_COUNT}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_PACKET\_TX\_COUNT}{CSR\_PACKET\_TX\_COUNT}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+PACKET\+\_\+\+TX\+\_\+\+COUNT~0x3c09}
+
+
+
+Definition at line 40 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a1ce90b64e0156aaf617121855559acd7}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RND\_SEED0@{CSR\_RND\_SEED0}}
+\index{CSR\_RND\_SEED0@{CSR\_RND\_SEED0}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RND\_SEED0}{CSR\_RND\_SEED0}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RND\+\_\+\+SEED0~0x3c0a}
+
+
+
+Definition at line 41 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a204070435ba257c6b00152dee5e73ea4}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RND\_SEED1@{CSR\_RND\_SEED1}}
+\index{CSR\_RND\_SEED1@{CSR\_RND\_SEED1}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RND\_SEED1}{CSR\_RND\_SEED1}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RND\+\_\+\+SEED1~0x3c0b}
+
+
+
+Definition at line 42 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a002555ad38e153b807633299fa9d672c}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RND\_SEED2@{CSR\_RND\_SEED2}}
+\index{CSR\_RND\_SEED2@{CSR\_RND\_SEED2}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RND\_SEED2}{CSR\_RND\_SEED2}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RND\+\_\+\+SEED2~0x3c0c}
+
+
+
+Definition at line 43 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a9015b2280acc5e2d1e518f764b9e754b}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_PACKET\_LENGTH@{CSR\_PACKET\_LENGTH}}
+\index{CSR\_PACKET\_LENGTH@{CSR\_PACKET\_LENGTH}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_PACKET\_LENGTH}{CSR\_PACKET\_LENGTH}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+PACKET\+\_\+\+LENGTH~0x3c0d}
+
+
+
+Definition at line 44 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a7188a68123d2f47bc0b80a47c80e9496}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_TX\_STA\_TSTAMP@{CSR\_TX\_STA\_TSTAMP}}
+\index{CSR\_TX\_STA\_TSTAMP@{CSR\_TX\_STA\_TSTAMP}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_TX\_STA\_TSTAMP}{CSR\_TX\_STA\_TSTAMP}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+TX\+\_\+\+STA\+\_\+\+TSTAMP~0x3cf4}
+
+
+
+Definition at line 45 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a6486622d431be951809ba69f98b916ac}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_TX\_END\_TSTAMP@{CSR\_TX\_END\_TSTAMP}}
+\index{CSR\_TX\_END\_TSTAMP@{CSR\_TX\_END\_TSTAMP}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_TX\_END\_TSTAMP}{CSR\_TX\_END\_TSTAMP}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+TX\+\_\+\+END\+\_\+\+TSTAMP~0x3cf5}
+
+
+
+Definition at line 46 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a73e849a9472ea96b16645083c5f71544}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_NUM\_PKT@{CSR\_NUM\_PKT}}
+\index{CSR\_NUM\_PKT@{CSR\_NUM\_PKT}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_NUM\_PKT}{CSR\_NUM\_PKT}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+NUM\+\_\+\+PKT~0x3d00}
+
+
+
+Definition at line 48 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a4ea062053ff71409ce9535f3e35546a6}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_PKT\_GOOD@{CSR\_PKT\_GOOD}}
+\index{CSR\_PKT\_GOOD@{CSR\_PKT\_GOOD}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_PKT\_GOOD}{CSR\_PKT\_GOOD}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+PKT\+\_\+\+GOOD~0x3d01}
+
+
+
+Definition at line 49 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a4dbb799ec3d5b286fda4e3251029925f}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_PKT\_BAD@{CSR\_PKT\_BAD}}
+\index{CSR\_PKT\_BAD@{CSR\_PKT\_BAD}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_PKT\_BAD}{CSR\_PKT\_BAD}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+PKT\+\_\+\+BAD~0x3d02}
+
+
+
+Definition at line 50 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_ad95d174ae6c1a6d25aba40f36403bbab}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_AVST\_RX\_ERR@{CSR\_AVST\_RX\_ERR}}
+\index{CSR\_AVST\_RX\_ERR@{CSR\_AVST\_RX\_ERR}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_AVST\_RX\_ERR}{CSR\_AVST\_RX\_ERR}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+AVST\+\_\+\+RX\+\_\+\+ERR~0x3d07}
+
+
+
+Definition at line 51 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a0e6c344157d3583b61ca93c43e09ed1b}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RX\_STA\_TSTAMP@{CSR\_RX\_STA\_TSTAMP}}
+\index{CSR\_RX\_STA\_TSTAMP@{CSR\_RX\_STA\_TSTAMP}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RX\_STA\_TSTAMP}{CSR\_RX\_STA\_TSTAMP}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RX\+\_\+\+STA\+\_\+\+TSTAMP~0x3d0b}
+
+
+
+Definition at line 52 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a3f6ae7720cd10eaa8ddbb8adf7d566d9}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_RX\_END\_TSTAMP@{CSR\_RX\_END\_TSTAMP}}
+\index{CSR\_RX\_END\_TSTAMP@{CSR\_RX\_END\_TSTAMP}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_RX\_END\_TSTAMP}{CSR\_RX\_END\_TSTAMP}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+RX\+\_\+\+END\+\_\+\+TSTAMP~0x3d0c}
+
+
+
+Definition at line 53 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a9d63f6ba744592cdac940e37951018c9}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!CSR\_MAC\_LOOP@{CSR\_MAC\_LOOP}}
+\index{CSR\_MAC\_LOOP@{CSR\_MAC\_LOOP}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_MAC\_LOOP}{CSR\_MAC\_LOOP}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+MAC\+\_\+\+LOOP~0x3e00}
+
+
+
+Definition at line 55 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__10g__cmd_8h_a6f07d0094e837d61131ab0b3aa8ab1fc}} 
+\index{hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}!INVALID\_PORT@{INVALID\_PORT}}
+\index{INVALID\_PORT@{INVALID\_PORT}!hssi\_10g\_cmd.h@{hssi\_10g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{INVALID\_PORT}{INVALID\_PORT}}
+{\footnotesize\ttfamily \#define INVALID\+\_\+\+PORT~99}
+
+
+
+Definition at line 57 of file hssi\+\_\+10g\+\_\+cmd.\+h.
+

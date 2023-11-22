@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__device" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_device</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__device_1a5567cac847af54d1b68cd11de6d9071a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae_vfio_device::device_fd</definition>
+        <argsstring></argsstring>
+        <name>device_fd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Device file descriptor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="122" column="5" bodyfile="include/opae/vfio.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device_1a484988f748aa324957a2046bc2590e10" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t opae_vfio_device::device_config_offset</definition>
+        <argsstring></argsstring>
+        <name>device_config_offset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Offset of PCIe config space. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="123" column="10" bodyfile="include/opae/vfio.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device_1ad9ca3ae45cd69d3eec04297820c98db4" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_device::device_num_regions</definition>
+        <argsstring></argsstring>
+        <name>device_num_regions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Total MMIO region count. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="124" column="10" bodyfile="include/opae/vfio.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device_1ab45bac066081e611b23ff38c90ab6f26" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__device__region" kindref="compound">opae_vfio_device_region</ref> *</type>
+        <definition>struct opae_vfio_device_region* opae_vfio_device::regions</definition>
+        <argsstring></argsstring>
+        <name>regions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Region list pointer. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="125" column="30" bodyfile="include/opae/vfio.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device_1ad4fc938dbf2c96ea60222912b4ed72ca" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_device::device_num_irqs</definition>
+        <argsstring></argsstring>
+        <name>device_num_irqs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IRQ index count. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="126" column="10" bodyfile="include/opae/vfio.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device_1a491523e147d7ae93d48b49d713bdce7c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__device__irq" kindref="compound">opae_vfio_device_irq</ref> *</type>
+        <definition>struct opae_vfio_device_irq* opae_vfio_device::irqs</definition>
+        <argsstring></argsstring>
+        <name>irqs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IRQ list pointer. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="127" column="27" bodyfile="include/opae/vfio.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>VFIO device</para>
+<para>Each VFIO device has a file descriptor that is used to query information about the device MMIO regions and config space. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>opae_vfio_device_irq</label>
+        <link refid="structopae__vfio__device__irq"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opae_vfio_device</label>
+        <link refid="structopae__vfio__device"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+regions</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+irqs</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae_vfio_device_region</label>
+        <link refid="structopae__vfio__device__region"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+region_sparse</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>opae_vfio_sparse_info</label>
+        <link refid="structopae__vfio__sparse__info"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="121" column="1" bodyfile="include/opae/vfio.h" bodystart="121" bodyend="128"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__device_1a484988f748aa324957a2046bc2590e10" prot="public" virt="non-virtual"><scope>opae_vfio_device</scope><name>device_config_offset</name></member>
+      <member refid="structopae__vfio__device_1a5567cac847af54d1b68cd11de6d9071a" prot="public" virt="non-virtual"><scope>opae_vfio_device</scope><name>device_fd</name></member>
+      <member refid="structopae__vfio__device_1ad4fc938dbf2c96ea60222912b4ed72ca" prot="public" virt="non-virtual"><scope>opae_vfio_device</scope><name>device_num_irqs</name></member>
+      <member refid="structopae__vfio__device_1ad9ca3ae45cd69d3eec04297820c98db4" prot="public" virt="non-virtual"><scope>opae_vfio_device</scope><name>device_num_regions</name></member>
+      <member refid="structopae__vfio__device_1a491523e147d7ae93d48b49d713bdce7c" prot="public" virt="non-virtual"><scope>opae_vfio_device</scope><name>irqs</name></member>
+      <member refid="structopae__vfio__device_1ab45bac066081e611b23ff38c90ab6f26" prot="public" virt="non-virtual"><scope>opae_vfio_device</scope><name>regions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,490 @@
+.TH "samples/n5010-test/n5010-test.c" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/n5010-test/n5010-test.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <error\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include <getopt\&.h>\fP
+.br
+\fC#include <opae/fpga\&.h>\fP
+.br
+\fC#include <uuid/uuid\&.h>\fP
+.br
+\fC#include <endian\&.h>\fP
+.br
+\fC#include <argsfilter\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBn5010_test\fP"
+.br
+.ti -1c
+.RI "struct \fBn5010\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDFH_EOL\fP(h)   ((h >> 40) & 1)"
+.br
+.ti -1c
+.RI "#define \fBDFH_NEXT\fP(h)   ((h >> 16) & 0xffffff)"
+.br
+.ti -1c
+.RI "#define \fBDFH_TYPE\fP(h)   ((h >> 60) & 0xf)"
+.br
+.ti -1c
+.RI "#define \fBDFH_TYPE_AFU\fP   1"
+.br
+.ti -1c
+.RI "#define \fBDDR_TEST_MODE0_CTRL\fP   0x3000"
+.br
+.ti -1c
+.RI "#define \fBDDR_TEST_MODE0_STAT\fP   0x3008"
+.br
+.ti -1c
+.RI "#define \fBDDR_TEST_MODE1_CTRL\fP   0x3000"
+.br
+.ti -1c
+.RI "#define \fBDDR_TEST_MODE1_STAT\fP   0x3008"
+.br
+.ti -1c
+.RI "#define \fBDDR_TEST_MODE1_BANK_STAT\fP(x)   (0x3010 + 8 * x)"
+.br
+.ti -1c
+.RI "#define \fBHBM_TEST_PASS\fP   0x4000"
+.br
+.ti -1c
+.RI "#define \fBHBM_TEST_FAIL\fP   0x4008"
+.br
+.ti -1c
+.RI "#define \fBHBM_TEST_TIMEOUT\fP   0x4010"
+.br
+.ti -1c
+.RI "#define \fBHBM_TEST_CTRL\fP   0x4018"
+.br
+.ti -1c
+.RI "#define \fBQDR_TEST_STAT\fP   0x5000"
+.br
+.ti -1c
+.RI "#define \fBQDR_FM\fP   0xff"
+.br
+.ti -1c
+.RI "#define \fBQDR_TEST_TIMEOUT\fP(h)   ((h >> 16) & \fBQDR_FM\fP)"
+.br
+.ti -1c
+.RI "#define \fBQDR_TEST_FAIL\fP(h)   ((h >>  8) & \fBQDR_FM\fP)"
+.br
+.ti -1c
+.RI "#define \fBQDR_TEST_PASS\fP(h)   ((h >>  0) & \fBQDR_FM\fP)"
+.br
+.ti -1c
+.RI "#define \fBQDR_TEST_CTRL\fP   0x5008"
+.br
+.ti -1c
+.RI "#define \fBESRAM_TEST_STAT\fP   0x6000"
+.br
+.ti -1c
+.RI "#define \fBESRAM_FM\fP   0xffff"
+.br
+.ti -1c
+.RI "#define \fBESRAM_TEST_TIMEOUT\fP(h)   ((h >> 32) & \fBESRAM_FM\fP)"
+.br
+.ti -1c
+.RI "#define \fBESRAM_TEST_FAIL\fP(h)   ((h >> 16) & \fBESRAM_FM\fP)"
+.br
+.ti -1c
+.RI "#define \fBESRAM_TEST_PASS\fP(h)   ((h >>  0) & \fBESRAM_FM\fP)"
+.br
+.ti -1c
+.RI "#define \fBESRAM_TEST_CTRL\fP   0x6008"
+.br
+.ti -1c
+.RI "#define \fBMAX_POLLS\fP   10"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_test_ddr_directed\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_test_ddr_prbs\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_test_hbm\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_test_esram\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_test_qdr\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_open\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static void \fBfpga_close\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_base\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static void \fBfpga_dump\fP (struct \fBn5010\fP *\fBn5010\fP, uint64_t offset, size_t count)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_banks\fP (struct \fBn5010\fP *\fBn5010\fP, uint64_t offset, uint64_t *num_banks)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_start\fP (struct \fBn5010\fP *\fBn5010\fP, uint64_t offset, uint64_t num_banks)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_stop\fP (struct \fBn5010\fP *\fBn5010\fP, uint64_t offset)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_wait\fP (struct \fBn5010\fP *\fBn5010\fP, uint64_t offset, uint64_t init, uint64_t result)"
+.br
+.ti -1c
+.RI "static void \fBprint_usage\fP (FILE *f)"
+.br
+.ti -1c
+.RI "static bool \fBparse_mode\fP (struct \fBn5010\fP *\fBn5010\fP, const char *mode)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBparse_args\fP (int argc, char **argv, struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char **argv)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const struct \fBn5010_test\fP \fBn5010_test\fP []"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct n5010"
+.PP 
+Definition at line 76 of file n5010\-ctl\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+\fBfpga_properties\fP \fIfilter\fP 
+.br
+.PP
+\fBfpga_token\fP \fItoken\fP 
+.br
+.PP
+\fBfpga_handle\fP \fIhandle\fP 
+.br
+.PP
+\fBfpga_guid\fP \fIguid\fP 
+.br
+.PP
+uint64_t \fIbase\fP 
+.br
+.PP
+const struct \fBn5010_test\fP * \fItest\fP 
+.br
+.PP
+uint64_t \fIport\fP 
+.br
+.PP
+bool \fIdebug\fP 
+.br
+.PP
+uint \fIopen_mode\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define DFH_EOL(h)   ((h >> 40) & 1)"
+
+.PP
+Definition at line 43 of file n5010\-test\&.c\&.
+.SS "#define DFH_NEXT(h)   ((h >> 16) & 0xffffff)"
+
+.PP
+Definition at line 44 of file n5010\-test\&.c\&.
+.SS "#define DFH_TYPE(h)   ((h >> 60) & 0xf)"
+
+.PP
+Definition at line 45 of file n5010\-test\&.c\&.
+.SS "#define DFH_TYPE_AFU   1"
+
+.PP
+Definition at line 46 of file n5010\-test\&.c\&.
+.SS "#define DDR_TEST_MODE0_CTRL   0x3000"
+
+.PP
+Definition at line 48 of file n5010\-test\&.c\&.
+.SS "#define DDR_TEST_MODE0_STAT   0x3008"
+
+.PP
+Definition at line 49 of file n5010\-test\&.c\&.
+.SS "#define DDR_TEST_MODE1_CTRL   0x3000"
+
+.PP
+Definition at line 51 of file n5010\-test\&.c\&.
+.SS "#define DDR_TEST_MODE1_STAT   0x3008"
+
+.PP
+Definition at line 52 of file n5010\-test\&.c\&.
+.SS "#define DDR_TEST_MODE1_BANK_STAT(x)   (0x3010 + 8 * x)"
+
+.PP
+Definition at line 53 of file n5010\-test\&.c\&.
+.SS "#define HBM_TEST_PASS   0x4000"
+
+.PP
+Definition at line 55 of file n5010\-test\&.c\&.
+.SS "#define HBM_TEST_FAIL   0x4008"
+
+.PP
+Definition at line 56 of file n5010\-test\&.c\&.
+.SS "#define HBM_TEST_TIMEOUT   0x4010"
+
+.PP
+Definition at line 57 of file n5010\-test\&.c\&.
+.SS "#define HBM_TEST_CTRL   0x4018"
+
+.PP
+Definition at line 58 of file n5010\-test\&.c\&.
+.SS "#define QDR_TEST_STAT   0x5000"
+
+.PP
+Definition at line 60 of file n5010\-test\&.c\&.
+.SS "#define QDR_FM   0xff"
+
+.PP
+Definition at line 61 of file n5010\-test\&.c\&.
+.SS "#define QDR_TEST_TIMEOUT(h)   ((h >> 16) & \fBQDR_FM\fP)"
+
+.PP
+Definition at line 62 of file n5010\-test\&.c\&.
+.SS "#define QDR_TEST_FAIL(h)   ((h >>  8) & \fBQDR_FM\fP)"
+
+.PP
+Definition at line 63 of file n5010\-test\&.c\&.
+.SS "#define QDR_TEST_PASS(h)   ((h >>  0) & \fBQDR_FM\fP)"
+
+.PP
+Definition at line 64 of file n5010\-test\&.c\&.
+.SS "#define QDR_TEST_CTRL   0x5008"
+
+.PP
+Definition at line 66 of file n5010\-test\&.c\&.
+.SS "#define ESRAM_TEST_STAT   0x6000"
+
+.PP
+Definition at line 68 of file n5010\-test\&.c\&.
+.SS "#define ESRAM_FM   0xffff"
+
+.PP
+Definition at line 69 of file n5010\-test\&.c\&.
+.SS "#define ESRAM_TEST_TIMEOUT(h)   ((h >> 32) & \fBESRAM_FM\fP)"
+
+.PP
+Definition at line 70 of file n5010\-test\&.c\&.
+.SS "#define ESRAM_TEST_FAIL(h)   ((h >> 16) & \fBESRAM_FM\fP)"
+
+.PP
+Definition at line 71 of file n5010\-test\&.c\&.
+.SS "#define ESRAM_TEST_PASS(h)   ((h >>  0) & \fBESRAM_FM\fP)"
+
+.PP
+Definition at line 72 of file n5010\-test\&.c\&.
+.SS "#define ESRAM_TEST_CTRL   0x6008"
+
+.PP
+Definition at line 74 of file n5010\-test\&.c\&.
+.SS "#define MAX_POLLS   10"
+
+.PP
+Definition at line 76 of file n5010\-test\&.c\&.
+.SH "Function Documentation"
+.PP 
+.SS "static \fBfpga_result\fP fpga_test_ddr_directed (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 415 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, DDR_TEST_MODE0_CTRL, DDR_TEST_MODE0_STAT, fpga_banks(), fpga_dump(), FPGA_EXCEPTION, FPGA_OK, fpga_start(), fpga_stop(), fpga_wait(), fpgaErrStr(), fpgaReadMMIO64(), and n5010::handle\&.
+.SS "static \fBfpga_result\fP fpga_test_ddr_prbs (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 365 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, DDR_TEST_MODE1_BANK_STAT, DDR_TEST_MODE1_CTRL, DDR_TEST_MODE1_STAT, fpga_banks(), fpga_dump(), FPGA_EXCEPTION, FPGA_OK, fpga_start(), fpga_stop(), fpga_wait(), fpgaErrStr(), fpgaReadMMIO64(), and n5010::handle\&.
+.SS "static \fBfpga_result\fP fpga_test_hbm (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 626 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, n5010::debug, FPGA_EXCEPTION, FPGA_OK, fpga_start(), fpgaErrStr(), fpgaReadMMIO64(), n5010::handle, HBM_TEST_CTRL, HBM_TEST_FAIL, HBM_TEST_PASS, and HBM_TEST_TIMEOUT\&.
+.SS "static \fBfpga_result\fP fpga_test_esram (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 476 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, n5010::debug, ESRAM_FM, ESRAM_TEST_CTRL, ESRAM_TEST_FAIL, ESRAM_TEST_PASS, ESRAM_TEST_STAT, ESRAM_TEST_TIMEOUT, FPGA_EXCEPTION, FPGA_OK, fpgaErrStr(), fpgaReadMMIO64(), fpgaWriteMMIO64(), n5010::handle, and MAX_POLLS\&.
+.SS "static \fBfpga_result\fP fpga_test_qdr (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 551 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, n5010::debug, FPGA_EXCEPTION, FPGA_OK, fpgaErrStr(), fpgaReadMMIO64(), fpgaWriteMMIO64(), n5010::handle, MAX_POLLS, QDR_FM, QDR_TEST_CTRL, QDR_TEST_FAIL, QDR_TEST_PASS, QDR_TEST_STAT, and QDR_TEST_TIMEOUT\&.
+.SS "static \fBfpga_result\fP fpga_open (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 125 of file n5010\-test\&.c\&.
+.PP
+References n5010::filter, FPGA_ACCELERATOR, FPGA_NOT_FOUND, FPGA_OK, fpgaEnumerate(), fpgaErrStr(), fpgaMapMMIO(), fpgaOpen(), fpgaPropertiesSetGUID(), fpgaPropertiesSetObjectType(), fpgaReset(), n5010::guid, n5010::handle, n5010::open_mode, and n5010::token\&.
+.PP
+Referenced by main()\&.
+.SS "static void fpga_close (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 175 of file n5010\-test\&.c\&.
+.PP
+References n5010::filter, FPGA_OK, fpgaClose(), fpgaDestroyProperties(), fpgaDestroyToken(), fpgaErrStr(), fpgaUnmapMMIO(), n5010::handle, and n5010::token\&.
+.PP
+Referenced by main(), and parse_args()\&.
+.SS "static \fBfpga_result\fP fpga_base (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 202 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, DFH_EOL, DFH_NEXT, DFH_TYPE, DFH_TYPE_AFU, FPGA_NOT_FOUND, FPGA_OK, fpgaErrStr(), fpgaReadMMIO64(), n5010::guid, and n5010::handle\&.
+.PP
+Referenced by main()\&.
+.SS "static void fpga_dump (struct \fBn5010\fP * n5010, uint64_t offset, size_t count)\fC [static]\fP"
+
+.PP
+Definition at line 258 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, n5010::debug, fpgaReadMMIO64(), and n5010::handle\&.
+.PP
+Referenced by fpga_start(), fpga_stop(), fpga_test_ddr_directed(), fpga_test_ddr_prbs(), and main()\&.
+.SS "static \fBfpga_result\fP fpga_banks (struct \fBn5010\fP * n5010, uint64_t offset, uint64_t * num_banks)\fC [static]\fP"
+
+.PP
+Definition at line 274 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, FPGA_OK, fpgaErrStr(), fpgaReadMMIO64(), and n5010::handle\&.
+.PP
+Referenced by fpga_test_ddr_directed(), and fpga_test_ddr_prbs()\&.
+.SS "static \fBfpga_result\fP fpga_start (struct \fBn5010\fP * n5010, uint64_t offset, uint64_t num_banks)\fC [static]\fP"
+
+.PP
+Definition at line 288 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, fpga_dump(), FPGA_OK, fpgaErrStr(), fpgaWriteMMIO64(), n5010::handle, and usleep()\&.
+.PP
+Referenced by fpga_test_ddr_directed(), fpga_test_ddr_prbs(), and fpga_test_hbm()\&.
+.SS "static \fBfpga_result\fP fpga_stop (struct \fBn5010\fP * n5010, uint64_t offset)\fC [static]\fP"
+
+.PP
+Definition at line 312 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, fpga_dump(), FPGA_OK, fpgaErrStr(), fpgaWriteMMIO64(), n5010::handle, and usleep()\&.
+.PP
+Referenced by fpga_test_ddr_directed(), and fpga_test_ddr_prbs()\&.
+.SS "static \fBfpga_result\fP fpga_wait (struct \fBn5010\fP * n5010, uint64_t offset, uint64_t init, uint64_t result)\fC [static]\fP"
+
+.PP
+Definition at line 334 of file n5010\-test\&.c\&.
+.PP
+References n5010::base, n5010::debug, FPGA_EXCEPTION, FPGA_OK, fpgaErrStr(), fpgaReadMMIO64(), and n5010::handle\&.
+.PP
+Referenced by fpga_test_ddr_directed(), and fpga_test_ddr_prbs()\&.
+.SS "static void print_usage (FILE * f)\fC [static]\fP"
+
+.PP
+Definition at line 692 of file n5010\-test\&.c\&.
+.PP
+Referenced by parse_args()\&.
+.SS "static bool parse_mode (struct \fBn5010\fP * n5010, const char * mode)\fC [static]\fP"
+
+.PP
+Definition at line 713 of file n5010\-test\&.c\&.
+.PP
+References n5010_test, n5010_test::name, and n5010::test\&.
+.PP
+Referenced by parse_args()\&.
+.SS "static \fBfpga_result\fP parse_args (int argc, char ** argv, struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 736 of file n5010\-test\&.c\&.
+.PP
+References n5010::debug, n5010::filter, fpga_close(), FPGA_EXCEPTION, FPGA_OK, FPGA_OPEN_SHARED, fpgaErrStr(), fpgaGetProperties(), n5010::guid, n5010::open_mode, options, parse_mode(), and print_usage()\&.
+.PP
+Referenced by main()\&.
+.SS "int main (int argc, char ** argv)"
+
+.PP
+Definition at line 807 of file n5010\-test\&.c\&.
+.PP
+References fpga_base(), fpga_close(), fpga_dump(), FPGA_OK, fpga_open(), n5010_test::func, parse_args(), and n5010::test\&.
+.SH "Variable Documentation"
+.PP 
+.SS "const struct \fBn5010_test\fP \fBn5010_test\fP[]\fC [static]\fP"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+   {
+      \&.name = "hbm",
+      \&.func = fpga_test_hbm,
+   },
+   {
+      \&.name = "ddr-directed",
+      \&.func = fpga_test_ddr_directed,
+   },
+   {
+      \&.name = "ddr-prbs",
+      \&.func = fpga_test_ddr_prbs,
+   },
+   {
+      \&.name = "esram",
+      \&.func = fpga_test_esram,
+   },
+   {
+      \&.name = "qdr",
+      \&.func = fpga_test_qdr,
+   }
+}
+.fi
+.PP
+Definition at line 100 of file n5010\-test\&.c\&.
+.PP
+Referenced by parse_mode()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

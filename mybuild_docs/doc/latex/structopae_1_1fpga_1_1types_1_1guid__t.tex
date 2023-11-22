@@ -1,0 +1,265 @@
+\doxysection{opae\+::fpga\+::types\+::guid\+\_\+t Struct Reference}
+\label{structopae_1_1fpga_1_1types_1_1guid__t}\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+
+
+{\ttfamily \#include $<$opae/cxx/core/pvalue.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_ae0c5217a465cc42331c0c101c739ccc4}{guid\+\_\+t}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$p)
+\item 
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_abac031f524410f0ce6d58c115374a09f}{update}} ()
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_af0f419fee764acd2a2cda2cc764a72f5}{operator uint8\+\_\+t $\ast$}} ()
+\item 
+const uint8\+\_\+t $\ast$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_a8948f79cb21eb47782a7baf82ffa5941}{c\+\_\+type}} () const
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} \& \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_ab131fdece38cc112bd08244ede8a0f29}{operator=}} (\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} g)
+\item 
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_aef93c3b0b9502a01015897ab0ecaf44c}{operator==}} (const \mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} \&g)
+\item 
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_a79ba0567868025a34ffebc3eb24ddd5d}{parse}} (const char $\ast$str)
+\item 
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_a1ba6d75b0be7aa78ee1b31eb18c7bff3}{is\+\_\+set}} () const
+\item 
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_ac8ae3baf06110627da463eb0d3a345fe}{invalidate}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_a051b019dd8b18fb38f8cf7a8db3079bb}{props\+\_\+}}
+\item 
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_aaf1def223c6be127e63258486d8adc5a}{is\+\_\+set\+\_\+}}
+\item 
+std\+::array$<$ uint8\+\_\+t, 16 $>$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_a45f001856e7648ccdb9d58bcc1f6cbde}{data\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t_afdbcb10d3044f41a17a31718e14b32df}{operator$<$$<$}} (std\+::ostream \&ostr, const \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} \&g)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Representation of the guid member of a properties object. 
+
+Definition at line 44 of file pvalue.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_ae0c5217a465cc42331c0c101c739ccc4}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!guid\_t@{guid\_t}}
+\index{guid\_t@{guid\_t}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{guid\_t()}{guid\_t()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::guid\+\_\+t\+::guid\+\_\+t (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Construct the \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} given its containing fpga\+\_\+properties. 
+
+Definition at line 47 of file pvalue.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_abac031f524410f0ce6d58c115374a09f}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!update@{update}}
+\index{update@{update}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::guid\+\_\+t\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Update the local cached copy of the guid. 
+
+Definition at line 51 of file pvalue.\+h.
+
+
+
+References ASSERT\+\_\+\+FPGA\+\_\+\+OK, data\+\_\+, fpga\+Properties\+Get\+GUID(), is\+\_\+set\+\_\+, and props\+\_\+.
+
+
+
+Referenced by operator uint8\+\_\+t $\ast$().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_af0f419fee764acd2a2cda2cc764a72f5}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!operator uint8\_t $\ast$@{operator uint8\_t $\ast$}}
+\index{operator uint8\_t $\ast$@{operator uint8\_t $\ast$}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{operator uint8\_t $\ast$()}{operator uint8\_t *()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::guid\+\_\+t\+::operator uint8\+\_\+t $\ast$ (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Return a raw pointer to the guid. 
+\begin{DoxyRetVals}{Return values}
+{\em nullptr} & if the guid could not be queried. \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line 61 of file pvalue.\+h.
+
+
+
+References data\+\_\+, and update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_a8948f79cb21eb47782a7baf82ffa5941}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!c\_type@{c\_type}}
+\index{c\_type@{c\_type}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{c\_type()}{c\_type()}}
+{\footnotesize\ttfamily const uint8\+\_\+t$\ast$ opae\+::fpga\+::types\+::guid\+\_\+t\+::c\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Return a raw pointer to the guid. 
+
+Definition at line 68 of file pvalue.\+h.
+
+
+
+References data\+\_\+.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_ab131fdece38cc112bd08244ede8a0f29}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}}\& opae\+::fpga\+::types\+::guid\+\_\+t\+::operator= (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}}}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Assign from fpga\+\_\+guid Sets the guid field of the associated properties object using the OPAE properties API. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em g} & The given fpga\+\_\+guid. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a reference to this \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}}. 
+\end{DoxyReturn}
+
+
+Definition at line 76 of file pvalue.\+h.
+
+
+
+References ASSERT\+\_\+\+FPGA\+\_\+\+OK, data\+\_\+, fpga\+Properties\+Set\+GUID(), is\+\_\+set\+\_\+, and props\+\_\+.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_aef93c3b0b9502a01015897ab0ecaf44c}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!operator==@{operator==}}
+\index{operator==@{operator==}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily bool opae\+::fpga\+::types\+::guid\+\_\+t\+::operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} \&}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Compare contents with an fpga\+\_\+guid. 
+\begin{DoxyRetVals}{Return values}
+{\em The} & result of memcmp of the two objects. \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line 89 of file pvalue.\+h.
+
+
+
+References data\+\_\+, and is\+\_\+set().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_a79ba0567868025a34ffebc3eb24ddd5d}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!parse@{parse}}
+\index{parse@{parse}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{parse()}{parse()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::guid\+\_\+t\+::parse (\begin{DoxyParamCaption}\item[{const char $\ast$}]{str }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Convert a string representation of a guid to binary. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em str} & The guid string. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 96 of file pvalue.\+h.
+
+
+
+References ASSERT\+\_\+\+FPGA\+\_\+\+OK, data\+\_\+, fpga\+Properties\+Set\+GUID(), is\+\_\+set\+\_\+, OPAECXX\+\_\+\+HERE, and props\+\_\+.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_a1ba6d75b0be7aa78ee1b31eb18c7bff3}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!is\_set@{is\_set}}
+\index{is\_set@{is\_set}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{is\_set()}{is\_set()}}
+{\footnotesize\ttfamily bool opae\+::fpga\+::types\+::guid\+\_\+t\+::is\+\_\+set (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Tracks whether the cached local copy of the guid is valid. 
+
+Definition at line 125 of file pvalue.\+h.
+
+
+
+References is\+\_\+set\+\_\+.
+
+
+
+Referenced by operator==().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_ac8ae3baf06110627da463eb0d3a345fe}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!invalidate@{invalidate}}
+\index{invalidate@{invalidate}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{invalidate()}{invalidate()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::guid\+\_\+t\+::invalidate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Invalidate the cached local copy of the guid. 
+
+Definition at line 129 of file pvalue.\+h.
+
+
+
+References is\+\_\+set\+\_\+.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_afdbcb10d3044f41a17a31718e14b32df}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{ostr,  }\item[{const \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} \&}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+Send the string representation of the \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} to the given stream. 
+
+Definition at line 107 of file pvalue.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_a051b019dd8b18fb38f8cf7a8db3079bb}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!props\_@{props\_}}
+\index{props\_@{props\_}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{props\_}{props\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}$\ast$ opae\+::fpga\+::types\+::guid\+\_\+t\+::props\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 132 of file pvalue.\+h.
+
+
+
+Referenced by operator=(), parse(), and update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_aaf1def223c6be127e63258486d8adc5a}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!is\_set\_@{is\_set\_}}
+\index{is\_set\_@{is\_set\_}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{is\_set\_}{is\_set\_}}
+{\footnotesize\ttfamily bool opae\+::fpga\+::types\+::guid\+\_\+t\+::is\+\_\+set\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 133 of file pvalue.\+h.
+
+
+
+Referenced by invalidate(), is\+\_\+set(), operator=(), parse(), and update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1guid__t_a45f001856e7648ccdb9d58bcc1f6cbde}} 
+\index{opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}!data\_@{data\_}}
+\index{data\_@{data\_}!opae::fpga::types::guid\_t@{opae::fpga::types::guid\_t}}
+\doxysubsubsection{\texorpdfstring{data\_}{data\_}}
+{\footnotesize\ttfamily std\+::array$<$uint8\+\_\+t, 16$>$ opae\+::fpga\+::types\+::guid\+\_\+t\+::data\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 134 of file pvalue.\+h.
+
+
+
+Referenced by c\+\_\+type(), operator uint8\+\_\+t $\ast$(), operator=(), operator==(), parse(), and update().
+

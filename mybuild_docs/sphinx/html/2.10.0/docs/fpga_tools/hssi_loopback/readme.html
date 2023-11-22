@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hssi_loopback &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>hssi_loopback</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/hssi_loopback/readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="hssi-loopback">
+<h1>hssi_loopback<a class="headerlink" href="#hssi-loopback" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p><em>hssi_loopback</em> - Software utility to run HSSI loopback tests on FPGA</p>
+</div>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hssi_loopback</span> <span class="pre">[[--bus|-b</span> <span class="pre">&lt;bus</span> <span class="pre">number&gt;]</span> <span class="pre">[--device</span> <span class="pre">|</span> <span class="pre">-d</span> <span class="pre">&lt;device</span> <span class="pre">number&gt;]</span> <span class="pre">[--function</span> <span class="pre">|</span> <span class="pre">-f</span> <span class="pre">&lt;function</span> <span class="pre">number&gt;]]|[--socket-id</span> <span class="pre">&lt;socket-id&gt;]</span> <span class="pre">[--mode|-m</span> <span class="pre">auto|e40|e10]</span>&#160; <span class="pre">[send</span> <span class="pre">[&lt;source</span> <span class="pre">port&gt;</span> <span class="pre">[&lt;destination</span> <span class="pre">port&gt;]</span> <span class="pre">[--packet-count|-c</span> <span class="pre">&lt;count&gt;]</span> <span class="pre">[--packet-delay|-d</span> <span class="pre">&lt;delay&gt;]</span> <span class="pre">[--packet-length|-l</span> <span class="pre">&lt;length&gt;]]</span> <span class="pre">|status</span> <span class="pre">[clear]</span> <span class="pre">|</span> <span class="pre">stop</span> <span class="pre">|</span> <span class="pre">readmacs</span></code></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code> utility works in conjunction with a packet generator accelerator function unit (AFU)
+to test high-speed serial interface (HSSI) cards. The <code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code> utility tests both external and internal loopbacks.
+<code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code> runs an external loopback test when the command line arguments include both source and destination ports.
+<code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code> runs an internal loopback test when command line arguments include a single port. <code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code>
+only runs on the Intel Xeon with Arria 10 FPGA. You cannot run it on the Intel PAC (programmable accelerator card).</p>
+<p><em>NOTE</em>: The following limitations apply to the current version of hssi_loopback:</p>
+<ul class="simple">
+<li><p>For the external loopback the two port arguments can be the same. For the e10 design, the ports should be the same.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code> test supports only the e40 and e10 E2E AFUs.  The e10 E2E AFU tests HSSI with a retimer card.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">hssi_loopback</span></code> test uses the control and status registers (CSRs) defined in the AFU.</p></li>
+</ul>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-S</span> <span class="pre">SOCKET_ID,</span> <span class="pre">--socket-id</span> <span class="pre">SOCKET_ID</span></code></p>
+<p>Socket ID FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-B</span> <span class="pre">BUS,</span> <span class="pre">--bus</span> <span class="pre">BUS</span></code></p>
+<p>Bus ID of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-D</span> <span class="pre">DEVICE,</span> <span class="pre">--device</span> <span class="pre">DEVICE</span></code></p>
+<p>Device ID of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-F</span> <span class="pre">FUNCTION,</span> <span class="pre">--function</span> <span class="pre">FUNCTION</span></code></p>
+<p>Function ID of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-G,</span> <span class="pre">--guid</span></code></p>
+<p>Specifies guid for the resource enumeration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-m,</span> <span class="pre">--mode</span></code></p>
+<p>One of the following: [<code class="docutils literal notranslate"><span class="pre">auto</span></code>, <code class="docutils literal notranslate"><span class="pre">e40</span></code>, <code class="docutils literal notranslate"><span class="pre">e10</span></code>]
+<code class="docutils literal notranslate"><span class="pre">auto</span></code> is the default and indicates that the software runs the mode based on the first accelerator functional
+unit it identifies.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--timeout</span></code></p>
+<p>Timeout (in seconds) before the application terminates in continuous mode. Continuous mode is the default
+when you do not specify the number of packets.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-y,</span> <span class="pre">--delay</span></code></p>
+<p>Delay (in seconds) between printing out a simple status line. Default is 0.100 seconds (100 milliseconds).</p>
+<p><code class="docutils literal notranslate"><span class="pre">-c,</span> <span class="pre">--packet-count</span></code></p>
+<p>The number of packets to send.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--packet-delay</span></code></p>
+<p>The delay in between packets. This delay is the number of 100 MHz clock cycles, roughly 10 nanoseconds.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--packet-size</span></code></p>
+<p>The packet size to send. The minimum is 46 bytes and the maximum is 1500 bytes. The default is 46 bytes.</p>
+</div>
+<div class="section" id="commands">
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">send</span> <span class="pre">&lt;source</span> <span class="pre">port&gt;</span> <span class="pre">[&lt;destination</span> <span class="pre">port&gt;]</span> <span class="pre">[--packet-count|-c</span> <span class="pre">&lt;count&gt;]</span> <span class="pre">[--packet-delay|-d</span> <span class="pre">&lt;delay&gt;]</span> <span class="pre">[--packet-length|-l</span> <span class="pre">&lt;length&gt;]</span></code></p>
+<p>Send packets from one port to the other. If the command line does not specify a destination port, the test runs an internal
+loopback. Otherwise, the test runs an external loopback from the source port to the destination port.</p>
+<p><code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">[clear]</span></code></p>
+<p>Read and interpret the status registers and print to the screen. <code class="docutils literal notranslate"><span class="pre">clear</span></code> clears the status registers.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stop</span></code></p>
+<p>Issue a stop command to all Ethernet controllers in the AFU.</p>
+<p><code class="docutils literal notranslate"><span class="pre">readmacs</span></code></p>
+<p>Read and display the port MAC addresses. An EEPROM stores the MAC addresses.</p>
+</div>
+<div class="section" id="exit-codes">
+<h2>EXIT CODES<a class="headerlink" href="#exit-codes" title="Permalink to this headline">¶</a></h2>
+<p>0    Success - Number of packets received are equal to the number of packets sent and no errors
+are reported.</p>
+<p>-1    Loopback failure - Either number of packets does not match or the test detected errors.</p>
+<p>-2    Errors parsing arguments.</p>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Read the MAC addresses of the AFU loaded on bus 0x5e:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt;sudo<span class="w"> </span>hssi_loopback<span class="w"> </span>readmacs<span class="w"> </span>-B<span class="w"> </span>0x5e
+</pre></div>
+</div>
+<p>Run an external loopback, sending 100 packets from port 0 to port 1. The AFU is on bus 0x5e:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt;sudo<span class="w"> </span>hssi_loopback<span class="w"> </span>-B<span class="w"> </span>0x5e<span class="w"> </span>send<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>-c<span class="w"> </span><span class="m">100</span>
+</pre></div>
+</div>
+<p>Run an internal loopback until a timeout of 5 seconds is reached. The AFU is on bus 0x5e:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt;sudo<span class="w"> </span>hssi_loopback<span class="w"> </span>-B<span class="w"> </span>0x5e<span class="w"> </span>send<span class="w"> </span><span class="m">0</span><span class="w"> </span>-t<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+| 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Corrected typos.  |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

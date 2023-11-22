@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fpgadiag &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="fpgainfo" href="../fpgainfo/fpgainfo.html" />
+    <link rel="prev" title="fpgad" href="../fpgad/fpgad.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">fpgadiag</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options">OPTIONS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-options">Common options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lpbk1-test-options"><strong>lpbk1</strong> test options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-test-options"><strong>read</strong> test options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-test-options"><strong>write</strong> test options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#trput-test-options"><strong>trput</strong> test options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sw-test-options"><strong>sw</strong> test options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enable-fpga-n3000-ethernet-group-vfio-mdev"><strong>Enable FPGA N3000 Ethernet group VFIO mdev</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#steps-to-enable-create-vfio-mdev"><strong>Steps to enable/create vfio mdev</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#remove-vfio-mdev"><strong>Remove vfio mdev</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fpgalpbk-test-options"><strong>fpgalpbk</strong> test options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mactest-test-options"><strong>mactest</strong> test options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">TROUBLESHOOTING</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fpgadiag</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/fpgadiag/README.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fpgadiag">
+<h1>fpgadiag<a class="headerlink" href="#fpgadiag" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">fpgadiag [-m | --mode=] &lt;mode&gt; [-t | --target=] &lt;target&gt; [options]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>Includes several tests to diagnose, test, and report on the FPGA hardware.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> chooses which test to run.
+<code class="docutils literal notranslate"><span class="pre">&lt;target&gt;</span></code> specifies the platform that runs the test.
+<code class="docutils literal notranslate"><span class="pre">&lt;target&gt;</span></code> can be either <code class="docutils literal notranslate"><span class="pre">fpga</span></code> or <code class="docutils literal notranslate"><span class="pre">ase</span></code> where <code class="docutils literal notranslate"><span class="pre">ase</span></code>.
+<code class="docutils literal notranslate"><span class="pre">&lt;ase&gt;</span></code> is the abbreviation for Accelerator Simulation Environment.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> selects from the  following tests:</p>
+<p><strong>lpbk1</strong></p>
+<p>This test runs a loopback test on the number of cachelines specified with
+the <code class="docutils literal notranslate"><span class="pre">BEGIN</span></code> option. <code class="docutils literal notranslate"><span class="pre">fpgadiag</span></code> sets up source and  destination buffers in
+main memory. The FPGA then performs a <code class="docutils literal notranslate"><span class="pre">memcpy</span></code> from a source buffer to the
+destination buffer, one cacheline at a time.</p>
+<p>A cacheline is 64 bytes. When <code class="docutils literal notranslate"><span class="pre">BEGIN</span> <span class="pre">=</span> <span class="pre">END</span></code>, the test performs one iteration. When
+<code class="docutils literal notranslate"><span class="pre">BEGIN</span> <span class="pre">=</span> <span class="pre">END</span> <span class="pre">+</span> <span class="pre">x</span></code>, the test performs <code class="docutils literal notranslate"><span class="pre">x</span></code> iterations. The first iteration consists
+of copying <code class="docutils literal notranslate"><span class="pre">BEGIN</span></code> cachelines; the second iteration consists of copying
+<code class="docutils literal notranslate"><span class="pre">BEGIN+1</span></code> cache lines. The third iteration consists of copying <code class="docutils literal notranslate"><span class="pre">BEGIN+2</span></code>
+cache lines, and so on.</p>
+<p>The latency is shown as the number of clock cycles.</p>
+<p>When you specify <code class="docutils literal notranslate"><span class="pre">MULTI-CL</span></code>, you copy <code class="docutils literal notranslate"><span class="pre">MULTI-CL</span></code> cache lines at a time.
+The WR-FENCE chooses on which virtual channel the WrFence occurs.</p>
+<p>If you specify continuous mode with <code class="docutils literal notranslate"><span class="pre">--cont</span></code>, the program iterates
+until the timeout specified in <code class="docutils literal notranslate"><span class="pre">TIMEOUT</span></code> completes.</p>
+<p><strong>read</strong></p>
+<p>This test performs reads. Use this test to measure read bandwidth.</p>
+<p><strong>write</strong></p>
+<p>This test performs writes. Use it to measure write bandwidth.</p>
+<p><strong>trput</strong></p>
+<p>This test measures both read and write bandwidth by performing 50% read and
+50% write tests.</p>
+<p><strong>sw</strong></p>
+<p>This is a send-and-respond (ping-pong) test. One side sends data and
+waits for response.</p>
+<p>Each test requires a particular AF. Before running a test,
+make sure the required AF is properly configured
+on the platform.</p>
+<ul class="simple">
+<li><p>The lpbk1 test requires the nlb mode 0 AF.</p></li>
+<li><p>The trput test requires the nlb mode 3 AF.</p></li>
+<li><p>The sw test requires the nlb mode 7 AF. This AF is only available for the integrated FPGA platform.
+You cannot run it on the PCIe accelerator card (PAC).</p></li>
+</ul>
+<p><strong>fpgalpbk</strong></p>
+<p>This enable/disable FPGA loopback.</p>
+<p><strong>fpgastats</strong></p>
+<p>This get fpga mac statistics.</p>
+<p><strong>mactest</strong></p>
+<p>This compare mac addresses that read from MAC ROM with mac addresses read from Host side.</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="common-options">
+<h3>Common options<a class="headerlink" href="#common-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Print</span><span class="w"> </span><span class="n">help</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">exit</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--target=,</span> <span class="pre">-t</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="k">switch</span><span class="w"> </span><span class="n">specifies</span><span class="w"> </span><span class="n">fpga</span><span class="w"> </span><span class="p">(</span><span class="n">hardware</span><span class="p">)</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">ase</span><span class="w"> </span><span class="p">(</span><span class="n">simulation</span><span class="p">).</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">fpga</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--mode=,</span> <span class="pre">-m</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>The test to run. The valid values are `lpbk1`, `read`,
+`write`, `trput`, and `sw`.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--config=,</span> <span class="pre">-c</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">specifies</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">test</span><span class="p">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">specified</span><span class="w"> </span><span class="n">both</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">command</span><span class="w"> </span>
+<span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">takes</span><span class="w"> </span><span class="n">precedence</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--dsm-timeout-usec</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Timeout</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">microseconds</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="n">completion</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="n">fails</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">completed</span><span class="w"> </span><span class="n">by</span><span class="w"> </span>
+<span class="n">specified</span><span class="w"> </span><span class="n">timeout</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1000000.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--socket-id=,</span> <span class="pre">-s</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Socket</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">FPGA</span><span class="w"> </span><span class="n">Interface</span><span class="w"> </span><span class="n">Manager</span><span class="w"> </span><span class="p">(</span><span class="n">FIM</span><span class="p">).</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">0.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--bus=,</span> <span class="pre">-B</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Bus</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">0.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--device=,</span> <span class="pre">-D</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Device</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">0.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--function=,</span> <span class="pre">-F</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Function</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">0.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--freq=,</span> <span class="pre">-T</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Clock</span><span class="w"> </span><span class="n">frequency</span><span class="w"> </span><span class="p">(</span><span class="n">in</span><span class="w"> </span><span class="n">Hz</span><span class="p">)</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">bandwidth</span><span class="w"> </span><span class="n">calculation</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">400000000</span><span class="w"> </span><span class="n">Hz</span><span class="w"> </span><span class="p">(</span><span class="mi">400</span><span class="w"> </span><span class="n">MHz</span><span class="p">).</span><span class="w"> </span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This frequency is used only when the software cannot infer the frequency from the accelerator.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--suppress-hdr,</span> <span class="pre">-S</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Suppress</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="n">output</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--csv,</span> <span class="pre">-V</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Comma</span><span class="w"> </span><span class="n">separated</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">format</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--suppress-stats</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Suppress</span><span class="w"> </span><span class="n">statistics</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lpbk1-test-options">
+<h3><strong>lpbk1</strong> test options<a class="headerlink" href="#lpbk1-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">AFU</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">D8424DC4</span><span class="o">-</span><span class="n">A4A3</span><span class="o">-</span><span class="n">C413</span><span class="o">-</span><span class="n">F89E</span><span class="mi">-433683</span><span class="n">F9040B</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=,</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="read-test-options">
+<h3><strong>read</strong> test options<a class="headerlink" href="#read-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">AFU</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">F7DF405C</span><span class="o">-</span><span class="n">BD7A</span><span class="o">-</span><span class="n">CF72</span><span class="mi">-22</span><span class="n">F1</span><span class="mi">-44</span><span class="n">B0B93ACD18</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">0.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=,</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--warm-fpga-cache</span> <span class="pre">-H;</span> <span class="pre">--cool-fpga-cache</span> <span class="pre">-M</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Try</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">hits</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span><span class="n">Try</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span>
+<span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cool-cpu-cache,</span> <span class="pre">-C</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Try</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cpu</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="write-test-options">
+<h3><strong>write</strong> test options<a class="headerlink" href="#write-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">AFU</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">F7DF405C</span><span class="o">-</span><span class="n">BD7A</span><span class="o">-</span><span class="n">CF72</span><span class="mi">-22</span><span class="n">F1</span><span class="mi">-44</span><span class="n">B0B93ACD18</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">0.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--warm-fpga-cache</span> <span class="pre">-H;</span> <span class="pre">--cool-fpga-cache</span> <span class="pre">-M</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Try</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">hits</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span><span class="n">Try</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span>
+<span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cool-cpu-cache,</span> <span class="pre">-C</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Try</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">cpu</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Can be auto, vl0, vh0, vh1, random. The default=`WRITE-VC`.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--alt-wr-pattern,</span> <span class="pre">-l</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Alternate</span><span class="w"> </span><span class="n">Write</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="trput-test-options">
+<h3><strong>trput</strong> test options<a class="headerlink" href="#trput-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">AFU</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">F7DF405C</span><span class="o">-</span><span class="n">BD7A</span><span class="o">-</span><span class="n">CF72</span><span class="mi">-22</span><span class="n">F1</span><span class="mi">-44</span><span class="n">B0B93ACD18</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--multi-cl=M,</span> <span class="pre">-u</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">M</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="mf">4.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">1.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--strided-access=S,</span> <span class="pre">-a</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&lt;=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">64.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cont,</span> <span class="pre">-L</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Continuous</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">off</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--timeout-usec=,</span> <span class="pre">--timeout-msec=,</span> <span class="pre">--timeout-sec=,</span> <span class="pre">--timeout-min=,</span> <span class="pre">--timeout-hour=</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">timeout</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">cont</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">0.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=,</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Can be  auto, vl0, vh0, vh1. The default=`WRITE-VC`.
+</pre></div>
+</div>
+</div>
+<div class="section" id="sw-test-options">
+<h3><strong>sw</strong> test options<a class="headerlink" href="#sw-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--guid=,</span> <span class="pre">-g</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">AFU</span><span class="w"> </span><span class="n">ID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enumerate</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">7</span><span class="n">BAF4DEA</span><span class="o">-</span><span class="n">A57C</span><span class="o">-</span><span class="n">E91E</span><span class="mi">-168</span><span class="n">A</span><span class="mi">-455</span><span class="n">D9BDA88A3</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--begin=B,</span> <span class="pre">-b</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end=E,</span> <span class="pre">-e</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">65535.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">designate</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-policy=,</span> <span class="pre">-p</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">wrpush</span><span class="o">-</span><span class="n">I</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">wrline</span><span class="o">-</span><span class="n">M</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--cache-hint=</span> <span class="pre">-i</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">rdline</span><span class="o">-</span><span class="n">S</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">rdline</span><span class="o">-</span><span class="n">I</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--read-vc=,</span> <span class="pre">-r</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--write-vc=,</span> <span class="pre">-w</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="n">vl0</span><span class="p">,</span><span class="w"> </span><span class="n">vh0</span><span class="p">,</span><span class="w"> </span><span class="n">vh1</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="k">auto</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--wrfence-vc=,</span> <span class="pre">-f</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>Can be auto, vl0, vh0, vh1. The default=`WRITE-VC`.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--notice=,</span> <span class="pre">-N</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">poll</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">csr</span><span class="o">-</span><span class="n">write</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="n">poll</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enable-fpga-n3000-ethernet-group-vfio-mdev">
+<h3><strong>Enable FPGA N3000 Ethernet group VFIO mdev</strong><a class="headerlink" href="#enable-fpga-n3000-ethernet-group-vfio-mdev" title="Permalink to this headline">¶</a></h3>
+<p>FPGA DFL driver does not support any ioctls to read/write ethernet group info and registers.
+Users can read/write eth group registers by enabling VFIO mdev. Unbind the dfl_eth_group driver and bind vfio-mdev-dfl
+driver for ethernet group dfl-device; then userspace can take full control of ethernet group feature id 10.</p>
+<p>Ethernet group must be enabled before running fpgalpbk, mactest tools.</p>
+<div class="section" id="steps-to-enable-create-vfio-mdev">
+<h4><strong>Steps to enable/create vfio mdev</strong><a class="headerlink" href="#steps-to-enable-create-vfio-mdev" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">unbind</span><span class="w"> </span><span class="n">eth</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="n">feature</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="mi">10</span><span class="o">:</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.8</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">drivers</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">eth</span><span class="o">-</span><span class="n">group</span><span class="o">/</span><span class="n">unbind</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.7</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">drivers</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">eth</span><span class="o">-</span><span class="n">group</span><span class="o">/</span><span class="n">unbind</span>
+<span class="n">bind</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="o">:</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.7</span><span class="o">/</span><span class="n">driver_override</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.8</span><span class="o">/</span><span class="n">driver_override</span>
+<span class="n">load</span><span class="w"> </span><span class="n">vfio</span><span class="w"> </span><span class="n">driver</span><span class="o">:</span>
+<span class="w">    </span><span class="n">modprobe</span><span class="w"> </span><span class="n">vfio_pci</span>
+<span class="w">    </span><span class="n">modprobe</span><span class="w"> </span><span class="n">vfio_iommu_type1</span>
+<span class="w">    </span><span class="n">modprobe</span><span class="w"> </span><span class="n">vfio_mdev</span>
+<span class="w">    </span><span class="n">modprobe</span><span class="w"> </span><span class="n">vfio_mdev_dfl</span>
+<span class="n">trigger</span><span class="w"> </span><span class="n">mdev</span><span class="o">:</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.7</span><span class="w"> </span><span class="o">&gt;/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">drivers_probe</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.8</span><span class="w"> </span><span class="o">&gt;/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">drivers_probe</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1001</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.7</span><span class="o">/</span><span class="n">mdev_supported_types</span><span class="o">/</span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="mi">-1</span><span class="o">/</span><span class="n">create</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1002</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.8</span><span class="o">/</span><span class="n">mdev_supported_types</span><span class="o">/</span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="mi">-1</span><span class="o">/</span><span class="n">create</span>
+
+<span class="n">linux</span><span class="w"> </span><span class="n">kerenl</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="n">after</span><span class="w"> </span><span class="n">enabling</span><span class="w"> </span><span class="n">mdev</span><span class="o">:</span>
+<span class="w">    </span><span class="n">i40e</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b3</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="n">eth1</span><span class="o">:</span><span class="w"> </span><span class="n">NIC</span><span class="w"> </span><span class="n">Link</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">Down</span>
+<span class="w">    </span><span class="n">i40e</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="n">b1</span><span class="o">:</span><span class="mf">00.1</span><span class="w"> </span><span class="n">eth0</span><span class="o">:</span><span class="w"> </span><span class="n">NIC</span><span class="w"> </span><span class="n">Link</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">Down</span>
+<span class="w">    </span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.2.7</span><span class="o">:</span><span class="w"> </span><span class="n">MDEV</span><span class="o">:</span><span class="w"> </span><span class="n">Registered</span>
+<span class="w">    </span><span class="n">vfio</span><span class="o">-</span><span class="n">mdev</span><span class="o">-</span><span class="n">dfl</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.2.8</span><span class="o">:</span><span class="w"> </span><span class="n">MDEV</span><span class="o">:</span><span class="w"> </span><span class="n">Registered</span>
+<span class="w">    </span><span class="n">vfio_mdev</span><span class="w"> </span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1005</span><span class="o">:</span><span class="w"> </span><span class="n">Adding</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">iommu</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="mi">140</span>
+<span class="w">    </span><span class="n">vfio_mdev</span><span class="w"> </span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1005</span><span class="o">:</span><span class="w"> </span><span class="n">MDEV</span><span class="o">:</span><span class="w"> </span><span class="n">group_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">140</span>
+<span class="w">    </span><span class="n">vfio_mdev</span><span class="w"> </span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1006</span><span class="o">:</span><span class="w"> </span><span class="n">Adding</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">iommu</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="mi">141</span>
+<span class="w">    </span><span class="n">vfio_mdev</span><span class="w"> </span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1006</span><span class="o">:</span><span class="w"> </span><span class="n">MDEV</span><span class="o">:</span><span class="w"> </span><span class="n">group_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">141</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="remove-vfio-mdev">
+<h4><strong>Remove vfio mdev</strong><a class="headerlink" href="#remove-vfio-mdev" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">sudo</span><span class="w"> </span><span class="n">tee</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">mdev</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1002</span><span class="o">/</span><span class="n">remove</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">sudo</span><span class="w"> </span><span class="n">tee</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">mdev</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="mi">83</span><span class="n">b8f4f2</span><span class="mi">-509</span><span class="n">f</span><span class="mi">-382</span><span class="n">f</span><span class="mi">-3</span><span class="n">c1e</span><span class="o">-</span><span class="n">e6bfe0fa1001</span><span class="o">/</span><span class="n">remove</span>
+
+<span class="w">    </span><span class="n">rmmod</span><span class="w"> </span><span class="n">vfio_mdev_dfl</span>
+<span class="w">    </span><span class="n">modprobe</span><span class="w"> </span><span class="n">dfl_eth_group</span>
+
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.7</span><span class="w"> </span><span class="o">&gt;/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">drivers_probe</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.8</span><span class="w"> </span><span class="o">&gt;/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">drivers_probe</span>
+
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">eth</span><span class="o">-</span><span class="n">group</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.7</span><span class="o">/</span><span class="n">driver_override</span>
+<span class="w">    </span><span class="n">echo</span><span class="w"> </span><span class="n">dfl</span><span class="o">-</span><span class="n">eth</span><span class="o">-</span><span class="n">group</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">bus</span><span class="o">/</span><span class="n">dfl</span><span class="o">/</span><span class="n">devices</span><span class="o">/</span><span class="n">dfl</span><span class="o">-</span><span class="n">fme</span><span class="mf">.0.8</span><span class="o">/</span><span class="n">driver_override</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="fpgalpbk-test-options">
+<h3><strong>fpgalpbk</strong> test options<a class="headerlink" href="#fpgalpbk-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--enable</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Enable</span><span class="w"> </span><span class="n">fpga</span><span class="w"> </span><span class="n">phy</span><span class="w"> </span><span class="n">loopback</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--disable</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Disable</span><span class="w"> </span><span class="n">fpga</span><span class="w"> </span><span class="n">phy</span><span class="w"> </span><span class="n">loopback</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--direction</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">local</span><span class="p">,</span><span class="w"> </span><span class="n">remote</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--type</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">serial</span><span class="p">,</span><span class="w"> </span><span class="n">precdr</span><span class="p">,</span><span class="w"> </span><span class="n">postcdr</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--side</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">host</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--port</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">all</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mactest-test-options">
+<h3><strong>mactest</strong> test options<a class="headerlink" href="#mactest-test-options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--offset</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Read</span><span class="w"> </span><span class="n">mac</span><span class="w"> </span><span class="n">addresses</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="o">=</span><span class="mf">0.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This command starts a <code class="docutils literal notranslate"><span class="pre">lpbk1</span></code> test for the FPGA on bus <code class="docutils literal notranslate"><span class="pre">0x5e</span></code>. The test
+copies 57535, 57536, 57537 … up to 65535 cache lines, one line at a time.
+The test prints output in the comma separated values (CSV) format with the
+header suppressed.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag --mode=lpbk1 --target=fpga -V --bus=0x5e --begin=57535</span>
+<span class="go">--end=65535 --cache-hint=rdline-I --cache-policy=wrpush-I --multi-cl=1</span>
+<span class="go">--write-vc=vl0 --read-vc=vh1 --wrfence-vc=auto</span>
+</pre></div>
+</div>
+<p>This command starts a <code class="docutils literal notranslate"><span class="pre">read</span></code> test on the FPGA located on bus <code class="docutils literal notranslate"><span class="pre">0xbe</span></code>. The test
+reads 2045 cache lines in the continuous mode with a 15-second timeout period.
+The reads use a strided pattern with a 10-byte stride length.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag --mode=read --target=fpga -V --bus=0xbe --begin=2045 --cont</span>
+<span class="go">--timeout-sec=15 --cache-hint=rdline-I --multi-cl=1 -a=10 </span>
+<span class="go">--read-vc=auto --wrfence-vc=auto</span>
+</pre></div>
+</div>
+<p>This command starts a <code class="docutils literal notranslate"><span class="pre">sw</span></code> test on the FPGA located on bus <code class="docutils literal notranslate"><span class="pre">0xbe</span></code>. The test
+signals completion using a CSR write.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag --mode=sw --target=fpga -V --bus=0xbe --begin=4 --end=8192</span>
+<span class="go">--cache-hint=rdline-I --cache-policy=wrline-I --notice=csr-write --write-vc=vl0</span>
+<span class="go">--wrfence-vc=auto --read-vc=random </span>
+</pre></div>
+</div>
+<p>This command enable a <code class="docutils literal notranslate"><span class="pre">fpgalpbk</span></code> on the FPGA located on bus <code class="docutils literal notranslate"><span class="pre">0xbe</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag -m fpgalpbk --bus 0xbe --enable --direction local --type postcdr</span>
+<span class="go">--side host</span>
+</pre></div>
+</div>
+<p>This command show <code class="docutils literal notranslate"><span class="pre">fpgastats</span></code> on the FPGA located on bus <code class="docutils literal notranslate"><span class="pre">0xbe</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgadiag -m fpgastats --bus 0xbe</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<h2>TROUBLESHOOTING<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>When a test fails to run or gives errors, check the following:</p>
+<ul class="simple">
+<li><p>Is the Intel FPGA driver properly installed?
+See <a class="reference external" href="/fpga-doc/docs/install_guide/installation_guide.html">Installation Guide</a>
+for driver installation instructions.</p></li>
+<li><p>Are FPGA port permissions set properly? Check the permission bits of the
+port, for example, <code class="docutils literal notranslate"><span class="pre">/dev/intel-fpga-port-0</span></code>. You need READ and WRITE
+permissions to run <code class="docutils literal notranslate"><span class="pre">fpgadiag</span></code> tests.</p></li>
+<li><p>Is hugepage properly configured on the system?
+See <a class="reference external" href="/fpga-doc/docs/install_guide/installation_guide.html">Installation Guide</a>
+for hugepage configuration steps. In particular, <code class="docutils literal notranslate"><span class="pre">fpgadiag</span></code> requires a few 1 GB
+pages.</p></li>
+<li><p>Is the required AFU loaded? See <a class="reference external" href="#description">DESCRIPTION</a> for
+information about what AFU the test requires.</p></li>
+<li><p>Are <code class="docutils literal notranslate"><span class="pre">--begin</span></code> and <code class="docutils literal notranslate"><span class="pre">--end</span></code> values set properly? <code class="docutils literal notranslate"><span class="pre">--end</span></code> must be larger
+than the <code class="docutils literal notranslate"><span class="pre">--begin</span></code>. Also, <code class="docutils literal notranslate"><span class="pre">--begin</span></code> must be a multiple of the
+<code class="docutils literal notranslate"><span class="pre">--multi-cl</span></code> value.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--warm-fpga-cache</span></code> and <code class="docutils literal notranslate"><span class="pre">--cool-fpga-cache</span></code> options in the <code class="docutils literal notranslate"><span class="pre">read</span></code>
+and <code class="docutils literal notranslate"><span class="pre">write</span></code> tests are mutually exclusive.</p></li>
+<li><p>The timeout options are only meaningful for the continuous mode
+(with the <code class="docutils literal notranslate"><span class="pre">--cont</span></code> option).</p></li>
+</ul>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Date | Intel Acceleration Stack Version | Changes Made |
+|:——|—————————-|:————–|
+|2018.05.21| DCP 1.1 Beta (works with Quartus Prime Pro 17.1.1) | fpgadiag now reports the correct values for bandwidth. |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fpgad/fpgad.html" class="btn btn-neutral float-left" title="fpgad" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fpgainfo/fpgainfo.html" class="btn btn-neutral float-right" title="fpgainfo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

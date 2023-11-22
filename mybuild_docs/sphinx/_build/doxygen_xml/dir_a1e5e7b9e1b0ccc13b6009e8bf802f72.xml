@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_a1e5e7b9e1b0ccc13b6009e8bf802f72" kind="dir">
+    <compoundname>samples/hello_events</compoundname>
+    <innerfile refid="hello__events_8c">hello_events.c</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/hello_events/"/>
+  </compounddef>
+</doxygen>

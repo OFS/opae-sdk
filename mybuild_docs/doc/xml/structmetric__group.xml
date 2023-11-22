@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structmetric__group" kind="struct" language="C++" prot="public">
+    <compoundname>metric_group</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmetric__group_1a3aa3cf1268d2ae7783b4b295096be14f" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* metric_group::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="85" column="12" bodyfile="samples/object_api/object_api.c" bodystart="85" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1ac8f8f854299ecb50f1de8960918bf99b" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+        <definition>fpga_token metric_group::token</definition>
+        <argsstring></argsstring>
+        <name>token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="86" column="12" bodyfile="samples/object_api/object_api.c" bodystart="86" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+        <definition>fpga_object metric_group::object</definition>
+        <argsstring></argsstring>
+        <name>object</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="87" column="13" bodyfile="samples/object_api/object_api.c" bodystart="87" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t metric_group::bus</definition>
+        <argsstring></argsstring>
+        <name>bus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="88" column="9" bodyfile="samples/object_api/object_api.c" bodystart="88" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t metric_group::device</definition>
+        <argsstring></argsstring>
+        <name>device</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="89" column="9" bodyfile="samples/object_api/object_api.c" bodystart="89" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t metric_group::function</definition>
+        <argsstring></argsstring>
+        <name>function</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="90" column="9" bodyfile="samples/object_api/object_api.c" bodystart="90" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" prot="public" static="no" mutable="no">
+        <type><ref refid="structnamed__object" kindref="compound">named_object</ref></type>
+        <definition>named_object metric_group::objects[32]</definition>
+        <argsstring>[32]</argsstring>
+        <name>objects</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="91" column="14" bodyfile="samples/object_api/object_api.c" bodystart="91" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t metric_group::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="92" column="8" bodyfile="samples/object_api/object_api.c" bodystart="92" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>named_object</label>
+        <link refid="structnamed__object"/>
+      </node>
+      <node id="1">
+        <label>metric_group</label>
+        <link refid="structmetric__group"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+objects</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="samples/object_api/object_api.c" line="84" column="1" bodyfile="samples/object_api/object_api.c" bodystart="84" bodyend="93"/>
+    <listofallmembers>
+      <member refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" prot="public" virt="non-virtual"><scope>metric_group</scope><name>bus</name></member>
+      <member refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" prot="public" virt="non-virtual"><scope>metric_group</scope><name>count</name></member>
+      <member refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" prot="public" virt="non-virtual"><scope>metric_group</scope><name>device</name></member>
+      <member refid="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" prot="public" virt="non-virtual"><scope>metric_group</scope><name>function</name></member>
+      <member refid="structmetric__group_1a3aa3cf1268d2ae7783b4b295096be14f" prot="public" virt="non-virtual"><scope>metric_group</scope><name>name</name></member>
+      <member refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" prot="public" virt="non-virtual"><scope>metric_group</scope><name>object</name></member>
+      <member refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" prot="public" virt="non-virtual"><scope>metric_group</scope><name>objects</name></member>
+      <member refid="structmetric__group_1ac8f8f854299ecb50f1de8960918bf99b" prot="public" virt="non-virtual"><scope>metric_group</scope><name>token</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__error" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_error</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__error_1a94e3a53258efc2d5f3443a57a10fb1c4" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@125</name>
+        <enumvalue id="unionhost__exerciser_1_1he__error_1a94e3a53258efc2d5f3443a57a10fb1c4acc50ce800065d386ffd094e004a8d4fb" prot="public">
+          <name>offset</name>
+          <initializer>= HE_ERROR</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="274" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="274" bodyend="276"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__error_1a22f48a3ab9d55b81ec5cdb3ffaf8a73d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_error::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="277" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="277" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a93731bfcf8563a4f664e61dd0eccda4c" compoundref="host__exerciser__cmd_8h" startline="91" endline="102">host_exerciser::host_exerciser_cmd::host_exerciser_errors</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__error_1ab0bf6c2a03994e3693af76b057c8c77e" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_error::@126</type>
+        <definition>struct host_exerciser::he_error::@126 host_exerciser::he_error::@127</definition>
+        <argsstring></argsstring>
+        <name>@127</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="281" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_error</label>
+        <link refid="unionhost__exerciser_1_1he__error"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="273" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="273" bodyend="282"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__error_1a94e3a53258efc2d5f3443a57a10fb1c4acc50ce800065d386ffd094e004a8d4fb" prot="public" virt="non-virtual"><scope>host_exerciser::he_error</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__error_1a22f48a3ab9d55b81ec5cdb3ffaf8a73d" prot="public" virt="non-virtual"><scope>host_exerciser::he_error</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

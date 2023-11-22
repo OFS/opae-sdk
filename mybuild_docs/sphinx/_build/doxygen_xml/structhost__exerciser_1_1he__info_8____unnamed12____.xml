@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__info_8____unnamed12____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_info.__unnamed12__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__info_8____unnamed12_____1a409e358f64917dbe8b6ac2ae142f0532" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>write_addr_table_size</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="140" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__info_8____unnamed12_____1abafdaa1c66c594388107242944f8e182" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>read_addr_table_size</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="141" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__info_8____unnamed12_____1a942d4e37dd5607ab68e54755540d4a47" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved</name>
+        <bitfield> 56</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="142" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_info.__unnamed12__</label>
+        <link refid="structhost__exerciser_1_1he__info_8____unnamed12____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="139" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="139" bodyend="143"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__info_8____unnamed12_____1abafdaa1c66c594388107242944f8e182" prot="public" virt="non-virtual"><scope>host_exerciser::he_info.__unnamed12__</scope><name>read_addr_table_size</name></member>
+      <member refid="structhost__exerciser_1_1he__info_8____unnamed12_____1a942d4e37dd5607ab68e54755540d4a47" prot="public" virt="non-virtual"><scope>host_exerciser::he_info.__unnamed12__</scope><name>Reserved</name></member>
+      <member refid="structhost__exerciser_1_1he__info_8____unnamed12_____1a409e358f64917dbe8b6ac2ae142f0532" prot="public" virt="non-virtual"><scope>host_exerciser::he_info.__unnamed12__</scope><name>write_addr_table_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time of Day (ToD) &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Time of Day (ToD)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/docs/tod/tod.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="time-of-day-tod">
+<h1>Time of Day (ToD)<a class="headerlink" href="#time-of-day-tod" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>The Intel FPGA ToD driver in the kernel space exposes ToD IP as PHC (PTP Hardware Clock) device to the Linux PTP (Precision Time Protocol) stack to synchronize the system clock to its ToD information.
+The phc2sys utility of Linux PTP stack is used to access ToD information and synchronize the system clock.</p>
+<p>Install the Linux PTP utilities:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>linuxptp
+</pre></div>
+</div>
+<p>phc_ctl and phc2sys utilities (linuxptp package) are used to control the PHC device and synchronize the system clock to its ToD information.</p>
+<p>phc_ctl: directly controls PHC device clock.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: phc_ctl [options] &lt;device&gt; -- [command]</span>
+
+<span class="go">    device         ethernet or ptp clock device</span>
+<span class="go"> </span>
+<span class="go">Options:</span>
+<span class="go">    -l [num]       set the logging level to &#39;num&#39;</span>
+<span class="go">    -q             do not print messages to the syslog</span>
+<span class="go">    -Q             do not print messages to stdout</span>
+<span class="go">    -v             prints the software version and exits</span>
+<span class="go">    -h             prints this message and exits</span>
+
+<span class="go">Commands:</span>
+<span class="go"> specify commands with arguments. Can specify multiple commands to be executed in order. </span>
+<span class="go"> Seconds are read as double precision floating point values.</span>
+
+<span class="go">    set  [seconds]  set PHC time (defaults to time on CLOCK_REALTIME)</span>
+<span class="go">    get             get PHC time</span>
+<span class="go">    adj  &lt;seconds&gt;  adjust PHC time by offset</span>
+<span class="go">    freq [ppb]      adjust PHC frequency (default returns current offset)</span>
+<span class="go">    cmp             compare PHC offset to CLOCK_REALTIME</span>
+<span class="go">    caps            display device capabilities (default if no command given)</span>
+<span class="go">    wait &lt;seconds&gt;  pause between commands</span>
+<span class="go">                    This command may be useful for sanity checking whether the PHC clock is</span>
+<span class="go">                    running as expected.</span>
+<span class="go">                    The arguments specified in seconds are read as double precision floating point</span>
+<span class="go">                    values, and will scale to nanoseconds. This means providing a value of 5.5 means 5</span>
+<span class="go">                    and one half seconds. This allows specifying fairly precise values for time.</span>
+</pre></div>
+</div>
+<p>phc2sys: synchronize two clocks.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: phc2sys [options]</span>
+
+<span class="go">Automatic configuration:</span>
+<span class="go">    -a             turn on autoconfiguration</span>
+<span class="go">    -r             synchronize system (realtime) clock</span>
+<span class="go">                   repeat -r to consider it also as a time source</span>
+<span class="go"> </span>
+<span class="go">Manual configuration:</span>
+<span class="go">    -c [dev|name]  slave clock (CLOCK_REALTIME)</span>
+<span class="go">    -d [dev]       master PPS device</span>
+<span class="go">    -s [dev|name]  master clock</span>
+<span class="go">    -O [offset]    slave-master time offset (0)</span>
+<span class="go">    -w             wait for ptp4l</span>
+<span class="go"> </span>
+<span class="go">Options:</span>
+<span class="go">    -f [file]      configuration file</span>
+<span class="go">    -E [pi|linreg] clock servo (pi)</span>
+<span class="go">    -P [kp]        proportional constant (0.7)</span>
+<span class="go">    -I [ki]        integration constant (0.3)</span>
+<span class="go">    -S [step]      step threshold (disabled)</span>
+<span class="go">    -F [step]      step threshold only on start (0.00002)</span>
+<span class="go">    -R [rate]      slave clock update rate in HZ (1.0)</span>
+<span class="go">    -N [num]       number of master clock readings per update (5)</span>
+<span class="go">    -L [limit]     sanity frequency limit in ppb (200000000)</span>
+<span class="go">    -M [num]       NTP SHM segment number (0)</span>
+<span class="go">    -u [num]       number of clock updates in summary stats (0)</span>
+<span class="go">    -n [num]       domain number (0)</span>
+<span class="go">    -x             apply leap seconds by servo instead of kernel</span>
+<span class="go">    -z [path]      server address for UDS (/var/run/ptp4l)</span>
+<span class="go">    -l [num]       set the logging level to &#39;num&#39; (6)</span>
+<span class="go">    -t [tag]       add tag to log messages</span>
+<span class="go">    -m             print messages to stdout</span>
+<span class="go">    -q             do not print messages to the syslog</span>
+<span class="go">    -v             prints the software version and exits</span>
+<span class="go">    -h             prints this message and exits</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The phc2sys utility is used to synchronize the system clock to the PTP Hardware Clock (PHC) or ToD clock. The phc_ctl utility is used to directly control PHC clock device.</p>
+<div class="section" id="configuring-the-ptp-service">
+<h3>Configuring the PTP service<a class="headerlink" href="#configuring-the-ptp-service" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li><p>Install the linuxptp package:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>linuxptp
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Check PTP device is created successfully by the ToD driver.</p></li>
+</ol>
+<p>ToD driver registering as PHC device (clock_name: dfl_tod) to the Linux PTP stack and exposing to the Linux kernel to synchronize the system clock to its ToD information.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>cat<span class="w"> </span>/sys/class/ptp/ptp0/clock_name
+<span class="go">dfl_tod</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Configure phc2sys service on a system:</p></li>
+</ol>
+<p>The phc2sys service is configured in the /etc/sysconfig/phc2sys configuration file. Define start-up option for phc2sys daemon in /etc/sysconfig/phc2sys.
+The master clock is /dev/ptp0 device and the slave clock is system clock/CLOCK_REALTIME:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> OPTIONS=&quot;-s /dev/ptp0 -c CLOCK_REALTIME -r -O 0 -R 16&quot;</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Start phc2sys service:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>service<span class="w"> </span>phc2sys<span class="w"> </span>start
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Stop phc2sys service:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>service<span class="w"> </span>phc2sys<span class="w"> </span>stop
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-phc-ctl-utility">
+<h3>using phc_ctl utility<a class="headerlink" href="#using-phc-ctl-utility" title="Permalink to this headline">¶</a></h3>
+<p>Read the current clock time from the PHC clock device:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc_ctl<span class="w"> </span>/dev/ptp0<span class="w"> </span>get
+</pre></div>
+</div>
+<p>Set the PHC clock time to CLOCK_REALTIME:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc_ctl<span class="w"> </span>/dev/ptp0<span class="w"> </span><span class="nb">set</span>
+</pre></div>
+</div>
+<p>Set PHC clock time to 0:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc_ctl<span class="w"> </span>/dev/ptp0<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">0</span>.0
+</pre></div>
+</div>
+<p>Set PHC clock time to 0 and wait for 10 sec and read the clock time:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc_ctl<span class="w"> </span>/dev/ptp0<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">0</span>.0<span class="w"> </span><span class="nb">wait</span><span class="w"> </span><span class="m">10</span>.0<span class="w"> </span>get
+</pre></div>
+</div>
+<p>Set and compare PHC clock time to CLOCK_REALTIME:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc_ctl<span class="w"> </span>/dev/ptp0<span class="w"> </span><span class="nb">set</span><span class="w"> </span>cmp
+</pre></div>
+</div>
+<p>Read the PHC device capabilities:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc_ctl<span class="w"> </span>/dev/ptp0<span class="w"> </span>caps
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-phc2sys-utility">
+<h3>using phc2sys utility<a class="headerlink" href="#using-phc2sys-utility" title="Permalink to this headline">¶</a></h3>
+<p>To synchronize the system clock to the PHC clock:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>phc2sys<span class="w"> </span>-s<span class="w"> </span>/dev/ptp0<span class="w"> </span>-c<span class="w"> </span>CLOCK_REALTIME<span class="w"> </span>-r<span class="w"> </span>-O<span class="w"> </span><span class="m">0</span><span class="w"> </span>-R<span class="w"> </span><span class="m">16</span><span class="w"> </span>-m
+<span class="go">phc2sys[7896.789]: CLOCK_REALTIME phc offset  -1259509 s0 freq  -31462 delay   1338</span>
+<span class="go">phc2sys[7896.852]: CLOCK_REALTIME phc offset  -1261498 s1 freq  -63144 delay   1328</span>
+<span class="go">phc2sys[7896.914]: CLOCK_REALTIME phc offset       -15 s2 freq  -63159 delay   1328</span>
+<span class="go">phc2sys[7896.977]: CLOCK_REALTIME phc offset       -19 s2 freq  -63167 delay   1327</span>
+<span class="go">phc2sys[7897.039]: CLOCK_REALTIME phc offset       -35 s2 freq  -63189 delay   1328</span>
+<span class="go">phc2sys[7897.102]: CLOCK_REALTIME phc offset       -37 s2 freq  -63201 delay   1331</span>
+<span class="go">phc2sys[7897.165]: CLOCK_REALTIME phc offset       -30 s2 freq  -63205 delay   1328</span>
+<span class="go">phc2sys[7897.227]: CLOCK_REALTIME phc offset       -50 s2 freq  -63234 delay   1331</span>
+<span class="go">phc2sys[7897.290]: CLOCK_REALTIME phc offset       -50 s2 freq  -63249 delay   1329</span>
+<span class="go">phc2sys[7897.353]: CLOCK_REALTIME phc offset       -62 s2 freq  -63276 delay   1334</span>
+<span class="go">phc2sys[7897.415]: CLOCK_REALTIME phc offset       -53 s2 freq  -63286 delay   1335</span>
+<span class="go">phc2sys[7897.478]: CLOCK_REALTIME phc offset       -46 s2 freq  -63295 delay   1325</span>
+<span class="go">phc2sys[7897.541]: CLOCK_REALTIME phc offset       -57 s2 freq  -63320 delay   1334</span>
+<span class="go">phc2sys[7897.603]: CLOCK_REALTIME phc offset       -39 s2 freq  -63319 delay   1327</span>
+<span class="go">phc2sys[7897.666]: CLOCK_REALTIME phc offset       -31 s2 freq  -63323 delay   1328</span>
+<span class="go">phc2sys[7897.728]: CLOCK_REALTIME phc offset       -48 s2 freq  -63349 delay   1327</span>
+<span class="go">phc2sys[7897.791]: CLOCK_REALTIME phc offset       -42 s2 freq  -63357 delay   1323</span>
+<span class="go">phc2sys[7897.854]: CLOCK_REALTIME phc offset       -41 s2 freq  -63369 delay   1324</span>
+<span class="go">phc2sys[7897.916]: CLOCK_REALTIME phc offset       -44 s2 freq  -63384 delay   1328</span>
+<span class="go">phc2sys[7897.979]: CLOCK_REALTIME phc offset       -13 s2 freq  -63366 delay   1327</span>
+<span class="go">phc2sys[7898.042]: CLOCK_REALTIME phc offset       -16 s2 freq  -63373 delay   1327</span>
+<span class="go">phc2sys[7898.104]: CLOCK_REALTIME phc offset       -19 s2 freq  -63381 delay   1328</span>
+<span class="go">phc2sys[7898.167]: CLOCK_REALTIME phc offset       -16 s2 freq  -63384 delay   1327</span>
+<span class="go">phc2sys[7898.229]: CLOCK_REALTIME phc offset         3 s2 freq  -63370 delay   1327</span>
+<span class="go">phc2sys[7898.292]: CLOCK_REALTIME phc offset        16 s2 freq  -63356 delay   1325</span>
+<span class="go">phc2sys[7898.355]: CLOCK_REALTIME phc offset        10 s2 freq  -63357 delay   1319</span>
+<span class="go">phc2sys[7898.417]: CLOCK_REALTIME phc offset        23 s2 freq  -63341 delay   1327</span>
+<span class="go">phc2sys[7898.480]: CLOCK_REALTIME phc offset        13 s2 freq  -63344 delay   1335</span>
+<span class="go">phc2sys[7898.543]: CLOCK_REALTIME phc offset        23 s2 freq  -63330 delay   1323</span>
+<span class="go">phc2sys[7898.605]: CLOCK_REALTIME phc offset        29 s2 freq  -63317 delay   1312</span>
+<span class="go">phc2sys[7898.668]: CLOCK_REALTIME phc offset        22 s2 freq  -63315 delay   1324</span>
+<span class="go">phc2sys[7898.730]: CLOCK_REALTIME phc offset        42 s2 freq  -63289 delay   1325</span>
+<span class="go">phc2sys[7898.793]: CLOCK_REALTIME phc offset        29 s2 freq  -63289 delay   1333</span>
+<span class="go">phc2sys[7898.856]: CLOCK_REALTIME phc offset        34 s2 freq  -63276 delay   1327</span>
+<span class="go">phc2sys[7898.918]: CLOCK_REALTIME phc offset        21 s2 freq  -63278 delay   1331</span>
+<span class="go">phc2sys[7898.981]: CLOCK_REALTIME phc offset        22 s2 freq  -63271 delay   1335</span>
+<span class="go">phc2sys[7899.044]: CLOCK_REALTIME phc offset        30 s2 freq  -63256 delay   1327</span>
+<span class="go">phc2sys[7899.106]: CLOCK_REALTIME phc offset        30 s2 freq  -63247 delay   1328</span>
+<span class="go">phc2sys[7899.169]: CLOCK_REALTIME phc offset        37 s2 freq  -63231 delay   1333</span>
+<span class="go">phc2sys[7899.232]: CLOCK_REALTIME phc offset        29 s2 freq  -63228 delay   1331</span>
+<span class="go">phc2sys[7899.294]: CLOCK_REALTIME phc offset        24 s2 freq  -63225 delay   1330</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

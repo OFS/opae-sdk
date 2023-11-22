@@ -1,0 +1,107 @@
+\doxysection{include/opae/umsg.h File Reference}
+\label{umsg_8h}\index{include/opae/umsg.h@{include/opae/umsg.h}}
+
+
+FPGA UMsg API.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{umsg_8h_aedba6aade335067f2dafec0ea92f040a}{fpga\+Get\+Num\+Umsg}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t $\ast$value)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{umsg_8h_aa133e93939c8582925b10516232ef12d}{fpga\+Set\+Umsg\+Attributes}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t value)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{umsg_8h_a9cc53b7511c056c86425eb8f451ac69d}{fpga\+Trigger\+Umsg}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t value)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{umsg_8h_a97cca523fe1142578f3927ae452f4db9}{fpga\+Get\+Umsg\+Ptr}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t $\ast$$\ast$umsg\+\_\+ptr)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+FPGA UMsg API. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{umsg_8h_aedba6aade335067f2dafec0ea92f040a}} 
+\index{umsg.h@{umsg.h}!fpgaGetNumUmsg@{fpgaGetNumUmsg}}
+\index{fpgaGetNumUmsg@{fpgaGetNumUmsg}!umsg.h@{umsg.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetNumUmsg()}{fpgaGetNumUmsg()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Num\+Umsg (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t $\ast$}]{value }\end{DoxyParamCaption})}
+
+Get number of Umsgs
+
+Retuns number of umsg supported by AFU.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ out}}  & {\em value} & Returns number of UMsgs \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if input parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if input parameter fpga handle is not valid. 
+\end{DoxyReturn}
+\mbox{\label{umsg_8h_aa133e93939c8582925b10516232ef12d}} 
+\index{umsg.h@{umsg.h}!fpgaSetUmsgAttributes@{fpgaSetUmsgAttributes}}
+\index{fpgaSetUmsgAttributes@{fpgaSetUmsgAttributes}!umsg.h@{umsg.h}}
+\doxysubsubsection{\texorpdfstring{fpgaSetUmsgAttributes()}{fpgaSetUmsgAttributes()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Set\+Umsg\+Attributes (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t}]{value }\end{DoxyParamCaption})}
+
+Sets Umsg hint
+
+Writes usmg hint bit.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & Value to use for UMsg hint, Umsg hit is N wide bitvector where N = number of Umsgs. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if input parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if input parameter fpga handle is not valid. 
+\end{DoxyReturn}
+\mbox{\label{umsg_8h_a9cc53b7511c056c86425eb8f451ac69d}} 
+\index{umsg.h@{umsg.h}!fpgaTriggerUmsg@{fpgaTriggerUmsg}}
+\index{fpgaTriggerUmsg@{fpgaTriggerUmsg}!umsg.h@{umsg.h}}
+\doxysubsubsection{\texorpdfstring{fpgaTriggerUmsg()}{fpgaTriggerUmsg()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Trigger\+Umsg (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t}]{value }\end{DoxyParamCaption})}
+
+Trigger Umsg
+
+Writes a 64-\/bit value to trigger low-\/latency accelerator notification mechanism (UMsgs).
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & Value to use for UMsg \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if input parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if input parameter fpga handle is not valid. 
+\end{DoxyReturn}
+\mbox{\label{umsg_8h_a97cca523fe1142578f3927ae452f4db9}} 
+\index{umsg.h@{umsg.h}!fpgaGetUmsgPtr@{fpgaGetUmsgPtr}}
+\index{fpgaGetUmsgPtr@{fpgaGetUmsgPtr}!umsg.h@{umsg.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetUmsgPtr()}{fpgaGetUmsgPtr()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Umsg\+Ptr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t $\ast$$\ast$}]{umsg\+\_\+ptr }\end{DoxyParamCaption})}
+
+Access UMsg memory directly
+
+This function will return a pointer to the memory allocated for low latency accelerator notifications (UMsgs).
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ out}}  & {\em umsg\+\_\+ptr} & Pointer to memory where a pointer to the virtual address space will be returned \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if input parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if input parameter fpga handle is not valid. FPGA\+\_\+\+NO\+\_\+\+MEMORY if memory allocation fails or system doesn\textquotesingle{}t configure huge pages. 
+\end{DoxyReturn}

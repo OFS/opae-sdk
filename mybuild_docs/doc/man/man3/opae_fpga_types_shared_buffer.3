@@ -1,0 +1,279 @@
+.TH "opae::fpga::types::shared_buffer" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::shared_buffer
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/shared_buffer\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::size_t \fBsize_t\fP"
+.br
+.ti -1c
+.RI "typedef std::shared_ptr< \fBshared_buffer\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBshared_buffer\fP (const \fBshared_buffer\fP &)=delete"
+.br
+.ti -1c
+.RI "\fBshared_buffer\fP & \fBoperator=\fP (const \fBshared_buffer\fP &)=delete"
+.br
+.ti -1c
+.RI "virtual \fB~shared_buffer\fP ()"
+.br
+.ti -1c
+.RI "void \fBrelease\fP ()"
+.br
+.RI "Disassociate the \fBshared_buffer\fP object from the resource used to create it\&. If the buffer was allocated using the allocate function then the buffer is freed\&. "
+.ti -1c
+.RI "volatile uint8_t * \fBc_type\fP () const"
+.br
+.ti -1c
+.RI "\fBhandle::ptr_t\fP \fBowner\fP () const"
+.br
+.ti -1c
+.RI "\fBsize_t\fP \fBsize\fP () const"
+.br
+.ti -1c
+.RI "uint64_t \fBwsid\fP () const"
+.br
+.ti -1c
+.RI "uint64_t \fBio_address\fP () const"
+.br
+.ti -1c
+.RI "void \fBfill\fP (int c)"
+.br
+.ti -1c
+.RI "int \fBcompare\fP (\fBptr_t\fP other, \fBsize_t\fP len) const"
+.br
+.ti -1c
+.RI "template<typename T > T \fBread\fP (\fBsize_t\fP offset) const"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite\fP (const T &value, \fBsize_t\fP offset)"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBshared_buffer::ptr_t\fP \fBallocate\fP (\fBhandle::ptr_t\fP \fBhandle\fP, \fBsize_t\fP len, bool read_only=false)"
+.br
+.ti -1c
+.RI "static \fBshared_buffer::ptr_t\fP \fBattach\fP (\fBhandle::ptr_t\fP \fBhandle\fP, uint8_t *base, \fBsize_t\fP len, bool read_only=false)"
+.br
+.in -1c
+.SS "Protected Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBshared_buffer\fP (\fBhandle::ptr_t\fP \fBhandle\fP, \fBsize_t\fP len, uint8_t *virt, uint64_t \fBwsid\fP, uint64_t \fBio_address\fP)"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBhandle::ptr_t\fP \fBhandle_\fP"
+.br
+.ti -1c
+.RI "\fBsize_t\fP \fBlen_\fP"
+.br
+.ti -1c
+.RI "uint8_t * \fBvirt_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBwsid_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBio_address_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Host/AFU shared memory blocks
+.PP
+\fBshared_buffer\fP abstracts a memory block that may be shared between the host cpu and an accelerator\&. The block may be allocated by the \fBshared_buffer\fP class itself (see allocate), or it may be allocated elsewhere and then attached to a \fBshared_buffer\fP object via attach\&. 
+.PP
+Definition at line 50 of file shared_buffer\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::size_t \fBopae::fpga::types::shared_buffer::size_t\fP"
+
+.PP
+Definition at line 52 of file shared_buffer\&.h\&.
+.SS "typedef std::shared_ptr<\fBshared_buffer\fP> \fBopae::fpga::types::shared_buffer::ptr_t\fP"
+
+.PP
+Definition at line 53 of file shared_buffer\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::shared_buffer::shared_buffer (const \fBshared_buffer\fP &)\fC [delete]\fP"
+
+.SS "virtual opae::fpga::types::shared_buffer::~shared_buffer ()\fC [virtual]\fP"
+\fBshared_buffer\fP destructor\&. 
+.SS "opae::fpga::types::shared_buffer::shared_buffer (\fBhandle::ptr_t\fP handle, \fBsize_t\fP len, uint8_t * virt, uint64_t wsid, uint64_t io_address)\fC [protected]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBshared_buffer\fP& opae::fpga::types::shared_buffer::operator= (const \fBshared_buffer\fP &)\fC [delete]\fP"
+
+.SS "static \fBshared_buffer::ptr_t\fP opae::fpga::types::shared_buffer::allocate (\fBhandle::ptr_t\fP handle, \fBsize_t\fP len, bool read_only = \fCfalse\fP)\fC [static]\fP"
+\fBshared_buffer\fP factory method - allocate a \fBshared_buffer\fP\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP The handle used to allocate the buffer\&. 
+.br
+\fIlen\fP The length in bytes of the requested buffer\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A valid \fBshared_buffer\fP smart pointer on success, or an empty smart pointer on failure\&. 
+.RE
+.PP
+
+.PP
+Referenced by dummy_afu::dummy_afu::allocate(), and host_exerciser::host_exerciser::allocate()\&.
+.SS "static \fBshared_buffer::ptr_t\fP opae::fpga::types::shared_buffer::attach (\fBhandle::ptr_t\fP handle, uint8_t * base, \fBsize_t\fP len, bool read_only = \fCfalse\fP)\fC [static]\fP"
+Attach a pre-allocated buffer to a \fBshared_buffer\fP object\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP The handle used to attach the buffer\&. 
+.br
+\fIbase\fP The base of the pre-allocated memory\&. 
+.br
+\fIlen\fP The size of the pre-allocated memory, which must be a multiple of the page size\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A valid \fBshared_buffer\fP smart pointer on success, or an empty smart pointer on failure\&. 
+.RE
+.PP
+
+.SS "void opae::fpga::types::shared_buffer::release ()"
+
+.PP
+Disassociate the \fBshared_buffer\fP object from the resource used to create it\&. If the buffer was allocated using the allocate function then the buffer is freed\&. 
+.SS "volatile uint8_t* opae::fpga::types::shared_buffer::c_type () const\fC [inline]\fP"
+Retrieve the virtual address of the buffer base\&.
+.PP
+\fBNote\fP
+.RS 4
+Instances of a shared buffer can only be created using either 'allocate' or 'attach' static factory function\&. Because these functions return a shared pointer (std::shared_ptr) to the instance, references to an instance are counted automatically by design of the shared_ptr class\&. Calling '\fBc_type()\fP' function is provided to get access to the raw data but isn't used in tracking its reference count\&. Assigning this to a variable should be done in limited scopes as this variable can be defined in an outer scope and may outlive the \fBshared_buffer\fP object\&. Once the reference count in the shared_ptr reaches zero, the \fBshared_buffer\fP object will be released and deallocated, turning any variables assigned from a call to '\fBc_type()\fP' into dangling pointers\&. 
+.RE
+.PP
+
+.PP
+Definition at line 104 of file shared_buffer\&.h\&.
+.PP
+References virt_\&.
+.SS "\fBhandle::ptr_t\fP opae::fpga::types::shared_buffer::owner () const\fC [inline]\fP"
+Retrieve the handle smart pointer associated with this buffer\&. 
+.PP
+Definition at line 109 of file shared_buffer\&.h\&.
+.PP
+References handle_\&.
+.SS "\fBsize_t\fP opae::fpga::types::shared_buffer::size () const\fC [inline]\fP"
+Retrieve the length of the buffer in bytes\&. 
+.PP
+Definition at line 113 of file shared_buffer\&.h\&.
+.PP
+References len_\&.
+.SS "uint64_t opae::fpga::types::shared_buffer::wsid () const\fC [inline]\fP"
+Retrieve the underlying buffer's workspace id\&. 
+.PP
+Definition at line 117 of file shared_buffer\&.h\&.
+.PP
+References wsid_\&.
+.SS "uint64_t opae::fpga::types::shared_buffer::io_address () const\fC [inline]\fP"
+Retrieve the address of the buffer suitable for programming into the accelerator device\&. 
+.PP
+Definition at line 122 of file shared_buffer\&.h\&.
+.PP
+References io_address_\&.
+.SS "void opae::fpga::types::shared_buffer::fill (int c)"
+Write c to each byte location in the buffer\&. 
+.SS "int opae::fpga::types::shared_buffer::compare (\fBptr_t\fP other, \fBsize_t\fP len) const"
+Compare this \fBshared_buffer\fP (the first len bytes) to that held in other, using memcmp()\&. 
+.SS "template<typename T > T opae::fpga::types::shared_buffer::read (\fBsize_t\fP offset) const\fC [inline]\fP"
+Read a T-sized block of memory at the given location\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The byte offset from the start of the buffer\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A T from buffer base + offset\&. 
+.RE
+.PP
+
+.PP
+Definition at line 138 of file shared_buffer\&.h\&.
+.PP
+References len_, OPAECXX_HERE, and virt_\&.
+.SS "template<typename T > void opae::fpga::types::shared_buffer::write (const T & value, \fBsize_t\fP offset)\fC [inline]\fP"
+Write a T-sized block of memory to the given location\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIvalue\fP The value to write\&. 
+.br
+\fIoffset\fP The byte offset from the start of the buffer\&. 
+.RE
+.PP
+
+.PP
+Definition at line 154 of file shared_buffer\&.h\&.
+.PP
+References len_, OPAECXX_HERE, and virt_\&.
+.SH "Field Documentation"
+.PP 
+.SS "\fBhandle::ptr_t\fP opae::fpga::types::shared_buffer::handle_\fC [protected]\fP"
+
+.PP
+Definition at line 168 of file shared_buffer\&.h\&.
+.PP
+Referenced by owner()\&.
+.SS "\fBsize_t\fP opae::fpga::types::shared_buffer::len_\fC [protected]\fP"
+
+.PP
+Definition at line 169 of file shared_buffer\&.h\&.
+.PP
+Referenced by read(), size(), and write()\&.
+.SS "uint8_t* opae::fpga::types::shared_buffer::virt_\fC [protected]\fP"
+
+.PP
+Definition at line 170 of file shared_buffer\&.h\&.
+.PP
+Referenced by c_type(), read(), and write()\&.
+.SS "uint64_t opae::fpga::types::shared_buffer::wsid_\fC [protected]\fP"
+
+.PP
+Definition at line 171 of file shared_buffer\&.h\&.
+.PP
+Referenced by wsid()\&.
+.SS "uint64_t opae::fpga::types::shared_buffer::io_address_\fC [protected]\fP"
+
+.PP
+Definition at line 172 of file shared_buffer\&.h\&.
+.PP
+Referenced by io_address()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,46 @@
+.TH "samples/dummy_afu/mmio.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/dummy_afu/mmio.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <chrono>\fP
+.br
+\fC#include 'dummy_afu\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBdummy_afu::mmio_test\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBdummy_afu\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename T > void \fBdummy_afu::timeit_wr\fP (std::shared_ptr< spdlog::logger > log, dummy_afu *afu, uint32_t count)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBdummy_afu::timeit_rd\fP (std::shared_ptr< spdlog::logger > log, dummy_afu *afu, uint32_t count)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBdummy_afu::write_verify\fP (dummy_afu *afu, uint32_t addr, T value)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBdummy_afu::write_verify\fP (dummy_afu *afu, uint32_t addr, uint32_t i, uint64_t value)"
+.br
+.in -1c
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

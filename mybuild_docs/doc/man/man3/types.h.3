@@ -1,0 +1,402 @@
+.TH "include/opae/types.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/types.h \- Type definitions for FPGA API\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+\fC#include <stdbool\&.h>\fP
+.br
+\fC#include <opae/types_enum\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBfpga_version\fP"
+.br
+.ti -1c
+.RI "struct \fBfpga_error_info\fP"
+.br
+.ti -1c
+.RI "union \fBmetric_value\fP"
+.br
+.ti -1c
+.RI "struct \fBfpga_metric_info\fP"
+.br
+.ti -1c
+.RI "struct \fBfpga_metric\fP"
+.br
+.ti -1c
+.RI "struct \fBthreshold\fP"
+.br
+.ti -1c
+.RI "struct \fBmetric_threshold\fP"
+.br
+.ti -1c
+.RI "struct \fBfpga_token_header\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBFPGA_ERROR_NAME_MAX\fP   64"
+.br
+.ti -1c
+.RI "#define \fBFPGA_METRIC_STR_SIZE\fP   256"
+.br
+.ti -1c
+.RI "#define \fBfpga_is_parent_child\fP(__parent_hdr,  __child_hdr)"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef void * \fBfpga_properties\fP"
+.br
+.ti -1c
+.RI "typedef void * \fBfpga_token\fP"
+.br
+.ti -1c
+.RI "typedef void * \fBfpga_handle\fP"
+.br
+.ti -1c
+.RI "typedef uint8_t \fBfpga_guid\fP[16]"
+.br
+.ti -1c
+.RI "typedef void * \fBfpga_event_handle\fP"
+.br
+.ti -1c
+.RI "typedef void * \fBfpga_object\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Type definitions for FPGA API\&. 
+
+OPAE uses the three opaque types fpga_properties, fpga_token, and fpga_handle to create a hierarchy of objects that can be used to enumerate, reference, acquire, and query FPGA resources\&. This object model is designed to be extensible to account for different FPGA architectures and platforms\&.
+.SS "Initialization"
+OPAEs management of the opaque types \fCfpga_properties\fP, \fCfpga_token\fP, and \fCfpga_handle\fP relies on the proper initialization of variables of these types\&. In other words, before doing anything with a variable of one of these opaque types, you need to first initialize them\&.
+.PP
+The respective functions that initialize opaque types are:
+.PP
+.IP "\(bu" 2
+\fBfpgaGetProperties()\fP and \fBfpgaCloneProperties()\fP for \fCfpga_properties\fP
+.IP "\(bu" 2
+\fBfpgaEnumerate()\fP and \fBfpgaCloneToken()\fP for \fCfpga_token\fP
+.IP "\(bu" 2
+\fBfpgaOpen()\fP for \fCfpga_handle\fP
+.PP
+.PP
+This should intuitively make sense - \fBfpgaGetProperties()\fP creates \fCfpga_properties\fP objects, \fBfpgaEnumerate()\fP creates \fCfpga_token\fP objects, \fBfpgaOpen()\fP creates \fCfpga_handle\fP objects, and \fBfpgaCloneProperties()\fP and \fBfpgaCloneToken()\fP clone (create) \fCfpga_properties\fP and \fCfpga_token\fP objects, respectively\&.
+.PP
+Since these opaque types are interpreted as pointers (they are typedef'd to a \fCvoid *\fP), passing an uninitialized opaque type into any function except the respective initailzation function will result in undefined behaviour, because OPAE will try to follow an invalid pointer\&. Undefined behaviour in this case may include an unexpected error code, or an application crash\&. 
+.PP
+Definition in file \fBtypes\&.h\fP\&.
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct fpga_version"
+.PP 
+Semantic version
+.PP
+Data structure for expressing version identifiers following the semantic versioning scheme\&. Used in various properties for tracking component versions\&. 
+.PP
+Definition at line 142 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint8_t \fImajor\fP Major version 
+.br
+.PP
+uint8_t \fIminor\fP Minor version 
+.br
+.PP
+uint16_t \fIpatch\fP Revision or patchlevel 
+.br
+.PP
+.RE
+.PP
+.SH "struct fpga_error_info"
+.PP 
+Definition at line 169 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+char \fIname[64]\fP 
+.br
+.PP
+bool \fIcan_clear\fP name of the error 
+.br
+.PP
+.RE
+.PP
+.SH "union metric_value"
+.PP 
+Metric value union 
+.PP
+Definition at line 200 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIivalue\fP 
+.br
+.PP
+double \fIdvalue\fP 
+.br
+.PP
+float \fIfvalue\fP 
+.br
+.PP
+bool \fIbvalue\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct fpga_metric_info"
+.PP 
+Metric info struct 
+.PP
+Definition at line 212 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fImetric_num\fP 
+.br
+.PP
+\fBfpga_guid\fP \fImetric_guid\fP 
+.br
+.PP
+char \fIqualifier_name[256]\fP 
+.br
+.PP
+char \fIgroup_name[256]\fP 
+.br
+.PP
+char \fImetric_name[256]\fP 
+.br
+.PP
+char \fImetric_units[256]\fP 
+.br
+.PP
+enum \fBfpga_metric_datatype\fP \fImetric_datatype\fP 
+.br
+.PP
+enum \fBfpga_metric_type\fP \fImetric_type\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct fpga_metric"
+.PP 
+Metric struct 
+.PP
+Definition at line 227 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fImetric_num\fP 
+.br
+.PP
+\fBmetric_value\fP \fIvalue\fP 
+.br
+.PP
+bool \fIisvalid\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct threshold"
+.PP 
+Threshold struct 
+.PP
+Definition at line 238 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+char \fIthreshold_name[256]\fP 
+.br
+.PP
+uint32_t \fIis_valid\fP 
+.br
+.PP
+double \fIvalue\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct metric_threshold"
+.PP 
+Definition at line 244 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+char \fImetric_name[256]\fP 
+.br
+.PP
+\fBthreshold\fP \fIupper_nr_threshold\fP 
+.br
+.PP
+\fBthreshold\fP \fIupper_c_threshold\fP 
+.br
+.PP
+\fBthreshold\fP \fIupper_nc_threshold\fP 
+.br
+.PP
+\fBthreshold\fP \fIlower_nr_threshold\fP 
+.br
+.PP
+\fBthreshold\fP \fIlower_c_threshold\fP 
+.br
+.PP
+\fBthreshold\fP \fIlower_nc_threshold\fP 
+.br
+.PP
+\fBthreshold\fP \fIhysteresis\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct fpga_token_header"
+.PP 
+Internal token type header
+.PP
+Each plugin (dfl: libxfpga\&.so, vfio: libopae-v\&.so) implements its own proprietary token type\&. This header \fImust\fP appear at offset zero within that structure\&.
+.PP
+eg, see lib/plugins/xfpga/types_int\&.h:struct _fpga_token and lib/plugins/vfio/opae_vfio\&.h:struct _vfio_token\&. 
+.PP
+Definition at line 264 of file types\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fImagic\fP 
+.br
+.PP
+uint16_t \fIvendor_id\fP 
+.br
+.PP
+uint16_t \fIdevice_id\fP 
+.br
+.PP
+uint16_t \fIsegment\fP 
+.br
+.PP
+uint8_t \fIbus\fP 
+.br
+.PP
+uint8_t \fIdevice\fP 
+.br
+.PP
+uint8_t \fIfunction\fP 
+.br
+.PP
+\fBfpga_interface\fP \fIinterface\fP 
+.br
+.PP
+\fBfpga_objtype\fP \fIobjtype\fP 
+.br
+.PP
+uint64_t \fIobject_id\fP 
+.br
+.PP
+\fBfpga_guid\fP \fIguid\fP 
+.br
+.PP
+uint16_t \fIsubsystem_vendor_id\fP 
+.br
+.PP
+uint16_t \fIsubsystem_device_id\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define FPGA_ERROR_NAME_MAX   64"
+Information about an error register
+.PP
+This data structure captures information about an error register exposed by an accelerator resource\&. The error API provides functions to retrieve these information structures from a particular resource\&. 
+.PP
+Definition at line 168 of file types\&.h\&.
+.SS "#define FPGA_METRIC_STR_SIZE   256"
+FPGA Metric string size 
+.PP
+Definition at line 195 of file types\&.h\&.
+.SS "#define fpga_is_parent_child(__parent_hdr, __child_hdr)"
+\fBValue:\fP
+.PP
+.nf
+(((__parent_hdr)->objtype == FPGA_DEVICE) && \
+ ((__child_hdr)->objtype == FPGA_ACCELERATOR) && \
+ ((__parent_hdr)->segment == (__child_hdr)->segment) && \
+ ((__parent_hdr)->bus == (__child_hdr)->bus) && \
+ ((__parent_hdr)->device == (__child_hdr)->device))
+.fi
+Determine token parent/child relationship
+.PP
+Given pointers to two \fBfpga_token_header\fP structs, determine whether the first is the parent of the second\&. A parent will have objtype == FPGA_DEVICE\&. A child will have objtype == FPGA_ACCELERATOR\&. The PCIe address of the two headers will match in all but the function fields\&. 
+.PP
+Definition at line 288 of file types\&.h\&.
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef void* \fBfpga_properties\fP"
+Object for expressing FPGA resource properties
+.PP
+\fCfpga_properties\fP objects encapsulate all enumerable information about an FPGA resources\&. They can be used for two purposes: selective enumeration (discovery) and querying information about existing resources\&.
+.PP
+For selective enumeration, usually an empty \fCfpga_properties\fP object is created (using \fBfpgaGetProperties()\fP) and then populated with the desired criteria for enumeration\&. An array of \fCfpga_properties\fP can then be passed to \fBfpgaEnumerate()\fP, which will return a list of \fCfpga_token\fP objects matching these criteria\&.
+.PP
+For querying properties of existing FPGA resources, \fBfpgaGetProperties()\fP can also take an \fCfpga_token\fP and will return an \fCfpga_properties\fP object populated with information about the resource referenced by that token\&.
+.PP
+After use, \fCfpga_properties\fP objects should be destroyed using fpga_destroyProperties() to free backing memory used by the \fCfpga_properties\fP object\&. 
+.PP
+Definition at line 92 of file types\&.h\&.
+.SS "typedef void* \fBfpga_token\fP"
+Token for referencing FPGA resources
+.PP
+An \fCfpga_token\fP serves as a reference to a specific FPGA resource present in the system\&. Holding an \fCfpga_token\fP does not constitute ownership of the FPGA resource - it merely allows the user to query further information about a resource, or to use \fBfpgaOpen()\fP to acquire ownership\&.
+.PP
+\fCfpga_token\fPs are usually returned by \fBfpgaEnumerate()\fP or \fBfpgaPropertiesGetParent()\fP, and used by \fBfpgaOpen()\fP to acquire ownership and yield a handle to the resource\&. Some API calls also take \fCfpga_token\fPs as arguments if they don't require ownership of the resource in question\&. 
+.PP
+Definition at line 107 of file types\&.h\&.
+.SS "typedef void* \fBfpga_handle\fP"
+Handle to an FPGA resource
+.PP
+A valid \fCfpga_handle\fP object, as populated by \fBfpgaOpen()\fP, denotes ownership of an FPGA resource\&. Note that ownership can be exclusive or shared, depending on the flags used in \fBfpgaOpen()\fP\&. Ownership can be released by calling \fBfpgaClose()\fP, which will render the underlying handle invalid\&.
+.PP
+Many OPAE C API functions require a valid token (which is synonymous with ownership of the resource)\&. 
+.PP
+Definition at line 120 of file types\&.h\&.
+.SS "typedef uint8_t fpga_guid[16]"
+Globally unique identifier (GUID)
+.PP
+GUIDs are used widely within OPAE for helping identify FPGA resources\&. For example, every FPGA resource has a \fCguid\fP property, which can be (and in the case of FPGA_ACCELERATOR resource primarily is) used for enumerating a resource of a specific type\&.
+.PP
+\fCfpga_guid\fP is compatible with libuuid's uuid_t, so users can use libuuid functions like uuid_parse() to create and work with GUIDs\&. 
+.PP
+Definition at line 133 of file types\&.h\&.
+.SS "typedef void* \fBfpga_event_handle\fP"
+Handle to an event object
+.PP
+OPAE provides an interface to asynchronous events that can be generated by different FPGA resources\&. The event API provides functions to register for these events; associated with every event a process has registered for is an \fCfpga_event_handle\fP, which encapsulates the OS-specific data structure for event objects\&.
+.PP
+After use, \fCfpga_event_handle\fP objects should be destroyed using \fBfpgaDestroyEventHandle()\fP to free backing memory used by the \fCfpga_event_handle\fP object\&. 
+.PP
+Definition at line 160 of file types\&.h\&.
+.SS "typedef void* \fBfpga_object\fP"
+Object pertaining to an FPGA resource as identified by a unique name
+.PP
+An \fCfpga_object\fP represents either a device attribute or a container of attributes\&. Similar to filesystems, a '/' may be used to seperate objects in an object hierarchy\&. Once on object is acquired, it may be used to read or write data in a resource attribute or to query sub-objects if the object is a container object\&. The data in an object is buffered and will be kept around until the object is destroyed\&. Additionally, the data in an attribute can by synchronized from the owning resource using the FPGA_OBJECT_SYNC flag during read operations\&. The name identifying the object is unique with respect to the resource that owns it\&. A parent resource may be identified by an \fCfpga_token\fP object, by an \fCfpga_handle\fP object, or another \fCfpga_object\fP object\&. If a handle object is used when opening the object, then the object is opened with read-write access\&. Otherwise, the object is read-only\&. 
+.PP
+Definition at line 189 of file types\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

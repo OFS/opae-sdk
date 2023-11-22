@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__inact__thresh" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_inact_thresh</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__inact__thresh_1ad63660d7786206aff3172dede4ba4957" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@110</name>
+        <enumvalue id="unionhost__exerciser_1_1he__inact__thresh_1ad63660d7786206aff3172dede4ba4957ac52f9d87b88da47a40e657896bd0f1f7" prot="public">
+          <name>offset</name>
+          <initializer>= HE_INACT_THRESH</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="213" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="213" bodyend="215"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__inact__thresh_1a15da343d72abc691b156ea26a9a2f242" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_inact_thresh::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="216" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__inact__thresh_1aef09488576c936b6916be5d15396a3dd" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_inact_thresh::@111</type>
+        <definition>struct host_exerciser::he_inact_thresh::@111 host_exerciser::he_inact_thresh::@112</definition>
+        <argsstring></argsstring>
+        <name>@112</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="219" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_inact_thresh</label>
+        <link refid="unionhost__exerciser_1_1he__inact__thresh"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="212" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="212" bodyend="220"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__inact__thresh_1ad63660d7786206aff3172dede4ba4957ac52f9d87b88da47a40e657896bd0f1f7" prot="public" virt="non-virtual"><scope>host_exerciser::he_inact_thresh</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__inact__thresh_1a15da343d72abc691b156ea26a9a2f242" prot="public" virt="non-virtual"><scope>host_exerciser::he_inact_thresh</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

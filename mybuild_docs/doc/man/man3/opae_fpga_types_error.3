@@ -1,0 +1,194 @@
+.TH "opae::fpga::types::error" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::error \- An error object represents an error register for a resource\&. This is used to read out the raw value in the register\&. No parsing is done by this class\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/errors\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::shared_ptr< \fBerror\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBerror\fP (const \fBerror\fP &e)=delete"
+.br
+.ti -1c
+.RI "\fBerror\fP & \fBoperator=\fP (const \fBerror\fP &e)=delete"
+.br
+.ti -1c
+.RI "std::string \fBname\fP ()"
+.br
+.RI "Get the error register name\&. "
+.ti -1c
+.RI "bool \fBcan_clear\fP ()"
+.br
+.RI "Indicates whether an error register can be cleared\&. "
+.ti -1c
+.RI "uint64_t \fBread_value\fP ()"
+.br
+.RI "Read the raw value contained in the associated error register\&. "
+.ti -1c
+.RI "\fB~error\fP ()"
+.br
+.ti -1c
+.RI "\fBfpga_error_info\fP \fBc_type\fP () const"
+.br
+.RI "Get the C data structure\&. "
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBerror::ptr_t\fP \fBget\fP (\fBtoken::ptr_t\fP tok, uint32_t num)"
+.br
+.RI "Factory function for creating an error object\&. "
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBerror\fP (\fBtoken::ptr_t\fP \fBtoken\fP, uint32_t num)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBtoken_\fP"
+.br
+.ti -1c
+.RI "\fBfpga_error_info\fP \fBerror_info_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBerror_num_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+An error object represents an error register for a resource\&. This is used to read out the raw value in the register\&. No parsing is done by this class\&. 
+.PP
+Definition at line 42 of file errors\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::shared_ptr<\fBerror\fP> \fBopae::fpga::types::error::ptr_t\fP"
+
+.PP
+Definition at line 44 of file errors\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::error::error (const \fBerror\fP & e)\fC [delete]\fP"
+
+.SS "opae::fpga::types::error::~error ()\fC [inline]\fP"
+
+.PP
+Definition at line 82 of file errors\&.h\&.
+.SS "opae::fpga::types::error::error (\fBtoken::ptr_t\fP token, uint32_t num)\fC [private]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBerror\fP& opae::fpga::types::error::operator= (const \fBerror\fP & e)\fC [delete]\fP"
+
+.SS "static \fBerror::ptr_t\fP opae::fpga::types::error::get (\fBtoken::ptr_t\fP tok, uint32_t num)\fC [static]\fP"
+
+.PP
+Factory function for creating an error object\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fItok\fP The token object representing a resource\&. 
+.br
+\fInum\fP The index of the error register\&. This must be lower than the num_errors property of the resource\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A shared_ptr containing the error object 
+.RE
+.PP
+
+.SS "std::string opae::fpga::types::error::name ()\fC [inline]\fP"
+
+.PP
+Get the error register name\&. 
+.PP
+\fBReturns\fP
+.RS 4
+A std::string object set to the error name\&. 
+.RE
+.PP
+
+.PP
+Definition at line 66 of file errors\&.h\&.
+.PP
+References error_info_, and fpga_error_info::name\&.
+.SS "bool opae::fpga::types::error::can_clear ()\fC [inline]\fP"
+
+.PP
+Indicates whether an error register can be cleared\&. 
+.PP
+\fBReturns\fP
+.RS 4
+A boolean value indicating if the error register can be cleared\&. 
+.RE
+.PP
+
+.PP
+Definition at line 73 of file errors\&.h\&.
+.PP
+References fpga_error_info::can_clear, and error_info_\&.
+.SS "uint64_t opae::fpga::types::error::read_value ()"
+
+.PP
+Read the raw value contained in the associated error register\&. 
+.PP
+\fBReturns\fP
+.RS 4
+A 64-bit value (unparsed) read from the error register 
+.RE
+.PP
+
+.SS "\fBfpga_error_info\fP opae::fpga::types::error::c_type () const\fC [inline]\fP"
+
+.PP
+Get the C data structure\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The \fBfpga_error_info\fP that contains the name and the can_clear boolean\&. 
+.RE
+.PP
+
+.PP
+Definition at line 90 of file errors\&.h\&.
+.PP
+References error_info_\&.
+.SH "Field Documentation"
+.PP 
+.SS "\fBtoken::ptr_t\fP opae::fpga::types::error::token_\fC [private]\fP"
+
+.PP
+Definition at line 94 of file errors\&.h\&.
+.SS "\fBfpga_error_info\fP opae::fpga::types::error::error_info_\fC [private]\fP"
+
+.PP
+Definition at line 95 of file errors\&.h\&.
+.PP
+Referenced by c_type(), can_clear(), and name()\&.
+.SS "uint32_t opae::fpga::types::error::error_num_\fC [private]\fP"
+
+.PP
+Definition at line 96 of file errors\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

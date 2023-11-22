@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structfpga__token__header" kind="struct" language="C++" prot="public">
+    <compoundname>fpga_token_header</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfpga__token__header_1a2f1ca035b23b1d256c0897c87088e3e9" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t fpga_token_header::magic</definition>
+        <argsstring></argsstring>
+        <name>magic</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="265" column="10" bodyfile="include/opae/types.h" bodystart="265" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1a9d6a110f9565c98f6af128b544ccd9d7" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t fpga_token_header::vendor_id</definition>
+        <argsstring></argsstring>
+        <name>vendor_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="266" column="10" bodyfile="include/opae/types.h" bodystart="266" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1adbd582f365bccde67633a77ee997b82f" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t fpga_token_header::device_id</definition>
+        <argsstring></argsstring>
+        <name>device_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="267" column="10" bodyfile="include/opae/types.h" bodystart="267" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1a9d99b916146fb609bf7266ee5facea92" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t fpga_token_header::segment</definition>
+        <argsstring></argsstring>
+        <name>segment</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="268" column="10" bodyfile="include/opae/types.h" bodystart="268" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1a0e5a70d6ef42a26544d85ea50340fb36" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t fpga_token_header::bus</definition>
+        <argsstring></argsstring>
+        <name>bus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="269" column="9" bodyfile="include/opae/types.h" bodystart="269" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1a44e4a70a27892c61fd9dc0ef8899ce87" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t fpga_token_header::device</definition>
+        <argsstring></argsstring>
+        <name>device</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="270" column="9" bodyfile="include/opae/types.h" bodystart="270" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1ae517a83a32a886df54165c583cc5aa0a" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t fpga_token_header::function</definition>
+        <argsstring></argsstring>
+        <name>function</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="271" column="9" bodyfile="include/opae/types.h" bodystart="271" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1aa51f72f309bb8d31b997592b802db331" prot="public" static="no" mutable="no">
+        <type><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref></type>
+        <definition>fpga_interface fpga_token_header::interface</definition>
+        <argsstring></argsstring>
+        <name>interface</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="272" column="16" bodyfile="include/opae/types.h" bodystart="272" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1aedd4a4c842c5c40092041dc02ea059b2" prot="public" static="no" mutable="no">
+        <type><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref></type>
+        <definition>fpga_objtype fpga_token_header::objtype</definition>
+        <argsstring></argsstring>
+        <name>objtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="273" column="14" bodyfile="include/opae/types.h" bodystart="273" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1ada99f326ab6582aa3a209ef6b9bd4003" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t fpga_token_header::object_id</definition>
+        <argsstring></argsstring>
+        <name>object_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="274" column="10" bodyfile="include/opae/types.h" bodystart="274" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1ae24e0a1d32b1f940e7ffb96a34c31345" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref></type>
+        <definition>fpga_guid fpga_token_header::guid</definition>
+        <argsstring></argsstring>
+        <name>guid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="275" column="11" bodyfile="include/opae/types.h" bodystart="275" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1aeaca575d589325a187b9abea66a4192a" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t fpga_token_header::subsystem_vendor_id</definition>
+        <argsstring></argsstring>
+        <name>subsystem_vendor_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="276" column="10" bodyfile="include/opae/types.h" bodystart="276" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__token__header_1a2710b5d055ec2e27b627e27dfa84007f" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t fpga_token_header::subsystem_device_id</definition>
+        <argsstring></argsstring>
+        <name>subsystem_device_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="277" column="10" bodyfile="include/opae/types.h" bodystart="277" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Internal token type header</para>
+<para>Each plugin (dfl: libxfpga.so, vfio: libopae-v.so) implements its own proprietary token type. This header <emphasis>must</emphasis> appear at offset zero within that structure.</para>
+<para>eg, see lib/plugins/xfpga/types_int.h:struct _fpga_token and lib/plugins/vfio/opae_vfio.h:struct _vfio_token. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>fpga_token_header</label>
+        <link refid="structfpga__token__header"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="264" column="1" bodyfile="include/opae/types.h" bodystart="264" bodyend="278"/>
+    <listofallmembers>
+      <member refid="structfpga__token__header_1a0e5a70d6ef42a26544d85ea50340fb36" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>bus</name></member>
+      <member refid="structfpga__token__header_1a44e4a70a27892c61fd9dc0ef8899ce87" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>device</name></member>
+      <member refid="structfpga__token__header_1adbd582f365bccde67633a77ee997b82f" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>device_id</name></member>
+      <member refid="structfpga__token__header_1ae517a83a32a886df54165c583cc5aa0a" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>function</name></member>
+      <member refid="structfpga__token__header_1ae24e0a1d32b1f940e7ffb96a34c31345" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>guid</name></member>
+      <member refid="structfpga__token__header_1aa51f72f309bb8d31b997592b802db331" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>interface</name></member>
+      <member refid="structfpga__token__header_1a2f1ca035b23b1d256c0897c87088e3e9" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>magic</name></member>
+      <member refid="structfpga__token__header_1ada99f326ab6582aa3a209ef6b9bd4003" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>object_id</name></member>
+      <member refid="structfpga__token__header_1aedd4a4c842c5c40092041dc02ea059b2" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>objtype</name></member>
+      <member refid="structfpga__token__header_1a9d99b916146fb609bf7266ee5facea92" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>segment</name></member>
+      <member refid="structfpga__token__header_1a2710b5d055ec2e27b627e27dfa84007f" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>subsystem_device_id</name></member>
+      <member refid="structfpga__token__header_1aeaca575d589325a187b9abea66a4192a" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>subsystem_vendor_id</name></member>
+      <member refid="structfpga__token__header_1a9d6a110f9565c98f6af128b544ccd9d7" prot="public" virt="non-virtual"><scope>fpga_token_header</scope><name>vendor_id</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

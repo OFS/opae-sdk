@@ -1,0 +1,315 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classhost__exerciser_1_1he__cache__lpbk__cmd" kind="class" language="C++" prot="public">
+    <compoundname>host_exerciser::he_cache_lpbk_cmd</compoundname>
+    <basecompoundref refid="classhost__exerciser_1_1he__cmd" prot="public" virt="non-virtual">host_exerciser::he_cmd</basecompoundref>
+    <includes refid="cxl__he__cache__lpbk__cmd_8h" local="no">/root/samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1aee33c1d26fa394cd89241adadab1c6d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>host_exerciser::he_cache_lpbk_cmd::he_cache_lpbk_cmd</definition>
+        <argsstring>()</argsstring>
+        <name>he_cache_lpbk_cmd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="35" column="3" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="35" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1aede4cf726a7c4070b764aeb57bc55f3e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual host_exerciser::he_cache_lpbk_cmd::~he_cache_lpbk_cmd</definition>
+        <argsstring>()</argsstring>
+        <name>~he_cache_lpbk_cmd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="36" column="11" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="36" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0ea268f42319ad21821cdc68bcbbb044" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::he_cache_lpbk_cmd::name</definition>
+        <argsstring>() const override</argsstring>
+        <name>name</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052">name</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="38" column="22" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="38" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1ab7eff8c744aaba805f6a41635951ac15" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::he_cache_lpbk_cmd::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="40" column="22" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="40" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0626c7d3280125843db5e3a257e89e6c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::he_cache_lpbk_cmd::afu_id</definition>
+        <argsstring>() const override</argsstring>
+        <name>afu_id</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb">afu_id</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="44" column="22" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="44" bodyend="44"/>
+        <references refid="cxl__host__exerciser_8h_1a72d02b17946176eac3d194950f7f02c8" compoundref="cxl__host__exerciser_8h" startline="33">HE_CACHE_AFU_ID</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1aef5411cc95e437d3d3e8f3e39eda0af3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t host_exerciser::he_cache_lpbk_cmd::featureid</definition>
+        <argsstring>() const override</argsstring>
+        <name>featureid</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7">featureid</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="46" column="20" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="46" bodyend="46"/>
+        <references refid="cxl__host__exerciser_8h_1a4736703a0eb0915314304d527acdf55d" compoundref="cxl__host__exerciser_8h" startline="30">MEM_TG_FEATURE_ID</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1a7d031954754042cdfb36e2ac47859552" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t host_exerciser::he_cache_lpbk_cmd::guidl</definition>
+        <argsstring>() const override</argsstring>
+        <name>guidl</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32">guidl</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="48" column="20" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="48" bodyend="48"/>
+        <references refid="cxl__host__exerciser_8h_1adba62009c92f202c4e9fc163301f26c3" compoundref="cxl__host__exerciser_8h" startline="31">MEM_TG_FEATURE_GUIDL</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1a22f0bee536e83f805000e7cd81bbb154" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t host_exerciser::he_cache_lpbk_cmd::guidh</definition>
+        <argsstring>() const override</argsstring>
+        <name>guidh</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85">guidh</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="50" column="20" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="50" bodyend="50"/>
+        <references refid="cxl__host__exerciser_8h_1af5fc626e065828ba08501e0fb894b4c7" compoundref="cxl__host__exerciser_8h" startline="32">MEM_TG_FEATURE_GUIDH</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1a113c110ac6b3f414a087ed3019adafeb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void host_exerciser::he_cache_lpbk_cmd::add_options</definition>
+        <argsstring>(CLI::App *app) override</argsstring>
+        <name>add_options</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6">add_options</reimplements>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="51" column="16" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="51" bodyend="57"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" compoundref="cxl__he__cmd_8h" startline="346">host_exerciser::he_cmd::he_target_</references>
+        <references refid="namespacehost__exerciser_1aa029adb74bb308968e3ab7ce3036610d" compoundref="cxl__host__exerciser_8h" startline="331">host_exerciser::he_targets</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__lpbk__cmd_1a00c9c2fbf616c3bd54c527209d5f8765" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int host_exerciser::he_cache_lpbk_cmd::run</definition>
+        <argsstring>(test_afu *afu, CLI::App *app)</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd">run</reimplements>
+        <param>
+          <type><ref refid="namespacehost__exerciser_1a3396b0a2f5f048347375ed7968bf936f" kindref="member">test_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="59" column="15" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="59" bodyend="79"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" compoundref="cxl__host__exerciser_8h" startline="58">host_exerciser::HE_CTL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" compoundref="cxl__he__cmd_8h" startline="349">host_exerciser::he_cmd::he_ctl_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" compoundref="cxl__host__exerciser_8h" startline="125">host_exerciser::he_ctl::value</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" compoundref="cxl__he__cmd_8h" startline="278" endline="301">host_exerciser::he_cmd::verify_numa_node</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="2">
+        <label>host_exerciser::he_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>host_exerciser::he_cache_lpbk_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cache__lpbk__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="9">
+        <label>host_exerciser::he_info</label>
+        <link refid="unionhost__exerciser_1_1he__info"/>
+      </node>
+      <node id="10">
+        <label>host_exerciser::he_rd_config</label>
+        <link refid="unionhost__exerciser_1_1he__rd__config"/>
+      </node>
+      <node id="6">
+        <label>host_exerciser::he_wr_addr_table_ctrl</label>
+        <link refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl"/>
+      </node>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="4">
+        <label>host_exerciser::host_exerciser</label>
+        <link refid="classhost__exerciser_1_1host__exerciser"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>host_exerciser::he_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#host_exe_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#wr_table_ctl_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>#he_wr_cfg_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>#he_ctl_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#he_info_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>#he_rd_cfg_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>#rd_table_ctl_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>host_exerciser::he_rd_addr_table_ctrl</label>
+        <link refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl"/>
+      </node>
+      <node id="8">
+        <label>host_exerciser::he_ctl</label>
+        <link refid="unionhost__exerciser_1_1he__ctl"/>
+      </node>
+      <node id="1">
+        <label>host_exerciser::he_cache_lpbk_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cache__lpbk__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>host_exerciser::he_wr_config</label>
+        <link refid="unionhost__exerciser_1_1he__wr__config"/>
+      </node>
+      <node id="5">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" line="33" column="1" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h" bodystart="33" bodyend="80"/>
+    <listofallmembers>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a113c110ac6b3f414a087ed3019adafeb" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>add_options</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0626c7d3280125843db5e3a257e89e6c" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>afu_id</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>command</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1ab7eff8c744aaba805f6a41635951ac15" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>description</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aef5411cc95e437d3d3e8f3e39eda0af3" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>featureid</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>get_ticks</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a22f0bee536e83f805000e7cd81bbb154" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>guidh</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a7d031954754042cdfb36e2ac47859552" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>guidl</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_bias_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aee33c1d26fa394cd89241adadab1c6d0" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_cache_lpbk_cmd</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a2d45199e7732d491a7064eea6ca587ed" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_clock_mhz_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ae16a7859284a742398f3ec3340897faf" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_cmd</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_ctl_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_get_perf</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_info_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1aa00565e79a248e635ea25986fdbf41d0" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_num_xfers_to_bw</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_perf_counters</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_rd_cfg_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ae2911007f89cd36d54495a534b405721" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_set_bias_mode</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_start_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_target_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_wait_test_completion</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>he_wr_cfg_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>host_exe_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>host_exerciser_errors</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0ea268f42319ad21821cdc68bcbbb044" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>name</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>numa_node_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1af3fd4e59c9b27facd6b78a7bded1bc04" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>parse_input_options</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ae405e118f67c274dcd176d16467df79c" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>print_csr</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>ptr_t</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>rd_table_ctl_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a00c9c2fbf616c3bd54c527209d5f8765" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>run</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>running_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>stop</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>verify_numa_node</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>wr_table_ctl_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>~command</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aede4cf726a7c4070b764aeb57bc55f3e" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>~he_cache_lpbk_cmd</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a976086a0f5886ad570642a152c26d560" prot="public" virt="virtual"><scope>host_exerciser::he_cache_lpbk_cmd</scope><name>~he_cmd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

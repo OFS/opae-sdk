@@ -1,0 +1,96 @@
+\doxysection{opae\+::fpga\+::types\+::detail Namespace Reference}
+\label{namespaceopae_1_1fpga_1_1types_1_1detail}\index{opae::fpga::types::detail@{opae::fpga::types::detail}}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef bool($\ast$ \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_a27ea035002c36a1c80c601a99b9fa3db}{exception\+\_\+fn}}) (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename T $>$ }\\constexpr bool \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_ad6802666a800e1d9b4ffe647a816083f}{is\+\_\+ok}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} result, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)
+\item 
+static void \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_afb71b5ca2216303a26cd91e01da63bc2}{assert\+\_\+fpga\+\_\+ok}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} result, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_a27ea035002c36a1c80c601a99b9fa3db}{exception\+\_\+fn}} \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_aaf5c7cfe3e7998add9471462d43ee1ff}{opae\+\_\+exceptions}} \mbox{[}12\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{namespaceopae_1_1fpga_1_1types_1_1detail_a27ea035002c36a1c80c601a99b9fa3db}} 
+\index{opae::fpga::types::detail@{opae::fpga::types::detail}!exception\_fn@{exception\_fn}}
+\index{exception\_fn@{exception\_fn}!opae::fpga::types::detail@{opae::fpga::types::detail}}
+\doxysubsubsection{\texorpdfstring{exception\_fn}{exception\_fn}}
+{\footnotesize\ttfamily typedef bool($\ast$ opae\+::fpga\+::types\+::detail\+::exception\+\_\+fn) (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}, const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&loc)}
+
+typedef function pointer that returns bool if result is FPGA\+\_\+\+OK 
+
+Definition at line 296 of file except.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{namespaceopae_1_1fpga_1_1types_1_1detail_ad6802666a800e1d9b4ffe647a816083f}} 
+\index{opae::fpga::types::detail@{opae::fpga::types::detail}!is\_ok@{is\_ok}}
+\index{is\_ok@{is\_ok}!opae::fpga::types::detail@{opae::fpga::types::detail}}
+\doxysubsubsection{\texorpdfstring{is\_ok()}{is\_ok()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+constexpr bool opae\+::fpga\+::types\+::detail\+::is\+\_\+ok (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{result,  }\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&}]{loc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [constexpr]}}
+
+is\+\_\+ok is a template function that throws an excpetion of its template argument type if the result code is not FPGA\+\_\+\+OK. Otherwise it returns true. 
+
+Definition at line 304 of file except.\+h.
+
+
+
+References FPGA\+\_\+\+OK.
+
+\mbox{\label{namespaceopae_1_1fpga_1_1types_1_1detail_afb71b5ca2216303a26cd91e01da63bc2}} 
+\index{opae::fpga::types::detail@{opae::fpga::types::detail}!assert\_fpga\_ok@{assert\_fpga\_ok}}
+\index{assert\_fpga\_ok@{assert\_fpga\_ok}!opae::fpga::types::detail@{opae::fpga::types::detail}}
+\doxysubsubsection{\texorpdfstring{assert\_fpga\_ok()}{assert\_fpga\_ok()}}
+{\footnotesize\ttfamily static void opae\+::fpga\+::types\+::detail\+::assert\+\_\+fpga\+\_\+ok (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{result,  }\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{opae\+::fpga\+::types\+::src\+\_\+location}} \&}]{loc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Definition at line 321 of file except.\+h.
+
+
+
+References FPGA\+\_\+\+OK, FPGA\+\_\+\+RECONF\+\_\+\+ERROR, and opae\+\_\+exceptions.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{namespaceopae_1_1fpga_1_1types_1_1detail_aaf5c7cfe3e7998add9471462d43ee1ff}} 
+\index{opae::fpga::types::detail@{opae::fpga::types::detail}!opae\_exceptions@{opae\_exceptions}}
+\index{opae\_exceptions@{opae\_exceptions}!opae::fpga::types::detail@{opae::fpga::types::detail}}
+\doxysubsubsection{\texorpdfstring{opae\_exceptions}{opae\_exceptions}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespaceopae_1_1fpga_1_1types_1_1detail_a27ea035002c36a1c80c601a99b9fa3db}{exception\+\_\+fn}} opae\+::fpga\+::types\+::detail\+::opae\+\_\+exceptions\mbox{[}12\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::invalid\_param>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::busy>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::exception>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::not\_found>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::no\_memory>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::not\_supported>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::no\_driver>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::no\_daemon>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::no\_access>,}
+\DoxyCodeLine{    is\_ok<opae::fpga::types::reconf\_error>\}}
+
+\end{DoxyCode}
+
+
+Definition at line 309 of file except.\+h.
+
+
+
+Referenced by assert\+\_\+fpga\+\_\+ok().
+

@@ -1,0 +1,3 @@
+[console_scripts]
+breathe-apidoc = breathe.apidoc:main
+

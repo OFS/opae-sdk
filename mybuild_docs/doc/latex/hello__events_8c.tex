@@ -1,0 +1,304 @@
+\doxysection{samples/hello\+\_\+events/hello\+\_\+events.c File Reference}
+\label{hello__events_8c}\index{samples/hello\_events/hello\_events.c@{samples/hello\_events/hello\_events.c}}
+
+
+A code sample of using OPAE event API.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$getopt.\+h$>$}\newline
+{\ttfamily \#include $<$poll.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+{\ttfamily \#include $<$pthread.\+h$>$}\newline
+{\ttfamily \#include $<$opae/fpga.\+h$>$}\newline
+{\ttfamily \#include $<$argsfilter.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}mock/opae\+\_\+std.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{hello__events_8c_structras__inject__error}{ras\+\_\+inject\+\_\+error}}
+\item 
+union \mbox{\hyperlink{hello__events_8c_unionras__inject__error_8____unnamed88____}{ras\+\_\+inject\+\_\+error.\+\_\+\+\_\+unnamed88\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{hello__events_8c_structras__inject__error_8____unnamed88_____8____unnamed90____}{ras\+\_\+inject\+\_\+error.\+\_\+\+\_\+unnamed88\+\_\+\+\_\+.\+\_\+\+\_\+unnamed90\+\_\+\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{hello__events_8c_aeed061055cfe359757fdacf8a96a0a81}{FME\+\_\+\+SYSFS\+\_\+\+INJECT\+\_\+\+ERROR}}~\char`\"{}errors/inject\+\_\+errors\char`\"{}
+\item 
+\#define \mbox{\hyperlink{hello__events_8c_a7635d12a96b25dd1760b4bc44130eed9}{ON\+\_\+\+ERR\+\_\+\+GOTO}}(res,  label,  desc)
+\item 
+\#define \mbox{\hyperlink{hello__events_8c_acc2c9cc08f0f7b8f21f835d3fa0f6435}{GETOPT\+\_\+\+STRING}}~\char`\"{}hv\char`\"{}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{hello__events_8c_a300ec1c0f7befcbb990985d36d56d8c9}{usleep}} (unsigned)
+\item 
+void \mbox{\hyperlink{hello__events_8c_aa11f434898b86d619a5ceb6a5d7bf066}{print\+\_\+err}} (const char $\ast$s, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} res)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hello__events_8c_a21ab990ba21e75dd40821f08f21c9111}{inject\+\_\+ras\+\_\+fatal\+\_\+error}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} fme\+\_\+token, uint8\+\_\+t err)
+\item 
+void $\ast$ \mbox{\hyperlink{hello__events_8c_a23584cf041247d3b877d3fa37b6d1ca7}{error\+\_\+thread}} (void $\ast$arg)
+\item 
+void \mbox{\hyperlink{hello__events_8c_a0bed8474bd33a912769360766f6b10d4}{help}} (void)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hello__events_8c_a3a1b6f72679286eae6f9eec936cc5533}{parse\+\_\+args}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hello__events_8c_a4ea1297aa11758c9d70172b2ee05b950}{find\+\_\+fpga}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} device\+\_\+filter, \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} $\ast$fpga, uint32\+\_\+t $\ast$num\+\_\+matches)
+\item 
+int \mbox{\hyperlink{hello__events_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A code sample of using OPAE event API. 
+
+This sample starts two processes. One process injects an artificial fatal error to sysfs; while the other tries to asynchronously capture and handle the event. This sample code exercises all major functions of the event API, including creating and destroying event handles, register and unregister events, polling on event file descriptor, and getting the OS object associated with an event. For a full discussion of OPAE event API, refer to \mbox{\hyperlink{event_8h}{event.\+h}}. 
+
+\doxysubsection{Data Structure Documentation}
+\index{ras\_inject\_error@{ras\_inject\_error}}\label{structras__inject__error}
+\doxysubsubsection{struct ras\+\_\+inject\+\_\+error}
+
+
+Definition at line 76 of file hello\+\_\+events.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{hello__events_8c_a05c7a0580a630740fb7b8a9fbce837b9}} 
+union \mbox{\hyperlink{hello__events_8c_unionras__inject__error_8____unnamed88____}{ras\_inject\_error}}&
+\_\_unnamed\_\_&
+\\
+\hline
+
+\end{DoxyFields}
+\index{ras\_inject\_error.\_\_unnamed88\_\_@{ras\_inject\_error.\_\_unnamed88\_\_}}\label{unionras__inject__error_8____unnamed88____}
+\doxysubsubsection{union ras\+\_\+inject\+\_\+error.\+\_\+\+\_\+unnamed88\+\_\+\+\_\+}
+
+
+Definition at line 77 of file hello\+\_\+events.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{hello__events_8c_a1f8c50db95e9ead5645e32f8df5baa7b}} 
+uint64\_t&
+csr&
+\\
+\hline
+
+\mbox{\label{hello__events_8c_a8b522525a6acfa0a63b574e98cad504f}} 
+\mbox{\hyperlink{hello__events_8c_structras__inject__error_8____unnamed88_____8____unnamed90____}{\_\_unnamed88\_\_}}&
+\_\_unnamed\_\_&
+\\
+\hline
+
+\end{DoxyFields}
+\index{ras\_inject\_error.\_\_unnamed88\_\_.\_\_unnamed90\_\_@{ras\_inject\_error.\_\_unnamed88\_\_.\_\_unnamed90\_\_}}\label{structras__inject__error_8____unnamed88_____8____unnamed90____}
+\doxysubsubsection{struct ras\+\_\+inject\+\_\+error.\+\_\+\+\_\+unnamed88\+\_\+\+\_\+.\+\_\+\+\_\+unnamed90\+\_\+\+\_\+}
+
+
+Definition at line 79 of file hello\+\_\+events.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{hello__events_8c_a2a0e5bc9b5c01998865d21cfc6acdd8b}} 
+uint64\_t&
+catastrophicr\_error: 1&
+\\
+\hline
+
+\mbox{\label{hello__events_8c_a248d7cd65b618004dbd5f44e96b8cd61}} 
+uint64\_t&
+fatal\_error: 1&
+\\
+\hline
+
+\mbox{\label{hello__events_8c_a8da0039b80fc69ebb6f5f263320816ed}} 
+uint64\_t&
+nonfatal\_error: 1&
+\\
+\hline
+
+\mbox{\label{hello__events_8c_aa799822e734135bf270e704b72c08764}} 
+uint64\_t&
+rsvd: 61&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{hello__events_8c_aeed061055cfe359757fdacf8a96a0a81}} 
+\index{hello\_events.c@{hello\_events.c}!FME\_SYSFS\_INJECT\_ERROR@{FME\_SYSFS\_INJECT\_ERROR}}
+\index{FME\_SYSFS\_INJECT\_ERROR@{FME\_SYSFS\_INJECT\_ERROR}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{FME\_SYSFS\_INJECT\_ERROR}{FME\_SYSFS\_INJECT\_ERROR}}
+{\footnotesize\ttfamily \#define FME\+\_\+\+SYSFS\+\_\+\+INJECT\+\_\+\+ERROR~\char`\"{}errors/inject\+\_\+errors\char`\"{}}
+
+
+
+Definition at line 60 of file hello\+\_\+events.\+c.
+
+\mbox{\label{hello__events_8c_a7635d12a96b25dd1760b4bc44130eed9}} 
+\index{hello\_events.c@{hello\_events.c}!ON\_ERR\_GOTO@{ON\_ERR\_GOTO}}
+\index{ON\_ERR\_GOTO@{ON\_ERR\_GOTO}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{ON\_ERR\_GOTO}{ON\_ERR\_GOTO}}
+{\footnotesize\ttfamily \#define ON\+\_\+\+ERR\+\_\+\+GOTO(\begin{DoxyParamCaption}\item[{}]{res,  }\item[{}]{label,  }\item[{}]{desc }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   \textcolor{keywordflow}{do} \{                                       \(\backslash\)}
+\DoxyCodeLine{      if ((res) != FPGA\_OK) \{            \(\backslash\)}
+\DoxyCodeLine{         print\_err((desc), (res));  \(\backslash\)}
+\DoxyCodeLine{         goto label;                \(\backslash\)}
+\DoxyCodeLine{      \}                                  \(\backslash\)}
+\DoxyCodeLine{   \} \textcolor{keywordflow}{while} (0)}
+
+\end{DoxyCode}
+
+
+Definition at line 62 of file hello\+\_\+events.\+c.
+
+\mbox{\label{hello__events_8c_acc2c9cc08f0f7b8f21f835d3fa0f6435}} 
+\index{hello\_events.c@{hello\_events.c}!GETOPT\_STRING@{GETOPT\_STRING}}
+\index{GETOPT\_STRING@{GETOPT\_STRING}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{GETOPT\_STRING}{GETOPT\_STRING}}
+{\footnotesize\ttfamily \#define GETOPT\+\_\+\+STRING~\char`\"{}hv\char`\"{}}
+
+
+
+Definition at line 164 of file hello\+\_\+events.\+c.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{hello__events_8c_a300ec1c0f7befcbb990985d36d56d8c9}} 
+\index{hello\_events.c@{hello\_events.c}!usleep@{usleep}}
+\index{usleep@{usleep}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{usleep()}{usleep()}}
+{\footnotesize\ttfamily int usleep (\begin{DoxyParamCaption}\item[{unsigned}]{ }\end{DoxyParamCaption})}
+
+
+
+Referenced by error\+\_\+thread().
+
+\mbox{\label{hello__events_8c_aa11f434898b86d619a5ceb6a5d7bf066}} 
+\index{hello\_events.c@{hello\_events.c}!print\_err@{print\_err}}
+\index{print\_err@{print\_err}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{print\_err()}{print\_err()}}
+{\footnotesize\ttfamily void print\+\_\+err (\begin{DoxyParamCaption}\item[{const char $\ast$}]{s,  }\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{res }\end{DoxyParamCaption})}
+
+
+
+Definition at line 70 of file hello\+\_\+events.\+c.
+
+
+
+References fpga\+Err\+Str().
+
+
+
+Referenced by error\+\_\+thread(), and main().
+
+\mbox{\label{hello__events_8c_a21ab990ba21e75dd40821f08f21c9111}} 
+\index{hello\_events.c@{hello\_events.c}!inject\_ras\_fatal\_error@{inject\_ras\_fatal\_error}}
+\index{inject\_ras\_fatal\_error@{inject\_ras\_fatal\_error}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{inject\_ras\_fatal\_error()}{inject\_ras\_fatal\_error()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} inject\+\_\+ras\+\_\+fatal\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{fme\+\_\+token,  }\item[{uint8\+\_\+t}]{err }\end{DoxyParamCaption})}
+
+
+
+Definition at line 92 of file hello\+\_\+events.\+c.
+
+
+
+References FME\+\_\+\+SYSFS\+\_\+\+INJECT\+\_\+\+ERROR, FPGA\+\_\+\+OK, FPGA\+\_\+\+OPEN\+\_\+\+SHARED, fpga\+Close(), fpga\+Destroy\+Object(), fpga\+Handle\+Get\+Object(), fpga\+Object\+Write64(), fpga\+Open(), ON\+\_\+\+ERR\+\_\+\+GOTO, and OPAE\+\_\+\+ERR.
+
+
+
+Referenced by error\+\_\+thread().
+
+\mbox{\label{hello__events_8c_a23584cf041247d3b877d3fa37b6d1ca7}} 
+\index{hello\_events.c@{hello\_events.c}!error\_thread@{error\_thread}}
+\index{error\_thread@{error\_thread}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{error\_thread()}{error\_thread()}}
+{\footnotesize\ttfamily void$\ast$ error\+\_\+thread (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+
+
+Definition at line 127 of file hello\+\_\+events.\+c.
+
+
+
+References FPGA\+\_\+\+OK, inject\+\_\+ras\+\_\+fatal\+\_\+error(), print\+\_\+err(), and usleep().
+
+
+
+Referenced by main().
+
+\mbox{\label{hello__events_8c_a0bed8474bd33a912769360766f6b10d4}} 
+\index{hello\_events.c@{hello\_events.c}!help@{help}}
+\index{help@{help}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{help()}{help()}}
+{\footnotesize\ttfamily void help (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line 147 of file hello\+\_\+events.\+c.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{hello__events_8c_a3a1b6f72679286eae6f9eec936cc5533}} 
+\index{hello\_events.c@{hello\_events.c}!parse\_args@{parse\_args}}
+\index{parse\_args@{parse\_args}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{parse\_args()}{parse\_args()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} parse\+\_\+args (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Definition at line 165 of file hello\+\_\+events.\+c.
+
+
+
+References FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, GETOPT\+\_\+\+STRING, and help().
+
+
+
+Referenced by main().
+
+\mbox{\label{hello__events_8c_a4ea1297aa11758c9d70172b2ee05b950}} 
+\index{hello\_events.c@{hello\_events.c}!find\_fpga@{find\_fpga}}
+\index{find\_fpga@{find\_fpga}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{find\_fpga()}{find\_fpga()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} find\+\_\+fpga (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{device\+\_\+filter,  }\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} $\ast$}]{fpga,  }\item[{uint32\+\_\+t $\ast$}]{num\+\_\+matches }\end{DoxyParamCaption})}
+
+
+
+Definition at line 204 of file hello\+\_\+events.\+c.
+
+
+
+References FPGA\+\_\+\+DEVICE, FPGA\+\_\+\+OK, fpga\+Clone\+Properties(), fpga\+Destroy\+Properties(), fpga\+Enumerate(), fpga\+Properties\+Set\+Object\+Type(), and ON\+\_\+\+ERR\+\_\+\+GOTO.
+
+
+
+Referenced by main().
+
+\mbox{\label{hello__events_8c_a0ddf1224851353fc92bfbff6f499fa97}} 
+\index{hello\_events.c@{hello\_events.c}!main@{main}}
+\index{main@{main}!hello\_events.c@{hello\_events.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Definition at line 228 of file hello\+\_\+events.\+c.
+
+
+
+References error\+\_\+thread(), find\+\_\+fpga(), FPGA\+\_\+\+EVENT\+\_\+\+ERROR, FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+NOT\+\_\+\+FOUND, FPGA\+\_\+\+OK, FPGA\+\_\+\+OPEN\+\_\+\+SHARED, fpga\+Close(), fpga\+Create\+Event\+Handle(), fpga\+Destroy\+Event\+Handle(), fpga\+Destroy\+Properties(), fpga\+Destroy\+Token(), fpga\+Get\+OSObject\+From\+Event\+Handle(), fpga\+Get\+Properties(), fpga\+Open(), fpga\+Register\+Event(), fpga\+Unregister\+Event(), ON\+\_\+\+ERR\+\_\+\+GOTO, parse\+\_\+args(), and print\+\_\+err().
+

@@ -1,0 +1,477 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="cxl__he__cache__lpbk__cmd_8h" kind="file" language="C++">
+    <compoundname>cxl_he_cache_lpbk_cmd.h</compoundname>
+    <includes refid="cxl__host__exerciser_8h" local="yes">cxl_host_exerciser.h</includes>
+    <includes refid="he__cache__test_8h" local="yes">he_cache_test.h</includes>
+    <includedby refid="cxl__host__exerciser_8cpp" local="yes">samples/cxl_host_exerciser/cxl_host_exerciser.cpp</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h</label>
+        <link refid="cxl__he__cache__lpbk__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>glob.h</label>
+      </node>
+      <node id="36">
+        <label>opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>cstdint</label>
+      </node>
+      <node id="13">
+        <label>stdint.h</label>
+      </node>
+      <node id="48">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="45">
+        <label>stdlib.h</label>
+      </node>
+      <node id="3">
+        <label>he_cache_test.h</label>
+        <link refid="he__cache__test_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cxl_host_exerciser.h</label>
+        <link refid="cxl__host__exerciser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>fcntl.h</label>
+      </node>
+      <node id="37">
+        <label>opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="43">
+        <label>string</label>
+      </node>
+      <node id="52">
+        <label>CLI/CLI.hpp</label>
+      </node>
+      <node id="31">
+        <label>map</label>
+      </node>
+      <node id="47">
+        <label>sys/ioctl.h</label>
+      </node>
+      <node id="55">
+        <label>spdlog/sinks/basic_file_sink.h</label>
+      </node>
+      <node id="25">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="21">
+        <label>exception</label>
+      </node>
+      <node id="14">
+        <label>stddef.h</label>
+      </node>
+      <node id="42">
+        <label>opae/cxx/core/version.h</label>
+        <link refid="cxx_2core_2version_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>spdlog/spdlog.h</label>
+      </node>
+      <node id="8">
+        <label>opae/cxx/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>string.h</label>
+      </node>
+      <node id="4">
+        <label>future</label>
+      </node>
+      <node id="51">
+        <label>unistd.h</label>
+      </node>
+      <node id="17">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>vector</label>
+      </node>
+      <node id="54">
+        <label>spdlog/sinks/stdout_color_sinks.h</label>
+      </node>
+      <node id="27">
+        <label>array</label>
+      </node>
+      <node id="22">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>opae/cxx/core/errors.h</label>
+        <link refid="errors_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>iostream</label>
+      </node>
+      <node id="34">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>numa.h</label>
+      </node>
+      <node id="12">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>chrono</label>
+      </node>
+      <node id="35">
+        <label>opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>fpga-dfl.h</label>
+      </node>
+      <node id="41">
+        <label>thread</label>
+      </node>
+      <node id="50">
+        <label>sys/syscall.h</label>
+      </node>
+      <node id="30">
+        <label>type_traits</label>
+      </node>
+      <node id="26">
+        <label>algorithm</label>
+      </node>
+      <node id="44">
+        <label>regex.h</label>
+      </node>
+      <node id="24">
+        <label>stdio.h</label>
+      </node>
+      <node id="28">
+        <label>cstring</label>
+      </node>
+      <node id="32">
+        <label>memory</label>
+      </node>
+      <node id="40">
+        <label>initializer_list</label>
+      </node>
+      <node id="6">
+        <label>inttypes.h</label>
+      </node>
+      <node id="18">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h</label>
+        <link refid="cxl__he__cache__lpbk__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.cpp</label>
+        <link refid="cxl__host__exerciser_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classhost__exerciser_1_1he__cache__lpbk__cmd" prot="public">host_exerciser::he_cache_lpbk_cmd</innerclass>
+    <innernamespace refid="namespacehost__exerciser">host_exerciser</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="cxl__host__exerciser_8h" kindref="compound">cxl_host_exerciser.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="he__cache__test_8h" kindref="compound">he_cache_test.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacehost__exerciser" kindref="compound">host_exerciser</ref><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="classhost__exerciser_1_1he__cache__lpbk__cmd" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd" kindref="compound">he_cache_lpbk_cmd</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd" kindref="compound">he_cmd</ref><sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="35" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aee33c1d26fa394cd89241adadab1c6d0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aee33c1d26fa394cd89241adadab1c6d0" kindref="member">he_cache_lpbk_cmd</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="36" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aede4cf726a7c4070b764aeb57bc55f3e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aede4cf726a7c4070b764aeb57bc55f3e" kindref="member">~he_cache_lpbk_cmd</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0ea268f42319ad21821cdc68bcbbb044" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0ea268f42319ad21821cdc68bcbbb044" kindref="member">name</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;lpbk&quot;</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1ab7eff8c744aaba805f6a41635951ac15" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1ab7eff8c744aaba805f6a41635951ac15" kindref="member">description</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;run<sp/>simple<sp/>cxl<sp/>he<sp/>lpbk<sp/>test&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0626c7d3280125843db5e3a257e89e6c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0626c7d3280125843db5e3a257e89e6c" kindref="member">afu_id</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="cxl__host__exerciser_8h_1a72d02b17946176eac3d194950f7f02c8" kindref="member">HE_CACHE_AFU_ID</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aef5411cc95e437d3d3e8f3e39eda0af3" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aef5411cc95e437d3d3e8f3e39eda0af3" kindref="member">featureid</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="cxl__host__exerciser_8h_1a4736703a0eb0915314304d527acdf55d" kindref="member">MEM_TG_FEATURE_ID</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a7d031954754042cdfb36e2ac47859552" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a7d031954754042cdfb36e2ac47859552" kindref="member">guidl</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="cxl__host__exerciser_8h_1adba62009c92f202c4e9fc163301f26c3" kindref="member">MEM_TG_FEATURE_GUIDL</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a22f0bee536e83f805000e7cd81bbb154" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a22f0bee536e83f805000e7cd81bbb154" kindref="member">guidh</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="cxl__host__exerciser_8h_1af5fc626e065828ba08501e0fb894b4c7" kindref="member">MEM_TG_FEATURE_GUIDH</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="51" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a113c110ac6b3f414a087ed3019adafeb" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a113c110ac6b3f414a087ed3019adafeb" kindref="member">add_options</ref>(CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>target<sp/>host<sp/>or<sp/>fpga</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--target&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" kindref="member">he_target_</ref>,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;host<sp/>exerciser<sp/>run<sp/>on<sp/>host<sp/>or<sp/>fpga&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;transform(CLI::CheckedTransformer(<ref refid="namespacehost__exerciser_1aa029adb74bb308968e3ab7ce3036610d" kindref="member">he_targets</ref>))</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;default_val(</highlight><highlight class="stringliteral">&quot;host&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a00c9c2fbf616c3bd54c527209d5f8765" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a00c9c2fbf616c3bd54c527209d5f8765" kindref="member">run</ref>(<ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>*afu,<sp/>CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>int<sp/>ret<sp/>=<sp/>0;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HE<sp/>LPBK<sp/>run&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref><sp/>=<sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="normal"><ref refid="namespacehost__exerciser" kindref="compound">host_exerciser</ref><sp/>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(afu);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" kindref="member">verify_numa_node</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;numa<sp/>nodes<sp/>are<sp/>available<sp/>set<sp/>numa<sp/>node<sp/>to<sp/>0&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>reset<sp/>HE<sp/>cache</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.ResetL<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" kindref="member">write64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" kindref="member">HE_CTL</ref>,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref>);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.ResetL<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" kindref="member">write64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" kindref="member">HE_CTL</ref>,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>host_exerciser</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,121 @@
+.TH "include/opae/log.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/log.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fB__SHORT_FILE__\fP"
+.br
+.ti -1c
+.RI "#define \fBOPAE_MSG\fP(format, \&.\&.\&.)"
+.br
+.ti -1c
+.RI "#define \fBOPAE_ERR\fP(format, \&.\&.\&.)"
+.br
+.ti -1c
+.RI "#define \fBOPAE_DBG\fP(format, \&.\&.\&.)   {	}"
+.br
+.ti -1c
+.RI "#define \fBOPAE_DEFAULT_LOGLEVEL\fP   \fBOPAE_LOG_ERROR\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBopae_loglevel\fP { \fBOPAE_LOG_ERROR\fP = 0, \fBOPAE_LOG_MESSAGE\fP, \fBOPAE_LOG_DEBUG\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBopae_print\fP (int loglevel, const char *fmt,\&.\&.\&.)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define __SHORT_FILE__"
+\fBValue:\fP
+.PP
+.nf
+ ({                                                     \
+   const char *file = __FILE__;                           \
+   const char *p = file;                                  \
+   while (*p)                                             \
+      ++p;                                           \
+   while ((p > file) && ('/' != *p) && ('\\' != *p))      \
+      --p;                                           \
+   if (p > file)                                          \
+      ++p;                                           \
+   p;                                                     \
+   })
+.fi
+.PP
+Definition at line 43 of file log\&.h\&.
+.SS "#define OPAE_MSG(format,  \&.\&.\&.)"
+\fBValue:\fP
+.PP
+.nf
+   opae_print(OPAE_LOG_MESSAGE, "%s:%u:%s() : " format "\n", \
+   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+.fi
+.PP
+Definition at line 59 of file log\&.h\&.
+.SS "#define OPAE_ERR(format,  \&.\&.\&.)"
+\fBValue:\fP
+.PP
+.nf
+   opae_print(OPAE_LOG_ERROR,                                \
+   "%s:%u:%s() **ERROR** : " format "\n",                    \
+   __SHORT_FILE__, __LINE__, __func__, ##__VA_ARGS__)
+.fi
+.PP
+Definition at line 66 of file log\&.h\&.
+.SS "#define OPAE_DBG(format,  \&.\&.\&.)   {	}"
+
+.PP
+Definition at line 80 of file log\&.h\&.
+.SS "#define OPAE_DEFAULT_LOGLEVEL   \fBOPAE_LOG_ERROR\fP"
+
+.PP
+Definition at line 93 of file log\&.h\&.
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBopae_loglevel\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIOPAE_LOG_ERROR \fP\fP
+.TP
+\fB\fIOPAE_LOG_MESSAGE \fP\fP
+.TP
+\fB\fIOPAE_LOG_DEBUG \fP\fP
+.PP
+Definition at line 87 of file log\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "void opae_print (int loglevel, const char * fmt,  \&.\&.\&.)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

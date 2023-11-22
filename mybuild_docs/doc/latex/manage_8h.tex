@@ -1,0 +1,132 @@
+\doxysection{include/opae/manage.h File Reference}
+\label{manage_8h}\index{include/opae/manage.h@{include/opae/manage.h}}
+
+
+Functions for managing FPGA configurations.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{manage_8h_aa8b0dd0eba99f99161ad8b726706ce9c}{fpga\+Assign\+Port\+To\+Interface}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} fpga, uint32\+\_\+t interface\+\_\+num, uint32\+\_\+t slot\+\_\+num, int flags)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{manage_8h_a768c0a5d0f2494a69470170a29a76578}{fpga\+Assign\+To\+Interface}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} fpga, \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} accelerator, uint32\+\_\+t host\+\_\+interface, int flags)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{manage_8h_a1ce3163b0a8c0f5c39e1c5acefc049eb}{fpga\+Release\+From\+Interface}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} fpga, \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} accelerator)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{manage_8h_a6e5d00d445c69c94cb122224c47bf735}{fpga\+Reconfigure\+Slot}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} fpga, uint32\+\_\+t slot, const uint8\+\_\+t $\ast$bitstream, size\+\_\+t bitstream\+\_\+len, int flags)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions for managing FPGA configurations. 
+
+FPGA accelerators can be reprogrammed at run time by providing new partial bitstreams (\char`\"{}green bitstreams\char`\"{}). This file defines API functions for programming green bitstreams as well as for assigning accelerators to host interfaces for more complex deployment setups, such as virtualized systems. 
+
+\doxysubsection{Function Documentation}
+\mbox{\label{manage_8h_aa8b0dd0eba99f99161ad8b726706ce9c}} 
+\index{manage.h@{manage.h}!fpgaAssignPortToInterface@{fpgaAssignPortToInterface}}
+\index{fpgaAssignPortToInterface@{fpgaAssignPortToInterface}!manage.h@{manage.h}}
+\doxysubsubsection{\texorpdfstring{fpgaAssignPortToInterface()}{fpgaAssignPortToInterface()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Assign\+Port\+To\+Interface (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{fpga,  }\item[{uint32\+\_\+t}]{interface\+\_\+num,  }\item[{uint32\+\_\+t}]{slot\+\_\+num,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Assign Port to a host interface.
+
+This function assign Port to a host interface for subsequent use. Only Port that have been assigned to a host interface can be opened by \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em fpga} & Handle to an FPGA object previously opened that both the host interface and the slot belong to \\
+\hline
+\mbox{\texttt{ in}}  & {\em interface\+\_\+num} & Host interface number \\
+\hline
+\mbox{\texttt{ in}}  & {\em slot\+\_\+num} & Slot number \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags (to be defined) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success FPGA\+\_\+\+INVALID\+\_\+\+PARAM if input parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if an exception occcurred accessing the {\ttfamily fpga} handle. FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED if driver does not support assignment. 
+\end{DoxyReturn}
+\mbox{\label{manage_8h_a768c0a5d0f2494a69470170a29a76578}} 
+\index{manage.h@{manage.h}!fpgaAssignToInterface@{fpgaAssignToInterface}}
+\index{fpgaAssignToInterface@{fpgaAssignToInterface}!manage.h@{manage.h}}
+\doxysubsubsection{\texorpdfstring{fpgaAssignToInterface()}{fpgaAssignToInterface()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Assign\+To\+Interface (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{fpga,  }\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{accelerator,  }\item[{uint32\+\_\+t}]{host\+\_\+interface,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Assign an accelerator to a host interface
+
+This function assigns an accelerator to a host interface for subsequent use. Only accelerators that have been assigned to a host interface can be opened by \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}.
+
+\begin{DoxyNote}{Note}
+This function is currently not supported.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em fpga} & Handle to an FPGA object previously opened that both the host interface and the accelerator belong to \\
+\hline
+\mbox{\texttt{ in}}  & {\em accelerator} & accelerator to assign \\
+\hline
+\mbox{\texttt{ in}}  & {\em host\+\_\+interface} & Host interface to assign accelerator to \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags (to be defined) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success 
+\end{DoxyReturn}
+\mbox{\label{manage_8h_a1ce3163b0a8c0f5c39e1c5acefc049eb}} 
+\index{manage.h@{manage.h}!fpgaReleaseFromInterface@{fpgaReleaseFromInterface}}
+\index{fpgaReleaseFromInterface@{fpgaReleaseFromInterface}!manage.h@{manage.h}}
+\doxysubsubsection{\texorpdfstring{fpgaReleaseFromInterface()}{fpgaReleaseFromInterface()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Release\+From\+Interface (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{fpga,  }\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{accelerator }\end{DoxyParamCaption})}
+
+Unassign a previously assigned accelerator
+
+This function removes the assignment of an accelerator to an host interface (e.\+g. to be later assigned to a different host interface). As a consequence, the accelerator referred to by token \textquotesingle{}accelerator\textquotesingle{} will be reset during the course of this function.
+
+\begin{DoxyNote}{Note}
+This function is currently not supported.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em fpga} & Handle to an FPGA object previously opened that both the host interface and the accelerator belong to \\
+\hline
+\mbox{\texttt{ in}}  & {\em accelerator} & accelerator to unassign/release \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success 
+\end{DoxyReturn}
+\mbox{\label{manage_8h_a6e5d00d445c69c94cb122224c47bf735}} 
+\index{manage.h@{manage.h}!fpgaReconfigureSlot@{fpgaReconfigureSlot}}
+\index{fpgaReconfigureSlot@{fpgaReconfigureSlot}!manage.h@{manage.h}}
+\doxysubsubsection{\texorpdfstring{fpgaReconfigureSlot()}{fpgaReconfigureSlot()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Reconfigure\+Slot (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{fpga,  }\item[{uint32\+\_\+t}]{slot,  }\item[{const uint8\+\_\+t $\ast$}]{bitstream,  }\item[{size\+\_\+t}]{bitstream\+\_\+len,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Reconfigure a slot
+
+Sends a green bitstream file to an FPGA to reconfigure a specific slot. This call, if successful, will overwrite the currently programmed AFU in that slot with the AFU in the provided bitstream.
+
+As part of the reconfiguration flow, all accelerators associated with this slot will be unassigned and reset.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em fpga} & Handle to an FPGA object previously opened \\
+\hline
+\mbox{\texttt{ in}}  & {\em slot} & Token identifying the slot to reconfigure \\
+\hline
+\mbox{\texttt{ in}}  & {\em bitstream} & Pointer to memory holding the bitstream \\
+\hline
+\mbox{\texttt{ in}}  & {\em bitstream\+\_\+len} & Length of the bitstream in bytes \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control behavior of reconfiguration. Value of 0 indicates no flags. FPGA\+\_\+\+RECONF\+\_\+\+FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if the provided parameters are not valid. FPGA\+\_\+\+EXCEPTION if an internal error occurred accessing the handle or while sending the bitstream data to the driver. FPGA\+\_\+\+BUSY if the accelerator for the given slot is in use. FPGA\+\_\+\+RECONF\+\_\+\+ERROR on errors reported by the driver (such as CRC or protocol errors).
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+By default, fpga\+Reconfigure\+Slot will not allow reconfiguring a slot with an accelerator in use. Add the flag FPGA\+\_\+\+RECONF\+\_\+\+FORCE to force reconfiguration without checking for accelerators in use. 
+\end{DoxyNote}

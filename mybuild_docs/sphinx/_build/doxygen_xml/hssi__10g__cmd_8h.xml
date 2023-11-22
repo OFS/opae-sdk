@@ -1,0 +1,783 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="hssi__10g__cmd_8h" kind="file" language="C++">
+    <compoundname>hssi_10g_cmd.h</compoundname>
+    <includes local="no">iostream</includes>
+    <includes local="no">string</includes>
+    <includes refid="hssi__cmd_8h" local="yes">hssi_cmd.h</includes>
+    <includedby refid="hssi_8cpp" local="yes">samples/hssi/hssi.cpp</includedby>
+    <includedby refid="hssi__pkt__filt__10g__cmd_8h" local="yes">samples/hssi/hssi_pkt_filt_10g_cmd.h</includedby>
+    <incdepgraph>
+      <node id="12">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>afu_test.h</label>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>samples/hssi/hssi_10g_cmd.h</label>
+        <link refid="hssi__10g__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>netinet/ether.h</label>
+      </node>
+      <node id="6">
+        <label>cstdio</label>
+      </node>
+      <node id="4">
+        <label>hssi_cmd.h</label>
+        <link refid="hssi__cmd_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>sstream</label>
+      </node>
+      <node id="2">
+        <label>iostream</label>
+      </node>
+      <node id="10">
+        <label>opae/uio.h</label>
+        <link refid="uio_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>stdio.h</label>
+      </node>
+      <node id="7">
+        <label>cstring</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>samples/hssi/hssi_pkt_filt_10g_cmd.h</label>
+        <link refid="hssi__pkt__filt__10g__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samples/hssi/hssi_10g_cmd.h</label>
+        <link refid="hssi__10g__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/hssi/hssi.cpp</label>
+        <link refid="hssi_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classhssi__10g__cmd" prot="public">hssi_10g_cmd</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1af40e5b66e5d16497e47e8b10fc7e9a44" prot="public" static="no">
+        <name>CSR_NUM_PACKETS</name>
+        <initializer>0x3c00</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="31" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a24b333e7caef952009c18ad2e26badce" prot="public" static="no">
+        <name>CSR_RANDOM_LENGTH</name>
+        <initializer>0x3c01</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="32" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1acf50e8198c1decdb5f3264099db2fea8" prot="public" static="no">
+        <name>CSR_RANDOM_PAYLOAD</name>
+        <initializer>0x3c02</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="33" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a2154daea96bd7d69f410acb711d86b03" prot="public" static="no">
+        <name>CSR_START</name>
+        <initializer>0x3c03</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="34" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1afae4a4b81a4217f713ed1aab257fbc31" prot="public" static="no">
+        <name>CSR_STOP</name>
+        <initializer>0x3c04</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="35" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a59ea99e840facf8745bcaa0b2e00886e" prot="public" static="no">
+        <name>CSR_SRC_ADDR0</name>
+        <initializer>0x3c05</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="36" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1af7bf5ece5127db0085135197d0d40436" prot="public" static="no">
+        <name>CSR_SRC_ADDR1</name>
+        <initializer>0x3c06</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="37" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a2c69118ddfb7e4103b35f7730c1a57b9" prot="public" static="no">
+        <name>CSR_DEST_ADDR0</name>
+        <initializer>0x3c07</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="38" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1aa9a5a168e6cb93107ba02389bd91a117" prot="public" static="no">
+        <name>CSR_DEST_ADDR1</name>
+        <initializer>0x3c08</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="39" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a313cf0cae4a33761d5d25dc87b871445" prot="public" static="no">
+        <name>CSR_PACKET_TX_COUNT</name>
+        <initializer>0x3c09</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="40" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a1ce90b64e0156aaf617121855559acd7" prot="public" static="no">
+        <name>CSR_RND_SEED0</name>
+        <initializer>0x3c0a</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="41" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a204070435ba257c6b00152dee5e73ea4" prot="public" static="no">
+        <name>CSR_RND_SEED1</name>
+        <initializer>0x3c0b</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="42" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a002555ad38e153b807633299fa9d672c" prot="public" static="no">
+        <name>CSR_RND_SEED2</name>
+        <initializer>0x3c0c</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="43" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a9015b2280acc5e2d1e518f764b9e754b" prot="public" static="no">
+        <name>CSR_PACKET_LENGTH</name>
+        <initializer>0x3c0d</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="44" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a7188a68123d2f47bc0b80a47c80e9496" prot="public" static="no">
+        <name>CSR_TX_STA_TSTAMP</name>
+        <initializer>0x3cf4</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="45" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a6486622d431be951809ba69f98b916ac" prot="public" static="no">
+        <name>CSR_TX_END_TSTAMP</name>
+        <initializer>0x3cf5</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="46" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a73e849a9472ea96b16645083c5f71544" prot="public" static="no">
+        <name>CSR_NUM_PKT</name>
+        <initializer>0x3d00</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="48" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a4ea062053ff71409ce9535f3e35546a6" prot="public" static="no">
+        <name>CSR_PKT_GOOD</name>
+        <initializer>0x3d01</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="49" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a4dbb799ec3d5b286fda4e3251029925f" prot="public" static="no">
+        <name>CSR_PKT_BAD</name>
+        <initializer>0x3d02</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="50" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1ad95d174ae6c1a6d25aba40f36403bbab" prot="public" static="no">
+        <name>CSR_AVST_RX_ERR</name>
+        <initializer>0x3d07</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="51" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a0e6c344157d3583b61ca93c43e09ed1b" prot="public" static="no">
+        <name>CSR_RX_STA_TSTAMP</name>
+        <initializer>0x3d0b</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="52" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a3f6ae7720cd10eaa8ddbb8adf7d566d9" prot="public" static="no">
+        <name>CSR_RX_END_TSTAMP</name>
+        <initializer>0x3d0c</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="53" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a9d63f6ba744592cdac940e37951018c9" prot="public" static="no">
+        <name>CSR_MAC_LOOP</name>
+        <initializer>0x3e00</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="55" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hssi__10g__cmd_8h_1a6f07d0094e837d61131ab0b3aa8ab1fc" prot="public" static="no">
+        <name>INVALID_PORT</name>
+        <initializer>99</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_10g_cmd.h" line="57" column="9" bodyfile="samples/hssi/hssi_10g_cmd.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2020-2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="hssi__cmd_8h" kindref="compound">hssi_cmd.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="hssi__10g__cmd_8h_1af40e5b66e5d16497e47e8b10fc7e9a44" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_NUM_PACKETS<sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c00</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="hssi__10g__cmd_8h_1a24b333e7caef952009c18ad2e26badce" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RANDOM_LENGTH<sp/><sp/><sp/><sp/><sp/>0x3c01</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="hssi__10g__cmd_8h_1acf50e8198c1decdb5f3264099db2fea8" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RANDOM_PAYLOAD<sp/><sp/><sp/><sp/>0x3c02</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="hssi__10g__cmd_8h_1a2154daea96bd7d69f410acb711d86b03" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_START<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c03</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="hssi__10g__cmd_8h_1afae4a4b81a4217f713ed1aab257fbc31" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_STOP<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c04</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="hssi__10g__cmd_8h_1a59ea99e840facf8745bcaa0b2e00886e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_SRC_ADDR0<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c05</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="hssi__10g__cmd_8h_1af7bf5ece5127db0085135197d0d40436" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_SRC_ADDR1<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c06</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="hssi__10g__cmd_8h_1a2c69118ddfb7e4103b35f7730c1a57b9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_DEST_ADDR0<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c07</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="hssi__10g__cmd_8h_1aa9a5a168e6cb93107ba02389bd91a117" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_DEST_ADDR1<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c08</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="hssi__10g__cmd_8h_1a313cf0cae4a33761d5d25dc87b871445" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_PACKET_TX_COUNT<sp/><sp/><sp/>0x3c09</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="hssi__10g__cmd_8h_1a1ce90b64e0156aaf617121855559acd7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RND_SEED0<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c0a</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="hssi__10g__cmd_8h_1a204070435ba257c6b00152dee5e73ea4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RND_SEED1<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c0b</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="hssi__10g__cmd_8h_1a002555ad38e153b807633299fa9d672c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RND_SEED2<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3c0c</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="hssi__10g__cmd_8h_1a9015b2280acc5e2d1e518f764b9e754b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_PACKET_LENGTH<sp/><sp/><sp/><sp/><sp/>0x3c0d</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="hssi__10g__cmd_8h_1a7188a68123d2f47bc0b80a47c80e9496" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_TX_STA_TSTAMP<sp/><sp/><sp/><sp/><sp/>0x3cf4</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="hssi__10g__cmd_8h_1a6486622d431be951809ba69f98b916ac" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_TX_END_TSTAMP<sp/><sp/><sp/><sp/><sp/>0x3cf5</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="hssi__10g__cmd_8h_1a73e849a9472ea96b16645083c5f71544" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_NUM_PKT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3d00</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="hssi__10g__cmd_8h_1a4ea062053ff71409ce9535f3e35546a6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_PKT_GOOD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3d01</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="hssi__10g__cmd_8h_1a4dbb799ec3d5b286fda4e3251029925f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_PKT_BAD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3d02</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="hssi__10g__cmd_8h_1ad95d174ae6c1a6d25aba40f36403bbab" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_AVST_RX_ERR<sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3d07</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="hssi__10g__cmd_8h_1a0e6c344157d3583b61ca93c43e09ed1b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RX_STA_TSTAMP<sp/><sp/><sp/><sp/><sp/>0x3d0b</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="hssi__10g__cmd_8h_1a3f6ae7720cd10eaa8ddbb8adf7d566d9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_RX_END_TSTAMP<sp/><sp/><sp/><sp/><sp/>0x3d0c</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="hssi__10g__cmd_8h_1a9d63f6ba744592cdac940e37951018c9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CSR_MAC_LOOP<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x3e00</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="hssi__10g__cmd_8h_1a6f07d0094e837d61131ab0b3aa8ab1fc" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INVALID_PORT<sp/>99</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="classhssi__10g__cmd" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classhssi__10g__cmd" kindref="compound">hssi_10g_cmd</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classhssi__cmd" kindref="compound">hssi_cmd</ref></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="62" refid="classhssi__10g__cmd_1a4ee82ae4682d6a531aacfd35ba4f5910" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classhssi__10g__cmd_1a4ee82ae4682d6a531aacfd35ba4f5910" kindref="member">hssi_10g_cmd</ref>()</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref>(<ref refid="hssi__10g__cmd_8h_1a6f07d0094e837d61131ab0b3aa8ab1fc" kindref="member">INVALID_PORT</ref>)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>(0)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>(0)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref>(</highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref>(</highlight><highlight class="stringliteral">&quot;none&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref>(1)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" kindref="member">random_length_</ref>(</highlight><highlight class="stringliteral">&quot;fixed&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" kindref="member">random_payload_</ref>(</highlight><highlight class="stringliteral">&quot;incremental&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref>(64)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref>(</highlight><highlight class="stringliteral">&quot;11:22:33:44:55:66&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref>(</highlight><highlight class="stringliteral">&quot;77:88:99:aa:bb:cc&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" kindref="member">eth_ifc_</ref>(</highlight><highlight class="stringliteral">&quot;none&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" kindref="member">rnd_seed0_</ref>(0x5eed0000)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" kindref="member">rnd_seed1_</ref>(0x5eed0001)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" kindref="member">rnd_seed2_</ref>(0x00025eed)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>{}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="classhssi__10g__cmd_1af33928e3684381253c94728aa000932a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classhssi__10g__cmd_1af33928e3684381253c94728aa000932a" kindref="member">name</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override</highlight></codeline>
+<codeline lineno="81"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;hssi_10g&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classhssi__10g__cmd_1a680495300041fec9bde25551362ce195" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classhssi__10g__cmd_1a680495300041fec9bde25551362ce195" kindref="member">description</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override</highlight></codeline>
+<codeline lineno="86"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;hssi<sp/>10G<sp/>test\n&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="classhssi__10g__cmd_1a12f9d3d69d8822cdfb3c35b22c4654d8" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhssi__10g__cmd_1a12f9d3d69d8822cdfb3c35b22c4654d8" kindref="member">add_options</ref>(CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight><highlight class="keyword"><sp/>override</highlight></codeline>
+<codeline lineno="91"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--port&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref>,<sp/></highlight><highlight class="stringliteral">&quot;QSFP<sp/>Tx/Rx<sp/>ports&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::Range(0,<sp/>7))-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref>));</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--dst-port&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;QSFP<sp/>Rx<sp/>port&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::Range(0,<sp/>7))-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>));</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--src-port&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;QSFP<sp/>Tx<sp/>port&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::Range(0,<sp/>7))-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>));</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--eth-loopback&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref>,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;whether<sp/>to<sp/>enable<sp/>loopback<sp/>on<sp/>the<sp/>eth<sp/>interface&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::IsMember({</highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;off&quot;</highlight><highlight class="normal">}))-&gt;default_str(<ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref>);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--he-loopback&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref>,</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;whether<sp/>to<sp/>enable<sp/>loopback<sp/>in<sp/>the<sp/>Hardware<sp/>Exerciser<sp/>(HE)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::IsMember({</highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;off&quot;</highlight><highlight class="normal">}))-&gt;default_str(<ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref>);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--num-packets&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref>,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;number<sp/>of<sp/>packets&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref>));</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--random-length&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" kindref="member">random_length_</ref>,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;packet<sp/>length<sp/>randomization&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::IsMember({</highlight><highlight class="stringliteral">&quot;fixed&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;random&quot;</highlight><highlight class="normal">}))-&gt;default_str(<ref refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" kindref="member">random_length_</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--random-payload&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" kindref="member">random_payload_</ref>,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;payload<sp/>randomization&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;check(CLI::IsMember({</highlight><highlight class="stringliteral">&quot;incremental&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;random&quot;</highlight><highlight class="normal">}))-&gt;default_str(<ref refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" kindref="member">random_payload_</ref>);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--packet-length&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref>,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;packet<sp/>length&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref>));</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--src-addr&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref>,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;source<sp/>MAC<sp/>address&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(<ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--dest-addr&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref>,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;destination<sp/>MAC<sp/>address&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(<ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref>);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--eth-ifc&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" kindref="member">eth_ifc_</ref>,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;ethernet<sp/>interface<sp/>name&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(<ref refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" kindref="member">eth_ifc_</ref>);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--rnd-seed0&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" kindref="member">rnd_seed0_</ref>,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;prbs<sp/>generator<sp/>[31:0]&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" kindref="member">rnd_seed0_</ref>));</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--rnd-seed1&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" kindref="member">rnd_seed1_</ref>,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;prbs<sp/>generator<sp/>[47:32]&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" kindref="member">rnd_seed1_</ref>));</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>opt<sp/>=<sp/><ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>-&gt;add_option(</highlight><highlight class="stringliteral">&quot;--rnd-seed2&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" kindref="member">rnd_seed2_</ref>,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;prbs<sp/>generator<sp/>[91:64]&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>opt-&gt;default_str(std::to_string(<ref refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" kindref="member">rnd_seed2_</ref>));</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152" refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee" kindref="member">run</ref>(<ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>*afu,<sp/>CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight><highlight class="keyword"><sp/>override</highlight></codeline>
+<codeline lineno="153"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref><sp/>*hafu<sp/>=<sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="normal"><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref><sp/>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(afu);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>bin_src_addr<sp/>=<sp/><ref refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" kindref="member">mac_bits_for</ref>(<ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref>);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bin_src_addr<sp/>==<sp/><ref refid="hssi__cmd_8h_1a02028d30e3cea7b4e76419c00a1c6e6d" kindref="member">INVALID_MAC</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;invalid<sp/>MAC<sp/>address:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" kindref="member">test_afu::error</ref>;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>bin_dest_addr<sp/>=<sp/><ref refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" kindref="member">mac_bits_for</ref>(<ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref>);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bin_dest_addr<sp/>==<sp/><ref refid="hssi__cmd_8h_1a02028d30e3cea7b4e76419c00a1c6e6d" kindref="member">INVALID_MAC</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;invalid<sp/>MAC<sp/>address:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" kindref="member">test_afu::error</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/>eth_ifc<sp/>=<sp/><ref refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" kindref="member">eth_ifc_</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" kindref="member">eth_ifc_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;none&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth_ifc<sp/>=<sp/>hafu-&gt;<ref refid="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" kindref="member">ethernet_interface</ref>();</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref><sp/>!=<sp/><ref refid="hssi__10g__cmd_8h_1a6f07d0094e837d61131ab0b3aa8ab1fc" kindref="member">INVALID_PORT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;--port<sp/>is<sp/>overriding<sp/>--src-port<sp/>and<sp/>--dst-port&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref><sp/>=<sp/><ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref><sp/>=<sp/><ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;10G<sp/>loopback<sp/>test&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>Tx/Rx<sp/>port:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>Tx<sp/>port:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>Rx<sp/>port:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>eth_loopback:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>he_loopback:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>num_packets:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>packet_length:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>src_address:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/>(bits):<sp/>0x&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>bin_src_addr<sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>dest_address:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/>(bits):<sp/>0x&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>bin_dest_addr<sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>random_length:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" kindref="member">random_length_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>random_payload:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" kindref="member">random_payload_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>rnd_seed0:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" kindref="member">rnd_seed0_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>rnd_seed1:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" kindref="member">rnd_seed1_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>rnd_seed2:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" kindref="member">rnd_seed2_</ref><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>eth:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>eth_ifc<sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(eth_ifc<sp/>==<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;No<sp/>eth<sp/>interface,<sp/>so<sp/>not<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;honoring<sp/>--eth-loopback.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" kindref="member">enable_eth_loopback</ref>(eth_ifc,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" kindref="member">enable_eth_loopback</ref>(eth_ifc,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1afae4a4b81a4217f713ed1aab257fbc31" kindref="member">CSR_STOP</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref><sp/>!=<sp/></highlight><highlight class="stringliteral">&quot;none&quot;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a9d63f6ba744592cdac940e37951018c9" kindref="member">CSR_MAC_LOOP</ref>,<sp/>(<ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">)<sp/>?<sp/>1<sp/>:<sp/>0);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref><sp/>!=<sp/></highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">)<sp/></highlight><highlight class="comment">//<sp/>don&apos;t<sp/>loop<sp/>for<sp/>&quot;off&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" kindref="member">test_afu::success</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HE<sp/>loopback<sp/>enabled.<sp/>Use<sp/>Ctrl+C<sp/>to<sp/>exit.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(<ref refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" kindref="member">running</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::this_thread::sleep_for(std::chrono::milliseconds(1000));</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" kindref="member">test_afu::success</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>clk_freq<sp/>=<sp/><ref refid="classhssi__cmd_1a4d645c1913180d63ad93330589ab0892" kindref="member">clock_freq_for</ref>(hafu);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1af40e5b66e5d16497e47e8b10fc7e9a44" kindref="member">CSR_NUM_PACKETS</ref>,<sp/><ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref>);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a9015b2280acc5e2d1e518f764b9e754b" kindref="member">CSR_PACKET_LENGTH</ref>,<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref>);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a59ea99e840facf8745bcaa0b2e00886e" kindref="member">CSR_SRC_ADDR0</ref>,<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(bin_src_addr));</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1af7bf5ece5127db0085135197d0d40436" kindref="member">CSR_SRC_ADDR1</ref>,<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(bin_src_addr<sp/>&gt;&gt;<sp/>32));</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a2c69118ddfb7e4103b35f7730c1a57b9" kindref="member">CSR_DEST_ADDR0</ref>,<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(bin_dest_addr));</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1aa9a5a168e6cb93107ba02389bd91a117" kindref="member">CSR_DEST_ADDR1</ref>,<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(bin_dest_addr<sp/>&gt;&gt;<sp/>32));</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a24b333e7caef952009c18ad2e26badce" kindref="member">CSR_RANDOM_LENGTH</ref>,<sp/>(<ref refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" kindref="member">random_length_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;fixed&quot;</highlight><highlight class="normal">)<sp/>?<sp/>0<sp/>:<sp/>1);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1acf50e8198c1decdb5f3264099db2fea8" kindref="member">CSR_RANDOM_PAYLOAD</ref>,<sp/>(<ref refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" kindref="member">random_payload_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;incremental&quot;</highlight><highlight class="normal">)<sp/>?<sp/>0<sp/>:<sp/>1);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a1ce90b64e0156aaf617121855559acd7" kindref="member">CSR_RND_SEED0</ref>,<sp/><ref refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" kindref="member">rnd_seed0_</ref>);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a204070435ba257c6b00152dee5e73ea4" kindref="member">CSR_RND_SEED1</ref>,<sp/><ref refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" kindref="member">rnd_seed1_</ref>);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a002555ad38e153b807633299fa9d672c" kindref="member">CSR_RND_SEED2</ref>,<sp/><ref refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" kindref="member">rnd_seed2_</ref>);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a2154daea96bd7d69f410acb711d86b03" kindref="member">CSR_START</ref>,<sp/>1);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhssi__10g__cmd_1accc68e7c9f9a76c7a3fad9c62a3fe8be" kindref="member">print_registers</ref>(std::cout,<sp/>hafu);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>count;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/>interval<sp/>=<sp/>100ULL;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>count<sp/>=<sp/>hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a313cf0cae4a33761d5d25dc87b871445" kindref="member">CSR_PACKET_TX_COUNT</ref>);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" kindref="member">running</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hafu-&gt;<ref refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" kindref="member">mbox_write</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1afae4a4b81a4217f713ed1aab257fbc31" kindref="member">CSR_STOP</ref>,<sp/>1);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" kindref="member">test_afu::error</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::this_thread::sleep_for(std::chrono::microseconds(interval));</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal">(count<sp/>&lt;<sp/><ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref>);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(clk_freq<sp/>==<sp/><ref refid="hssi__cmd_8h_1afac984768dc7184c0b2ed50456a06076" kindref="member">INVALID_CLOCK_FREQ</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Couldn&apos;t<sp/>determine<sp/>user<sp/>clock<sp/>freq.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Skipping<sp/>performance<sp/>display.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HSSI<sp/>performance:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Read<sp/>traffic<sp/>control<sp/>Tx/Rx<sp/>timestamp<sp/>registers</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>tx_sta_tstamp<sp/>=<sp/>hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a7188a68123d2f47bc0b80a47c80e9496" kindref="member">CSR_TX_STA_TSTAMP</ref>);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>tx_end_tstamp<sp/>=<sp/>hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a6486622d431be951809ba69f98b916ac" kindref="member">CSR_TX_END_TSTAMP</ref>);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>rx_sta_tstamp<sp/>=<sp/>hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a0e6c344157d3583b61ca93c43e09ed1b" kindref="member">CSR_RX_STA_TSTAMP</ref>);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>rx_end_tstamp<sp/>=<sp/>hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a3f6ae7720cd10eaa8ddbb8adf7d566d9" kindref="member">CSR_RX_END_TSTAMP</ref>);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>timestamp<sp/>register<sp/>from<sp/>clock<sp/>cycles<sp/>to<sp/>nanoseconds</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>sample_period_ns<sp/>=<sp/>1000<sp/>/<sp/>clk_freq;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>tx_sta_tstamp_ns<sp/>=<sp/>tx_sta_tstamp<sp/>*<sp/>sample_period_ns;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>tx_end_tstamp_ns<sp/>=<sp/>tx_end_tstamp<sp/>*<sp/>sample_period_ns;</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>rx_sta_tstamp_ns<sp/>=<sp/>rx_sta_tstamp<sp/>*<sp/>sample_period_ns;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>rx_end_tstamp_ns<sp/>=<sp/>rx_end_tstamp<sp/>*<sp/>sample_period_ns;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>latencies</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>latency_min_ns<sp/>=<sp/>rx_sta_tstamp_ns<sp/>-<sp/>tx_sta_tstamp_ns;</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>latency_max_ns<sp/>=<sp/>rx_end_tstamp_ns<sp/>-<sp/>tx_end_tstamp_ns;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>Tx/Rx<sp/>throughput<sp/>achieved</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>data_pkt_size;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(clk_freq<sp/>==<sp/><ref refid="hssi__cmd_8h_1a7be58e7806ec4b0e9c546470229f4dd2" kindref="member">USER_CLKFREQ_S10</ref>)</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data_pkt_size<sp/>=<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref><sp/>-<sp/>4;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data_pkt_size<sp/>=<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref><sp/>-<sp/>8;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>total_tx_duration_ns<sp/>=<sp/>(tx_end_tstamp_ns<sp/>-<sp/>tx_sta_tstamp_ns);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>total_rx_duration_ns<sp/>=<sp/>(rx_end_tstamp_ns<sp/>-<sp/>rx_sta_tstamp_ns);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>total_data_size_bits<sp/>=<sp/>(<ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref><sp/><sp/>*<sp/>data_pkt_size<sp/>*<sp/>8)<sp/>;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>achieved_tx_tput_gbps<sp/>=<sp/>(total_data_size_bits<sp/>/<sp/>total_tx_duration_ns);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>achieved_rx_tput_gbps<sp/>=<sp/>(total_data_size_bits<sp/>/<sp/>total_rx_duration_ns);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\tSelected<sp/>clock<sp/>frequency<sp/>:<sp/>&quot;</highlight><highlight class="normal">&lt;&lt;<sp/>clk_freq<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>MHz&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\tLatency<sp/>minimum<sp/>:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>latency_min_ns<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>ns&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;std::endl</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\tLatency<sp/>maximum<sp/>:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>latency_max_ns<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>ns&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;std::endl</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\tAchieved<sp/>Tx<sp/>throughput<sp/>:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>achieved_tx_tput_gbps<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>GB/s&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\tAchieved<sp/>Rx<sp/>throughput<sp/>:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>achieved_rx_tput_gbps<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>GB/s&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(eth_ifc<sp/>==<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;No<sp/>eth<sp/>interface,<sp/>so<sp/>not<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;showing<sp/>stats.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ab9e34f47f9b8507649f79894950ed59e" kindref="member">show_eth_stats</ref>(eth_ifc);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref><sp/>==<sp/></highlight><highlight class="stringliteral">&quot;on&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" kindref="member">enable_eth_loopback</ref>(eth_ifc,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" kindref="member">test_afu::success</ref>;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321" refid="classhssi__10g__cmd_1a0762cc43180e6bcd5fabc98461450949" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classhssi__10g__cmd_1a0762cc43180e6bcd5fabc98461450949" kindref="member">afu_id</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override</highlight></codeline>
+<codeline lineno="322"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;823c334c-98bf-11ea-bb37-0242ac130002&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326" refid="classhssi__10g__cmd_1accc68e7c9f9a76c7a3fad9c62a3fe8be" refkind="member"><highlight class="normal"><sp/><sp/>std::ostream<sp/>&amp;<sp/><ref refid="classhssi__10g__cmd_1accc68e7c9f9a76c7a3fad9c62a3fe8be" kindref="member">print_registers</ref>(std::ostream<sp/>&amp;os,<sp/><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref><sp/>*hafu)</highlight><highlight class="keyword"><sp/>const</highlight></codeline>
+<codeline lineno="327"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40000<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;ETH_AFU_DFH&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1ac0baaf0917fee2104b9c6b44075298a2" kindref="member">ETH_AFU_DFH</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40008<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;ETH_AFU_ID_L&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1abe08ed7e56c85bcf7089b573333dd320" kindref="member">ETH_AFU_ID_L</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40010<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;ETH_AFU_ID_H&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1a8b95eb7d4b6d30992c5274633ab33fef" kindref="member">ETH_AFU_ID_H</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40030<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;TRAFFIC_CTRL_CMD&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" kindref="member">TRAFFIC_CTRL_CMD</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40038<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;TRAFFIC_CTRL_DATA&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" kindref="member">TRAFFIC_CTRL_DATA</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40040<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;TRAFFIC_CTRL_PORT_SEL&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" kindref="member">TRAFFIC_CTRL_PORT_SEL</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x40048<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(21)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;AFU_SCRATCHPAD&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="hssi__afu_8h_1ab2b3c37ae1a49971b27a9fbdbcc4d1d3" kindref="member">AFU_SCRATCHPAD</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c00<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;number_packets&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1af40e5b66e5d16497e47e8b10fc7e9a44" kindref="member">CSR_NUM_PACKETS</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c01<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;random_length&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a24b333e7caef952009c18ad2e26badce" kindref="member">CSR_RANDOM_LENGTH</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c02<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;random_payload&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1acf50e8198c1decdb5f3264099db2fea8" kindref="member">CSR_RANDOM_PAYLOAD</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c03<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;start&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a2154daea96bd7d69f410acb711d86b03" kindref="member">CSR_START</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c04<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;stop&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1afae4a4b81a4217f713ed1aab257fbc31" kindref="member">CSR_STOP</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c05<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;source_addr0&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a59ea99e840facf8745bcaa0b2e00886e" kindref="member">CSR_SRC_ADDR0</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c06<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;source_addr1&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1af7bf5ece5127db0085135197d0d40436" kindref="member">CSR_SRC_ADDR1</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c07<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;dest_addr0&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a2c69118ddfb7e4103b35f7730c1a57b9" kindref="member">CSR_DEST_ADDR0</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c08<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;dest_addr1&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1aa9a5a168e6cb93107ba02389bd91a117" kindref="member">CSR_DEST_ADDR1</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c09<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;packet_tx_count&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a313cf0cae4a33761d5d25dc87b871445" kindref="member">CSR_PACKET_TX_COUNT</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c0a<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;rnd_seed0&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a1ce90b64e0156aaf617121855559acd7" kindref="member">CSR_RND_SEED0</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c0b<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;rnd_seed1&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a204070435ba257c6b00152dee5e73ea4" kindref="member">CSR_RND_SEED1</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c0c<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;rnd_seed2&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a002555ad38e153b807633299fa9d672c" kindref="member">CSR_RND_SEED2</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3c0d<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;pkt_length&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a9015b2280acc5e2d1e518f764b9e754b" kindref="member">CSR_PACKET_LENGTH</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3cf4<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;tx_sta_tstamp&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a7188a68123d2f47bc0b80a47c80e9496" kindref="member">CSR_TX_STA_TSTAMP</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3cf5<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;tx_end_tstamp&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a6486622d431be951809ba69f98b916ac" kindref="member">CSR_TX_END_TSTAMP</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3d00<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;num_pkt&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a73e849a9472ea96b16645083c5f71544" kindref="member">CSR_NUM_PKT</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3d01<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;pkt_good&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a4ea062053ff71409ce9535f3e35546a6" kindref="member">CSR_PKT_GOOD</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3d02<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;pkt_bad&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a4dbb799ec3d5b286fda4e3251029925f" kindref="member">CSR_PKT_BAD</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3d07<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;avst_rx_err&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1ad95d174ae6c1a6d25aba40f36403bbab" kindref="member">CSR_AVST_RX_ERR</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3d0b<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;rx_sta_tstamp&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a0e6c344157d3583b61ca93c43e09ed1b" kindref="member">CSR_RX_STA_TSTAMP</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3d0c<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;rx_end_tstamp&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a3f6ae7720cd10eaa8ddbb8adf7d566d9" kindref="member">CSR_RX_END_TSTAMP</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/>os<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;0x3e00<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::setw(22)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;mac_loop&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" kindref="member">int_to_hex</ref>(hafu-&gt;<ref refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" kindref="member">mbox_read</ref>(<ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>,<sp/><ref refid="hssi__10g__cmd_8h_1a9d63f6ba744592cdac940e37951018c9" kindref="member">CSR_MAC_LOOP</ref>))<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>os;</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="398" refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1ac229f059a06d51e434c6b9da850abc42" kindref="member">port_</ref>;</highlight></codeline>
+<codeline lineno="399" refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1ac19fc7cd8246a8310eea494c5aaf1f39" kindref="member">dst_port_</ref>;</highlight></codeline>
+<codeline lineno="400" refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1aefe79d4931439f4850137dc040e94f0b" kindref="member">src_port_</ref>;</highlight></codeline>
+<codeline lineno="401" refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1ae634755c920470721628ab5ab06bdf58" kindref="member">eth_loopback_</ref>;</highlight></codeline>
+<codeline lineno="402" refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1a101007526d07095943bb836fa68496cb" kindref="member">he_loopback_</ref>;</highlight></codeline>
+<codeline lineno="403" refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1aadd0f9db0c701bc02a23e89badc64bb0" kindref="member">num_packets_</ref>;</highlight></codeline>
+<codeline lineno="404" refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1abd37648368fdfa6caeb887fe0d8460c0" kindref="member">random_length_</ref>;</highlight></codeline>
+<codeline lineno="405" refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1a4e0767e0f12273dace4fa75eddf1decd" kindref="member">random_payload_</ref>;</highlight></codeline>
+<codeline lineno="406" refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1ace75496cfab7ca96e4791575fce22207" kindref="member">packet_length_</ref>;</highlight></codeline>
+<codeline lineno="407" refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1abd3ca25b1ca1732b68b4e6caab09ad40" kindref="member">src_addr_</ref>;</highlight></codeline>
+<codeline lineno="408" refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1a4078a0208d3d4c0ed25b553056ca6064" kindref="member">dest_addr_</ref>;</highlight></codeline>
+<codeline lineno="409" refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" refkind="member"><highlight class="normal"><sp/><sp/>std::string<sp/><ref refid="classhssi__10g__cmd_1ab68fd6be1b8441fa2e6eb4a8be65dd2b" kindref="member">eth_ifc_</ref>;</highlight></codeline>
+<codeline lineno="410" refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1a918f3fcf2f29b5ab82d3ed9e6c7e77de" kindref="member">rnd_seed0_</ref>;</highlight></codeline>
+<codeline lineno="411" refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1a551dce10ac132f2ee200d1c7a37edeec" kindref="member">rnd_seed1_</ref>;</highlight></codeline>
+<codeline lineno="412" refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhssi__10g__cmd_1a6b6d1608738d2c16d4c1925130c6263e" kindref="member">rnd_seed2_</ref>;</highlight></codeline>
+<codeline lineno="413"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="samples/hssi/hssi_10g_cmd.h"/>
+  </compounddef>
+</doxygen>

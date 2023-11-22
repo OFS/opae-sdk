@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start Guide &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="OPAE Installation Guide" href="../../install_guide/installation_guide.html" />
+    <link rel="prev" title="Open Programmable Acceleration Engine" href="../../../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-the-opae-linux-device-drivers-from-the-source">Build the OPAE Linux device drivers from the source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-and-installing-the-opae-sdk-from-the-source">Building and installing the OPAE SDK from the source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-the-fpga-loading-an-fpga-afu">Configuring the FPGA (loading an FPGA AFU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-a-sample-application">Building a sample application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-iofs-release1-bitstream-on-fpga-pcie-card">Setup IOFS Release1 Bitstream on FPGA PCIe card</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Quick Start Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_api/quick_start/readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-{toctree} notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The OPAE C library is a lightweight user-space library that provides
+an abstraction for FPGA resources in a compute environment. Built on top of the
+OPAE Intel® FPGA driver stack that supports Intel® FPGA platforms, the library
+abstracts away hardware-specific and OS-specific details and exposes the
+underlying FPGA resources as a set of features accessible from within
+software programs running on the host.</p>
+<p>These features include the acceleration logic preconfigured on the
+device, as well as functions to manage and reconfigure the
+device. Hence, the library can enable user applications to
+transparently and seamlessly leverage FPGA-based acceleration.</p>
+<p>In this document, we will explore the initial steps on how to set up
+the required libraries and utilities to use the FPGA devices.</p>
+<p>If you do not have access to an Intel® Xeon® processor with integrated
+FPGA, or a programmable FPGA acceleration card for Intel® Xeon®
+processors, you will not be able to run the examples below. However, you can
+still make use of the AFU simulation environment (ASE) to develop and test
+accelerator RTL with OPAE applications.</p>
+<p>The source for the OPAE SDK Linux device drivers is available at the
+<a class="reference external" href="https://github.com/OPAE/linux-dfl">OPAE Linux DFL drivers repository</a>.</p>
+</div>
+<div class="section" id="build-the-opae-linux-device-drivers-from-the-source">
+<h2>Build the OPAE Linux device drivers from the source<a class="headerlink" href="#build-the-opae-linux-device-drivers-from-the-source" title="Permalink to this headline">¶</a></h2>
+<p>For building the OPAE kernel and kernel driver, the kernel development environment is required. So before you build the kernel, you must install the required packages. Run the following commands (we are using Fedora 32 as an example):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>make<span class="w"> </span>kernel-headers<span class="w"> </span>kernel-devel<span class="w"> </span>elfutils-libelf-devel<span class="w"> </span>ncurses-devel<span class="w"> </span>openssl-devel<span class="w"> </span>bison<span class="w"> </span>flex
+</pre></div>
+</div>
+<p>Download the OPAE upstream kernel tree from GitHub:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/OPAE/linux-dfl.git<span class="w"> </span>-b<span class="w"> </span>fpga-upstream-dev-5.8.0
+</pre></div>
+</div>
+<p>Configure the kernel:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>linux-dfl
+cp<span class="w"> </span>/boot/config-<span class="sb">`</span>uname<span class="w"> </span>-r<span class="sb">`</span><span class="w"> </span>.config
+cat<span class="w"> </span>configs/n3000_d5005_defconfig<span class="w"> </span>&gt;&gt;<span class="w"> </span>.config<span class="w"> </span>
+<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;CONFIG_LOCALVERSION=&quot;-dfl&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.config
+<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;CONFIG_LOCALVERSION_AUTO=y&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.config
+make<span class="w"> </span>olddefconfig
+</pre></div>
+</div>
+<p>Compile and install the new kernel:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>-j
+sudo<span class="w"> </span>make<span class="w"> </span>modules_install
+sudo<span class="w"> </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>After the installation finishes, reboot your system.
+Log back into the system, and confirm the correct version for the kernel:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>uname<span class="w"> </span>-a
+Linux<span class="w"> </span>localhost.localdomain<span class="w"> </span><span class="m">5</span>.8.0-rc1-dfl-g73e16386cda0<span class="w"> </span><span class="c1">#6 SMP Wed Aug 19 08:38:32 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-and-installing-the-opae-sdk-from-the-source">
+<h2>Building and installing the OPAE SDK from the source<a class="headerlink" href="#building-and-installing-the-opae-sdk-from-the-source" title="Permalink to this headline">¶</a></h2>
+<p>Download the OPAE SDK source package:</p>
+<ol>
+<li><p>Go to the section corresponding to the desired release on
+<a class="reference external" href="https://github.com/OPAE/opae-sdk/releases">GitHub</a>:</p></li>
+<li><p>Click the <code class="docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span> <span class="pre">(tar.gz)</span></code> link under the section’s <code class="docutils literal notranslate"><span class="pre">Assets</span></code>.</p></li>
+<li><p>On the command line, go through the following steps to install it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Unpack</span>
+tar<span class="w"> </span>xfvz<span class="w"> </span>opae-sdk-&lt;release&gt;.tar.gz
+<span class="c1"># Configure</span>
+<span class="nb">cd</span><span class="w"> </span>opae-sdk-&lt;release&gt;
+mkdir<span class="w"> </span>build
+<span class="nb">cd</span><span class="w"> </span>build
+<span class="c1"># The default installation prefix is `/usr/local`;</span>
+<span class="c1"># You have the option to configure for a different location</span>
+cmake<span class="w"> </span><span class="o">[</span>-DCMAKE_INSTALL_PREFIX<span class="o">=</span>&lt;prefix&gt;<span class="o">]</span><span class="w"> </span>..
+<span class="c1"># Compile</span>
+make
+<span class="c1"># Install: you need system administration privileges (`sudo`)</span>
+<span class="c1"># if you have elected to install in the default location</span>
+<span class="o">[</span>sudo<span class="o">]</span><span class="w"> </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The remainder of this guide assumes you installed into <code class="docutils literal notranslate"><span class="pre">/usr/local</span></code>.</p>
+</div>
+<div class="section" id="configuring-the-fpga-loading-an-fpga-afu">
+<h2>Configuring the FPGA (loading an FPGA AFU)<a class="headerlink" href="#configuring-the-fpga-loading-an-fpga-afu" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">fpgaconf</span></code> tool exercises the AFU reconfiguration
+functionality. It shows how to read a bitstream from a disk file,
+check its validity and compatibility, and then injects it into FPGA to
+be configured as a new AFU, which can then be discovered and used by
+user applications.</p>
+<p>For this step, you require a valid green bitstream (GBS) file. To
+reconfigure the FPGA slot, you can issue the following command as system
+administrator:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>fpgaconf<span class="w"> </span>-b<span class="w"> </span>0x5e<span class="w"> </span>&lt;filename&gt;.gbs
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-b</span></code> option to <code class="docutils literal notranslate"><span class="pre">fpgaconf</span></code> indicates the <em>target bus number</em> of the
+FPGA slot to be reconfigured. Alternatively, you can also specify the
+<em>target socket number</em> of the FPGA using the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo fpgaconf --help
+Usage:
+        fpgaconf [-hvn] [-b &lt;bus&gt;] [-d &lt;device&gt;] [-f &lt;function&gt;] [-s &lt;socket&gt;] &lt;gbs&gt;
+
+                -h,--help           Print this help
+                -v,--verbose        Increase verbosity
+                -n,--dry-run        Don&#39;t actually perform actions
+                -b,--bus            Set target bus number
+                -d,--device         Set target device number
+                -f,--function       Set target function number
+                -s,--socket         Set target socket number
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>The sample application on the Building a Sample Application
+section requires loading of an AFU called &quot;Native Loopback
+Adapter&quot; (NLB) on the FPGA. Please refer to the NLB documentation
+for the location of the NLB&#39;s green bitstream. You also can verify
+if the NLB green bitstream has already been loaded into the FPGA
+slot by typing the following command and checking the output
+matches the following:
+
+```bash
+$ cat /sys/class/fpga_region/region0/dfl-port.0/afu_id
+d8424dc4a4a3c413f89e433683f9040b
+```
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>The fpgaconf tool is not available for the Intel PAC N3000. The NLB is
+already included in the AFU.
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-a-sample-application">
+<h2>Building a sample application<a class="headerlink" href="#building-a-sample-application" title="Permalink to this headline">¶</a></h2>
+<p>The library source includes code samples. Use these samples to learn
+how to call functions in the library. Build and run these samples as
+quick sanity checks to determine if your installation and environment
+are set up properly.</p>
+<p>In this guide, we will build <code class="docutils literal notranslate"><span class="pre">hello_fpga.c</span></code>. This is the “Hello
+World!” example of using the library.  This code searches for a
+predefined and known AFU called “Native Loopback Adapter” on the
+FPGA. If found, it acquires ownership and then interacts with the AFU
+by sending it a 2MB message and waiting for the message to be echoed
+back. This code exercises all major components of the API except for
+AFU reconfiguration: AFU search, enumeration, access, MMIO, and memory
+management.</p>
+<p>You can also find the source for <code class="docutils literal notranslate"><span class="pre">hello_fpga</span></code> in the <code class="docutils literal notranslate"><span class="pre">samples</span></code> directory of the
+OPAE SDK repository on GitHub.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">fpga_properties</span><span class="w">    </span><span class="n">filter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">        </span><span class="n">fpga_token</span><span class="w">         </span><span class="n">afu_token</span><span class="p">;</span>
+<span class="w">        </span><span class="n">fpga_handle</span><span class="w">        </span><span class="n">afu_handle</span><span class="p">;</span>
+<span class="w">        </span><span class="n">fpga_guid</span><span class="w">          </span><span class="n">guid</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w">           </span><span class="n">num_matches</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="o">*</span><span class="n">dsm_ptr</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">        </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="o">*</span><span class="n">status_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">        </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="o">*</span><span class="n">input_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">        </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="o">*</span><span class="n">output_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kt">uint64_t</span><span class="w">        </span><span class="n">dsm_wsid</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">uint64_t</span><span class="w">        </span><span class="n">input_wsid</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">uint64_t</span><span class="w">        </span><span class="n">output_wsid</span><span class="p">;</span>
+<span class="w">        </span><span class="n">fpga_result</span><span class="w">     </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FPGA_OK</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uuid_parse</span><span class="p">(</span><span class="n">NLB0_AFUID</span><span class="p">,</span><span class="w"> </span><span class="n">guid</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Error parsing guid &#39;%s&#39;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">NLB0_AFUID</span><span class="p">);</span>
+<span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="n">out_exit</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="cm">/* Look for accelerator by its &quot;afu_id&quot; */</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaGetProperties</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">filter</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_exit</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;creating properties object&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPropertiesSetObjectType</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">FPGA_ACCELERATOR</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_destroy_prop</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;setting object type&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPropertiesSetGuid</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">guid</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_destroy_prop</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;setting GUID&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* TODO: Add selection via BDF / device ID */</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaEnumerate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">afu_token</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">num_matches</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_destroy_prop</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;enumerating accelerators&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_matches</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;accelerator not found.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaDestroyProperties</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">FPGA_INVALID_PARAM</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="cm">/* Open accelerator and map MMIO */</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaOpen</span><span class="p">(</span><span class="n">afu_token</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_destroy_tok</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;opening accelerator&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaMapMMIO</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_close</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mapping MMIO space&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Allocate buffers */</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPrepareBuffer</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">LPBK1_DSM_SIZE</span><span class="p">,</span>
+<span class="w">                    </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">dsm_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dsm_wsid</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_close</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;allocating DSM buffer&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPrepareBuffer</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">LPBK1_BUFFER_ALLOCATION_SIZE</span><span class="p">,</span>
+<span class="w">                   </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">input_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">input_wsid</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_dsm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;allocating input buffer&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPrepareBuffer</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">LPBK1_BUFFER_ALLOCATION_SIZE</span><span class="p">,</span>
+<span class="w">                   </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">output_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">output_wsid</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_input</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;allocating output buffer&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Running Test</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Initialize buffers */</span>
+<span class="w">        </span><span class="n">memset</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">dsm_ptr</span><span class="p">,</span><span class="w">    </span><span class="mi">0</span><span class="p">,</span><span class="w">    </span><span class="n">LPBK1_DSM_SIZE</span><span class="p">);</span>
+<span class="w">        </span><span class="n">memset</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">input_ptr</span><span class="p">,</span><span class="w">  </span><span class="mh">0xAF</span><span class="p">,</span><span class="w"> </span><span class="n">LPBK1_BUFFER_SIZE</span><span class="p">);</span>
+<span class="w">        </span><span class="n">memset</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">output_ptr</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBE</span><span class="p">,</span><span class="w"> </span><span class="n">LPBK1_BUFFER_SIZE</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">cache_line</span><span class="w"> </span><span class="o">*</span><span class="n">cl_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cache_line</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">input_ptr</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">LPBK1_BUFFER_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">CL</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">cl_ptr</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">uint</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="cm">/* set the last uint in every cacheline */</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="cm">/* Reset accelerator */</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaReset</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;resetting accelerator&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Program DMA addresses */</span>
+<span class="w">        </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">iova</span><span class="p">;</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaGetIOAddress</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">dsm_wsid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">iova</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;getting DSM IOVA&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO64</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_AFU_DSM_BASEL</span><span class="p">,</span><span class="w"> </span><span class="n">iova</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_AFU_DSM_BASEL&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_CTL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_CFG&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_CTL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_CFG&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaGetIOAddress</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">input_wsid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">iova</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;getting input IOVA&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO64</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_SRC_ADDR</span><span class="p">,</span><span class="w"> </span><span class="n">CACHELINE_ALIGNED_ADDR</span><span class="p">(</span><span class="n">iova</span><span class="p">));</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_SRC_ADDR&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaGetIOAddress</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">output_wsid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">iova</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;getting output IOVA&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO64</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_DST_ADDR</span><span class="p">,</span><span class="w"> </span><span class="n">CACHELINE_ALIGNED_ADDR</span><span class="p">(</span><span class="n">iova</span><span class="p">));</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_DST_ADDR&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_NUM_LINES</span><span class="p">,</span><span class="w"> </span><span class="n">LPBK1_BUFFER_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">CL</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_NUM_LINES&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_CFG</span><span class="p">,</span><span class="w"> </span><span class="mh">0x42000</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_CFG&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">status_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dsm_ptr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DSM_STATUS_TEST_COMPLETE</span><span class="o">/</span><span class="mi">8</span><span class="p">;</span>
+
+<span class="w">        </span><span class="cm">/* Start the test */</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_CTL</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_CFG&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Wait for test completion */</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">((</span><span class="o">*</span><span class="n">status_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">usleep</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="cm">/* Stop the device */</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_CTL</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_output</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;writing CSR_CFG&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Check output buffer contents */</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">LPBK1_BUFFER_SIZE</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(((</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">output_ptr</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="p">((</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">input_ptr</span><span class="p">)[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Output does NOT match input &quot;</span>
+<span class="w">                    </span><span class="s">&quot;at offset %i!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Done Running Test</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Release buffers */</span>
+<span class="w">    </span><span class="nl">out_free_output</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaReleaseBuffer</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">output_wsid</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_input</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;releasing output buffer&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nl">out_free_input</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaReleaseBuffer</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">input_wsid</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_free_dsm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;releasing input buffer&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nl">out_free_dsm</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaReleaseBuffer</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="n">dsm_wsid</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_unmap</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;releasing DSM buffer&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Unmap MMIO space */</span>
+<span class="w">    </span><span class="nl">out_unmap</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaUnmapMMIO</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_close</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;unmapping MMIO space&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Release accelerator */</span>
+<span class="w">    </span><span class="nl">out_close</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaClose</span><span class="p">(</span><span class="n">afu_handle</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_destroy_tok</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;closing accelerator&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Destroy token */</span>
+<span class="w">    </span><span class="nl">out_destroy_tok</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaDestroyToken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">afu_token</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_destroy_prop</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;destroying token&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="cm">/* Destroy properties object */</span>
+<span class="w">    </span><span class="nl">out_destroy_prop</span><span class="p">:</span>
+<span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaDestroyProperties</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ON_ERR_GOTO</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">out_exit</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;destroying properties object&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="nl">out_exit</span><span class="p">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">res</span><span class="p">;</span>
+
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Linking with the OPAE library is straightforward.  Code using this library
+should include the header file <code class="docutils literal notranslate"><span class="pre">fpga.h</span></code>. Taking the GCC compiler on
+Linux as an example, the minimalist compile and link line should look
+like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gcc<span class="w"> </span>-std<span class="o">=</span>c99<span class="w"> </span>hello_fpga.c<span class="w"> </span>-I/usr/local/include<span class="w"> </span>-L/usr/local/lib<span class="w"> </span>-lopae-c<span class="w"> </span>-luuid<span class="w"> </span>-ljson-c<span class="w"> </span>-lpthread<span class="w"> </span>-o<span class="w"> </span>hello_fpga
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>The API uses some features from the C99 language standard. The
+`-std=c99` switch is required if the compiler does not support C99 by
+default.
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>Third-party library dependency: The library internally uses
+`libuuid` and `libjson-c`. But they are not distributed as part of the
+library. Make sure you have these libraries properly installed.
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>The layout of AFU is different between the N3000 card and Rush Creek/Darby Creek.
+In the N3000 card, the NLB and DMA are contained in the AFU, so we need to do
+enumeration again in AFU to discover the NLB.
+To run the hello_fpga application on the N3000 card, it should use the `-c`
+option to support the N3000 card:
+
+```bash
+$ sudo ./hello_fpga -c
+Running Test
+Running on bus 0x08.
+AFU NLB0 found @ 28000
+Done Running Test
+```
+</pre></div>
+</div>
+<p>To run the <code class="docutils literal notranslate"><span class="pre">hello_fpga</span></code> application; just issue:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>./hello_fpga
+Running<span class="w"> </span>Test
+Done
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-iofs-release1-bitstream-on-fpga-pcie-card">
+<h2>Setup IOFS Release1 Bitstream on FPGA PCIe card<a class="headerlink" href="#setup-iofs-release1-bitstream-on-fpga-pcie-card" title="Permalink to this headline">¶</a></h2>
+<p>Program IOFS Release1 bitstream on the FPGA D5005 or N6000 cards and reboot the system.</p>
+<p>Run this command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>lspci<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>acc
+3b:00.0<span class="w"> </span>Processing<span class="w"> </span>accelerators:<span class="w"> </span>Intel<span class="w"> </span>Corporation<span class="w"> </span>Device<span class="w"> </span>af00<span class="w"> </span><span class="o">(</span>rev<span class="w"> </span><span class="m">01</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Number of virtual functions supported by bitstream:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span>/sys/bus/pci/devices/0000:3b:00.0/sriov_totalvfs<span class="w"> </span>
+output:<span class="w"> </span><span class="m">3</span>
+</pre></div>
+</div>
+<p>Enable FPGA virtual functions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo 3 &gt; /sys/bus/pci/devices/0000:3b:00.0/sriov_numvfs&quot;</span>
+</pre></div>
+</div>
+<p>List of FPGA PF and VF’s:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>Physical Functions (PFs):
+  3b:00.0 Processing accelerators: Intel Corporation Device af00 (rev 01)
+
+Virtual Functions (VFs).
+  3b:00.1 Processing accelerators: Intel Corporation Device af01 (rev 01)
+  3b:00.2 Processing accelerators: Intel Corporation Device af01 (rev 01)
+  3b:00.3 Processing accelerators: Intel Corporation Device af01 (rev 01)
+</pre></div>
+</div>
+<p>Bind vfio-pcie driver to FPGA virtual functions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>opaevfio<span class="w">  </span>-i<span class="w"> </span><span class="m">0000</span>:3b:00.1<span class="w"> </span>-u<span class="w"> </span>userid<span class="w"> </span>-g<span class="w"> </span>groupid
+sudo<span class="w"> </span>opaevfio<span class="w">  </span>-i<span class="w"> </span><span class="m">0000</span>:3b:00.2<span class="w"> </span>-u<span class="w"> </span>userid<span class="w"> </span>-g<span class="w"> </span>groupid
+sudo<span class="w"> </span>opaevfio<span class="w">  </span>-i<span class="w"> </span><span class="m">0000</span>:3b:00.3<span class="w"> </span>-u<span class="w"> </span>userid<span class="w"> </span>-g<span class="w"> </span>groupid
+</pre></div>
+</div>
+<p>List of fpga accelerators:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>fpgainfo<span class="w"> </span>port
+
+<span class="w">  </span>//******<span class="w"> </span>PORT<span class="w"> </span>******//
+<span class="w">  </span>Object<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0x600D000000000000
+<span class="w">  </span>PCIe<span class="w"> </span>s:b:d.f<span class="w">                     </span>:<span class="w"> </span><span class="m">0000</span>:3b:00.3
+<span class="w">  </span>Device<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0xAF00
+<span class="w">  </span>Socket<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0xFF
+<span class="w">  </span>Accelerator<span class="w"> </span>Id<span class="w">                   </span>:<span class="w"> </span>43425ee6-92b2-4742-b03a-bd8d4a533812
+<span class="w">  </span>Accelerator<span class="w"> </span>GUID<span class="w">                 </span>:<span class="w"> </span>43425ee6-92b2-4742-b03a-bd8d4a533812
+<span class="w">  </span>//******<span class="w"> </span>PORT<span class="w"> </span>******//
+<span class="w">  </span>Object<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0x400D000000000000
+<span class="w">  </span>PCIe<span class="w"> </span>s:b:d.f<span class="w">                     </span>:<span class="w"> </span><span class="m">0000</span>:3b:00.2
+<span class="w">  </span>Device<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0xAF00
+<span class="w">  </span>Socket<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0xFF
+<span class="w">  </span>Accelerator<span class="w"> </span>Id<span class="w">                   </span>:<span class="w"> </span>8568AB4E-6bA5-4616-BB65-2A578330A8EB
+<span class="w">  </span>Accelerator<span class="w"> </span>GUID<span class="w">                 </span>:<span class="w"> </span>8568AB4E-6bA5-4616-BB65-2A578330A8EB
+<span class="w">  </span>//******<span class="w"> </span>PORT<span class="w"> </span>******//
+<span class="w">  </span>Object<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0x200D000000000000
+<span class="w">  </span>PCIe<span class="w"> </span>s:b:d.f<span class="w">                     </span>:<span class="w"> </span><span class="m">0000</span>:3b:00.1
+<span class="w">  </span>Device<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0xAF00
+<span class="w">  </span>Socket<span class="w"> </span>Id<span class="w">                        </span>:<span class="w"> </span>0xFF
+<span class="w">  </span>Accelerator<span class="w"> </span>Id<span class="w">                   </span>:<span class="w"> </span>56e203e9-864f-49a7-b94b-12284c31e02b
+<span class="w">  </span>Accelerator<span class="w"> </span>GUID<span class="w">                 </span>:<span class="w"> </span>56e203e9-864f-49a7-b94b-12284c31e02b
+
+FPGA<span class="w"> </span>VF1/3b:00.1/Host<span class="w"> </span>Exerciser<span class="w"> </span>Loopback<span class="w"> </span>Accelerator<span class="w"> </span>GUID:<span class="w"> </span>56E203E9-864F-49A7-B94B-12284C31E02B
+FPGA<span class="w"> </span>VF2/3b:00.2/Host<span class="w"> </span>Exerciser<span class="w"> </span>Memory<span class="w"> </span>Accelerator<span class="w"> </span>GUID:<span class="w"> </span>8568AB4E-6bA5-4616-BB65-2A578330A8EB
+FPGA<span class="w"> </span>VF3/3b:00.3/Host<span class="w"> </span>Exerciser<span class="w"> </span>HSSI<span class="w"> </span>Accelerator<span class="w"> </span>GUID:<span class="w"> </span>43425ee6-92b2-4742-b03a-bd8d4a533812
+</pre></div>
+</div>
+<p>Unbind pcie-vfio dirver to FPGA virtual functions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>opaevfio<span class="w">  </span>-r<span class="w"> </span><span class="m">0000</span>:3b:00.1
+</pre></div>
+</div>
+<p>Host Exerciser Loopback (HE-LBK) AFU can move data between host memory and FPGA:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>host_exerciser<span class="w"> </span>lpbk
+<span class="w">  </span>
+<span class="w">  </span><span class="o">[</span>lpbk<span class="o">]</span><span class="w"> </span><span class="o">[</span>info<span class="o">]</span><span class="w"> </span>starting<span class="w"> </span><span class="nb">test</span><span class="w"> </span>run,<span class="w"> </span>count<span class="w"> </span>of<span class="w"> </span><span class="m">1</span>
+<span class="w">  </span>Input<span class="w"> </span>Config:0
+<span class="w">  </span>Allocate<span class="w"> </span>SRC<span class="w"> </span>Buffer
+<span class="w">  </span>Allocate<span class="w"> </span>DST<span class="w"> </span>Buffer
+<span class="w">  </span>Allocate<span class="w"> </span>DSM<span class="w"> </span>Buffer
+<span class="w">  </span>Start<span class="w"> </span>Test
+<span class="w">  </span>Test<span class="w"> </span>Completed
+<span class="w">  </span>Host<span class="w"> </span>Exerciser<span class="w"> </span>swtest<span class="w"> </span>msg:0
+<span class="w">  </span>Host<span class="w"> </span>Exerciser<span class="w"> </span>numReads:32
+<span class="w">  </span>Host<span class="w"> </span>Exerciser<span class="w"> </span>numWrites:32
+<span class="w">  </span>Host<span class="w"> </span>Exerciser<span class="w"> </span>numPendReads:0
+<span class="w">  </span>Host<span class="w"> </span>Exerciser<span class="w"> </span>numPendWrites:0
+<span class="w">  </span><span class="o">[</span>lpbk<span class="o">]</span><span class="w"> </span><span class="o">[</span>info<span class="o">]</span><span class="w"> </span>Test<span class="w"> </span>lpbk<span class="o">(</span><span class="m">1</span><span class="o">)</span>:<span class="w"> </span>PASS
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>  In order to successfully run hello\_fpga, the user needs to configure
+  system hugepage to reserve 2M-hugepages.
+  For example, the command below reserves 20 2M-hugepages:
+
+  ```bash
+  echo 20 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+  ```
+
+  For x86_64 architecture CPU, user can use the following command to find out available huge page sizes:
+
+  ```bash
+  $ grep pse /proc/cpuinfo | uniq
+  flags : ... pse ...
+  ```
+
+  If this command returns a non-empty string, 2MB pages are supported:
+
+  ```bash
+  $ grep pse /proc/cpuinfo | uniq
+  flags : ... pdpe1gb ...
+  ```
+
+  If this commands returns a non-empty string, 1GB pages are supported.
+</pre></div>
+</div>
+<div class="highlight-{note} notranslate"><div class="highlight"><pre><span></span>The default configuration for many Linux distributions currently sets a
+relatively low limit for pinned memory allocations per process 
+(RLIMIT_MEMLOCK, often set to a default of 64kiB).
+
+To run an OPAE application that attempts to share more memory than specified
+by this limit between software and an accelerator, you can either:
+
+* Run the application as root, or
+* Increase the limit for locked memory via `ulimit`:
+
+```bash
+ulimit -l unlimited
+```
+
+See the Installation Guide for how to permanently adjust the memlock limit.
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../../index.html" class="btn btn-neutral float-left" title="Open Programmable Acceleration Engine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../install_guide/installation_guide.html" class="btn btn-neutral float-right" title="OPAE Installation Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

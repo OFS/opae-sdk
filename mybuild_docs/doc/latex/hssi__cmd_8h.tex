@@ -1,0 +1,134 @@
+\doxysection{samples/hssi/hssi\+\_\+cmd.h File Reference}
+\label{hssi__cmd_8h}\index{samples/hssi/hssi\_cmd.h@{samples/hssi/hssi\_cmd.h}}
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$sstream$>$}\newline
+{\ttfamily \#include $<$cstdio$>$}\newline
+{\ttfamily \#include $<$cstring$>$}\newline
+{\ttfamily \#include $<$netinet/ether.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}afu\+\_\+test.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$opae/uio.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classhssi__cmd}{hssi\+\_\+cmd}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_a3c5cddd0ed6864ab681d05e26e9c3554}{PKT\+\_\+\+FILT\+\_\+\+CSR\+\_\+\+DEST\+\_\+\+ADDR}}~0x0040
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_a02028d30e3cea7b4e76419c00a1c6e6d}{INVALID\+\_\+\+MAC}}~0xffffffffffffffff\+ULL
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_afac984768dc7184c0b2ed50456a06076}{INVALID\+\_\+\+CLOCK\+\_\+\+FREQ}}~0.\+0
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_a7be58e7806ec4b0e9c546470229f4dd2}{USER\+\_\+\+CLKFREQ\+\_\+\+S10}}~156.\+25
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_ae2539670faebaec305a8380ff9fcf798}{USER\+\_\+\+CLKFREQ\+\_\+\+N6000}}~402.\+83203125
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_a8c74ad5179038d17b345dfe79279c2c4}{BITSVER\+\_\+\+MAJOR\+\_\+\+S10}}~4
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_a8c3e18e7cbf560ff92e8047255f8ec3b}{BITSVER\+\_\+\+MAJOR\+\_\+\+N6000}}~5
+\item 
+\#define \mbox{\hyperlink{hssi__cmd_8h_a6bd4704606bf8c2114179696c85370d3}{FPGA\+\_\+\+BBS\+\_\+\+VER\+\_\+\+MAJOR}}(i)~(((i) $>$$>$ 56) \& 0xf)
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{hssi__cmd_8h_a14cb42c9e63dc7d0cf1a9475c1385a34}{test\+\_\+command}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{hssi__cmd_8h_a3c5cddd0ed6864ab681d05e26e9c3554}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!PKT\_FILT\_CSR\_DEST\_ADDR@{PKT\_FILT\_CSR\_DEST\_ADDR}}
+\index{PKT\_FILT\_CSR\_DEST\_ADDR@{PKT\_FILT\_CSR\_DEST\_ADDR}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{PKT\_FILT\_CSR\_DEST\_ADDR}{PKT\_FILT\_CSR\_DEST\_ADDR}}
+{\footnotesize\ttfamily \#define PKT\+\_\+\+FILT\+\_\+\+CSR\+\_\+\+DEST\+\_\+\+ADDR~0x0040}
+
+
+
+Definition at line 38 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_a02028d30e3cea7b4e76419c00a1c6e6d}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!INVALID\_MAC@{INVALID\_MAC}}
+\index{INVALID\_MAC@{INVALID\_MAC}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{INVALID\_MAC}{INVALID\_MAC}}
+{\footnotesize\ttfamily \#define INVALID\+\_\+\+MAC~0xffffffffffffffff\+ULL}
+
+
+
+Definition at line 40 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_afac984768dc7184c0b2ed50456a06076}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!INVALID\_CLOCK\_FREQ@{INVALID\_CLOCK\_FREQ}}
+\index{INVALID\_CLOCK\_FREQ@{INVALID\_CLOCK\_FREQ}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{INVALID\_CLOCK\_FREQ}{INVALID\_CLOCK\_FREQ}}
+{\footnotesize\ttfamily \#define INVALID\+\_\+\+CLOCK\+\_\+\+FREQ~0.\+0}
+
+
+
+Definition at line 42 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_a7be58e7806ec4b0e9c546470229f4dd2}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!USER\_CLKFREQ\_S10@{USER\_CLKFREQ\_S10}}
+\index{USER\_CLKFREQ\_S10@{USER\_CLKFREQ\_S10}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{USER\_CLKFREQ\_S10}{USER\_CLKFREQ\_S10}}
+{\footnotesize\ttfamily \#define USER\+\_\+\+CLKFREQ\+\_\+\+S10~156.\+25}
+
+
+
+Definition at line 44 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_ae2539670faebaec305a8380ff9fcf798}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!USER\_CLKFREQ\_N6000@{USER\_CLKFREQ\_N6000}}
+\index{USER\_CLKFREQ\_N6000@{USER\_CLKFREQ\_N6000}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{USER\_CLKFREQ\_N6000}{USER\_CLKFREQ\_N6000}}
+{\footnotesize\ttfamily \#define USER\+\_\+\+CLKFREQ\+\_\+\+N6000~402.\+83203125}
+
+
+
+Definition at line 45 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_a8c74ad5179038d17b345dfe79279c2c4}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!BITSVER\_MAJOR\_S10@{BITSVER\_MAJOR\_S10}}
+\index{BITSVER\_MAJOR\_S10@{BITSVER\_MAJOR\_S10}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{BITSVER\_MAJOR\_S10}{BITSVER\_MAJOR\_S10}}
+{\footnotesize\ttfamily \#define BITSVER\+\_\+\+MAJOR\+\_\+\+S10~4}
+
+
+
+Definition at line 46 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_a8c3e18e7cbf560ff92e8047255f8ec3b}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!BITSVER\_MAJOR\_N6000@{BITSVER\_MAJOR\_N6000}}
+\index{BITSVER\_MAJOR\_N6000@{BITSVER\_MAJOR\_N6000}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{BITSVER\_MAJOR\_N6000}{BITSVER\_MAJOR\_N6000}}
+{\footnotesize\ttfamily \#define BITSVER\+\_\+\+MAJOR\+\_\+\+N6000~5}
+
+
+
+Definition at line 47 of file hssi\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__cmd_8h_a6bd4704606bf8c2114179696c85370d3}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!FPGA\_BBS\_VER\_MAJOR@{FPGA\_BBS\_VER\_MAJOR}}
+\index{FPGA\_BBS\_VER\_MAJOR@{FPGA\_BBS\_VER\_MAJOR}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{FPGA\_BBS\_VER\_MAJOR}{FPGA\_BBS\_VER\_MAJOR}}
+{\footnotesize\ttfamily \#define FPGA\+\_\+\+BBS\+\_\+\+VER\+\_\+\+MAJOR(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~(((i) $>$$>$ 56) \& 0xf)}
+
+
+
+Definition at line 49 of file hssi\+\_\+cmd.\+h.
+
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{hssi__cmd_8h_a14cb42c9e63dc7d0cf1a9475c1385a34}} 
+\index{hssi\_cmd.h@{hssi\_cmd.h}!test\_command@{test\_command}}
+\index{test\_command@{test\_command}!hssi\_cmd.h@{hssi\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{test\_command}{test\_command}}
+{\footnotesize\ttfamily using \mbox{\hyperlink{hssi__cmd_8h_a14cb42c9e63dc7d0cf1a9475c1385a34}{test\+\_\+command}} =  \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}}
+
+
+
+Definition at line 35 of file hssi\+\_\+cmd.\+h.
+

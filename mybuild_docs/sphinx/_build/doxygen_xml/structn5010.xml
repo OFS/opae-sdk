@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structn5010" kind="struct" language="C++" prot="public">
+    <compoundname>n5010</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structn5010_1afcfc923993a0c3d7ed0919eae0ab8c7d" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+        <definition>fpga_properties n5010::filter</definition>
+        <argsstring></argsstring>
+        <name>filter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="77" column="17" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="77" bodyend="-1"/>
+        <referencedby refid="n5010-test_8c_1ab3d638b8387fa4ec22627ec8a6b53e62" compoundref="n5010-test_8c" startline="175" endline="200">fpga_close</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="n5010-ctl_8c" startline="440" endline="494">main</referencedby>
+        <referencedby refid="n5010-test_8c_1ab750b2af83dc6cbb0aa2d9a9d1b25079" compoundref="n5010-test_8c" startline="736" endline="805">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1a0cd89aec173afe291731dbf496a15e89" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+        <definition>fpga_token n5010::token</definition>
+        <argsstring></argsstring>
+        <name>token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="78" column="12" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="78" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1ab3d638b8387fa4ec22627ec8a6b53e62" compoundref="n5010-ctl_8c" startline="156" endline="178">fpga_close</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1a2a3c98ab8a1308a684bbb24cc837bbce" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+        <definition>fpga_handle n5010::handle</definition>
+        <argsstring></argsstring>
+        <name>handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="79" column="13" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="79" bodyend="-1"/>
+        <referencedby refid="n5010-test_8c_1a2d826077756d3ecead9f30e5d6eada51" compoundref="n5010-test_8c" startline="274" endline="286">fpga_banks</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a2e79fe0581ec5864faa636b5fe0e03a4" compoundref="n5010-ctl_8c" startline="180" endline="244">fpga_base</referencedby>
+        <referencedby refid="n5010-ctl_8c_1ab3d638b8387fa4ec22627ec8a6b53e62" compoundref="n5010-ctl_8c" startline="156" endline="178">fpga_close</referencedby>
+        <referencedby refid="n5010-ctl_8c_1af1edf9b723cd625e1655f1f12eb21efa" compoundref="n5010-ctl_8c" startline="246" endline="260">fpga_dump</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a46c13d0ab2132699eac8a7830a536d7c" compoundref="n5010-ctl_8c" startline="285" endline="296">fpga_read_switch_port</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a6596f7a4b6b9ac8060d18e3f40f42334" compoundref="n5010-ctl_8c" startline="263" endline="283">fpga_set_switch</referencedby>
+        <referencedby refid="n5010-test_8c_1aef1214e09ce39997c1133269fd0936e9" compoundref="n5010-test_8c" startline="288" endline="310">fpga_start</referencedby>
+        <referencedby refid="n5010-test_8c_1aad710973341f9f1301a817df6b1b8090" compoundref="n5010-test_8c" startline="312" endline="332">fpga_stop</referencedby>
+        <referencedby refid="n5010-test_8c_1a66f9a1b5d37745c9587641613bf50cd5" compoundref="n5010-test_8c" startline="415" endline="474">fpga_test_ddr_directed</referencedby>
+        <referencedby refid="n5010-test_8c_1a4a327a70c05938aa6ecda3e2e9225663" compoundref="n5010-test_8c" startline="365" endline="413">fpga_test_ddr_prbs</referencedby>
+        <referencedby refid="n5010-test_8c_1ae1108fb5be774c3a02c79b22d9e4e8a4" compoundref="n5010-test_8c" startline="476" endline="549">fpga_test_esram</referencedby>
+        <referencedby refid="n5010-test_8c_1ae92a916f3955b96edf4ef7ab5a667114" compoundref="n5010-test_8c" startline="626" endline="690">fpga_test_hbm</referencedby>
+        <referencedby refid="n5010-test_8c_1a7d4ba0af37d28b2281e697ff461b8cbb" compoundref="n5010-test_8c" startline="551" endline="624">fpga_test_qdr</referencedby>
+        <referencedby refid="n5010-test_8c_1a2973f7fa537bc9d89cbda5fdf88682e6" compoundref="n5010-test_8c" startline="334" endline="363">fpga_wait</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1ae7ae9573b72d429d0b60811d6f6d0256" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref></type>
+        <definition>fpga_guid n5010::guid</definition>
+        <argsstring></argsstring>
+        <name>guid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="80" column="11" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="80" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1a2e79fe0581ec5864faa636b5fe0e03a4" compoundref="n5010-ctl_8c" startline="180" endline="244">fpga_base</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-ctl_8c" startline="107" endline="154">fpga_open</referencedby>
+        <referencedby refid="n5010-ctl_8c_1adde1c5cf0a410d13f51b29238589fd42" compoundref="n5010-ctl_8c" startline="385" endline="438">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1abc1821c363984324ab8a00dca071a2a6" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t n5010::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="81" column="10" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="81" bodyend="-1"/>
+        <referencedby refid="n5010-test_8c_1a2d826077756d3ecead9f30e5d6eada51" compoundref="n5010-test_8c" startline="274" endline="286">fpga_banks</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a2e79fe0581ec5864faa636b5fe0e03a4" compoundref="n5010-ctl_8c" startline="180" endline="244">fpga_base</referencedby>
+        <referencedby refid="n5010-ctl_8c_1af1edf9b723cd625e1655f1f12eb21efa" compoundref="n5010-ctl_8c" startline="246" endline="260">fpga_dump</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a46c13d0ab2132699eac8a7830a536d7c" compoundref="n5010-ctl_8c" startline="285" endline="296">fpga_read_switch_port</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a6596f7a4b6b9ac8060d18e3f40f42334" compoundref="n5010-ctl_8c" startline="263" endline="283">fpga_set_switch</referencedby>
+        <referencedby refid="n5010-test_8c_1aef1214e09ce39997c1133269fd0936e9" compoundref="n5010-test_8c" startline="288" endline="310">fpga_start</referencedby>
+        <referencedby refid="n5010-test_8c_1aad710973341f9f1301a817df6b1b8090" compoundref="n5010-test_8c" startline="312" endline="332">fpga_stop</referencedby>
+        <referencedby refid="n5010-test_8c_1a66f9a1b5d37745c9587641613bf50cd5" compoundref="n5010-test_8c" startline="415" endline="474">fpga_test_ddr_directed</referencedby>
+        <referencedby refid="n5010-test_8c_1a4a327a70c05938aa6ecda3e2e9225663" compoundref="n5010-test_8c" startline="365" endline="413">fpga_test_ddr_prbs</referencedby>
+        <referencedby refid="n5010-test_8c_1ae1108fb5be774c3a02c79b22d9e4e8a4" compoundref="n5010-test_8c" startline="476" endline="549">fpga_test_esram</referencedby>
+        <referencedby refid="n5010-test_8c_1ae92a916f3955b96edf4ef7ab5a667114" compoundref="n5010-test_8c" startline="626" endline="690">fpga_test_hbm</referencedby>
+        <referencedby refid="n5010-test_8c_1a7d4ba0af37d28b2281e697ff461b8cbb" compoundref="n5010-test_8c" startline="551" endline="624">fpga_test_qdr</referencedby>
+        <referencedby refid="n5010-test_8c_1a2973f7fa537bc9d89cbda5fdf88682e6" compoundref="n5010-test_8c" startline="334" endline="363">fpga_wait</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1ab54ff35470c946192ab662a1602e8da8" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structn5010__test" kindref="compound">n5010_test</ref> *</type>
+        <definition>const struct n5010_test * n5010::test</definition>
+        <argsstring></argsstring>
+        <name>test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="82" column="23" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="82" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="n5010-ctl_8c" startline="440" endline="494">main</referencedby>
+        <referencedby refid="n5010-ctl_8c_1a443cc7c174314015bd7fe2613c4d8245" compoundref="n5010-ctl_8c" startline="362" endline="383">parse_mode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1a67f77d17592900684681c485ed981f3d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t n5010::port</definition>
+        <argsstring></argsstring>
+        <name>port</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="83" column="10" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="83" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1a6596f7a4b6b9ac8060d18e3f40f42334" compoundref="n5010-ctl_8c" startline="263" endline="283">fpga_set_switch</referencedby>
+        <referencedby refid="n5010-ctl_8c_1af49d8292da513d31bb1a0a16861e230a" compoundref="n5010-ctl_8c" startline="305" endline="317">fpga_setread_switch</referencedby>
+        <referencedby refid="n5010-ctl_8c_1adde1c5cf0a410d13f51b29238589fd42" compoundref="n5010-ctl_8c" startline="385" endline="438">parse_args</referencedby>
+        <referencedby refid="n5010-ctl_8c_1abf670aede0d10582400b91cb54634821" compoundref="n5010-ctl_8c" startline="344" endline="360">parse_port</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1ae68e58f88c71441c72ecb477b69f8523" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool n5010::debug</definition>
+        <argsstring></argsstring>
+        <name>debug</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="84" column="6" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="84" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1af1edf9b723cd625e1655f1f12eb21efa" compoundref="n5010-ctl_8c" startline="246" endline="260">fpga_dump</referencedby>
+        <referencedby refid="n5010-test_8c_1ae1108fb5be774c3a02c79b22d9e4e8a4" compoundref="n5010-test_8c" startline="476" endline="549">fpga_test_esram</referencedby>
+        <referencedby refid="n5010-test_8c_1ae92a916f3955b96edf4ef7ab5a667114" compoundref="n5010-test_8c" startline="626" endline="690">fpga_test_hbm</referencedby>
+        <referencedby refid="n5010-test_8c_1a7d4ba0af37d28b2281e697ff461b8cbb" compoundref="n5010-test_8c" startline="551" endline="624">fpga_test_qdr</referencedby>
+        <referencedby refid="n5010-test_8c_1a2973f7fa537bc9d89cbda5fdf88682e6" compoundref="n5010-test_8c" startline="334" endline="363">fpga_wait</referencedby>
+        <referencedby refid="n5010-ctl_8c_1adde1c5cf0a410d13f51b29238589fd42" compoundref="n5010-ctl_8c" startline="385" endline="438">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010_1ad0222c8836fd4aeb7a6da6d56d3176d6" prot="public" static="no" mutable="no">
+        <type>uint</type>
+        <definition>uint n5010::open_mode</definition>
+        <argsstring></argsstring>
+        <name>open_mode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-test/n5010-test.c" line="93" column="6" bodyfile="samples/n5010-test/n5010-test.c" bodystart="93" bodyend="-1"/>
+        <referencedby refid="n5010-test_8c_1a8b18501a62f680f0b60aeaf03b0feaaf" compoundref="n5010-test_8c" startline="125" endline="173">fpga_open</referencedby>
+        <referencedby refid="n5010-test_8c_1ab750b2af83dc6cbb0aa2d9a9d1b25079" compoundref="n5010-test_8c" startline="736" endline="805">parse_args</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>n5010_test</label>
+        <link refid="structn5010__test"/>
+      </node>
+      <node id="1">
+        <label>n5010</label>
+        <link refid="structn5010"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+test</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="samples/n5010-ctl/n5010-ctl.c" line="76" column="1" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="76" bodyend="85"/>
+    <listofallmembers>
+      <member refid="structn5010_1abc1821c363984324ab8a00dca071a2a6" prot="public" virt="non-virtual"><scope>n5010</scope><name>base</name></member>
+      <member refid="structn5010_1ae68e58f88c71441c72ecb477b69f8523" prot="public" virt="non-virtual"><scope>n5010</scope><name>debug</name></member>
+      <member refid="structn5010_1afcfc923993a0c3d7ed0919eae0ab8c7d" prot="public" virt="non-virtual"><scope>n5010</scope><name>filter</name></member>
+      <member refid="structn5010_1ae7ae9573b72d429d0b60811d6f6d0256" prot="public" virt="non-virtual"><scope>n5010</scope><name>guid</name></member>
+      <member refid="structn5010_1a2a3c98ab8a1308a684bbb24cc837bbce" prot="public" virt="non-virtual"><scope>n5010</scope><name>handle</name></member>
+      <member refid="structn5010_1ad0222c8836fd4aeb7a6da6d56d3176d6" prot="public" virt="non-virtual"><scope>n5010</scope><name>open_mode</name></member>
+      <member refid="structn5010_1a67f77d17592900684681c485ed981f3d" prot="public" virt="non-virtual"><scope>n5010</scope><name>port</name></member>
+      <member refid="structn5010_1ab54ff35470c946192ab662a1602e8da8" prot="public" virt="non-virtual"><scope>n5010</scope><name>test</name></member>
+      <member refid="structn5010_1a0cd89aec173afe291731dbf496a15e89" prot="public" virt="non-virtual"><scope>n5010</scope><name>token</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

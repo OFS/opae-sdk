@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__dsm__basel" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_dsm_basel</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__dsm__basel_1a4ba084374684a6db722d333821be40df" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@95</name>
+        <enumvalue id="unionhost__exerciser_1_1he__dsm__basel_1a4ba084374684a6db722d333821be40dfaf5f62fe54fc710944d292a93faf315d1" prot="public">
+          <name>offset</name>
+          <initializer>= HE_DSM_BASEL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="140" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="140" bodyend="142"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__dsm__basel_1a865c3c35c16d80d8783b1befeaef57c0" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_dsm_basel::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="143" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__dsm__basel_1a5ac0fba0e7ba410a06c51d5b0c166435" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_dsm_basel::@96</type>
+        <definition>struct host_exerciser::he_dsm_basel::@96 host_exerciser::he_dsm_basel::@97</definition>
+        <argsstring></argsstring>
+        <name>@97</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="146" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_dsm_basel</label>
+        <link refid="unionhost__exerciser_1_1he__dsm__basel"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="139" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="139" bodyend="147"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__dsm__basel_1a4ba084374684a6db722d333821be40dfaf5f62fe54fc710944d292a93faf315d1" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_basel</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__dsm__basel_1a865c3c35c16d80d8783b1befeaef57c0" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_basel</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

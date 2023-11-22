@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple “Hello World” AFU example &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Simple “Hello World” AFU example</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/docs/fpga_api/samples/hello_afu/README.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="simple-hello-world-afu-example">
+<h1>Simple “Hello World” AFU example<a class="headerlink" href="#simple-hello-world-afu-example" title="Permalink to this headline">¶</a></h1>
+<p>This example is nearly the simplest possible accelerator. The RTL receives an
+address via a memory mapped I/O (MMIO) write and generates a CCI write to the
+memory line at that address, containing the string “Hello World!”. The
+software spins, waiting for the line to update. Once available, the software
+prints the string.</p>
+<p>Of note in this example:</p>
+<ul class="simple">
+<li><p>RTL sources are specified in <a class="reference external" href="hw/sources.txt">hw/sources.txt</a>.  In addition to
+SystemVerilog, the AFU’s JSON file is included also under ‘hw’ directory.  The AFU JSON
+describes the interfaces required by the AFU.  It also holds a UUID to
+identify the AFU when it is loaded on an FPGA.</p></li>
+<li><p>The AFU declares that it expects the ccip_std_afu top-level interface by
+setting “afu-top-interface” to “ccip_std_afu” in <a class="reference external" href="hw/hello_afu.json">hw/hello_afu.json</a>.
+This is the base CCI-P interface with clocks, reset and CCI-P Rx/Tx
+structures.  Other interface options will be described in subsequent
+examples.</p></li>
+<li><p>The AFU UUID is declared exactly once in the sources: in the JSON file.
+<a class="reference external" href="hw/hello_afu.json">hw/hello_afu.json</a> and is extracted by
+the OPAE <code class="docutils literal notranslate"><span class="pre">afu_json_mgr</span></code> script into both Verilog (<code class="docutils literal notranslate"><span class="pre">afu_json_info.vh</span></code>) and C
+<code class="docutils literal notranslate"><span class="pre">afu_json_info.h</span></code> header files. The RTL loads the UUID from
+<code class="docutils literal notranslate"><span class="pre">afu_json_info.vh</span></code>.  Similarly, software compilation loads the
+UUID from <code class="docutils literal notranslate"><span class="pre">afu_json_info.h</span></code>.</p></li>
+<li><p>The software demonstrates the minimum necessary to attach to an FPGA
+using OPAE.  The RTL demonstrates the minimum necessary to satisfy the
+OPAE driver and the hello_afu software.</p></li>
+</ul>
+<div class="section" id="afu-rtl-code">
+<h2>AFU RTL code<a class="headerlink" href="#afu-rtl-code" title="Permalink to this headline">¶</a></h2>
+<p>The user-customizable RTL is contained entirely in
+<a class="reference external" href="hw/rtl/afu.sv">hw/rtl/afu.sv</a> and demonstrates the
+following universal AFU requirements:</p>
+<ul class="simple">
+<li><p>The CCI request and response ports are clocked by pClk.</p></li>
+<li><p>Reset (pck_cp2af_softReset) is synchronous with pClk.</p></li>
+<li><p>Outgoing request and incoming response wires must be registered.</p></li>
+<li><p>All AFUs must implement a read-only device feature header (DFH) in MMIO
+space at MMIO address 0. The DFH holds a 128 bit AFU ID, mapped to a pair of
+64 bit MMIO “registers”.</p></li>
+</ul>
+</div>
+<div class="section" id="afu-software-code">
+<h2>AFU software code<a class="headerlink" href="#afu-software-code" title="Permalink to this headline">¶</a></h2>
+<p>The software side is contained entirely in <a class="reference external" href="sw/hello_afu.c">sw/hello_afu.c</a>:</p>
+<ul class="simple">
+<li><p>The AFU ID in the software must match the AFU ID in the hardware’s DFH.</p></li>
+<li><p>The FPGA-accessible shared memory is mapped explicitly.</p></li>
+<li><p>Memory addresses passed to the FIU’s CCI request wires are in a
+physical I/O address space. Since all CCI requests refer to entire 512
+bit memory lines, the example passes the line-based physical address
+to which “Hello World!” should be written.</p></li>
+<li><p>The code in <code class="docutils literal notranslate"><span class="pre">connect_to_accel()</span></code> is a simplification of the ideal
+sequence. The code detects at most one accelerator matching the
+desired UUID.  Later examples detect when multiple instances of the
+same hardware are available in case one is already in use.</p></li>
+</ul>
+</div>
+<div class="section" id="simulation-with-ase">
+<h2>Simulation with ASE<a class="headerlink" href="#simulation-with-ase" title="Permalink to this headline">¶</a></h2>
+<p>Ensure your <code class="docutils literal notranslate"><span class="pre">$QUARTUS_ROOTDIR</span></code> and <code class="docutils literal notranslate"><span class="pre">$MTI_HOME</span></code> user environment variables point
+to the roots of valid installations of Quartus (17.0 or higher) and Modelsim
+(10.3 or higher). While these steps are also listed in ../README.md, we also list them here:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">    $ </span>mkdir<span class="w"> </span>opae_build
+<span class="gp">    $ </span><span class="nb">cd</span><span class="w"> </span>opae_build
+<span class="gp">    $ </span>cmake<span class="w"> </span>-DBUILD_ASE_SAMPLES<span class="o">=</span>on<span class="w"> </span>&lt;Directory<span class="w"> </span>where<span class="w"> </span>OPAE<span class="w"> </span>repository<span class="w"> </span>was<span class="w"> </span>cloned.&gt;
+<span class="gp">    $ </span>make<span class="w"> </span>-j
+</pre></div>
+</div>
+<p>Simulation requires two software processes: one for RTL simulation and
+the other to run the connected software.</p>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">-j</span></code> will build both the required files for the RTL simulation and the
+corresponding  connected softwre. If <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">-j</span></code> failes, confirm that your
+Python version is at least 2.7 and that the jsonschema Python package is installed
+(https://pypi.python.org/pypi/jsonschema).</p>
+<p>To launch the RTL simulation execute following steps inside <code class="docutils literal notranslate"><span class="pre">opae_build</span></code> directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">    $ </span>./samples/hello_afu/hw/ase_server.sh
+</pre></div>
+</div>
+<p>This will run the RTL simulator.  If this step fails it is
+likely that your RTL simulator is not installed properly.</p>
+<p>The simulator prints a message that it is ready for simulation.  It also
+prints a message to set the <code class="docutils literal notranslate"><span class="pre">ASE_WORKDIR</span></code> environment variable.  Open
+another shell and cd to the <code class="docutils literal notranslate"><span class="pre">opae_build</span></code> directory.  To run the software:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">    $ </span>&lt;Set<span class="w"> </span>ASE_WORKDIR<span class="w"> </span>as<span class="w"> </span>directed<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>simulator&gt;
+<span class="gp">    $ </span><span class="nv">LD_PRELOAD</span><span class="o">=</span>./lib/libopae-c-ase.so<span class="w"> </span>./bin/hello_afu
+</pre></div>
+</div>
+<p>The software and simulator should both run quickly, log transactions and
+exit.</p>
+</div>
+<div class="section" id="synthesis-with-quartus">
+<h2>Synthesis with Quartus<a class="headerlink" href="#synthesis-with-quartus" title="Permalink to this headline">¶</a></h2>
+<p>RTL simulation and synthesis are driven by the same <code class="docutils literal notranslate"><span class="pre">sources.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">hello_afu.json</span></code> and
+underlying OPAE scripts.  To construct a Quartus synthesis environment
+for this AFU, enter following commands in same directory containing this
+<code class="docutils literal notranslate"><span class="pre">README</span></code> file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">    $ </span>afu_synth_setup<span class="w"> </span>--source<span class="w"> </span>hw/sources.txt<span class="w"> </span>build_synth
+<span class="gp">    $ </span><span class="nb">cd</span><span class="w"> </span>build_synth
+<span class="gp">    $ </span><span class="si">${</span><span class="nv">OPAE_PLATFORM_ROOT</span><span class="si">}</span>/bin/run.sh
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">run.sh</span></code> will invoke Quartus, which must be properly installed.  The end
+result will be a file named <code class="docutils literal notranslate"><span class="pre">hello_afu.gbs</span></code> in the build_synth directory.
+This GBS file may be loaded onto a compatible FPGA using OPAE’s <code class="docutils literal notranslate"><span class="pre">fpgaconf</span></code>
+tool.</p>
+</div>
+<div class="section" id="running-the-sample-on-hardware">
+<h2>Running the sample on hardware<a class="headerlink" href="#running-the-sample-on-hardware" title="Permalink to this headline">¶</a></h2>
+<p>To run the software connected to an FPGA, compile it as above, but invoke the
+binary <code class="docutils literal notranslate"><span class="pre">hello_afu</span></code> binary without specifying
+<code class="docutils literal notranslate"><span class="pre">LD_PRELOAD=./lib/libopae-c-ase.so</span></code>.  If you have already run ASE simulation,
+the binary has already been compiled and <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">-j</span></code> will do nothing:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">    # </span>Load<span class="w"> </span>the<span class="w"> </span>AFU<span class="w"> </span>into<span class="w"> </span>the<span class="w"> </span>partial<span class="w"> </span>reconfiguration<span class="w"> </span>region
+<span class="gp">    $ </span>sudo<span class="w"> </span>opae_build/bin/fpgaconf<span class="w"> </span>hello_afu.gbs
+
+<span class="gp">    $ </span><span class="nb">cd</span><span class="w"> </span>opae_build
+<span class="gp">    # </span>sudo<span class="w"> </span>may<span class="w"> </span>be<span class="w"> </span>required<span class="w"> </span>to<span class="w"> </span>invoke<span class="w"> </span>hello_afu,<span class="w"> </span>depending<span class="w"> </span>on<span class="w"> </span>your<span class="w"> </span>environment.
+<span class="gp">    $ </span>./bin/hello_afu
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

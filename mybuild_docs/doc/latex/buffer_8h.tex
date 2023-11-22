@@ -1,0 +1,139 @@
+\doxysection{include/opae/buffer.h File Reference}
+\label{buffer_8h}\index{include/opae/buffer.h@{include/opae/buffer.h}}
+
+
+Functions for allocating and sharing system memory with an FPGA accelerator.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{buffer_8h_aac3ed0146bc42c35f99610a319e87303}{fpga\+Prepare\+Buffer}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t len, void $\ast$$\ast$buf\+\_\+addr, uint64\+\_\+t $\ast$wsid, int flags)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{buffer_8h_a3d2302d336bbe5fe05a08a8f534d296b}{fpga\+Release\+Buffer}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t wsid)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{buffer_8h_aed20b8768e38a5414a331dd09a2aa221}{fpga\+Get\+IOAddress}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t wsid, uint64\+\_\+t $\ast$ioaddr)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{buffer_8h_afd9f338886cc152d82fe7d211404771d}{fpga\+Bind\+SVA}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint32\+\_\+t $\ast$pasid)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions for allocating and sharing system memory with an FPGA accelerator. 
+
+To share memory between a software application and an FPGA accelerator, these functions set up system components (e.\+g. an IOMMU) to allow accelerator access to a provided memory region.
+
+There are a number of restrictions on what memory can be shared, depending on platform capabilities. Usually, FPGA accelerators to not have access to virtual address mappings of the CPU, so they can only access physical addresses. To support this, the OPAE C library on Linux uses hugepages to allocate large, contiguous pages of physical memory that can be shared with an accelerator. It also supports sharing memory that has already been allocated by an application, as long as that memory satisfies the requirements of being physically contigous and page-\/aligned. 
+
+\doxysubsection{Function Documentation}
+\mbox{\label{buffer_8h_aac3ed0146bc42c35f99610a319e87303}} 
+\index{buffer.h@{buffer.h}!fpgaPrepareBuffer@{fpgaPrepareBuffer}}
+\index{fpgaPrepareBuffer@{fpgaPrepareBuffer}!buffer.h@{buffer.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPrepareBuffer()}{fpgaPrepareBuffer()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Prepare\+Buffer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t}]{len,  }\item[{void $\ast$$\ast$}]{buf\+\_\+addr,  }\item[{uint64\+\_\+t $\ast$}]{wsid,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Prepare a shared memory buffer
+
+Prepares a memory buffer for shared access between an accelerator and the calling process. This may either include allocation of physical memory, or preparation of already allocated memory for sharing. The latter case is indicated by supplying the FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED flag.
+
+This function will ask the driver to pin the indicated memory (make it non-\/swappable), and program the IOMMU to allow access from the accelerator. If the buffer was not pre-\/allocated (flag FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED), the function will also allocate physical memory of the requested size and map the memory into the caller\textquotesingle{}s process\textquotesingle{} virtual address space. It returns in \textquotesingle{}wsid\textquotesingle{} an fpga\+\_\+buffer object that can be used to program address registers in the accelerator for shared access to the memory.
+
+When using FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED, the input len must be a non-\/zero multiple of the page size, else the function returns FPGA\+\_\+\+INVALID\+\_\+\+PARAM. When not using FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED, the input len is rounded up to the nearest multiple of page size.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & Length of the buffer to allocate/prepare in bytes \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em buf\+\_\+addr} & Virtual address of buffer. Contents may be NULL (OS will choose mapping) or non-\/\+NULL (OS will take contents as a hint for the virtual address). \\
+\hline
+\mbox{\texttt{ out}}  & {\em wsid} & Handle to the allocated/prepared buffer to be used with other functions \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags. FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED indicates that memory pointed at in \textquotesingle{}$\ast$buf\+\_\+addr\textquotesingle{} is already allocated an mapped into virtual memory. FPGA\+\_\+\+BUF\+\_\+\+READ\+\_\+\+ONLY pins pages with only read access from the FPGA. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NO\+\_\+\+MEMORY if the requested memory could not be allocated. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the handle.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+As a special case, when FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED is present in flags, if len == 0 and buf\+\_\+addr == NULL, then the function returns FPGA\+\_\+\+OK if pre-\/allocated buffers are supported. In this case, a return value other than FPGA\+\_\+\+OK indicates that pre-\/allocated buffers are not supported. 
+\end{DoxyNote}
+
+
+Referenced by main().
+
+\mbox{\label{buffer_8h_a3d2302d336bbe5fe05a08a8f534d296b}} 
+\index{buffer.h@{buffer.h}!fpgaReleaseBuffer@{fpgaReleaseBuffer}}
+\index{fpgaReleaseBuffer@{fpgaReleaseBuffer}!buffer.h@{buffer.h}}
+\doxysubsubsection{\texorpdfstring{fpgaReleaseBuffer()}{fpgaReleaseBuffer()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Release\+Buffer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t}]{wsid }\end{DoxyParamCaption})}
+
+Release a shared memory buffer
+
+Releases a previously prepared shared buffer. If the buffer was allocated using fpga\+Prepare\+Buffer (FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED was not specified), this call will deallocate/free that memory. Otherwise, it will only be returned to it\textquotesingle{}s previous state (pinned/unpinned, cached/non-\/cached).
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ in}}  & {\em wsid} & Handle to the allocated/prepared buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the handle. 
+\end{DoxyReturn}
+
+
+Referenced by main().
+
+\mbox{\label{buffer_8h_aed20b8768e38a5414a331dd09a2aa221}} 
+\index{buffer.h@{buffer.h}!fpgaGetIOAddress@{fpgaGetIOAddress}}
+\index{fpgaGetIOAddress@{fpgaGetIOAddress}!buffer.h@{buffer.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetIOAddress()}{fpgaGetIOAddress()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+IOAddress (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t}]{wsid,  }\item[{uint64\+\_\+t $\ast$}]{ioaddr }\end{DoxyParamCaption})}
+
+Retrieve base IO address for buffer
+
+This function is used to acquire the physical base address (on some platforms called IO Virtual Address or IOVA) for a shared buffer identified by wsid.
+
+\begin{DoxyNote}{Note}
+This function will disappear once the APIs for secure sharing of buffer addresses is implemented.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ in}}  & {\em wsid} & Buffer handle / workspace ID referring to the buffer for which the IO address is requested \\
+\hline
+\mbox{\texttt{ out}}  & {\em ioaddr} & Pointer to memory where the IO address will be returned \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the handle. FPGA\+\_\+\+NOT\+\_\+\+FOUND if {\ttfamily wsid} does not refer to a previously shared buffer. 
+\end{DoxyReturn}
+
+
+Referenced by main().
+
+\mbox{\label{buffer_8h_afd9f338886cc152d82fe7d211404771d}} 
+\index{buffer.h@{buffer.h}!fpgaBindSVA@{fpgaBindSVA}}
+\index{fpgaBindSVA@{fpgaBindSVA}!buffer.h@{buffer.h}}
+\doxysubsubsection{\texorpdfstring{fpgaBindSVA()}{fpgaBindSVA()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Bind\+SVA (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint32\+\_\+t $\ast$}]{pasid }\end{DoxyParamCaption})}
+
+Bind IOMMU shared virtual addressing
+
+When PCIe PASID, ATS and PRS capabilities are enabled, some platforms support binding the IOMMU to user space virtual addresses.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource \\
+\hline
+\mbox{\texttt{ out}}  & {\em pasid} & Process address space ID, set if not NULL. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success and FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED otherwise. 
+\end{DoxyReturn}

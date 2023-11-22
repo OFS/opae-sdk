@@ -1,0 +1,409 @@
+.TH "samples/hssi/hssi_100g_cmd.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/hssi/hssi_100g_cmd.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'hssi_cmd\&.h'\fP
+.br
+\fC#include <cmath>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBhssi_100g_cmd\fP"
+.br
+.ti -1c
+.RI "struct \fBDFH\fP"
+.br
+.ti -1c
+.RI "struct \fBctrl_config\fP"
+.br
+.ti -1c
+.RI "struct \fBperf_data\fP"
+.br
+.ti -1c
+.RI "union \fBDFH\&.__unnamed132__\fP"
+.br
+.ti -1c
+.RI "struct \fBDFH\&.__unnamed132__\&.__unnamed134__\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBCSR_SCRATCH\fP   0x1000"
+.br
+.ti -1c
+.RI "#define \fBCSR_BLOCK_ID\fP   0x1001"
+.br
+.ti -1c
+.RI "#define \fBCSR_PKT_SIZE\fP   0x1008"
+.br
+.ti -1c
+.RI "#define \fBCSR_CTRL0\fP   0x1009"
+.br
+.ti -1c
+.RI "#define \fBCSR_CTRL1\fP   0x1010"
+.br
+.ti -1c
+.RI "#define \fBCSR_DST_ADDR_LO\fP   0x1011"
+.br
+.ti -1c
+.RI "#define \fBCSR_DST_ADDR_HI\fP   0x1012"
+.br
+.ti -1c
+.RI "#define \fBCSR_SRC_ADDR_LO\fP   0x1013"
+.br
+.ti -1c
+.RI "#define \fBCSR_SRC_ADDR_HI\fP   0x1014"
+.br
+.ti -1c
+.RI "#define \fBCSR_RX_COUNT\fP   0x1015"
+.br
+.ti -1c
+.RI "#define \fBCSR_MLB_RST\fP   0x1016"
+.br
+.ti -1c
+.RI "#define \fBCSR_TX_COUNT\fP   0x1017"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_CTRL\fP   0x1018"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_TX_CNT_LO\fP   0x1019"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_TX_CNT_HI\fP   0x101A"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_RX_CNT_LO\fP   0x101B"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_RX_CNT_HI\fP   0x101C"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_RX_GD_CNT_LO\fP   0x101D"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATS_RX_GD_CNT_HI\fP   0x101E"
+.br
+.ti -1c
+.RI "#define \fBCSR_TX_START_TIMESTAMP_LO\fP   0x101F"
+.br
+.ti -1c
+.RI "#define \fBCSR_TX_START_TIMESTAMP_HI\fP   0x1020"
+.br
+.ti -1c
+.RI "#define \fBCSR_TX_END_TIMESTAMP_LO\fP   0x1021"
+.br
+.ti -1c
+.RI "#define \fBCSR_TX_END_TIMESTAMP_HI\fP   0x1022"
+.br
+.ti -1c
+.RI "#define \fBCSR_RX_START_TIMESTAMP_LO\fP   0x1023"
+.br
+.ti -1c
+.RI "#define \fBCSR_RX_START_TIMESTAMP_HI\fP   0x1024"
+.br
+.ti -1c
+.RI "#define \fBCSR_RX_END_TIMESTAMP_LO\fP   0x1025"
+.br
+.ti -1c
+.RI "#define \fBCSR_RX_END_TIMESTAMP_HI\fP   0x1026"
+.br
+.ti -1c
+.RI "#define \fBSTOP_BITS\fP   0xa"
+.br
+.ti -1c
+.RI "#define \fBZERO\fP   0x0"
+.br
+.ti -1c
+.RI "#define \fBONE\fP   0x1"
+.br
+.ti -1c
+.RI "#define \fBCSR_SHIFT\fP   32"
+.br
+.ti -1c
+.RI "#define \fBCONV_SEC\fP   402832031"
+.br
+.ti -1c
+.RI "#define \fBDATA_CNF_PKT_NUM\fP   0x80000000"
+.br
+.ti -1c
+.RI "#define \fBDATA_CNF_CONTINUOUS_MODE\fP   0x00000000"
+.br
+.ti -1c
+.RI "#define \fBDATA_CNF_FIXED_MODE\fP   0x80000000"
+.br
+.ti -1c
+.RI "#define \fBCURSOR_UP\fP   'A'"
+.br
+.ti -1c
+.RI "#define \fBCURSOR_DOWN\fP   'B'"
+.br
+.ti -1c
+.RI "#define \fBMAX_PORT\fP   2"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct DFH"
+.PP 
+Definition at line 166 of file hssi_100g_cmd\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+union \fBDFH\fP \fI__unnamed__\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct ctrl_config"
+.PP 
+Definition at line 182 of file hssi_100g_cmd\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIpkt_size_data\fP 
+.br
+.PP
+uint32_t \fIctrl0_data\fP 
+.br
+.PP
+uint32_t \fIctrl1_data\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct perf_data"
+.PP 
+Definition at line 188 of file hssi_100g_cmd\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+volatile uint64_t \fItx_count\fP 
+.br
+.PP
+volatile uint64_t \fIrx_count\fP 
+.br
+.PP
+volatile uint64_t \fIrx_good_packet_count\fP 
+.br
+.PP
+volatile uint64_t \fIrx_pkt_sec\fP 
+.br
+.PP
+uint64_t \fIbw\fP 
+.br
+.PP
+.RE
+.PP
+.SH "union DFH\&.__unnamed132__"
+.PP 
+Definition at line 167 of file hssi_100g_cmd\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIcsr\fP 
+.br
+.PP
+\fB__unnamed132__\fP \fI__unnamed__\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct DFH\&.__unnamed132__\&.__unnamed134__"
+.PP 
+Definition at line 169 of file hssi_100g_cmd\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIid: 12\fP 
+.br
+.PP
+uint64_t \fImajor_rev: 4\fP 
+.br
+.PP
+uint64_t \fInext: 24\fP 
+.br
+.PP
+uint64_t \fIeol: 1\fP 
+.br
+.PP
+uint64_t \fIreserved41: 7\fP 
+.br
+.PP
+uint64_t \fIminor_rev: 4\fP 
+.br
+.PP
+uint64_t \fIversion: 8\fP 
+.br
+.PP
+uint64_t \fItype: 4\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define CSR_SCRATCH   0x1000"
+
+.PP
+Definition at line 30 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_BLOCK_ID   0x1001"
+
+.PP
+Definition at line 31 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_PKT_SIZE   0x1008"
+
+.PP
+Definition at line 32 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_CTRL0   0x1009"
+
+.PP
+Definition at line 33 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_CTRL1   0x1010"
+
+.PP
+Definition at line 34 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_DST_ADDR_LO   0x1011"
+
+.PP
+Definition at line 35 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_DST_ADDR_HI   0x1012"
+
+.PP
+Definition at line 36 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_SRC_ADDR_LO   0x1013"
+
+.PP
+Definition at line 37 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_SRC_ADDR_HI   0x1014"
+
+.PP
+Definition at line 38 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_RX_COUNT   0x1015"
+
+.PP
+Definition at line 39 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_MLB_RST   0x1016"
+
+.PP
+Definition at line 40 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_TX_COUNT   0x1017"
+
+.PP
+Definition at line 41 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_CTRL   0x1018"
+
+.PP
+Definition at line 42 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_TX_CNT_LO   0x1019"
+
+.PP
+Definition at line 43 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_TX_CNT_HI   0x101A"
+
+.PP
+Definition at line 44 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_RX_CNT_LO   0x101B"
+
+.PP
+Definition at line 45 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_RX_CNT_HI   0x101C"
+
+.PP
+Definition at line 46 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_RX_GD_CNT_LO   0x101D"
+
+.PP
+Definition at line 47 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_STATS_RX_GD_CNT_HI   0x101E"
+
+.PP
+Definition at line 48 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_TX_START_TIMESTAMP_LO   0x101F"
+
+.PP
+Definition at line 49 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_TX_START_TIMESTAMP_HI   0x1020"
+
+.PP
+Definition at line 50 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_TX_END_TIMESTAMP_LO   0x1021"
+
+.PP
+Definition at line 51 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_TX_END_TIMESTAMP_HI   0x1022"
+
+.PP
+Definition at line 52 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_RX_START_TIMESTAMP_LO   0x1023"
+
+.PP
+Definition at line 53 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_RX_START_TIMESTAMP_HI   0x1024"
+
+.PP
+Definition at line 54 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_RX_END_TIMESTAMP_LO   0x1025"
+
+.PP
+Definition at line 55 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_RX_END_TIMESTAMP_HI   0x1026"
+
+.PP
+Definition at line 56 of file hssi_100g_cmd\&.h\&.
+.SS "#define STOP_BITS   0xa"
+
+.PP
+Definition at line 58 of file hssi_100g_cmd\&.h\&.
+.SS "#define ZERO   0x0"
+
+.PP
+Definition at line 59 of file hssi_100g_cmd\&.h\&.
+.SS "#define ONE   0x1"
+
+.PP
+Definition at line 60 of file hssi_100g_cmd\&.h\&.
+.SS "#define CSR_SHIFT   32"
+
+.PP
+Definition at line 61 of file hssi_100g_cmd\&.h\&.
+.SS "#define CONV_SEC   402832031"
+
+.PP
+Definition at line 62 of file hssi_100g_cmd\&.h\&.
+.SS "#define DATA_CNF_PKT_NUM   0x80000000"
+
+.PP
+Definition at line 63 of file hssi_100g_cmd\&.h\&.
+.SS "#define DATA_CNF_CONTINUOUS_MODE   0x00000000"
+
+.PP
+Definition at line 64 of file hssi_100g_cmd\&.h\&.
+.SS "#define DATA_CNF_FIXED_MODE   0x80000000"
+
+.PP
+Definition at line 65 of file hssi_100g_cmd\&.h\&.
+.SS "#define CURSOR_UP   'A'"
+
+.PP
+Definition at line 66 of file hssi_100g_cmd\&.h\&.
+.SS "#define CURSOR_DOWN   'B'"
+
+.PP
+Definition at line 67 of file hssi_100g_cmd\&.h\&.
+.SS "#define MAX_PORT   2"
+
+.PP
+Definition at line 68 of file hssi_100g_cmd\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

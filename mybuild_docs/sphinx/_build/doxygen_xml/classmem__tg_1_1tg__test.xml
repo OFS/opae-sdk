@@ -1,0 +1,409 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classmem__tg_1_1tg__test" kind="class" language="C++" prot="public">
+    <compoundname>mem_tg::tg_test</compoundname>
+    <basecompoundref refid="classopae_1_1afu__test_1_1command" prot="public" virt="non-virtual">opae::afu_test::command</basecompoundref>
+    <includes refid="tg__test_8h" local="no">/root/samples/mem_tg/tg_test.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classmem__tg_1_1tg__test_1a49c1d34f23394b8d3f417941c3dae13e" prot="protected" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t mem_tg::tg_test::tg_offset_</definition>
+        <argsstring></argsstring>
+        <name>tg_offset_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="312" column="14" bodyfile="samples/mem_tg/tg_test.h" bodystart="312" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" prot="protected" static="no" mutable="no">
+        <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+        <definition>mem_tg* mem_tg::tg_test::tg_exe_</definition>
+        <argsstring></argsstring>
+        <name>tg_exe_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="313" column="12" bodyfile="samples/mem_tg/tg_test.h" bodystart="313" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" compoundref="tg__test_8h" startline="78" endline="81">bw_calc</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" compoundref="tg__test_8h" startline="218" endline="309">run</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" compoundref="tg__test_8h" startline="181" endline="207">run_mem_test</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" compoundref="tg__test_8h" startline="209" endline="216">run_thread_single_channel</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">tg_perf</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" compoundref="tg__test_8h" startline="124" endline="153">tg_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1tg__test_1a19e277d2e24c74242d4be7c3d9b39689" prot="protected" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+        <definition>token::ptr_t mem_tg::tg_test::token_</definition>
+        <argsstring></argsstring>
+        <name>token_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="314" column="18" bodyfile="samples/mem_tg/tg_test.h" bodystart="314" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" compoundref="tg__test_8h" startline="218" endline="309">run</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1abc01f94c6c8099d637420bdf98e1195a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>mem_tg::tg_test::tg_test</definition>
+        <argsstring>()</argsstring>
+        <name>tg_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="55" column="5" bodyfile="samples/mem_tg/tg_test.h" bodystart="55" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a3a14f5221622cd3cc598ed1518536645" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual mem_tg::tg_test::~tg_test</definition>
+        <argsstring>()</argsstring>
+        <name>~tg_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="60" column="13" bodyfile="samples/mem_tg/tg_test.h" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1ae2be4babdc05e96ad0fd49044206ae07" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* mem_tg::tg_test::name</definition>
+        <argsstring>() const override</argsstring>
+        <name>name</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052">name</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="62" column="24" bodyfile="samples/mem_tg/tg_test.h" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a76d61f9943cf4224affb583f06eb1ef4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* mem_tg::tg_test::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="67" column="24" bodyfile="samples/mem_tg/tg_test.h" bodystart="67" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a8ae23413206e40e0aec6f51db2a03173" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* mem_tg::tg_test::afu_id</definition>
+        <argsstring>() const override</argsstring>
+        <name>afu_id</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb">afu_id</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="72" column="24" bodyfile="samples/mem_tg/tg_test.h" bodystart="72" bodyend="75"/>
+        <references refid="namespacemem__tg_1af02ccce98e14a5901318de5305ff2792" compoundref="mem__tg_8h" startline="36">mem_tg::AFU_ID</references>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double mem_tg::tg_test::bw_calc</definition>
+        <argsstring>(uint64_t xfer_bytes, uint64_t num_ticks)</argsstring>
+        <name>bw_calc</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>xfer_bytes</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>num_ticks</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="78" column="12" bodyfile="samples/mem_tg/tg_test.h" bodystart="78" bodyend="81"/>
+        <references refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" compoundref="mem__tg_8h" startline="221">mem_tg::mem_tg::mem_speed_</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">tg_perf</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void mem_tg::tg_test::tg_perf</definition>
+        <argsstring>(mem_tg *tg_exe_)</argsstring>
+        <name>tg_perf</name>
+        <param>
+          <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+          <declname>tg_exe_</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="83" column="10" bodyfile="samples/mem_tg/tg_test.h" bodystart="83" bodyend="122"/>
+        <references refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" compoundref="mem__tg_8h" startline="218">mem_tg::mem_tg::bcnt_</references>
+        <references refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" compoundref="tg__test_8h" startline="78" endline="81">bw_calc</references>
+        <references refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" compoundref="mem__tg_8h" startline="215">mem_tg::mem_tg::loop_</references>
+        <references refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" compoundref="mem__tg_8h" startline="214">mem_tg::mem_tg::mem_ch_</references>
+        <references refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a92a59d89dfb05439439512e623f02212" compoundref="mem__tg_8h" startline="81">mem_tg::MEM_TG_CLOCKS</references>
+        <references refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" compoundref="mem__tg_8h" startline="217">mem_tg::mem_tg::rcnt_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" compoundref="mem__tg_8h" startline="222">mem_tg::mem_tg::status_</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa99701a288d09c6214525e1cc65a64ba0" compoundref="mem__tg_8h" startline="128">mem_tg::TG_FAIL_EXPECTED_DATA</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa5b509ef9f39fcdbdaa760abce6c05cf1" compoundref="mem__tg_8h" startline="129">mem_tg::TG_FAIL_READ_DATA</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa3aa084a514969080b97217bd35465356" compoundref="mem__tg_8h" startline="112">mem_tg::TG_FIRST_FAIL_ADDR_L</references>
+        <references refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" compoundref="mem__tg_8h" startline="223">mem_tg::mem_tg::tg_offset_</references>
+        <references refid="namespacemem__tg_1afb390604495f7ec7dd3aee9cc7b67d8e" compoundref="tg__test_8h" startline="46">mem_tg::tg_print_mutex</references>
+        <references refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a3964c55dcdc68e90d56bf757b65b1d8a" compoundref="mem__tg_8h" startline="44">mem_tg::TG_STATUS_ERROR</references>
+        <references refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a39b57be20840498a98f4cd174e292a4b" compoundref="mem__tg_8h" startline="43">mem_tg::TG_STATUS_TIMEOUT</references>
+        <references refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" compoundref="mem__tg_8h" startline="216">mem_tg::mem_tg::wcnt_</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" compoundref="tg__test_8h" startline="181" endline="207">run_mem_test</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool mem_tg::tg_test::tg_wait_test_completion</definition>
+        <argsstring>(mem_tg *tg_exe_)</argsstring>
+        <name>tg_wait_test_completion</name>
+        <param>
+          <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+          <declname>tg_exe_</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="124" column="10" bodyfile="samples/mem_tg/tg_test.h" bodystart="124" bodyend="153"/>
+        <references refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" compoundref="mem__tg_8h" startline="218">mem_tg::mem_tg::bcnt_</references>
+        <references refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" compoundref="mem__tg_8h" startline="215">mem_tg::mem_tg::loop_</references>
+        <references refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" compoundref="mem__tg_8h" startline="214">mem_tg::mem_tg::mem_ch_</references>
+        <references refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54ab2e545ddbd0f4ff871aa8c2b227c56ed" compoundref="mem__tg_8h" startline="80">mem_tg::MEM_TG_STAT</references>
+        <references refid="namespacemem__tg_1ab99947d9ae3914d454524af4289c4f75" compoundref="mem__tg_8h" startline="38">mem_tg::MEM_TG_TEST_TIMEOUT</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" compoundref="mem__tg_8h" startline="222">mem_tg::mem_tg::status_</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <references refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a6e2000299654529dae8c4c4af161e49c" compoundref="mem__tg_8h" startline="42">mem_tg::TG_STATUS_ACTIVE</references>
+        <references refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a3964c55dcdc68e90d56bf757b65b1d8a" compoundref="mem__tg_8h" startline="44">mem_tg::TG_STATUS_ERROR</references>
+        <references refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a39b57be20840498a98f4cd174e292a4b" compoundref="mem__tg_8h" startline="43">mem_tg::TG_STATUS_TIMEOUT</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" compoundref="tg__test_8h" startline="181" endline="207">run_mem_test</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int mem_tg::tg_test::config_input_options</definition>
+        <argsstring>(mem_tg *tg_exe_)</argsstring>
+        <name>config_input_options</name>
+        <param>
+          <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+          <declname>tg_exe_</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="155" column="9" bodyfile="samples/mem_tg/tg_test.h" bodystart="155" bodyend="178"/>
+        <references refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a0fcea165efcbc477fd0a5f9f05bad92d" compoundref="mem__tg_8h" startline="73">mem_tg::AFU_DFH</references>
+        <references refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" compoundref="mem__tg_8h" startline="218">mem_tg::mem_tg::bcnt_</references>
+        <references refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" compoundref="mem__tg_8h" startline="215">mem_tg::mem_tg::loop_</references>
+        <references refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" compoundref="mem__tg_8h" startline="214">mem_tg::mem_tg::mem_ch_</references>
+        <references refid="namespacemem__tg_1a943a6cf589a5fd0b37a523b5df6513e6" compoundref="mem__tg_8h" startline="83">mem_tg::MEM_TG_CFG_OFFSET</references>
+        <references refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a71c07e22c468e2fac16fc82de00ae213" compoundref="mem__tg_8h" startline="79">mem_tg::MEM_TG_CTRL</references>
+        <references refid="classmem__tg_1_1mem__tg_1aa158961ac57acd0d6cbe5b4701e693f0" compoundref="mem__tg_8h" startline="220">mem_tg::mem_tg::pattern_</references>
+        <references refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" compoundref="mem__tg_8h" startline="217">mem_tg::mem_tg::rcnt_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="classmem__tg_1_1mem__tg_1af774e6feb4e8dcacef4b3f23cc7d5ede" compoundref="mem__tg_8h" startline="219">mem_tg::mem_tg::stride_</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa0d0b4dc47ddd3f5315c986c4297c65cf" compoundref="mem__tg_8h" startline="106">mem_tg::TG_ADDR_MODE_RD</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faaa1ae8be038850228674d43f5bf0a756f" compoundref="mem__tg_8h" startline="100">mem_tg::TG_ADDR_MODE_WR</references>
+        <references refid="namespacemem__tg_1af666da5e7c0a6dcca811edb68ea7cfbaa0282e80a72d9f469c95c722f5ac1c423" compoundref="mem__tg_8h" startline="51">mem_tg::TG_ADDR_SEQ</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faad9acb4dff9aaa1df270472237301ed7a" compoundref="mem__tg_8h" startline="94">mem_tg::TG_BURST_LENGTH</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faab7410bb101bc061d4ae261d012f9fcb4" compoundref="mem__tg_8h" startline="89">mem_tg::TG_LOOP_COUNT</references>
+        <references refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" compoundref="mem__tg_8h" startline="223">mem_tg::mem_tg::tg_offset_</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa4206df51ef621a3c26c4b32d28bdd748" compoundref="mem__tg_8h" startline="132">mem_tg::TG_PPPG_SEL</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faaf91e5aaa66fc608c1afc2cf0a2a20f49" compoundref="mem__tg_8h" startline="91">mem_tg::TG_READ_COUNT</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa8963a3103bffd3412a2340d14d93b21d" compoundref="mem__tg_8h" startline="103">mem_tg::TG_SEQ_ADDR_INCR</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa712daf68ed5d46d6cba0a0033eb45a59" compoundref="mem__tg_8h" startline="90">mem_tg::TG_WRITE_COUNT</references>
+        <references refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" compoundref="mem__tg_8h" startline="216">mem_tg::mem_tg::wcnt_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" compoundref="he__cache__test_8h" startline="523" endline="526">opae::afu_test::afu::write32</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" compoundref="tg__test_8h" startline="209" endline="216">run_thread_single_channel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int mem_tg::tg_test::run_mem_test</definition>
+        <argsstring>(mem_tg *tg_exe_)</argsstring>
+        <name>run_mem_test</name>
+        <param>
+          <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+          <declname>tg_exe_</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="181" column="9" bodyfile="samples/mem_tg/tg_test.h" bodystart="181" bodyend="207"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <references refid="namespacemem__tg_1a9829f06cc0a289cb4b12f3ceeb5b94c6" compoundref="tg__test_8h" startline="48">mem_tg::tg_cv</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <references refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" compoundref="tg__test_8h" startline="50">mem_tg::tg_num_threads</references>
+        <references refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" compoundref="mem__tg_8h" startline="223">mem_tg::mem_tg::tg_offset_</references>
+        <references refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">tg_perf</references>
+        <references refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa36e5f2f8a7ce70509baad0fc29c7217d" compoundref="mem__tg_8h" startline="88">mem_tg::TG_START</references>
+        <references refid="namespacemem__tg_1ad0bd8092778fe7d39d3e37402e72386c" compoundref="tg__test_8h" startline="47">mem_tg::tg_start_write_mutex</references>
+        <references refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" compoundref="tg__test_8h" startline="124" endline="153">tg_wait_test_completion</references>
+        <references refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" compoundref="tg__test_8h" startline="49">mem_tg::tg_waiting_threads_counter</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" compoundref="he__cache__test_8h" startline="523" endline="526">opae::afu_test::afu::write32</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" compoundref="tg__test_8h" startline="209" endline="216">run_thread_single_channel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int mem_tg::tg_test::run_thread_single_channel</definition>
+        <argsstring>(mem_tg *tg_exe_)</argsstring>
+        <name>run_thread_single_channel</name>
+        <param>
+          <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+          <declname>tg_exe_</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="209" column="9" bodyfile="samples/mem_tg/tg_test.h" bodystart="209" bodyend="216"/>
+        <references refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">config_input_options</references>
+        <references refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" compoundref="tg__test_8h" startline="181" endline="207">run_mem_test</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" compoundref="tg__test_8h" startline="218" endline="309">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int mem_tg::tg_test::run</definition>
+        <argsstring>(test_afu *afu, CLI::App *app) override</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd">run</reimplements>
+        <param>
+          <type><ref refid="namespacemem__tg_1ac9891bc8aab5db05ddbcfba187ba231a" kindref="member">test_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="218" column="17" bodyfile="samples/mem_tg/tg_test.h" bodystart="218" bodyend="309"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">mem_tg::mem_tg::duplicate</references>
+        <references refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" compoundref="mem__tg_8h" startline="214">mem_tg::mem_tg::mem_ch_</references>
+        <references refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" compoundref="mem__tg_8h" startline="221">mem_tg::mem_tg::mem_speed_</references>
+        <references refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a71c07e22c468e2fac16fc82de00ae213" compoundref="mem__tg_8h" startline="79">mem_tg::MEM_TG_CTRL</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" compoundref="tg__test_8h" startline="209" endline="216">run_thread_single_channel</references>
+        <references refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" compoundref="tg__test_8h" startline="313">tg_exe_</references>
+        <references refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" compoundref="tg__test_8h" startline="50">mem_tg::tg_num_threads</references>
+        <references refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" compoundref="tg__test_8h" startline="49">mem_tg::tg_waiting_threads_counter</references>
+        <references refid="classmem__tg_1_1tg__test_1a19e277d2e24c74242d4be7c3d9b39689" compoundref="tg__test_8h" startline="314">token_</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>mem_tg::tg_test</label>
+        <link refid="classmem__tg_1_1tg__test"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>mem_tg::mem_tg</label>
+        <link refid="classmem__tg_1_1mem__tg"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>mem_tg::tg_test</label>
+        <link refid="classmem__tg_1_1tg__test"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>#tg_exe_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="4">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/mem_tg/tg_test.h" line="52" column="1" bodyfile="samples/mem_tg/tg_test.h" bodystart="53" bodyend="315"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>add_options</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a8ae23413206e40e0aec6f51db2a03173" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>afu_id</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>bw_calc</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>command</name></member>
+      <member refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>config_input_options</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a76d61f9943cf4224affb583f06eb1ef4" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>description</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" virt="pure-virtual"><scope>mem_tg::tg_test</scope><name>featureid</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" virt="pure-virtual"><scope>mem_tg::tg_test</scope><name>guidh</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" virt="pure-virtual"><scope>mem_tg::tg_test</scope><name>guidl</name></member>
+      <member refid="classmem__tg_1_1tg__test_1ae2be4babdc05e96ad0fd49044206ae07" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>name</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>ptr_t</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>run</name></member>
+      <member refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>run_mem_test</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>run_thread_single_channel</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>running_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>stop</name></member>
+      <member refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" prot="protected" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>tg_exe_</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a49c1d34f23394b8d3f417941c3dae13e" prot="protected" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>tg_offset_</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>tg_perf</name></member>
+      <member refid="classmem__tg_1_1tg__test_1abc01f94c6c8099d637420bdf98e1195a" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>tg_test</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" prot="public" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>tg_wait_test_completion</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a19e277d2e24c74242d4be7c3d9b39689" prot="protected" virt="non-virtual"><scope>mem_tg::tg_test</scope><name>token_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>~command</name></member>
+      <member refid="classmem__tg_1_1tg__test_1a3a14f5221622cd3cc598ed1518536645" prot="public" virt="virtual"><scope>mem_tg::tg_test</scope><name>~tg_test</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

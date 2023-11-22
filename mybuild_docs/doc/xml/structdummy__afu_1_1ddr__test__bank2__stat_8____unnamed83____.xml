@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____" kind="struct" language="C++" prot="public">
+    <compoundname>dummy_afu::ddr_test_bank2_stat.__unnamed83__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1ae5896a6dd1997c0690acb5f4d22f376e" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TrafficGenTestPass</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="156" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a1bbe6c9cf15682789c37b5c2cfc0cb12" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TrafficGenTestFail</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="157" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a5ce4dd4e9bac3b3a0e1cfce3b0a3b4e5" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TrafficGenTestTimeout</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="158" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a4706630556e088ca1cf93236bc0169d1" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>TrafficGenFSMState</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="159" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a34deb90418b2775e73aee1a6d90defea" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved4</name>
+        <bitfield> 57</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="160" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::ddr_test_bank2_stat.__unnamed83__</label>
+        <link refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="155" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="155" bodyend="161"/>
+    <listofallmembers>
+      <member refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a34deb90418b2775e73aee1a6d90defea" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat.__unnamed83__</scope><name>Reserved4</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a4706630556e088ca1cf93236bc0169d1" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat.__unnamed83__</scope><name>TrafficGenFSMState</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a1bbe6c9cf15682789c37b5c2cfc0cb12" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat.__unnamed83__</scope><name>TrafficGenTestFail</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1ae5896a6dd1997c0690acb5f4d22f376e" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat.__unnamed83__</scope><name>TrafficGenTestPass</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83_____1a5ce4dd4e9bac3b3a0e1cfce3b0a3b4e5" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat.__unnamed83__</scope><name>TrafficGenTestTimeout</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

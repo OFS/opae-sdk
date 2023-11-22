@@ -1,0 +1,174 @@
+.TH "cxl_mem_tg::cxl_tg_test" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cxl_mem_tg::cxl_tg_test
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_mem_tg/cxl_tg_test\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBcxl_tg_test\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~cxl_tg_test\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "double \fBbw_calc\fP (uint64_t xfer_bytes, uint64_t num_ticks)"
+.br
+.ti -1c
+.RI "void \fBprint_he_mem_tg\fP ()"
+.br
+.ti -1c
+.RI "int \fBtg_clear\fP ()"
+.br
+.ti -1c
+.RI "void \fBtg_perf\fP ()"
+.br
+.ti -1c
+.RI "void \fBtg_print_fail_info\fP ()"
+.br
+.ti -1c
+.RI "bool \fBtg_wait_test_completion\fP ()"
+.br
+.ti -1c
+.RI "int \fBconfig_input_options\fP ()"
+.br
+.ti -1c
+.RI "int \fBrun_mem_test\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP) override"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBtg_offset_\fP"
+.br
+.ti -1c
+.RI "\fBcxl_mem_tg\fP * \fBtg_exe_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 73 of file cxl_tg_test\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "cxl_mem_tg::cxl_tg_test::cxl_tg_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 75 of file cxl_tg_test\&.h\&.
+.SS "virtual cxl_mem_tg::cxl_tg_test::~cxl_tg_test ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 77 of file cxl_tg_test\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* cxl_mem_tg::cxl_tg_test::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 79 of file cxl_tg_test\&.h\&.
+.SS "virtual const char* cxl_mem_tg::cxl_tg_test::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 81 of file cxl_tg_test\&.h\&.
+.SS "virtual const char* cxl_mem_tg::cxl_tg_test::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 85 of file cxl_tg_test\&.h\&.
+.PP
+References AFU_ID\&.
+.SS "double cxl_mem_tg::cxl_tg_test::bw_calc (uint64_t xfer_bytes, uint64_t num_ticks)\fC [inline]\fP"
+
+.PP
+Definition at line 88 of file cxl_tg_test\&.h\&.
+.PP
+References CXL_TG_BW_FACTOR\&.
+.SS "void cxl_mem_tg::cxl_tg_test::print_he_mem_tg ()\fC [inline]\fP"
+
+.PP
+Definition at line 93 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::AFU_DFH, cxl_mem_tg::AFU_ID_H, cxl_mem_tg::AFU_ID_L, cxl_mem_tg::MEM_TG_CLK_COUNT, cxl_mem_tg::MEM_TG_CLK_FREQ, cxl_mem_tg::MEM_TG_CTRL, cxl_mem_tg::MEM_TG_STAT, cxl_mem_tg::MEM_TG_WR_COUNT, cxl_mem_tg::TG_BURST_LENGTH, cxl_mem_tg::TG_FAIL, cxl_mem_tg::TG_LOOP_COUNT, cxl_mem_tg::TG_PASS, cxl_mem_tg::TG_READ_COUNT, and cxl_mem_tg::TG_WRITE_COUNT\&.
+.SS "int cxl_mem_tg::cxl_tg_test::tg_clear ()\fC [inline]\fP"
+
+.PP
+Definition at line 117 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::MEM_TG_CTRL, cxl_mem_tg::TG_CLEAR, cxl_mem_tg::TG_SLEEP, and cxl_mem_tg::mem_tg_ctl::value\&.
+.SS "void cxl_mem_tg::cxl_tg_test::tg_perf ()\fC [inline]\fP"
+
+.PP
+Definition at line 134 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::MEM_TG_CLK_COUNT, cxl_mem_tg::MEM_TG_WR_COUNT, cxl_mem_tg::TG_FAIL_EXPECTED_DATA, cxl_mem_tg::TG_FAIL_READ_DATA, cxl_mem_tg::TG_FIRST_FAIL_ADDR_L, cxl_mem_tg::TG_STATUS_ERROR, and cxl_mem_tg::TG_STATUS_TIMEOUT\&.
+.SS "void cxl_mem_tg::cxl_tg_test::tg_print_fail_info ()\fC [inline]\fP"
+
+.PP
+Definition at line 193 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::TG_FAIL, cxl_mem_tg::TG_FAIL_COUNT_H, cxl_mem_tg::TG_FAIL_COUNT_L, cxl_mem_tg::TG_FIRST_FAIL_ADDR_H, and cxl_mem_tg::TG_FIRST_FAIL_ADDR_L\&.
+.SS "bool cxl_mem_tg::cxl_tg_test::tg_wait_test_completion ()\fC [inline]\fP"
+
+.PP
+Definition at line 207 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::MEM_TG_STAT, cxl_mem_tg::MEM_TG_TEST_TIMEOUT, cxl_mem_tg::TG_FAIL, cxl_mem_tg::TG_PASS, cxl_mem_tg::TG_STATUS_ACTIVE, cxl_mem_tg::TG_STATUS_ERROR, cxl_mem_tg::TG_STATUS_TIMEOUT, and cxl_mem_tg::TG_TEST_COMPLETE\&.
+.SS "int cxl_mem_tg::cxl_tg_test::config_input_options ()\fC [inline]\fP"
+
+.PP
+Definition at line 272 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::MEM_TG_CLK_FREQ, cxl_mem_tg::MEM_TG_CTRL, cxl_mem_tg::TG_ADDR_FIELD_MSB_INDEX, cxl_mem_tg::TG_ADDR_MODE_RD, cxl_mem_tg::TG_ADDR_MODE_WR, cxl_mem_tg::TG_BURST_LENGTH, cxl_mem_tg::TG_BYTEEN_SEED, cxl_mem_tg::TG_BYTEEN_SEL, cxl_mem_tg::TG_DATA_SEED, cxl_mem_tg::TG_FREQ, cxl_mem_tg::TG_LOOP_COUNT, cxl_mem_tg::TG_PPPG_SEL, cxl_mem_tg::TG_READ_COUNT, cxl_mem_tg::TG_READ_REPEAT_COUNT, cxl_mem_tg::TG_RETURN_TO_START_ADDR, cxl_mem_tg::TG_RW_GEN_IDLE_COUNT, cxl_mem_tg::TG_RW_GEN_LOOP_IDLE_COUNT, cxl_mem_tg::TG_SEQ_ADDR_INCR, cxl_mem_tg::TG_SEQ_START_ADDR_RD, cxl_mem_tg::TG_SEQ_START_ADDR_WR, cxl_mem_tg::TG_USER_WORM_EN, cxl_mem_tg::TG_WRITE_COUNT, cxl_mem_tg::TG_WRITE_REPEAT_COUNT, and cxl_mem_tg::mem_tg_ctl::value\&.
+.SS "int cxl_mem_tg::cxl_tg_test::run_mem_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 372 of file cxl_tg_test\&.h\&.
+.PP
+References cxl_mem_tg::TG_START\&.
+.SS "virtual int cxl_mem_tg::cxl_tg_test::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 385 of file cxl_tg_test\&.h\&.
+.PP
+References app\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t cxl_mem_tg::cxl_tg_test::tg_offset_\fC [protected]\fP"
+
+.PP
+Definition at line 413 of file cxl_tg_test\&.h\&.
+.SS "\fBcxl_mem_tg\fP* cxl_mem_tg::cxl_tg_test::tg_exe_\fC [protected]\fP"
+
+.PP
+Definition at line 414 of file cxl_tg_test\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

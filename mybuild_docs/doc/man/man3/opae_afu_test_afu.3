@@ -1,0 +1,498 @@
+.TH "opae::afu_test::afu" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::afu_test::afu
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/he_cache_test\&.h>\fP
+.PP
+Inherited by \fBcxl_mem_tg::cxl_mem_tg\fP, \fBdummy_afu::dummy_afu\fP, \fBhost_exerciser::host_exerciser\fP, \fBhost_exerciser::host_exerciser\fP, \fBhssi_afu\fP, and \fBmem_tg::mem_tg\fP\&.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum \fBexit_codes\fP { \fBsuccess\fP = 0, \fBnot_run\fP, \fBnot_found\fP, \fBno_access\fP, \fBexception\fP, \fBerror\fP }"
+.br
+.ti -1c
+.RI "typedef int(* \fBcommand_fn\fP) (\fBafu\fP *\fBafu\fP, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBafu\fP (const char *name, const char *afu_id=nullptr, const char *log_level=nullptr)"
+.br
+.ti -1c
+.RI "virtual \fB~afu\fP ()"
+.br
+.ti -1c
+.RI "CLI::App & \fBcli\fP ()"
+.br
+.ti -1c
+.RI "int \fBfind_dev_feature\fP ()"
+.br
+.ti -1c
+.RI "void \fBunmap_mmio\fP ()"
+.br
+.ti -1c
+.RI "bool \fBmap_mmio\fP ()"
+.br
+.ti -1c
+.RI "int \fBopen_handle\fP (const char *dev)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (CLI::App *\fBapp\fP, \fBcommand::ptr_t\fP test)"
+.br
+.ti -1c
+.RI "template<class T > CLI::App * \fBregister_command\fP ()"
+.br
+.ti -1c
+.RI "uint64_t \fBread64\fP (uint32_t offset)"
+.br
+.ti -1c
+.RI "void \fBwrite64\fP (uint32_t offset, uint64_t value)"
+.br
+.ti -1c
+.RI "uint32_t \fBread32\fP (uint32_t offset)"
+.br
+.ti -1c
+.RI "void \fBwrite32\fP (uint32_t offset, uint32_t value)"
+.br
+.ti -1c
+.RI "\fBcommand::ptr_t\fP \fBcurrent_command\fP () const"
+.br
+.ti -1c
+.RI "bool \fBallocate_dsm\fP (size_t len=((4) *1024), uint32_t numa_node=0)"
+.br
+.ti -1c
+.RI "bool \fBfree_dsm\fP ()"
+.br
+.ti -1c
+.RI "void \fBreset_dsm\fP ()"
+.br
+.ti -1c
+.RI "bool \fBallocate_cache_read\fP (size_t len=((2) *1024 *1024), uint32_t numa_node=0)"
+.br
+.ti -1c
+.RI "bool \fBfree_cache_read\fP ()"
+.br
+.ti -1c
+.RI "bool \fBallocate_cache_write\fP (size_t len=((2) *1024 *1024), uint32_t numa_node=0)"
+.br
+.ti -1c
+.RI "bool \fBfree_cache_write\fP ()"
+.br
+.ti -1c
+.RI "bool \fBallocate_cache_read_write\fP (size_t len=((2) *1024 *1024), uint32_t numa_node=0)"
+.br
+.ti -1c
+.RI "bool \fBfree_cache_read_write\fP ()"
+.br
+.ti -1c
+.RI "uint8_t * \fBget_dsm\fP () const"
+.br
+.ti -1c
+.RI "uint8_t * \fBget_read\fP () const"
+.br
+.ti -1c
+.RI "uint8_t * \fBget_write\fP () const"
+.br
+.ti -1c
+.RI "uint8_t * \fBget_read_write\fP () const"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "std::shared_ptr< spdlog::logger > \fBlogger_\fP"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "std::string \fBname_\fP"
+.br
+.ti -1c
+.RI "std::string \fBafu_id_\fP"
+.br
+.ti -1c
+.RI "CLI::App \fBapp_\fP"
+.br
+.ti -1c
+.RI "std::string \fBpci_addr_\fP"
+.br
+.ti -1c
+.RI "std::string \fBlog_level_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBtimeout_msec_\fP"
+.br
+.ti -1c
+.RI "int \fBfd_\fP"
+.br
+.ti -1c
+.RI "uint8_t * \fBmmio_base_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBmmio_len_\fP"
+.br
+.ti -1c
+.RI "uint8_t * \fBdsm_buffer_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBdsm_buf_len_\fP"
+.br
+.ti -1c
+.RI "uint8_t * \fBrd_buffer_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBrd_buf_len_\fP"
+.br
+.ti -1c
+.RI "uint8_t * \fBwr_buffer_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBwr_buf_len_\fP"
+.br
+.ti -1c
+.RI "uint8_t * \fBrd_wr_buffer_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBrd_wr_buf_len_\fP"
+.br
+.ti -1c
+.RI "struct dfl_cxl_cache_region_info \fBrinfo_\fP"
+.br
+.ti -1c
+.RI "std::string \fBdev_path_\fP [2]"
+.br
+.ti -1c
+.RI "\fBcommand::ptr_t\fP \fBcurrent_command_\fP"
+.br
+.ti -1c
+.RI "std::map< CLI::App *, \fBcommand::ptr_t\fP > \fBcommands_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 269 of file he_cache_test\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef int(* opae::afu_test::afu::command_fn) (\fBafu\fP *\fBafu\fP, CLI::App *\fBapp\fP)"
+
+.PP
+Definition at line 271 of file he_cache_test\&.h\&.
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "enum \fBopae::afu_test::afu::exit_codes\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIsuccess \fP\fP
+.TP
+\fB\fInot_run \fP\fP
+.TP
+\fB\fInot_found \fP\fP
+.TP
+\fB\fIno_access \fP\fP
+.TP
+\fB\fIexception \fP\fP
+.TP
+\fB\fIerror \fP\fP
+.PP
+Definition at line 272 of file he_cache_test\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::afu_test::afu::afu (const char * name, const char * afu_id = \fCnullptr\fP, const char * log_level = \fCnullptr\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 281 of file he_cache_test\&.h\&.
+.PP
+References opae::afu_test::spdlog_levels()\&.
+.SS "virtual opae::afu_test::afu::~afu ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 296 of file he_cache_test\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "CLI::App& opae::afu_test::afu::cli ()\fC [inline]\fP"
+
+.PP
+Definition at line 304 of file he_cache_test\&.h\&.
+.SS "int opae::afu_test::afu::find_dev_feature ()\fC [inline]\fP"
+
+.PP
+Definition at line 306 of file he_cache_test\&.h\&.
+.PP
+References FEATURE_DEV, MAX_SIZE, and sysfs_read_u64()\&.
+.SS "void opae::afu_test::afu::unmap_mmio ()\fC [inline]\fP"
+
+.PP
+Definition at line 376 of file he_cache_test\&.h\&.
+.SS "bool opae::afu_test::afu::map_mmio ()\fC [inline]\fP"
+
+.PP
+Definition at line 383 of file he_cache_test\&.h\&.
+.SS "int opae::afu_test::afu::open_handle (const char * dev)\fC [inline]\fP"
+
+.PP
+Definition at line 396 of file he_cache_test\&.h\&.
+.SS "int opae::afu_test::afu::main (int argc, char * argv[])\fC [inline]\fP"
+
+.PP
+Definition at line 434 of file he_cache_test\&.h\&.
+.PP
+References app\&.
+.PP
+Referenced by main()\&.
+.SS "virtual int opae::afu_test::afu::run (CLI::App * app, \fBcommand::ptr_t\fP test)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented in \fBmem_tg::mem_tg\fP, \fBhost_exerciser::host_exerciser\fP, \fBdummy_afu::dummy_afu\fP, \fBcxl_mem_tg::cxl_mem_tg\fP, and \fBhost_exerciser::host_exerciser\fP\&.
+.PP
+Definition at line 477 of file he_cache_test\&.h\&.
+.PP
+References app\&.
+.PP
+Referenced by host_exerciser::host_exerciser::run(), cxl_mem_tg::cxl_mem_tg::run(), dummy_afu::dummy_afu::run(), and mem_tg::mem_tg::run()\&.
+.SS "template<class T > CLI::App* opae::afu_test::afu::register_command ()\fC [inline]\fP"
+
+.PP
+Definition at line 500 of file he_cache_test\&.h\&.
+.PP
+Referenced by main()\&.
+.SS "uint64_t opae::afu_test::afu::read64 (uint32_t offset)\fC [inline]\fP"
+
+.PP
+Definition at line 508 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test(), host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::host_exerciser_cmd::host_exerciser_errors(), host_exerciser::host_exerciser_cmd::host_exerciser_status(), host_exerciser::host_exerciser_cmd::host_exerciser_swtestmsg(), host_exerciser::he_cmd::print_csr(), hssi_100g_cmd::print_registers(), hssi_10g_cmd::print_registers(), hssi_200g_400g_cmd::print_registers(), host_exerciser::host_exerciser_cmd::run(), hssi_100g_cmd::run(), hssi_200g_400g_cmd::run(), mem_tg::tg_test::run(), mem_tg::tg_test::tg_perf(), and mem_tg::tg_test::tg_wait_test_completion()\&.
+.SS "void opae::afu_test::afu::write64 (uint32_t offset, uint64_t value)\fC [inline]\fP"
+
+.PP
+Definition at line 513 of file he_cache_test\&.h\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_forcetestcmpl(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test(), host_exerciser::he_cmd::he_start_test(), host_exerciser::he_cache_cmd::run(), host_exerciser::he_cache_lpbk_cmd::run(), hssi_100g_cmd::run(), hssi_200g_400g_cmd::run(), host_exerciser::host_exerciser_cmd::run_single_test(), and hssi_100g_cmd::select_port()\&.
+.SS "uint32_t opae::afu_test::afu::read32 (uint32_t offset)\fC [inline]\fP"
+
+.PP
+Definition at line 518 of file he_cache_test\&.h\&.
+.SS "void opae::afu_test::afu::write32 (uint32_t offset, uint32_t value)\fC [inline]\fP"
+
+.PP
+Definition at line 523 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::tg_test::config_input_options(), host_exerciser::host_exerciser_cmd::he_forcetestcmpl(), mem_tg::tg_test::run_mem_test(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "\fBcommand::ptr_t\fP opae::afu_test::afu::current_command () const\fC [inline]\fP"
+
+.PP
+Definition at line 528 of file he_cache_test\&.h\&.
+.PP
+Referenced by sig_handler()\&.
+.SS "bool opae::afu_test::afu::allocate_dsm (size_t len = \fC(( 4 )*1024)\fP, uint32_t numa_node = \fC0\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 530 of file he_cache_test\&.h\&.
+.PP
+References buffer_allocate(), buffer_release(), and DFL_CXL_CACHE_DSM_BASE\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), and host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test()\&.
+.SS "bool opae::afu_test::afu::free_dsm ()\fC [inline]\fP"
+
+.PP
+Definition at line 572 of file he_cache_test\&.h\&.
+.PP
+References buffer_release(), and DFL_CXL_CACHE_DSM_BASE\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), and host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test()\&.
+.SS "void opae::afu_test::afu::reset_dsm ()\fC [inline]\fP"
+
+.PP
+Definition at line 600 of file he_cache_test\&.h\&.
+.SS "bool opae::afu_test::afu::allocate_cache_read (size_t len = \fC(( 2 )*1024 * 1024)\fP, uint32_t numa_node = \fC0\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 604 of file he_cache_test\&.h\&.
+.PP
+References buffer_allocate(), buffer_release(), and DFL_CXL_CACHE_RD_ADDR_TABLE_DATA\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), and host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test()\&.
+.SS "bool opae::afu_test::afu::free_cache_read ()\fC [inline]\fP"
+
+.PP
+Definition at line 646 of file he_cache_test\&.h\&.
+.PP
+References buffer_release(), and DFL_CXL_CACHE_RD_ADDR_TABLE_DATA\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), and host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test()\&.
+.SS "bool opae::afu_test::afu::allocate_cache_write (size_t len = \fC(( 2 )*1024 * 1024)\fP, uint32_t numa_node = \fC0\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 673 of file he_cache_test\&.h\&.
+.PP
+References buffer_allocate(), buffer_release(), and DFL_CXL_CACHE_WR_ADDR_TABLE_DATA\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), and host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test()\&.
+.SS "bool opae::afu_test::afu::free_cache_write ()\fC [inline]\fP"
+
+.PP
+Definition at line 714 of file he_cache_test\&.h\&.
+.PP
+References buffer_release(), and DFL_CXL_CACHE_WR_ADDR_TABLE_DATA\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), and host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test()\&.
+.SS "bool opae::afu_test::afu::allocate_cache_read_write (size_t len = \fC(( 2 )*1024 * 1024)\fP, uint32_t numa_node = \fC0\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 741 of file he_cache_test\&.h\&.
+.PP
+References buffer_allocate(), buffer_release(), DFL_CXL_CACHE_RD_ADDR_TABLE_DATA, and DFL_CXL_CACHE_WR_ADDR_TABLE_DATA\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test()\&.
+.SS "bool opae::afu_test::afu::free_cache_read_write ()\fC [inline]\fP"
+
+.PP
+Definition at line 788 of file he_cache_test\&.h\&.
+.PP
+References buffer_release(), DFL_CXL_CACHE_RD_ADDR_TABLE_DATA, and DFL_CXL_CACHE_WR_ADDR_TABLE_DATA\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test()\&.
+.SS "uint8_t* opae::afu_test::afu::get_dsm () const\fC [inline]\fP"
+
+.PP
+Definition at line 822 of file he_cache_test\&.h\&.
+.PP
+Referenced by host_exerciser::he_cmd::get_ticks(), host_exerciser::he_cmd::he_get_perf(), host_exerciser::he_cmd::he_perf_counters(), and host_exerciser::he_cmd::he_wait_test_completion()\&.
+.SS "uint8_t* opae::afu_test::afu::get_read () const\fC [inline]\fP"
+
+.PP
+Definition at line 824 of file he_cache_test\&.h\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test()\&.
+.SS "uint8_t* opae::afu_test::afu::get_write () const\fC [inline]\fP"
+
+.PP
+Definition at line 826 of file he_cache_test\&.h\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test()\&.
+.SS "uint8_t* opae::afu_test::afu::get_read_write () const\fC [inline]\fP"
+
+.PP
+Definition at line 828 of file he_cache_test\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "std::string opae::afu_test::afu::name_\fC [protected]\fP"
+
+.PP
+Definition at line 831 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::mem_tg::duplicate()\&.
+.SS "std::string opae::afu_test::afu::afu_id_\fC [protected]\fP"
+
+.PP
+Definition at line 832 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::mem_tg::duplicate()\&.
+.SS "CLI::App opae::afu_test::afu::app_\fC [protected]\fP"
+
+.PP
+Definition at line 833 of file he_cache_test\&.h\&.
+.SS "std::string opae::afu_test::afu::pci_addr_\fC [protected]\fP"
+
+.PP
+Definition at line 834 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::mem_tg::duplicate()\&.
+.SS "std::string opae::afu_test::afu::log_level_\fC [protected]\fP"
+
+.PP
+Definition at line 835 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::mem_tg::duplicate()\&.
+.SS "uint32_t opae::afu_test::afu::timeout_msec_\fC [protected]\fP"
+
+.PP
+Definition at line 836 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::mem_tg::duplicate()\&.
+.SS "int opae::afu_test::afu::fd_\fC [protected]\fP"
+
+.PP
+Definition at line 838 of file he_cache_test\&.h\&.
+.SS "uint8_t* opae::afu_test::afu::mmio_base_\fC [protected]\fP"
+
+.PP
+Definition at line 839 of file he_cache_test\&.h\&.
+.SS "uint64_t opae::afu_test::afu::mmio_len_\fC [protected]\fP"
+
+.PP
+Definition at line 840 of file he_cache_test\&.h\&.
+.SS "uint8_t* opae::afu_test::afu::dsm_buffer_\fC [protected]\fP"
+
+.PP
+Definition at line 842 of file he_cache_test\&.h\&.
+.SS "uint64_t opae::afu_test::afu::dsm_buf_len_\fC [protected]\fP"
+
+.PP
+Definition at line 843 of file he_cache_test\&.h\&.
+.SS "uint8_t* opae::afu_test::afu::rd_buffer_\fC [protected]\fP"
+
+.PP
+Definition at line 845 of file he_cache_test\&.h\&.
+.SS "uint64_t opae::afu_test::afu::rd_buf_len_\fC [protected]\fP"
+
+.PP
+Definition at line 846 of file he_cache_test\&.h\&.
+.SS "uint8_t* opae::afu_test::afu::wr_buffer_\fC [protected]\fP"
+
+.PP
+Definition at line 848 of file he_cache_test\&.h\&.
+.SS "uint64_t opae::afu_test::afu::wr_buf_len_\fC [protected]\fP"
+
+.PP
+Definition at line 849 of file he_cache_test\&.h\&.
+.SS "uint8_t* opae::afu_test::afu::rd_wr_buffer_\fC [protected]\fP"
+
+.PP
+Definition at line 851 of file he_cache_test\&.h\&.
+.SS "uint64_t opae::afu_test::afu::rd_wr_buf_len_\fC [protected]\fP"
+
+.PP
+Definition at line 852 of file he_cache_test\&.h\&.
+.SS "struct dfl_cxl_cache_region_info opae::afu_test::afu::rinfo_\fC [protected]\fP"
+
+.PP
+Definition at line 852 of file he_cache_test\&.h\&.
+.SS "std::string opae::afu_test::afu::dev_path_[2]\fC [protected]\fP"
+
+.PP
+Definition at line 856 of file he_cache_test\&.h\&.
+.SS "\fBcommand::ptr_t\fP opae::afu_test::afu::current_command_\fC [protected]\fP"
+
+.PP
+Definition at line 858 of file he_cache_test\&.h\&.
+.SS "std::map<CLI::App *, \fBcommand::ptr_t\fP> opae::afu_test::afu::commands_\fC [protected]\fP"
+
+.PP
+Definition at line 859 of file he_cache_test\&.h\&.
+.SS "std::shared_ptr<spdlog::logger> opae::afu_test::afu::logger_"
+
+.PP
+Definition at line 862 of file he_cache_test\&.h\&.
+.PP
+Referenced by mem_tg::mem_tg::duplicate(), host_exerciser::he_cache_cmd::he_continuousmode(), host_exerciser::host_exerciser_cmd::he_continuousmode(), host_exerciser::host_exerciser_cmd::he_perf_counters(), host_exerciser::he_cmd::he_perf_counters(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test(), host_exerciser::host_exerciser_cmd::host_exerciser_status(), host_exerciser::he_cmd::print_csr(), host_exerciser::host_exerciser_cmd::run(), mem_tg::tg_test::run_mem_test(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

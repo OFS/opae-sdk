@@ -1,0 +1,853 @@
+\doxysection{opae\+::afu\+\_\+test\+::afu Class Reference}
+\label{classopae_1_1afu__test_1_1afu}\index{opae::afu\_test::afu@{opae::afu\_test::afu}}
+
+
+{\ttfamily \#include $<$/root/samples/cxl\+\_\+host\+\_\+exerciser/he\+\_\+cache\+\_\+test.\+h$>$}
+
+Inheritance diagram for opae\+::afu\+\_\+test\+::afu\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.972222cm]{classopae_1_1afu__test_1_1afu}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24}{exit\+\_\+codes}} \{ \newline
+\mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f}{success}} = 0
+, \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a04ee7cb880c09f91baf6c572a753154d}{not\+\_\+run}}
+, \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a5b5cf74a6eb73cf60867b2f81a810624}{not\+\_\+found}}
+, \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a0a753cba76e13abc6b16f98745712372}{no\+\_\+access}}
+, \newline
+\mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a8b98ec99513ca15fc4c00d45ccd64fa5}{exception}}
+, \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238}{error}}
+ \}
+\item 
+typedef int($\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a4461ef32b1ec7b4bd81614a6491cb23e}{command\+\_\+fn}}) (\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}} $\ast$\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}}, CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}})
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a845e58d643b7c868c6dc84277dc88a81}{afu}} (const char $\ast$name, const char $\ast$afu\+\_\+id=nullptr, const char $\ast$log\+\_\+level=nullptr)
+\item 
+virtual \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a9f5b3668c254e92f8f2506916f97a232}{$\sim$afu}} ()
+\item 
+CLI\+::\+App \& \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad3e39bbb116a49dce6c1043755ebf2df}{cli}} ()
+\item 
+int \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_adacf6b9b42c1b28c391d8cc4d93023ca}{find\+\_\+dev\+\_\+feature}} ()
+\item 
+void \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_aba7d799aad72ececb2b9eb68c8919353}{unmap\+\_\+mmio}} ()
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad08ddd74d13e31d4aacf22c87b81fc6e}{map\+\_\+mmio}} ()
+\item 
+int \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a7af4fff79b88676402bff5f5274b941d}{open\+\_\+handle}} (const char $\ast$dev)
+\item 
+int \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_acacf9a109b0c623a7cee83acae4582cf}{main}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\item 
+virtual int \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a2b3d816eac276d4ec1aaa6e9a632b32d}{run}} (CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}, \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}} test)
+\item 
+{\footnotesize template$<$class T $>$ }\\CLI\+::\+App $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a66b79e6a2f6e58f8379823f0d675a139}{register\+\_\+command}} ()
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a148377c272b94f4e884683bcbcdaf289}{read64}} (uint32\+\_\+t offset)
+\item 
+void \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a81608240a2e29efbe8a6e60aee74ed60}{write64}} (uint32\+\_\+t offset, uint64\+\_\+t value)
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_aec158ebde0d3442da9a1bf4979e73a0d}{read32}} (uint32\+\_\+t offset)
+\item 
+void \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a85040c8bd1b3b3aeb0878cff74c4ca92}{write32}} (uint32\+\_\+t offset, uint32\+\_\+t value)
+\item 
+\mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a2db800c668b606885c4f4c405f8da4bc}{current\+\_\+command}} () const
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a39e0e1342cd3c8d2e630be07ca787453}{allocate\+\_\+dsm}} (size\+\_\+t len=((4) $\ast$1024), uint32\+\_\+t numa\+\_\+node=0)
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a94ab4cd7eb2f5abf7f9c076c9cd3b2e4}{free\+\_\+dsm}} ()
+\item 
+void \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a127d8571f7052515afc1d400c0981604}{reset\+\_\+dsm}} ()
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_aeae0c9059bf0455e5d238a168f776a16}{allocate\+\_\+cache\+\_\+read}} (size\+\_\+t len=((2) $\ast$1024 $\ast$1024), uint32\+\_\+t numa\+\_\+node=0)
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_adfd7bee969d9fb698179177cb0109fa8}{free\+\_\+cache\+\_\+read}} ()
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ac2756579ad42be859b696a1880a703a2}{allocate\+\_\+cache\+\_\+write}} (size\+\_\+t len=((2) $\ast$1024 $\ast$1024), uint32\+\_\+t numa\+\_\+node=0)
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a4f75d9580bec86a37adc9829e038bcf4}{free\+\_\+cache\+\_\+write}} ()
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ae9f15c76d68e94b445c2c1c21f727d1a}{allocate\+\_\+cache\+\_\+read\+\_\+write}} (size\+\_\+t len=((2) $\ast$1024 $\ast$1024), uint32\+\_\+t numa\+\_\+node=0)
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_adadb65558a3a54ba88e96b872d43b30d}{free\+\_\+cache\+\_\+read\+\_\+write}} ()
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_aadd011881d4bf921671c9a426262e61e}{get\+\_\+dsm}} () const
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a1ec221419c8668d8b14e1b7e6c056b98}{get\+\_\+read}} () const
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_abff0d8566f3e4bfe138f44eadab9b16f}{get\+\_\+write}} () const
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ac03cc5d56c562425a9bcbbe1c2edf7c0}{get\+\_\+read\+\_\+write}} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ spdlog\+::logger $>$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_af3999e552b0f5d709ded4693bbeb4d87}{logger\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_aee6c870bd4c573cd06893f815232a1dc}{name\+\_\+}}
+\item 
+std\+::string \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_af29e9be9b338fcda6a5d02a0431bf522}{afu\+\_\+id\+\_\+}}
+\item 
+CLI\+::\+App \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_abe62e0407c33466b7d6bf5005276fdc3}{app\+\_\+}}
+\item 
+std\+::string \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ae9b4f7f4daba866467f04e9c64d660ee}{pci\+\_\+addr\+\_\+}}
+\item 
+std\+::string \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a410d46e06fe9a836ec107a08cf8576a0}{log\+\_\+level\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a75f121f0ea96c60091ca1223f5b29004}{timeout\+\_\+msec\+\_\+}}
+\item 
+int \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a99dd66842fa780a0ceb7dda617c4e38b}{fd\+\_\+}}
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a9b40ebeb9a922bed3bdb079e6285b4e2}{mmio\+\_\+base\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_acb52665e466bb54609b5ac81d4dfd282}{mmio\+\_\+len\+\_\+}}
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a4784e4f7a10529f0f107c7f241b89767}{dsm\+\_\+buffer\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a868b16ab618cfdbd8f8bd403b2ba2af7}{dsm\+\_\+buf\+\_\+len\+\_\+}}
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a5fd0b4fdfb3009117ff4a9f79cf84743}{rd\+\_\+buffer\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad55f0e9505cb20d242e7c53005d2f462}{rd\+\_\+buf\+\_\+len\+\_\+}}
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ab6736eb6d461e288c0f7846c741bb511}{wr\+\_\+buffer\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a39bda33296e1b0fb5a486c349d098c77}{wr\+\_\+buf\+\_\+len\+\_\+}}
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_afd43e84a2d933b6141298f89eae7d22e}{rd\+\_\+wr\+\_\+buffer\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a6a13abfbef7c0e17b35bf8dc11c06f00}{rd\+\_\+wr\+\_\+buf\+\_\+len\+\_\+}}
+\item 
+struct dfl\+\_\+cxl\+\_\+cache\+\_\+region\+\_\+info \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a607ed076daacf92b1482fba24edacd6e}{rinfo\+\_\+}}
+\item 
+std\+::string \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a36d7214cdf09708a4eba033e21447434}{dev\+\_\+path\+\_\+}} \mbox{[}2\mbox{]}
+\item 
+\mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a62081683d3d299f6a71540923eca6291}{current\+\_\+command\+\_\+}}
+\item 
+std\+::map$<$ CLI\+::\+App $\ast$, \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}} $>$ \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a3a7e209b3faad4cfd9472cc19d6685f7}{commands\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 269 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1afu_a4461ef32b1ec7b4bd81614a6491cb23e}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!command\_fn@{command\_fn}}
+\index{command\_fn@{command\_fn}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{command\_fn}{command\_fn}}
+{\footnotesize\ttfamily typedef int($\ast$ opae\+::afu\+\_\+test\+::afu\+::command\+\_\+fn) (\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}} $\ast$\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}}, CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}})}
+
+
+
+Definition at line 271 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Member Enumeration Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!exit\_codes@{exit\_codes}}
+\index{exit\_codes@{exit\_codes}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{exit\_codes}{exit\_codes}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24}{opae\+::afu\+\_\+test\+::afu\+::exit\+\_\+codes}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{success@{success}!opae::afu\_test::afu@{opae::afu\_test::afu}}\index{opae::afu\_test::afu@{opae::afu\_test::afu}!success@{success}}}\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f}} 
+success&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{not\_run@{not\_run}!opae::afu\_test::afu@{opae::afu\_test::afu}}\index{opae::afu\_test::afu@{opae::afu\_test::afu}!not\_run@{not\_run}}}\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a04ee7cb880c09f91baf6c572a753154d}} 
+not\+\_\+run&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{not\_found@{not\_found}!opae::afu\_test::afu@{opae::afu\_test::afu}}\index{opae::afu\_test::afu@{opae::afu\_test::afu}!not\_found@{not\_found}}}\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a5b5cf74a6eb73cf60867b2f81a810624}} 
+not\+\_\+found&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{no\_access@{no\_access}!opae::afu\_test::afu@{opae::afu\_test::afu}}\index{opae::afu\_test::afu@{opae::afu\_test::afu}!no\_access@{no\_access}}}\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a0a753cba76e13abc6b16f98745712372}} 
+no\+\_\+access&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{exception@{exception}!opae::afu\_test::afu@{opae::afu\_test::afu}}\index{opae::afu\_test::afu@{opae::afu\_test::afu}!exception@{exception}}}\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24a8b98ec99513ca15fc4c00d45ccd64fa5}} 
+exception&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{error@{error}!opae::afu\_test::afu@{opae::afu\_test::afu}}\index{opae::afu\_test::afu@{opae::afu\_test::afu}!error@{error}}}\mbox{\label{classopae_1_1afu__test_1_1afu_ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238}} 
+error&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 272 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1afu_a845e58d643b7c868c6dc84277dc88a81}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!afu@{afu}}
+\index{afu@{afu}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{afu()}{afu()}}
+{\footnotesize\ttfamily opae\+::afu\+\_\+test\+::afu\+::afu (\begin{DoxyParamCaption}\item[{const char $\ast$}]{name,  }\item[{const char $\ast$}]{afu\+\_\+id = {\ttfamily nullptr},  }\item[{const char $\ast$}]{log\+\_\+level = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 281 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References opae\+::afu\+\_\+test\+::spdlog\+\_\+levels().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a9f5b3668c254e92f8f2506916f97a232}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!````~afu@{$\sim$afu}}
+\index{````~afu@{$\sim$afu}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{$\sim$afu()}{~afu()}}
+{\footnotesize\ttfamily virtual opae\+::afu\+\_\+test\+::afu\+::$\sim$afu (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Definition at line 296 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1afu_ad3e39bbb116a49dce6c1043755ebf2df}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!cli@{cli}}
+\index{cli@{cli}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{cli()}{cli()}}
+{\footnotesize\ttfamily CLI\+::\+App\& opae\+::afu\+\_\+test\+::afu\+::cli (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 304 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_adacf6b9b42c1b28c391d8cc4d93023ca}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!find\_dev\_feature@{find\_dev\_feature}}
+\index{find\_dev\_feature@{find\_dev\_feature}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{find\_dev\_feature()}{find\_dev\_feature()}}
+{\footnotesize\ttfamily int opae\+::afu\+\_\+test\+::afu\+::find\+\_\+dev\+\_\+feature (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 306 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References FEATURE\+\_\+\+DEV, MAX\+\_\+\+SIZE, and sysfs\+\_\+read\+\_\+u64().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_aba7d799aad72ececb2b9eb68c8919353}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!unmap\_mmio@{unmap\_mmio}}
+\index{unmap\_mmio@{unmap\_mmio}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{unmap\_mmio()}{unmap\_mmio()}}
+{\footnotesize\ttfamily void opae\+::afu\+\_\+test\+::afu\+::unmap\+\_\+mmio (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 376 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ad08ddd74d13e31d4aacf22c87b81fc6e}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!map\_mmio@{map\_mmio}}
+\index{map\_mmio@{map\_mmio}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{map\_mmio()}{map\_mmio()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::map\+\_\+mmio (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 383 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a7af4fff79b88676402bff5f5274b941d}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!open\_handle@{open\_handle}}
+\index{open\_handle@{open\_handle}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{open\_handle()}{open\_handle()}}
+{\footnotesize\ttfamily int opae\+::afu\+\_\+test\+::afu\+::open\+\_\+handle (\begin{DoxyParamCaption}\item[{const char $\ast$}]{dev }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 396 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_acacf9a109b0c623a7cee83acae4582cf}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!main@{main}}
+\index{main@{main}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int opae\+::afu\+\_\+test\+::afu\+::main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 434 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References app.
+
+
+
+Referenced by main().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a2b3d816eac276d4ec1aaa6e9a632b32d}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!run@{run}}
+\index{run@{run}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int opae\+::afu\+\_\+test\+::afu\+::run (\begin{DoxyParamCaption}\item[{CLI\+::\+App $\ast$}]{app,  }\item[{\mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}}}]{test }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classmem__tg_1_1mem__tg_ac85aabb722c846ac48ec6be8f06b1f6a}{mem\+\_\+tg\+::mem\+\_\+tg}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser_aadff42bdf84d6b738d68a2a2e5e0c1c1}{host\+\_\+exerciser\+::host\+\_\+exerciser}}, \mbox{\hyperlink{classdummy__afu_1_1dummy__afu_a28786abacbd10d38cb75c7735b5f06d9}{dummy\+\_\+afu\+::dummy\+\_\+afu}}, \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ab2e71f7f0b48b5e59b4240c180cb9447}{cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg}}, and \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser_aadff42bdf84d6b738d68a2a2e5e0c1c1}{host\+\_\+exerciser\+::host\+\_\+exerciser}}.
+
+
+
+Definition at line 477 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References app.
+
+
+
+Referenced by host\+\_\+exerciser\+::host\+\_\+exerciser\+::run(), cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::run(), dummy\+\_\+afu\+::dummy\+\_\+afu\+::run(), and mem\+\_\+tg\+::mem\+\_\+tg\+::run().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a66b79e6a2f6e58f8379823f0d675a139}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!register\_command@{register\_command}}
+\index{register\_command@{register\_command}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{register\_command()}{register\_command()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+CLI\+::\+App$\ast$ opae\+::afu\+\_\+test\+::afu\+::register\+\_\+command (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 500 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by main().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a148377c272b94f4e884683bcbcdaf289}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!read64@{read64}}
+\index{read64@{read64}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{read64()}{read64()}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::afu\+\_\+test\+::afu\+::read64 (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 508 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::tg\+\_\+test\+::config\+\_\+input\+\_\+options(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cmd\+::host\+\_\+exerciser\+\_\+errors(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+errors(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+status(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+swtestmsg(), host\+\_\+exerciser\+::he\+\_\+cmd\+::print\+\_\+csr(), hssi\+\_\+100g\+\_\+cmd\+::print\+\_\+registers(), hssi\+\_\+10g\+\_\+cmd\+::print\+\_\+registers(), hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::print\+\_\+registers(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run(), hssi\+\_\+100g\+\_\+cmd\+::run(), hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::run(), mem\+\_\+tg\+::tg\+\_\+test\+::run(), mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+perf(), and mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+wait\+\_\+test\+\_\+completion().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a81608240a2e29efbe8a6e60aee74ed60}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!write64@{write64}}
+\index{write64@{write64}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{write64()}{write64()}}
+{\footnotesize\ttfamily void opae\+::afu\+\_\+test\+::afu\+::write64 (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{uint64\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 513 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+forcetestcmpl(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cmd\+::he\+\_\+start\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::run(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd\+::run(), hssi\+\_\+100g\+\_\+cmd\+::run(), hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::run(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run\+\_\+single\+\_\+test(), and hssi\+\_\+100g\+\_\+cmd\+::select\+\_\+port().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_aec158ebde0d3442da9a1bf4979e73a0d}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!read32@{read32}}
+\index{read32@{read32}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{read32()}{read32()}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::afu\+\_\+test\+::afu\+::read32 (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 518 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a85040c8bd1b3b3aeb0878cff74c4ca92}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!write32@{write32}}
+\index{write32@{write32}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{write32()}{write32()}}
+{\footnotesize\ttfamily void opae\+::afu\+\_\+test\+::afu\+::write32 (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 523 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::tg\+\_\+test\+::config\+\_\+input\+\_\+options(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+forcetestcmpl(), mem\+\_\+tg\+::tg\+\_\+test\+::run\+\_\+mem\+\_\+test(), and host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run\+\_\+single\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a2db800c668b606885c4f4c405f8da4bc}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!current\_command@{current\_command}}
+\index{current\_command@{current\_command}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{current\_command()}{current\_command()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}} opae\+::afu\+\_\+test\+::afu\+::current\+\_\+command (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 528 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by sig\+\_\+handler().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a39e0e1342cd3c8d2e630be07ca787453}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!allocate\_dsm@{allocate\_dsm}}
+\index{allocate\_dsm@{allocate\_dsm}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{allocate\_dsm()}{allocate\_dsm()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+dsm (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{len = {\ttfamily ((~4~)$\ast$1024)},  }\item[{uint32\+\_\+t}]{numa\+\_\+node = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 530 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+allocate(), buffer\+\_\+release(), and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+DSM\+\_\+\+BASE.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), and host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a94ab4cd7eb2f5abf7f9c076c9cd3b2e4}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!free\_dsm@{free\_dsm}}
+\index{free\_dsm@{free\_dsm}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{free\_dsm()}{free\_dsm()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::free\+\_\+dsm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 572 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+release(), and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+DSM\+\_\+\+BASE.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), and host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a127d8571f7052515afc1d400c0981604}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!reset\_dsm@{reset\_dsm}}
+\index{reset\_dsm@{reset\_dsm}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{reset\_dsm()}{reset\_dsm()}}
+{\footnotesize\ttfamily void opae\+::afu\+\_\+test\+::afu\+::reset\+\_\+dsm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 600 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_aeae0c9059bf0455e5d238a168f776a16}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!allocate\_cache\_read@{allocate\_cache\_read}}
+\index{allocate\_cache\_read@{allocate\_cache\_read}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{allocate\_cache\_read()}{allocate\_cache\_read()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+read (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{len = {\ttfamily ((~2~)$\ast$1024~$\ast$~1024)},  }\item[{uint32\+\_\+t}]{numa\+\_\+node = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 604 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+allocate(), buffer\+\_\+release(), and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+RD\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), and host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_adfd7bee969d9fb698179177cb0109fa8}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!free\_cache\_read@{free\_cache\_read}}
+\index{free\_cache\_read@{free\_cache\_read}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{free\_cache\_read()}{free\_cache\_read()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::free\+\_\+cache\+\_\+read (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 646 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+release(), and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+RD\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), and host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ac2756579ad42be859b696a1880a703a2}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!allocate\_cache\_write@{allocate\_cache\_write}}
+\index{allocate\_cache\_write@{allocate\_cache\_write}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{allocate\_cache\_write()}{allocate\_cache\_write()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+write (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{len = {\ttfamily ((~2~)$\ast$1024~$\ast$~1024)},  }\item[{uint32\+\_\+t}]{numa\+\_\+node = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 673 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+allocate(), buffer\+\_\+release(), and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+WR\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), and host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a4f75d9580bec86a37adc9829e038bcf4}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!free\_cache\_write@{free\_cache\_write}}
+\index{free\_cache\_write@{free\_cache\_write}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{free\_cache\_write()}{free\_cache\_write()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::free\+\_\+cache\+\_\+write (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 714 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+release(), and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+WR\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test(), and host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+miss\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ae9f15c76d68e94b445c2c1c21f727d1a}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!allocate\_cache\_read\_write@{allocate\_cache\_read\_write}}
+\index{allocate\_cache\_read\_write@{allocate\_cache\_read\_write}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{allocate\_cache\_read\_write()}{allocate\_cache\_read\_write()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+read\+\_\+write (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{len = {\ttfamily ((~2~)$\ast$1024~$\ast$~1024)},  }\item[{uint32\+\_\+t}]{numa\+\_\+node = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 741 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+allocate(), buffer\+\_\+release(), DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+RD\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA, and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+WR\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_adadb65558a3a54ba88e96b872d43b30d}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!free\_cache\_read\_write@{free\_cache\_read\_write}}
+\index{free\_cache\_read\_write@{free\_cache\_read\_write}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{free\_cache\_read\_write()}{free\_cache\_read\_write()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::afu\+::free\+\_\+cache\+\_\+read\+\_\+write (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 788 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References buffer\+\_\+release(), DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+RD\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA, and DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+WR\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_aadd011881d4bf921671c9a426262e61e}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!get\_dsm@{get\_dsm}}
+\index{get\_dsm@{get\_dsm}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{get\_dsm()}{get\_dsm()}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::get\+\_\+dsm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 822 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cmd\+::get\+\_\+ticks(), host\+\_\+exerciser\+::he\+\_\+cmd\+::he\+\_\+get\+\_\+perf(), host\+\_\+exerciser\+::he\+\_\+cmd\+::he\+\_\+perf\+\_\+counters(), and host\+\_\+exerciser\+::he\+\_\+cmd\+::he\+\_\+wait\+\_\+test\+\_\+completion().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a1ec221419c8668d8b14e1b7e6c056b98}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!get\_read@{get\_read}}
+\index{get\_read@{get\_read}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{get\_read()}{get\_read()}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::get\+\_\+read (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 824 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_abff0d8566f3e4bfe138f44eadab9b16f}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!get\_write@{get\_write}}
+\index{get\_write@{get\_write}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{get\_write()}{get\_write()}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::get\+\_\+write (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 826 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+wr\+\_\+cache\+\_\+hit\+\_\+test().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ac03cc5d56c562425a9bcbbe1c2edf7c0}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!get\_read\_write@{get\_read\_write}}
+\index{get\_read\_write@{get\_read\_write}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{get\_read\_write()}{get\_read\_write()}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::get\+\_\+read\+\_\+write (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 828 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1afu_aee6c870bd4c573cd06893f815232a1dc}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!name\_@{name\_}}
+\index{name\_@{name\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{name\_}{name\_}}
+{\footnotesize\ttfamily std\+::string opae\+::afu\+\_\+test\+::afu\+::name\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 831 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_af29e9be9b338fcda6a5d02a0431bf522}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!afu\_id\_@{afu\_id\_}}
+\index{afu\_id\_@{afu\_id\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{afu\_id\_}{afu\_id\_}}
+{\footnotesize\ttfamily std\+::string opae\+::afu\+\_\+test\+::afu\+::afu\+\_\+id\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 832 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_abe62e0407c33466b7d6bf5005276fdc3}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!app\_@{app\_}}
+\index{app\_@{app\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{app\_}{app\_}}
+{\footnotesize\ttfamily CLI\+::\+App opae\+::afu\+\_\+test\+::afu\+::app\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 833 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ae9b4f7f4daba866467f04e9c64d660ee}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!pci\_addr\_@{pci\_addr\_}}
+\index{pci\_addr\_@{pci\_addr\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{pci\_addr\_}{pci\_addr\_}}
+{\footnotesize\ttfamily std\+::string opae\+::afu\+\_\+test\+::afu\+::pci\+\_\+addr\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 834 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a410d46e06fe9a836ec107a08cf8576a0}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!log\_level\_@{log\_level\_}}
+\index{log\_level\_@{log\_level\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{log\_level\_}{log\_level\_}}
+{\footnotesize\ttfamily std\+::string opae\+::afu\+\_\+test\+::afu\+::log\+\_\+level\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 835 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a75f121f0ea96c60091ca1223f5b29004}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!timeout\_msec\_@{timeout\_msec\_}}
+\index{timeout\_msec\_@{timeout\_msec\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{timeout\_msec\_}{timeout\_msec\_}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::afu\+\_\+test\+::afu\+::timeout\+\_\+msec\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 836 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate().
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a99dd66842fa780a0ceb7dda617c4e38b}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!fd\_@{fd\_}}
+\index{fd\_@{fd\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{fd\_}{fd\_}}
+{\footnotesize\ttfamily int opae\+::afu\+\_\+test\+::afu\+::fd\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 838 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a9b40ebeb9a922bed3bdb079e6285b4e2}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!mmio\_base\_@{mmio\_base\_}}
+\index{mmio\_base\_@{mmio\_base\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{mmio\_base\_}{mmio\_base\_}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::mmio\+\_\+base\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 839 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_acb52665e466bb54609b5ac81d4dfd282}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!mmio\_len\_@{mmio\_len\_}}
+\index{mmio\_len\_@{mmio\_len\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{mmio\_len\_}{mmio\_len\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::afu\+\_\+test\+::afu\+::mmio\+\_\+len\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 840 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a4784e4f7a10529f0f107c7f241b89767}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!dsm\_buffer\_@{dsm\_buffer\_}}
+\index{dsm\_buffer\_@{dsm\_buffer\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{dsm\_buffer\_}{dsm\_buffer\_}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::dsm\+\_\+buffer\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 842 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a868b16ab618cfdbd8f8bd403b2ba2af7}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!dsm\_buf\_len\_@{dsm\_buf\_len\_}}
+\index{dsm\_buf\_len\_@{dsm\_buf\_len\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{dsm\_buf\_len\_}{dsm\_buf\_len\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::afu\+\_\+test\+::afu\+::dsm\+\_\+buf\+\_\+len\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 843 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a5fd0b4fdfb3009117ff4a9f79cf84743}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!rd\_buffer\_@{rd\_buffer\_}}
+\index{rd\_buffer\_@{rd\_buffer\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{rd\_buffer\_}{rd\_buffer\_}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::rd\+\_\+buffer\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 845 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ad55f0e9505cb20d242e7c53005d2f462}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!rd\_buf\_len\_@{rd\_buf\_len\_}}
+\index{rd\_buf\_len\_@{rd\_buf\_len\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{rd\_buf\_len\_}{rd\_buf\_len\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::afu\+\_\+test\+::afu\+::rd\+\_\+buf\+\_\+len\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 846 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_ab6736eb6d461e288c0f7846c741bb511}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!wr\_buffer\_@{wr\_buffer\_}}
+\index{wr\_buffer\_@{wr\_buffer\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{wr\_buffer\_}{wr\_buffer\_}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::wr\+\_\+buffer\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 848 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a39bda33296e1b0fb5a486c349d098c77}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!wr\_buf\_len\_@{wr\_buf\_len\_}}
+\index{wr\_buf\_len\_@{wr\_buf\_len\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{wr\_buf\_len\_}{wr\_buf\_len\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::afu\+\_\+test\+::afu\+::wr\+\_\+buf\+\_\+len\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 849 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_afd43e84a2d933b6141298f89eae7d22e}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!rd\_wr\_buffer\_@{rd\_wr\_buffer\_}}
+\index{rd\_wr\_buffer\_@{rd\_wr\_buffer\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{rd\_wr\_buffer\_}{rd\_wr\_buffer\_}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::afu\+\_\+test\+::afu\+::rd\+\_\+wr\+\_\+buffer\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 851 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a6a13abfbef7c0e17b35bf8dc11c06f00}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!rd\_wr\_buf\_len\_@{rd\_wr\_buf\_len\_}}
+\index{rd\_wr\_buf\_len\_@{rd\_wr\_buf\_len\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{rd\_wr\_buf\_len\_}{rd\_wr\_buf\_len\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::afu\+\_\+test\+::afu\+::rd\+\_\+wr\+\_\+buf\+\_\+len\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 852 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a607ed076daacf92b1482fba24edacd6e}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!rinfo\_@{rinfo\_}}
+\index{rinfo\_@{rinfo\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{rinfo\_}{rinfo\_}}
+{\footnotesize\ttfamily struct dfl\+\_\+cxl\+\_\+cache\+\_\+region\+\_\+info opae\+::afu\+\_\+test\+::afu\+::rinfo\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 852 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a36d7214cdf09708a4eba033e21447434}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!dev\_path\_@{dev\_path\_}}
+\index{dev\_path\_@{dev\_path\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{dev\_path\_}{dev\_path\_}}
+{\footnotesize\ttfamily std\+::string opae\+::afu\+\_\+test\+::afu\+::dev\+\_\+path\+\_\+\mbox{[}2\mbox{]}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 856 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a62081683d3d299f6a71540923eca6291}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!current\_command\_@{current\_command\_}}
+\index{current\_command\_@{current\_command\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{current\_command\_}{current\_command\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}} opae\+::afu\+\_\+test\+::afu\+::current\+\_\+command\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 858 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_a3a7e209b3faad4cfd9472cc19d6685f7}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!commands\_@{commands\_}}
+\index{commands\_@{commands\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{commands\_}{commands\_}}
+{\footnotesize\ttfamily std\+::map$<$CLI\+::\+App $\ast$, \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{command\+::ptr\+\_\+t}}$>$ opae\+::afu\+\_\+test\+::afu\+::commands\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 859 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1afu_af3999e552b0f5d709ded4693bbeb4d87}} 
+\index{opae::afu\_test::afu@{opae::afu\_test::afu}!logger\_@{logger\_}}
+\index{logger\_@{logger\_}!opae::afu\_test::afu@{opae::afu\_test::afu}}
+\doxysubsubsection{\texorpdfstring{logger\_}{logger\_}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$spdlog\+::logger$>$ opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+}
+
+
+
+Definition at line 862 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+continuousmode(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+continuousmode(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+perf\+\_\+counters(), host\+\_\+exerciser\+::he\+\_\+cmd\+::he\+\_\+perf\+\_\+counters(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+fpga\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+hit\+\_\+test(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+run\+\_\+host\+\_\+rd\+\_\+cache\+\_\+miss\+\_\+test(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+status(), host\+\_\+exerciser\+::he\+\_\+cmd\+::print\+\_\+csr(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run(), mem\+\_\+tg\+::tg\+\_\+test\+::run\+\_\+mem\+\_\+test(), and host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run\+\_\+single\+\_\+test().
+

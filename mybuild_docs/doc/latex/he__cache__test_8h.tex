@@ -1,0 +1,416 @@
+\doxysection{samples/cxl\+\_\+host\+\_\+exerciser/he\+\_\+cache\+\_\+test.h File Reference}
+\label{he__cache__test_8h}\index{samples/cxl\_host\_exerciser/he\_cache\_test.h@{samples/cxl\_host\_exerciser/he\_cache\_test.h}}
+{\ttfamily \#include $<$future$>$}\newline
+{\ttfamily \#include $<$glob.\+h$>$}\newline
+{\ttfamily \#include $<$inttypes.\+h$>$}\newline
+{\ttfamily \#include $<$numa.\+h$>$}\newline
+{\ttfamily \#include $<$opae/cxx/core.\+h$>$}\newline
+{\ttfamily \#include $<$regex.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$sys/ioctl.\+h$>$}\newline
+{\ttfamily \#include $<$sys/mman.\+h$>$}\newline
+{\ttfamily \#include $<$fcntl.\+h$>$}\newline
+{\ttfamily \#include $<$sys/syscall.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$CLI/\+CLI.\+hpp$>$}\newline
+{\ttfamily \#include $<$spdlog/spdlog.\+h$>$}\newline
+{\ttfamily \#include $<$spdlog/sinks/stdout\+\_\+color\+\_\+sinks.\+h$>$}\newline
+{\ttfamily \#include $<$spdlog/sinks/basic\+\_\+file\+\_\+sink.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}fpga-\/dfl.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+union \mbox{\hyperlink{unionopae_1_1afu__test_1_1pcie__address}{opae\+::afu\+\_\+test\+::pcie\+\_\+address}}
+\item 
+class \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}
+\item 
+class \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}
+\item 
+struct \mbox{\hyperlink{namespaceopae_1_1afu__test_structopae_1_1afu__test_1_1pcie__address_8fields}{opae\+::afu\+\_\+test\+::pcie\+\_\+address.\+fields}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespaceopae}{opae}}
+\item 
+ \mbox{\hyperlink{namespaceopae_1_1afu__test}{opae\+::afu\+\_\+test}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_ae526105af48b18cac6b7376a0da3c646}{FEATURE\+\_\+\+DEV}}
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a0592dba56693fad79136250c11e5a7fe}{MAX\+\_\+\+SIZE}}~256
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_aa1be1a2ea0e3c7d738ca265578184905}{MAX\+\_\+\+HE\+\_\+\+CACHE\+\_\+\+DEVICE}}~2
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a3edd319ff92fe698be953178dc1cec70}{PROTECTION}}~(PROT\+\_\+\+READ $\vert$ PROT\+\_\+\+WRITE)
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a965bf45190323481c4a9d3256db5bd16}{MAP\+\_\+\+HUGETLB}}~0x40000
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a5117db836c6b4faa5067a54550a9b85e}{MAP\+\_\+\+HUGE\+\_\+\+SHIFT}}~26
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a7d6f3bf8995b6bd11b8748940d4ef87d}{MAP\+\_\+2\+M\+\_\+\+HUGEPAGE}}~(0x15 $<$$<$ \mbox{\hyperlink{he__cache__test_8h_a5117db836c6b4faa5067a54550a9b85e}{MAP\+\_\+\+HUGE\+\_\+\+SHIFT}}) /$\ast$ 2 $^\wedge$ 0x15 = 2M $\ast$/
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a3f7a3d1c89081e6dc5d7467e30573ddb}{MAP\+\_\+1\+G\+\_\+\+HUGEPAGE}}~(0x1e $<$$<$ \mbox{\hyperlink{he__cache__test_8h_a5117db836c6b4faa5067a54550a9b85e}{MAP\+\_\+\+HUGE\+\_\+\+SHIFT}}) /$\ast$ 2 $^\wedge$ 0x1e = 1G $\ast$/
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_ac9f31f726d2933782e2efda7136a25fd}{ADDR}}~((void $\ast$)(0x0\+UL))
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_ab255cd279851a87ef34b67cb0af7ae82}{FLAGS\+\_\+4K}}~(MAP\+\_\+\+PRIVATE $\vert$ MAP\+\_\+\+ANONYMOUS)
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_ad53f34fdc14d8d185326174e248dcff7}{FLAGS\+\_\+2M}}~(\mbox{\hyperlink{he__cache__test_8h_ab255cd279851a87ef34b67cb0af7ae82}{FLAGS\+\_\+4K}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a7d6f3bf8995b6bd11b8748940d4ef87d}{MAP\+\_\+2\+M\+\_\+\+HUGEPAGE}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a965bf45190323481c4a9d3256db5bd16}{MAP\+\_\+\+HUGETLB}})
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_af917db11a484b78ed5135fc6b5c3600d}{FLAGS\+\_\+1G}}~(\mbox{\hyperlink{he__cache__test_8h_ab255cd279851a87ef34b67cb0af7ae82}{FLAGS\+\_\+4K}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a3f7a3d1c89081e6dc5d7467e30573ddb}{MAP\+\_\+1\+G\+\_\+\+HUGEPAGE}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a965bf45190323481c4a9d3256db5bd16}{MAP\+\_\+\+HUGETLB}})
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_ae40428faaf55c32976e3e9bd81aa1f15}{KiB}}(x)~((x)$\ast$1024)
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a66926c4792f38d56984ea477b5b6f45a}{MiB}}(x)~((x)$\ast$1024 $\ast$ 1024)
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a133ac64b3644f67e539bd861f3304540}{GiB}}(x)~((x)$\ast$1024 $\ast$ 1024 $\ast$ 1024)
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a8275b12b6b8a1a7b5a02114a5e50619f}{DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+DSM\+\_\+\+BASE}}~0x030
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_aeb44d29251e2290eab7037feea413dfe}{DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+WR\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA}}~0x068
+\item 
+\#define \mbox{\hyperlink{he__cache__test_8h_a49cfbb3c7084eabd3317936a5a9bc908}{DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+RD\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA}}~0x088
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \mbox{\hyperlink{he__cache__test_8h_ac205be2172292384dd687b5471a87eddaf55f3a57a0940f0e7803957d4bf84b90}{MATCHES\+\_\+\+SIZE}} = 6
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{he__cache__test_8h_a737440f86e0bcdb1e4b6598f3541e75a}{buffer\+\_\+allocate}} (void $\ast$$\ast$addr, uint64\+\_\+t len, uint32\+\_\+t numa\+\_\+node)
+\item 
+bool \mbox{\hyperlink{he__cache__test_8h_a274404d5e2483f91198c791f3fb35044}{buffer\+\_\+release}} (void $\ast$addr, uint64\+\_\+t len)
+\item 
+bool \mbox{\hyperlink{he__cache__test_8h_af913d8c3d40a106a02ea4a7133fbbea9}{sysfs\+\_\+read\+\_\+u64}} (const char $\ast$path, uint64\+\_\+t $\ast$value)
+\item 
+{\footnotesize template$<$typename T $>$ }\\bool \mbox{\hyperlink{namespaceopae_1_1afu__test_a51c524d228e9ad342ed2e1a45efe741b}{opae\+::afu\+\_\+test\+::parse\+\_\+match\+\_\+int}} (const char $\ast$s, regmatch\+\_\+t m, T \&v, int radix=10)
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{namespaceopae_1_1afu__test_a86ee03f14e97bbb40476aacd85cc9868}{opae\+::afu\+\_\+test\+::spdlog\+\_\+levels}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \mbox{\hyperlink{he__cache__test_8h_a1e352638b03b00b213cfc2de11524ee4}{sbdf\+\_\+pattern}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{opae::afu\_test::pcie\_address.fields@{opae::afu\_test::pcie\_address.fields}}\label{structopae_1_1afu__test_1_1pcie__address_8fields}
+\doxysubsubsection{struct opae\+::afu\+\_\+test\+::pcie\+\_\+address.\+fields}
+
+
+Definition at line 187 of file he\+\_\+cache\+\_\+test.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespaceopae_1_1afu__test_ac1c425268e68385d1ab5074c17a94f14}} 
+uint32\_t&
+function: 3&
+\\
+\hline
+
+\mbox{\label{namespaceopae_1_1afu__test_a913f9c49dcb544e2087cee284f4a00b7}} 
+uint32\_t&
+device: 5&
+\\
+\hline
+
+\mbox{\label{namespaceopae_1_1afu__test_ad20f83ee6933aa1ea047fe5cbd9c1fd5}} 
+uint32\_t&
+bus: 8&
+\\
+\hline
+
+\mbox{\label{namespaceopae_1_1afu__test_aad5f82e879a9c5d6b5b442eb37e50551}} 
+uint32\_t&
+domain: 16&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{he__cache__test_8h_ae526105af48b18cac6b7376a0da3c646}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!FEATURE\_DEV@{FEATURE\_DEV}}
+\index{FEATURE\_DEV@{FEATURE\_DEV}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{FEATURE\_DEV}{FEATURE\_DEV}}
+{\footnotesize\ttfamily \#define FEATURE\+\_\+\+DEV}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \textcolor{stringliteral}{"{}/sys/bus/pci/devices/\%s/"{}}                                                   \(\backslash\)}
+\DoxyCodeLine{  \textcolor{stringliteral}{"{}fpga\_region/region*/dfl-\/fme*/dfl\_dev*/feature\_id"{}}}
+
+\end{DoxyCode}
+
+
+Definition at line 58 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a0592dba56693fad79136250c11e5a7fe}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MAX\_SIZE@{MAX\_SIZE}}
+\index{MAX\_SIZE@{MAX\_SIZE}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_SIZE}{MAX\_SIZE}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+SIZE~256}
+
+
+
+Definition at line 62 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_aa1be1a2ea0e3c7d738ca265578184905}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MAX\_HE\_CACHE\_DEVICE@{MAX\_HE\_CACHE\_DEVICE}}
+\index{MAX\_HE\_CACHE\_DEVICE@{MAX\_HE\_CACHE\_DEVICE}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_HE\_CACHE\_DEVICE}{MAX\_HE\_CACHE\_DEVICE}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+HE\+\_\+\+CACHE\+\_\+\+DEVICE~2}
+
+
+
+Definition at line 63 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a3edd319ff92fe698be953178dc1cec70}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!PROTECTION@{PROTECTION}}
+\index{PROTECTION@{PROTECTION}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{PROTECTION}{PROTECTION}}
+{\footnotesize\ttfamily \#define PROTECTION~(PROT\+\_\+\+READ $\vert$ PROT\+\_\+\+WRITE)}
+
+
+
+Definition at line 65 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a965bf45190323481c4a9d3256db5bd16}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MAP\_HUGETLB@{MAP\_HUGETLB}}
+\index{MAP\_HUGETLB@{MAP\_HUGETLB}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MAP\_HUGETLB}{MAP\_HUGETLB}}
+{\footnotesize\ttfamily \#define MAP\+\_\+\+HUGETLB~0x40000}
+
+
+
+Definition at line 68 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a5117db836c6b4faa5067a54550a9b85e}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MAP\_HUGE\_SHIFT@{MAP\_HUGE\_SHIFT}}
+\index{MAP\_HUGE\_SHIFT@{MAP\_HUGE\_SHIFT}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MAP\_HUGE\_SHIFT}{MAP\_HUGE\_SHIFT}}
+{\footnotesize\ttfamily \#define MAP\+\_\+\+HUGE\+\_\+\+SHIFT~26}
+
+
+
+Definition at line 71 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a7d6f3bf8995b6bd11b8748940d4ef87d}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MAP\_2M\_HUGEPAGE@{MAP\_2M\_HUGEPAGE}}
+\index{MAP\_2M\_HUGEPAGE@{MAP\_2M\_HUGEPAGE}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MAP\_2M\_HUGEPAGE}{MAP\_2M\_HUGEPAGE}}
+{\footnotesize\ttfamily \#define MAP\+\_\+2\+M\+\_\+\+HUGEPAGE~(0x15 $<$$<$ \mbox{\hyperlink{he__cache__test_8h_a5117db836c6b4faa5067a54550a9b85e}{MAP\+\_\+\+HUGE\+\_\+\+SHIFT}}) /$\ast$ 2 $^\wedge$ 0x15 = 2M $\ast$/}
+
+
+
+Definition at line 74 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a3f7a3d1c89081e6dc5d7467e30573ddb}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MAP\_1G\_HUGEPAGE@{MAP\_1G\_HUGEPAGE}}
+\index{MAP\_1G\_HUGEPAGE@{MAP\_1G\_HUGEPAGE}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MAP\_1G\_HUGEPAGE}{MAP\_1G\_HUGEPAGE}}
+{\footnotesize\ttfamily \#define MAP\+\_\+1\+G\+\_\+\+HUGEPAGE~(0x1e $<$$<$ \mbox{\hyperlink{he__cache__test_8h_a5117db836c6b4faa5067a54550a9b85e}{MAP\+\_\+\+HUGE\+\_\+\+SHIFT}}) /$\ast$ 2 $^\wedge$ 0x1e = 1G $\ast$/}
+
+
+
+Definition at line 75 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_ac9f31f726d2933782e2efda7136a25fd}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!ADDR@{ADDR}}
+\index{ADDR@{ADDR}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{ADDR}{ADDR}}
+{\footnotesize\ttfamily \#define ADDR~((void $\ast$)(0x0\+UL))}
+
+
+
+Definition at line 83 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_ab255cd279851a87ef34b67cb0af7ae82}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!FLAGS\_4K@{FLAGS\_4K}}
+\index{FLAGS\_4K@{FLAGS\_4K}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{FLAGS\_4K}{FLAGS\_4K}}
+{\footnotesize\ttfamily \#define FLAGS\+\_\+4K~(MAP\+\_\+\+PRIVATE $\vert$ MAP\+\_\+\+ANONYMOUS)}
+
+
+
+Definition at line 84 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_ad53f34fdc14d8d185326174e248dcff7}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!FLAGS\_2M@{FLAGS\_2M}}
+\index{FLAGS\_2M@{FLAGS\_2M}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{FLAGS\_2M}{FLAGS\_2M}}
+{\footnotesize\ttfamily \#define FLAGS\+\_\+2M~(\mbox{\hyperlink{he__cache__test_8h_ab255cd279851a87ef34b67cb0af7ae82}{FLAGS\+\_\+4K}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a7d6f3bf8995b6bd11b8748940d4ef87d}{MAP\+\_\+2\+M\+\_\+\+HUGEPAGE}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a965bf45190323481c4a9d3256db5bd16}{MAP\+\_\+\+HUGETLB}})}
+
+
+
+Definition at line 85 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_af917db11a484b78ed5135fc6b5c3600d}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!FLAGS\_1G@{FLAGS\_1G}}
+\index{FLAGS\_1G@{FLAGS\_1G}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{FLAGS\_1G}{FLAGS\_1G}}
+{\footnotesize\ttfamily \#define FLAGS\+\_\+1G~(\mbox{\hyperlink{he__cache__test_8h_ab255cd279851a87ef34b67cb0af7ae82}{FLAGS\+\_\+4K}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a3f7a3d1c89081e6dc5d7467e30573ddb}{MAP\+\_\+1\+G\+\_\+\+HUGEPAGE}} $\vert$ \mbox{\hyperlink{he__cache__test_8h_a965bf45190323481c4a9d3256db5bd16}{MAP\+\_\+\+HUGETLB}})}
+
+
+
+Definition at line 86 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_ae40428faaf55c32976e3e9bd81aa1f15}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!KiB@{KiB}}
+\index{KiB@{KiB}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{KiB}{KiB}}
+{\footnotesize\ttfamily \#define KiB(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~((x)$\ast$1024)}
+
+
+
+Definition at line 89 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a66926c4792f38d56984ea477b5b6f45a}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!MiB@{MiB}}
+\index{MiB@{MiB}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{MiB}{MiB}}
+{\footnotesize\ttfamily \#define MiB(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~((x)$\ast$1024 $\ast$ 1024)}
+
+
+
+Definition at line 90 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a133ac64b3644f67e539bd861f3304540}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!GiB@{GiB}}
+\index{GiB@{GiB}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{GiB}{GiB}}
+{\footnotesize\ttfamily \#define GiB(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~((x)$\ast$1024 $\ast$ 1024 $\ast$ 1024)}
+
+
+
+Definition at line 91 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a8275b12b6b8a1a7b5a02114a5e50619f}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!DFL\_CXL\_CACHE\_DSM\_BASE@{DFL\_CXL\_CACHE\_DSM\_BASE}}
+\index{DFL\_CXL\_CACHE\_DSM\_BASE@{DFL\_CXL\_CACHE\_DSM\_BASE}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{DFL\_CXL\_CACHE\_DSM\_BASE}{DFL\_CXL\_CACHE\_DSM\_BASE}}
+{\footnotesize\ttfamily \#define DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+DSM\+\_\+\+BASE~0x030}
+
+
+
+Definition at line 93 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_aeb44d29251e2290eab7037feea413dfe}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!DFL\_CXL\_CACHE\_WR\_ADDR\_TABLE\_DATA@{DFL\_CXL\_CACHE\_WR\_ADDR\_TABLE\_DATA}}
+\index{DFL\_CXL\_CACHE\_WR\_ADDR\_TABLE\_DATA@{DFL\_CXL\_CACHE\_WR\_ADDR\_TABLE\_DATA}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{DFL\_CXL\_CACHE\_WR\_ADDR\_TABLE\_DATA}{DFL\_CXL\_CACHE\_WR\_ADDR\_TABLE\_DATA}}
+{\footnotesize\ttfamily \#define DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+WR\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA~0x068}
+
+
+
+Definition at line 94 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{he__cache__test_8h_a49cfbb3c7084eabd3317936a5a9bc908}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!DFL\_CXL\_CACHE\_RD\_ADDR\_TABLE\_DATA@{DFL\_CXL\_CACHE\_RD\_ADDR\_TABLE\_DATA}}
+\index{DFL\_CXL\_CACHE\_RD\_ADDR\_TABLE\_DATA@{DFL\_CXL\_CACHE\_RD\_ADDR\_TABLE\_DATA}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{DFL\_CXL\_CACHE\_RD\_ADDR\_TABLE\_DATA}{DFL\_CXL\_CACHE\_RD\_ADDR\_TABLE\_DATA}}
+{\footnotesize\ttfamily \#define DFL\+\_\+\+CXL\+\_\+\+CACHE\+\_\+\+RD\+\_\+\+ADDR\+\_\+\+TABLE\+\_\+\+DATA~0x088}
+
+
+
+Definition at line 95 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{he__cache__test_8h_ac205be2172292384dd687b5471a87edd}} 
+\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily anonymous enum}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATCHES\_SIZE@{MATCHES\_SIZE}!he\_cache\_test.h@{he\_cache\_test.h}}\index{he\_cache\_test.h@{he\_cache\_test.h}!MATCHES\_SIZE@{MATCHES\_SIZE}}}\mbox{\label{he__cache__test_8h_ac205be2172292384dd687b5471a87eddaf55f3a57a0940f0e7803957d4bf84b90}} 
+MATCHES\+\_\+\+SIZE&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 57 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{he__cache__test_8h_a737440f86e0bcdb1e4b6598f3541e75a}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!buffer\_allocate@{buffer\_allocate}}
+\index{buffer\_allocate@{buffer\_allocate}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_allocate()}{buffer\_allocate()}}
+{\footnotesize\ttfamily bool buffer\+\_\+allocate (\begin{DoxyParamCaption}\item[{void $\ast$$\ast$}]{addr,  }\item[{uint64\+\_\+t}]{len,  }\item[{uint32\+\_\+t}]{numa\+\_\+node }\end{DoxyParamCaption})}
+
+
+
+Definition at line 98 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References ADDR, FLAGS\+\_\+1G, FLAGS\+\_\+2M, FLAGS\+\_\+4K, KiB, MiB, and PROTECTION.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+read(), opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+read\+\_\+write(), opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+write(), and opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+dsm().
+
+\mbox{\label{he__cache__test_8h_a274404d5e2483f91198c791f3fb35044}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!buffer\_release@{buffer\_release}}
+\index{buffer\_release@{buffer\_release}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_release()}{buffer\_release()}}
+{\footnotesize\ttfamily bool buffer\+\_\+release (\begin{DoxyParamCaption}\item[{void $\ast$}]{addr,  }\item[{uint64\+\_\+t}]{len }\end{DoxyParamCaption})}
+
+
+
+Definition at line 149 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+read(), opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+read\+\_\+write(), opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+cache\+\_\+write(), opae\+::afu\+\_\+test\+::afu\+::allocate\+\_\+dsm(), opae\+::afu\+\_\+test\+::afu\+::free\+\_\+cache\+\_\+read(), opae\+::afu\+\_\+test\+::afu\+::free\+\_\+cache\+\_\+read\+\_\+write(), opae\+::afu\+\_\+test\+::afu\+::free\+\_\+cache\+\_\+write(), and opae\+::afu\+\_\+test\+::afu\+::free\+\_\+dsm().
+
+\mbox{\label{he__cache__test_8h_af913d8c3d40a106a02ea4a7133fbbea9}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!sysfs\_read\_u64@{sysfs\_read\_u64}}
+\index{sysfs\_read\_u64@{sysfs\_read\_u64}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{sysfs\_read\_u64()}{sysfs\_read\_u64()}}
+{\footnotesize\ttfamily bool sysfs\+\_\+read\+\_\+u64 (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path,  }\item[{uint64\+\_\+t $\ast$}]{value }\end{DoxyParamCaption})}
+
+
+
+Definition at line 158 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::afu\+::find\+\_\+dev\+\_\+feature().
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{he__cache__test_8h_a1e352638b03b00b213cfc2de11524ee4}} 
+\index{he\_cache\_test.h@{he\_cache\_test.h}!sbdf\_pattern@{sbdf\_pattern}}
+\index{sbdf\_pattern@{sbdf\_pattern}!he\_cache\_test.h@{he\_cache\_test.h}}
+\doxysubsubsection{\texorpdfstring{sbdf\_pattern}{sbdf\_pattern}}
+{\footnotesize\ttfamily const char$\ast$ sbdf\+\_\+pattern}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}(([0-\/9a-\/fA-\/F]\{4\}):)?([0-\/9a-\/fA-\/F]\{2\}):([0-\/9a-\/fA-\/F]\{2\})\(\backslash\)\(\backslash\).([0-\/9])"{}}}
+
+\end{DoxyCode}
+
+
+Definition at line 54 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::pcie\+\_\+address\+::parse().
+

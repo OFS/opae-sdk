@@ -1,0 +1,93 @@
+.TH "hssi_afu" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+hssi_afu
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/hssi/hssi_afu\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::afu\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhssi_afu\fP ()"
+.br
+.ti -1c
+.RI "bool \fBglob_ethernet_interface\fP (const std::string &glob_pattern, std::string &eth_ifc)"
+.br
+.ti -1c
+.RI "std::string \fBethernet_interface\fP ()"
+.br
+.ti -1c
+.RI "void \fBmbox_write\fP (uint64_t port_select, uint16_t offset, uint32_t data)"
+.br
+.ti -1c
+.RI "void \fBmbox_write\fP (uint16_t offset, uint32_t data)"
+.br
+.ti -1c
+.RI "uint32_t \fBmbox_read\fP (uint64_t port_select, uint16_t offset)"
+.br
+.ti -1c
+.RI "uint32_t \fBmbox_read\fP (uint16_t offset)"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 54 of file hssi_afu\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "hssi_afu::hssi_afu ()\fC [inline]\fP"
+
+.PP
+Definition at line 56 of file hssi_afu\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "bool hssi_afu::glob_ethernet_interface (const std::string & glob_pattern, std::string & eth_ifc)\fC [inline]\fP"
+
+.PP
+Definition at line 60 of file hssi_afu\&.h\&.
+.SS "std::string hssi_afu::ethernet_interface ()\fC [inline]\fP"
+
+.PP
+Definition at line 89 of file hssi_afu\&.h\&.
+.PP
+References opae::fpga::types::properties::get()\&.
+.PP
+Referenced by hssi_100g_cmd::run(), and hssi_10g_cmd::run()\&.
+.SS "void hssi_afu::mbox_write (uint64_t port_select, uint16_t offset, uint32_t data)\fC [inline]\fP"
+
+.PP
+Definition at line 120 of file hssi_afu\&.h\&.
+.PP
+References TRAFFIC_CTRL_PORT_SEL\&.
+.PP
+Referenced by hssi_100g_cmd::quit_monitor(), hssi_100g_cmd::reset_monitor(), hssi_100g_cmd::run(), hssi_10g_cmd::run(), hssi_200g_400g_cmd::run(), hssi_100g_cmd::stall_disable(), hssi_100g_cmd::stall_enable(), hssi_100g_cmd::write_csr_addr(), and hssi_100g_cmd::write_ctrl_config()\&.
+.SS "void hssi_afu::mbox_write (uint16_t offset, uint32_t data)\fC [inline]\fP"
+
+.PP
+Definition at line 126 of file hssi_afu\&.h\&.
+.PP
+References ACK_TRANS, AFU_CMD_SHIFT, NO_TIMEOUT, TRAFFIC_CTRL_CMD, TRAFFIC_CTRL_DATA, WRITE_CMD, and WRITE_DATA_SHIFT\&.
+.SS "uint32_t hssi_afu::mbox_read (uint64_t port_select, uint16_t offset)\fC [inline]\fP"
+
+.PP
+Definition at line 179 of file hssi_afu\&.h\&.
+.PP
+References TRAFFIC_CTRL_PORT_SEL\&.
+.PP
+Referenced by hssi_100g_cmd::print_registers(), hssi_10g_cmd::print_registers(), hssi_200g_400g_cmd::print_registers(), hssi_100g_cmd::read_performance(), hssi_100g_cmd::run(), hssi_10g_cmd::run(), hssi_200g_400g_cmd::run(), hssi_100g_cmd::stall_disable(), and hssi_100g_cmd::stall_enable()\&.
+.SS "uint32_t hssi_afu::mbox_read (uint16_t offset)\fC [inline]\fP"
+
+.PP
+Definition at line 185 of file hssi_afu\&.h\&.
+.PP
+References ACK_TRANS, AFU_CMD_SHIFT, NO_TIMEOUT, READ_CMD, TRAFFIC_CTRL_CMD, and TRAFFIC_CTRL_DATA\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

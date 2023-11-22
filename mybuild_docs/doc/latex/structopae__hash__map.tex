@@ -1,0 +1,145 @@
+\doxysection{opae\+\_\+hash\+\_\+map Struct Reference}
+\label{structopae__hash__map}\index{opae\_hash\_map@{opae\_hash\_map}}
+
+
+{\ttfamily \#include $<$opae/hash\+\_\+map.\+h$>$}
+
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structopae__hash__map_a63068218b83c3a932af0744583d4d52d}{num\+\_\+buckets}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structopae__hash__map_a358c866ba990349f752a6783bea8d1f4}{hash\+\_\+seed}}
+\item 
+\mbox{\hyperlink{hash__map_8h_structopae__hash__map__item}{opae\+\_\+hash\+\_\+map\+\_\+item}} $\ast$$\ast$ \mbox{\hyperlink{structopae__hash__map_a8465d6028ce340508e8d819130d08ecf}{buckets}}
+\item 
+int \mbox{\hyperlink{structopae__hash__map_a14ba2f6e8a4681fdd9c1b2a2e1b619e2}{flags}}
+\item 
+void $\ast$ \mbox{\hyperlink{structopae__hash__map_afaa41a41911809ba9b50adae302cc606}{cleanup\+\_\+context}}
+\begin{DoxyCompactList}\small\item\em Optional second parameter to key\+\_\+cleanup and value\+\_\+cleanup. \end{DoxyCompactList}\item 
+uint32\+\_\+t($\ast$ \mbox{\hyperlink{structopae__hash__map_afa7da5e87861430406531aa356f689ca}{key\+\_\+hash}} )(uint32\+\_\+t \mbox{\hyperlink{structopae__hash__map_a63068218b83c3a932af0744583d4d52d}{num\+\_\+buckets}}, uint32\+\_\+t \mbox{\hyperlink{structopae__hash__map_a358c866ba990349f752a6783bea8d1f4}{hash\+\_\+seed}}, void $\ast$key)
+\item 
+int($\ast$ \mbox{\hyperlink{structopae__hash__map_ad17135479de98e413bd2070306664864}{key\+\_\+compare}} )(void $\ast$keya, void $\ast$keyb)
+\begin{DoxyCompactList}\small\item\em (required) \end{DoxyCompactList}\item 
+void($\ast$ \mbox{\hyperlink{structopae__hash__map_af8011981f985e00b4c6a0fff31da3eac}{key\+\_\+cleanup}} )(void $\ast$key, void $\ast$context)
+\begin{DoxyCompactList}\small\item\em (optional) \end{DoxyCompactList}\item 
+void($\ast$ \mbox{\hyperlink{structopae__hash__map_a9fda942cec9921df1bfee590ebf0600d}{value\+\_\+cleanup}} )(void $\ast$value, void $\ast$context)
+\begin{DoxyCompactList}\small\item\em (optional) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Hash map object.
+
+This structure defines the internals of the hash map. Each of the parameters supplied to \mbox{\hyperlink{hash__map_8h_a5d8b6eed0eea3e1e74de38cb04c1d4e2}{opae\+\_\+hash\+\_\+map\+\_\+init()}} is stored in the structure. All parameters are required, except key\+\_\+cleanup and value\+\_\+cleanup, which may optionally be NULL. 
+
+Definition at line 84 of file hash\+\_\+map.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{structopae__hash__map_a63068218b83c3a932af0744583d4d52d}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!num\_buckets@{num\_buckets}}
+\index{num\_buckets@{num\_buckets}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{num\_buckets}{num\_buckets}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+\_\+hash\+\_\+map\+::num\+\_\+buckets}
+
+
+
+Definition at line 85 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_a358c866ba990349f752a6783bea8d1f4}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!hash\_seed@{hash\_seed}}
+\index{hash\_seed@{hash\_seed}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{hash\_seed}{hash\_seed}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+\_\+hash\+\_\+map\+::hash\+\_\+seed}
+
+
+
+Definition at line 86 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_a8465d6028ce340508e8d819130d08ecf}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!buckets@{buckets}}
+\index{buckets@{buckets}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{buckets}{buckets}}
+{\footnotesize\ttfamily \mbox{\hyperlink{hash__map_8h_structopae__hash__map__item}{opae\+\_\+hash\+\_\+map\+\_\+item}}$\ast$$\ast$ opae\+\_\+hash\+\_\+map\+::buckets}
+
+
+
+Definition at line 87 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_a14ba2f6e8a4681fdd9c1b2a2e1b619e2}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!flags@{flags}}
+\index{flags@{flags}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{flags}{flags}}
+{\footnotesize\ttfamily int opae\+\_\+hash\+\_\+map\+::flags}
+
+
+
+Definition at line 88 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_afaa41a41911809ba9b50adae302cc606}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!cleanup\_context@{cleanup\_context}}
+\index{cleanup\_context@{cleanup\_context}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{cleanup\_context}{cleanup\_context}}
+{\footnotesize\ttfamily void$\ast$ opae\+\_\+hash\+\_\+map\+::cleanup\+\_\+context}
+
+
+
+Optional second parameter to key\+\_\+cleanup and value\+\_\+cleanup. 
+
+
+
+Definition at line 89 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_afa7da5e87861430406531aa356f689ca}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!key\_hash@{key\_hash}}
+\index{key\_hash@{key\_hash}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{key\_hash}{key\_hash}}
+{\footnotesize\ttfamily uint32\+\_\+t($\ast$ opae\+\_\+hash\+\_\+map\+::key\+\_\+hash) (uint32\+\_\+t \mbox{\hyperlink{structopae__hash__map_a63068218b83c3a932af0744583d4d52d}{num\+\_\+buckets}}, uint32\+\_\+t \mbox{\hyperlink{structopae__hash__map_a358c866ba990349f752a6783bea8d1f4}{hash\+\_\+seed}}, void $\ast$key)}
+
+
+
+Definition at line 90 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_ad17135479de98e413bd2070306664864}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!key\_compare@{key\_compare}}
+\index{key\_compare@{key\_compare}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{key\_compare}{key\_compare}}
+{\footnotesize\ttfamily int($\ast$ opae\+\_\+hash\+\_\+map\+::key\+\_\+compare) (void $\ast$keya, void $\ast$keyb)}
+
+
+
+(required) 
+
+
+
+Definition at line 93 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_af8011981f985e00b4c6a0fff31da3eac}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!key\_cleanup@{key\_cleanup}}
+\index{key\_cleanup@{key\_cleanup}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{key\_cleanup}{key\_cleanup}}
+{\footnotesize\ttfamily void($\ast$ opae\+\_\+hash\+\_\+map\+::key\+\_\+cleanup) (void $\ast$key, void $\ast$context)}
+
+
+
+(optional) 
+
+
+
+Definition at line 94 of file hash\+\_\+map.\+h.
+
+\mbox{\label{structopae__hash__map_a9fda942cec9921df1bfee590ebf0600d}} 
+\index{opae\_hash\_map@{opae\_hash\_map}!value\_cleanup@{value\_cleanup}}
+\index{value\_cleanup@{value\_cleanup}!opae\_hash\_map@{opae\_hash\_map}}
+\doxysubsubsection{\texorpdfstring{value\_cleanup}{value\_cleanup}}
+{\footnotesize\ttfamily void($\ast$ opae\+\_\+hash\+\_\+map\+::value\+\_\+cleanup) (void $\ast$value, void $\ast$context)}
+
+
+
+(optional) 
+
+
+
+Definition at line 95 of file hash\+\_\+map.\+h.
+

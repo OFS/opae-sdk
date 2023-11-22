@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structdummy__afu_1_1mem__test__ctrl_8____unnamed68____" kind="struct" language="C++" prot="public">
+    <compoundname>dummy_afu::mem_test_ctrl.__unnamed68__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdummy__afu_1_1mem__test__ctrl_8____unnamed68_____1a238d901edc5daef041291938b01bf000" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>StartTest</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="82" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1mem__test__ctrl_8____unnamed68_____1a93876cb309016fa725517b046474c44b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved1</name>
+        <bitfield> 63</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="83" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::mem_test_ctrl.__unnamed68__</label>
+        <link refid="structdummy__afu_1_1mem__test__ctrl_8____unnamed68____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="81" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="81" bodyend="84"/>
+    <listofallmembers>
+      <member refid="structdummy__afu_1_1mem__test__ctrl_8____unnamed68_____1a93876cb309016fa725517b046474c44b" prot="public" virt="non-virtual"><scope>dummy_afu::mem_test_ctrl.__unnamed68__</scope><name>Reserved1</name></member>
+      <member refid="structdummy__afu_1_1mem__test__ctrl_8____unnamed68_____1a238d901edc5daef041291938b01bf000" prot="public" virt="non-virtual"><scope>dummy_afu::mem_test_ctrl.__unnamed68__</scope><name>StartTest</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

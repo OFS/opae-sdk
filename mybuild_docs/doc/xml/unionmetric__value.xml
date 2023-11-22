@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionmetric__value" kind="union" language="C++" prot="public">
+    <compoundname>metric_value</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionmetric__value_1a3157831ae4c4f8ecda1f61bdaea2ef13" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t metric_value::ivalue</definition>
+        <argsstring></argsstring>
+        <name>ivalue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="201" column="12" bodyfile="include/opae/types.h" bodystart="201" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionmetric__value_1a40409d5d9e5b9f16e3270bed34404871" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double metric_value::dvalue</definition>
+        <argsstring></argsstring>
+        <name>dvalue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="202" column="12" bodyfile="include/opae/types.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionmetric__value_1a171100c87da379700719f03ccac03092" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float metric_value::fvalue</definition>
+        <argsstring></argsstring>
+        <name>fvalue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="203" column="12" bodyfile="include/opae/types.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionmetric__value_1aee6957b949306871afb1d006b066409f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool metric_value::bvalue</definition>
+        <argsstring></argsstring>
+        <name>bvalue</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="204" column="12" bodyfile="include/opae/types.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Metric value union </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>metric_value</label>
+        <link refid="unionmetric__value"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="200" column="1" bodyfile="include/opae/types.h" bodystart="200" bodyend="205"/>
+    <listofallmembers>
+      <member refid="unionmetric__value_1aee6957b949306871afb1d006b066409f" prot="public" virt="non-virtual"><scope>metric_value</scope><name>bvalue</name></member>
+      <member refid="unionmetric__value_1a40409d5d9e5b9f16e3270bed34404871" prot="public" virt="non-virtual"><scope>metric_value</scope><name>dvalue</name></member>
+      <member refid="unionmetric__value_1a171100c87da379700719f03ccac03092" prot="public" virt="non-virtual"><scope>metric_value</scope><name>fvalue</name></member>
+      <member refid="unionmetric__value_1a3157831ae4c4f8ecda1f61bdaea2ef13" prot="public" virt="non-virtual"><scope>metric_value</scope><name>ivalue</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

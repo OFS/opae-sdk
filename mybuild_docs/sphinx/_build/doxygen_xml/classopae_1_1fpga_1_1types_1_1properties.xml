@@ -1,0 +1,812 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1properties" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::properties</compoundname>
+    <includes refid="cxx_2core_2properties_8h" local="no">opae/cxx/core/properties.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1properties" kindref="compound">properties</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;properties&gt; opae::fpga::types::properties::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="53" column="27" bodyfile="include/opae/cxx/core/properties.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1ac9e35b67fef37b1d0ab8c6d17549a35c" prot="public" static="yes" mutable="no">
+        <type>const std::vector&lt; <ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref> &gt;</type>
+        <definition>const std::vector&lt;properties::ptr_t&gt; opae::fpga::types::properties::none</definition>
+        <argsstring></argsstring>
+        <name>none</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>An empty vector of properties. Useful for enumerating based on a &quot;match all&quot; criteria. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="59" column="28" bodyfile="include/opae/cxx/core/properties.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1abc025fb8c6b491807571899f5841e0f8" prot="private" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+        <definition>fpga_properties opae::fpga::types::properties::props_</definition>
+        <argsstring></argsstring>
+        <name>props_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="112" column="19" bodyfile="include/opae/cxx/core/properties.h" bodystart="112" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1properties_1a9a976757deb492ada54d65c6ca1aefe9" compoundref="cxx_2core_2properties_8h" startline="69" endline="69">c_type</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1properties_1ac5a3a372377aea865cbb8345d737127d" compoundref="cxx_2core_2properties_8h" startline="73" endline="73">operator fpga_properties</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a63f080b4941991367ba9900af2e6a0b4" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; <ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref> &gt;</type>
+        <definition>pvalue&lt;fpga_objtype&gt; opae::fpga::types::properties::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="115" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a5913b325cac373affa91ed5d9196ad41" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint32_t &gt;</type>
+        <definition>pvalue&lt;uint32_t&gt; opae::fpga::types::properties::num_errors</definition>
+        <argsstring></argsstring>
+        <name>num_errors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="116" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a0a3dfe2e229074b9c2b895d2712d4fc0" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint16_t &gt;</type>
+        <definition>pvalue&lt;uint16_t&gt; opae::fpga::types::properties::segment</definition>
+        <argsstring></argsstring>
+        <name>segment</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="117" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a8dc399536eb26ce0b4d434aa7e170316" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint8_t &gt;</type>
+        <definition>pvalue&lt;uint8_t&gt; opae::fpga::types::properties::bus</definition>
+        <argsstring></argsstring>
+        <name>bus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="118" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a2da094689d6f9e1ff83a318863e96d95" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint8_t &gt;</type>
+        <definition>pvalue&lt;uint8_t&gt; opae::fpga::types::properties::device</definition>
+        <argsstring></argsstring>
+        <name>device</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="119" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a500427aedb78b3a8fdc68211e0d69bf1" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint8_t &gt;</type>
+        <definition>pvalue&lt;uint8_t&gt; opae::fpga::types::properties::function</definition>
+        <argsstring></argsstring>
+        <name>function</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="120" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a7e727ae54ad257953cd2b0e570c452a1" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint8_t &gt;</type>
+        <definition>pvalue&lt;uint8_t&gt; opae::fpga::types::properties::socket_id</definition>
+        <argsstring></argsstring>
+        <name>socket_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="121" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a42d618739d9d8d00873457a6af5b8613" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint32_t &gt;</type>
+        <definition>pvalue&lt;uint32_t&gt; opae::fpga::types::properties::num_slots</definition>
+        <argsstring></argsstring>
+        <name>num_slots</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="122" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1adbda11d711131de6441cf8537321ec83" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint64_t &gt;</type>
+        <definition>pvalue&lt;uint64_t&gt; opae::fpga::types::properties::bbs_id</definition>
+        <argsstring></argsstring>
+        <name>bbs_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="123" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a6b0c7cd23a8c0b3e4c55f6c60ae7d620" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; <ref refid="structfpga__version" kindref="compound">fpga_version</ref> &gt;</type>
+        <definition>pvalue&lt;fpga_version&gt; opae::fpga::types::properties::bbs_version</definition>
+        <argsstring></argsstring>
+        <name>bbs_version</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="124" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1aa263ac16432be869fc6070209476a0fd" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint16_t &gt;</type>
+        <definition>pvalue&lt;uint16_t&gt; opae::fpga::types::properties::vendor_id</definition>
+        <argsstring></argsstring>
+        <name>vendor_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="125" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a16200ec67ed7b2bbf55475c68b932adb" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint16_t &gt;</type>
+        <definition>pvalue&lt;uint16_t&gt; opae::fpga::types::properties::device_id</definition>
+        <argsstring></argsstring>
+        <name>device_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="126" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a33f8fa0fd03531574fbd0f13e06b02ba" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint16_t &gt;</type>
+        <definition>pvalue&lt;uint16_t&gt; opae::fpga::types::properties::subsystem_vendor_id</definition>
+        <argsstring></argsstring>
+        <name>subsystem_vendor_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="127" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a7a2df1b361f7f8ab5c0c2443631f6b30" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint16_t &gt;</type>
+        <definition>pvalue&lt;uint16_t&gt; opae::fpga::types::properties::subsystem_device_id</definition>
+        <argsstring></argsstring>
+        <name>subsystem_device_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="128" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a41d099cbad8556f3de7f9ff8cf3f092e" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; char * &gt;</type>
+        <definition>pvalue&lt;char *&gt; opae::fpga::types::properties::model</definition>
+        <argsstring></argsstring>
+        <name>model</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="129" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a8ed3e82ae73b34aa2d729aba2cd8140c" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint64_t &gt;</type>
+        <definition>pvalue&lt;uint64_t&gt; opae::fpga::types::properties::local_memory_size</definition>
+        <argsstring></argsstring>
+        <name>local_memory_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="130" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a5a2ebe1ce0870eaa6bb578cbf49fe6ff" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint64_t &gt;</type>
+        <definition>pvalue&lt;uint64_t&gt; opae::fpga::types::properties::capabilities</definition>
+        <argsstring></argsstring>
+        <name>capabilities</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="131" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a64fabfeaa7795cef364ca444a6535ed8" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint32_t &gt;</type>
+        <definition>pvalue&lt;uint32_t&gt; opae::fpga::types::properties::num_mmio</definition>
+        <argsstring></argsstring>
+        <name>num_mmio</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="132" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a07f7a33e0efdc84d39c9ffc5d6374c72" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint32_t &gt;</type>
+        <definition>pvalue&lt;uint32_t&gt; opae::fpga::types::properties::num_interrupts</definition>
+        <argsstring></argsstring>
+        <name>num_interrupts</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="133" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1aa046d54251503d161faa02b99a64f0c4" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; <ref refid="types__enum_8h_1a90d0d4dfde2d893585fb72ba51f0bfbe" kindref="member">fpga_accelerator_state</ref> &gt;</type>
+        <definition>pvalue&lt;fpga_accelerator_state&gt; opae::fpga::types::properties::accelerator_state</definition>
+        <argsstring></argsstring>
+        <name>accelerator_state</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="134" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1af001f70fa59cd5c49cf28af50e2d2d5f" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; uint64_t &gt;</type>
+        <definition>pvalue&lt;uint64_t&gt; opae::fpga::types::properties::object_id</definition>
+        <argsstring></argsstring>
+        <name>object_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="135" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a800b2f5a7f12753741e542165a255eca" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; <ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref> &gt;</type>
+        <definition>pvalue&lt;fpga_token&gt; opae::fpga::types::properties::parent</definition>
+        <argsstring></argsstring>
+        <name>parent</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="136" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a2bd162e2835a510e9c32ab214c458af4" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1pvalue" kindref="compound">pvalue</ref>&lt; <ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref> &gt;</type>
+        <definition>pvalue&lt;fpga_interface&gt; opae::fpga::types::properties::interface</definition>
+        <argsstring></argsstring>
+        <name>interface</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="137" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1properties_1a927bd5aa11cd56706046164da9494b58" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1guid__t" kindref="compound">guid_t</ref></type>
+        <definition>guid_t opae::fpga::types::properties::guid</definition>
+        <argsstring></argsstring>
+        <name>guid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="138" column="10" bodyfile="include/opae/cxx/core/properties.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1aac8f376e4bc640a71ff628f536a10584" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::properties::properties</definition>
+        <argsstring>(const properties &amp;p)=delete</argsstring>
+        <name>properties</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1properties" kindref="compound">properties</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="61" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1a6f3cb44a161ed02f4a9916d32851192b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties" kindref="compound">properties</ref> &amp;</type>
+        <definition>properties&amp; opae::fpga::types::properties::operator=</definition>
+        <argsstring>(const properties &amp;p)=delete</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1properties" kindref="compound">properties</ref> &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="63" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1ab2c64365c493b7b08ff9207bb128ebbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::properties::~properties</definition>
+        <argsstring>()</argsstring>
+        <name>~properties</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="65" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1a9a976757deb492ada54d65c6ca1aefe9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+        <definition>fpga_properties opae::fpga::types::properties::c_type</definition>
+        <argsstring>() const</argsstring>
+        <name>c_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the underlying fpga_properties object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="69" column="19" bodyfile="include/opae/cxx/core/properties.h" bodystart="69" bodyend="69"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1properties_1abc025fb8c6b491807571899f5841e0f8" compoundref="cxx_2core_2properties_8h" startline="112">props_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1ac5a3a372377aea865cbb8345d737127d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::properties::operator fpga_properties</definition>
+        <argsstring>() const</argsstring>
+        <name>operator fpga_properties</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the underlying fpga_properties object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="73" column="3" bodyfile="include/opae/cxx/core/properties.h" bodystart="73" bodyend="73"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1properties_1abc025fb8c6b491807571899f5841e0f8" compoundref="cxx_2core_2properties_8h" startline="112">props_</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1ab2b9142ce432de4aff9c0a20e9bc4c42" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref></type>
+        <definition>static properties::ptr_t opae::fpga::types::properties::get</definition>
+        <argsstring>()</argsstring>
+        <name>get</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a new properties object. <simplesect kind="return"><para>A properties smart pointer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="78" column="28"/>
+        <referencedby refid="classhssi__cmd_1a4d645c1913180d63ad93330589ab0892" compoundref="hssi__cmd_8h" startline="56" endline="86">hssi_cmd::clock_freq_for</referencedby>
+        <referencedby refid="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" compoundref="hssi__afu_8h" startline="89" endline="118">hssi_afu::ethernet_interface</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1aa52560a3df999e96661079da1f1e4262" compoundref="host__exerciser__cmd_8h" startline="415" endline="500">host_exerciser::host_exerciser_cmd::parse_input_options</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1a736a6f59a42279056bf3b0877099bd10" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref></type>
+        <definition>static properties::ptr_t opae::fpga::types::properties::get</definition>
+        <argsstring>(fpga_guid guid_in)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref></type>
+          <declname>guid_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a new properties object from a guid. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>guid_in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A guid to set in the properties </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A properties smart pointer with its guid initialized to guid_in </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="84" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1abff4b12dfc1a08d861690a5b9a773fb9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref></type>
+        <definition>static properties::ptr_t opae::fpga::types::properties::get</definition>
+        <argsstring>(fpga_objtype objtype)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref></type>
+          <declname>objtype</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a new properties object from an fpga_objtype. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>objtype</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An object type to set in the properties </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A properties smart pointer with its object type set to objtype. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="90" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1aeeb323cca03dd9e26f8b769d9da9ce48" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref></type>
+        <definition>static properties::ptr_t opae::fpga::types::properties::get</definition>
+        <argsstring>(std::shared_ptr&lt; token &gt; t)</argsstring>
+        <name>get</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1token" kindref="compound">token</ref> &gt;</type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the properties for a given token object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A token identifying the accelerator resource. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A properties smart pointer for the given token. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="96" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1a365bdca95b6af6592c714fad6a9d096a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref></type>
+        <definition>static properties::ptr_t opae::fpga::types::properties::get</definition>
+        <argsstring>(fpga_token t)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the properties for a given fpga_token. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An fpga_token identifying the accelerator resource. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A properties smart pointer for the given fpga_token. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="102" column="28"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1a3cf32f0e11436d76747a18222f18e4fa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" kindref="member">properties::ptr_t</ref></type>
+        <definition>static properties::ptr_t opae::fpga::types::properties::get</definition>
+        <argsstring>(std::shared_ptr&lt; handle &gt; h)</argsstring>
+        <name>get</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1handle" kindref="compound">handle</ref> &gt;</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the properties for a given handle object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A handle identifying the accelerator resource. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A properties smart pointer for the given handle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="108" column="28"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1properties_1a7c81729de274502f8c5f7e1001060ebb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::properties::properties</definition>
+        <argsstring>(bool alloc_props=true)</argsstring>
+        <name>properties</name>
+        <param>
+          <type>bool</type>
+          <declname>alloc_props</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/properties.h" line="111" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Wraps an OPAE fpga_properties object.</para>
+<para>properties are information describing an accelerator resource that is identified by its token. The properties are used during enumeration to narrow the search for an accelerator resource, and after enumeration to provide the configuration of that resource. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13">
+        <label>opae::fpga::types::pvalue&lt; fpga_objtype &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; fpga_objtype &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae::fpga::types::pvalue&lt; fpga_accelerator_state &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; fpga_accelerator_state &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>opae::fpga::types::pvalue&lt; T &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+      </node>
+      <node id="1">
+        <label>opae::fpga::types::properties</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1properties"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+bbs_id</edgelabel>
+          <edgelabel>+capabilities</edgelabel>
+          <edgelabel>+local_memory_size</edgelabel>
+          <edgelabel>+object_id</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+guid</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>+parent</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>+bbs_version</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>+bus</edgelabel>
+          <edgelabel>+device</edgelabel>
+          <edgelabel>+function</edgelabel>
+          <edgelabel>+socket_id</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>+device_id</edgelabel>
+          <edgelabel>+segment</edgelabel>
+          <edgelabel>+subsystem_device_id</edgelabel>
+          <edgelabel>+subsystem_vendor_id</edgelabel>
+          <edgelabel>+vendor_id</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>+interface</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>+model</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>+accelerator_state</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>+num_errors</edgelabel>
+          <edgelabel>+num_interrupts</edgelabel>
+          <edgelabel>+num_mmio</edgelabel>
+          <edgelabel>+num_slots</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>+type</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>opae::fpga::types::pvalue&lt; uint16_t &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; uint16_t &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae::fpga::types::pvalue&lt; uint64_t &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; uint64_t &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>opae::fpga::types::pvalue&lt; uint32_t &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; uint32_t &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>opae::fpga::types::pvalue&lt; fpga_token &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; fpga_token &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>opae::fpga::types::guid_t</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1guid__t"/>
+      </node>
+      <node id="9">
+        <label>opae::fpga::types::pvalue&lt; fpga_interface &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; fpga_interface &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>opae::fpga::types::pvalue&lt; char * &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; char * &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>opae::fpga::types::pvalue&lt; uint8_t &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; uint8_t &gt;</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>opae::fpga::types::pvalue&lt; fpga_version &gt;</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1pvalue"/>
+        <childnode refid="3" relation="template-instance">
+          <edgelabel>&lt; fpga_version &gt;</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/properties.h" line="51" column="1" bodyfile="include/opae/cxx/core/properties.h" bodystart="51" bodyend="139"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1aa046d54251503d161faa02b99a64f0c4" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>accelerator_state</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1adbda11d711131de6441cf8537321ec83" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>bbs_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a6b0c7cd23a8c0b3e4c55f6c60ae7d620" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>bbs_version</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a8dc399536eb26ce0b4d434aa7e170316" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>bus</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a9a976757deb492ada54d65c6ca1aefe9" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>c_type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a5a2ebe1ce0870eaa6bb578cbf49fe6ff" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>capabilities</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a2da094689d6f9e1ff83a318863e96d95" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>device</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a16200ec67ed7b2bbf55475c68b932adb" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>device_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a500427aedb78b3a8fdc68211e0d69bf1" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>function</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1ab2b9142ce432de4aff9c0a20e9bc4c42" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a736a6f59a42279056bf3b0877099bd10" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1abff4b12dfc1a08d861690a5b9a773fb9" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1aeeb323cca03dd9e26f8b769d9da9ce48" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a365bdca95b6af6592c714fad6a9d096a" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a3cf32f0e11436d76747a18222f18e4fa" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a927bd5aa11cd56706046164da9494b58" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>guid</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a2bd162e2835a510e9c32ab214c458af4" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>interface</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a8ed3e82ae73b34aa2d729aba2cd8140c" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>local_memory_size</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a41d099cbad8556f3de7f9ff8cf3f092e" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>model</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1ac9e35b67fef37b1d0ab8c6d17549a35c" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>none</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a5913b325cac373affa91ed5d9196ad41" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>num_errors</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a07f7a33e0efdc84d39c9ffc5d6374c72" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>num_interrupts</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a64fabfeaa7795cef364ca444a6535ed8" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>num_mmio</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a42d618739d9d8d00873457a6af5b8613" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>num_slots</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1af001f70fa59cd5c49cf28af50e2d2d5f" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>object_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1ac5a3a372377aea865cbb8345d737127d" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>operator fpga_properties</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a6f3cb44a161ed02f4a9916d32851192b" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>operator=</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a800b2f5a7f12753741e542165a255eca" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>parent</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1aac8f376e4bc640a71ff628f536a10584" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>properties</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a7c81729de274502f8c5f7e1001060ebb" prot="private" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>properties</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1abc025fb8c6b491807571899f5841e0f8" prot="private" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>props_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a00a34265b465af961adedd706615f348" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a0a3dfe2e229074b9c2b895d2712d4fc0" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>segment</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a7e727ae54ad257953cd2b0e570c452a1" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>socket_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a7a2df1b361f7f8ab5c0c2443631f6b30" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>subsystem_device_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a33f8fa0fd03531574fbd0f13e06b02ba" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>subsystem_vendor_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1a63f080b4941991367ba9900af2e6a0b4" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1aa263ac16432be869fc6070209476a0fd" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>vendor_id</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1properties_1ab2c64365c493b7b08ff9207bb128ebbe" prot="public" virt="non-virtual"><scope>opae::fpga::types::properties</scope><name>~properties</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

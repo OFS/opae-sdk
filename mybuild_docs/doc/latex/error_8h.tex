@@ -1,0 +1,109 @@
+\doxysection{include/opae/error.h File Reference}
+\label{error_8h}\index{include/opae/error.h@{include/opae/error.h}}
+
+
+Functions for reading and clearing errors in resources.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{error_8h_a4c79f1152fc283dc1afaceca37f57352}{fpga\+Read\+Error}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, uint32\+\_\+t error\+\_\+num, uint64\+\_\+t $\ast$value)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{error_8h_aef9338fcc0cceb8ca40925bf13163d14}{fpga\+Clear\+Error}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, uint32\+\_\+t error\+\_\+num)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{error_8h_a0cfcecd4e2e79f296ad51fa37e4bf6cf}{fpga\+Clear\+All\+Errors}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{error_8h_a4c0197e1ceff1d6fa15e319396fa3e43}{fpga\+Get\+Error\+Info}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, uint32\+\_\+t error\+\_\+num, struct \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} $\ast$error\+\_\+info)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions for reading and clearing errors in resources. 
+
+Many FPGA resources have the ability to track the occurrence of errors. This file provides functions to retrieve information about errors within resources. 
+
+\doxysubsection{Function Documentation}
+\mbox{\label{error_8h_a4c79f1152fc283dc1afaceca37f57352}} 
+\index{error.h@{error.h}!fpgaReadError@{fpgaReadError}}
+\index{fpgaReadError@{fpgaReadError}!error.h@{error.h}}
+\doxysubsubsection{\texorpdfstring{fpgaReadError()}{fpgaReadError()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Read\+Error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{uint32\+\_\+t}]{error\+\_\+num,  }\item[{uint64\+\_\+t $\ast$}]{value }\end{DoxyParamCaption})}
+
+Read error value
+
+This function will read the value of error register {\ttfamily error\+\_\+num} of the resource referenced by {\ttfamily token} into the memory location pointed to by {\ttfamily value}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token to accelerator resource to query \\
+\hline
+\mbox{\texttt{ in}}  & {\em error\+\_\+num} & Number of error register to read \\
+\hline
+\mbox{\texttt{ out}}  & {\em value} & Pointer to memory to store error value into (64 bit) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the token. 
+\end{DoxyReturn}
+\mbox{\label{error_8h_aef9338fcc0cceb8ca40925bf13163d14}} 
+\index{error.h@{error.h}!fpgaClearError@{fpgaClearError}}
+\index{fpgaClearError@{fpgaClearError}!error.h@{error.h}}
+\doxysubsubsection{\texorpdfstring{fpgaClearError()}{fpgaClearError()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Clear\+Error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{uint32\+\_\+t}]{error\+\_\+num }\end{DoxyParamCaption})}
+
+Clear error register
+
+This function will clear the error register {\ttfamily error\+\_\+num} of the resource referenced by {\ttfamily token}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token to accelerator resource to query \\
+\hline
+\mbox{\texttt{ in}}  & {\em error\+\_\+num} & Number of error register to clear \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the token, and FPGA\+\_\+\+BUSY if error could not be cleared. 
+\end{DoxyReturn}
+\mbox{\label{error_8h_a0cfcecd4e2e79f296ad51fa37e4bf6cf}} 
+\index{error.h@{error.h}!fpgaClearAllErrors@{fpgaClearAllErrors}}
+\index{fpgaClearAllErrors@{fpgaClearAllErrors}!error.h@{error.h}}
+\doxysubsubsection{\texorpdfstring{fpgaClearAllErrors()}{fpgaClearAllErrors()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Clear\+All\+Errors (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token }\end{DoxyParamCaption})}
+
+Clear all error registers of a particular resource
+
+This function will clear all error registers of the resource referenced by {\ttfamily token}, observing the necessary order of clearing errors, if any.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token to accelerator resource to query \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the token, and FPGA\+\_\+\+BUSY if error could not be cleared. 
+\end{DoxyReturn}
+\mbox{\label{error_8h_a4c0197e1ceff1d6fa15e319396fa3e43}} 
+\index{error.h@{error.h}!fpgaGetErrorInfo@{fpgaGetErrorInfo}}
+\index{fpgaGetErrorInfo@{fpgaGetErrorInfo}!error.h@{error.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetErrorInfo()}{fpgaGetErrorInfo()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Error\+Info (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{uint32\+\_\+t}]{error\+\_\+num,  }\item[{struct \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}} $\ast$}]{error\+\_\+info }\end{DoxyParamCaption})}
+
+Get information about a particular error register
+
+This function will populate a {\ttfamily \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}}} struct with information about error number {\ttfamily error\+\_\+num} of the resource referenced by {\ttfamily token}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token to accelerator resource to query \\
+\hline
+\mbox{\texttt{ in}}  & {\em error\+\_\+num} & Error register to retrieve information about \\
+\hline
+\mbox{\texttt{ out}}  & {\em error\+\_\+info} & Pointer to memory to store information into \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the token. 
+\end{DoxyReturn}

@@ -1,0 +1,402 @@
+\doxysection{opae\+::fpga\+::types\+::handle Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1handle}\index{opae::fpga::types::handle@{opae::fpga::types::handle}}
+
+
+{\ttfamily \#include $<$opae/cxx/core/handle.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a3e1f8ea9be017afa8aec56b463bd431d}{handle}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} \&)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} \& \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a80ced96b872b76d5ee29be562e2fe442}{operator=}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} \&)=delete
+\item 
+virtual \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_abceb3d49e1d506aafe5ba6139cdf5d76}{$\sim$handle}} ()
+\item 
+\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_af2581332aaa1b9e0d915e85be86bd8bd}{c\+\_\+type}} () const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a4c5a8da253bca8153e4049b3b41073dc}{operator fpga\+\_\+handle}} () const
+\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_aa9681f30803220ff3731e8346f1ec50c}{reconfigure}} (uint32\+\_\+t slot, const uint8\+\_\+t $\ast$bitstream, size\+\_\+t size, int flags)
+\begin{DoxyCompactList}\small\item\em Load a bitstream into an FPGA slot. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_aec8ba1c8e34ba72d15cf0cb55aad5682}{read\+\_\+csr32}} (uint64\+\_\+t offset, uint32\+\_\+t csr\+\_\+space=0) const
+\begin{DoxyCompactList}\small\item\em Read 32 bits from a CSR belonging to a resource associated with a handle. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_ae943bcd838bba6589c1148e4921b052e}{write\+\_\+csr32}} (uint64\+\_\+t offset, uint32\+\_\+t value, uint32\+\_\+t csr\+\_\+space=0)
+\begin{DoxyCompactList}\small\item\em Write 32 bit to a CSR belonging to a resource associated with a handle. \end{DoxyCompactList}\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a22d74175e9b8989ca6df82d2d03a86f8}{read\+\_\+csr64}} (uint64\+\_\+t offset, uint32\+\_\+t csr\+\_\+space=0) const
+\begin{DoxyCompactList}\small\item\em Read 64 bits from a CSR belonging to a resource associated with a handle. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a5d47d9c51ebccd91fcc97b137cdfc4a0}{write\+\_\+csr64}} (uint64\+\_\+t offset, uint64\+\_\+t value, uint32\+\_\+t csr\+\_\+space=0)
+\begin{DoxyCompactList}\small\item\em Write 64 bits to a CSR belonging to a resource associated with a handle. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a8f56dc33d92a7dfcbe9afe29afc96656}{write\+\_\+csr512}} (uint64\+\_\+t offset, const void $\ast$value, uint32\+\_\+t csr\+\_\+space=0)
+\begin{DoxyCompactList}\small\item\em Write 512 bits to a CSR belonging to a resource associated with a handle. \end{DoxyCompactList}\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_ae8fd2777f41adc8ed370153e5cefe2ab}{mmio\+\_\+ptr}} (uint64\+\_\+t offset, uint32\+\_\+t csr\+\_\+space=0) const
+\item 
+virtual void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a84150dd292ec5d7d964cc5d46767f6a1}{reset}} ()
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a479044bb60b23c1626aa9d40d8a9c337}{close}} ()
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a0f4fd7f1aa67d46d548e9df2d31fc965}{get\+\_\+token}} () const
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_abbb11abca903c9a8395191c80cbbac46}{bind\+\_\+sva}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a90fe7bbbdd9bb0c1e02d2cb4449da42c}{open}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token}{token}}, int flags)
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a8aa65702ffc38aa93d141f9cbd3c1cf0}{open}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token}{token}}, int flags)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_ac9d2ff15b3db9080aa32a48ae24a9a93}{handle}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} h)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a8ff3920d72109b9be18195550a4ade6c}{handle\+\_\+}}
+\item 
+\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a3f062ef9354f3dedfd2951e1c6722093}{token\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_aeb907ff1d5395de8b2e7183f52a91a96}{pasid\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+An allocated accelerator resource
+
+Represents an accelerator resource that has been allocated by OPAE. Depending on the type of resource, its register space may be read/written using a handle object. 
+
+Definition at line 45 of file handle.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}}$>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{opae\+::fpga\+::types\+::handle\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 47 of file handle.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a3e1f8ea9be017afa8aec56b463bd431d}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!handle@{handle}}
+\index{handle@{handle}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{handle()}{handle()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::handle\+::handle (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_abceb3d49e1d506aafe5ba6139cdf5d76}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!````~handle@{$\sim$handle}}
+\index{````~handle@{$\sim$handle}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{$\sim$handle()}{~handle()}}
+{\footnotesize\ttfamily virtual opae\+::fpga\+::types\+::handle\+::$\sim$handle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_ac9d2ff15b3db9080aa32a48ae24a9a93}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!handle@{handle}}
+\index{handle@{handle}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{handle()}{handle()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::handle\+::handle (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a80ced96b872b76d5ee29be562e2fe442}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}}\& opae\+::fpga\+::types\+::handle\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_af2581332aaa1b9e0d915e85be86bd8bd}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!c\_type@{c\_type}}
+\index{c\_type@{c\_type}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{c\_type()}{c\_type()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} opae\+::fpga\+::types\+::handle\+::c\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the underlying OPAE handle. 
+
+Definition at line 56 of file handle.\+h.
+
+
+
+References handle\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a4c5a8da253bca8153e4049b3b41073dc}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!operator fpga\_handle@{operator fpga\_handle}}
+\index{operator fpga\_handle@{operator fpga\_handle}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{operator fpga\_handle()}{operator fpga\_handle()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::handle\+::operator \mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the underlying OPAE handle. 
+
+Definition at line 60 of file handle.\+h.
+
+
+
+References handle\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_aa9681f30803220ff3731e8346f1ec50c}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!reconfigure@{reconfigure}}
+\index{reconfigure@{reconfigure}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{reconfigure()}{reconfigure()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::handle\+::reconfigure (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{slot,  }\item[{const uint8\+\_\+t $\ast$}]{bitstream,  }\item[{size\+\_\+t}]{size,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Load a bitstream into an FPGA slot. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em slot} & The slot number to program \\
+\hline
+{\em bitstream} & The bitstream binary data \\
+\hline
+{\em size} & The size of the bitstream \\
+\hline
+{\em flags} & Flags that control behavior of reconfiguration. Value of 0 indicates no flags. FPGA\+\_\+\+RECONF\+\_\+\+FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1invalid__param}{invalid\+\_\+param}}} & if the handle is not an FPGA device handle or if the other parameters are not valid. \\
+\hline
+{\em exception} & if an internal error is encountered. \\
+\hline
+{\em busy} & if the accelerator for the given slot is in use. \\
+\hline
+{\em \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1reconf__error}{reconf\+\_\+error}}} & if errors are reported by the driver (CRC or protocol errors). \\
+\hline
+\end{DoxyExceptions}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_aec8ba1c8e34ba72d15cf0cb55aad5682}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!read\_csr32@{read\_csr32}}
+\index{read\_csr32@{read\_csr32}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{read\_csr32()}{read\_csr32()}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::fpga\+::types\+::handle\+::read\+\_\+csr32 (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{csr\+\_\+space = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+
+Read 32 bits from a CSR belonging to a resource associated with a handle. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The register offset \\
+\hline
+\mbox{\texttt{ in}}  & {\em csr\+\_\+space} & The CSR space to read from. Default is 0.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 32-\/bit value read from the CSR 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_ae943bcd838bba6589c1148e4921b052e}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!write\_csr32@{write\_csr32}}
+\index{write\_csr32@{write\_csr32}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{write\_csr32()}{write\_csr32()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::handle\+::write\+\_\+csr32 (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{value,  }\item[{uint32\+\_\+t}]{csr\+\_\+space = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Write 32 bit to a CSR belonging to a resource associated with a handle. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The register offset. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & The 32-\/bit value to write to the register. \\
+\hline
+\mbox{\texttt{ in}}  & {\em csr\+\_\+space} & The CSR space to read from. Default is 0. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a22d74175e9b8989ca6df82d2d03a86f8}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!read\_csr64@{read\_csr64}}
+\index{read\_csr64@{read\_csr64}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{read\_csr64()}{read\_csr64()}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::handle\+::read\+\_\+csr64 (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{csr\+\_\+space = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+
+Read 64 bits from a CSR belonging to a resource associated with a handle. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The register offset \\
+\hline
+\mbox{\texttt{ in}}  & {\em csr\+\_\+space} & The CSR space to read from. Default is 0.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 64-\/bit value read from the CSR 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a5d47d9c51ebccd91fcc97b137cdfc4a0}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!write\_csr64@{write\_csr64}}
+\index{write\_csr64@{write\_csr64}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{write\_csr64()}{write\_csr64()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::handle\+::write\+\_\+csr64 (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{offset,  }\item[{uint64\+\_\+t}]{value,  }\item[{uint32\+\_\+t}]{csr\+\_\+space = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Write 64 bits to a CSR belonging to a resource associated with a handle. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The register offset. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & The 64-\/bit value to write to the register. \\
+\hline
+\mbox{\texttt{ in}}  & {\em csr\+\_\+space} & The CSR space to read from. Default is 0. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a8f56dc33d92a7dfcbe9afe29afc96656}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!write\_csr512@{write\_csr512}}
+\index{write\_csr512@{write\_csr512}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{write\_csr512()}{write\_csr512()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::handle\+::write\+\_\+csr512 (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{offset,  }\item[{const void $\ast$}]{value,  }\item[{uint32\+\_\+t}]{csr\+\_\+space = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Write 512 bits to a CSR belonging to a resource associated with a handle. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The register offset. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & Pointer to the 512-\/bit value to write to the register. \\
+\hline
+\mbox{\texttt{ in}}  & {\em csr\+\_\+space} & The CSR space to read from. Default is 0. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_ae8fd2777f41adc8ed370153e5cefe2ab}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!mmio\_ptr@{mmio\_ptr}}
+\index{mmio\_ptr@{mmio\_ptr}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{mmio\_ptr()}{mmio\_ptr()}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::fpga\+::types\+::handle\+::mmio\+\_\+ptr (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{csr\+\_\+space = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+Retrieve a pointer to the MMIO region. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The byte offset to add to MMIO base. \\
+\hline
+\mbox{\texttt{ in}}  & {\em csr\+\_\+space} & The desired CSR space. Default is 0. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+MMIO base + offset 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a90fe7bbbdd9bb0c1e02d2cb4449da42c}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!open@{open}}
+\index{open@{open}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{open()}{open()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::handle\+::open (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{int}]{flags }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Open an accelerator resource, given a raw fpga\+\_\+token
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & A token describing the accelerator resource to be allocated.\\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & The flags parameter to \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to the mmio base + offset for the given csr space 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a8aa65702ffc38aa93d141f9cbd3c1cf0}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!open@{open}}
+\index{open@{open}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{open()}{open()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::handle\+::open (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}}}]{token,  }\item[{int}]{flags }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Open an accelerator resource, given a token object
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & A token object describing the accelerator resource to be allocated.\\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & The flags parameter to \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+shared ptr to a handle object 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a84150dd292ec5d7d964cc5d46767f6a1}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!reset@{reset}}
+\index{reset@{reset}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{reset()}{reset()}}
+{\footnotesize\ttfamily virtual void opae\+::fpga\+::types\+::handle\+::reset (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Reset the accelerator identified by this handle \mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a479044bb60b23c1626aa9d40d8a9c337}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!close@{close}}
+\index{close@{close}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{close()}{close()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+::fpga\+::types\+::handle\+::close (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Close an accelerator resource (if opened)
+
+\begin{DoxyReturn}{Returns}
+fpga\+\_\+result indication the result of closing the handle or FPGA\+\_\+\+EXCEPTION if handle is not opened
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This is available for explicitly closing a handle. The destructor for handle will call close. 
+\end{DoxyNote}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a0f4fd7f1aa67d46d548e9df2d31fc965}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!get\_token@{get\_token}}
+\index{get\_token@{get\_token}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{get\_token()}{get\_token()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::handle\+::get\+\_\+token (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+Retrieve the token corresponding to this handle object. \mbox{\label{classopae_1_1fpga_1_1types_1_1handle_abbb11abca903c9a8395191c80cbbac46}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!bind\_sva@{bind\_sva}}
+\index{bind\_sva@{bind\_sva}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{bind\_sva()}{bind\_sva()}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::fpga\+::types\+::handle\+::bind\+\_\+sva (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Bind IOMMU shared virtual addressing
+
+\begin{DoxyReturn}{Returns}
+the non-\/zero process address space ID on success or zero on failure. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a8ff3920d72109b9be18195550a4ade6c}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!handle\_@{handle\_}}
+\index{handle\_@{handle\_}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{handle\_}{handle\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} opae\+::fpga\+::types\+::handle\+::handle\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 199 of file handle.\+h.
+
+
+
+Referenced by c\+\_\+type(), and operator fpga\+\_\+handle().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_a3f062ef9354f3dedfd2951e1c6722093}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!token\_@{token\_}}
+\index{token\_@{token\_}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{token\_}{token\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} opae\+::fpga\+::types\+::handle\+::token\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 200 of file handle.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1handle_aeb907ff1d5395de8b2e7183f52a91a96}} 
+\index{opae::fpga::types::handle@{opae::fpga::types::handle}!pasid\_@{pasid\_}}
+\index{pasid\_@{pasid\_}!opae::fpga::types::handle@{opae::fpga::types::handle}}
+\doxysubsubsection{\texorpdfstring{pasid\_}{pasid\_}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::fpga\+::types\+::handle\+::pasid\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 201 of file handle.\+h.
+

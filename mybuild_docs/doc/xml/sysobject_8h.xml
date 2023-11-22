@@ -1,0 +1,741 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="sysobject_8h" kind="file" language="C++">
+    <compoundname>sysobject.h</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+    <includedby refid="fpga_8h" local="no">include/opae/fpga.h</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>include/opae/sysobject.h</label>
+        <link refid="sysobject_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="7">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="6">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="1">
+        <label>include/opae/sysobject.h</label>
+        <link refid="sysobject_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="2">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sysobject_8h_1aabea869646f2a612efc878e35d25c352" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaTokenGetObject</definition>
+        <argsstring>(fpga_token token, const char *name, fpga_object *object, int flags)</argsstring>
+        <name>fpgaTokenGetObject</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref> *</type>
+          <declname>object</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Create an <computeroutput>fpga_object</computeroutput> data structures. An <computeroutput>fpga_object</computeroutput> is a handle to an FPGA resource which can be an attribute, register or a container. This object is read-only. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Token identifying a resource (accelerator or device) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A key identifying an object belonging to a resource. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">object</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory to store the object in </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API.</para>
+</simplesect>
+<simplesect kind="note"><para>Names that begin with &apos;.&apos; or &apos;/&apos; or contain &apos;..&apos; are not allowed and result in FPGA_INVALID_PARAM being returned </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="66" column="13" declfile="include/opae/sysobject.h" declline="66" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" compoundref="object__api_8c" startline="141" endline="150">add_clock</referencedby>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a80ccae112e76764fe9aa258b06a2672e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaHandleGetObject</definition>
+        <argsstring>(fpga_handle handle, const char *name, fpga_object *object, int flags)</argsstring>
+        <name>fpgaHandleGetObject</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref> *</type>
+          <declname>object</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Create an <computeroutput>fpga_object</computeroutput> data structure from a handle. An <computeroutput>fpga_object</computeroutput> is a handle to an FPGA resource which can be an attribute, register, or container. This object has read/write access.. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle identifying a resource (accelerator or device) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A key identifying an object belonging to a resource. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">object</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory to store the object in </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control behavior of object identification and creation FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API.</para>
+</simplesect>
+<simplesect kind="note"><para>Names that begin with &apos;.&apos; or &apos;/&apos; or contain &apos;..&apos; are not allowed and result in FPGA_INVALID_PARAM being returned </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="93" column="13" declfile="include/opae/sysobject.h" declline="93" declcolumn="13"/>
+        <referencedby refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" compoundref="hello__events_8c" startline="92" endline="125">inject_ras_fatal_error</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a9854745736c2bd3dc41fbbb3de873ccd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectGetObject</definition>
+        <argsstring>(fpga_object parent, const char *name, fpga_object *object, int flags)</argsstring>
+        <name>fpgaObjectGetObject</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref> *</type>
+          <declname>object</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Create an <computeroutput>fpga_object</computeroutput> data structure from a parent object. An <computeroutput>fpga_object</computeroutput> is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-write access to the object data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A parent container <computeroutput>fpga_object</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A key identifying a sub-object of the parent container. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">object</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory to store the object in. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid - this includes a parent object that is not a container object. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API.</para>
+</simplesect>
+<simplesect kind="note"><para>Names that begin with &apos;.&apos; or &apos;/&apos; or contain &apos;..&apos; are not allowed and result in FPGA_INVALID_PARAM being returned </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="123" column="13" declfile="include/opae/sysobject.h" declline="123" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a9f166aaada5bae7a80472c3a016f01d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectGetObjectAt</definition>
+        <argsstring>(fpga_object parent, size_t idx, fpga_object *object)</argsstring>
+        <name>fpgaObjectGetObjectAt</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref> *</type>
+          <declname>object</declname>
+        </param>
+        <briefdescription>
+<para>Create an <computeroutput>fpga_object</computeroutput> data structure from a parent object using a given index. An <computeroutput>fpga_object</computeroutput> is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-write access to the object data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A parent container &apos;fpga_object&apos; </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A positive index less than the size reported by the parent. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">object</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory to store the object in.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid - this includes a parent object that is not a container object. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="143" column="13" declfile="include/opae/sysobject.h" declline="143" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a77103f7bd53c12b56e47922aea36dbf0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectGetType</definition>
+        <argsstring>(fpga_object obj, enum fpga_sysobject_type *type)</argsstring>
+        <name>fpgaObjectGetType</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>obj</declname>
+        </param>
+        <param>
+          <type>enum <ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" kindref="member">fpga_sysobject_type</ref> *</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Get the sysobject type (container or attribute) </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An fpga_object instance </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of object (FPGA_OBJECT_CONTAINER or FPGA_OBJECT_ATTRIBUTE)</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters are null or invalid </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="155" column="13" declfile="include/opae/sysobject.h" declline="155" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaDestroyObject</definition>
+        <argsstring>(fpga_object *obj)</argsstring>
+        <name>fpgaDestroyObject</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref> *</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+<para>Free memory used for the fpga_object data structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para><ref refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" kindref="member">fpgaDestroyObject()</ref> requires the address of an fpga_object as created by <ref refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352" kindref="member">fpgaTokenGetObject()</ref>, <ref refid="sysobject_8h_1a80ccae112e76764fe9aa258b06a2672e" kindref="member">fpgaHandleGetObject()</ref>, or <ref refid="sysobject_8h_1a9854745736c2bd3dc41fbbb3de873ccd" kindref="member">fpgaObjectGetObject()</ref>. Passing any other value results in undefind behavior.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the fpga_object instance to destroy</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if the object is NULL, FPGA_EXCEPTION if an internal error is encountered. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="170" column="13" declfile="include/opae/sysobject.h" declline="170" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" compoundref="object__api_8c" startline="141" endline="150">add_clock</referencedby>
+        <referencedby refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</referencedby>
+        <referencedby refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" compoundref="hello__events_8c" startline="92" endline="125">inject_ras_fatal_error</referencedby>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a29a136634ad8f8b741ae00a52bca5dd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectGetSize</definition>
+        <argsstring>(fpga_object obj, uint32_t *value, int flags)</argsstring>
+        <name>fpgaObjectGetSize</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>obj</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve the size of the object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An fpga_object instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to variable to store size in. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the size.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success. FPGA_INVALID_PARAM if any of supplied parameters is invalid. FPGA_EXCEPTION if error occurred. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="184" column="13" declfile="include/opae/sysobject.h" declline="184" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a7ccef34c42dbddc7cd534aa598767d08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectRead</definition>
+        <argsstring>(fpga_object obj, uint8_t *buffer, size_t offset, size_t len, int flags)</argsstring>
+        <name>fpgaObjectRead</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>obj</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Read bytes from an FPGA object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An fpga_object instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a buffer to read bytes into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset relative to objects internal buffer where to begin reading bytes from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length, in bytes, to read from the object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="201" column="13" declfile="include/opae/sysobject.h" declline="201" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a03de9a8f3a530abc6918c5c6682d92cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectRead64</definition>
+        <argsstring>(fpga_object obj, uint64_t *value, int flags)</argsstring>
+        <name>fpgaObjectRead64</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>obj</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Read a 64-bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An fpga_object instance </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a 64-bit variable to store the value in </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data. If FPGA_OBJECT_RAW is used, then the data will be read as raw bytes into the uint64_t pointer variable.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="219" column="13" declfile="include/opae/sysobject.h" declline="219" declcolumn="13"/>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="sysobject_8h_1a6dbc79fd4660f2fc576e8b7eb64d27fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result fpgaObjectWrite64</definition>
+        <argsstring>(fpga_object obj, uint64_t value, int flags)</argsstring>
+        <name>fpgaObjectWrite64</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>obj</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Write 64-bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An fpga_object instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value to write to the object </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how the object is written If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid</para>
+</simplesect>
+<simplesect kind="note"><para>The object must have been created using a handle to a resource. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/sysobject.h" line="236" column="13" declfile="include/opae/sysobject.h" declline="236" declcolumn="13"/>
+        <referencedby refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" compoundref="hello__events_8c" startline="92" endline="125">inject_ras_fatal_error</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functions to read/write from system objects. On Linux systems with the OPAE kernel driver, this is used to access sysfs nodes created by the driver. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2017-2018,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_SYSOBJECT_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_SYSOBJECT_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types_8h" kindref="compound">opae/types.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352" kindref="member">fpgaTokenGetObject</ref>(<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>token,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>*</highlight><highlight class="keywordtype">object</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="sysobject_8h_1a80ccae112e76764fe9aa258b06a2672e" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a80ccae112e76764fe9aa258b06a2672e" kindref="member">fpgaHandleGetObject</ref>(<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/>handle,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>*</highlight><highlight class="keywordtype">object</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="sysobject_8h_1a9854745736c2bd3dc41fbbb3de873ccd" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a9854745736c2bd3dc41fbbb3de873ccd" kindref="member">fpgaObjectGetObject</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>parent,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>*</highlight><highlight class="keywordtype">object</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="sysobject_8h_1a9f166aaada5bae7a80472c3a016f01d1" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a9f166aaada5bae7a80472c3a016f01d1" kindref="member">fpgaObjectGetObjectAt</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>parent,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>*</highlight><highlight class="keywordtype">object</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="155" refid="sysobject_8h_1a77103f7bd53c12b56e47922aea36dbf0" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a77103f7bd53c12b56e47922aea36dbf0" kindref="member">fpgaObjectGetType</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>obj,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" kindref="member">fpga_sysobject_type</ref><sp/>*type);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" kindref="member">fpgaDestroyObject</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>*obj);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184" refid="sysobject_8h_1a29a136634ad8f8b741ae00a52bca5dd4" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a29a136634ad8f8b741ae00a52bca5dd4" kindref="member">fpgaObjectGetSize</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>obj,<sp/>uint32_t<sp/>*value,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="sysobject_8h_1a7ccef34c42dbddc7cd534aa598767d08" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a7ccef34c42dbddc7cd534aa598767d08" kindref="member">fpgaObjectRead</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>obj,<sp/>uint8_t<sp/>*buffer,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset,</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219" refid="sysobject_8h_1a03de9a8f3a530abc6918c5c6682d92cc" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a03de9a8f3a530abc6918c5c6682d92cc" kindref="member">fpgaObjectRead64</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>obj,<sp/>uint64_t<sp/>*value,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236" refid="sysobject_8h_1a6dbc79fd4660f2fc576e8b7eb64d27fd" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="sysobject_8h_1a6dbc79fd4660f2fc576e8b7eb64d27fd" kindref="member">fpgaObjectWrite64</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>obj,<sp/>uint64_t<sp/>value,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>!__FPGA_SYSOBJECT_H__<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/sysobject.h"/>
+  </compounddef>
+</doxygen>

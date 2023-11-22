@@ -1,0 +1,626 @@
+\doxysection{samples/host\+\_\+exerciser/host\+\_\+exerciser.h File Reference}
+\label{host__exerciser_8h}\index{samples/host\_exerciser/host\_exerciser.h@{samples/host\_exerciser/host\_exerciser.h}}
+{\ttfamily \#include $<$opae/cxx/core/events.\+h$>$}\newline
+{\ttfamily \#include $<$opae/cxx/core/shared\+\_\+buffer.\+h$>$}\newline
+{\ttfamily \#include $<$opae/cxx/core/token.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}afu\+\_\+test.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__dfh}{host\+\_\+exerciser\+::he\+\_\+dfh}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__dsm__basel}{host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+basel}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__dsm__baseh}{host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+baseh}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__num__lines}{host\+\_\+exerciser\+::he\+\_\+num\+\_\+lines}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__ctl}{host\+\_\+exerciser\+::he\+\_\+ctl}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__cfg}{host\+\_\+exerciser\+::he\+\_\+cfg}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__inact__thresh}{host\+\_\+exerciser\+::he\+\_\+inact\+\_\+thresh}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__interrupt0}{host\+\_\+exerciser\+::he\+\_\+interrupt0}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__swtest__msg}{host\+\_\+exerciser\+::he\+\_\+swtest\+\_\+msg}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__status0}{host\+\_\+exerciser\+::he\+\_\+status0}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__status1}{host\+\_\+exerciser\+::he\+\_\+status1}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__error}{host\+\_\+exerciser\+::he\+\_\+error}}
+\item 
+union \mbox{\hyperlink{unionhost__exerciser_1_1he__stride}{host\+\_\+exerciser\+::he\+\_\+stride}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status}}
+\item 
+struct \mbox{\hyperlink{structhost__exerciser_1_1MapKeyComparator}{host\+\_\+exerciser\+::\+Map\+Key\+Comparator}}
+\item 
+class \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser}{host\+\_\+exerciser\+::host\+\_\+exerciser}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dfh_8____unnamed94____}{host\+\_\+exerciser\+::he\+\_\+dfh.\+\_\+\+\_\+unnamed94\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__ctl_8____unnamed106____}{host\+\_\+exerciser\+::he\+\_\+ctl.\+\_\+\+\_\+unnamed106\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__basel_8____unnamed97____}{host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+basel.\+\_\+\+\_\+unnamed97\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__baseh_8____unnamed100____}{host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+baseh.\+\_\+\+\_\+unnamed100\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__num__lines_8____unnamed103____}{host\+\_\+exerciser\+::he\+\_\+num\+\_\+lines.\+\_\+\+\_\+unnamed103\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__cfg_8____unnamed109____}{host\+\_\+exerciser\+::he\+\_\+cfg.\+\_\+\+\_\+unnamed109\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__inact__thresh_8____unnamed112____}{host\+\_\+exerciser\+::he\+\_\+inact\+\_\+thresh.\+\_\+\+\_\+unnamed112\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__interrupt0_8____unnamed115____}{host\+\_\+exerciser\+::he\+\_\+interrupt0.\+\_\+\+\_\+unnamed115\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__swtest__msg_8____unnamed118____}{host\+\_\+exerciser\+::he\+\_\+swtest\+\_\+msg.\+\_\+\+\_\+unnamed118\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__status0_8____unnamed121____}{host\+\_\+exerciser\+::he\+\_\+status0.\+\_\+\+\_\+unnamed121\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__status1_8____unnamed124____}{host\+\_\+exerciser\+::he\+\_\+status1.\+\_\+\+\_\+unnamed124\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__error_8____unnamed127____}{host\+\_\+exerciser\+::he\+\_\+error.\+\_\+\+\_\+unnamed127\+\_\+\+\_\+}}
+\item 
+struct \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__stride_8____unnamed130____}{host\+\_\+exerciser\+::he\+\_\+stride.\+\_\+\+\_\+unnamed130\+\_\+\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespacehost__exerciser}{host\+\_\+exerciser}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa96f5f9ad616abbff98f88fd8d3749eec}{host\+\_\+exerciser\+::\+HE\+\_\+\+DFH}} = 0x0000
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa994517cdf13de8a08a6fbcebc5d4b7eb}{host\+\_\+exerciser\+::\+HE\+\_\+\+ID\+\_\+L}} = 0x0008
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa89326af32d3ac7eb75a59785c9ff1ee3}{host\+\_\+exerciser\+::\+HE\+\_\+\+ID\+\_\+H}} = 0x0010
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa0547c29b0609234864bd196f04e9e101}{host\+\_\+exerciser\+::\+HE\+\_\+\+DFH\+\_\+\+RSVD0}} = 0x0018
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aaf9a43fa5b1790303e01e463acba370a8}{host\+\_\+exerciser\+::\+HE\+\_\+\+DFH\+\_\+\+RSVD1}} = 0x0020
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa712f6bdeef038f12b2943223e36a3702}{host\+\_\+exerciser\+::\+HE\+\_\+\+SCRATCHPAD0}} = 0x028
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aadacb6d1d03994d938c33005ab3eef726}{host\+\_\+exerciser\+::\+HE\+\_\+\+SCRATCHPAD1}} = 0x0104
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa33453ac7a61a0e1b3ede18bff3cef947}{host\+\_\+exerciser\+::\+HE\+\_\+\+SCRATCHPAD2}} = 0x0108
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa0f0436ad7cb26fd22fbdf4fd3264f309}{host\+\_\+exerciser\+::\+HE\+\_\+\+DSM\+\_\+\+BASEL}} = 0x0110
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa0351bf59f34601c8d81894f0897e6cde}{host\+\_\+exerciser\+::\+HE\+\_\+\+DSM\+\_\+\+BASEH}} = 0x0114
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa7e7c47794d23f20fef4489d3b71c0122}{host\+\_\+exerciser\+::\+HE\+\_\+\+SRC\+\_\+\+ADDR}} = 0x0120
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa14be24d91af1512e70b6ca78c7694101}{host\+\_\+exerciser\+::\+HE\+\_\+\+DST\+\_\+\+ADDR}} = 0x0128
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aab5e8a172abefb6c61695f517de783395}{host\+\_\+exerciser\+::\+HE\+\_\+\+NUM\+\_\+\+LINES}} = 0x0130
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089}{host\+\_\+exerciser\+::\+HE\+\_\+\+CTL}} = 0x038
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aaf48cdfa6534904b034ff9641dab6b34f}{host\+\_\+exerciser\+::\+HE\+\_\+\+CFG}} = 0x0140
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa12797e3cf3c370e7151ec1b257ad82e5}{host\+\_\+exerciser\+::\+HE\+\_\+\+INACT\+\_\+\+THRESH}} = 0x0148
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aaaf7d586e7208f7ea7b598601d02e3d0e}{host\+\_\+exerciser\+::\+HE\+\_\+\+INTERRUPT0}} = 0x0150
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa04279c71f1e9c5a535cfe8515bb52f12}{host\+\_\+exerciser\+::\+HE\+\_\+\+SWTEST\+\_\+\+MSG}} = 0x0158
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa196cabd4f8f2a096cf6312f2c719d409}{host\+\_\+exerciser\+::\+HE\+\_\+\+STATUS0}} = 0x0160
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa5bd3e4e22deae78be590cf3c51949174}{host\+\_\+exerciser\+::\+HE\+\_\+\+STATUS1}} = 0x0168
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aad24b45a44d85621225d9f8215457623f}{host\+\_\+exerciser\+::\+HE\+\_\+\+ERROR}} = 0x0170
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa878952b31118fec2cb65f1f0d039d8f1}{host\+\_\+exerciser\+::\+HE\+\_\+\+STRIDE}} = 0x0178
+, \mbox{\hyperlink{namespacehost__exerciser_afc876826cec1f18e5dd446b0556f409aa2f434e10b654a82eaad847a090e164ef}{host\+\_\+exerciser\+::\+HE\+\_\+\+INFO0}} = 0x0180
+ \}
+\item 
+enum \mbox{\hyperlink{namespacehost__exerciser_af465fb34b1359b3f4f82b8393a21fbca}{host\+\_\+exerciser\+::host\+\_\+exe\+\_\+mode}} \{ \mbox{\hyperlink{namespacehost__exerciser_af465fb34b1359b3f4f82b8393a21fbcaa6631ee58c265dc79c90c5c2b526b9192}{host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+LPBK1}} = 0x0
+, \mbox{\hyperlink{namespacehost__exerciser_af465fb34b1359b3f4f82b8393a21fbcaa1ea63bb1d444f6bed6a46303b90ab7be}{host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+READ}} = 0x1
+, \mbox{\hyperlink{namespacehost__exerciser_af465fb34b1359b3f4f82b8393a21fbcaab65e84c23fdb71a2b385ce3593b78b04}{host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+WRITE}} = 0x2
+, \mbox{\hyperlink{namespacehost__exerciser_af465fb34b1359b3f4f82b8393a21fbcaa7a915772549100ded4d3a36df386fbe3}{host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+TRPUT}} = 0x3
+ \}
+\item 
+enum \mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{host\+\_\+exerciser\+::hostexe\+\_\+req\+\_\+len}} \{ \newline
+\mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0aab7592a31c4b72cf471ea23e0d8367d9}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+1}} = 0x0
+, \mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0ace806856e806e5cc8b9c78b91a328d4c}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+2}} = 0x1
+, \mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0a08cc11d8a56708a49ca49a13932cd698}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+4}} = 0x2
+, \mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0aff641659fe8c6a51abd942fae0ccd2e2}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+8}} = 0x3
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0affdb50fd72b4b6b60d754f421f7f35f7}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+16}} = 0x4
+ \}
+\item 
+enum \mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84}{host\+\_\+exerciser\+::hostexe\+\_\+atomic\+\_\+func}} \{ \newline
+\mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84aca03793e71244ba100cbbb44e4523979}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+OFF}} = 0
+, \mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84a9e355a7bceadb9f9ffb0786d26670926}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+FADD\+\_\+4}} = 0x1
+, \mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84af631fb94c0d4adf7d6f3567d3293c3e4}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+FADD\+\_\+8}} = 0x3
+, \mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84a4e635662561727a4d1f8903658862503}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+SWAP\+\_\+4}} = 0x5
+, \newline
+\mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84a9af1bd83b6aca61b4422036cbef2da34}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+SWAP\+\_\+8}} = 0x7
+, \mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84abb08f60e74724813b14692184afec582}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+CAS\+\_\+4}} = 0x9
+, \mbox{\hyperlink{namespacehost__exerciser_a4e377e3c6ebfeb2a97c78584d8e75c84aafb548060eed16af2fd9c9ad87b09e01}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+CAS\+\_\+8}} = 0xb
+ \}
+\item 
+enum \mbox{\hyperlink{namespacehost__exerciser_ae17003a3398959b9d3f26abdc9c84456}{host\+\_\+exerciser\+::hostexe\+\_\+encoding}} \{ \mbox{\hyperlink{namespacehost__exerciser_ae17003a3398959b9d3f26abdc9c84456a043d79b53e107d6653db3a845fb66556}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ENCODING\+\_\+\+DEFAULT}} = 0x0
+, \mbox{\hyperlink{namespacehost__exerciser_ae17003a3398959b9d3f26abdc9c84456a1d5ec8224b5922cee68164f7e7fbb401}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ENCODING\+\_\+\+DM}} = 0x1
+, \mbox{\hyperlink{namespacehost__exerciser_ae17003a3398959b9d3f26abdc9c84456afff5d203a4ffba51d8d78231ba8c4884}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ENCODING\+\_\+\+PU}} = 0x2
+, \mbox{\hyperlink{namespacehost__exerciser_ae17003a3398959b9d3f26abdc9c84456a05f5799651cb2b0d71bca3615e22802d}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ENCODING\+\_\+\+RANDOM}} = 0x3
+ \}
+\item 
+enum \mbox{\hyperlink{namespacehost__exerciser_abe4c0db8055b8c2abb6cd96f72bc1890}{host\+\_\+exerciser\+::hostexe\+\_\+test\+\_\+mode}} \{ \mbox{\hyperlink{namespacehost__exerciser_abe4c0db8055b8c2abb6cd96f72bc1890a3e8ad9fc752d1b50e0f0725b87c410b7}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+TEST\+\_\+\+ROLLOVER}} = 0x0
+, \mbox{\hyperlink{namespacehost__exerciser_abe4c0db8055b8c2abb6cd96f72bc1890a90f94357ec7daa6c0d2a473deded4a0a}{host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+TEST\+\_\+\+TERMINATION}} = 0x1
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_a4d5f99e45d6527c0a2e376d00329612a}{host\+\_\+exerciser\+::\+HELPBK\+\_\+\+TEST\+\_\+\+TIMEOUT}} = 30000
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_a37f4cd6ba67fd8899f4218bba01b2b96}{host\+\_\+exerciser\+::\+HELPBK\+\_\+\+TEST\+\_\+\+SLEEP\+\_\+\+INVL}} = 100
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_a3c15318d7b073d9b79b270aab66d37a3}{host\+\_\+exerciser\+::\+CL}} = 64
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_a4f74c9687586e00027a417a41a34d05b}{host\+\_\+exerciser\+::\+KB}} = 1024
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_ae3548651828dac1b7e2adec934493f98}{host\+\_\+exerciser\+::\+MB}} = KB $\ast$ 1024
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_aaf2fdab399a1e5df1decd13aaff46648}{host\+\_\+exerciser\+::\+LOG2\+\_\+\+CL}} = 6
+\item 
+static const size\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_afc614c0a041ef93b39806f91153b822f}{host\+\_\+exerciser\+::\+LPBK1\+\_\+\+DSM\+\_\+\+SIZE}} = 2 $\ast$ KB
+\item 
+static const size\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_ab4b46ce5277ad6a137e9d753cc54f7c8}{host\+\_\+exerciser\+::\+LPBK1\+\_\+\+BUFFER\+\_\+\+SIZE}} = 64 $\ast$ KB
+\item 
+static const size\+\_\+t \mbox{\hyperlink{namespacehost__exerciser_a4a48249a14d845c7ad6c2913209cbfe5}{host\+\_\+exerciser\+::\+LPBK1\+\_\+\+BUFFER\+\_\+\+ALLOCATION\+\_\+\+SIZE}} = 64 $\ast$ KB
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t $>$ \mbox{\hyperlink{namespacehost__exerciser_a9dc7a132365a9a2e883166de316d3579}{host\+\_\+exerciser\+::he\+\_\+modes}}
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t, Map\+Key\+Comparator $>$ \mbox{\hyperlink{namespacehost__exerciser_a2ea0bead4a89cf726adea06214201dc3}{host\+\_\+exerciser\+::he\+\_\+req\+\_\+cls\+\_\+len}}
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t $>$ \mbox{\hyperlink{namespacehost__exerciser_a3384e6ab4680f2301d6a9db29c196edf}{host\+\_\+exerciser\+::he\+\_\+req\+\_\+atomic\+\_\+func}}
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t $>$ \mbox{\hyperlink{namespacehost__exerciser_a5e3a5f37a59e69f383e1d72cae05e9f4}{host\+\_\+exerciser\+::he\+\_\+req\+\_\+encoding}}
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t $>$ \mbox{\hyperlink{namespacehost__exerciser_a7891643f1c1433756f12022500d93dff}{host\+\_\+exerciser\+::he\+\_\+test\+\_\+mode}}
+\item 
+const char $\ast$ \mbox{\hyperlink{namespacehost__exerciser_a4ca77ad5a2b9a9762842871600fbf1d8}{host\+\_\+exerciser\+::interleave\+\_\+help}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{host\_exerciser::he\_dsm\_status@{host\_exerciser::he\_dsm\_status}}\label{structhost__exerciser_1_1he__dsm__status}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status}
+
+
+Definition at line 296 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_ab760bd8d5c508a85bc2e8994e2c7edde}} 
+uint64\_t&
+test\_completed: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a260eaaadbf1e06745d95dba4eb729ff2}} 
+uint64\_t&
+dsm\_number: 15&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a82ecba774d0c87a69adaac15275662ab}} 
+uint64\_t&
+res1: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a6bd23b5241622c4a5be147291842cf9e}} 
+uint64\_t&
+err\_vector: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a4bbc5cfeffdb4a66c0a56fd46827eedd}} 
+uint64\_t&
+num\_ticks: 40&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a2765e988474ae1a9ffdbd140f7e5c49b}} 
+uint64\_t&
+res2: 8&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ada5d5d02c713fa2f0b5682eecdb7a02c}} 
+uint64\_t&
+num\_reads\_h: 8&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a7ea350aafb859dcf3c0875eea35ac36c}} 
+uint64\_t&
+num\_writes\_h: 8&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_af0301349c3f7e495c64bbb0210bd595a}} 
+uint64\_t&
+num\_reads\_l: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ac677d9a7dc9bce8b5978864e8c0c7e6c}} 
+uint64\_t&
+num\_writes\_l: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a0815448f7076ec6cdba7242f1c71b3c3}} 
+uint64\_t&
+penalty\_start: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a6fe1e0417476d1f659dce6e605774949}} 
+uint64\_t&
+res3: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a93a3a735a7ff1de123303980281ff6ed}} 
+uint64\_t&
+penalty\_end: 8&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ac762af688b03bc74b851276f63f18c52}} 
+uint64\_t&
+res4: 24&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_adafdaeeae346ed83510195ba039b9a26}} 
+uint64\_t&
+ab\_error\_info: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a5d606261c3fb29410403b6ac1f1b2da0}} 
+uint32\_t&
+res5\mbox{[}7\mbox{]}&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_dfh.\_\_unnamed94\_\_@{host\_exerciser::he\_dfh.\_\_unnamed94\_\_}}\label{structhost__exerciser_1_1he__dfh_8____unnamed94____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+dfh.\+\_\+\+\_\+unnamed94\+\_\+\+\_\+}
+
+
+Definition at line 127 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_ab18ae725c16f7d13bebcf9a10965a91d}} 
+uint16\_t&
+CcipVersionNumber: 12&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a8990d1a04a0288d5610740229a1d710f}} 
+uint8\_t&
+AfuMajVersion: 4&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a717c28589ac515ac0fe0037939fee723}} 
+uint32\_t&
+NextDfhOffset: 24&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_aecd284e164bdc984d109aea9e86e695c}} 
+uint8\_t&
+EOL: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a942d4e37dd5607ab68e54755540d4a47}} 
+uint32\_t&
+Reserved: 19&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ad3abdac08cd922b2c2e5fe50b23ae5b2}} 
+uint8\_t&
+FeatureType: 4&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_ctl.\_\_unnamed106\_\_@{host\_exerciser::he\_ctl.\_\_unnamed106\_\_}}\label{structhost__exerciser_1_1he__ctl_8____unnamed106____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+ctl.\+\_\+\+\_\+unnamed106\+\_\+\+\_\+}
+
+
+Definition at line 179 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_a413c7c71e8225663455de88e7693026f}} 
+uint32\_t&
+ResetL: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_aa6122a65eaa676f700ae68d393054a37}} 
+uint32\_t&
+Start: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_aff7373bf6fefae550cf7a7d7431a3cbc}} 
+uint32\_t&
+ForcedTestCmpl: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a942d4e37dd5607ab68e54755540d4a47}} 
+uint32\_t&
+Reserved: 29&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_dsm\_basel.\_\_unnamed97\_\_@{host\_exerciser::he\_dsm\_basel.\_\_unnamed97\_\_}}\label{structhost__exerciser_1_1he__dsm__basel_8____unnamed97____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+basel.\+\_\+\+\_\+unnamed97\+\_\+\+\_\+}
+
+
+Definition at line 144 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_af2f33fb6529c50716b852abf71f13a5f}} 
+uint32\_t&
+DsmBaseL: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_dsm\_baseh.\_\_unnamed100\_\_@{host\_exerciser::he\_dsm\_baseh.\_\_unnamed100\_\_}}\label{structhost__exerciser_1_1he__dsm__baseh_8____unnamed100____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+baseh.\+\_\+\+\_\+unnamed100\+\_\+\+\_\+}
+
+
+Definition at line 155 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_a6eef0b707a38bf0c17d823d597492914}} 
+uint32\_t&
+DsmBaseH: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_num\_lines.\_\_unnamed103\_\_@{host\_exerciser::he\_num\_lines.\_\_unnamed103\_\_}}\label{structhost__exerciser_1_1he__num__lines_8____unnamed103____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+num\+\_\+lines.\+\_\+\+\_\+unnamed103\+\_\+\+\_\+}
+
+
+Definition at line 166 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_a06566b7faaee6a619ed7f099a7dba3da}} 
+uint32\_t&
+NumCacheLines: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a942d4e37dd5607ab68e54755540d4a47}} 
+uint32\_t&
+Reserved: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_cfg.\_\_unnamed109\_\_@{host\_exerciser::he\_cfg.\_\_unnamed109\_\_}}\label{structhost__exerciser_1_1he__cfg_8____unnamed109____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+cfg.\+\_\+\+\_\+unnamed109\+\_\+\+\_\+}
+
+
+Definition at line 194 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_ab883db097e1612e1b9565a7641ba7aca}} 
+uint64\_t&
+DelayEn: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a535863a82f163709557e59e2eb8139a7}} 
+uint64\_t&
+Continuous: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a41bc18d21cc3fd3011c9cc6eea7093f4}} 
+uint64\_t&
+TestMode: 3&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_af2524811eba11dee000f9ed7bd5b0647}} 
+uint64\_t&
+ReqLen: 2&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ab6307735e860afcd790ab7669b4ba256}} 
+uint64\_t&
+AtomicFunc: 5&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a169a6f6b44766410bffebf76ff3dcf17}} 
+uint64\_t&
+Encoding: 2&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a13fbb3d45a1015e30cef2cefd1461cf7}} 
+uint64\_t&
+Rsvd\_19\_14: 6&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ae0cf447dd4dd6cd774637cabdb3fe8c0}} 
+uint64\_t&
+TputInterleave: 3&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_af6635365e08b7c3bd682123ba84fbf4a}} 
+uint64\_t&
+TestCfg: 5&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a802cc88e98f36ee11d967b0d082f1c65}} 
+uint64\_t&
+IntrOnErr: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a74169b89c0cee2049ba63145b0d48546}} 
+uint64\_t&
+IntrTestMode: 1&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a2ca3e42a1c64ae9a73ef7afbb34f4166}} 
+uint64\_t&
+ReqLen\_High: 2&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_ad91da26f082f88fd9aa246286d3f777a}} 
+uint64\_t&
+Rsvd\_63\_32: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_inact\_thresh.\_\_unnamed112\_\_@{host\_exerciser::he\_inact\_thresh.\_\_unnamed112\_\_}}\label{structhost__exerciser_1_1he__inact__thresh_8____unnamed112____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+inact\+\_\+thresh.\+\_\+\+\_\+unnamed112\+\_\+\+\_\+}
+
+
+Definition at line 217 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_a650faa473558269b0c481ed10514e92c}} 
+uint32\_t&
+InactivtyThreshold: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_interrupt0.\_\_unnamed115\_\_@{host\_exerciser::he\_interrupt0.\_\_unnamed115\_\_}}\label{structhost__exerciser_1_1he__interrupt0_8____unnamed115____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+interrupt0.\+\_\+\+\_\+unnamed115\+\_\+\+\_\+}
+
+
+Definition at line 228 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_afdf27665206a22cc41538cfc67c6fdf6}} 
+uint32\_t&
+apci\_id: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a0e44ca4fccde3904f37bdb81c96e2dbc}} 
+uint32\_t&
+VectorNum: 16&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_swtest\_msg.\_\_unnamed118\_\_@{host\_exerciser::he\_swtest\_msg.\_\_unnamed118\_\_}}\label{structhost__exerciser_1_1he__swtest__msg_8____unnamed118____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+swtest\+\_\+msg.\+\_\+\+\_\+unnamed118\+\_\+\+\_\+}
+
+
+Definition at line 240 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_a85ae47f248bb592cde3612a8e939ce1e}} 
+uint64\_t&
+swtest\_msg: 64&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_status0.\_\_unnamed121\_\_@{host\_exerciser::he\_status0.\_\_unnamed121\_\_}}\label{structhost__exerciser_1_1he__status0_8____unnamed121____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+status0.\+\_\+\+\_\+unnamed121\+\_\+\+\_\+}
+
+
+Definition at line 251 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_affa900c1a78a86a553b0da57273eccad}} 
+uint64\_t&
+numWrites: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a312b0a681be1050d8c6995cbea955190}} 
+uint64\_t&
+numReads: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_status1.\_\_unnamed124\_\_@{host\_exerciser::he\_status1.\_\_unnamed124\_\_}}\label{structhost__exerciser_1_1he__status1_8____unnamed124____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+status1.\+\_\+\+\_\+unnamed124\+\_\+\+\_\+}
+
+
+Definition at line 263 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_af07abd81c5902d8c4f69ede7d940050e}} 
+uint64\_t&
+numPendWrites: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a14ace46a4d47d176dd2b4aaab1eba30a}} 
+uint64\_t&
+numPendReads: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a0f084f1c8d6947d1b2f17b4be231269f}} 
+uint64\_t&
+numPendEmifWrites: 16&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a674275ab90fe378ec580306c9ea1e01d}} 
+uint64\_t&
+numPendEmifReads: 16&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_error.\_\_unnamed127\_\_@{host\_exerciser::he\_error.\_\_unnamed127\_\_}}\label{structhost__exerciser_1_1he__error_8____unnamed127____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+error.\+\_\+\+\_\+unnamed127\+\_\+\+\_\+}
+
+
+Definition at line 278 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_acb5e100e5a9a3e7f6d1fd97512215282}} 
+uint64\_t&
+error: 32&
+\\
+\hline
+
+\mbox{\label{namespacehost__exerciser_a38a176f40705de57c4d586ede54e11d7}} 
+uint64\_t&
+Rsvd: 32&
+\\
+\hline
+
+\end{DoxyFields}
+\index{host\_exerciser::he\_stride.\_\_unnamed130\_\_@{host\_exerciser::he\_stride.\_\_unnamed130\_\_}}\label{structhost__exerciser_1_1he__stride_8____unnamed130____}
+\doxysubsubsection{struct host\+\_\+exerciser\+::he\+\_\+stride.\+\_\+\+\_\+unnamed130\+\_\+\+\_\+}
+
+
+Definition at line 290 of file host\+\_\+exerciser.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{namespacehost__exerciser_a8c7fd568f39aa9b653ac0088c2ecab39}} 
+uint32\_t&
+Stride: 32&
+\\
+\hline
+
+\end{DoxyFields}

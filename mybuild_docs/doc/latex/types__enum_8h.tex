@@ -1,0 +1,445 @@
+\doxysection{include/opae/types\+\_\+enum.h File Reference}
+\label{types__enum_8h}\index{include/opae/types\_enum.h@{include/opae/types\_enum.h}}
+
+
+Definitions of enumerated types for the OPAE C API.  
+
+
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \{ \newline
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327}{FPGA\+\_\+\+OK}} = 0
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9}{FPGA\+\_\+\+INVALID\+\_\+\+PARAM}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da7785c48a8a9ab76b21bcd1627832fdd4}{FPGA\+\_\+\+BUSY}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4}{FPGA\+\_\+\+EXCEPTION}}
+, \newline
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c}{FPGA\+\_\+\+NOT\+\_\+\+FOUND}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da01318ecc0ead885cee673d213bb4eeab}{FPGA\+\_\+\+NO\+\_\+\+MEMORY}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da51eacd9111ef14917f0b958bfeda4f66}{FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da8b18856fa126c4b659346cf5decda0b5}{FPGA\+\_\+\+NO\+\_\+\+DRIVER}}
+, \newline
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6daefcce3ebcef5f12e194f3812b43c7322}{FPGA\+\_\+\+NO\+\_\+\+DAEMON}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da6c7a58c1e0907394fe270a539b104b0e}{FPGA\+\_\+\+NO\+\_\+\+ACCESS}}
+, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da4fe9aead9176152c1e47e600d5415e56}{FPGA\+\_\+\+RECONF\+\_\+\+ERROR}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6}{fpga\+\_\+event\+\_\+type}} \{ \mbox{\hyperlink{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6a4927c38c144629dfd0ac7b798853d18f}{FPGA\+\_\+\+EVENT\+\_\+\+INTERRUPT}} = 0
+, \mbox{\hyperlink{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800}{FPGA\+\_\+\+EVENT\+\_\+\+ERROR}}
+, \mbox{\hyperlink{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6ac5bbf42f4aadeb692ba00bc87d2a1d63}{FPGA\+\_\+\+EVENT\+\_\+\+POWER\+\_\+\+THERMAL}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}} \{ \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbeaa1212584ffe16949e0ed25c04a679786}{FPGA\+\_\+\+ACCELERATOR\+\_\+\+ASSIGNED}} = 0
+, \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbea35c1c5720c92650e289c592abfd5e2b8}{FPGA\+\_\+\+ACCELERATOR\+\_\+\+UNASSIGNED}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}} \{ \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a}{FPGA\+\_\+\+DEVICE}} = 0
+, \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7}{FPGA\+\_\+\+ACCELERATOR}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}} \{ \newline
+\mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cbada6c2b32c7c5e8eba60cebe80b38355c}{FPGA\+\_\+\+IFC\+\_\+\+DFL}} = 0
+, \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cba950d486b953b25fc8729fca05ea10962}{FPGA\+\_\+\+IFC\+\_\+\+VFIO}}
+, \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cba77bd30a60ce179d221303a4577d9ae17}{FPGA\+\_\+\+IFC\+\_\+\+SIM\+\_\+\+DFL}}
+, \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cba6d64205e510545526e3b01ad672293da}{FPGA\+\_\+\+IFC\+\_\+\+SIM\+\_\+\+VFIO}}
+, \newline
+\mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cba47104e3152df9613560b18b507995691}{FPGA\+\_\+\+IFC\+\_\+\+UIO}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5}{fpga\+\_\+buffer\+\_\+flags}} \{ \mbox{\hyperlink{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5a625a9b51ada35d27da1079ff747d04db}{FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED}} = (1u $<$$<$ 0)
+, \mbox{\hyperlink{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5abc99b8f3e50fb4eac1dbbeae4aca7957}{FPGA\+\_\+\+BUF\+\_\+\+QUIET}} = (1u $<$$<$ 1)
+, \mbox{\hyperlink{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5ae69aa057dde55423090ab4f7b9f3c200}{FPGA\+\_\+\+BUF\+\_\+\+READ\+\_\+\+ONLY}} = (1u $<$$<$ 2)
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a3a32599a1213352a3217f6e068651fc6}{fpga\+\_\+open\+\_\+flags}} \{ \mbox{\hyperlink{types__enum_8h_a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c}{FPGA\+\_\+\+OPEN\+\_\+\+SHARED}} = (1u $<$$<$ 0)
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7}{fpga\+\_\+reconf\+\_\+flags}} \{ \mbox{\hyperlink{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7a3eb0a410afacbd5b85d308fc51fc8cd8}{FPGA\+\_\+\+RECONF\+\_\+\+FORCE}} = (1u $<$$<$ 0)
+, \mbox{\hyperlink{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7a4e1616b36eedc9094a04666edcfa36f1}{FPGA\+\_\+\+RECONF\+\_\+\+SKIP\+\_\+\+USRCLK}} = (1u $<$$<$ 1)
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afb}{fpga\+\_\+sysobject\+\_\+flags}} \{ \newline
+\mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231}{FPGA\+\_\+\+OBJECT\+\_\+\+SYNC}} = (1u $<$$<$ 0)
+, \mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425}{FPGA\+\_\+\+OBJECT\+\_\+\+GLOB}} = (1u $<$$<$ 1)
+, \mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afbacfaa8f881c5a8a3dd212e4fb4d070bf4}{FPGA\+\_\+\+OBJECT\+\_\+\+RAW}}
+, \mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afbade8c9f9040403d5e7e08e3aede541844}{FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE}}
+, \newline
+\mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afba33387b602459cddf06b3eeab96eca47b}{FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}{fpga\+\_\+sysobject\+\_\+type}} \{ \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299a9fdf8108c74c6fd8dec16f3c1bd7b46c}{FPGA\+\_\+\+OBJECT\+\_\+\+CONTAINER}}
+, \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299ae05d85061319b15fc4fc8fbcbf6cf12c}{FPGA\+\_\+\+OBJECT\+\_\+\+ATTRIBUTE}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094}{fpga\+\_\+metric\+\_\+type}} \{ \newline
+\mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094a19df4d36912e022021758321d7dfaca1}{FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+POWER}}
+, \mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094a1b615b52e8ec5f4339139567bcabd9d0}{FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+THERMAL}}
+, \mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094a0090631e9c7498fcb11d73aae843d4c0}{FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+PERFORMANCE\+\_\+\+CTR}}
+, \mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094afcaecf93ad13bf9558197c925c87d6c2}{FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+AFU}}
+, \newline
+\mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094aeccc87ae6dc265c54200f71aad44d43b}{FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+UNKNOWN}}
+ \}
+\item 
+enum \mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcc}{fpga\+\_\+metric\+\_\+datatype}} \{ \newline
+\mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca7e4011246e4e6ce4c62cbcd54c6b6446}{FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+INT}}
+, \mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca42b7558a3659d44b5291a68329ac59ba}{FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+FLOAT}}
+, \mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca0ef125e071fb8bb97d89e083055b350a}{FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+DOUBLE}}
+, \mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca42af89cdb2fd1aaf8209950ff080a684}{FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+BOOL}}
+, \newline
+\mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bccad5f469dac4b7a5961008918926f399dc}{FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+UNKNOWN}}
+ \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Definitions of enumerated types for the OPAE C API. 
+
+This file defines return and error codes, event and object types, states, and flags as used or reported by OPAE C API functions. 
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_result@{fpga\_result}}
+\index{fpga\_result@{fpga\_result}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_result}{fpga\_result}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}
+
+OPAE C API function return codes
+
+Every public API function exported by the OPAE C library will return one of these codes. Usually, FPGA\+\_\+\+OK denotes successful completion of the requested operation, while any return code {\itshape other} than FPGA\+\_\+\+OK indicates an error or other deviation from the expected behavior. Users of the OPAE C API should always check the return codes of the APIs they call, and not use output parameters of functions that did not execute successfully.
+
+The \mbox{\hyperlink{utils_8h_a2a3fc0d8baf294d2da980ba544368b32}{fpga\+Err\+Str()}} function converts error codes into printable messages.
+
+OPAE also has a logging mechanism that allows a developer to get more information about why a particular call failed with a specific message. If enabled, any function that returns an error code different from FPGA\+\_\+\+OK will also print out a message with further details. This mechanism can be enabled by setting the environment variable {\ttfamily LIBOPAE\+\_\+\+LOG} to 1 before running the respective application. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OK@{FPGA\_OK}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OK@{FPGA\_OK}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327}} 
+FPGA\+\_\+\+OK&Operation completed successfully \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_INVALID\_PARAM@{FPGA\_INVALID\_PARAM}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_INVALID\_PARAM@{FPGA\_INVALID\_PARAM}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9}} 
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM&Invalid parameter supplied \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_BUSY@{FPGA\_BUSY}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_BUSY@{FPGA\_BUSY}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da7785c48a8a9ab76b21bcd1627832fdd4}} 
+FPGA\+\_\+\+BUSY&Resource is busy \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_EXCEPTION@{FPGA\_EXCEPTION}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_EXCEPTION@{FPGA\_EXCEPTION}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4}} 
+FPGA\+\_\+\+EXCEPTION&An exception occurred \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_NOT\_FOUND@{FPGA\_NOT\_FOUND}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_NOT\_FOUND@{FPGA\_NOT\_FOUND}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c}} 
+FPGA\+\_\+\+NOT\+\_\+\+FOUND&A required resource was not found \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_NO\_MEMORY@{FPGA\_NO\_MEMORY}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_NO\_MEMORY@{FPGA\_NO\_MEMORY}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da01318ecc0ead885cee673d213bb4eeab}} 
+FPGA\+\_\+\+NO\+\_\+\+MEMORY&Not enough memory to complete operation \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_NOT\_SUPPORTED@{FPGA\_NOT\_SUPPORTED}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_NOT\_SUPPORTED@{FPGA\_NOT\_SUPPORTED}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da51eacd9111ef14917f0b958bfeda4f66}} 
+FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED&Requested operation is not supported \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_NO\_DRIVER@{FPGA\_NO\_DRIVER}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_NO\_DRIVER@{FPGA\_NO\_DRIVER}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da8b18856fa126c4b659346cf5decda0b5}} 
+FPGA\+\_\+\+NO\+\_\+\+DRIVER&Driver is not loaded \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_NO\_DAEMON@{FPGA\_NO\_DAEMON}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_NO\_DAEMON@{FPGA\_NO\_DAEMON}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6daefcce3ebcef5f12e194f3812b43c7322}} 
+FPGA\+\_\+\+NO\+\_\+\+DAEMON&FPGA Daemon (fpgad) is not running \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_NO\_ACCESS@{FPGA\_NO\_ACCESS}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_NO\_ACCESS@{FPGA\_NO\_ACCESS}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da6c7a58c1e0907394fe270a539b104b0e}} 
+FPGA\+\_\+\+NO\+\_\+\+ACCESS&Insufficient privileges or permissions \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_RECONF\_ERROR@{FPGA\_RECONF\_ERROR}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_RECONF\_ERROR@{FPGA\_RECONF\_ERROR}}}\mbox{\label{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6da4fe9aead9176152c1e47e600d5415e56}} 
+FPGA\+\_\+\+RECONF\+\_\+\+ERROR&Error while reconfiguring FPGA \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 57 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_event\_type@{fpga\_event\_type}}
+\index{fpga\_event\_type@{fpga\_event\_type}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_event\_type}{fpga\_event\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6}{fpga\+\_\+event\+\_\+type}}}
+
+FPGA events
+
+OPAE currently defines the following event types that applications can register for. Note that not all FPGA resources and target platforms may support all event types. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_EVENT\_INTERRUPT@{FPGA\_EVENT\_INTERRUPT}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_EVENT\_INTERRUPT@{FPGA\_EVENT\_INTERRUPT}}}\mbox{\label{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6a4927c38c144629dfd0ac7b798853d18f}} 
+FPGA\+\_\+\+EVENT\+\_\+\+INTERRUPT&Interrupt generated by an accelerator \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_EVENT\_ERROR@{FPGA\_EVENT\_ERROR}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_EVENT\_ERROR@{FPGA\_EVENT\_ERROR}}}\mbox{\label{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800}} 
+FPGA\+\_\+\+EVENT\+\_\+\+ERROR&Infrastructure error event \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_EVENT\_POWER\_THERMAL@{FPGA\_EVENT\_POWER\_THERMAL}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_EVENT\_POWER\_THERMAL@{FPGA\_EVENT\_POWER\_THERMAL}}}\mbox{\label{types__enum_8h_a6eccf38d4643d14fbc51f34e03131fa6ac5bbf42f4aadeb692ba00bc87d2a1d63}} 
+FPGA\+\_\+\+EVENT\+\_\+\+POWER\+\_\+\+THERMAL&Infrastructure thermal event \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 78 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_accelerator\_state@{fpga\_accelerator\_state}}
+\index{fpga\_accelerator\_state@{fpga\_accelerator\_state}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_accelerator\_state}{fpga\_accelerator\_state}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}}}
+
+accelerator state \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_ACCELERATOR\_ASSIGNED@{FPGA\_ACCELERATOR\_ASSIGNED}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_ACCELERATOR\_ASSIGNED@{FPGA\_ACCELERATOR\_ASSIGNED}}}\mbox{\label{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbeaa1212584ffe16949e0ed25c04a679786}} 
+FPGA\+\_\+\+ACCELERATOR\+\_\+\+ASSIGNED&accelerator is opened exclusively by another process \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_ACCELERATOR\_UNASSIGNED@{FPGA\_ACCELERATOR\_UNASSIGNED}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_ACCELERATOR\_UNASSIGNED@{FPGA\_ACCELERATOR\_UNASSIGNED}}}\mbox{\label{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbea35c1c5720c92650e289c592abfd5e2b8}} 
+FPGA\+\_\+\+ACCELERATOR\+\_\+\+UNASSIGNED&accelerator is free to be opened \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 93 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_objtype@{fpga\_objtype}}
+\index{fpga\_objtype@{fpga\_objtype}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_objtype}{fpga\_objtype}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}}}
+
+OPAE FPGA resources (objects)
+
+These are the FPGA resources currently supported by the OPAE object model. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_DEVICE@{FPGA\_DEVICE}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_DEVICE@{FPGA\_DEVICE}}}\mbox{\label{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a}} 
+FPGA\+\_\+\+DEVICE&FPGA\+\_\+\+DEVICE objects represent FPGA devices and their management functionality. These objects can be opened (typically requires a certain privilege level or access permissions) and used for management functions like fpga\+Reconfigre\+Slot(). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_ACCELERATOR@{FPGA\_ACCELERATOR}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_ACCELERATOR@{FPGA\_ACCELERATOR}}}\mbox{\label{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7}} 
+FPGA\+\_\+\+ACCELERATOR&FPGA\+\_\+\+ACCELERATOR objects represent allocatable units for accessing accelerated functions on the FPGA. They are frequently opened for interacting via control registers (MMIO), shared memory, or other, possibly platform-\/specific functions. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 105 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_interface@{fpga\_interface}}
+\index{fpga\_interface@{fpga\_interface}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_interface}{fpga\_interface}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}}}
+
+OPAE plugin interface
+
+These are the supported plugin interfaces. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_IFC\_DFL@{FPGA\_IFC\_DFL}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_IFC\_DFL@{FPGA\_IFC\_DFL}}}\mbox{\label{types__enum_8h_a9b433f944fba4b80dd796dec286412cbada6c2b32c7c5e8eba60cebe80b38355c}} 
+FPGA\+\_\+\+IFC\+\_\+\+DFL&FPGA\+\_\+\+IFC\+\_\+\+DFL indicates that the plugin interface is the Device Feature List driver suite. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_IFC\_VFIO@{FPGA\_IFC\_VFIO}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_IFC\_VFIO@{FPGA\_IFC\_VFIO}}}\mbox{\label{types__enum_8h_a9b433f944fba4b80dd796dec286412cba950d486b953b25fc8729fca05ea10962}} 
+FPGA\+\_\+\+IFC\+\_\+\+VFIO&FPGA\+\_\+\+IFC\+\_\+\+VFIO indicates that the plugin interface is the vfio-\/pci driver. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_IFC\_SIM\_DFL@{FPGA\_IFC\_SIM\_DFL}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_IFC\_SIM\_DFL@{FPGA\_IFC\_SIM\_DFL}}}\mbox{\label{types__enum_8h_a9b433f944fba4b80dd796dec286412cba77bd30a60ce179d221303a4577d9ae17}} 
+FPGA\+\_\+\+IFC\+\_\+\+SIM\+\_\+\+DFL&FPGA\+\_\+\+IFC\+\_\+\+SIM\+\_\+\+DFL indicates that the plugin interface is the AFU Simulation Environment simulating DFL drivers. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_IFC\_SIM\_VFIO@{FPGA\_IFC\_SIM\_VFIO}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_IFC\_SIM\_VFIO@{FPGA\_IFC\_SIM\_VFIO}}}\mbox{\label{types__enum_8h_a9b433f944fba4b80dd796dec286412cba6d64205e510545526e3b01ad672293da}} 
+FPGA\+\_\+\+IFC\+\_\+\+SIM\+\_\+\+VFIO&FPGA\+\_\+\+IFC\+\_\+\+SIM\+\_\+\+VFIO indicates that the plugin interface is the AFU Simulation Environment simulating vfio-\/pci. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_IFC\_UIO@{FPGA\_IFC\_UIO}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_IFC\_UIO@{FPGA\_IFC\_UIO}}}\mbox{\label{types__enum_8h_a9b433f944fba4b80dd796dec286412cba47104e3152df9613560b18b507995691}} 
+FPGA\+\_\+\+IFC\+\_\+\+UIO&FPGA\+\_\+\+IFC\+\_\+\+UIO indicates that the plugin interface is the uio-\/dfl driver. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 122 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_buffer\_flags@{fpga\_buffer\_flags}}
+\index{fpga\_buffer\_flags@{fpga\_buffer\_flags}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_buffer\_flags}{fpga\_buffer\_flags}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5}{fpga\+\_\+buffer\+\_\+flags}}}
+
+Buffer flags
+
+These flags can be passed to the \mbox{\hyperlink{buffer_8h_aac3ed0146bc42c35f99610a319e87303}{fpga\+Prepare\+Buffer()}} function. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_BUF\_PREALLOCATED@{FPGA\_BUF\_PREALLOCATED}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_BUF\_PREALLOCATED@{FPGA\_BUF\_PREALLOCATED}}}\mbox{\label{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5a625a9b51ada35d27da1079ff747d04db}} 
+FPGA\+\_\+\+BUF\+\_\+\+PREALLOCATED&Use existing buffer \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_BUF\_QUIET@{FPGA\_BUF\_QUIET}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_BUF\_QUIET@{FPGA\_BUF\_QUIET}}}\mbox{\label{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5abc99b8f3e50fb4eac1dbbeae4aca7957}} 
+FPGA\+\_\+\+BUF\+\_\+\+QUIET&Suppress error messages \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_BUF\_READ\_ONLY@{FPGA\_BUF\_READ\_ONLY}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_BUF\_READ\_ONLY@{FPGA\_BUF\_READ\_ONLY}}}\mbox{\label{types__enum_8h_a99f1b7a7fb02d7fa8e5823749b9005e5ae69aa057dde55423090ab4f7b9f3c200}} 
+FPGA\+\_\+\+BUF\+\_\+\+READ\+\_\+\+ONLY&Buffer is read-\/only \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 145 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a3a32599a1213352a3217f6e068651fc6}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_open\_flags@{fpga\_open\_flags}}
+\index{fpga\_open\_flags@{fpga\_open\_flags}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_open\_flags}{fpga\_open\_flags}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a3a32599a1213352a3217f6e068651fc6}{fpga\+\_\+open\+\_\+flags}}}
+
+Open flags
+
+These flags can be passed to the \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}} function. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OPEN\_SHARED@{FPGA\_OPEN\_SHARED}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OPEN\_SHARED@{FPGA\_OPEN\_SHARED}}}\mbox{\label{types__enum_8h_a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c}} 
+FPGA\+\_\+\+OPEN\+\_\+\+SHARED&Open FPGA resource for shared access \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 156 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_reconf\_flags@{fpga\_reconf\_flags}}
+\index{fpga\_reconf\_flags@{fpga\_reconf\_flags}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_reconf\_flags}{fpga\_reconf\_flags}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7}{fpga\+\_\+reconf\+\_\+flags}}}
+
+Reconfiguration flags
+
+These flags can be passed to the \mbox{\hyperlink{manage_8h_a6e5d00d445c69c94cb122224c47bf735}{fpga\+Reconfigure\+Slot()}} function. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_RECONF\_FORCE@{FPGA\_RECONF\_FORCE}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_RECONF\_FORCE@{FPGA\_RECONF\_FORCE}}}\mbox{\label{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7a3eb0a410afacbd5b85d308fc51fc8cd8}} 
+FPGA\+\_\+\+RECONF\+\_\+\+FORCE&Reconfigure the slot without checking if it is in use \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_RECONF\_SKIP\_USRCLK@{FPGA\_RECONF\_SKIP\_USRCLK}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_RECONF\_SKIP\_USRCLK@{FPGA\_RECONF\_SKIP\_USRCLK}}}\mbox{\label{types__enum_8h_a9a4d903f00f7511b06eea9809d81aae7a4e1616b36eedc9094a04666edcfa36f1}} 
+FPGA\+\_\+\+RECONF\+\_\+\+SKIP\+\_\+\+USRCLK&Don\textquotesingle{}t configure AFU user clocks as part of PR \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 166 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a9cacfdee4baf5ca62998913596412afb}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_sysobject\_flags@{fpga\_sysobject\_flags}}
+\index{fpga\_sysobject\_flags@{fpga\_sysobject\_flags}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_sysobject\_flags}{fpga\_sysobject\_flags}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a9cacfdee4baf5ca62998913596412afb}{fpga\+\_\+sysobject\+\_\+flags}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_SYNC@{FPGA\_OBJECT\_SYNC}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_SYNC@{FPGA\_OBJECT\_SYNC}}}\mbox{\label{types__enum_8h_a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+SYNC&Synchronize data from driver \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_GLOB@{FPGA\_OBJECT\_GLOB}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_GLOB@{FPGA\_OBJECT\_GLOB}}}\mbox{\label{types__enum_8h_a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+GLOB&Treat names as glob expressions \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_RAW@{FPGA\_OBJECT\_RAW}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_RAW@{FPGA\_OBJECT\_RAW}}}\mbox{\label{types__enum_8h_a9cacfdee4baf5ca62998913596412afbacfaa8f881c5a8a3dd212e4fb4d070bf4}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+RAW&Read or write object data as raw bytes \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_RECURSE\_ONE@{FPGA\_OBJECT\_RECURSE\_ONE}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_RECURSE\_ONE@{FPGA\_OBJECT\_RECURSE\_ONE}}}\mbox{\label{types__enum_8h_a9cacfdee4baf5ca62998913596412afbade8c9f9040403d5e7e08e3aede541844}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE&Create subobjects one level down from containers \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_RECURSE\_ALL@{FPGA\_OBJECT\_RECURSE\_ALL}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_RECURSE\_ALL@{FPGA\_OBJECT\_RECURSE\_ALL}}}\mbox{\label{types__enum_8h_a9cacfdee4baf5ca62998913596412afba33387b602459cddf06b3eeab96eca47b}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL&Create subobjects all levels from from containers \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 173 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_sysobject\_type@{fpga\_sysobject\_type}}
+\index{fpga\_sysobject\_type@{fpga\_sysobject\_type}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_sysobject\_type}{fpga\_sysobject\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}{fpga\+\_\+sysobject\+\_\+type}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_CONTAINER@{FPGA\_OBJECT\_CONTAINER}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_CONTAINER@{FPGA\_OBJECT\_CONTAINER}}}\mbox{\label{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299a9fdf8108c74c6fd8dec16f3c1bd7b46c}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+CONTAINER&Represents a group of objects \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_OBJECT\_ATTRIBUTE@{FPGA\_OBJECT\_ATTRIBUTE}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_OBJECT\_ATTRIBUTE@{FPGA\_OBJECT\_ATTRIBUTE}}}\mbox{\label{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299ae05d85061319b15fc4fc8fbcbf6cf12c}} 
+FPGA\+\_\+\+OBJECT\+\_\+\+ATTRIBUTE&An object with an attribute value that can be read/written \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 186 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_a04334291d3fe08ee2385f534629f3094}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_metric\_type@{fpga\_metric\_type}}
+\index{fpga\_metric\_type@{fpga\_metric\_type}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_metric\_type}{fpga\_metric\_type}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094}{fpga\+\_\+metric\+\_\+type}}}
+
+fpga metrics types opae defines power,thermal, performance counter and afu metric types \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_TYPE\_POWER@{FPGA\_METRIC\_TYPE\_POWER}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_TYPE\_POWER@{FPGA\_METRIC\_TYPE\_POWER}}}\mbox{\label{types__enum_8h_a04334291d3fe08ee2385f534629f3094a19df4d36912e022021758321d7dfaca1}} 
+FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+POWER&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_TYPE\_THERMAL@{FPGA\_METRIC\_TYPE\_THERMAL}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_TYPE\_THERMAL@{FPGA\_METRIC\_TYPE\_THERMAL}}}\mbox{\label{types__enum_8h_a04334291d3fe08ee2385f534629f3094a1b615b52e8ec5f4339139567bcabd9d0}} 
+FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+THERMAL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_TYPE\_PERFORMANCE\_CTR@{FPGA\_METRIC\_TYPE\_PERFORMANCE\_CTR}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_TYPE\_PERFORMANCE\_CTR@{FPGA\_METRIC\_TYPE\_PERFORMANCE\_CTR}}}\mbox{\label{types__enum_8h_a04334291d3fe08ee2385f534629f3094a0090631e9c7498fcb11d73aae843d4c0}} 
+FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+PERFORMANCE\+\_\+\+CTR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_TYPE\_AFU@{FPGA\_METRIC\_TYPE\_AFU}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_TYPE\_AFU@{FPGA\_METRIC\_TYPE\_AFU}}}\mbox{\label{types__enum_8h_a04334291d3fe08ee2385f534629f3094afcaecf93ad13bf9558197c925c87d6c2}} 
+FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+AFU&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_TYPE\_UNKNOWN@{FPGA\_METRIC\_TYPE\_UNKNOWN}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_TYPE\_UNKNOWN@{FPGA\_METRIC\_TYPE\_UNKNOWN}}}\mbox{\label{types__enum_8h_a04334291d3fe08ee2385f534629f3094aeccc87ae6dc265c54200f71aad44d43b}} 
+FPGA\+\_\+\+METRIC\+\_\+\+TYPE\+\_\+\+UNKNOWN&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 198 of file types\+\_\+enum.\+h.
+
+\mbox{\label{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcc}} 
+\index{types\_enum.h@{types\_enum.h}!fpga\_metric\_datatype@{fpga\_metric\_datatype}}
+\index{fpga\_metric\_datatype@{fpga\_metric\_datatype}!types\_enum.h@{types\_enum.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_metric\_datatype}{fpga\_metric\_datatype}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcc}{fpga\+\_\+metric\+\_\+datatype}}}
+
+Metrics data type \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_DATATYPE\_INT@{FPGA\_METRIC\_DATATYPE\_INT}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_DATATYPE\_INT@{FPGA\_METRIC\_DATATYPE\_INT}}}\mbox{\label{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca7e4011246e4e6ce4c62cbcd54c6b6446}} 
+FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+INT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_DATATYPE\_FLOAT@{FPGA\_METRIC\_DATATYPE\_FLOAT}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_DATATYPE\_FLOAT@{FPGA\_METRIC\_DATATYPE\_FLOAT}}}\mbox{\label{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca42b7558a3659d44b5291a68329ac59ba}} 
+FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+FLOAT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_DATATYPE\_DOUBLE@{FPGA\_METRIC\_DATATYPE\_DOUBLE}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_DATATYPE\_DOUBLE@{FPGA\_METRIC\_DATATYPE\_DOUBLE}}}\mbox{\label{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca0ef125e071fb8bb97d89e083055b350a}} 
+FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+DOUBLE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_DATATYPE\_BOOL@{FPGA\_METRIC\_DATATYPE\_BOOL}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_DATATYPE\_BOOL@{FPGA\_METRIC\_DATATYPE\_BOOL}}}\mbox{\label{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcca42af89cdb2fd1aaf8209950ff080a684}} 
+FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+BOOL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FPGA\_METRIC\_DATATYPE\_UNKNOWN@{FPGA\_METRIC\_DATATYPE\_UNKNOWN}!types\_enum.h@{types\_enum.h}}\index{types\_enum.h@{types\_enum.h}!FPGA\_METRIC\_DATATYPE\_UNKNOWN@{FPGA\_METRIC\_DATATYPE\_UNKNOWN}}}\mbox{\label{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bccad5f469dac4b7a5961008918926f399dc}} 
+FPGA\+\_\+\+METRIC\+\_\+\+DATATYPE\+\_\+\+UNKNOWN&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 210 of file types\+\_\+enum.\+h.
+

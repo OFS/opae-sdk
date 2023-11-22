@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespaceopae_1_1fpga_1_1types_1_1detail" kind="namespace" language="C++">
+    <compoundname>opae::fpga::types::detail</compoundname>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespaceopae_1_1fpga_1_1types_1_1detail_1a27ea035002c36a1c80c601a99b9fa3db" prot="public" static="no">
+        <type>bool(*</type>
+        <definition>typedef bool(* opae::fpga::types::detail::exception_fn) (fpga_result, const opae::fpga::types::src_location &amp;loc)</definition>
+        <argsstring>)(fpga_result, const opae::fpga::types::src_location &amp;loc)</argsstring>
+        <name>exception_fn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>typedef function pointer that returns bool if result is FPGA_OK </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="296" column="9" bodyfile="include/opae/cxx/core/except.h" bodystart="296" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceopae_1_1fpga_1_1types_1_1detail_1aaf5c7cfe3e7998add9471462d43ee1ff" prot="public" static="yes" mutable="no">
+        <type><ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1a27ea035002c36a1c80c601a99b9fa3db" kindref="member">exception_fn</ref></type>
+        <definition>exception_fn opae::fpga::types::detail::opae_exceptions[12]</definition>
+        <argsstring>[12]</argsstring>
+        <name>opae_exceptions</name>
+        <initializer>= {
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1invalid__param" kindref="compound">opae::fpga::types::invalid_param</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1busy" kindref="compound">opae::fpga::types::busy</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1exception" kindref="compound">opae::fpga::types::exception</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1not__found" kindref="compound">opae::fpga::types::not_found</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1no__memory" kindref="compound">opae::fpga::types::no_memory</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1not__supported" kindref="compound">opae::fpga::types::not_supported</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1no__driver" kindref="compound">opae::fpga::types::no_driver</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1no__daemon" kindref="compound">opae::fpga::types::no_daemon</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1no__access" kindref="compound">opae::fpga::types::no_access</ref>&gt;,
+    <ref refid="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" kindref="member">is_ok</ref>&lt;<ref refid="classopae_1_1fpga_1_1types_1_1reconf__error" kindref="compound">opae::fpga::types::reconf_error</ref>&gt;}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="309" column="21" bodyfile="include/opae/cxx/core/except.h" bodystart="309" bodyend="-1"/>
+        <referencedby refid="namespaceopae_1_1fpga_1_1types_1_1detail_1afb71b5ca2216303a26cd91e01da63bc2" compoundref="except_8h" startline="321" endline="327">assert_fpga_ok</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceopae_1_1fpga_1_1types_1_1detail_1ad6802666a800e1d9b4ffe647a816083f" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>constexpr bool</type>
+        <definition>constexpr bool opae::fpga::types::detail::is_ok</definition>
+        <argsstring>(fpga_result result, const opae::fpga::types::src_location &amp;loc)</argsstring>
+        <name>is_ok</name>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>result</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">opae::fpga::types::src_location</ref> &amp;</type>
+          <declname>loc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>is_ok is a template function that throws an excpetion of its template argument type if the result code is not FPGA_OK. Otherwise it returns true. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="304" column="16" bodyfile="include/opae/cxx/core/except.h" bodystart="304" bodyend="307"/>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+      </memberdef>
+      <memberdef kind="function" id="namespaceopae_1_1fpga_1_1types_1_1detail_1afb71b5ca2216303a26cd91e01da63bc2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void opae::fpga::types::detail::assert_fpga_ok</definition>
+        <argsstring>(fpga_result result, const opae::fpga::types::src_location &amp;loc)</argsstring>
+        <name>assert_fpga_ok</name>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>result</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">opae::fpga::types::src_location</ref> &amp;</type>
+          <declname>loc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="321" column="20" bodyfile="include/opae/cxx/core/except.h" bodystart="321" bodyend="327"/>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da4fe9aead9176152c1e47e600d5415e56" compoundref="types__enum_8h" startline="68">FPGA_RECONF_ERROR</references>
+        <references refid="namespaceopae_1_1fpga_1_1types_1_1detail_1aaf5c7cfe3e7998add9471462d43ee1ff" compoundref="except_8h" startline="309">opae_exceptions</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/opae/cxx/core/except.h" line="292" column="1"/>
+  </compounddef>
+</doxygen>

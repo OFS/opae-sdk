@@ -1,0 +1,130 @@
+.TH "include/opae/cxx/core/except.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/cxx/core/except.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types_enum\&.h>\fP
+.br
+\fC#include <cstdint>\fP
+.br
+\fC#include <exception>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBopae::fpga::types::src_location\fP"
+.br
+.RI "Identify a particular line in a source file\&. "
+.ti -1c
+.RI "class \fBopae::fpga::types::except\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::invalid_param\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::busy\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::exception\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::not_found\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::no_memory\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::not_supported\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::no_driver\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::no_daemon\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::no_access\fP"
+.br
+.ti -1c
+.RI "class \fBopae::fpga::types::reconf_error\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBopae\fP"
+.br
+.ti -1c
+.RI " \fBopae::fpga\fP"
+.br
+.ti -1c
+.RI " \fBopae::fpga::types\fP"
+.br
+.ti -1c
+.RI " \fBopae::fpga::types::detail\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBOPAECXX_HERE\fP     \fBopae::fpga::types::src_location\fP(__FILE__, __func__, __LINE__)"
+.br
+.RI "Construct a src_location object for the current source line\&. "
+.ti -1c
+.RI "#define \fBASSERT_FPGA_OK\fP(r)"
+.br
+.RI "Macro to check of result is FPGA_OK If not, throw exception that corresponds to the result code\&. "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef bool(* \fBopae::fpga::types::detail::exception_fn\fP) (\fBfpga_result\fP, const \fBopae::fpga::types::src_location\fP &loc)"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename T > constexpr bool \fBopae::fpga::types::detail::is_ok\fP (\fBfpga_result\fP result, const \fBopae::fpga::types::src_location\fP &loc)"
+.br
+.ti -1c
+.RI "static void \fBopae::fpga::types::detail::assert_fpga_ok\fP (\fBfpga_result\fP result, const \fBopae::fpga::types::src_location\fP &loc)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static exception_fn \fBopae::fpga::types::detail::opae_exceptions\fP [12]"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define OPAECXX_HERE     \fBopae::fpga::types::src_location\fP(__FILE__, __func__, __LINE__)"
+
+.PP
+Construct a src_location object for the current source line\&. 
+.PP
+Definition at line 69 of file except\&.h\&.
+.SS "#define ASSERT_FPGA_OK(r)"
+\fBValue:\fP
+.PP
+.nf
+  opae::fpga::types::detail::assert_fpga_ok( \
+      r, opae::fpga::types::src_location(__FILE__, __func__, __LINE__));
+.fi
+.PP
+Macro to check of result is FPGA_OK If not, throw exception that corresponds to the result code\&. 
+.PP
+Definition at line 334 of file except\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

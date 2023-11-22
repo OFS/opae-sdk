@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__device__region" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_device_region</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__device__region_1a276412974a0b0ffb91ac3200149761b0" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_device_region::region_index</definition>
+        <argsstring></argsstring>
+        <name>region_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Region index, from 0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="94" column="10" bodyfile="include/opae/vfio.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__region_1a37bbecd990a16e1d985bece6d8395e86" prot="public" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* opae_vfio_device_region::region_ptr</definition>
+        <argsstring></argsstring>
+        <name>region_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual address of region. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="95" column="9" bodyfile="include/opae/vfio.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__region_1add69a93ef216ab2ed1a053f506605f8e" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t opae_vfio_device_region::region_size</definition>
+        <argsstring></argsstring>
+        <name>region_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Size of region. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="96" column="8" bodyfile="include/opae/vfio.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__region_1a52a91a9da49e5a61dbb5e8f511733aba" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__sparse__info" kindref="compound">opae_vfio_sparse_info</ref> *</type>
+        <definition>struct opae_vfio_sparse_info* opae_vfio_device_region::region_sparse</definition>
+        <argsstring></argsstring>
+        <name>region_sparse</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>For sparse regions. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="97" column="28" bodyfile="include/opae/vfio.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__device__region_1ad58eb4a337da7515de0acca200a2463c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__device__region" kindref="compound">opae_vfio_device_region</ref> *</type>
+        <definition>struct opae_vfio_device_region* opae_vfio_device_region::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to next in list. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="98" column="30" bodyfile="include/opae/vfio.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>MMIO region info</para>
+<para>Describes a range of mappable MMIO. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_vfio_device_region</label>
+        <link refid="structopae__vfio__device__region"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+region_sparse</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae_vfio_sparse_info</label>
+        <link refid="structopae__vfio__sparse__info"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="93" column="1" bodyfile="include/opae/vfio.h" bodystart="93" bodyend="99"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__device__region_1ad58eb4a337da7515de0acca200a2463c" prot="public" virt="non-virtual"><scope>opae_vfio_device_region</scope><name>next</name></member>
+      <member refid="structopae__vfio__device__region_1a276412974a0b0ffb91ac3200149761b0" prot="public" virt="non-virtual"><scope>opae_vfio_device_region</scope><name>region_index</name></member>
+      <member refid="structopae__vfio__device__region_1a37bbecd990a16e1d985bece6d8395e86" prot="public" virt="non-virtual"><scope>opae_vfio_device_region</scope><name>region_ptr</name></member>
+      <member refid="structopae__vfio__device__region_1add69a93ef216ab2ed1a053f506605f8e" prot="public" virt="non-virtual"><scope>opae_vfio_device_region</scope><name>region_size</name></member>
+      <member refid="structopae__vfio__device__region_1a52a91a9da49e5a61dbb5e8f511733aba" prot="public" virt="non-virtual"><scope>opae_vfio_device_region</scope><name>region_sparse</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

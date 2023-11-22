@@ -1,0 +1,77 @@
+.TH "opae::fpga::types::detail" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::detail
+.SH SYNOPSIS
+.br
+.PP
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef bool(* \fBexception_fn\fP) (\fBfpga_result\fP, const \fBopae::fpga::types::src_location\fP &loc)"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename T > constexpr bool \fBis_ok\fP (\fBfpga_result\fP result, const \fBopae::fpga::types::src_location\fP &loc)"
+.br
+.ti -1c
+.RI "static void \fBassert_fpga_ok\fP (\fBfpga_result\fP result, const \fBopae::fpga::types::src_location\fP &loc)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static \fBexception_fn\fP \fBopae_exceptions\fP [12]"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef bool(* opae::fpga::types::detail::exception_fn) (\fBfpga_result\fP, const \fBopae::fpga::types::src_location\fP &loc)"
+typedef function pointer that returns bool if result is FPGA_OK 
+.PP
+Definition at line 296 of file except\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "template<typename T > constexpr bool opae::fpga::types::detail::is_ok (\fBfpga_result\fP result, const \fBopae::fpga::types::src_location\fP & loc)\fC [constexpr]\fP"
+is_ok is a template function that throws an excpetion of its template argument type if the result code is not FPGA_OK\&. Otherwise it returns true\&. 
+.PP
+Definition at line 304 of file except\&.h\&.
+.PP
+References FPGA_OK\&.
+.SS "static void opae::fpga::types::detail::assert_fpga_ok (\fBfpga_result\fP result, const \fBopae::fpga::types::src_location\fP & loc)\fC [inline]\fP, \fC [static]\fP"
+
+.PP
+Definition at line 321 of file except\&.h\&.
+.PP
+References FPGA_OK, FPGA_RECONF_ERROR, and opae_exceptions\&.
+.SH "Variable Documentation"
+.PP 
+.SS "\fBexception_fn\fP opae::fpga::types::detail::opae_exceptions[12]\fC [static]\fP"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    is_ok<opae::fpga::types::invalid_param>,
+    is_ok<opae::fpga::types::busy>,
+    is_ok<opae::fpga::types::exception>,
+    is_ok<opae::fpga::types::not_found>,
+    is_ok<opae::fpga::types::no_memory>,
+    is_ok<opae::fpga::types::not_supported>,
+    is_ok<opae::fpga::types::no_driver>,
+    is_ok<opae::fpga::types::no_daemon>,
+    is_ok<opae::fpga::types::no_access>,
+    is_ok<opae::fpga::types::reconf_error>}
+.fi
+.PP
+Definition at line 309 of file except\&.h\&.
+.PP
+Referenced by assert_fpga_ok()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

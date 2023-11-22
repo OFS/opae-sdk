@@ -1,0 +1,3 @@
+repository='https://github.com/oneapi-src/oneTBB.git'
+module=''
+tag='origin'

@@ -1,0 +1,583 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="tg__test_8h" kind="file" language="C++">
+    <compoundname>tg_test.h</compoundname>
+    <includes local="no">unistd.h</includes>
+    <includes local="no">thread</includes>
+    <includes local="no">iostream</includes>
+    <includes local="no">vector</includes>
+    <includes local="no">future</includes>
+    <includes local="no">string</includes>
+    <includes local="no">condition_variable</includes>
+    <includes local="no">mutex</includes>
+    <includes local="yes">afu_test.h</includes>
+    <includes refid="mem__tg_8h" local="yes">mem_tg.h</includes>
+    <includedby refid="mem__tg_8cpp" local="yes">samples/mem_tg/mem_tg.cpp</includedby>
+    <incdepgraph>
+      <node id="17">
+        <label>stdbool.h</label>
+      </node>
+      <node id="11">
+        <label>mem_tg.h</label>
+        <link refid="mem__tg_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>cstdint</label>
+      </node>
+      <node id="15">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>afu_test.h</label>
+      </node>
+      <node id="25">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="7">
+        <label>string</label>
+      </node>
+      <node id="32">
+        <label>map</label>
+      </node>
+      <node id="27">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="23">
+        <label>exception</label>
+      </node>
+      <node id="16">
+        <label>stddef.h</label>
+      </node>
+      <node id="21">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>condition_variable</label>
+      </node>
+      <node id="6">
+        <label>future</label>
+      </node>
+      <node id="2">
+        <label>unistd.h</label>
+      </node>
+      <node id="19">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>vector</label>
+      </node>
+      <node id="29">
+        <label>array</label>
+      </node>
+      <node id="1">
+        <label>samples/mem_tg/tg_test.h</label>
+        <link refid="tg__test_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>iostream</label>
+      </node>
+      <node id="34">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>mutex</label>
+      </node>
+      <node id="13">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>thread</label>
+      </node>
+      <node id="31">
+        <label>type_traits</label>
+      </node>
+      <node id="28">
+        <label>algorithm</label>
+      </node>
+      <node id="26">
+        <label>stdio.h</label>
+      </node>
+      <node id="30">
+        <label>cstring</label>
+      </node>
+      <node id="33">
+        <label>memory</label>
+      </node>
+      <node id="20">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>samples/mem_tg/tg_test.h</label>
+        <link refid="tg__test_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/mem_tg/mem_tg.cpp</label>
+        <link refid="mem__tg_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classmem__tg_1_1tg__test" prot="public">mem_tg::tg_test</innerclass>
+    <innernamespace refid="namespacemem__tg">mem_tg</innernamespace>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="tg__test_8h_1abc250359b0b249806cbba4173e9644b4" prot="public" static="no">
+        <type><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref></type>
+        <definition>using test_afu =  opae::afu_test::afu</definition>
+        <argsstring></argsstring>
+        <name>test_afu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/tg_test.h" line="40" column="1" bodyfile="samples/mem_tg/tg_test.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2022-2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;thread&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;future&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;condition_variable&gt;</highlight><highlight class="normal"><sp/></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;mutex&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;afu_test.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="mem__tg_8h" kindref="compound">mem_tg.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="tg__test_8h_1abc250359b0b249806cbba4173e9644b4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1token" kindref="compound">opae::fpga::types::token</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Shared<sp/>static<sp/>variables<sp/>for<sp/>synchornization</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="namespacemem__tg_1afb390604495f7ec7dd3aee9cc7b67d8e" refkind="member"><highlight class="normal">std::mutex<sp/><ref refid="namespacemem__tg_1afb390604495f7ec7dd3aee9cc7b67d8e" kindref="member">tg_print_mutex</ref>;</highlight></codeline>
+<codeline lineno="47" refid="namespacemem__tg_1ad0bd8092778fe7d39d3e37402e72386c" refkind="member"><highlight class="normal">std::mutex<sp/><ref refid="namespacemem__tg_1ad0bd8092778fe7d39d3e37402e72386c" kindref="member">tg_start_write_mutex</ref>;</highlight></codeline>
+<codeline lineno="48" refid="namespacemem__tg_1a9829f06cc0a289cb4b12f3ceeb5b94c6" refkind="member"><highlight class="normal">std::condition_variable<sp/><ref refid="namespacemem__tg_1a9829f06cc0a289cb4b12f3ceeb5b94c6" kindref="member">tg_cv</ref>;</highlight></codeline>
+<codeline lineno="49" refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" refkind="member"><highlight class="normal">std::atomic&lt;int&gt;<sp/><ref refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" kindref="member">tg_waiting_threads_counter</ref>;</highlight></codeline>
+<codeline lineno="50" refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" kindref="member">tg_num_threads</ref><sp/>=<sp/>-1;<sp/></highlight><highlight class="comment">//<sp/>Written<sp/>to<sp/>once<sp/>in<sp/>run()<sp/>then<sp/>read-only</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="classmem__tg_1_1tg__test" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classmem__tg_1_1tg__test" kindref="compound">tg_test</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">test_command</ref></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="55" refid="classmem__tg_1_1tg__test_1abc01f94c6c8099d637420bdf98e1195a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1abc01f94c6c8099d637420bdf98e1195a" kindref="member">tg_test</ref>()</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classmem__tg_1_1tg__test_1a49c1d34f23394b8d3f417941c3dae13e" kindref="member">tg_offset_</ref>(0x0)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>(NULL)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>{}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="classmem__tg_1_1tg__test_1a3a14f5221622cd3cc598ed1518536645" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1a3a14f5221622cd3cc598ed1518536645" kindref="member">~tg_test</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classmem__tg_1_1tg__test_1ae2be4babdc05e96ad0fd49044206ae07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classmem__tg_1_1tg__test_1ae2be4babdc05e96ad0fd49044206ae07" kindref="member">name</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override</highlight></codeline>
+<codeline lineno="63"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;tg_test&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="classmem__tg_1_1tg__test_1a76d61f9943cf4224affb583f06eb1ef4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classmem__tg_1_1tg__test_1a76d61f9943cf4224affb583f06eb1ef4" kindref="member">description</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override</highlight></codeline>
+<codeline lineno="68"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;configure<sp/>&amp;<sp/>run<sp/>mem<sp/>traffic<sp/>generator<sp/>test&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="classmem__tg_1_1tg__test_1a8ae23413206e40e0aec6f51db2a03173" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="classmem__tg_1_1tg__test_1a8ae23413206e40e0aec6f51db2a03173" kindref="member">afu_id</ref>()</highlight><highlight class="keyword"><sp/>const<sp/>override</highlight></codeline>
+<codeline lineno="73"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespacemem__tg_1af02ccce98e14a5901318de5305ff2792" kindref="member">AFU_ID</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>number<sp/>of<sp/>transactions<sp/>to<sp/>bandwidth<sp/>(GB/s)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" kindref="member">bw_calc</ref>(uint64_t<sp/>xfer_bytes,<sp/>uint64_t<sp/>num_ticks)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)(xfer_bytes)<sp/>/<sp/>((1000.0<sp/>/<sp/>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" kindref="member">mem_speed_</ref><sp/>*<sp/>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)num_ticks));</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" kindref="member">tg_perf</ref><sp/>(<ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Lock<sp/>mutex<sp/>before<sp/>printing<sp/>so<sp/>print<sp/>statements<sp/>don&apos;t<sp/>collide<sp/>between<sp/>threads.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>print_lock(<ref refid="namespacemem__tg_1afb390604495f7ec7dd3aee9cc7b67d8e" kindref="member">tg_print_mutex</ref>);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Channel<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0])<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>==<sp/><ref refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a39b57be20840498a98f4cd174e292a4b" kindref="member">TG_STATUS_TIMEOUT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;TG<sp/>TIMEOUT&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>==<sp/>(uint32_t)(-1))<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error:<sp/>Timed<sp/>out<sp/>in<sp/>TG_STATUS_ACTIVE<sp/>state.<sp/>Consider<sp/>increasing<sp/>MEM_TG_TEST_TIMEOUT.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;<sp/></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>==<sp/><ref refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a3964c55dcdc68e90d56bf757b65b1d8a" kindref="member">TG_STATUS_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>tg_fail_exp;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>tg_fail_act;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>tg_fail_addr;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;TG<sp/>ERROR&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tg_fail_addr<sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref><sp/>+<sp/><ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa3aa084a514969080b97217bd35465356" kindref="member">TG_FIRST_FAIL_ADDR_L</ref>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tg_fail_exp<sp/><sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref><sp/>+<sp/><ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa99701a288d09c6214525e1cc65a64ba0" kindref="member">TG_FAIL_EXPECTED_DATA</ref>);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tg_fail_act<sp/><sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref><sp/>+<sp/><ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa5b509ef9f39fcdbdaa760abce6c05cf1" kindref="member">TG_FAIL_READ_DATA</ref>);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>at<sp/>address<sp/>0x&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::hex<sp/>&lt;&lt;<sp/>tg_fail_addr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>exp=0x&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>tg_fail_exp<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>act=0x&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>tg_fail_act<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;TG<sp/>PASS&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mem_ch_offset<sp/>=<sp/>(std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0]))<sp/>&lt;&lt;<sp/>0x3;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>num_ticks<sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a92a59d89dfb05439439512e623f02212" kindref="member">MEM_TG_CLOCKS</ref><sp/>+<sp/>mem_ch_offset);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Mem<sp/>Clock<sp/>Cycles:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::dec<sp/>&lt;&lt;<sp/>num_ticks<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>wcnt_<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::dec<sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" kindref="member">wcnt_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>rcnt_<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::dec<sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" kindref="member">rcnt_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>bcnt_<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::dec<sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" kindref="member">bcnt_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>loop_<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::dec<sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" kindref="member">loop_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>num_ticks<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::dec<sp/>&lt;&lt;<sp/>num_ticks<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>write_bytes<sp/>=<sp/>64<sp/>*<sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" kindref="member">loop_</ref>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" kindref="member">wcnt_</ref>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" kindref="member">bcnt_</ref>);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>read_bytes<sp/><sp/>=<sp/>64<sp/>*<sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" kindref="member">loop_</ref>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" kindref="member">rcnt_</ref>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" kindref="member">bcnt_</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Write<sp/>BW:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" kindref="member">bw_calc</ref>(write_bytes,num_ticks)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>GB/s&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Read<sp/>BW:<sp/>&quot;</highlight><highlight class="normal"><sp/><sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" kindref="member">bw_calc</ref>(read_bytes,num_ticks)<sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>GB/s\n&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>print_lock.unlock();</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline lineno="124" refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" kindref="member">tg_wait_test_completion</ref><sp/>(<ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Wait<sp/>for<sp/>test<sp/>completion<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>timeout<sp/>=<sp/><ref refid="namespacemem__tg_1ab99947d9ae3914d454524af4289c4f75" kindref="member">MEM_TG_TEST_TIMEOUT</ref><sp/>*<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" kindref="member">loop_</ref><sp/>*<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" kindref="member">bcnt_</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>poll<sp/>while<sp/>active<sp/>bit<sp/>is<sp/>set<sp/>(channel<sp/>status<sp/>=<sp/>{pass,fail,timeout,active})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>tg_status<sp/>=<sp/>0x1;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tg_status<sp/>=<sp/>0xF<sp/>&amp;<sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54ab2e545ddbd0f4ff871aa8c2b227c56ed" kindref="member">MEM_TG_STAT</ref>)<sp/>&gt;&gt;<sp/>(0x4*(std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0]))));</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(tg_status<sp/>==<sp/><ref refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a6e2000299654529dae8c4c4af161e49c" kindref="member">TG_STATUS_ACTIVE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tg_status<sp/>=<sp/>0xF<sp/>&amp;<sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54ab2e545ddbd0f4ff871aa8c2b227c56ed" kindref="member">MEM_TG_STAT</ref>)<sp/>&gt;&gt;<sp/>(0x4*(std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0]))));</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::this_thread::yield();</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(--timeout<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>timeout<sp/>error&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tg_status<sp/>==<sp/><ref refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a39b57be20840498a98f4cd174e292a4b" kindref="member">TG_STATUS_TIMEOUT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>=<sp/>tg_status;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>status<sp/>timeout&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tg_status<sp/>==<sp/><ref refid="namespacemem__tg_1a5d9d9825a394d5cd74f8fe5396624a77a3964c55dcdc68e90d56bf757b65b1d8a" kindref="member">TG_STATUS_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>=<sp/>tg_status;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;DEBUG:<sp/>status<sp/>error&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" kindref="member">status_</ref><sp/>=<sp/>tg_status;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" kindref="member">config_input_options</ref>(<ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>mem_capability<sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a71c07e22c468e2fac16fc82de00ae213" kindref="member">MEM_TG_CTRL</ref>);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((mem_capability<sp/>&amp;<sp/>(0x1<sp/>&lt;&lt;<sp/>std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0])))<sp/>==<sp/>0)<sp/>{<sp/></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;No<sp/>traffic<sp/>generator<sp/>for<sp/>mem[&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0])<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;]&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref><sp/>=<sp/><ref refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a0fcea165efcbc477fd0a5f9f05bad92d" kindref="member">AFU_DFH</ref><sp/>+<sp/>(<ref refid="namespacemem__tg_1a943a6cf589a5fd0b37a523b5df6513e6" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>*<sp/>(1+std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0])));</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faab7410bb101bc061d4ae261d012f9fcb4" kindref="member">TG_LOOP_COUNT</ref>,<sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" kindref="member">loop_</ref>);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa712daf68ed5d46d6cba0a0033eb45a59" kindref="member">TG_WRITE_COUNT</ref>,<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" kindref="member">wcnt_</ref>);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faaf91e5aaa66fc608c1afc2cf0a2a20f49" kindref="member">TG_READ_COUNT</ref>,<sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" kindref="member">rcnt_</ref>);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faad9acb4dff9aaa1df270472237301ed7a" kindref="member">TG_BURST_LENGTH</ref>,<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" kindref="member">bcnt_</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa8963a3103bffd3412a2340d14d93b21d" kindref="member">TG_SEQ_ADDR_INCR</ref>,<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1af774e6feb4e8dcacef4b3f23cc7d5ede" kindref="member">stride_</ref>);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa4206df51ef621a3c26c4b32d28bdd748" kindref="member">TG_PPPG_SEL</ref>,<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aa158961ac57acd0d6cbe5b4701e693f0" kindref="member">pattern_</ref>);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>address<sp/>increment<sp/>mode</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faaa1ae8be038850228674d43f5bf0a756f" kindref="member">TG_ADDR_MODE_WR</ref>,<sp/><ref refid="namespacemem__tg_1af666da5e7c0a6dcca811edb68ea7cfbaa0282e80a72d9f469c95c722f5ac1c423" kindref="member">TG_ADDR_SEQ</ref>);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref>+<ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa0d0b4dc47ddd3f5315c986c4297c65cf" kindref="member">TG_ADDR_MODE_RD</ref>,<sp/><ref refid="namespacemem__tg_1af666da5e7c0a6dcca811edb68ea7cfbaa0282e80a72d9f469c95c722f5ac1c423" kindref="member">TG_ADDR_SEQ</ref>);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>test<sp/>state<sp/>has<sp/>been<sp/>configured.<sp/>Run<sp/>one<sp/>test<sp/>instance.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" kindref="member">run_mem_test</ref>(<ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>)</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>status<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>All<sp/>threads<sp/>do<sp/>their<sp/>set<sp/>up<sp/>and<sp/>wait<sp/>here<sp/>for<sp/>other<sp/>threads<sp/>so<sp/>start<sp/>write<sp/>happens<sp/>all<sp/>at<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>lock(<ref refid="namespacemem__tg_1ad0bd8092778fe7d39d3e37402e72386c" kindref="member">tg_start_write_mutex</ref>);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" kindref="member">tg_waiting_threads_counter</ref>++;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<ref refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" kindref="member">tg_waiting_threads_counter</ref><sp/>==<sp/><ref refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" kindref="member">tg_num_threads</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg_1a9829f06cc0a289cb4b12f3ceeb5b94c6" kindref="member">tg_cv</ref>.notify_all();<sp/></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg_1a9829f06cc0a289cb4b12f3ceeb5b94c6" kindref="member">tg_cv</ref>.wait(lock,<sp/>[&amp;](){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" kindref="member">tg_waiting_threads_counter</ref><sp/>==<sp/><ref refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" kindref="member">tg_num_threads</ref>;<sp/>});</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>lock.unlock();</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>write32<sp/>is<sp/>not<sp/>thread<sp/>safe<sp/>so<sp/>we<sp/>wrap<sp/>it<sp/>in<sp/>a<sp/>lock</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>lock.lock();</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;Start<sp/>Test&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" kindref="member">write32</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" kindref="member">tg_offset_</ref><sp/>+<sp/><ref refid="namespacemem__tg_1a2bc8acdef632ab5e18ed7bc7fb93e0faa36e5f2f8a7ce70509baad0fc29c7217d" kindref="member">TG_START</ref>,<sp/>0x1);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>lock.unlock();</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" kindref="member">tg_wait_test_completion</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>))</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>status<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" kindref="member">tg_perf</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209" refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" kindref="member">run_thread_single_channel</ref>(<ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>ret<sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" kindref="member">config_input_options</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>configure<sp/>TG<sp/>input<sp/>options&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" kindref="member">run_mem_test</ref>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218" refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" kindref="member">run</ref>(<ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>*afu,<sp/>CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>)</highlight><highlight class="keyword"><sp/>override</highlight></codeline>
+<codeline lineno="219"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>d_afu<sp/>=<sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="normal"><ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(afu);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref><sp/>=<sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="normal"><ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(afu);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1a19e277d2e24c74242d4be7c3d9b39689" kindref="member">token_</ref><sp/>=<sp/>d_afu-&gt;get_token();</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Read<sp/>HW<sp/>details</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(0<sp/>==<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" kindref="member">mem_speed_</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" kindref="member">mem_speed_</ref><sp/>=<sp/>300;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Memory<sp/>channel<sp/>clock<sp/>frequency<sp/>unknown.<sp/>Assuming<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" kindref="member">mem_speed_</ref><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>MHz.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Memory<sp/>clock<sp/>from<sp/>command<sp/>line:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" kindref="member">mem_speed_</ref><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>MHz&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(0<sp/>&gt;=<sp/>(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>).size())<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Insufficient<sp/>arguments<sp/>provided&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exit(1);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Parse<sp/>mem_ch_<sp/>into<sp/>array<sp/>of<sp/>selected<sp/>channels<sp/>and<sp/>number<sp/>of<sp/>channels</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*channels<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_channels<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[0]).find(</highlight><highlight class="stringliteral">&quot;all&quot;</highlight><highlight class="normal">)<sp/>==<sp/>0)<sp/>{<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>mem_capability<sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacemem__tg_1ac0cdbbdcef2cc707d348513b5579eb54a71c07e22c468e2fac16fc82de00ae213" kindref="member">MEM_TG_CTRL</ref>);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>channels<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">[</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint64_t)];<sp/></highlight><highlight class="comment">//<sp/>size<sp/>should<sp/>be<sp/>same<sp/>as<sp/>mem_capability<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint64_t);<sp/>i++)<sp/>{<sp/></highlight><highlight class="comment">//<sp/>number<sp/>of<sp/>iterations<sp/>should<sp/>be<sp/>same<sp/>as<sp/>mem_capability<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((mem_capability<sp/>&amp;<sp/>(1ULL<sp/>&lt;&lt;<sp/>i))<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>channels[num_channels]<sp/>=<sp/>i;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_channels<sp/>+=<sp/>1;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>channels[num_channels]<sp/>=<sp/>-1;<sp/></highlight><highlight class="comment">//<sp/>EOL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>channels<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">[<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>.size()];</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_channels<sp/>=<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>.size();</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>.size();<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>channels[i]<sp/>=<sp/>std::stoi(<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" kindref="member">mem_ch_</ref>[i]);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(std::invalid_argument<sp/>&amp;e)<sp/>{</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error:<sp/>invalid<sp/>argument<sp/>to<sp/>std::stoi&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">[]<sp/>channels;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Spawn<sp/>threads<sp/>for<sp/>each<sp/>channel:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*thread_tg_exe_objects[num_channels];</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;std::future&lt;int&gt;&gt;<sp/>futures;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;std::promise&lt;int&gt;&gt;<sp/>promises(num_channels);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;std::thread&gt;<sp/>threads;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg_1a5f9ac460f06d8d421c98634269f87cd4" kindref="member">tg_num_threads</ref><sp/>=<sp/>num_channels;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg_1a1b62d23fb279e2d99d781ac03a43276e" kindref="member">tg_waiting_threads_counter</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_channels;<sp/>i++)<sp/>{<sp/></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(channels[i]<sp/>==<sp/>-1)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thread_tg_exe_objects[i]<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="namespacemem__tg" kindref="compound">mem_tg</ref>;</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>-&gt;<ref refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" kindref="member">duplicate</ref>(thread_tg_exe_objects[i]);</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thread_tg_exe_objects[i]-&gt;mem_ch_.clear();</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thread_tg_exe_objects[i]-&gt;mem_ch_.push_back(std::to_string(channels[i]));</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>futures.push_back(promises[i].get_future());</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>threads.emplace_back([&amp;,<sp/>i]<sp/>{<sp/></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>promises[i].set_value(<ref refid="classmem__tg_1_1tg__test_1a97d534705750d044486b471664f019df" kindref="member">run_thread_single_channel</ref>(thread_tg_exe_objects[i]));<sp/></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Wait<sp/>for<sp/>all<sp/>threads<sp/>to<sp/>exit<sp/>then<sp/>collect<sp/>their<sp/>exit<sp/>statuses</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>&amp;thread<sp/>:<sp/>threads)<sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thread.join();</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;int&gt;<sp/>exit_codes;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>&amp;future<sp/>:<sp/>futures)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exit_codes.push_back(future.get());</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Print<sp/>message<sp/>showing<sp/>thread<sp/>statuses</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_channels;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Thread<sp/>on<sp/>channel<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>channels[i]<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>exited<sp/>with<sp/>status<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>(long)exit_codes[i]<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Delete<sp/>dynamic<sp/>allocations<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">[]<sp/>channels;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_channels;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal"><sp/>thread_tg_exe_objects[i];</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="312" refid="classmem__tg_1_1tg__test_1a49c1d34f23394b8d3f417941c3dae13e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="classmem__tg_1_1tg__test_1a49c1d34f23394b8d3f417941c3dae13e" kindref="member">tg_offset_</ref>;</highlight></codeline>
+<codeline lineno="313" refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacemem__tg" kindref="compound">mem_tg</ref><sp/>*<ref refid="classmem__tg_1_1tg__test_1af9a56c0724544be2cfeee914e300b264" kindref="member">tg_exe_</ref>;</highlight></codeline>
+<codeline lineno="314" refid="classmem__tg_1_1tg__test_1a19e277d2e24c74242d4be7c3d9b39689" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref><sp/><ref refid="classmem__tg_1_1tg__test_1a19e277d2e24c74242d4be7c3d9b39689" kindref="member">token_</ref>;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>mem_tg</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="samples/mem_tg/tg_test.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>host_exerciser &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="HSSI ethernet statistics" href="../hssi_ethernet/hssistats.html" />
+    <link rel="prev" title="opae.io" href="../opae.io/opae.io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">host_exerciser</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#host-exerciser-loopback-he-lbk">Host Exerciser Loopback (HE-LBK)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#host-exerciser-memory-he-mem">Host Exerciser Memory (HE-MEM)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#host-exerciser-sub-commands">HOST EXERCISER SUB COMMANDS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-arguments">OPTIONAL ARGUMENTS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-arguments-options">COMMON ARGUMENTS / OPTIONS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>host_exerciser</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/host_exerciser/host_exerciser.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="host-exerciser">
+<h1>host_exerciser<a class="headerlink" href="#host-exerciser" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: host_exerciser [OPTIONS] SUBCOMMAND</span>
+
+
+<span class="go">Options:</span>
+<span class="go">  -h,--help                   Print this help message and exit</span>
+<span class="go">  -p,--pci-address TEXT       [&lt;domain&gt;:]&lt;bus&gt;:&lt;device&gt;.&lt;function&gt;</span>
+<span class="go">  -l,--log-level TEXT:{trace,debug,info,warning,error,critical,off}=warning</span>
+<span class="go">                              stdout logging level</span>
+<span class="go">  -s,--shared                 open in shared mode, default is off</span>
+<span class="go">  -t,--timeout UINT=60000     test timeout (msec)</span>
+<span class="go">  -m,--mode UINT:value in {lpbk-&gt;0,read-&gt;1,trput-&gt;3,write-&gt;2} OR {0,1,3,2}=lpbk</span>
+<span class="go">                              host exerciser mode {lpbk,read, write, trput}</span>
+<span class="go">  --cls UINT:value in {cl_1-&gt;0,cl_2-&gt;1,cl_4-&gt;2,cl_8-&gt;3} OR {0,1,2,3}=cl_1</span>
+<span class="go">                              number of CLs per request{cl_1, cl_2, cl_4, cl_8}</span>
+<span class="go">  --continuousmode BOOLEAN=false</span>
+<span class="go">                              test rollover or test termination</span>
+<span class="go">  --atomic UINT:value in {cas_4-&gt;9,cas_8-&gt;11,fadd_4-&gt;1,fadd_8-&gt;3,off-&gt;0,swap_4-&gt;5,swap_8-&gt;7} OR {9,11,1,3,0,5,7}=off</span>
+<span class="go">                              atomic requests (only permitted in combination with lpbk/cl_1)</span>
+<span class="go">  --encoding UINT:value in {default-&gt;0,dm-&gt;1,pu-&gt;2,random-&gt;3} OR {0,1,2,3}=default</span>
+<span class="go">                              data mover or power user encoding -- random interleaves both in the same stream</span>
+<span class="go">  -d,--delay BOOLEAN=false    Enables random delay insertion between requests</span>
+<span class="go">  --interleave UINT=0         Interleave requests pattern to use in throughput mode {0, 1, 2}</span>
+<span class="go">                              indicating one of the following series of read/write requests:</span>
+<span class="go">                              0: rd-wr-rd-wr</span>
+<span class="go">                              1: rd-rd-wr-wr</span>
+<span class="go">                              2: rd-rd-rd-rd-wr-wr-wr-wr</span>
+<span class="go">  --interrupt UINT:INT in [0 - 3]</span>
+<span class="go">                              The Interrupt Vector Number for the device</span>
+<span class="go">  --contmodetime UINT=1       Continuous mode time in seconds</span>
+<span class="go">  --testall BOOLEAN=false     Run all tests</span>
+<span class="go">  --clock-mhz UINT=0          Clock frequency (MHz) -- when zero, read the frequency from the AFU</span>
+
+<span class="go">Subcommands:</span>
+<span class="go">  lpbk                        run simple loopback test</span>
+<span class="go">  mem                         run simple mem test</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The host exerciser used to exercise and characterize the various host-FPGA
+interactions eg. MMIO, Data transfer from host to FPGA , PR, host to FPGA memory etc.</p>
+<div class="section" id="host-exerciser-loopback-he-lbk">
+<h3>Host Exerciser Loopback (HE-LBK)<a class="headerlink" href="#host-exerciser-loopback-he-lbk" title="Permalink to this headline">¶</a></h3>
+<p>HE-LB is responsible for generating traffic with the intention of exercising the
+path from the AFU to the Host at full bandwidth.
+Host Exerciser Loopback (HE-LBK) AFU can move data between host memory and FPGA.</p>
+<p>HE-LBK supports:</p>
+<ol class="simple">
+<li><p>Latency (AFU to Host memory read)</p></li>
+<li><p>MMIO latency (Write+Read)</p></li>
+<li><p>MMIO BW (64B MMIO writes)</p></li>
+<li><p>BW (Read/Write, Read only, Wr only)</p></li>
+</ol>
+</div>
+<div class="section" id="host-exerciser-memory-he-mem">
+<h3>Host Exerciser Memory (HE-MEM)<a class="headerlink" href="#host-exerciser-memory-he-mem" title="Permalink to this headline">¶</a></h3>
+<p>HE-MEM is used to exercise use of FPGA connected DDR; data read from the host is
+written to DDR, and the same data is read from DDR before sending it back to the
+host. HE-MEM uses external DDR memory (i.e. EMIF) to store data. It has a customized
+version of the AVMM interface to communicate with the EMIF memory controller.</p>
+<p>Execution of these exercisors requires the user to bind specific VF endpoint to vfio-pci
+Bind the correct endpoint for a device with B/D/F 0000:b1:00.0</p>
+<p><code class="docutils literal notranslate"><span class="pre">[user&#64;localhost]:</span> <span class="pre">sudo</span> <span class="pre">opae.io</span> <span class="pre">init</span> <span class="pre">-d</span> <span class="pre">0000:b1:00.2</span> <span class="pre">user:user</span></code></p>
+</div>
+<div class="section" id="host-exerciser-sub-commands">
+<h3>HOST EXERCISER SUB COMMANDS<a class="headerlink" href="#host-exerciser-sub-commands" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">lpbk</span></code></p>
+<p>run host exerciser loopback test</p>
+<p><code class="docutils literal notranslate"><span class="pre">mem</span></code></p>
+<p>run host exerciser memory test</p>
+</div>
+</div>
+<div class="section" id="optional-arguments">
+<h2>OPTIONAL ARGUMENTS<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p>
+<p>Prints help information and exit.</p>
+</div>
+<div class="section" id="common-arguments-options">
+<h2>COMMON ARGUMENTS / OPTIONS<a class="headerlink" href="#common-arguments-options" title="Permalink to this headline">¶</a></h2>
+<p>The following arguments are common to all commands and are optional.</p>
+<p><code class="docutils literal notranslate"> <span class="pre">-p,--pci-address</span></code></p>
+<p>PCIe domain, bus, device, function number of fpga resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-l,--log-level</span></code></p>
+<p>set host exerciser tool log level, trace, debug, info, warning, error, critical, off</p>
+<p><code class="docutils literal notranslate"><span class="pre">-s,--shared</span> </code></p>
+<p>open FPGA PCIe resource in shared mode</p>
+<p><code class="docutils literal notranslate"><span class="pre">-t,--timeout</span></code></p>
+<p>host exerciser tool time out, by default time out 60000</p>
+<p><code class="docutils literal notranslate"><span class="pre">-m,--mode</span></code></p>
+<p>host exerciser test modes are lpbk, read, write, trput</p>
+<p><code class="docutils literal notranslate"><span class="pre">--cls</span></code></p>
+<p>Number of cachelines per request 1, 2, 3, 4.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--continuousmode</span></code></p>
+<p>Configures test rollover or test termination mode.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--atomic</span></code></p>
+<p>atomic requests.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--encoding</span></code></p>
+<p>select data mover mode or power user mode or random.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-d,--delay</span></code></p>
+<p>Enables random delay insertion between requests.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--interleave</span></code></p>
+<p>Enables interleave requests in throughput mode.
+Value:3’b000-Rd,Wr,Rd,Wr
+Value:3’b001-Rd,Rd,Wr,Wr
+Value:3’b010-Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr
+Value:3’b011-Not supported</p>
+<p><code class="docutils literal notranslate"><span class="pre">--interrupt</span></code></p>
+<p>Accelerator interrupt vector Number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--contmodetime</span></code></p>
+<p>Continuous mode time in seconds.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--testall</span> </code></p>
+<p>Run all host exerciser tests.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--clock-mhz</span></code></p>
+<p>pcie clock frequency, default value 350Mhz.</p>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This command exerciser Loopback afu:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">host_exerciser lpbk</span>
+</pre></div>
+</div>
+<p>This command exerciser memory afu:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">host_exerciser mem</span>
+</pre></div>
+</div>
+<p>This command exerciser Loopback afu on pcie 000:3b:00.0:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">host_exerciser --pci-address 000:3b:00.0    lpbk</span>
+</pre></div>
+</div>
+<p>This command exerciser Loopback afu on pcie 000:3b:00.0 and run in write mode:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">host_exerciser --pci-address 000:3b:00.0   --mode write lpbl</span>
+</pre></div>
+</div>
+<p>This command exerciser Loopback afu on pcie 000:3b:00.0 and run 2 cache lines per request:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">host_exerciser --pci-address 000:3b:00.0   --cls cl_2  lpbk</span>
+</pre></div>
+</div>
+<p>This command exerciser Loopback afu on pcie 000:3b:00.0 and run continuous mode for 10 seconds:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">host_exerciser --pci-address 000:3b:00.0   -cls cl_1   -m 0 --continuousmode true --contmodetime 10 lpbk</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+| 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated description of the <code class="docutils literal notranslate"><span class="pre">fme</span></code> command |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../opae.io/opae.io.html" class="btn btn-neutral float-left" title="opae.io" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../hssi_ethernet/hssistats.html" class="btn btn-neutral float-right" title="HSSI ethernet statistics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

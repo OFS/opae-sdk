@@ -1,0 +1,624 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dummy__afu_8h" kind="file" language="C++">
+    <compoundname>dummy_afu.h</compoundname>
+    <includes refid="events_8h" local="no">opae/cxx/core/events.h</includes>
+    <includes refid="shared__buffer_8h" local="no">opae/cxx/core/shared_buffer.h</includes>
+    <includes local="yes">afu_test.h</includes>
+    <includedby refid="ddr_8h" local="yes">samples/dummy_afu/ddr.h</includedby>
+    <includedby refid="dummy__afu_8cpp" local="yes">samples/dummy_afu/dummy_afu.cpp</includedby>
+    <includedby refid="lpbk_8h" local="yes">samples/dummy_afu/lpbk.h</includedby>
+    <includedby refid="samples_2dummy__afu_2mmio_8h" local="yes">samples/dummy_afu/mmio.h</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>cstdint</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="34">
+        <label>afu_test.h</label>
+      </node>
+      <node id="29">
+        <label>opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="25">
+        <label>map</label>
+      </node>
+      <node id="19">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="15">
+        <label>exception</label>
+      </node>
+      <node id="8">
+        <label>stddef.h</label>
+      </node>
+      <node id="13">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samples/dummy_afu/dummy_afu.h</label>
+        <link refid="dummy__afu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>vector</label>
+      </node>
+      <node id="21">
+        <label>array</label>
+      </node>
+      <node id="16">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>iostream</label>
+      </node>
+      <node id="28">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>chrono</label>
+      </node>
+      <node id="2">
+        <label>opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>thread</label>
+      </node>
+      <node id="24">
+        <label>type_traits</label>
+      </node>
+      <node id="20">
+        <label>algorithm</label>
+      </node>
+      <node id="18">
+        <label>stdio.h</label>
+      </node>
+      <node id="22">
+        <label>cstring</label>
+      </node>
+      <node id="26">
+        <label>memory</label>
+      </node>
+      <node id="32">
+        <label>initializer_list</label>
+      </node>
+      <node id="12">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>samples/dummy_afu/dummy_afu.cpp</label>
+        <link refid="dummy__afu_8cpp"/>
+      </node>
+      <node id="5">
+        <label>samples/dummy_afu/mmio.h</label>
+        <link refid="samples_2dummy__afu_2mmio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>samples/dummy_afu/lpbk.h</label>
+        <link refid="lpbk_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samples/dummy_afu/dummy_afu.h</label>
+        <link refid="dummy__afu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/dummy_afu/ddr.h</label>
+        <link refid="ddr_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="uniondummy__afu_1_1afu__dfh" prot="public">dummy_afu::afu_dfh</innerclass>
+    <innerclass refid="uniondummy__afu_1_1mem__test__ctrl" prot="public">dummy_afu::mem_test_ctrl</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__ctrl" prot="public">dummy_afu::ddr_test_ctrl</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__stat" prot="public">dummy_afu::ddr_test_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank0__stat" prot="public">dummy_afu::ddr_test_bank0_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank1__stat" prot="public">dummy_afu::ddr_test_bank1_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank2__stat" prot="public">dummy_afu::ddr_test_bank2_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank3__stat" prot="public">dummy_afu::ddr_test_bank3_stat</innerclass>
+    <innerclass refid="classdummy__afu_1_1dummy__afu" prot="public">dummy_afu::dummy_afu</innerclass>
+    <innerclass refid="structdummy__afu_1_1afu__dfh_8____unnamed65____" prot="public">dummy_afu::afu_dfh.__unnamed65__</innerclass>
+    <innerclass refid="structdummy__afu_1_1mem__test__ctrl_8____unnamed68____" prot="public">dummy_afu::mem_test_ctrl.__unnamed68__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____" prot="public">dummy_afu::ddr_test_ctrl.__unnamed71__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__stat_8____unnamed74____" prot="public">dummy_afu::ddr_test_stat.__unnamed74__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank0__stat_8____unnamed77____" prot="public">dummy_afu::ddr_test_bank0_stat.__unnamed77__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank1__stat_8____unnamed80____" prot="public">dummy_afu::ddr_test_bank1_stat.__unnamed80__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____" prot="public">dummy_afu::ddr_test_bank2_stat.__unnamed83__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank3__stat_8____unnamed86____" prot="public">dummy_afu::ddr_test_bank3_stat.__unnamed86__</innerclass>
+    <innernamespace refid="namespacedummy__afu">dummy_afu</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2020,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="events_8h" kindref="compound">opae/cxx/core/events.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="shared__buffer_8h" kindref="compound">opae/cxx/core/shared_buffer.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;afu_test.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1event" kindref="compound">opae::fpga::types::event</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">opae::fpga::types::shared_buffer</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="37" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2e87f72819846d7a53092b360755c7cd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2e87f72819846d7a53092b360755c7cd" kindref="member">AFU_DFH</ref><sp/>=<sp/>0x0000,</highlight></codeline>
+<codeline lineno="38" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba7bc0113085a1537b87b9533c1d1b93e4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba7bc0113085a1537b87b9533c1d1b93e4" kindref="member">AFU_ID_L</ref><sp/>=<sp/>0x0008,</highlight></codeline>
+<codeline lineno="39" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baa48ec3d788fa335ebc4bb4469bafc48c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baa48ec3d788fa335ebc4bb4469bafc48c" kindref="member">AFU_ID_H</ref><sp/>=<sp/>0x0010,</highlight></codeline>
+<codeline lineno="40" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba222f7920be0e34b7907643cef6889fd4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba222f7920be0e34b7907643cef6889fd4" kindref="member">NEXT_AFU</ref><sp/>=<sp/>0x0018,</highlight></codeline>
+<codeline lineno="41" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba1a9e79d25022f4af20b0fb5347f7a76e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba1a9e79d25022f4af20b0fb5347f7a76e" kindref="member">AFU_DFH_RSVD</ref><sp/>=<sp/>0x0020,</highlight></codeline>
+<codeline lineno="42" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" kindref="member">SCRATCHPAD</ref><sp/>=<sp/>0x0028,</highlight></codeline>
+<codeline lineno="43" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139" kindref="member">MMIO_TEST_SCRATCHPAD</ref><sp/>=<sp/>0x1000,</highlight></codeline>
+<codeline lineno="44" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a" kindref="member">MEM_TEST_CTRL</ref><sp/>=<sp/>0x2040,</highlight></codeline>
+<codeline lineno="45" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bae4462a80036a5ac3aa3cada2418bc2a5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bae4462a80036a5ac3aa3cada2418bc2a5" kindref="member">MEM_TEST_STAT</ref><sp/>=<sp/>0x2048,</highlight></codeline>
+<codeline lineno="46" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba50907b523a57b88d331c2224e057f8dd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba50907b523a57b88d331c2224e057f8dd" kindref="member">MEM_TEST_SRC_ADDR</ref><sp/>=<sp/>0x2050,</highlight></codeline>
+<codeline lineno="47" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba23997995c982f0e6a26fea04efa07c37" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba23997995c982f0e6a26fea04efa07c37" kindref="member">MEM_TEST_DST_ADDR</ref><sp/>=<sp/>0x2058,</highlight></codeline>
+<codeline lineno="48" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baf36a9e642b0ddac03c1f9938fb6789c3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baf36a9e642b0ddac03c1f9938fb6789c3" kindref="member">DDR_TEST_CTRL</ref><sp/>=<sp/>0x3000,</highlight></codeline>
+<codeline lineno="49" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baab48d50e6990ff1a2a76fe12bd189a51" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baab48d50e6990ff1a2a76fe12bd189a51" kindref="member">DDR_TEST_STAT</ref><sp/>=<sp/>0x3008,</highlight></codeline>
+<codeline lineno="50" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bada2d999413f409ffcf8f73006412f96f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bada2d999413f409ffcf8f73006412f96f" kindref="member">DDR_TEST_BANK0_STAT</ref><sp/>=<sp/>0x3010,</highlight></codeline>
+<codeline lineno="51" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba47ea5964b0401582a714a12a42998c83" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba47ea5964b0401582a714a12a42998c83" kindref="member">DDR_TEST_BANK1_STAT</ref><sp/>=<sp/>0x3018,</highlight></codeline>
+<codeline lineno="52" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba0edc832f3a1cb6b2be9e63b044a1570a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba0edc832f3a1cb6b2be9e63b044a1570a" kindref="member">DDR_TEST_BANK2_STAT</ref><sp/>=<sp/>0x3020,</highlight></codeline>
+<codeline lineno="53" refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7b6c66db9078f216f384bcdc09ae8d5" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7b6c66db9078f216f384bcdc09ae8d5" kindref="member">DDR_TEST_BANK3_STAT</ref><sp/>=<sp/>0x3028,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="uniondummy__afu_1_1afu__dfh" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1afu__dfh" kindref="compound">afu_dfh</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1afu__dfh_1ae9b4634d1329e564be6a1cc7156e1cbaa544188b280cf29aaf4a2ead476fbc0f2" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2e87f72819846d7a53092b360755c7cd" kindref="member">AFU_DFH</ref></highlight></codeline>
+<codeline lineno="60" refid="uniondummy__afu_1_1afu__dfh_1ae9b4634d1329e564be6a1cc7156e1cbaa544188b280cf29aaf4a2ead476fbc0f2" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="uniondummy__afu_1_1afu__dfh_1a301e87cde4d4e5e325aa220ab3ccce3c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1afu__dfh_1a301e87cde4d4e5e325aa220ab3ccce3c" kindref="member">afu_dfh</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1afu__dfh_1ae4801bc07cdbd1212c032fa8a01cce7e" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="63" refid="uniondummy__afu_1_1afu__dfh_1ae4801bc07cdbd1212c032fa8a01cce7e" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1afu__dfh_1ae4801bc07cdbd1212c032fa8a01cce7e" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="64" refid="structdummy__afu_1_1afu__dfh_8____unnamed65____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>FeatureID<sp/>:<sp/>12;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>FeatureRev<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>NextDfhByteOffset<sp/>:<sp/>24;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>EOL<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved41<sp/>:<sp/>19;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>FeatureType<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="uniondummy__afu_1_1mem__test__ctrl" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1mem__test__ctrl" kindref="compound">mem_test_ctrl</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1mem__test__ctrl_1ad4f50101bc511fd663c221f8384c10cead77d8b6de99fa585c67d093213b1a39e" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a" kindref="member">MEM_TEST_CTRL</ref></highlight></codeline>
+<codeline lineno="77" refid="uniondummy__afu_1_1mem__test__ctrl_1ad4f50101bc511fd663c221f8384c10cead77d8b6de99fa585c67d093213b1a39e" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="uniondummy__afu_1_1mem__test__ctrl_1a0d74ae4d2ec938b7ba7cd49b2ef5828a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1mem__test__ctrl_1a0d74ae4d2ec938b7ba7cd49b2ef5828a" kindref="member">mem_test_ctrl</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1mem__test__ctrl_1a9c14b3653f5071a114a11cda827847d3" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="80" refid="uniondummy__afu_1_1mem__test__ctrl_1a9c14b3653f5071a114a11cda827847d3" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1mem__test__ctrl_1a9c14b3653f5071a114a11cda827847d3" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="81" refid="structdummy__afu_1_1mem__test__ctrl_8____unnamed68____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>StartTest<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved1<sp/>:<sp/>63;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="uniondummy__afu_1_1ddr__test__ctrl" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1ddr__test__ctrl" kindref="compound">ddr_test_ctrl</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__ctrl_1a2e9231688b257b0bf2fe224196c5f627a84fd585fd7d91ae83ffa4d845392c746" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baf36a9e642b0ddac03c1f9938fb6789c3" kindref="member">DDR_TEST_CTRL</ref></highlight></codeline>
+<codeline lineno="90" refid="uniondummy__afu_1_1ddr__test__ctrl_1a2e9231688b257b0bf2fe224196c5f627a84fd585fd7d91ae83ffa4d845392c746" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="uniondummy__afu_1_1ddr__test__ctrl_1ab39713f855d5b6624d09a5d39b8934d6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__ctrl_1ab39713f855d5b6624d09a5d39b8934d6" kindref="member">ddr_test_ctrl</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1ddr__test__ctrl_1a150f5e0256b7295210490e11080033ba" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="93" refid="uniondummy__afu_1_1ddr__test__ctrl_1a150f5e0256b7295210490e11080033ba" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1ddr__test__ctrl_1a150f5e0256b7295210490e11080033ba" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="94" refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>DDRBank0StartTest<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>DDRBank1StartTest<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>DDRBank2StartTest<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>DDRBank3StartTest<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved4<sp/>:<sp/>60;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="uniondummy__afu_1_1ddr__test__stat" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1ddr__test__stat" kindref="compound">ddr_test_stat</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__stat_1a37397fb998ffbc4b31c2ce3b35441d4bad730fff971bc9d01c3a16f7b2fa183b9" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baab48d50e6990ff1a2a76fe12bd189a51" kindref="member">DDR_TEST_STAT</ref></highlight></codeline>
+<codeline lineno="106" refid="uniondummy__afu_1_1ddr__test__stat_1a37397fb998ffbc4b31c2ce3b35441d4bad730fff971bc9d01c3a16f7b2fa183b9" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="uniondummy__afu_1_1ddr__test__stat_1a647fb58c616da1a775f5ebf803d0d874" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__stat_1a647fb58c616da1a775f5ebf803d0d874" kindref="member">ddr_test_stat</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1ddr__test__stat_1a9bd768d5f16bd893a6a724bc437e845c" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="109" refid="uniondummy__afu_1_1ddr__test__stat_1a9bd768d5f16bd893a6a724bc437e845c" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1ddr__test__stat_1a9bd768d5f16bd893a6a724bc437e845c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="110" refid="structdummy__afu_1_1ddr__test__stat_8____unnamed74____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>NumDDRBank<sp/>:<sp/>8;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved8<sp/>:<sp/>56;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="uniondummy__afu_1_1ddr__test__bank0__stat" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1ddr__test__bank0__stat" kindref="compound">ddr_test_bank0_stat</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank0__stat_1aa8c7a1aab7459f91472d152330afd777a452d9ce4a0d81f0a03fb108f90910eff" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bada2d999413f409ffcf8f73006412f96f" kindref="member">DDR_TEST_BANK0_STAT</ref></highlight></codeline>
+<codeline lineno="119" refid="uniondummy__afu_1_1ddr__test__bank0__stat_1aa8c7a1aab7459f91472d152330afd777a452d9ce4a0d81f0a03fb108f90910eff" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="uniondummy__afu_1_1ddr__test__bank0__stat_1a27970572a33b9e78bb8234e89c9c1f3a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank0__stat_1a27970572a33b9e78bb8234e89c9c1f3a" kindref="member">ddr_test_bank0_stat</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank0__stat_1ae093a3331a30ae7929ab1c444a6efbaa" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="122" refid="uniondummy__afu_1_1ddr__test__bank0__stat_1ae093a3331a30ae7929ab1c444a6efbaa" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank0__stat_1ae093a3331a30ae7929ab1c444a6efbaa" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="123" refid="structdummy__afu_1_1ddr__test__bank0__stat_8____unnamed77____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestPass<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestFail<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestTimeout<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenFSMState<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved4<sp/>:<sp/>57;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="uniondummy__afu_1_1ddr__test__bank1__stat" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1ddr__test__bank1__stat" kindref="compound">ddr_test_bank1_stat</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank1__stat_1a2ac1436f349a087de1cce1e661730d57a43810c33a13e460071b76c35adbdc7fc" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba47ea5964b0401582a714a12a42998c83" kindref="member">DDR_TEST_BANK1_STAT</ref></highlight></codeline>
+<codeline lineno="135" refid="uniondummy__afu_1_1ddr__test__bank1__stat_1a2ac1436f349a087de1cce1e661730d57a43810c33a13e460071b76c35adbdc7fc" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="uniondummy__afu_1_1ddr__test__bank1__stat_1ade87612fe257022a517fdd835c78754b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank1__stat_1ade87612fe257022a517fdd835c78754b" kindref="member">ddr_test_bank1_stat</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank1__stat_1a4550efbc4c68c7c2bbe9d0c827fb5135" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="138" refid="uniondummy__afu_1_1ddr__test__bank1__stat_1a4550efbc4c68c7c2bbe9d0c827fb5135" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank1__stat_1a4550efbc4c68c7c2bbe9d0c827fb5135" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="139" refid="structdummy__afu_1_1ddr__test__bank1__stat_8____unnamed80____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestPass<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestFail<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestTimeout<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenFSMState<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved4<sp/>:<sp/>57;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="uniondummy__afu_1_1ddr__test__bank2__stat" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1ddr__test__bank2__stat" kindref="compound">ddr_test_bank2_stat</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank2__stat_1ab45b1138a9723de818f886c0ec98791aa3b5fc2a73673ef8ffba47c5c0dc56baf" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba0edc832f3a1cb6b2be9e63b044a1570a" kindref="member">DDR_TEST_BANK2_STAT</ref></highlight></codeline>
+<codeline lineno="151" refid="uniondummy__afu_1_1ddr__test__bank2__stat_1ab45b1138a9723de818f886c0ec98791aa3b5fc2a73673ef8ffba47c5c0dc56baf" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a5cfadb8d287a49d46efc9fae92dc6394" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a5cfadb8d287a49d46efc9fae92dc6394" kindref="member">ddr_test_bank2_stat</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a8acbcc0bc572c7ad68a2491bda817ddb" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="154" refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a8acbcc0bc572c7ad68a2491bda817ddb" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a8acbcc0bc572c7ad68a2491bda817ddb" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="155" refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestPass<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestFail<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestTimeout<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenFSMState<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved4<sp/>:<sp/>57;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="uniondummy__afu_1_1ddr__test__bank3__stat" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="uniondummy__afu_1_1ddr__test__bank3__stat" kindref="compound">ddr_test_bank3_stat</ref><sp/><sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank3__stat_1aec8cdfaa9320b2e7406c38a01d8408c7a5528e77330dfd1667928814465f6282b" kindref="member">offset</ref><sp/>=<sp/><ref refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7b6c66db9078f216f384bcdc09ae8d5" kindref="member">DDR_TEST_BANK3_STAT</ref></highlight></codeline>
+<codeline lineno="167" refid="uniondummy__afu_1_1ddr__test__bank3__stat_1aec8cdfaa9320b2e7406c38a01d8408c7a5528e77330dfd1667928814465f6282b" refkind="member"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="uniondummy__afu_1_1ddr__test__bank3__stat_1af0e5d533620baa6e2703f4ead46ba799" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="uniondummy__afu_1_1ddr__test__bank3__stat_1af0e5d533620baa6e2703f4ead46ba799" kindref="member">ddr_test_bank3_stat</ref>(uint64_t<sp/>v)<sp/>:<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank3__stat_1ae6d442f6a5868de25bcd552a6ded3ba0" kindref="member">value</ref>(v)<sp/>{}</highlight></codeline>
+<codeline lineno="170" refid="uniondummy__afu_1_1ddr__test__bank3__stat_1ae6d442f6a5868de25bcd552a6ded3ba0" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="uniondummy__afu_1_1ddr__test__bank3__stat_1ae6d442f6a5868de25bcd552a6ded3ba0" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="171" refid="structdummy__afu_1_1ddr__test__bank3__stat_8____unnamed86____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestPass<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestFail<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenTestTimeout<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>TrafficGenFSMState<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Reserved4<sp/>:<sp/>57;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180" refid="namespacedummy__afu_1ac06b3900bd7a2d4ba2c3f19ea20f622d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref>;</highlight></codeline>
+<codeline lineno="181" refid="namespacedummy__afu_1aa01df4dcd37386cbf0800129c6f3183c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">test_command</ref><sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">opae::afu_test::command</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183" refid="classdummy__afu_1_1dummy__afu" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="namespacedummy__afu" kindref="compound">dummy_afu</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="185" refid="classdummy__afu_1_1dummy__afu_1aae0500ab86280590301a8f2035871ea2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classdummy__afu_1_1dummy__afu_1aae0500ab86280590301a8f2035871ea2" kindref="member">dummy_afu</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*afu_id<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/>:<sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref>(</highlight><highlight class="stringliteral">&quot;dummy_afu&quot;</highlight><highlight class="normal">,<sp/>afu_id)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/>,<sp/>count_(1)</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight><highlight class="stringliteral">&quot;-c,--count&quot;</highlight><highlight class="normal">,<sp/>count_,<sp/></highlight><highlight class="stringliteral">&quot;Number<sp/>of<sp/>times<sp/>to<sp/>run<sp/>test&quot;</highlight><highlight class="normal">)-&gt;default_str(std::to_string(count_));</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192" refid="classdummy__afu_1_1dummy__afu_1a28786abacbd10d38cb75c7735b5f06d9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a28786abacbd10d38cb75c7735b5f06d9" kindref="member">run</ref>(CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>,<sp/><ref refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" kindref="member">test_command::ptr_t</ref><sp/>test)</highlight><highlight class="keyword"><sp/>override</highlight></codeline>
+<codeline lineno="193"><highlight class="keyword"><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>res<sp/>=<sp/>exit_codes::not_run;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>logger_-&gt;set_level(spdlog::level::trace);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>logger_-&gt;info(</highlight><highlight class="stringliteral">&quot;starting<sp/>test<sp/>run,<sp/>count<sp/>of<sp/>{0:d}&quot;</highlight><highlight class="normal">,<sp/>count_);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(count<sp/>&lt;<sp/>count_)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger_-&gt;debug(</highlight><highlight class="stringliteral">&quot;starting<sp/>iteration:<sp/>{0:d}&quot;</highlight><highlight class="normal">,<sp/>count+1);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>handle_-&gt;reset();</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d" kindref="member">test_afu::run</ref>(<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>,<sp/>test);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count++;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger_-&gt;debug(</highlight><highlight class="stringliteral">&quot;end<sp/>iteration:<sp/>{0:d}&quot;</highlight><highlight class="normal">,<sp/>count);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal">(std::exception<sp/>&amp;ex)<sp/>{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>logger_-&gt;error(ex.what());</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/>exit_codes::exception;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>handle_-&gt;reset();</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pass<sp/>=<sp/>res<sp/>==<sp/>exit_codes::success<sp/>?<sp/></highlight><highlight class="stringliteral">&quot;PASS&quot;</highlight><highlight class="normal"><sp/>:<sp/></highlight><highlight class="stringliteral">&quot;FAIL&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>logger_-&gt;info(</highlight><highlight class="stringliteral">&quot;Test<sp/>{}({}):<sp/>{}&quot;</highlight><highlight class="normal">,<sp/>test-&gt;name(),<sp/>count,<sp/>pass);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>spdlog::drop_all();</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="220" refid="classdummy__afu_1_1dummy__afu_1a6cfa065131aeb2c767957a427a45ca55" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>T<sp/><ref refid="classdummy__afu_1_1dummy__afu_1a6cfa065131aeb2c767957a427a45ca55" kindref="member">read</ref>(uint32_t<sp/>offset)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">T*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(handle_-&gt;mmio_ptr(offset));</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="225" refid="classdummy__afu_1_1dummy__afu_1a8dbe9b9d6a378367d4ebd928a40aa7df" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a8dbe9b9d6a378367d4ebd928a40aa7df" kindref="member">write</ref>(uint32_t<sp/>offset,<sp/>T<sp/>value)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>*</highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">T*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(handle_-&gt;mmio_ptr(offset))<sp/>=<sp/>value;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="230" refid="classdummy__afu_1_1dummy__afu_1aba415621cca0fff2789c41e2f2a103ce" refkind="member"><highlight class="normal"><sp/><sp/>T<sp/><ref refid="classdummy__afu_1_1dummy__afu_1aba415621cca0fff2789c41e2f2a103ce" kindref="member">read</ref>(uint32_t<sp/>offset,<sp/>uint32_t<sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>read&lt;T&gt;(get_offset(offset,<sp/>i));</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="235" refid="classdummy__afu_1_1dummy__afu_1a924a1ad3f5a424df863ddaf368daeaab" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a924a1ad3f5a424df863ddaf368daeaab" kindref="member">write</ref>(uint32_t<sp/>offset,<sp/>uint32_t<sp/>i,<sp/>T<sp/>value)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>write&lt;T&gt;(get_offset(offset,<sp/>i),<sp/>value);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239" refid="classdummy__afu_1_1dummy__afu_1a45941fbe75bbfbe64e1ad425576c51c8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a45941fbe75bbfbe64e1ad425576c51c8" kindref="member">allocate</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a5a3761aa33084d9a4038e457903e189b" kindref="member">shared_buffer::allocate</ref>(handle_,<sp/>size);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244" refid="classdummy__afu_1_1dummy__afu_1a367b5eea5a958b43526f6caed83fa3cd" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a367b5eea5a958b43526f6caed83fa3cd" kindref="member">fill</ref>(<ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref><sp/>buffer)</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/>std::random_device<sp/>rd;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>std::mt19937<sp/>mt(rd());</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/>std::uniform_int_distribution&lt;uint32_t&gt;<sp/>dist(1,<sp/>4096);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>sz<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint32_t);</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>buffer-&gt;size()/sz;<sp/>i+=sz){</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>buffer-&gt;write&lt;uint32_t&gt;(dist(mt),<sp/>i);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256" refid="classdummy__afu_1_1dummy__afu_1ab2520eacac74a76eeb451b2434d7bacf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1ab2520eacac74a76eeb451b2434d7bacf" kindref="member">fill</ref>(<ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref><sp/>buffer,<sp/>uint32_t<sp/>value)</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/>buffer-&gt;fill(value);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261" refid="classdummy__afu_1_1dummy__afu_1af04b7db0dd1a4cc07a892805e02b4a4f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1event_1a018f8b02575a7ed99cc013463f319e03" kindref="member">event::ptr_t</ref><sp/><ref refid="classdummy__afu_1_1dummy__afu_1af04b7db0dd1a4cc07a892805e02b4a4f" kindref="member">register_interrupt</ref>()</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">event</highlight><highlight class="normal"><sp/>=<sp/><ref refid="classopae_1_1fpga_1_1types_1_1event_1aebb5fa8450368e3288b25c729b6dbacf" kindref="member">event::register_event</ref>(handle_,<sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6a4927c38c144629dfd0ac7b798853d18f" kindref="member">FPGA_EVENT_INTERRUPT</ref>);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1event" kindref="compound">event</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="classdummy__afu_1_1dummy__afu_1a41f2ecf19989492da3d175c1f1307c45" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a41f2ecf19989492da3d175c1f1307c45" kindref="member">interrupt_wait</ref>(<ref refid="classopae_1_1fpga_1_1types_1_1event_1a018f8b02575a7ed99cc013463f319e03" kindref="member">event::ptr_t</ref><sp/><ref refid="classopae_1_1fpga_1_1types_1_1event" kindref="compound">event</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>timeout=-1)</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">pollfd<sp/>pfd;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>pfd.events<sp/>=<sp/>POLLIN;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>pfd.fd<sp/>=<sp/></highlight><highlight class="keyword">event</highlight><highlight class="normal">-&gt;os_object();</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>ret<sp/>=<sp/>poll(&amp;pfd,<sp/>1,<sp/>timeout);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(strerror(errno));</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight><highlight class="stringliteral">&quot;timeout<sp/>error&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280" refid="classdummy__afu_1_1dummy__afu_1a5b15cc613c3c02bca2247f52b281e316" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a5b15cc613c3c02bca2247f52b281e316" kindref="member">compare</ref>(<ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref><sp/>b1,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref><sp/>b2,<sp/>uint32_t<sp/>count<sp/>=<sp/>0)</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b1-&gt;compare(b2,<sp/>count<sp/>?<sp/>count<sp/>:<sp/>b1-&gt;size()))<sp/>{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight><highlight class="stringliteral">&quot;buffers<sp/>mismatch&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="290" refid="classdummy__afu_1_1dummy__afu_1a7338b50ed10fd0eb076ed439c6734bed" refkind="member"><highlight class="normal"><sp/><sp/>T<sp/><ref refid="classdummy__afu_1_1dummy__afu_1a7338b50ed10fd0eb076ed439c6734bed" kindref="member">read_register</ref>()</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">T*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(handle_-&gt;mmio_ptr(T::offset));</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="296" refid="classdummy__afu_1_1dummy__afu_1aaaf5867f6ca84c1c1f6e6701b463b24e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>T*<sp/><ref refid="classdummy__afu_1_1dummy__afu_1aaaf5867f6ca84c1c1f6e6701b463b24e" kindref="member">register_ptr</ref>(uint32_t<sp/>offset)</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="keyword">volatile<sp/></highlight><highlight class="normal">T*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(handle_-&gt;mmio_ptr(offset));</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;</highlight><highlight class="keyword">class</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="302" refid="classdummy__afu_1_1dummy__afu_1a8575458fcf22efea09c3feb33195e043" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classdummy__afu_1_1dummy__afu_1a8575458fcf22efea09c3feb33195e043" kindref="member">write_register</ref>(uint32_t<sp/>offset,<sp/>T*<sp/>reg)</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/>*</highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal">T*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(handle_-&gt;mmio_ptr(offset))<sp/>=<sp/>*reg;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="308" refid="classdummy__afu_1_1dummy__afu_1ae6e804471d96d97b1fefd1be976b1525" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classdummy__afu_1_1dummy__afu_1ae6e804471d96d97b1fefd1be976b1525" kindref="member">count_</ref>;</highlight></codeline>
+<codeline lineno="309" refid="classdummy__afu_1_1dummy__afu_1a559a248f4c1be5a66bf80d164bf5b5c4" refkind="member"><highlight class="normal"><sp/><sp/>std::map&lt;uint32_t,<sp/>uint32_t&gt;<sp/><ref refid="classdummy__afu_1_1dummy__afu_1a559a248f4c1be5a66bf80d164bf5b5c4" kindref="member">limits_</ref>;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311" refid="classdummy__afu_1_1dummy__afu_1ad76648d08dd4f8ca7fcd93f2a0cf0a57" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classdummy__afu_1_1dummy__afu_1ad76648d08dd4f8ca7fcd93f2a0cf0a57" kindref="member">get_offset</ref>(uint32_t<sp/>base,<sp/>uint32_t<sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>limit<sp/>=<sp/>limits_.find(base);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>base<sp/>+<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint64_t)*i;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limit<sp/>!=<sp/>limits_.end()<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>&gt;<sp/>limit-&gt;second<sp/>-<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint64_t))<sp/>{</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::out_of_range(</highlight><highlight class="stringliteral">&quot;offset<sp/>out<sp/>range<sp/>in<sp/>csr<sp/>space&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>offset;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="322"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>dummy_afu</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="samples/dummy_afu/dummy_afu.h"/>
+  </compounddef>
+</doxygen>

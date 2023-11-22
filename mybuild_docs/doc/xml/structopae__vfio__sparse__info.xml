@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__sparse__info" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_sparse_info</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__sparse__info_1a0f2a85a947a552ace76e299bd66dc91d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_sparse_info::index</definition>
+        <argsstring></argsstring>
+        <name>index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Region index, from 0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="81" column="10" bodyfile="include/opae/vfio.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__sparse__info_1afc2d2ce14bb3aeaba49efa5e8a063dfb" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_sparse_info::offset</definition>
+        <argsstring></argsstring>
+        <name>offset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Offset of sparse region. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="82" column="10" bodyfile="include/opae/vfio.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__sparse__info_1adefec9a427d225b75b9b272710174df8" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_vfio_sparse_info::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Size of sparse region. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="83" column="10" bodyfile="include/opae/vfio.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__sparse__info_1a68ad8ff776b8b47536d8f515eadffaa4" prot="public" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* opae_vfio_sparse_info::ptr</definition>
+        <argsstring></argsstring>
+        <name>ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual address of sparse region. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="84" column="9" bodyfile="include/opae/vfio.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__sparse__info_1a6557e0f64b5cb7f9e89218aaa535d583" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__sparse__info" kindref="compound">opae_vfio_sparse_info</ref> *</type>
+        <definition>struct opae_vfio_sparse_info* opae_vfio_sparse_info::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to next in list. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="85" column="28" bodyfile="include/opae/vfio.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>MMIO sparse-mappable region info</para>
+<para>Describes a range of sparse-mappable MMIO, for MMIO ranges that have non-contiguous addresses. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_vfio_sparse_info</label>
+        <link refid="structopae__vfio__sparse__info"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="80" column="1" bodyfile="include/opae/vfio.h" bodystart="80" bodyend="86"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__sparse__info_1a0f2a85a947a552ace76e299bd66dc91d" prot="public" virt="non-virtual"><scope>opae_vfio_sparse_info</scope><name>index</name></member>
+      <member refid="structopae__vfio__sparse__info_1a6557e0f64b5cb7f9e89218aaa535d583" prot="public" virt="non-virtual"><scope>opae_vfio_sparse_info</scope><name>next</name></member>
+      <member refid="structopae__vfio__sparse__info_1afc2d2ce14bb3aeaba49efa5e8a063dfb" prot="public" virt="non-virtual"><scope>opae_vfio_sparse_info</scope><name>offset</name></member>
+      <member refid="structopae__vfio__sparse__info_1a68ad8ff776b8b47536d8f515eadffaa4" prot="public" virt="non-virtual"><scope>opae_vfio_sparse_info</scope><name>ptr</name></member>
+      <member refid="structopae__vfio__sparse__info_1adefec9a427d225b75b9b272710174df8" prot="public" virt="non-virtual"><scope>opae_vfio_sparse_info</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

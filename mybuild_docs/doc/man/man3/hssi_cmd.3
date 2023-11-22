@@ -1,0 +1,110 @@
+.TH "hssi_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+hssi_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/hssi/hssi_cmd\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.PP
+Inherited by \fBhssi_100g_cmd\fP, \fBhssi_10g_cmd\fP, and \fBhssi_200g_400g_cmd\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhssi_cmd\fP ()"
+.br
+.ti -1c
+.RI "double \fBclock_freq_for\fP (\fBtest_afu\fP *afu) const"
+.br
+.ti -1c
+.RI "int \fBset_pkt_filt_dest\fP (const std::string &dfl_dev, uint64_t bin_dest_addr) const"
+.br
+.ti -1c
+.RI "uint64_t \fBmac_bits_for\fP (std::string addr) const"
+.br
+.ti -1c
+.RI "void \fBrun_process\fP (const std::string &proc)"
+.br
+.ti -1c
+.RI "void \fBshow_eth_stats\fP (const std::string &eth)"
+.br
+.ti -1c
+.RI "void \fBenable_eth_loopback\fP (const std::string &eth, bool enable)"
+.br
+.ti -1c
+.RI "template<typename X > std::string \fBint_to_hex\fP (X x) const"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 51 of file hssi_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "hssi_cmd::hssi_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 54 of file hssi_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "double hssi_cmd::clock_freq_for (\fBtest_afu\fP * afu) const\fC [inline]\fP"
+
+.PP
+Definition at line 56 of file hssi_cmd\&.h\&.
+.PP
+References BITSVER_MAJOR_N6000, BITSVER_MAJOR_S10, opae::fpga::types::token::enumerate(), FPGA_BBS_VER_MAJOR, FPGA_DEVICE, opae::fpga::types::properties::get(), INVALID_CLOCK_FREQ, USER_CLKFREQ_N6000, and USER_CLKFREQ_S10\&.
+.PP
+Referenced by hssi_10g_cmd::run()\&.
+.SS "int hssi_cmd::set_pkt_filt_dest (const std::string & dfl_dev, uint64_t bin_dest_addr) const\fC [inline]\fP"
+
+.PP
+Definition at line 88 of file hssi_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::error, int_to_hex(), opae_uio_close(), opae_uio_open(), opae_uio_region_get(), PKT_FILT_CSR_DEST_ADDR, and opae::afu_test::afu::success\&.
+.PP
+Referenced by hssi_pkt_filt_100g_cmd::run(), and hssi_pkt_filt_10g_cmd::run()\&.
+.SS "uint64_t hssi_cmd::mac_bits_for (std::string addr) const\fC [inline]\fP"
+
+.PP
+Definition at line 121 of file hssi_cmd\&.h\&.
+.PP
+References INVALID_MAC\&.
+.PP
+Referenced by hssi_100g_cmd::run(), hssi_10g_cmd::run(), hssi_pkt_filt_100g_cmd::run(), hssi_pkt_filt_10g_cmd::run(), and hssi_100g_cmd::select_port()\&.
+.SS "void hssi_cmd::run_process (const std::string & proc)\fC [inline]\fP"
+
+.PP
+Definition at line 134 of file hssi_cmd\&.h\&.
+.PP
+Referenced by enable_eth_loopback(), and show_eth_stats()\&.
+.SS "void hssi_cmd::show_eth_stats (const std::string & eth)\fC [inline]\fP"
+
+.PP
+Definition at line 146 of file hssi_cmd\&.h\&.
+.PP
+References run_process()\&.
+.PP
+Referenced by hssi_100g_cmd::run(), and hssi_10g_cmd::run()\&.
+.SS "void hssi_cmd::enable_eth_loopback (const std::string & eth, bool enable)\fC [inline]\fP"
+
+.PP
+Definition at line 152 of file hssi_cmd\&.h\&.
+.PP
+References run_process(), and usleep()\&.
+.PP
+Referenced by hssi_100g_cmd::run(), and hssi_10g_cmd::run()\&.
+.SS "template<typename X > std::string hssi_cmd::int_to_hex (X x) const\fC [inline]\fP"
+
+.PP
+Definition at line 164 of file hssi_cmd\&.h\&.
+.PP
+Referenced by hssi_100g_cmd::print_registers(), hssi_10g_cmd::print_registers(), hssi_200g_400g_cmd::print_registers(), and set_pkt_filt_dest()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

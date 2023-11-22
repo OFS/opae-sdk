@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structdummy__afu_1_1ddr__test__stat_8____unnamed74____" kind="struct" language="C++" prot="public">
+    <compoundname>dummy_afu::ddr_test_stat.__unnamed74__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__stat_8____unnamed74_____1a518c2490375039e01f8742bb68ea1ffb" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>NumDDRBank</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="111" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__stat_8____unnamed74_____1af1815ef33cbdfc91a6c12fc6ce34caec" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved8</name>
+        <bitfield> 56</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="112" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::ddr_test_stat.__unnamed74__</label>
+        <link refid="structdummy__afu_1_1ddr__test__stat_8____unnamed74____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="110" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="110" bodyend="113"/>
+    <listofallmembers>
+      <member refid="structdummy__afu_1_1ddr__test__stat_8____unnamed74_____1a518c2490375039e01f8742bb68ea1ffb" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_stat.__unnamed74__</scope><name>NumDDRBank</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__stat_8____unnamed74_____1af1815ef33cbdfc91a6c12fc6ce34caec" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_stat.__unnamed74__</scope><name>Reserved8</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

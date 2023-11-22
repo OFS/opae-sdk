@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structfpga__metric" kind="struct" language="C++" prot="public">
+    <compoundname>fpga_metric</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfpga__metric_1a05d5221efe860841a350b4c81c26f8d2" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t fpga_metric::metric_num</definition>
+        <argsstring></argsstring>
+        <name>metric_num</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="228" column="10" bodyfile="include/opae/types.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric_1a0e64950f7e2c90ca97009d564cca1d04" prot="public" static="no" mutable="no">
+        <type><ref refid="unionmetric__value" kindref="compound">metric_value</ref></type>
+        <definition>metric_value fpga_metric::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="229" column="14" bodyfile="include/opae/types.h" bodystart="229" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric_1a43c9f922234a08609b8c586ec948e6b1" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool fpga_metric::isvalid</definition>
+        <argsstring></argsstring>
+        <name>isvalid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="230" column="6" bodyfile="include/opae/types.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Metric struct </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>metric_value</label>
+        <link refid="unionmetric__value"/>
+      </node>
+      <node id="1">
+        <label>fpga_metric</label>
+        <link refid="structfpga__metric"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+value</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="227" column="1" bodyfile="include/opae/types.h" bodystart="227" bodyend="231"/>
+    <listofallmembers>
+      <member refid="structfpga__metric_1a43c9f922234a08609b8c586ec948e6b1" prot="public" virt="non-virtual"><scope>fpga_metric</scope><name>isvalid</name></member>
+      <member refid="structfpga__metric_1a05d5221efe860841a350b4c81c26f8d2" prot="public" virt="non-virtual"><scope>fpga_metric</scope><name>metric_num</name></member>
+      <member refid="structfpga__metric_1a0e64950f7e2c90ca97009d564cca1d04" prot="public" virt="non-virtual"><scope>fpga_metric</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

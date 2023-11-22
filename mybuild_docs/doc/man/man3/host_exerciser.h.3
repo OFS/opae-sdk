@@ -1,0 +1,471 @@
+.TH "samples/host_exerciser/host_exerciser.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/host_exerciser/host_exerciser.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/cxx/core/events\&.h>\fP
+.br
+\fC#include <opae/cxx/core/shared_buffer\&.h>\fP
+.br
+\fC#include <opae/cxx/core/token\&.h>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "union \fBhost_exerciser::he_dfh\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_dsm_basel\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_dsm_baseh\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_num_lines\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_ctl\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_cfg\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_inact_thresh\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_interrupt0\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_swtest_msg\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_status0\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_status1\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_error\fP"
+.br
+.ti -1c
+.RI "union \fBhost_exerciser::he_stride\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_dsm_status\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::MapKeyComparator\fP"
+.br
+.ti -1c
+.RI "class \fBhost_exerciser::host_exerciser\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_dfh\&.__unnamed94__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_ctl\&.__unnamed106__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_dsm_basel\&.__unnamed97__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_dsm_baseh\&.__unnamed100__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_num_lines\&.__unnamed103__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_cfg\&.__unnamed109__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_inact_thresh\&.__unnamed112__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_interrupt0\&.__unnamed115__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_swtest_msg\&.__unnamed118__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_status0\&.__unnamed121__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_status1\&.__unnamed124__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_error\&.__unnamed127__\fP"
+.br
+.ti -1c
+.RI "struct \fBhost_exerciser::he_stride\&.__unnamed130__\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBhost_exerciser\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBhost_exerciser::HE_DFH\fP = 0x0000, \fBhost_exerciser::HE_ID_L\fP = 0x0008, \fBhost_exerciser::HE_ID_H\fP = 0x0010, \fBhost_exerciser::HE_DFH_RSVD0\fP = 0x0018, \fBhost_exerciser::HE_DFH_RSVD1\fP = 0x0020, \fBhost_exerciser::HE_SCRATCHPAD0\fP = 0x028, \fBhost_exerciser::HE_SCRATCHPAD1\fP = 0x0104, \fBhost_exerciser::HE_SCRATCHPAD2\fP = 0x0108, \fBhost_exerciser::HE_DSM_BASEL\fP = 0x0110, \fBhost_exerciser::HE_DSM_BASEH\fP = 0x0114, \fBhost_exerciser::HE_SRC_ADDR\fP = 0x0120, \fBhost_exerciser::HE_DST_ADDR\fP = 0x0128, \fBhost_exerciser::HE_NUM_LINES\fP = 0x0130, \fBhost_exerciser::HE_CTL\fP = 0x038, \fBhost_exerciser::HE_CFG\fP = 0x0140, \fBhost_exerciser::HE_INACT_THRESH\fP = 0x0148, \fBhost_exerciser::HE_INTERRUPT0\fP = 0x0150, \fBhost_exerciser::HE_SWTEST_MSG\fP = 0x0158, \fBhost_exerciser::HE_STATUS0\fP = 0x0160, \fBhost_exerciser::HE_STATUS1\fP = 0x0168, \fBhost_exerciser::HE_ERROR\fP = 0x0170, \fBhost_exerciser::HE_STRIDE\fP = 0x0178, \fBhost_exerciser::HE_INFO0\fP = 0x0180 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::host_exe_mode\fP { \fBhost_exerciser::HOST_EXEMODE_LPBK1\fP = 0x0, \fBhost_exerciser::HOST_EXEMODE_READ\fP = 0x1, \fBhost_exerciser::HOST_EXEMODE_WRITE\fP = 0x2, \fBhost_exerciser::HOST_EXEMODE_TRPUT\fP = 0x3 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::hostexe_req_len\fP { \fBhost_exerciser::HOSTEXE_CLS_1\fP = 0x0, \fBhost_exerciser::HOSTEXE_CLS_2\fP = 0x1, \fBhost_exerciser::HOSTEXE_CLS_4\fP = 0x2, \fBhost_exerciser::HOSTEXE_CLS_8\fP = 0x3, \fBhost_exerciser::HOSTEXE_CLS_16\fP = 0x4 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::hostexe_atomic_func\fP { \fBhost_exerciser::HOSTEXE_ATOMIC_OFF\fP = 0, \fBhost_exerciser::HOSTEXE_ATOMIC_FADD_4\fP = 0x1, \fBhost_exerciser::HOSTEXE_ATOMIC_FADD_8\fP = 0x3, \fBhost_exerciser::HOSTEXE_ATOMIC_SWAP_4\fP = 0x5, \fBhost_exerciser::HOSTEXE_ATOMIC_SWAP_8\fP = 0x7, \fBhost_exerciser::HOSTEXE_ATOMIC_CAS_4\fP = 0x9, \fBhost_exerciser::HOSTEXE_ATOMIC_CAS_8\fP = 0xb }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::hostexe_encoding\fP { \fBhost_exerciser::HOSTEXE_ENCODING_DEFAULT\fP = 0x0, \fBhost_exerciser::HOSTEXE_ENCODING_DM\fP = 0x1, \fBhost_exerciser::HOSTEXE_ENCODING_PU\fP = 0x2, \fBhost_exerciser::HOSTEXE_ENCODING_RANDOM\fP = 0x3 }"
+.br
+.ti -1c
+.RI "enum \fBhost_exerciser::hostexe_test_mode\fP { \fBhost_exerciser::HOSTEXE_TEST_ROLLOVER\fP = 0x0, \fBhost_exerciser::HOSTEXE_TEST_TERMINATION\fP = 0x1 }"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::HELPBK_TEST_TIMEOUT\fP = 30000"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::HELPBK_TEST_SLEEP_INVL\fP = 100"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::CL\fP = 64"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::KB\fP = 1024"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::MB\fP = KB * 1024"
+.br
+.ti -1c
+.RI "static const uint64_t \fBhost_exerciser::LOG2_CL\fP = 6"
+.br
+.ti -1c
+.RI "static const size_t \fBhost_exerciser::LPBK1_DSM_SIZE\fP = 2 * KB"
+.br
+.ti -1c
+.RI "static const size_t \fBhost_exerciser::LPBK1_BUFFER_SIZE\fP = 64 * KB"
+.br
+.ti -1c
+.RI "static const size_t \fBhost_exerciser::LPBK1_BUFFER_ALLOCATION_SIZE\fP = 64 * KB"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_modes\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t, MapKeyComparator > \fBhost_exerciser::he_req_cls_len\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_req_atomic_func\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_req_encoding\fP"
+.br
+.ti -1c
+.RI "const std::map< std::string, uint32_t > \fBhost_exerciser::he_test_mode\fP"
+.br
+.ti -1c
+.RI "const char * \fBhost_exerciser::interleave_help\fP"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct host_exerciser::he_dsm_status"
+.PP 
+Definition at line 296 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fItest_completed: 1\fP 
+.br
+.PP
+uint64_t \fIdsm_number: 15\fP 
+.br
+.PP
+uint64_t \fIres1: 16\fP 
+.br
+.PP
+uint64_t \fIerr_vector: 32\fP 
+.br
+.PP
+uint64_t \fInum_ticks: 40\fP 
+.br
+.PP
+uint64_t \fIres2: 8\fP 
+.br
+.PP
+uint64_t \fInum_reads_h: 8\fP 
+.br
+.PP
+uint64_t \fInum_writes_h: 8\fP 
+.br
+.PP
+uint64_t \fInum_reads_l: 32\fP 
+.br
+.PP
+uint64_t \fInum_writes_l: 32\fP 
+.br
+.PP
+uint64_t \fIpenalty_start: 16\fP 
+.br
+.PP
+uint64_t \fIres3: 16\fP 
+.br
+.PP
+uint64_t \fIpenalty_end: 8\fP 
+.br
+.PP
+uint64_t \fIres4: 24\fP 
+.br
+.PP
+uint64_t \fIab_error_info: 32\fP 
+.br
+.PP
+uint32_t \fIres5[7]\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_dfh\&.__unnamed94__"
+.PP 
+Definition at line 127 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint16_t \fICcipVersionNumber: 12\fP 
+.br
+.PP
+uint8_t \fIAfuMajVersion: 4\fP 
+.br
+.PP
+uint32_t \fINextDfhOffset: 24\fP 
+.br
+.PP
+uint8_t \fIEOL: 1\fP 
+.br
+.PP
+uint32_t \fIReserved: 19\fP 
+.br
+.PP
+uint8_t \fIFeatureType: 4\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_ctl\&.__unnamed106__"
+.PP 
+Definition at line 179 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIResetL: 1\fP 
+.br
+.PP
+uint32_t \fIStart: 1\fP 
+.br
+.PP
+uint32_t \fIForcedTestCmpl: 1\fP 
+.br
+.PP
+uint32_t \fIReserved: 29\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_dsm_basel\&.__unnamed97__"
+.PP 
+Definition at line 144 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIDsmBaseL: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_dsm_baseh\&.__unnamed100__"
+.PP 
+Definition at line 155 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIDsmBaseH: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_num_lines\&.__unnamed103__"
+.PP 
+Definition at line 166 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fINumCacheLines: 32\fP 
+.br
+.PP
+uint32_t \fIReserved: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_cfg\&.__unnamed109__"
+.PP 
+Definition at line 194 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIDelayEn: 1\fP 
+.br
+.PP
+uint64_t \fIContinuous: 1\fP 
+.br
+.PP
+uint64_t \fITestMode: 3\fP 
+.br
+.PP
+uint64_t \fIReqLen: 2\fP 
+.br
+.PP
+uint64_t \fIAtomicFunc: 5\fP 
+.br
+.PP
+uint64_t \fIEncoding: 2\fP 
+.br
+.PP
+uint64_t \fIRsvd_19_14: 6\fP 
+.br
+.PP
+uint64_t \fITputInterleave: 3\fP 
+.br
+.PP
+uint64_t \fITestCfg: 5\fP 
+.br
+.PP
+uint64_t \fIIntrOnErr: 1\fP 
+.br
+.PP
+uint64_t \fIIntrTestMode: 1\fP 
+.br
+.PP
+uint64_t \fIReqLen_High: 2\fP 
+.br
+.PP
+uint64_t \fIRsvd_63_32: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_inact_thresh\&.__unnamed112__"
+.PP 
+Definition at line 217 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIInactivtyThreshold: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_interrupt0\&.__unnamed115__"
+.PP 
+Definition at line 228 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIapci_id: 16\fP 
+.br
+.PP
+uint32_t \fIVectorNum: 16\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_swtest_msg\&.__unnamed118__"
+.PP 
+Definition at line 240 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIswtest_msg: 64\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_status0\&.__unnamed121__"
+.PP 
+Definition at line 251 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fInumWrites: 32\fP 
+.br
+.PP
+uint64_t \fInumReads: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_status1\&.__unnamed124__"
+.PP 
+Definition at line 263 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fInumPendWrites: 16\fP 
+.br
+.PP
+uint64_t \fInumPendReads: 16\fP 
+.br
+.PP
+uint64_t \fInumPendEmifWrites: 16\fP 
+.br
+.PP
+uint64_t \fInumPendEmifReads: 16\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_error\&.__unnamed127__"
+.PP 
+Definition at line 278 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIerror: 32\fP 
+.br
+.PP
+uint64_t \fIRsvd: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct host_exerciser::he_stride\&.__unnamed130__"
+.PP 
+Definition at line 290 of file host_exerciser\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIStride: 32\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

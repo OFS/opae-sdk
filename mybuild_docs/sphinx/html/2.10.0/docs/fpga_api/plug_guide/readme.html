@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plugin Developer’s Guide &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture" href="../../drv_arch/drv_arch.html" />
+    <link rel="prev" title="OPAE Python API Reference" href="../fpga_python_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plugin Developer’s Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plugin-required-functions">Plugin Required Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opae-api-adapter-table">OPAE API Adapter Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plugin-optional-functions">Plugin Optional Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plugin-construction">Plugin Construction</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Plugin Developer’s Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_api/plug_guide/readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="plugin-developer-s-guide">
+<h1>Plugin Developer’s Guide<a class="headerlink" href="#plugin-developer-s-guide" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Beginning with OPAE C library version 1.2.0, OPAE implements a plugin-centric
+model. This guide serves as a reference to define the makeup of an OPAE C API
+plugin and to describe a sequence of steps that one may follow when constructing
+an OPAE C API plugin.</p>
+</div>
+<div class="section" id="plugin-required-functions">
+<h2>Plugin Required Functions<a class="headerlink" href="#plugin-required-functions" title="Permalink to this headline">¶</a></h2>
+<p>An OPAE C API plugin is a runtime-loadable shared object library, also known as
+a module. On Linux systems, the <em>dl</em> family of APIs from libdl are used to
+interact with shared objects. Refer to “man dlopen” and “man dlsym” for examples
+of using the libdl API.</p>
+<p>An OPAE C API plugin implements one required function. This function is required
+to have C linkage, so that its name is not mangled.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_configure</span><span class="p">(</span><span class="n">opae_api_adapter_table</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">config</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>During initialization, the OPAE plugin manager component loads each plugin,
+searching for its <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code> function. If none is found, then
+the plugin manager rejects that plugin. When it is found, <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code>
+is called passing a pointer to a freshly-created <code class="docutils literal notranslate"><span class="pre">opae_api_adapter_table</span></code> and
+a buffer consisting of configuration data for the plugin.</p>
+<p>The job of the <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code> function is to populate the given adapter
+table with each of the plugin’s API entry points and to consume and comprehend
+the given configuration data in preparation for initialization.</p>
+</div>
+<div class="section" id="opae-api-adapter-table">
+<h2>OPAE API Adapter Table<a class="headerlink" href="#opae-api-adapter-table" title="Permalink to this headline">¶</a></h2>
+<p>The adapter table is a data structure that contains function pointer entry points
+for each of the OPAE APIs implemented by a plugin. In this way, it adapts the
+plugin-specific behavior to the more general case of a flat C API. Note that
+OPAE applications are only required to link with opae-c. In other words, the
+name of the plugin library should not appear on the linker command line. In this
+way, plugins are truly decoupled from the OPAE C API, and they are required to
+adapt to the strict API specification by populating the adapter table only. No
+other linkage is required nor recommended.</p>
+<p><code class="docutils literal notranslate"><span class="pre">adapter.h</span></code> contains the definition of the <code class="docutils literal notranslate"><span class="pre">opae_api_adapter_table</span></code>. An abbreviated
+version is depicted below, along with supporting type <code class="docutils literal notranslate"><span class="pre">opae_plugin</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_opae_plugin</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">dl_handle</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">opae_plugin</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_opae_api_adapter_table</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">_opae_api_adapater_table</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
+<span class="w">        </span><span class="n">opae_plugin</span><span class="w"> </span><span class="n">plugin</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">fpga_result</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">fpgaOpen</span><span class="p">)(</span><span class="n">fpga_token</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="n">fpga_handle</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">,</span>
+<span class="w">                                </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">fpga_result</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">fpgaClose</span><span class="p">)(</span><span class="n">fpga_handle</span><span class="w"> </span><span class="n">handle</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="n">fpga_result</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">fpgaEnumerate</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="n">fpga_properties</span><span class="w"> </span><span class="o">*</span><span class="n">filters</span><span class="p">,</span>
+<span class="w">                                     </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">num_filters</span><span class="p">,</span><span class="w"> </span><span class="n">fpga_token</span><span class="w"> </span><span class="o">*</span><span class="n">tokens</span><span class="p">,</span>
+<span class="w">                                     </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">max_tokens</span><span class="p">,</span>
+<span class="w">                                     </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="n">num_matches</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="c1">// configuration functions</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">initialize</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">finalize</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// first-level query</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">supports_device</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">device_type</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">supports_host</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">hostname</span><span class="p">);</span>
+
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">opae_api_adapter_table</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Some points worth noting are that the adapter tables are organized in memory by
+adding them to a linked list data structure. This is the use of the <code class="docutils literal notranslate"><span class="pre">next</span></code>
+structure member. (The list management is handled by the plugin manager.)
+The <code class="docutils literal notranslate"><span class="pre">plugin</span></code> structure member contains the handle to the shared object instance,
+as created by <code class="docutils literal notranslate"><span class="pre">dlopen</span></code>. This handle is used in the plugin’s <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code>
+to load plugin entry points. A plugin need only implement the portion of the
+OPAE C API that a target application needs. Any API entry points that are not
+supported should be left as NULL pointers (the default) in the adapter table.
+When an OPAE API that has no associated entry point in the adapter table is
+called, the result for objects associated with that plugin will be
+<code class="docutils literal notranslate"><span class="pre">FPGA_NOT_SUPPORTED</span></code>.</p>
+<p>The following code illustrates a portion of the <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code> for
+a theoretical OPAE C API plugin libfoo.so:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_plugin.c */</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_configure</span><span class="p">(</span><span class="n">opae_api_adapter_table</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">config</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">fpgaOpen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_fpgaOpen&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">fpgaClose</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_fpgaClose&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">fpgaEnumerate</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_fpgaEnumerate&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice that the implementations of the API entry points for plugin libfoo.so
+are prefixed with <code class="docutils literal notranslate"><span class="pre">foo_</span></code>. This is the recommended practice to avoid name
+collisions and to enhance the debugability of the application. Upon successful
+configuration, <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code> returns 0 to indicate success. A
+non-zero return value indicates failure and causes the plugin manager to
+reject the plugin from futher consideration.</p>
+</div>
+<div class="section" id="plugin-optional-functions">
+<h2>Plugin Optional Functions<a class="headerlink" href="#plugin-optional-functions" title="Permalink to this headline">¶</a></h2>
+<p>Once the plugin manager loads and configures each plugin, it uses the adapter
+table to call back into the plugin so that it can be made ready for runtime.
+This is the job of the <code class="docutils literal notranslate"><span class="pre">opae_plugin_initialize</span></code> entry point, whose signature
+is defined as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_initialize</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The function takes no parameters, as the configuration data was already given
+to the plugin by <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code>. <code class="docutils literal notranslate"><span class="pre">opae_plugin_initialize</span></code> returns 0
+if no errors were encountered during initialization. A non-zero return code
+indicates that plugin initialization failed. A plugin makes its
+<code class="docutils literal notranslate"><span class="pre">opae_plugin_initialize</span></code> available to the plugin manager by populating the
+adapter table’s <code class="docutils literal notranslate"><span class="pre">initialize</span></code> entry point as shown:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_plugin.c */</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">foo_plugin_initialize</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="cm">/* success */</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_configure</span><span class="p">(</span><span class="n">opae_api_adapter_table</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">config</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span><span class="w"> </span>
+
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_plugin_initialize&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>If a plugin does not implement an <code class="docutils literal notranslate"><span class="pre">opae_plugin_initialize</span></code> entry point, then
+the <code class="docutils literal notranslate"><span class="pre">initialize</span></code> member of the adapter table should be left uninitialized.
+During plugin initialization, if a plugin has no <code class="docutils literal notranslate"><span class="pre">opae_plugin_initialize</span></code>
+entry in its adapter table, the plugin initialization step will be skipped,
+and the plugin will be considered to have initialized successfully.</p>
+<p>Once plugin initialization is complete for all loaded plugins, the system
+is considered to be running and fully functional.</p>
+<p>During teardown, the plugin manager uses the adapter table to call into each
+plugin’s <code class="docutils literal notranslate"><span class="pre">opae_plugin_finalize</span></code> entry point, whose signature is defined as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_finalize</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">opae_plugin_finalize</span></code> returns 0 if no errors were encountered during teardown.
+A non-zero return code indicates that plugin teardown failed. A plugin makes
+its <code class="docutils literal notranslate"><span class="pre">opae_plugin_finalize</span></code> available to the plugin manager by populating the
+adapter table’s <code class="docutils literal notranslate"><span class="pre">finalize</span></code> entry point as shown:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_plugin.c */</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">foo_plugin_finalize</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="cm">/* success */</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_configure</span><span class="p">(</span><span class="n">opae_api_adapter_table</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">config</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span><span class="w"> </span>
+
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">finalize</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_plugin_finalize&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>If a plugin does not implement an <code class="docutils literal notranslate"><span class="pre">opae_plugin_finalize</span></code> entry point, then
+the <code class="docutils literal notranslate"><span class="pre">finalize</span></code> member of the adapter table should be left uninitialized.
+During plugin cleanup, if a plugin has no <code class="docutils literal notranslate"><span class="pre">opae_plugin_finalize</span></code> entry
+point in its adapter table, the plugin finalize step will be skipped, and
+the plugin will be considered to have finalized successfully.</p>
+<p>In addition to <code class="docutils literal notranslate"><span class="pre">initialize</span></code> and <code class="docutils literal notranslate"><span class="pre">finalize</span></code>, an OPAE C API plugin has two
+further optional entry points that relate to device enumeration. During
+enumeration, when a plugin is being considered for a type of device, the
+plugin may provide input on that decision by exporting an
+<code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_device</span></code> entry point in the adapter table:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">opae_plugin_supports_device</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">device_type</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_device</span></code> returns true if the given device type is
+supported and false if it is not. A false return value from
+<code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_device</span></code> causes device enumeration to skip the
+plugin.</p>
+<p>Populating the <code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_device</span></code> is done as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_plugin.c */</span>
+
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">foo_plugin_supports_device</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">device_type</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="cm">/* device_type is supported */</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_configure</span><span class="p">(</span><span class="n">opae_api_adapter_table</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">config</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span><span class="w"> </span>
+
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">supports_device</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_plugin_supports_device&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>opae_plugin_supports_device</cite> mechanism serves as a placeholder only.
+It is not implemented in the current version of the OPAE C API.</p>
+</div>
+<p>Similarly to determining whether a plugin supports a type of device, a plugin
+may also answer questions about network host support by populating an
+<code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_host</span></code> entry point in the adapter table:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">opae_plugin_supports_host</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">hostname</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_host</span></code> returns true if the given hostname is supported
+and false if it is not. A false return value from <code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_host</span></code>
+causes device enumeration to skip the plugin.</p>
+<p>Populating the <code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_host</span></code> is done as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_plugin.c */</span>
+
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">foo_plugin_supports_host</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">hostname</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="cm">/* hostname is supported */</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">opae_plugin_configure</span><span class="p">(</span><span class="n">opae_api_adapter_table</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">config</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span><span class="w"> </span>
+
+<span class="w">        </span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">supports_host</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="n">dlsym</span><span class="p">(</span><span class="n">adapter</span><span class="o">-&gt;</span><span class="n">plugin</span><span class="p">.</span><span class="n">dl_handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo_plugin_supports_host&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">...</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>opae_plugin_supports_host</cite> mechanism serves as a placeholder only.
+It is not implemented in the current version of the OPAE C API.</p>
+</div>
+</div>
+<div class="section" id="plugin-construction">
+<h2>Plugin Construction<a class="headerlink" href="#plugin-construction" title="Permalink to this headline">¶</a></h2>
+<p>The steps required to implement an OPAE C API plugin, libfoo.so, are:</p>
+<ul class="simple">
+<li><p>Create foo_plugin.c: implements <code class="docutils literal notranslate"><span class="pre">opae_plugin_configure</span></code>,
+<code class="docutils literal notranslate"><span class="pre">opae_plugin_initialize</span></code>, <code class="docutils literal notranslate"><span class="pre">opae_plugin_finalize</span></code>, <code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_device</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">opae_plugin_supports_host</span></code> as described in the previous sections.</p></li>
+<li><p>Create foo_plugin.h: implements function prototypes for each of the
+plugin-specific OPAE C APIs.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_plugin.h */</span>
+
+<span class="w">    </span><span class="n">fpga_result</span><span class="w"> </span><span class="nf">foo_fpgaOpen</span><span class="p">(</span><span class="n">fpga_token</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="n">fpga_handle</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">,</span>
+<span class="w">                             </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">fpga_result</span><span class="w"> </span><span class="nf">foo_fpgaClose</span><span class="p">(</span><span class="n">fpga_handle</span><span class="w"> </span><span class="n">handle</span><span class="p">);</span>
+
+<span class="w">    </span><span class="p">...</span>
+
+<span class="w">    </span><span class="n">fpga_result</span><span class="w"> </span><span class="n">foo_fpgaEnumerate</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">fpga_properties</span><span class="w"> </span><span class="o">*</span><span class="n">filters</span><span class="p">,</span>
+<span class="w">                                  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">num_filters</span><span class="p">,</span><span class="w"> </span><span class="n">fpga_token</span><span class="w"> </span><span class="o">*</span><span class="n">tokens</span><span class="p">,</span>
+<span class="w">                                  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">max_tokens</span><span class="p">,</span>
+<span class="w">                                  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="n">num_matches</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Create foo_types.h: implements plugin-specific types for opaque data
+structures.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cm">/* foo_types.h */</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">_foo_token</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">_foo_handle</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">_foo_event_handle</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">_foo_object</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">    </span><span class="p">};</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Create foo_enum.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaEnumerate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaCloneToken</span></code>, and <code class="docutils literal notranslate"><span class="pre">foo_fpgaDestroyToken</span></code>.</p></li>
+<li><p>Create foo_open.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaOpen</span></code>.</p></li>
+<li><p>Create foo_close.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaClose</span></code>.</p></li>
+<li><p>Create foo_props.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaGetProperties</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaGetPropertiesFromHandle</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaUpdateProperties</span></code></p></li>
+<li><p>Create foo_mmio.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaMapMMIO</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaUnmapMMIO</span></code>
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaWriteMMIO64</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaReadMMIO64</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaWriteMMIO32</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaReadMMIO32</span></code>.</p></li>
+<li><p>Create foo_buff.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaPrepareBuffer</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaReleaseBuffer</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaGetIOAddress</span></code>.</p></li>
+<li><p>Create foo_error.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaReadError</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaClearError</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaClearAllErrors</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaGetErrorInfo</span></code>.</p></li>
+<li><p>Create foo_event.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaCreateEventHandle</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaDestroyEventHandle</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaGetOSObjectFromEventHandle</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaRegisterEvent</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaUnregisterEvent</span></code>.</p></li>
+<li><p>Create foo_reconf.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaReconfigureSlot</span></code>.</p></li>
+<li><p>Create foo_obj.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaTokenGetObject</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaHandleGetObject</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaObjectGetObject</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaDestroyObject</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaObjectGetSize</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaObjectRead</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaObjectRead64</span></code>, <code class="docutils literal notranslate"><span class="pre">foo_fpgaObjectWrite64</span></code>.</p></li>
+<li><p>Create foo_clk.c: implements <code class="docutils literal notranslate"><span class="pre">foo_fpgaSetUserClock</span></code>,
+<code class="docutils literal notranslate"><span class="pre">foo_fpgaGetUserClock</span></code>.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fpga_python_api.html" class="btn btn-neutral float-left" title="OPAE Python API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../drv_arch/drv_arch.html" class="btn btn-neutral float-right" title="Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

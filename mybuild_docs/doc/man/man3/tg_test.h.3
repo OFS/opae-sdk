@@ -1,0 +1,78 @@
+.TH "samples/mem_tg/tg_test.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/mem_tg/tg_test.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <thread>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <future>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <condition_variable>\fP
+.br
+\fC#include <mutex>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+\fC#include 'mem_tg\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBmem_tg::tg_test\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBmem_tg\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBtest_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "std::mutex \fBmem_tg::tg_print_mutex\fP"
+.br
+.ti -1c
+.RI "std::mutex \fBmem_tg::tg_start_write_mutex\fP"
+.br
+.ti -1c
+.RI "std::condition_variable \fBmem_tg::tg_cv\fP"
+.br
+.ti -1c
+.RI "std::atomic< int > \fBmem_tg::tg_waiting_threads_counter\fP"
+.br
+.ti -1c
+.RI "int \fBmem_tg::tg_num_threads\fP = \-1"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "using \fBtest_afu\fP =  \fBopae::afu_test::afu\fP"
+
+.PP
+Definition at line 40 of file tg_test\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

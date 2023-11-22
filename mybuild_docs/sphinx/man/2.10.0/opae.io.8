@@ -1,0 +1,342 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "OPAE.IO" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+opae.io \- User space access to PCIe devices
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH SYNOPSIS
+.sp
+\fBopae.io ls [\-v,\-\-viddid VID:DID]\fP
+\fBopae.io init [\-d PCI_ADDR USER[:GROUP]]\fP
+\fBopae.io release [\-d PCI_ADDR]\fP
+\fBopae.io [\-d PCI_ADDR] [\-r REGION] walk OFFSET [\-u,\-\-show\-uuid]\fP
+\fBopae.io [\-d PCI_ADDR] [\-r REGION] peek OFFSET\fP
+\fBopae.io [\-d PCI_ADDR] [\-r REGION] poke OFFSET VALUE\fP
+\fBopae.io [\-d PCI_ADDR] [\-r REGION] SCRIPT ARG1 ARG2 ... ARGN\fP
+\fBopae.io [\-d PCI_ADDR] [\-r REGION]\fP
+.SH DESCRIPTION
+.sp
+\fBopae.io\fP is an interactive Python environment packaged on top of
+\fBlibopaevfio.so\fP, which provides user space access to PCIe devices
+via the vfio\-pci driver. The main feature of opae.io is its built\-in
+Python command interpreter, along with some Python bindings that provide
+a means to access Configuration and Status Registers (CSRs) that reside
+on the PCIe device.
+.sp
+\fBopae.io\fP has two operating modes: command line mode and interactive
+mode.
+.SH COMMAND LINE MODE
+.sp
+To view the accelerator devices that are present on the system, \fBopae.io\fP
+provides the \fBls\fP command option.
+.sp
+\fBopae.io ls [\-v,\-\-viddid VID:DID]\fP
+.sp
+Each accelerator device is listed along with the PCIe address, the
+PCIe vendor/device ID, a brief description of the device, and the
+driver to which the device is currently bound.
+.sp
+\fBopae.io\fP provide an option to initialize a PCIe device for use with
+the vfio\-pci driver. In order for the device CSRs to be accessed from
+user space, the device must first be bound to the vfio\-pci driver. This
+is the job of the \fBinit\fP command option.
+.sp
+\fBopae.io init [\-d PCI_ADDR USER:[GROUP]]\fP
+.sp
+The \fBinit\fP command unbinds the specified device from its current
+driver and binds it to vfio\-pci. This creates a new vfio group under
+/dev/vfio. This group path is then used by the \fBlibopaevfio.so\fP
+library to interact with the device.
+.sp
+To release the PCIe device from vfio\-pci and return it to use with its
+previous driver, the \fBrelease\fP command option is used.
+.sp
+\fBopae.io release [\-d PCI_ADDR]\fP
+.sp
+The \fBrelease\fP command option reverses the actions of the last
+\fBinit\fP command, releasing the device from vfio\-pci and binding
+it to the driver which was bound at the time the \fBinit\fP command
+was issued.
+.sp
+The \fBwalk\fP command option traverses and displays the Device
+Feature List of the given region.
+.sp
+\fBopae.io walk [\-d PCI_ADDR] [\-r REGION] [OFFSET] [\-u,\-\-show\-uuid]\fP
+.sp
+The various fields of each Device Feature Header are displayed. The
+\fB\-\-show\-uuid\fP option additionally displays the GUID for each feature.
+OFFSET can be used to specify the beginning of the DFL in the MMIO
+region.
+.sp
+The \fBpeek\fP command option reads and displays a CSR value.
+.sp
+\fBopae.io peek [\-d PCI_ADDR] [\-r REGION] OFFSET\fP
+.sp
+The \fBpoke\fP command option writes a given value to a CSR.
+.sp
+\fBopae.io poke [\-d PCI_ADDR] [\-r REGION] OFFSET VALUE\fP
+.sp
+\fBopae.io\fP can also execute Python scripts from the command line.
+These Python scripts may contain calls to the device built\-in
+functions that are available during an interactive session. Refer
+to the description of interactive mode for details.
+.sp
+\fBopae.io [\-d PCI_ADDR] [\-r REGION] myscript.py a b c\fP
+.sp
+In order to enter the interactive mode of \fBopae.io\fP, simply
+invoke it and optionally pass the desired device address and
+MMIO region options.
+.sp
+\fBopae.io [\-d PCI_ADDR] [\-r REGION]\fP
+.SH INTERACTIVE MODE
+.sp
+Upon entering interactive mode, \fBopae.io\fP begins a Python
+interpreter session and displays the command prompt shown below:
+.sp
+0000:3f:00.0[0]>>
+.sp
+The first portion of the prompt shows the address of the active
+PCIe device, here 0000:3f:00.0. The part in square brackets shows
+the active MMIO region, here [0]\&.
+.sp
+The interpreter waits for a valid Python command, then attempts
+to execute the given command in the usual way. The only
+differences between the traditional Python command intepreter and
+\fBopae.io\fP are that opae.io provides 1) the notion of an active
+PCIe device and MMIO region and 2) several built\-in functions and
+objects that allow manipulating the active device and MMIO region.
+.SS BUILT\-IN FUNCTIONS
+.sp
+The \fBopae.io\fP built\-in functions assume an active device and
+MMIO region. Attempting to use the built\-in functions without first
+opening a device and region will result in errors.
+.sp
+\fBpeek(OFFSET)\fP
+.sp
+The \fBpeek\fP built\-in function reads and displays a CSR value from
+the active device and region, at the offset supplied by its argument.
+.sp
+0000:3f:00.0[0]>> peek(0x28)
+0xdeadbeef
+.sp
+\fBpoke(OFFSET, VALUE)\fP
+.sp
+The \fBpoke\fP built\-in function writes the given VALUE to the current
+MMIO region at the given OFFSET.
+.sp
+0000:3f:00.0[0]>> poke(0x28, 0xdeadbeef)
+.sp
+\fBread_csr(OFFSET)\fP
+.sp
+The \fBread_csr\fP built\-in function returns the value of the CSR at
+the active MMIO region and the given OFFSET.
+.sp
+0000:3f:00.0[0]>> print(‘0x{:0x}’\&.format(read_csr(0x28)))
+0xdeadbeef
+.sp
+\fBwrite_csr(OFFSET, VALUE)\fP
+.sp
+The \fBwrite_csr\fP built\-in function writes the given VALUE to
+the current MMIO region at the given OFFSET.
+.sp
+0000:3f:00.0[0]>> write_csr(0x28, 0xdeadbeef)
+.sp
+\fBdevice(PCI_ADDR)\fP
+.sp
+The \fBdevice\fP built\-in function allows changing the active
+PCIe device.
+.sp
+0000:3f:00.0[0]>> device(‘0000:2b:00.0’)
+0000:2b:00.0>>
+.sp
+\fBregion(REGION)\fP
+.sp
+The \fBregion\fP built\-in function allows changing the active
+MMIO region.
+.sp
+0000:2b:00.0>> region(0)
+0000:2b:00.0[0]>>
+.sp
+\fBallocate_buffer(SIZE)\fP
+.sp
+The \fBallocate_buffer\fP built\-in function creates and returns
+a DMA buffer object. The underlying buffer will be SIZE bytes
+in length.
+.sp
+0000:2b:00.0[0]>> b1 = allocate_buffer(4096)
+0000:2b:00.0[0]>> print(b1.size, ‘0x{:0x}’\&.format(b1.address), b1.io_address)
+4096 0x7f9361c66000 0
+.sp
+\fBversion()\fP
+.sp
+The \fBversion\fP built\-in function returns a tuple containing
+the four components used to identify the opae.io version:
+.sp
+0000:2b:00.0[0]>> print(version())
+(‘opae.io’, 0, 2, 0)
+.SS BUILT\-IN OBJECTS
+.sp
+\fBopae.io\fP interactive mode provides two global objects
+corresponding to the current device and that device’s current
+MMIO region. These objects are referred to by global variables
+\fBthe_device\fP and \fBthe_region\fP, respectively.
+.sp
+The \fBdevice\fP class:
+.sp
+the_device.descriptor() : method that returns the integer file
+descriptor of the \fBVFIO container\fP\&.
+.sp
+0000:2b:00.0[0]>> print(the_device.descriptor())
+5
+.sp
+the_device.\fBrepr\fP() : method that is invoked when a \fBdevice\fP
+object is printed.
+.sp
+0000:2b:00.0[0]>> print(the_device)
+0000:2b:00.0
+.sp
+the_device.allocate(SIZE) : method that allocates and returns a
+\fBsystem_buffer\fP object. The buffer will be mapped into the
+DMA space of \fBthe_device\fP\&.
+.sp
+0000:2b:00.0[0]>> b1 = the_device.allocate(4096)
+.sp
+the_device.pci_address() : read\-only property that returns the
+PCIe address of \fBthe_device\fP\&.
+.sp
+0000:2b:00.0[0]>> print(the_device.pci_address)
+0000:2b:00.0
+.sp
+the_device.num_regions : read\-only property that returns the
+number of MMIO regions in \fBthe_device\fP\&.
+.sp
+0000:2b:00.0[0]>> print(the_device.num_regions)
+2
+.sp
+the_device.regions : read\-only property that returns a list
+of the active MMIO regions of \fBthe_device\fP:
+.sp
+0000:2b:00.0[0]>> print(the_device.regions)
+[0, 2]
+.sp
+The \fBregion\fP class:
+.sp
+the_region.write32(OFFSET, VALUE) : method that writes a
+32\-bit VALUE to the CSR at OFFSET.
+.sp
+the_region.read32(OFFSET) : method that returns a 32\-bit
+CSR at the given OFFSET.
+.sp
+0000:2b:00.0[0]>> the_region.write32(0x28, 0xdeadbeef)
+0000:2b:00.0[0]>> print(‘0x{:0x}’\&.format(the_region.read32(0x28)))
+0xdeadbeef
+.sp
+the_region.write64(OFFSET, VALUE): method that writes a
+64\-bit VALUE to the CSR at OFFSET.
+.sp
+the_region.read64(OFFSET): method that returns a 64\-bit
+CSR at the given OFFSET.
+.sp
+0000:2b:00.0[0]>> the_region.write64(0x28, 0xbaddecaf)
+0000:2b:00.0[0]>> print(‘0x{:0x}’\&.format(the_region.read64(0x28)))
+0xbaddecaf
+.sp
+the_region.index(): method that returns the MMIO index
+of \fBthe_region\fP\&.
+.sp
+0000:2b:00.0[0]>> print(the_region.index())
+0
+.sp
+the_region.\fBrepr\fP(): method that is invoked when a \fBregion\fP
+object is printed.
+.sp
+0000:2b:00.0[0]>> print(the_region)
+0
+.sp
+the_region.\fBlen\fP(): method that is invoked to determine the
+MMIO region size.
+.sp
+0000:2b:00.0[0]>> print(len(the_region))
+524288
+.sp
+The \fBallocate_buffer()\fP built\-in function and the
+\fBdevice.allocate()\fP method return objects of type \fBsystem_buffer\fP\&.
+.sp
+The \fBsystem_buffer\fP class is as follows:
+.sp
+\fBbuf.size\fP: read\-only property that gives the buffer size.
+.sp
+0000:2b:00.0[0]>> print(b1.size)
+4096
+.sp
+\fBbuf.address\fP: read\-only property that gives the buffer’s
+user mode virtual address.
+.sp
+0000:2b:00.0[0]>> print(‘0x{:0x}’\&.format(b1.address))
+0x7f2c15d8200
+.sp
+\fBbuf.io_address\fP: read\-only property that gives the buffer’s
+IO address.
+.sp
+0000:2b:00.0[0]>> print(‘0x{:0x}’\&.format(b1.io_address))
+0x0
+.sp
+\fBbuf.__getitem__\fP and \fBbuf.__setitem__\fP: indexing get/set
+of 64\-bit data item.
+.sp
+0000:2b:00.0[0]>> b1[0] = 0xdecafbad
+0000:2b:00.0[0]>> print(‘0x{:0x}’\&.format(b1[0]))
+0xdecafbad
+.sp
+\fBbuf.read8(OFFSET)\fP
+\fBbuf.read16(OFFSET)\fP
+\fBbuf.read32(OFFSET)\fP
+\fBbuf.read64(OFFSET)\fP : methods that read the given size
+data item from the given buffer OFFSET.
+.sp
+\fBbuf.fill8(VALUE)\fP
+\fBbuf.fill16(VALUE)\fP
+\fBbuf.fill32(VALUE)\fP
+\fBbuf.fill64(VALUE)\fP : methods that fill the buffer with
+the given VALUE, using the given size.
+.sp
+\fBb1.compare(b2)\fP: method that compares buffers.
+The method returns the index of the first byte that miscompares,
+or the length of b1.
+.SH REVISION HISTORY
+.sp
+Document Version | Intel Acceleration Stack Version | Changes
+—————–|———————————\-|——–
+2021.01.25 | IOFS EA | Initial release.
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

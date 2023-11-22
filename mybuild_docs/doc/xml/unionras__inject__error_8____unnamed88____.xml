@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionras__inject__error_8____unnamed88____" kind="union" language="C++" prot="public">
+    <compoundname>ras_inject_error.__unnamed88__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionras__inject__error_8____unnamed88_____1a1f8c50db95e9ead5645e32f8df5baa7b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>csr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="78" column="10"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionras__inject__error_8____unnamed88_____1a8b522525a6acfa0a63b574e98cad504f" prot="public" static="no" mutable="no">
+        <type>struct ras_inject_error::@87::@89</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>@90</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="88" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>ras_inject_error.__unnamed88__</label>
+        <link refid="unionras__inject__error_8____unnamed88____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hello_events/hello_events.c" line="77" column="1" bodyfile="samples/hello_events/hello_events.c" bodystart="77" bodyend="89"/>
+    <listofallmembers>
+      <member refid="unionras__inject__error_8____unnamed88_____1a1f8c50db95e9ead5645e32f8df5baa7b" prot="public" virt="non-virtual"><scope>ras_inject_error.__unnamed88__</scope><name>csr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

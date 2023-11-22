@@ -1,0 +1,283 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "FPGAINFO" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+fpgainfo \- FPGA information tool
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+   fpgainfo [\-h] [\-S <segment>] [\-B <bus>] [\-D <device>] [\-F <function>] [PCI_ADDR]
+            {errors,power,temp,fme,port,bmc,mac,phy,security}
+
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH DESCRIPTION
+.sp
+fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following:
+\fBerrors\fP, \fBpower\fP, \fBtemp\fP, \fBport\fP, \fBfme\fP, \fBbmc\fP, \fBphy\fP or \fBmac\fP,\fBsecurity\fP,\fBevents\fP\&.
+Some commands may also have other arguments or options that control their behavior.
+.sp
+For systems with multiple FPGA devices, you can specify the BDF to limit the output to the FPGA resource
+with the corresponding PCIe configuration. If not specified, information displays for all resources for
+the given command.
+.SS FPGAINFO COMMANDS
+.sp
+\fBerrors\fP
+.sp
+Show/clear errors of an FPGA resource that the first argument specifies.
+\fBfpgainfo\fP displays information in human readable form.
+.sp
+\fBpower\fP
+.sp
+Show total the power in watts that the FPGA hardware consumes.
+.sp
+\fBtemp\fP
+.sp
+Show FPGA temperature values in degrees Celcius.
+.sp
+\fBport\fP
+.sp
+Show information about the port such as the AFU ID of currently loaded AFU.
+.sp
+\fBfme\fP
+.sp
+Show information about the FPGA platform including the partial reconfiguration (PR) Interface ID, the OPAE version,
+and the FPGA Interface Manager (FIM) ID.
+.sp
+\fBbmc\fP
+.sp
+Show all Board Management Controller sensor values for the FPGA resource, if available.
+.sp
+\fBphy\fP
+.sp
+Show information about the PHY integrated in the FPGA, if available.
+.sp
+\fBmac\fP
+.sp
+Show information about the MAC address in ROM attached to the FPGA, if available.
+.sp
+\fBsecurity\fP
+.sp
+Show information about the security keys, hashs and flash count, if available.
+.sp
+\fBevents\fP
+.sp
+Show information about events and sensors, if available.
+.SH OPTIONAL ARGUMENTS
+.sp
+\fB\-\-help, \-h\fP
+.sp
+Prints help information and exit.
+.sp
+\fB\-\-version, \-v\fP
+.sp
+Prints version information and exit.
+.SH COMMON ARGUMENTS
+.sp
+The following arguments are common to all commands and are optional.
+.sp
+\fB\-S, \-\-segment\fP
+.sp
+PCIe segment number of resource.
+.sp
+\fB\-B, \-\-bus\fP
+.sp
+PCIe bus number of resource.
+.sp
+\fB\-D, \-\-device\fP
+.sp
+PCIe device number of resource.
+.sp
+\fB\-F, \-\-function\fP
+.sp
+PCIe function number of resource.
+.SS ERRORS ARGUMENTS
+.sp
+The first argument to the \fBerrors\fP command specifies the resource type. It must be one of the following:
+\fBfme\fP,\fBport\fP,\fBall\fP
+.sp
+\fBfme\fP
+.sp
+Show/clear FME errors.
+.sp
+\fBport\fP
+.sp
+Show/clear PORT errors.
+.sp
+\fBall\fP
+.sp
+Show/clear errors for all resources.
+.sp
+The optional \fB<command\-args>\fP arguments are:
+.sp
+\fB\-\-clear, \-c\fP
+.sp
+Clear errors for the given FPGA resource.
+.SS PHY ARGUMENTS
+.sp
+The optional \fB<command\-args>\fP argument is:
+.sp
+\fB\-\-group, \-G\fP
+.sp
+Select which PHY group(s) information to show.
+.SS EVENTS ARGUMENTS
+.sp
+The optional \fB<command\-args>\fP argument is:
+.sp
+\fB\-\-list,\-l\fP
+.sp
+List boots (implies –all).
+.sp
+\fB\-\-boot,\-b\fP
+.sp
+Boot index to use, i.e:
+\ \ \ \ 0 for current boot (default).
+\ \ \ \ 1 for previous boot, etc.
+.sp
+\fB\-\-count,\-c\fP
+.sp
+Number of events to print.
+.sp
+\fB\-\-all,\-a\fP
+.sp
+Print all events.
+.sp
+\fB\-\-sensors,\-s\fP
+.sp
+Print sensor data too.
+.sp
+\fB\-\-bits,\-i\fP
+.sp
+Print bit values too.
+.sp
+\fB\-\-help,\-h\fP
+.sp
+Print this help.
+.SH EXAMPLES
+.sp
+This command shows the current power telemetry:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo power
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command shows the current temperature readings:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo temp
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command shows FME resource errors:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo errors fme
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command clears all errors on all resources:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo errors all \-c
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command shows information of the FME on bus 0x5e
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo fme \-B 0x5e
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command shows information of the FPGA security on bus 0x5e
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo security \-B 0x5e
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command shows all events and sensors information including sensor bits:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\&./fpgainfo events \-asi
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH REVISION HISTORY
+.sp
+| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————\- |————————————|———\-|
+| 2018.05.21 | 1.1 Beta. (Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated description of the \fBfme\fP command |
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

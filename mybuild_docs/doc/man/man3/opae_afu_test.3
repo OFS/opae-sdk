@@ -1,0 +1,73 @@
+.TH "opae::afu_test" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::afu_test
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "union \fBpcie_address\fP"
+.br
+.ti -1c
+.RI "class \fBcommand\fP"
+.br
+.ti -1c
+.RI "class \fBafu\fP"
+.br
+.ti -1c
+.RI "struct \fBpcie_address\&.fields\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename T > bool \fBparse_match_int\fP (const char *s, regmatch_t m, T &v, int radix=10)"
+.br
+.ti -1c
+.RI "std::vector< std::string > \fBspdlog_levels\fP ()"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct opae::afu_test::pcie_address\&.fields"
+.PP 
+Definition at line 187 of file he_cache_test\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIfunction: 3\fP 
+.br
+.PP
+uint32_t \fIdevice: 5\fP 
+.br
+.PP
+uint32_t \fIbus: 8\fP 
+.br
+.PP
+uint32_t \fIdomain: 16\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Function Documentation"
+.PP 
+.SS "template<typename T > bool opae::afu_test::parse_match_int (const char * s, regmatch_t m, T & v, int radix = \fC10\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 178 of file he_cache_test\&.h\&.
+.PP
+Referenced by opae::afu_test::pcie_address::parse()\&.
+.SS "std::vector<std::string> opae::afu_test::spdlog_levels ()\fC [inline]\fP"
+
+.PP
+Definition at line 266 of file he_cache_test\&.h\&.
+.PP
+Referenced by opae::afu_test::afu::afu()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

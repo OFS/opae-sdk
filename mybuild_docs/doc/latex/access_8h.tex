@@ -1,0 +1,100 @@
+\doxysection{include/opae/access.h File Reference}
+\label{access_8h}\index{include/opae/access.h@{include/opae/access.h}}
+
+
+Functions to acquire, release, and reset OPAE FPGA resources.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, \mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} $\ast$handle, int flags)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{access_8h_ac83789ebb65dc6b2adeae3d7e7fa3e79}{fpga\+Close}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{access_8h_aa4addba9b864dbc614a1680dfc29dc59}{fpga\+Reset}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions to acquire, release, and reset OPAE FPGA resources. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}} 
+\index{access.h@{access.h}!fpgaOpen@{fpgaOpen}}
+\index{fpgaOpen@{fpgaOpen}!access.h@{access.h}}
+\doxysubsubsection{\texorpdfstring{fpgaOpen()}{fpgaOpen()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Open (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} $\ast$}]{handle,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Open an FPGA object
+
+Acquires ownership of the FPGA resource referred to by \textquotesingle{}token\textquotesingle{}.
+
+Most often this will be used to open an accelerator object to directly interact with an accelerator function, or to open an FPGA object to perform management functions.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Pointer to token identifying resource to acquire ownership of \\
+\hline
+\mbox{\texttt{ out}}  & {\em handle} & Pointer to preallocated memory to place a handle in. This handle will be used in subsequent API calls. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & One of the following flags\+:
+\begin{DoxyItemize}
+\item FPGA\+\_\+\+OPEN\+\_\+\+SHARED allows the resource to be opened multiple times (not supported in ASE) Shared resources (including buffers) are released when all associated handles have been closed (either explicitly with \mbox{\hyperlink{access_8h_ac83789ebb65dc6b2adeae3d7e7fa3e79}{fpga\+Close()}} or by process termination). 
+\end{DoxyItemize}\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the resource for \textquotesingle{}token\textquotesingle{} could not be found. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if \textquotesingle{}token\textquotesingle{} does not refer to a resource that can be opened, or if either argument is NULL or invalid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while creating the handle. FPGA\+\_\+\+NO\+\_\+\+DRIVER if the driver is not loaded. FPGA\+\_\+\+BUSY if trying to open a resource that has already been opened in exclusive mode. FPGA\+\_\+\+NO\+\_\+\+ACCESS if the current process\textquotesingle{} privileges are not sufficient to open the resource. 
+\end{DoxyReturn}
+
+
+Referenced by fpga\+\_\+open(), inject\+\_\+ras\+\_\+fatal\+\_\+error(), and main().
+
+\mbox{\label{access_8h_ac83789ebb65dc6b2adeae3d7e7fa3e79}} 
+\index{access.h@{access.h}!fpgaClose@{fpgaClose}}
+\index{fpgaClose@{fpgaClose}!access.h@{access.h}}
+\doxysubsubsection{\texorpdfstring{fpgaClose()}{fpgaClose()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Close (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle }\end{DoxyParamCaption})}
+
+Close a previously opened FPGA object
+
+Relinquishes ownership of a previously \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}ed resource. This enables others to acquire ownership if the resource was opened exclusively. Also deallocates / unmaps MMIO and UMsg memory areas.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened FPGA object \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if handle does not refer to an acquired resource, or if handle is NULL. FPGA\+\_\+\+EXCEPTION if an internal error occurred while accessing the handle. 
+\end{DoxyReturn}
+
+
+Referenced by fpga\+\_\+close(), fpga\+\_\+open(), inject\+\_\+ras\+\_\+fatal\+\_\+error(), and main().
+
+\mbox{\label{access_8h_aa4addba9b864dbc614a1680dfc29dc59}} 
+\index{access.h@{access.h}!fpgaReset@{fpgaReset}}
+\index{fpgaReset@{fpgaReset}!access.h@{access.h}}
+\doxysubsubsection{\texorpdfstring{fpgaReset()}{fpgaReset()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Reset (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle }\end{DoxyParamCaption})}
+
+Reset an FPGA object
+
+Performs an accelerator reset.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened FPGA object \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if handle does not refer to an acquired resource or to a resource that cannot be reset. FPGA\+\_\+\+EXCEPTION if an internal error occurred while trying to access the handle or resetting the resource. 
+\end{DoxyReturn}
+
+
+Referenced by fpga\+\_\+open(), and main().
+

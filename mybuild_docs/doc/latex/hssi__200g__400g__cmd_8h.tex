@@ -1,0 +1,268 @@
+\doxysection{samples/hssi/hssi\+\_\+200g\+\_\+400g\+\_\+cmd.h File Reference}
+\label{hssi__200g__400g__cmd_8h}\index{samples/hssi/hssi\_200g\_400g\_cmd.h@{samples/hssi/hssi\_200g\_400g\_cmd.h}}
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$cmath$>$}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+cmd.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classhssi__200g__400g__cmd}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_aae3503e5812cff78ef76800d4dc501b8}{CSR\+\_\+\+AFU\+\_\+400\+G\+\_\+\+TG\+\_\+\+EN}}~0x0058
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a39d09ccdde94355900805b753393f14b}{CSR\+\_\+\+HW\+\_\+\+PC\+\_\+\+CTRL}}~0x0000
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a8684ea466882f45fb3f198e58305cf17}{CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+LOOP\+\_\+\+CNT}}~0x0004
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_ae6a313879c94ecd2a1e5d5ea2b9144c1}{CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+ROM\+\_\+\+ADDR}}~0x0008
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a81fd63728c8a6eeb0cdecece59cf0bc8}{CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB}}~0x0020
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a1740712481e2552b7cf7f5a0e0edce87}{CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB}}~0x0024
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a9b52ee1cbbef09ba0414cda110566e33}{CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+LSB}}~0x0028
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a5f674ba88a4095cdb4c28523a0c45f56}{CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+MSB}}~0x002C
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a1e585ac34b5691afe99f56b530d4978a}{CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+LSB}}~0x0030
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a9208c7efff6ffdddca7a8cfb49c03f21}{CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+MSB}}~0x0034
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a5dbea227de14aa04c41cb30dd2edaebe}{CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB}}~0x0038
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_aedaf3c3ae287fcd10069ccf9b4928def}{CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB}}~0x003C
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_af91a2ed2bf4bb3b2bc4d67898cdd5128}{CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+LSB}}~0x0040
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a2f6a7e5034087166144e513217aa5f44}{CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+MSB}}~0x0044
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_ab11c1c1a451fb5235db05c4b80de20e4}{CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+LSB}}~0x0048
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a5b59f6c537c3eae4e7db3eb1aa23c6af}{CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+MSB}}~0x004C
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a31dee803cf037e532f88de00e78780e1}{CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+LSB}}~0x0050
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a5fdbe6f0e6c513ae3c2dedf631feace7}{CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+MSB}}~0x0054
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_a66684b983a8fe08e21001b7df5ac2c78}{CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+LSB}}~0x0058
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_af300070242fe08668c4ac391ccd23e41}{CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+MSB}}~0x005C
+\item 
+\#define \mbox{\hyperlink{hssi__200g__400g__cmd_8h_abad1d58d09ef43cc051669841058ebdb}{USER\+\_\+\+CLKFREQ\+\_\+\+N6001}}~  470.\+00
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{hssi__200g__400g__cmd_8h_aae3503e5812cff78ef76800d4dc501b8}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_AFU\_400G\_TG\_EN@{CSR\_AFU\_400G\_TG\_EN}}
+\index{CSR\_AFU\_400G\_TG\_EN@{CSR\_AFU\_400G\_TG\_EN}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_AFU\_400G\_TG\_EN}{CSR\_AFU\_400G\_TG\_EN}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+AFU\+\_\+400\+G\+\_\+\+TG\+\_\+\+EN~0x0058}
+
+
+
+Definition at line 65 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a39d09ccdde94355900805b753393f14b}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_HW\_PC\_CTRL@{CSR\_HW\_PC\_CTRL}}
+\index{CSR\_HW\_PC\_CTRL@{CSR\_HW\_PC\_CTRL}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_HW\_PC\_CTRL}{CSR\_HW\_PC\_CTRL}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+HW\+\_\+\+PC\+\_\+\+CTRL~0x0000}
+
+
+
+Definition at line 72 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a8684ea466882f45fb3f198e58305cf17}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_HW\_TEST\_LOOP\_CNT@{CSR\_HW\_TEST\_LOOP\_CNT}}
+\index{CSR\_HW\_TEST\_LOOP\_CNT@{CSR\_HW\_TEST\_LOOP\_CNT}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_HW\_TEST\_LOOP\_CNT}{CSR\_HW\_TEST\_LOOP\_CNT}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+LOOP\+\_\+\+CNT~0x0004}
+
+
+
+Definition at line 73 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_ae6a313879c94ecd2a1e5d5ea2b9144c1}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_HW\_TEST\_ROM\_ADDR@{CSR\_HW\_TEST\_ROM\_ADDR}}
+\index{CSR\_HW\_TEST\_ROM\_ADDR@{CSR\_HW\_TEST\_ROM\_ADDR}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_HW\_TEST\_ROM\_ADDR}{CSR\_HW\_TEST\_ROM\_ADDR}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+ROM\+\_\+\+ADDR~0x0008}
+
+
+
+Definition at line 74 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a81fd63728c8a6eeb0cdecece59cf0bc8}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TX\_SOP\_CNT\_LSB@{CSR\_STAT\_TX\_SOP\_CNT\_LSB}}
+\index{CSR\_STAT\_TX\_SOP\_CNT\_LSB@{CSR\_STAT\_TX\_SOP\_CNT\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TX\_SOP\_CNT\_LSB}{CSR\_STAT\_TX\_SOP\_CNT\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB~0x0020}
+
+
+
+Definition at line 75 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a1740712481e2552b7cf7f5a0e0edce87}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TX\_SOP\_CNT\_MSB@{CSR\_STAT\_TX\_SOP\_CNT\_MSB}}
+\index{CSR\_STAT\_TX\_SOP\_CNT\_MSB@{CSR\_STAT\_TX\_SOP\_CNT\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TX\_SOP\_CNT\_MSB}{CSR\_STAT\_TX\_SOP\_CNT\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB~0x0024}
+
+
+
+Definition at line 76 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a9b52ee1cbbef09ba0414cda110566e33}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TX\_EOP\_CNT\_LSB@{CSR\_STAT\_TX\_EOP\_CNT\_LSB}}
+\index{CSR\_STAT\_TX\_EOP\_CNT\_LSB@{CSR\_STAT\_TX\_EOP\_CNT\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TX\_EOP\_CNT\_LSB}{CSR\_STAT\_TX\_EOP\_CNT\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+LSB~0x0028}
+
+
+
+Definition at line 77 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a5f674ba88a4095cdb4c28523a0c45f56}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TX\_EOP\_CNT\_MSB@{CSR\_STAT\_TX\_EOP\_CNT\_MSB}}
+\index{CSR\_STAT\_TX\_EOP\_CNT\_MSB@{CSR\_STAT\_TX\_EOP\_CNT\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TX\_EOP\_CNT\_MSB}{CSR\_STAT\_TX\_EOP\_CNT\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+MSB~0x002C}
+
+
+
+Definition at line 78 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a1e585ac34b5691afe99f56b530d4978a}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TX\_ERR\_CNT\_LSB@{CSR\_STAT\_TX\_ERR\_CNT\_LSB}}
+\index{CSR\_STAT\_TX\_ERR\_CNT\_LSB@{CSR\_STAT\_TX\_ERR\_CNT\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TX\_ERR\_CNT\_LSB}{CSR\_STAT\_TX\_ERR\_CNT\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+LSB~0x0030}
+
+
+
+Definition at line 79 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a9208c7efff6ffdddca7a8cfb49c03f21}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TX\_ERR\_CNT\_MSB@{CSR\_STAT\_TX\_ERR\_CNT\_MSB}}
+\index{CSR\_STAT\_TX\_ERR\_CNT\_MSB@{CSR\_STAT\_TX\_ERR\_CNT\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TX\_ERR\_CNT\_MSB}{CSR\_STAT\_TX\_ERR\_CNT\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+MSB~0x0034}
+
+
+
+Definition at line 80 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a5dbea227de14aa04c41cb30dd2edaebe}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_RX\_SOP\_CNT\_LSB@{CSR\_STAT\_RX\_SOP\_CNT\_LSB}}
+\index{CSR\_STAT\_RX\_SOP\_CNT\_LSB@{CSR\_STAT\_RX\_SOP\_CNT\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_RX\_SOP\_CNT\_LSB}{CSR\_STAT\_RX\_SOP\_CNT\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB~0x0038}
+
+
+
+Definition at line 81 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_aedaf3c3ae287fcd10069ccf9b4928def}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_RX\_SOP\_CNT\_MSB@{CSR\_STAT\_RX\_SOP\_CNT\_MSB}}
+\index{CSR\_STAT\_RX\_SOP\_CNT\_MSB@{CSR\_STAT\_RX\_SOP\_CNT\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_RX\_SOP\_CNT\_MSB}{CSR\_STAT\_RX\_SOP\_CNT\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB~0x003C}
+
+
+
+Definition at line 82 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_af91a2ed2bf4bb3b2bc4d67898cdd5128}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_RX\_EOP\_CNT\_LSB@{CSR\_STAT\_RX\_EOP\_CNT\_LSB}}
+\index{CSR\_STAT\_RX\_EOP\_CNT\_LSB@{CSR\_STAT\_RX\_EOP\_CNT\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_RX\_EOP\_CNT\_LSB}{CSR\_STAT\_RX\_EOP\_CNT\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+LSB~0x0040}
+
+
+
+Definition at line 83 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a2f6a7e5034087166144e513217aa5f44}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_RX\_EOP\_CNT\_MSB@{CSR\_STAT\_RX\_EOP\_CNT\_MSB}}
+\index{CSR\_STAT\_RX\_EOP\_CNT\_MSB@{CSR\_STAT\_RX\_EOP\_CNT\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_RX\_EOP\_CNT\_MSB}{CSR\_STAT\_RX\_EOP\_CNT\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+MSB~0x0044}
+
+
+
+Definition at line 84 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_ab11c1c1a451fb5235db05c4b80de20e4}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_RX\_ERR\_CNT\_LSB@{CSR\_STAT\_RX\_ERR\_CNT\_LSB}}
+\index{CSR\_STAT\_RX\_ERR\_CNT\_LSB@{CSR\_STAT\_RX\_ERR\_CNT\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_RX\_ERR\_CNT\_LSB}{CSR\_STAT\_RX\_ERR\_CNT\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+LSB~0x0048}
+
+
+
+Definition at line 85 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a5b59f6c537c3eae4e7db3eb1aa23c6af}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_RX\_ERR\_CNT\_MSB@{CSR\_STAT\_RX\_ERR\_CNT\_MSB}}
+\index{CSR\_STAT\_RX\_ERR\_CNT\_MSB@{CSR\_STAT\_RX\_ERR\_CNT\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_RX\_ERR\_CNT\_MSB}{CSR\_STAT\_RX\_ERR\_CNT\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+MSB~0x004C}
+
+
+
+Definition at line 86 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a31dee803cf037e532f88de00e78780e1}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TIMESTAMP\_TG\_START\_LSB@{CSR\_STAT\_TIMESTAMP\_TG\_START\_LSB}}
+\index{CSR\_STAT\_TIMESTAMP\_TG\_START\_LSB@{CSR\_STAT\_TIMESTAMP\_TG\_START\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TIMESTAMP\_TG\_START\_LSB}{CSR\_STAT\_TIMESTAMP\_TG\_START\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+LSB~0x0050}
+
+
+
+Definition at line 87 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a5fdbe6f0e6c513ae3c2dedf631feace7}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TIMESTAMP\_TG\_START\_MSB@{CSR\_STAT\_TIMESTAMP\_TG\_START\_MSB}}
+\index{CSR\_STAT\_TIMESTAMP\_TG\_START\_MSB@{CSR\_STAT\_TIMESTAMP\_TG\_START\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TIMESTAMP\_TG\_START\_MSB}{CSR\_STAT\_TIMESTAMP\_TG\_START\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+MSB~0x0054}
+
+
+
+Definition at line 88 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_a66684b983a8fe08e21001b7df5ac2c78}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TIMESTAMP\_TG\_END\_LSB@{CSR\_STAT\_TIMESTAMP\_TG\_END\_LSB}}
+\index{CSR\_STAT\_TIMESTAMP\_TG\_END\_LSB@{CSR\_STAT\_TIMESTAMP\_TG\_END\_LSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TIMESTAMP\_TG\_END\_LSB}{CSR\_STAT\_TIMESTAMP\_TG\_END\_LSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+LSB~0x0058}
+
+
+
+Definition at line 89 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_af300070242fe08668c4ac391ccd23e41}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!CSR\_STAT\_TIMESTAMP\_TG\_END\_MSB@{CSR\_STAT\_TIMESTAMP\_TG\_END\_MSB}}
+\index{CSR\_STAT\_TIMESTAMP\_TG\_END\_MSB@{CSR\_STAT\_TIMESTAMP\_TG\_END\_MSB}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{CSR\_STAT\_TIMESTAMP\_TG\_END\_MSB}{CSR\_STAT\_TIMESTAMP\_TG\_END\_MSB}}
+{\footnotesize\ttfamily \#define CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+MSB~0x005C}
+
+
+
+Definition at line 90 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{hssi__200g__400g__cmd_8h_abad1d58d09ef43cc051669841058ebdb}} 
+\index{hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}!USER\_CLKFREQ\_N6001@{USER\_CLKFREQ\_N6001}}
+\index{USER\_CLKFREQ\_N6001@{USER\_CLKFREQ\_N6001}!hssi\_200g\_400g\_cmd.h@{hssi\_200g\_400g\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{USER\_CLKFREQ\_N6001}{USER\_CLKFREQ\_N6001}}
+{\footnotesize\ttfamily \#define USER\+\_\+\+CLKFREQ\+\_\+\+N6001~  470.\+00}
+
+
+
+Definition at line 92 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+

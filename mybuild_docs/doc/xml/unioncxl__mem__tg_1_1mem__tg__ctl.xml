@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unioncxl__mem__tg_1_1mem__tg__ctl" kind="union" language="C++" prot="public">
+    <compoundname>cxl_mem_tg::mem_tg_ctl</compoundname>
+    <includes refid="cxl__mem__tg_8h" local="no">/root/samples/cxl_mem_tg/cxl_mem_tg.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unioncxl__mem__tg_1_1mem__tg__ctl_1ae89ad06cbbc38d660c0035221dadfe8e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@50</name>
+        <enumvalue id="unioncxl__mem__tg_1_1mem__tg__ctl_1ae89ad06cbbc38d660c0035221dadfe8ea7247aca431da924bf3a05696a0c9b245" prot="public">
+          <name>offset</name>
+          <initializer>= MEM_TG_CTRL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="142" column="3" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="142" bodyend="142"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unioncxl__mem__tg_1_1mem__tg__ctl_1a064066ce04a14c6a0003a1bd82934285" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::mem_tg_ctl::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="143" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="143" bodyend="-1"/>
+        <referencedby refid="classcxl__mem__tg_1_1cxl__tg__test_1a04ba5e50b22fa602d7dbf270c9f7297e" compoundref="cxl__tg__test_8h" startline="272" endline="369">cxl_mem_tg::cxl_tg_test::config_input_options</referencedby>
+        <referencedby refid="classcxl__mem__tg_1_1cxl__tg__test_1abfd873f8a748a61c5e99a9eec47d3822" compoundref="cxl__tg__test_8h" startline="117" endline="131">cxl_mem_tg::cxl_tg_test::tg_clear</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="unioncxl__mem__tg_1_1mem__tg__ctl_1a06b6794eca3f46f00651ce6a935be9ba" prot="public" static="no" mutable="no">
+        <type>struct cxl_mem_tg::mem_tg_ctl::@51</type>
+        <definition>struct cxl_mem_tg::mem_tg_ctl::@51 cxl_mem_tg::mem_tg_ctl::@52</definition>
+        <argsstring></argsstring>
+        <name>@52</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="148" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>cxl_mem_tg::mem_tg_ctl</label>
+        <link refid="unioncxl__mem__tg_1_1mem__tg__ctl"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="141" column="1" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="141" bodyend="149"/>
+    <listofallmembers>
+      <member refid="unioncxl__mem__tg_1_1mem__tg__ctl_1ae89ad06cbbc38d660c0035221dadfe8ea7247aca431da924bf3a05696a0c9b245" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_ctl</scope><name>offset</name></member>
+      <member refid="unioncxl__mem__tg_1_1mem__tg__ctl_1a064066ce04a14c6a0003a1bd82934285" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg_ctl</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

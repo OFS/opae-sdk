@@ -1,0 +1,3 @@
+repository='https://github.com/numactl/numactl.git'
+module=''
+tag='origin'

@@ -1,0 +1,367 @@
+.TH "samples/hello_fpga/hello_fpga.c" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/hello_fpga/hello_fpga.c \- A code sample illustrates the basic usage of the OPAE C API\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <getopt\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <uuid/uuid\&.h>\fP
+.br
+\fC#include <opae/fpga\&.h>\fP
+.br
+\fC#include <argsfilter\&.h>\fP
+.br
+\fC#include 'mock/opae_std\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBcache_line\fP"
+.br
+.ti -1c
+.RI "struct \fBconfig\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBTEST_TIMEOUT\fP   30000"
+.br
+.ti -1c
+.RI "#define \fBCL\fP(x)   ((x) * 64)"
+.br
+.ti -1c
+.RI "#define \fBLOG2_CL\fP   6"
+.br
+.ti -1c
+.RI "#define \fBMB\fP(x)   ((x) * 1024 * 1024)"
+.br
+.ti -1c
+.RI "#define \fBCACHELINE_ALIGNED_ADDR\fP(p)   ((p) >> \fBLOG2_CL\fP)"
+.br
+.ti -1c
+.RI "#define \fBLPBK1_BUFFER_SIZE\fP   \fBMB\fP(1)"
+.br
+.ti -1c
+.RI "#define \fBLPBK1_BUFFER_ALLOCATION_SIZE\fP   \fBMB\fP(2)"
+.br
+.ti -1c
+.RI "#define \fBLPBK1_DSM_SIZE\fP   \fBMB\fP(2)"
+.br
+.ti -1c
+.RI "#define \fBCSR_SRC_ADDR\fP   0x0120"
+.br
+.ti -1c
+.RI "#define \fBCSR_DST_ADDR\fP   0x0128"
+.br
+.ti -1c
+.RI "#define \fBCSR_CTL\fP   0x0138"
+.br
+.ti -1c
+.RI "#define \fBCSR_STATUS1\fP   0x0168"
+.br
+.ti -1c
+.RI "#define \fBCSR_CFG\fP   0x0140"
+.br
+.ti -1c
+.RI "#define \fBCSR_NUM_LINES\fP   0x0130"
+.br
+.ti -1c
+.RI "#define \fBDSM_STATUS_TEST_COMPLETE\fP   0x40"
+.br
+.ti -1c
+.RI "#define \fBCSR_AFU_DSM_BASEL\fP   0x0110"
+.br
+.ti -1c
+.RI "#define \fBNLB0_AFUID\fP   'D8424DC4\-A4A3\-C413\-F89E\-433683F9040B'"
+.br
+.ti -1c
+.RI "#define \fBN3000_AFUID\fP   '9AEFFE5F\-8457\-0612\-C000\-C9660D824272'"
+.br
+.ti -1c
+.RI "#define \fBFPGA_NLB0_UUID_H\fP   0xd8424dc4a4a3c413"
+.br
+.ti -1c
+.RI "#define \fBFPGA_NLB0_UUID_L\fP   0xf89e433683f9040b"
+.br
+.ti -1c
+.RI "#define \fBON_ERR_GOTO\fP(res,  label,  desc)"
+.br
+.ti -1c
+.RI "#define \fBGETOPT_STRING\fP   'hscv'"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBusleep\fP (unsigned)"
+.br
+.ti -1c
+.RI "void \fBprint_err\fP (const char *s, \fBfpga_result\fP res)"
+.br
+.ti -1c
+.RI "void \fBhelp\fP (void)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBparse_args\fP (int argc, char *argv[])"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfind_fpga\fP (\fBfpga_properties\fP device_filter, \fBfpga_guid\fP afu_guid, \fBfpga_token\fP *accelerator_token, uint32_t *num_matches_accelerators)"
+.br
+.ti -1c
+.RI "bool \fBprobe_for_ase\fP (void)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfind_nlb_n3000\fP (\fBfpga_handle\fP accelerator_handle, uint64_t *afu_baddr)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "struct \fBconfig\fP \fBconfig\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+A code sample illustrates the basic usage of the OPAE C API\&. 
+
+The sample is a host application that demonstrates the basic steps of interacting with FPGA using the OPAE library\&. These steps include:
+.PP
+.IP "\(bu" 2
+FPGA enumeration
+.IP "\(bu" 2
+Resource acquiring and releasing
+.IP "\(bu" 2
+Managing shared memory buffer
+.IP "\(bu" 2
+MMIO read and write
+.PP
+.PP
+The sample also demonstrates OPAE's object model, such as tokens, handles, and properties\&.
+.PP
+The sample requires a native loopback mode (NLB) test image to be loaded on the FPGA\&. Refer to \fCQuick Start Guide\fP for full instructions on building, configuring, and running this code sample\&. 
+.PP
+Definition in file \fBhello_fpga\&.c\fP\&.
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct cache_line"
+.PP 
+Definition at line 85 of file hello_afu\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIuint[16]\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct config"
+.PP 
+Definition at line 129 of file hello_fpga\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+int \fIopen_flags\fP 
+.br
+.PP
+int \fIrun_n3000\fP 
+.br
+.PP
+float \fIinterval_sec\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define TEST_TIMEOUT   30000"
+
+.PP
+Definition at line 68 of file hello_fpga\&.c\&.
+.SS "#define CL(x)   ((x) * 64)"
+
+.PP
+Definition at line 72 of file hello_fpga\&.c\&.
+.SS "#define LOG2_CL   6"
+
+.PP
+Definition at line 75 of file hello_fpga\&.c\&.
+.SS "#define MB(x)   ((x) * 1024 * 1024)"
+
+.PP
+Definition at line 78 of file hello_fpga\&.c\&.
+.SS "#define CACHELINE_ALIGNED_ADDR(p)   ((p) >> \fBLOG2_CL\fP)"
+
+.PP
+Definition at line 81 of file hello_fpga\&.c\&.
+.SS "#define LPBK1_BUFFER_SIZE   \fBMB\fP(1)"
+
+.PP
+Definition at line 83 of file hello_fpga\&.c\&.
+.SS "#define LPBK1_BUFFER_ALLOCATION_SIZE   \fBMB\fP(2)"
+
+.PP
+Definition at line 84 of file hello_fpga\&.c\&.
+.SS "#define LPBK1_DSM_SIZE   \fBMB\fP(2)"
+
+.PP
+Definition at line 85 of file hello_fpga\&.c\&.
+.SS "#define CSR_SRC_ADDR   0x0120"
+
+.PP
+Definition at line 86 of file hello_fpga\&.c\&.
+.SS "#define CSR_DST_ADDR   0x0128"
+
+.PP
+Definition at line 87 of file hello_fpga\&.c\&.
+.SS "#define CSR_CTL   0x0138"
+
+.PP
+Definition at line 88 of file hello_fpga\&.c\&.
+.SS "#define CSR_STATUS1   0x0168"
+
+.PP
+Definition at line 89 of file hello_fpga\&.c\&.
+.SS "#define CSR_CFG   0x0140"
+
+.PP
+Definition at line 90 of file hello_fpga\&.c\&.
+.SS "#define CSR_NUM_LINES   0x0130"
+
+.PP
+Definition at line 91 of file hello_fpga\&.c\&.
+.SS "#define DSM_STATUS_TEST_COMPLETE   0x40"
+
+.PP
+Definition at line 92 of file hello_fpga\&.c\&.
+.SS "#define CSR_AFU_DSM_BASEL   0x0110"
+
+.PP
+Definition at line 93 of file hello_fpga\&.c\&.
+.SS "#define NLB0_AFUID   'D8424DC4\-A4A3\-C413\-F89E\-433683F9040B'"
+
+.PP
+Definition at line 96 of file hello_fpga\&.c\&.
+.SS "#define N3000_AFUID   '9AEFFE5F\-8457\-0612\-C000\-C9660D824272'"
+
+.PP
+Definition at line 99 of file hello_fpga\&.c\&.
+.SS "#define FPGA_NLB0_UUID_H   0xd8424dc4a4a3c413"
+
+.PP
+Definition at line 100 of file hello_fpga\&.c\&.
+.SS "#define FPGA_NLB0_UUID_L   0xf89e433683f9040b"
+
+.PP
+Definition at line 101 of file hello_fpga\&.c\&.
+.SS "#define ON_ERR_GOTO(res, label, desc)"
+\fBValue:\fP
+.PP
+.nf
+ do {                                       \
+      if ((res) != FPGA_OK) {            \
+         print_err((desc), (res));  \
+         goto label;                \
+      }                                  \
+   } while (0)
+.fi
+.PP
+Definition at line 108 of file hello_fpga\&.c\&.
+.SS "#define GETOPT_STRING   'hscv'"
+
+.PP
+Definition at line 155 of file hello_fpga\&.c\&.
+.SH "Function Documentation"
+.PP 
+.SS "int usleep (unsigned)"
+
+.PP
+Referenced by main()\&.
+.SS "void print_err (const char * s, \fBfpga_result\fP res)"
+
+.PP
+Definition at line 121 of file hello_fpga\&.c\&.
+.PP
+References fpgaErrStr()\&.
+.PP
+Referenced by main()\&.
+.SS "void help (void)"
+
+.PP
+Definition at line 139 of file hello_fpga\&.c\&.
+.PP
+Referenced by parse_args()\&.
+.SS "\fBfpga_result\fP parse_args (int argc, char * argv[])"
+
+.PP
+Definition at line 156 of file hello_fpga\&.c\&.
+.PP
+References FPGA_EXCEPTION, FPGA_OK, FPGA_OPEN_SHARED, fpgaGetOPAECBuildString(), fpgaGetOPAECVersionString(), GETOPT_STRING, help(), config::open_flags, and config::run_n3000\&.
+.PP
+Referenced by main()\&.
+.SS "\fBfpga_result\fP find_fpga (\fBfpga_properties\fP device_filter, \fBfpga_guid\fP afu_guid, \fBfpga_token\fP * accelerator_token, uint32_t * num_matches_accelerators)"
+
+.PP
+Definition at line 206 of file hello_fpga\&.c\&.
+.PP
+References FPGA_ACCELERATOR, FPGA_OK, fpgaCloneProperties(), fpgaDestroyProperties(), fpgaEnumerate(), fpgaPropertiesSetGUID(), fpgaPropertiesSetObjectType(), and ON_ERR_GOTO\&.
+.PP
+Referenced by main()\&.
+.SS "bool probe_for_ase (void)"
+
+.PP
+Definition at line 235 of file hello_fpga\&.c\&.
+.PP
+References FPGA_DEVICE, FPGA_OK, fpgaDestroyProperties(), fpgaDestroyToken(), fpgaEnumerate(), fpgaGetProperties(), fpgaPropertiesGetDeviceID(), and fpgaPropertiesSetObjectType()\&.
+.PP
+Referenced by main()\&.
+.SS "\fBfpga_result\fP find_nlb_n3000 (\fBfpga_handle\fP accelerator_handle, uint64_t * afu_baddr)"
+
+.PP
+Definition at line 262 of file hello_fpga\&.c\&.
+.PP
+References FPGA_EXCEPTION, FPGA_NLB0_UUID_H, FPGA_NLB0_UUID_L, FPGA_OK, fpgaReadMMIO64(), and ON_ERR_GOTO\&.
+.PP
+Referenced by main()\&.
+.SS "int main (int argc, char * argv[])"
+
+.PP
+Definition at line 314 of file hello_fpga\&.c\&.
+.PP
+References CACHELINE_ALIGNED_ADDR, CL, CSR_AFU_DSM_BASEL, CSR_CFG, CSR_CTL, CSR_DST_ADDR, CSR_NUM_LINES, CSR_SRC_ADDR, CSR_STATUS1, DSM_STATUS_TEST_COMPLETE, find_fpga(), find_nlb_n3000(), FPGA_EXCEPTION, FPGA_NOT_FOUND, FPGA_OK, fpgaClose(), fpgaDestroyProperties(), fpgaDestroyToken(), fpgaGetIOAddress(), fpgaGetProperties(), fpgaMapMMIO(), fpgaOpen(), fpgaPrepareBuffer(), fpgaReadMMIO64(), fpgaReleaseBuffer(), fpgaReset(), fpgaUnmapMMIO(), fpgaWriteMMIO32(), fpgaWriteMMIO64(), LPBK1_BUFFER_ALLOCATION_SIZE, LPBK1_BUFFER_SIZE, LPBK1_DSM_SIZE, N3000_AFUID, NLB0_AFUID, ON_ERR_GOTO, config::open_flags, parse_args(), print_err(), probe_for_ase(), config::run_n3000, TEST_TIMEOUT, cache_line::uint, and usleep()\&.
+.SH "Variable Documentation"
+.PP 
+.SS "struct \fBconfig\fP \fBconfig\fP"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+   \&.open_flags = 0,
+   \&.run_n3000 = 0
+}
+.fi
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__ctl" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_ctl</compoundname>
+    <includes refid="cxl__host__exerciser_8h" local="no">/root/samples/cxl_host_exerciser/cxl_host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__ctl_1a47cd84a12341105f4582904608c73072" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@7</name>
+        <enumvalue id="unionhost__exerciser_1_1he__ctl_1a10f96c1a5c3eb2f0867874e3bb314ae8a2557908f62c0398edfb735c9f1a3d74a" prot="public">
+          <name>offset</name>
+          <initializer>= HE_CTL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="124" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="124" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__ctl_1a10f96c1a5c3eb2f0867874e3bb314ae8" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@104</name>
+        <enumvalue id="unionhost__exerciser_1_1he__ctl_1a10f96c1a5c3eb2f0867874e3bb314ae8a2557908f62c0398edfb735c9f1a3d74a" prot="public">
+          <name>offset</name>
+          <initializer>= HE_CTL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="175" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="175" bodyend="177"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_ctl::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="125" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="125" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1ae16a7859284a742398f3ec3340897faf" compoundref="cxl__he__cmd_8h" startline="42" endline="51">host_exerciser::he_cmd::he_cmd</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a39b41493c2a243ad8e9eed18b6d61d1a" compoundref="host__exerciser__cmd_8h" startline="54" endline="62">host_exerciser::host_exerciser_cmd::host_exerciser_cmd</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a060899ac85f7634bc4a83ec3b771234b" compoundref="cxl__he__cache__cmd_8h" startline="1143" endline="1156">host_exerciser::he_cache_cmd::he_forcetestcmpl</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a672161648b4f66883bc47ef0d6fe0b57" compoundref="host__exerciser__cmd_8h" startline="227" endline="241">host_exerciser::host_exerciser_cmd::he_forcetestcmpl</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">host_exerciser::he_cache_cmd::run</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a00c9c2fbf616c3bd54c527209d5f8765" compoundref="cxl__he__cache__lpbk__cmd_8h" startline="59" endline="79">host_exerciser::he_cache_lpbk_cmd::run</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" compoundref="host__exerciser__cmd_8h" startline="730" endline="823">host_exerciser::host_exerciser_cmd::run</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1aa97f70a05e8316fa5b6039effbceb8d2" compoundref="host__exerciser__cmd_8h" startline="503" endline="597">host_exerciser::host_exerciser_cmd::run_single_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__ctl_1a35faba7d0ea312071fd20bb8e1537052" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_ctl::@8</type>
+        <definition>struct host_exerciser::he_ctl::@8 host_exerciser::he_ctl::@9</definition>
+        <argsstring></argsstring>
+        <name>@9</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="132" column="3"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__ctl_1a8c8243134da9edef12a3dbc9b4a1c1a7" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_ctl::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="178" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__ctl_1a24932f0b79ec975303e99554f94fdf7f" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_ctl::@105</type>
+        <definition>struct host_exerciser::he_ctl::@105 host_exerciser::he_ctl::@106</definition>
+        <argsstring></argsstring>
+        <name>@106</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="184" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_ctl</label>
+        <link refid="unionhost__exerciser_1_1he__ctl"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="123" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="123" bodyend="133"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__ctl_1a10f96c1a5c3eb2f0867874e3bb314ae8a2557908f62c0398edfb735c9f1a3d74a" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl</scope><name>value</name></member>
+      <member refid="unionhost__exerciser_1_1he__ctl_1a8c8243134da9edef12a3dbc9b4a1c1a7" prot="public" virt="non-virtual"><scope>host_exerciser::he_ctl</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

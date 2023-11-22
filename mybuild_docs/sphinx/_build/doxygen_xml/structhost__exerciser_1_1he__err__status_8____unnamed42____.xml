@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__err__status_8____unnamed42____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_err_status.__unnamed42__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__err__status_8____unnamed42_____1ace29e8f64e6faa54eea929ee7b698c7f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>data_error</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="258" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__err__status_8____unnamed42_____1a2e59fd4a2e93f065e82bde5d425fd332" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>rsvd1</name>
+        <bitfield> 15</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="259" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__err__status_8____unnamed42_____1a94657f12bf0cd985092032df2e94de31" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>err_index</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="260" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__err__status_8____unnamed42_____1a0fcc3e567374f3c99a54d84d9697d68f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>rsvd2</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="261" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_err_status.__unnamed42__</label>
+        <link refid="structhost__exerciser_1_1he__err__status_8____unnamed42____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="257" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="257" bodyend="262"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__err__status_8____unnamed42_____1ace29e8f64e6faa54eea929ee7b698c7f" prot="public" virt="non-virtual"><scope>host_exerciser::he_err_status.__unnamed42__</scope><name>data_error</name></member>
+      <member refid="structhost__exerciser_1_1he__err__status_8____unnamed42_____1a94657f12bf0cd985092032df2e94de31" prot="public" virt="non-virtual"><scope>host_exerciser::he_err_status.__unnamed42__</scope><name>err_index</name></member>
+      <member refid="structhost__exerciser_1_1he__err__status_8____unnamed42_____1a2e59fd4a2e93f065e82bde5d425fd332" prot="public" virt="non-virtual"><scope>host_exerciser::he_err_status.__unnamed42__</scope><name>rsvd1</name></member>
+      <member refid="structhost__exerciser_1_1he__err__status_8____unnamed42_____1a0fcc3e567374f3c99a54d84d9697d68f" prot="public" virt="non-virtual"><scope>host_exerciser::he_err_status.__unnamed42__</scope><name>rsvd2</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

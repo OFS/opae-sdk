@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structmetric__threshold" kind="struct" language="C++" prot="public">
+    <compoundname>metric_threshold</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmetric__threshold_1a63c4387d2ad646feb31c6f3dac3fb987" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char metric_threshold::metric_name[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>metric_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="245" column="6" bodyfile="include/opae/types.h" bodystart="245" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1abf891f1ebf3009188f833562401c01c7" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::upper_nr_threshold</definition>
+        <argsstring></argsstring>
+        <name>upper_nr_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="246" column="11" bodyfile="include/opae/types.h" bodystart="246" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1ab4343b83ae47a10bfdeb223297d761f9" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::upper_c_threshold</definition>
+        <argsstring></argsstring>
+        <name>upper_c_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="247" column="11" bodyfile="include/opae/types.h" bodystart="247" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1a2bc47facaf3ef988f041e2401a9ca38b" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::upper_nc_threshold</definition>
+        <argsstring></argsstring>
+        <name>upper_nc_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="248" column="11" bodyfile="include/opae/types.h" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1a731aa786b82861be91dba21a71b8a729" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::lower_nr_threshold</definition>
+        <argsstring></argsstring>
+        <name>lower_nr_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="249" column="11" bodyfile="include/opae/types.h" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1a7e56a0642bbea2cdd5c688e56bd622d7" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::lower_c_threshold</definition>
+        <argsstring></argsstring>
+        <name>lower_c_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="250" column="11" bodyfile="include/opae/types.h" bodystart="250" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1a023d220c713f20476c51c164b59d0a7b" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::lower_nc_threshold</definition>
+        <argsstring></argsstring>
+        <name>lower_nc_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="251" column="11" bodyfile="include/opae/types.h" bodystart="251" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmetric__threshold_1ae212230698181daf72fbbfe71a0fb1e5" prot="public" static="no" mutable="no">
+        <type><ref refid="structthreshold" kindref="compound">threshold</ref></type>
+        <definition>threshold metric_threshold::hysteresis</definition>
+        <argsstring></argsstring>
+        <name>hysteresis</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="252" column="11" bodyfile="include/opae/types.h" bodystart="252" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>metric_threshold</label>
+        <link refid="structmetric__threshold"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+hysteresis</edgelabel>
+          <edgelabel>+lower_c_threshold</edgelabel>
+          <edgelabel>+lower_nc_threshold</edgelabel>
+          <edgelabel>+lower_nr_threshold</edgelabel>
+          <edgelabel>+upper_c_threshold</edgelabel>
+          <edgelabel>+upper_nc_threshold</edgelabel>
+          <edgelabel>+upper_nr_threshold</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>threshold</label>
+        <link refid="structthreshold"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="244" column="1" bodyfile="include/opae/types.h" bodystart="244" bodyend="253"/>
+    <listofallmembers>
+      <member refid="structmetric__threshold_1ae212230698181daf72fbbfe71a0fb1e5" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>hysteresis</name></member>
+      <member refid="structmetric__threshold_1a7e56a0642bbea2cdd5c688e56bd622d7" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>lower_c_threshold</name></member>
+      <member refid="structmetric__threshold_1a023d220c713f20476c51c164b59d0a7b" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>lower_nc_threshold</name></member>
+      <member refid="structmetric__threshold_1a731aa786b82861be91dba21a71b8a729" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>lower_nr_threshold</name></member>
+      <member refid="structmetric__threshold_1a63c4387d2ad646feb31c6f3dac3fb987" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>metric_name</name></member>
+      <member refid="structmetric__threshold_1ab4343b83ae47a10bfdeb223297d761f9" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>upper_c_threshold</name></member>
+      <member refid="structmetric__threshold_1a2bc47facaf3ef988f041e2401a9ca38b" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>upper_nc_threshold</name></member>
+      <member refid="structmetric__threshold_1abf891f1ebf3009188f833562401c01c7" prot="public" virt="non-virtual"><scope>metric_threshold</scope><name>upper_nr_threshold</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

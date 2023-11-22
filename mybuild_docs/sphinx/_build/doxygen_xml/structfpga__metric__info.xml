@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structfpga__metric__info" kind="struct" language="C++" prot="public">
+    <compoundname>fpga_metric_info</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfpga__metric__info_1adfdb0c64c6e3d00d35f9c8996cf36463" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t fpga_metric_info::metric_num</definition>
+        <argsstring></argsstring>
+        <name>metric_num</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="213" column="10" bodyfile="include/opae/types.h" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1af2e751ebec0b9526a73a59a29461a64a" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref></type>
+        <definition>fpga_guid fpga_metric_info::metric_guid</definition>
+        <argsstring></argsstring>
+        <name>metric_guid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="214" column="11" bodyfile="include/opae/types.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1a38d4fbdc2acde2f19711c9733db6e24c" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char fpga_metric_info::qualifier_name[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>qualifier_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="215" column="6" bodyfile="include/opae/types.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1aa3930b74a55578cf4f030f9ae284b848" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char fpga_metric_info::group_name[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>group_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="216" column="6" bodyfile="include/opae/types.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1a3d336a0f9766b5c8e6a00069c2cc13e0" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char fpga_metric_info::metric_name[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>metric_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="217" column="6" bodyfile="include/opae/types.h" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1a537b1236822cc923a44ed0440dc8500a" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char fpga_metric_info::metric_units[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>metric_units</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="218" column="6" bodyfile="include/opae/types.h" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1a3aef82b39037b6e4646f811fea4f93e4" prot="public" static="no" mutable="no">
+        <type>enum <ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcc" kindref="member">fpga_metric_datatype</ref></type>
+        <definition>enum fpga_metric_datatype fpga_metric_info::metric_datatype</definition>
+        <argsstring></argsstring>
+        <name>metric_datatype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="218" column="6" bodyfile="include/opae/types.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__metric__info_1a0f1ee188177b88a3ade06b635c45743b" prot="public" static="no" mutable="no">
+        <type>enum <ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094" kindref="member">fpga_metric_type</ref></type>
+        <definition>enum fpga_metric_type fpga_metric_info::metric_type</definition>
+        <argsstring></argsstring>
+        <name>metric_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="218" column="6" bodyfile="include/opae/types.h" bodystart="220" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Metric info struct </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>fpga_metric_info</label>
+        <link refid="structfpga__metric__info"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="212" column="1" bodyfile="include/opae/types.h" bodystart="212" bodyend="221"/>
+    <listofallmembers>
+      <member refid="structfpga__metric__info_1aa3930b74a55578cf4f030f9ae284b848" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>group_name</name></member>
+      <member refid="structfpga__metric__info_1a3aef82b39037b6e4646f811fea4f93e4" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>metric_datatype</name></member>
+      <member refid="structfpga__metric__info_1af2e751ebec0b9526a73a59a29461a64a" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>metric_guid</name></member>
+      <member refid="structfpga__metric__info_1a3d336a0f9766b5c8e6a00069c2cc13e0" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>metric_name</name></member>
+      <member refid="structfpga__metric__info_1adfdb0c64c6e3d00d35f9c8996cf36463" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>metric_num</name></member>
+      <member refid="structfpga__metric__info_1a0f1ee188177b88a3ade06b635c45743b" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>metric_type</name></member>
+      <member refid="structfpga__metric__info_1a537b1236822cc923a44ed0440dc8500a" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>metric_units</name></member>
+      <member refid="structfpga__metric__info_1a38d4fbdc2acde2f19711c9733db6e24c" prot="public" virt="non-virtual"><scope>fpga_metric_info</scope><name>qualifier_name</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

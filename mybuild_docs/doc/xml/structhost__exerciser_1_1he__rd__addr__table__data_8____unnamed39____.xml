@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__rd__addr__table__data_8____unnamed39____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_rd_addr_table_data.__unnamed39__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__rd__addr__table__data_8____unnamed39_____1a78d9019fc5b454bf912bed7595d9f434" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>address_table_value</name>
+        <bitfield> 64</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="249" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_rd_addr_table_data.__unnamed39__</label>
+        <link refid="structhost__exerciser_1_1he__rd__addr__table__data_8____unnamed39____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="248" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="248" bodyend="250"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__rd__addr__table__data_8____unnamed39_____1a78d9019fc5b454bf912bed7595d9f434" prot="public" virt="non-virtual"><scope>host_exerciser::he_rd_addr_table_data.__unnamed39__</scope><name>address_table_value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

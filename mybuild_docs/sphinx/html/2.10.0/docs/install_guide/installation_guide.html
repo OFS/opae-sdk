@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPAE Installation Guide &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="OPAE C API Programming Guide" href="../fpga_api/prog_guide/readme.html" />
+    <link rel="prev" title="Quick Start Guide" href="../fpga_api/quick_start/readme.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OPAE Installation Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-download-the-opae-sdk">How to download the OPAE SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-the-fedora">Install the Fedora</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-the-kernel-and-dfl-drivers">Build the kernel and DFL drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-the-opae-sdk">Build the OPAE-SDK</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rocky-linux-8-5">Rocky Linux 8.5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fedora">Fedora</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ubuntu-20-04">Ubuntu 20.04</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rhel-8-2">RHEL 8.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-opae-sdk-packages">Create opae-sdk packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#opae-sdk-installation-with-rpm-deb-packages">OPAE SDK installation with rpm/deb packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fpga-device-access-permissions">FPGA Device Access Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memlock-limit">Memlock limit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hugepage-settings">Hugepage Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>OPAE Installation Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/docs/install_guide/installation_guide.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="opae-installation-guide">
+<h1>OPAE Installation Guide<a class="headerlink" href="#opae-installation-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-download-the-opae-sdk">
+<h2>How to download the OPAE SDK<a class="headerlink" href="#how-to-download-the-opae-sdk" title="Permalink to this headline">¶</a></h2>
+<p>OPAE SDK releases are available on <a class="reference external" href="https://github.com/OPAE/opae-sdk/releases">GitHub</a>.
+Source code for the OPAE DFL device driver for Linux is also available on <a class="reference external" href="https://github.com/OPAE/linux-dfl">GitHub</a>.</p>
+</div>
+<div class="section" id="install-the-fedora">
+<h2>Install the Fedora<a class="headerlink" href="#install-the-fedora" title="Permalink to this headline">¶</a></h2>
+<p>Download the Fedora  (x86_64 version) installation file in <a class="reference external" href="https://getfedora.org/en/workstation/download/">fedora</a>, and install the Fedora  in yourserver. You can choose Fedora Workstation or Fedora server.</p>
+</div>
+<div class="section" id="build-the-kernel-and-dfl-drivers">
+<h2>Build the kernel and DFL drivers<a class="headerlink" href="#build-the-kernel-and-dfl-drivers" title="Permalink to this headline">¶</a></h2>
+<p>For building the OPAE kernel and kernel driver, the kernel development environment is required. So before you build the kernel, you must install the required packages. Run the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>make<span class="w"> </span>kernel-headers<span class="w"> </span>kernel-devel<span class="w"> </span>elfutils-libelf-devel<span class="w"> </span>ncurses-devel<span class="w"> </span>openssl-devel<span class="w"> </span>bison<span class="w"> </span>flex
+</pre></div>
+</div>
+<p>Download the OPAE upstream kernel tree from github, for example download from fpga-ofs-dev-5.15-lts branch.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/OPAE/linux-dfl.git<span class="w"> </span>-b<span class="w"> </span>fpga-ofs-dev-5.15-lts
+</pre></div>
+</div>
+<p>Configure the kernel.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>linux-dfl
+<span class="gp">$ </span>cp<span class="w"> </span>/boot/config-<span class="sb">`</span>uname<span class="w"> </span>-r<span class="sb">`</span><span class="w"> </span>.config
+<span class="gp">$ </span>cat<span class="w"> </span>configs/dfl-config<span class="w"> </span>&gt;&gt;<span class="w"> </span>.config
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;CONFIG_LOCALVERSION=&quot;-dfl&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.config
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;CONFIG_LOCALVERSION_AUTO=y&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.config
+<span class="gp">$ </span>sed<span class="w"> </span>-i<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;s/CONFIG_SYSTEM_TRUSTED_KEYS=.*/CONFIG_SYSTEM_TRUSTED_KEYS=&quot;&quot;/&#39;</span><span class="w"> </span>.config
+<span class="gp">$ </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;/^CONFIG_DEBUG_INFO_BTF/ s/./#&amp;/&#39;</span><span class="w"> </span>.config
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;CONFIG_DEBUG_ATOMIC_SLEEP=y&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.config
+<span class="gp">$ </span>make<span class="w"> </span>olddefconfig
+</pre></div>
+</div>
+<p>Compile and install the new kernel.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>-j<span class="w"> </span><span class="k">$(</span>nproc<span class="k">)</span>
+<span class="gp">$ </span>sudo<span class="w"> </span>make<span class="w"> </span>modules_install<span class="w"> </span>-j<span class="w"> </span><span class="k">$(</span>nproc<span class="k">)</span>
+<span class="gp">$ </span>sudo<span class="w"> </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>Build linux DFL Kernel instructions please also refer to: https://github.com/OPAE/linux-dfl/wiki/Build-the-linux-dfl-kernel</p>
+<p>When install finished, reboot your system.
+When the system login again, verify the kernel version is correct. For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">[figo@localhost linux-dfl]$ </span>uname<span class="w"> </span>-a
+<span class="go">Linux localhost.localdomain 5.15.lts-dfl-g73e16386cda0 #6 SMP Mon Jun 13 21:21:31 -04 2022 x86_64 x86_64 x86_64</span>
+</pre></div>
+</div>
+<p>And also you can check the OPAE dfl drivers have auto-loaded.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">[figo@localhost linux-dfl]$ </span>lsmod<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>fpga
+<span class="go">ifpga_sec_mgr          20480  1 intel_m10_bmc_secure</span>
+<span class="go">fpga_region            20480  3 dfl_fme_region,dfl_fme,dfl</span>
+<span class="go">fpga_bridge            24576  4 dfl_fme_region,fpga_region,dfl_fme,dfl_fme_br</span>
+<span class="go">fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme</span>
+<span class="gp">[figo@localhost linux-dfl]$ </span>lsmod<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>dfl
+<span class="go">dfl_eth_group          36864  0</span>
+<span class="go">dfl_fme_region         20480  0</span>
+<span class="go">dfl_emif               16384  0</span>
+<span class="go">dfl_n3000_nios         20480  0</span>
+<span class="go">dfl_fme_br             16384  0</span>
+<span class="go">dfl_fme_mgr            20480  1</span>
+<span class="go">dfl_fme                49152  0</span>
+<span class="go">dfl_afu                36864  0</span>
+<span class="go">dfl_pci                20480  0</span>
+<span class="go">dfl                    40960  7 dfl_pci,dfl_fme,dfl_fme_br,dfl_eth_group,dfl_n3000_nios,dfl_afu,dfl_emif</span>
+<span class="go">fpga_region            20480  3 dfl_fme_region,dfl_fme,dfl</span>
+<span class="go">fpga_bridge            24576  4 dfl_fme_region,fpga_region,dfl_fme,dfl_fme_br</span>
+<span class="go">fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="build-the-opae-sdk">
+<h2>Build the OPAE-SDK<a class="headerlink" href="#build-the-opae-sdk" title="Permalink to this headline">¶</a></h2>
+<p>Before you build the OPAE SDK, you must install the required packages. Run the following commands:</p>
+<div class="section" id="rocky-linux-8-5">
+<h3>Rocky Linux 8.5<a class="headerlink" href="#rocky-linux-8-5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="s1">&#39;dnf-command(config-manager)&#39;</span>
+<span class="gp"># </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>powertools
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>epel-release
+<span class="gp"># </span>dnf<span class="w"> </span>check-update
+<span class="gp"># </span>dnf<span class="w"> </span>upgrade<span class="w"> </span>-y
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-devel<span class="w"> </span>python3-jsonschema<span class="w"> </span>python3-pyyaml<span class="w"> </span>python3-pybind11<span class="w"> </span>git<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>make<span class="w"> </span>cmake<span class="w"> </span>libuuid-devel<span class="w"> </span>json-c-devel<span class="w"> </span>hwloc-devel<span class="w"> </span>tbb-devel<span class="w"> </span>cli11-devel<span class="w"> </span>spdlog-devel<span class="w"> </span>libedit-devel<span class="w"> </span>systemd-devel<span class="w"> </span>rpm-build<span class="w"> </span>rpmdevtools<span class="w"> </span>pybind11-devel<span class="w"> </span>yaml-cpp-devel<span class="w"> </span>libudev-devel<span class="w"> </span>linuxptp
+<span class="gp"># </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>jsonschema<span class="w"> </span>virtualenv<span class="w"> </span>pyyaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="fedora">
+<h3>Fedora<a class="headerlink" href="#fedora" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>dnf<span class="w"> </span>check-update
+<span class="gp"># </span>dnf<span class="w"> </span>upgrade<span class="w"> </span>-y
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-devel<span class="w"> </span>python3-jsonschema<span class="w"> </span>python3-pyyaml<span class="w"> </span>python3-pybind11<span class="w"> </span>git<span class="w"> </span>gcc<span class="w"> </span>g++<span class="w"> </span>make<span class="w"> </span>cmake<span class="w"> </span>libuuid-devel<span class="w"> </span>json-c-devel<span class="w"> </span>hwloc-devel<span class="w"> </span>tbb-devel<span class="w"> </span>libedit-devel<span class="w"> </span>rpm-build<span class="w"> </span>rpmdevtools<span class="w"> </span>pybind11-devel<span class="w"> </span>yaml-cpp-devel<span class="w"> </span>libudev-devel<span class="w"> </span>cli11-devel<span class="w"> </span>spdlog-devel<span class="w"> </span>linuxptp
+<span class="gp"># </span>pip3<span class="w"> </span>install<span class="w"> </span>jsonschema<span class="w"> </span>virtualenv<span class="w"> </span>pyyaml
+</pre></div>
+</div>
+</div>
+<div class="section" id="ubuntu-20-04">
+<h3>Ubuntu 20.04<a class="headerlink" href="#ubuntu-20-04" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>apt-get<span class="w"> </span>update
+<span class="gp"># </span>apt-get<span class="w"> </span>upgrade<span class="w"> </span>-y
+<span class="gp"># </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-dev<span class="w"> </span>git<span class="w"> </span>gcc<span class="w"> </span>g++<span class="w"> </span>make<span class="w"> </span>cmake<span class="w"> </span>uuid-dev<span class="w"> </span>libjson-c-dev<span class="w"> </span>libhwloc-dev<span class="w"> </span>libtbb-dev<span class="w"> </span>libedit-dev<span class="w"> </span>libudev-dev<span class="w"> </span>linuxptp<span class="w"> </span>pandoc<span class="w"> </span>devscripts<span class="w"> </span>debhelper<span class="w"> </span>doxygen
+<span class="gp"># </span>pip3<span class="w"> </span>install<span class="w"> </span>jsonschema<span class="w"> </span>virtualenv<span class="w"> </span>pyyaml<span class="w"> </span>pybind11
+</pre></div>
+</div>
+</div>
+<div class="section" id="rhel-8-2">
+<h3>RHEL 8.2<a class="headerlink" href="#rhel-8-2" title="Permalink to this headline">¶</a></h3>
+<p>Register and enable Red Hat subscription to install any packages on the system.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>subscription-manager<span class="w"> </span>register<span class="w"> </span>--proxy<span class="o">=</span>PROXY<span class="w"> </span>--username<span class="o">=</span>USER<span class="w"> </span>--password<span class="o">=</span>PASSWORD<span class="w"> </span>--auto-attach
+</pre></div>
+</div>
+<p>Set the RHEL version and install packages. Set proxy name and port number.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>subscription-manager<span class="w"> </span>release<span class="w"> </span>--set<span class="o">=</span><span class="m">8</span>.2<span class="w"> </span>--proxy<span class="w"> </span>proxy-name.com:port<span class="w"> </span>number
+<span class="gp"># </span>subscription-manager<span class="w"> </span>repos<span class="w"> </span>--enable<span class="w"> </span>codeready-builder-for-rhel-8-x86_64-rpms
+<span class="gp"># </span>dnf<span class="w"> </span>upgrade<span class="w"> </span>-y
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-devel<span class="w"> </span>gdb<span class="w"> </span>vim<span class="w"> </span>git<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>make<span class="w"> </span>cmake<span class="w"> </span>libuuid-devel<span class="w"> </span>rpm-build<span class="w"> </span>systemd-devel<span class="w">  </span>nmap
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3-jsonschema<span class="w"> </span>json-c-devel<span class="w"> </span>tbb-devel<span class="w"> </span>rpmdevtools<span class="w"> </span>libcap-devel<span class="w"> </span>
+<span class="gp"># </span>dnf<span class="w"> </span>check-update<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="gp"># </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>spdlog-devel<span class="w"> </span>cli11-devel<span class="w"> </span>python3-pyyaml<span class="w"> </span>python3-pybind11<span class="w"> </span>hwloc-devel<span class="w"> </span>libedit-devel
+<span class="gp"># </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>jsonschema<span class="w"> </span>virtualenv<span class="w"> </span>pudb<span class="w"> </span>pyyaml
+</pre></div>
+</div>
+<p>Install the latest version of <a class="reference external" href="https://github.com/Kitware">cmake</a> on top of the outdated cmake package from the package manager.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>cmake-3.25.1/
+<span class="gp"># </span>./bootstrap<span class="w"> </span>--prefix<span class="o">=</span>/usr
+<span class="gp"># </span>make
+<span class="gp"># </span>make<span class="w"> </span>install
+<span class="gp"># </span>which<span class="w"> </span>cmake
+<span class="go">/usr/bin/cmake</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-opae-sdk-packages">
+<h3>Create opae-sdk packages<a class="headerlink" href="#create-opae-sdk-packages" title="Permalink to this headline">¶</a></h3>
+<p>Download the OPAE-SDK source code from github. For example, download from Master branch.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/OPAE/opae-sdk.git
+</pre></div>
+</div>
+<p>Compile and build the OPAE-SDK RPMs (Fedora, Rocky, RHEL 8.2).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>opae-sdk/packaging/opae/rpm
+<span class="gp">$ </span>./create<span class="w"> </span>fedora
+</pre></div>
+</div>
+<p>After a successful compile, there are 3 rpm packages generated (Fedora, Rocky, RHEL8.2). For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">opae-2.1.0-1.fc34.x86_64.rpm</span>
+<span class="go">opae-devel-2.1.0-1.fc34.x86_64.rpm</span>
+<span class="go">opae-extra-tools-2.1.0-1.fc34.x86_64.rpm</span>
+</pre></div>
+</div>
+<p>Compile and build the OPAE-SDK deb packages (Ubuntu 22.04).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>opae-sdk/packaging/opae/deb
+<span class="gp">$ </span>./create
+</pre></div>
+</div>
+<p>After a successful compile, there are 3 deb packages generated (Ubuntu 22.04). For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">opae_2.1.1-1_amd64.deb  </span>
+<span class="go">opae-devel_2.1.1-1_amd64.deb  </span>
+<span class="go">opae-extra-tools_2.1.1-1_amd64.deb</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="opae-sdk-installation-with-rpm-deb-packages">
+<h2>OPAE SDK installation with rpm/deb packages<a class="headerlink" href="#opae-sdk-installation-with-rpm-deb-packages" title="Permalink to this headline">¶</a></h2>
+<p>The rpm packages generated in the previous step can be installed using these commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>./*.rpm
+</pre></div>
+</div>
+<p>The deb packages generated in the previous step can be installed using these commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w">  </span>./*.deb
+</pre></div>
+</div>
+<p>When you installed the rpms, you can run fpgainfo command to check the FPGA FME infomation. For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">[figo@localhost install_guide]$ </span>fpgainfo<span class="w"> </span>fme
+<span class="go">Board Management Controller, MAX10 NIOS FW version: D.2.1.24</span>
+<span class="go">Board Management Controller, MAX10 Build version: D.2.0.7</span>
+<span class="go">//****** FME ******//</span>
+<span class="go">Object Id                        : 0xEF00000</span>
+<span class="go">PCIe s:b:d.f                     : 0000:08:00.0</span>
+<span class="go">Device Id                        : 0x0B30</span>
+<span class="go">Socket Id                        : 0x00</span>
+<span class="go">Ports Num                        : 01</span>
+<span class="go">Bitstream Id                     : 0x2300011001030F</span>
+<span class="go">Bitstream Version                : 0.2.3</span>
+<span class="go">Pr Interface Id                  : f3c99413-5081-4aad-bced-07eb84a6d0bb</span>
+<span class="go">Boot Page                        : user</span>
+</pre></div>
+</div>
+<p>To uninstall the OPAE rpms, you can use this commands</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dnf<span class="w"> </span>list<span class="w"> </span>installed<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>opae
+<span class="gp">$ </span>sudo<span class="w"> </span>dnf<span class="w"> </span>remove<span class="w"> </span>opae*.x86_64
+</pre></div>
+</div>
+<p>To uninstall the OPAE deb, you can use this commands</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dpkg<span class="w"> </span>-l<span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>opae
+<span class="gp">$ </span>dpkg<span class="w"> </span>-r<span class="w"> </span>opae-extra-tools:amd64
+<span class="gp">$ </span>dpkg<span class="w"> </span>-r<span class="w"> </span>opae-devel:amd64
+<span class="gp">$ </span>dpkg<span class="w"> </span>-r<span class="w"> </span>opae
+</pre></div>
+</div>
+</div>
+<div class="section" id="fpga-device-access-permissions">
+<h2>FPGA Device Access Permissions<a class="headerlink" href="#fpga-device-access-permissions" title="Permalink to this headline">¶</a></h2>
+<p>Access to FPGA accelerators and devices is controlled using file access permissions on the
+Intel® FPGA device files, <code class="docutils literal notranslate"><span class="pre">/dev/dfl-fme.*</span></code> and <code class="docutils literal notranslate"><span class="pre">/dev/dfl-port.*</span></code>, as well as to the files reachable through <code class="docutils literal notranslate"><span class="pre">/sys/class/fpga_region/</span></code>.</p>
+<p>In order to allow regular (non-root) users to access accelerators, you need to grant them read and write permissions on <code class="docutils literal notranslate"><span class="pre">/dev/dfl-port.*</span></code> (with <code class="docutils literal notranslate"><span class="pre">*</span></code> denoting the respective socket, i.e. 0 or 1). E.g.:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>chmod<span class="w"> </span>a+rw<span class="w"> </span>/dev/dfl-port.0
+</pre></div>
+</div>
+</div>
+<div class="section" id="memlock-limit">
+<h2>Memlock limit<a class="headerlink" href="#memlock-limit" title="Permalink to this headline">¶</a></h2>
+<p>Depending on the requirements of your application, you may also want to
+increase the maximum amount of memory a user process is allowed to lock. The
+exact way to do this depends on your Linux distribution.</p>
+<p>You can check the current memlock limit using</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">ulimit</span><span class="w"> </span>-l
+</pre></div>
+</div>
+<p>A way to permanently remove the limit for locked memory for a regular user is
+to add the following lines to your /etc/security/limits.conf:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">user1    hard   memlock           unlimited</span>
+<span class="go">user1    soft   memlock           unlimited</span>
+</pre></div>
+</div>
+<p>This removes the limit on locked memory for user <code class="docutils literal notranslate"><span class="pre">user1</span></code>. To remove it for
+all users, you can replace <code class="docutils literal notranslate"><span class="pre">user1</span></code> with <code class="docutils literal notranslate"><span class="pre">*</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">*    hard   memlock           unlimited</span>
+<span class="go">*    soft   memlock           unlimited</span>
+</pre></div>
+</div>
+<p>Note that settings in the /etc/security/limits.conf file don’t apply to
+services.  To increase the locked memory limit for a service you need to
+modify the application’s systemd service file and add the line:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[Service]</span>
+<span class="go">LimitMEMLOCK=infinity</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hugepage-settings">
+<h2>Hugepage Settings<a class="headerlink" href="#hugepage-settings" title="Permalink to this headline">¶</a></h2>
+<p>Users need to configure system hugepages to reserve 2MB-hugepages or
+1GB-hugepages. For example, the ‘hello_fpga’ sample requires several
+2MB-hugepages. And the <em>fpgadiag</em> tool requires several 1GB-hugepages.</p>
+<p>The command below reserves 20 2M-hugepages:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;echo 20 &gt; /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages&#39;</span>
+</pre></div>
+</div>
+<p>The command below reserves 4 1GB-hugepages:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;echo 4 &gt; /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages&#39;</span>
+</pre></div>
+</div>
+<p>For x86_64 architecture processors, user can use following command to find out avaiable hugepage sizes:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>grep<span class="w"> </span>pse<span class="w"> </span>/proc/cpuinfo<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq
+<span class="go">flags : ... pse ...</span>
+</pre></div>
+</div>
+<p>If this commands returns a non-empty string, 2MB pages are supported.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>grep<span class="w"> </span>pse<span class="w"> </span>/proc/cpuinfo<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq
+<span class="go">flags : ... pdpe1gb ...</span>
+</pre></div>
+</div>
+<p>If this commands returns a non-empty string, 1GB pages are supported.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fpga_api/quick_start/readme.html" class="btn btn-neutral float-left" title="Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fpga_api/prog_guide/readme.html" class="btn btn-neutral float-right" title="OPAE C API Programming Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,3412 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "FPGA_API" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+fpga_api \- OPAE C API
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.sp
+The reference documentation for the OPAE C API is grouped into the following
+sections:
+.INDENT 0.0
+.IP \(bu 2
+\fI\%Types\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%types.h\fP
+.IP \(bu 2
+\fI\%types_enum.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Enumeration API\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%enum.h\fP
+.IP \(bu 2
+\fI\%properties.h\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%Accessor Return Values\fP
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+\fI\%Access API\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%access.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Event API\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%event.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%MMIO and Shared Memory APIs\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%mmio.h\fP
+.IP \(bu 2
+\fI\%buffer.h\fP
+.IP \(bu 2
+\fI\%umsg.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Management API\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%manage.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Metrics API\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%metrics.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%SysObject\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%sysobject.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Utilities\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%utils.h\fP
+.UNINDENT
+.IP \(bu 2
+\fI\%Samples\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%hello_fpga.c\fP
+.IP \(bu 2
+\fI\%hello_events.c\fP
+.UNINDENT
+.UNINDENT
+.SH TYPES
+.sp
+The OPAE C API defines a number of types; most prominent are the types
+\fIfpga_token\fP, \fIfpga_handle\fP, and \fIfpga_properties\fP\&. All regular types are
+defined in [types.h](#types\-h), while the values of enumeration types are
+defined in [types_enum.h](#types\-enum\-h).
+.SS types.h
+.sp
+Type definitions for FPGA API. 
+.sp
+OPAE uses the three opaque types fpga_properties, fpga_token, and fpga_handle to create a hierarchy of objects that can be used to enumerate, reference, acquire, and query FPGA resources. This object model is designed to be extensible to account for different FPGA architectures and platforms.
+.sp
+Defines
+.INDENT 0.0
+.TP
+.B FPGA_ERROR_NAME_MAX 
+Information about an error register
+.sp
+This data structure captures information about an error register exposed by an accelerator resource. The error API provides functions to retrieve these information structures from a particular resource. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B FPGA_METRIC_STR_SIZE 
+FPGA Metric string size 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B fpga_is_parent_child(__parent_hdr, __child_hdr) 
+Determine token parent/child relationship
+.sp
+Given pointers to two \fI\%fpga_token_header\fP structs, determine whether the first is the parent of the second. A parent will have objtype == FPGA_DEVICE. A child will have objtype == FPGA_ACCELERATOR. The PCIe address of the two headers will match in all but the function fields. 
+.UNINDENT
+.sp
+Typedefs
+.INDENT 0.0
+.TP
+.B typedef  void  *fpga_properties 
+Object for expressing FPGA resource properties
+.sp
+\fBfpga_properties\fP objects encapsulate all enumerable information about an FPGA resources. They can be used for two purposes: selective enumeration (discovery) and querying information about existing resources.
+.sp
+For selective enumeration, usually an empty \fBfpga_properties\fP object is created (using \fI\%fpgaGetProperties()\fP) and then populated with the desired criteria for enumeration. An array of \fBfpga_properties\fP can then be passed to \fI\%fpgaEnumerate()\fP, which will return a list of \fBfpga_token\fP objects matching these criteria.
+.sp
+For querying properties of existing FPGA resources, \fI\%fpgaGetProperties()\fP can also take an \fBfpga_token\fP and will return an \fBfpga_properties\fP object populated with information about the resource referenced by that token.
+.sp
+After use, \fBfpga_properties\fP objects should be destroyed using fpga_destroyProperties() to free backing memory used by the \fBfpga_properties\fP object. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B typedef  void  *fpga_token 
+Token for referencing FPGA resources
+.sp
+An \fBfpga_token\fP serves as a reference to a specific FPGA resource present in the system. Holding an \fBfpga_token\fP does not constitute ownership of the FPGA resource \- it merely allows the user to query further information about a resource, or to use \fI\%fpgaOpen()\fP to acquire ownership.
+.sp
+\fBfpga_token\fPs are usually returned by \fI\%fpgaEnumerate()\fP or \fI\%fpgaPropertiesGetParent()\fP, and used by \fI\%fpgaOpen()\fP to acquire ownership and yield a handle to the resource. Some API calls also take \fBfpga_token\fPs as arguments if they don’t require ownership of the resource in question. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B typedef  void  *fpga_handle 
+Handle to an FPGA resource
+.sp
+A valid \fBfpga_handle\fP object, as populated by \fI\%fpgaOpen()\fP, denotes ownership of an FPGA resource. Note that ownership can be exclusive or shared, depending on the flags used in \fI\%fpgaOpen()\fP\&. Ownership can be released by calling \fI\%fpgaClose()\fP, which will render the underlying handle invalid.
+.sp
+Many OPAE C API functions require a valid token (which is synonymous with ownership of the resource). 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B typedef  uint8_t  fpga_guid[16] 
+Globally unique identifier (GUID)
+.sp
+GUIDs are used widely within OPAE for helping identify FPGA resources. For example, every FPGA resource has a \fBguid\fP property, which can be (and in the case of FPGA_ACCELERATOR resource primarily is) used for enumerating a resource of a specific type.
+.sp
+\fBfpga_guid\fP is compatible with libuuid’s uuid_t, so users can use libuuid functions like uuid_parse() to create and work with GUIDs. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B typedef  void  *fpga_event_handle 
+Handle to an event object
+.sp
+OPAE provides an interface to asynchronous events that can be generated by different FPGA resources. The event API provides functions to register for these events; associated with every event a process has registered for is an \fBfpga_event_handle\fP, which encapsulates the OS\-specific data structure for event objects.
+.sp
+After use, \fBfpga_event_handle\fP objects should be destroyed using \fI\%fpgaDestroyEventHandle()\fP to free backing memory used by the \fBfpga_event_handle\fP object. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B typedef  void  *fpga_object 
+Object pertaining to an FPGA resource as identified by a unique name
+.sp
+An \fBfpga_object\fP represents either a device attribute or a container of attributes. Similar to filesystems, a ‘/’ may be used to seperate objects in an object hierarchy. Once on object is acquired, it may be used to read or write data in a resource attribute or to query sub\-objects if the object is a container object. The data in an object is buffered and will be kept around until the object is destroyed. Additionally, the data in an attribute can by synchronized from the owning resource using the FPGA_OBJECT_SYNC flag during read operations. The name identifying the object is unique with respect to the resource that owns it. A parent resource may be identified by an \fBfpga_token\fP object, by an \fBfpga_handle\fP object, or another \fBfpga_object\fP object. If a handle object is used when opening the object, then the object is opened with read\-write access. Otherwise, the object is read\-only. 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  fpga_version 
+\fI#include <opae/types.h>\fP
+.sp
+Semantic version
+.sp
+Data structure for expressing version identifiers following the semantic versioning scheme. Used in various properties for tracking component versions. 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B uint8_t  major 
+Major version 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint8_t  minor 
+Minor version 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint16_t  patch 
+Revision or patchlevel 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  fpga_error_info 
+\fI#include <opae/types.h>\fP
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B char  name[64] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bool  can_clear 
+name of the error 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B union  metric_value 
+\fI#include <opae/types.h>\fP
+.sp
+Metric value union 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B uint64_t  ivalue 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B double  dvalue 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B float  fvalue 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bool  bvalue 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  fpga_metric_info 
+\fI#include <opae/types.h>\fP
+.sp
+Metric info struct 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B uint64_t  metric_num 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_guid\fP  metric_guid 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B char  qualifier_name[256] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B char  group_name[256] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B char  metric_name[256] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B char  metric_units[256] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enum  \fI\%fpga_metric_datatype\fP  metric_datatype 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enum  \fI\%fpga_metric_type\fP  metric_type 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  fpga_metric 
+\fI#include <opae/types.h>\fP
+.sp
+Metric struct 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B uint64_t  metric_num 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%metric_value\fP  value 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bool  isvalid 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  threshold 
+\fI#include <opae/types.h>\fP
+.sp
+Threshold struct 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B char  threshold_name[256] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint32_t  is_valid 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B double  value 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  metric_threshold 
+\fI#include <opae/types.h>\fP
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B char  metric_name[256] 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  upper_nr_threshold 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  upper_c_threshold 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  upper_nc_threshold 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  lower_nr_threshold 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  lower_c_threshold 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  lower_nc_threshold 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%threshold\fP  hysteresis 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  fpga_token_header 
+\fI#include <opae/types.h>\fP
+.sp
+Internal token type header
+.sp
+Each plugin (dfl: libxfpga.so, vfio: libopae\-v.so) implements its own proprietary token type. This header \fImust\fP appear at offset zero within that structure.
+.sp
+eg, see lib/plugins/xfpga/types_int.h:struct _fpga_token and lib/plugins/vfio/opae_vfio.h:struct _vfio_token. 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B uint64_t  magic 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint16_t  vendor_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint16_t  device_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint16_t  segment 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint8_t  bus 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint8_t  device 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint8_t  function 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_interface\fP  interface 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_objtype\fP  objtype 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  object_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%fpga_guid\fP  guid 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint16_t  subsystem_vendor_id 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint16_t  subsystem_device_id 
+.UNINDENT
+.UNINDENT
+.SS types_enum.h
+.sp
+Definitions of enumerated types for the OPAE C API. 
+.sp
+This file defines return and error codes, event and object types, states, and flags as used or reported by OPAE C API functions. 
+.sp
+Enums
+.INDENT 0.0
+.TP
+.B enum  fpga_result 
+OPAE C API function return codes
+.sp
+Every public API function exported by the OPAE C library will return one of these codes. Usually, FPGA_OK denotes successful completion of the requested operation, while any return code \fIother\fP than FPGA_OK indicates an error or other deviation from the expected behavior. Users of the OPAE C API should always check the return codes of the APIs they call, and not use output parameters of functions that did not execute successfully.
+.sp
+The \fI\%fpgaErrStr()\fP function converts error codes into printable messages.
+.sp
+OPAE also has a logging mechanism that allows a developer to get more information about why a particular call failed with a specific message. If enabled, any function that returns an error code different from FPGA_OK will also print out a message with further details. This mechanism can be enabled by setting the environment variable \fBLIBOPAE_LOG\fP to 1 before running the respective application. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OK 
+Operation completed successfully 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_INVALID_PARAM 
+Invalid parameter supplied 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_BUSY 
+Resource is busy 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_EXCEPTION 
+An exception occurred 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_NOT_FOUND 
+A required resource was not found 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_NO_MEMORY 
+Not enough memory to complete operation 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_NOT_SUPPORTED 
+Requested operation is not supported 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_NO_DRIVER 
+Driver is not loaded 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_NO_DAEMON 
+FPGA Daemon (fpgad) is not running 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_NO_ACCESS 
+Insufficient privileges or permissions 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_RECONF_ERROR 
+Error while reconfiguring FPGA 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_event_type 
+FPGA events
+.sp
+OPAE currently defines the following event types that applications can register for. Note that not all FPGA resources and target platforms may support all event types. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_EVENT_INTERRUPT 
+Interrupt generated by an accelerator 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_EVENT_ERROR 
+Infrastructure error event 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_EVENT_POWER_THERMAL 
+Infrastructure thermal event 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_accelerator_state 
+accelerator state 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_ACCELERATOR_ASSIGNED 
+accelerator is opened exclusively by another process 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_ACCELERATOR_UNASSIGNED 
+accelerator is free to be opened 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_objtype 
+OPAE FPGA resources (objects)
+.sp
+These are the FPGA resources currently supported by the OPAE object model. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_DEVICE 
+FPGA_DEVICE objects represent FPGA devices and their management functionality. These objects can be opened (typically requires a certain privilege level or access permissions) and used for management functions like fpgaReconfigreSlot(). 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_ACCELERATOR 
+FPGA_ACCELERATOR objects represent allocatable units for accessing accelerated functions on the FPGA. They are frequently opened for interacting via control registers (MMIO), shared memory, or other, possibly platform\-specific functions. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_interface 
+OPAE plugin interface
+.sp
+These are the supported plugin interfaces. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_IFC_DFL 
+FPGA_IFC_DFL indicates that the plugin interface is the Device Feature List driver suite. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_IFC_VFIO 
+FPGA_IFC_VFIO indicates that the plugin interface is the vfio\-pci driver. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_IFC_SIM_DFL 
+FPGA_IFC_SIM_DFL indicates that the plugin interface is the AFU Simulation Environment simulating DFL drivers. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_IFC_SIM_VFIO 
+FPGA_IFC_SIM_VFIO indicates that the plugin interface is the AFU Simulation Environment simulating vfio\-pci. 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_IFC_UIO 
+FPGA_IFC_UIO indicates that the plugin interface is the uio\-dfl driver. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_buffer_flags 
+Buffer flags
+.sp
+These flags can be passed to the \fI\%fpgaPrepareBuffer()\fP function. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_BUF_PREALLOCATED 
+Use existing buffer 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_BUF_QUIET 
+Suppress error messages 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_BUF_READ_ONLY 
+Buffer is read\-only 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_open_flags 
+Open flags
+.sp
+These flags can be passed to the \fI\%fpgaOpen()\fP function. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OPEN_SHARED 
+Open FPGA resource for shared access 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_reconf_flags 
+Reconfiguration flags
+.sp
+These flags can be passed to the \fI\%fpgaReconfigureSlot()\fP function. 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_RECONF_FORCE 
+Reconfigure the slot without checking if it is in use 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_RECONF_SKIP_USRCLK 
+Don’t configure AFU user clocks as part of PR 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_sysobject_flags 
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_SYNC 
+Synchronize data from driver 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_GLOB 
+Treat names as glob expressions 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_RAW 
+Read or write object data as raw bytes 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_RECURSE_ONE 
+Create subobjects one level down from containers 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_RECURSE_ALL 
+Create subobjects all levels from from containers 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_sysobject_type 
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_CONTAINER 
+Represents a group of objects 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_OBJECT_ATTRIBUTE 
+An object with an attribute value that can be read/written 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_metric_type 
+fpga metrics types opae defines power,thermal, performance counter and afu metric types 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_TYPE_POWER 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_TYPE_THERMAL 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_TYPE_PERFORMANCE_CTR 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_TYPE_AFU 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_TYPE_UNKNOWN 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B enum  fpga_metric_datatype 
+Metrics data type 
+.sp
+\fIValues:\fP
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_DATATYPE_INT 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_DATATYPE_FLOAT 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_DATATYPE_DOUBLE 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_DATATYPE_BOOL 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B enumerator  FPGA_METRIC_DATATYPE_UNKNOWN 
+.UNINDENT
+.UNINDENT
+.SH ENUMERATION API
+.sp
+The OPAE enumeration API allows selective discovery of FPGA resources. When
+enumerating resources, a list of filter criteria can be passed to the
+respective function to select a subset of all resources in the system. The
+fpgaEnumerate() function itself then returns a list of fpga_tokens denoting
+resources, which can be used in subsequent API calls.
+.sp
+Filter criteria are specified using one or more fpga_properties object. These
+objects need to be created using fpgaGetProperties() (defined in
+<opae/properties/h>) before being passed to fpgaEnumerate(). Individual
+attributes of an fpga_properties object are set using specific accessors,
+which are also defined in <opae/properties.h>.
+.SS enum.h
+.sp
+APIs for resource enumeration and managing tokens. 
+.sp
+These APIs are the first step for any application using OPAE to discover resources that are present on the system. They allow selective enumeration (i.e. getting a list of resources that match a given list of criteria) and methods to manage the lifecycle of tokens generated by \fI\%fpgaEnumerate()\fP\&. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaEnumerate(const  \fI\%fpga_properties\fP  *filters, uint32_t  num_filters, \fI\%fpga_token\fP  *tokens, uint32_t  max_tokens, uint32_t  *num_matches) 
+Enumerate FPGA resources present in the system
+.sp
+This call allows the user to query the system for FPGA resources that match a certain set of criteria, e.g. all accelerators that are assigned to a host interface and available, all FPGAs of a specific type, etc.
+.sp
+\fI\%fpgaEnumerate()\fP will create a number of \fBfpga_token\fPs to represent the matching resources and populate the array \fBtokens\fP with these tokens. The \fBmax_tokens\fP argument can be used to limit the number of tokens allocated/returned by \fI\%fpgaEnumerate()\fP; i.e., the number of tokens in the returned \fBtokens\fP array will be either \fBmax_tokens\fP or \fBnum_matches\fP (the number of resources matching the filter), whichever is smaller. Use \fI\%fpgaDestroyToken()\fP to destroy tokens that are no longer needed.
+.sp
+To query the number of matches for a particular set of filters (e.g. to allocate a \fBtokens\fP array of the appropriate size), call \fI\%fpgaEnumerate()\fP with the parameter \fBtokens\fP set to NULL; this will only return the number of matches in \fBnum_matches\fP\&.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaEnumerate()\fP will allocate memory for the created tokens returned in \fBtokens\fP\&. It is the responsibility of the using application to free this memory after use by calling \fI\%fpgaDestroyToken()\fP for each of the returned tokens.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilters\fP – \fB[in]\fP Array of \fBfpga_properties\fP objects describing the properties of the objects that should be returned. A resource is considered matching if its properties match any one of the supplied filters. To match all FPGA resources, pass an empty filters object (one without any filter criteria set) or pass a NULL filters parameter with num_filters set to 0. 
+.IP \(bu 2
+\fBnum_filters\fP – \fB[in]\fP Number of entries in the \fBfilters\fP array, or 0 to match all FPGA resources when \fBfilters\fP is NULL. 
+.IP \(bu 2
+\fBtokens\fP – \fB[out]\fP Pointer to an array of fpga_token variables to be populated. If NULL is supplied, \fI\%fpgaEnumerate()\fP will not create any tokens, but it will return the number of possible matches in \fBnum_match\fP\&. 
+.IP \(bu 2
+\fBmax_tokens\fP – \fB[in]\fP Maximum number of tokens that \fI\%fpgaEnumerate()\fP shall return (length of \fBtokens\fP array). There may be more or fewer matches than this number; \fBnum_matches\fP is set to the number of actual matches. 
+.IP \(bu 2
+\fBnum_matches\fP – \fB[out]\fP Number of resources matching the \fBfilter\fP criteria. This number can be higher than the number of tokens returned in the \fBtokens\fP array (depending on the value of \fBmax_tokens\fP). 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if invalid pointers or objects are passed into the function. FPGA_NO_DRIVER if OPAE can’t find the respective enumeration data structures usually provided by the driver. FPGA_NO_MEMORY if there was not enough memory to create tokens. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaCloneToken(\fI\%fpga_token\fP  src, \fI\%fpga_token\fP  *dst) 
+Clone a fpga_token object
+.sp
+Creates a copy of an fpga_token object.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This call creates a new token object and allocates memory for it. It is the responsibility of the using application to free this memory after use by calling \fI\%fpgaDestroyToken()\fP for the cloned token.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsrc\fP – \fB[in]\fP fpga_token object to copy 
+.IP \(bu 2
+\fBdst\fP – \fB[out]\fP New fpga_token object cloned from ‘src’ 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaDestroyToken(\fI\%fpga_token\fP  *token) 
+Destroy a Token
+.sp
+This function destroys a token created by \fI\%fpgaEnumerate()\fP and frees the associated memory.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaDestroyToken()\fP requires the address of an fpga_token as previously created by \fI\%fpgaEnumerate()\fP or \fI\%fpgaCloneToken()\fP\&. Passing any other value results in undefined behavior.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtoken\fP – \fB[in]\fP fpga_token to destroy 
+.TP
+.B Returns
+FPGA_OK on success 
+.UNINDENT
+.UNINDENT
+.SS properties.h
+.sp
+Functions for examining and manipulating \fBfpga_properties\fP objects. 
+.sp
+In OPAE, \fBfpga_properties\fP objects are used both for obtaining information about resources and for selectively enumerating resources based on their properties. This file provides accessor functions (get/set) to allow reading and writing individual items of an \fBfpga_properties\fP object. Generally, not all object types supported by OPAE carry all properties. If you call a property accessor method on a \fBfpga_properties\fP object that does not support this particular property, it will return FPGA_INVALID_PARAM.
+.SS Accessor Return Values
+.sp
+In addition to the return values specified in the documentation below, all accessor functions return FPGA_OK on success, FPGA_INVALID_PARAM if you pass NULL or invalid parameters (i.e. non\-initialized properties objects), FPGA_EXCEPTION if an internal exception occurred trying to access the properties object, FPGA_NOT_FOUND if the requested property is not part of the supplied properties object. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetPropertiesFromHandle(\fI\%fpga_handle\fP  handle, \fI\%fpga_properties\fP  *prop) 
+Create a fpga_properties object
+.sp
+Initializes the memory pointed at by \fBprop\fP to represent a properties object, and populates it with the properties of the resource referred to by \fBhandle\fP\&. Individual properties can then be queried using fpgaPropertiesGet*() accessor functions.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaGetPropertiesFromHandle()\fP will allocate memory for the created properties object returned in \fBprop\fP\&. It is the responsibility of the caller to free this memory after use by calling \fI\%fpgaDestroyProperties()\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Open handle to get properties for. 
+.IP \(bu 2
+\fBprop\fP – \fB[out]\fP Pointer to a variable of type fpga_properties 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NO_MEMORY if no memory could be allocated to create the \fBfpga_properties\fP object. FPGA_EXCEPTION if an exception happend while initializing the \fBfpga_properties\fP object. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetProperties(\fI\%fpga_token\fP  token, \fI\%fpga_properties\fP  *prop) 
+Create a fpga_properties object
+.sp
+Initializes the memory pointed at by \fBprop\fP to represent a properties object, and populates it with the properties of the resource referred to by \fBtoken\fP\&. Individual properties can then be queried using fpgaPropertiesGet*() accessor functions.
+.sp
+If \fBtoken\fP is NULL, an “empty” properties object is created to be used as a filter for \fI\%fpgaEnumerate()\fP\&. All individual fields are set to \fBdon\fPt care\(ga, which implies that the fpga_properties object would match all FPGA resources if used for an \fI\%fpgaEnumerate()\fP query. The matching criteria can be further refined by using fpgaSet* functions on the properties object, or the object can be populated with the actual properties of a resource by using \fI\%fpgaUpdateProperties()\fP\&.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaGetProperties()\fP will allocate memory for the created properties object returned in \fBprop\fP\&. It is the responsibility of the caller to free this memory after use by calling \fI\%fpgaDestroyProperties()\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtoken\fP – \fB[in]\fP Token to get properties for. Can be NULL, which will create an empty properties object to be used as a filter for \fI\%fpgaEnumerate()\fP\&. 
+.IP \(bu 2
+\fBprop\fP – \fB[out]\fP Pointer to a variable of type fpga_properties 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NO_MEMORY if no memory could be allocated to create the \fBfpga_properties\fP object. FPGA_EXCEPTION if an exception happend while initializing the \fBfpga_properties\fP object. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaUpdateProperties(\fI\%fpga_token\fP  token, \fI\%fpga_properties\fP  prop) 
+Update a fpga_properties object
+.sp
+Populates the properties object ‘prop’ with properties of the resource referred to by ‘token’. Unlike \fI\%fpgaGetProperties()\fP, this call will not create a new properties object or allocate memory for it, but use a previously created properties object.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtoken\fP – \fB[in]\fP Token to retrieve properties for 
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP fpga_properties object to update 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if \fBtoken\fP or \fBprop\fP are not valid objects. FPGA_NOT_FOUND if the resource referred to by \fBtoken\fP was not found. FPGA_NO_DRIVER if not driver is loaded. FPGA_EXCEPTION if an internal exception occured when trying to update \fBprop\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaClearProperties(\fI\%fpga_properties\fP  prop) 
+Clear a fpga_properties object
+.sp
+Sets all fields of the properties object pointed at by ‘prop’ to ‘don’t care’, which implies that the fpga_properties object would match all FPGA resources if used for an \fI\%fpgaEnumerate()\fP query. The matching criteria can be further refined by using fpgaSet* functions on the properties object.
+.sp
+Instead of creating a new fpga_properties object every time, this function can be used to re\-use fpga_properties objects from previous queries.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBprop\fP – \fB[in]\fP fpga_properties object to clear 
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if \fBprop\fP is not a valid object. FPGA_EXCEPTION if an * internal exception occured when trying to access \fBprop\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaCloneProperties(\fI\%fpga_properties\fP  src, \fI\%fpga_properties\fP  *dst) 
+Clone a fpga_properties object
+.sp
+Creates a copy of an fpga_properties object.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This call creates a new properties object and allocates memory for it. Both the ‘src’ and the newly created ‘dst’ objects will eventually need to be destroyed using \fI\%fpgaDestroyProperties()\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsrc\fP – \fB[in]\fP fpga_properties object to copy 
+.IP \(bu 2
+\fBdst\fP – \fB[out]\fP New fpga_properties object cloned from ‘src’ 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if \fBsrc\fP is not a valid object, or if \fBdst\fP is NULL. FPGA_NO_MEMORY if there was not enough memory to allocate an \fBfpga_properties\fP object for \fBdst\fP\&. FPGA_EXCEPTION if an internal exception occurred either accessing \fBsrc\fP or updating \fBdst\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaDestroyProperties(\fI\%fpga_properties\fP  *prop) 
+Destroy a fpga_properties object
+.sp
+Destroys an existing fpga_properties object that the caller has previously created using \fI\%fpgaGetProperties()\fP or \fI\%fpgaCloneProperties()\fP\&.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaDestroyProperties()\fP requires the address of an fpga_properties object, similar to \fI\%fpgaGetPropertiesFromHandle()\fP, \fI\%fpgaGetProperties()\fP, and \fI\%fpgaCloneProperties()\fP\&. Passing any other value results in undefined behavior.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+\fBprop\fP – \fB[inout]\fP Pointer to the fpga_properties object to destroy 
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM is \fBprop\fP is not a valid object. FPGA_EXCEPTION if an internal exception occurrred while trying to access \fBprop\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetParent(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_token\fP  *parent) 
+Get the token of the parent object
+.sp
+Returns the token of the parent of the queried resource in ‘*parent’.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBparent\fP – \fB[out]\fP Pointer to a token variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+FPGA_NOT_FOUND if resource does not have a parent (e.g. an FPGA_DEVICE resource does not have parents). Also see “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetParent(\fI\%fpga_properties\fP  prop, \fI\%fpga_token\fP  parent) 
+Set the token of the parent object
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBparent\fP – \fB[out]\fP Pointer to a token variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetObjectType(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_objtype\fP  *objtype) 
+Get the object type of a resource
+.sp
+Returns the object type of the queried resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBobjtype\fP – \fB[out]\fP Pointer to an object type variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetObjectType(\fI\%fpga_properties\fP  prop, \fI\%fpga_objtype\fP  objtype) 
+Set the object type of a resource
+.sp
+Sets the object type of the resource. * Currently supported object types are FPGA_DEVICE and FPGA_ACCELERATOR.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBobjtype\fP – \fB[out]\fP Object type of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetSegment(const  \fI\%fpga_properties\fP  prop, uint16_t  *segment) 
+Get the PCI segment number of a resource
+.sp
+Returns the segment number of the queried resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBsegment\fP – \fB[out]\fP Pointer to a PCI segment variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetSegment(\fI\%fpga_properties\fP  prop, uint16_t  segment) 
+Set the PCI segment number of a resource
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBsegment\fP – \fB[in]\fP PCI segment number of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetBus(const  \fI\%fpga_properties\fP  prop, uint8_t  *bus) 
+Get the PCI bus number of a resource
+.sp
+Returns the bus number the queried resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBbus\fP – \fB[out]\fP Pointer to a PCI bus variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetBus(\fI\%fpga_properties\fP  prop, uint8_t  bus) 
+Set the PCI bus number of a resource
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBbus\fP – \fB[in]\fP PCI bus number of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetDevice(const  \fI\%fpga_properties\fP  prop, uint8_t  *device) 
+Get the PCI device number of a resource
+.sp
+Returns the device number the queried resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBdevice\fP – \fB[out]\fP Pointer to a PCI device variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetDevice(\fI\%fpga_properties\fP  prop, uint8_t  device) 
+Set the PCI device number of a resource
+.sp
+Enforces the limitation on the number of devices as specified in the PCI spec.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBdevice\fP – \fB[in]\fP PCI device number of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetFunction(const  \fI\%fpga_properties\fP  prop, uint8_t  *function) 
+Get the PCI function number of a resource
+.sp
+Returns the function number the queried resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBfunction\fP – \fB[out]\fP Pointer to PCI function variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetFunction(\fI\%fpga_properties\fP  prop, uint8_t  function) 
+Set the PCI function number of a resource
+.sp
+Enforces the limitation on the number of functions as specified in the PCI spec.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBfunction\fP – \fB[in]\fP PCI function number of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetSocketID(const  \fI\%fpga_properties\fP  prop, uint8_t  *socket_id) 
+Get the socket id of a resource
+.sp
+Returns the socket id of the queried resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBsocket_id\fP – \fB[out]\fP Pointer to a socket id variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetSocketID(\fI\%fpga_properties\fP  prop, uint8_t  socket_id) 
+Set the socket id of the resource
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBsocket_id\fP – \fB[in]\fP Socket id of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetDeviceID(const  \fI\%fpga_properties\fP  prop, uint16_t  *device_id) 
+Get the device id of the resource
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBdevice_id\fP – \fB[out]\fP Pointer to a device id variable of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetDeviceID(\fI\%fpga_properties\fP  prop, uint16_t  device_id) 
+Set the device id of the resource
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBdevice_id\fP – \fB[in]\fP Device id of the resource ‘prop’ is associated with 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetNumSlots(const  \fI\%fpga_properties\fP  prop, uint32_t  *num_slots) 
+Get the number of slots of an FPGA resource property
+.sp
+Returns the number of slots present in an FPGA.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBnum_slots\fP – \fB[out]\fP Pointer to number of slots variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetNumSlots(\fI\%fpga_properties\fP  prop, uint32_t  num_slots) 
+Set the number of slots of an FPGA resource property
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBnum_slots\fP – \fB[in]\fP Number of slots of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetBBSID(const  \fI\%fpga_properties\fP  prop, uint64_t  *bbs_id) 
+Get the BBS ID of an FPGA resource property
+.sp
+Returns the blue bitstream id of an FPGA.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBbbs_id\fP – \fB[out]\fP Pointer to a bbs id variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetBBSID(\fI\%fpga_properties\fP  prop, uint64_t  bbs_id) 
+Set the BBS ID of an FPGA resource property
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBbbs_id\fP – \fB[in]\fP Blue bitstream id of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetBBSVersion(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_version\fP  *bbs_version) 
+Get the BBS Version of an FPGA resource property
+.sp
+Returns the blue bitstream version of an FPGA.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBbbs_version\fP – \fB[out]\fP Pointer to a bbs version variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetBBSVersion(\fI\%fpga_properties\fP  prop, \fI\%fpga_version\fP  version) 
+Set the BBS Version of an FPGA resource property
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBversion\fP – \fB[in]\fP Blue bitstream version of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetVendorID(const  \fI\%fpga_properties\fP  prop, uint16_t  *vendor_id) 
+Get the vendor id of an FPGA resource property
+.sp
+Returns the vendor id of an FPGA.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBvendor_id\fP – \fB[out]\fP Pointer to a vendor id variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetVendorID(\fI\%fpga_properties\fP  prop, uint16_t  vendor_id) 
+Set the vendor id of an FPGA resource property
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBvendor_id\fP – \fB[in]\fP Vendor id of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetModel(const  \fI\%fpga_properties\fP  prop, char  *model) 
+Get the model of an FPGA resource property
+.sp
+Returns the model of an FPGA.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBmodel\fP – \fB[in]\fP Model of the FPGA resource (string of minimum FPGA_MODEL_LENGTH length 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetModel(\fI\%fpga_properties\fP  prop, char  *model) 
+Set the model of an FPGA resource property
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBmodel\fP – \fB[in]\fP Model of the FPGA resource (string of maximum FPGA_MODEL_LENGTH length 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetLocalMemorySize(const  \fI\%fpga_properties\fP  prop, uint64_t  *lms) 
+Get the local memory size of an FPGA resource property
+.sp
+Returns the local memory size of an FPGA.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBlms\fP – \fB[out]\fP Pointer to a memory size variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetLocalMemorySize(\fI\%fpga_properties\fP  prop, uint64_t  lms) 
+Set the local memory size of an FPGA resource property
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBlms\fP – \fB[in]\fP Local memory size of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetCapabilities(const  \fI\%fpga_properties\fP  prop, uint64_t  *capabilities) 
+Get the capabilities FPGA resource property
+.sp
+Returns the capabilities of an FPGA. Capabilities is a bitfield value
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBcapabilities\fP – \fB[out]\fP Pointer to a capabilities variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetCapabilities(\fI\%fpga_properties\fP  prop, uint64_t  capabilities) 
+Set the capabilities of an FPGA resource property
+.sp
+Capabilities is a bitfield value
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This API is not currently supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_DEVICE 
+.IP \(bu 2
+\fBcapabilities\fP – \fB[in]\fP Capabilities of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE. See also “Accessor Return Values” in \fI\%properties.h\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetGUID(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_guid\fP  *guid) 
+Get the GUID of a resource
+.sp
+Returns the GUID of an FPGA or accelerator object.
+.sp
+For an accelerator, the GUID uniquely identifies a specific accelerator context type, i.e. different accelerators will have different GUIDs. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e.g. to determine whether a given bitstream would be compatible.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBguid\fP – \fB[out]\fP Pointer to a GUID of the slot variable 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetGUID(\fI\%fpga_properties\fP  prop, \fI\%fpga_guid\fP  guid) 
+Set the GUID of a resource
+.sp
+Sets the GUID of an FPGA or accelerator object.
+.sp
+For an accelerator, the GUID uniquely identifies a specific accelerator context type, i.e. different accelerators will have different GUIDs. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e.g. to determine whether a given bitstream would be compatible.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBguid\fP – \fB[out]\fP Pointer to a GUID of the slot variable 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetNumMMIO(const  \fI\%fpga_properties\fP  prop, uint32_t  *mmio_spaces) 
+Get the number of mmio spaces
+.sp
+Returns the number of mmio spaces of an AFU properties structure.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_ACCELERATOR 
+.IP \(bu 2
+\fBmmio_spaces\fP – \fB[out]\fP Pointer to a variable for number of mmio spaces 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetNumMMIO(\fI\%fpga_properties\fP  prop, uint32_t  mmio_spaces) 
+Set the number of mmio spaces
+.sp
+Sets the number of mmio spaces of an AFU properties structure.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_ACCELERATOR 
+.IP \(bu 2
+\fBmmio_spaces\fP – \fB[in]\fP Number of MMIO spaces of the accelerator 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetNumInterrupts(const  \fI\%fpga_properties\fP  prop, uint32_t  *num_interrupts) 
+Get the number of interrupts
+.sp
+Returns the number of interrupts of an accelerator properties structure.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_ACCELERATOR 
+.IP \(bu 2
+\fBnum_interrupts\fP – \fB[out]\fP Pointer to a variable for number of interrupts 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetNumInterrupts(\fI\%fpga_properties\fP  prop, uint32_t  num_interrupts) 
+Set the number of interrupts
+.sp
+Sets the number of interrupts of an accelerator properties structure.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_ACCELERATOR 
+.IP \(bu 2
+\fBnum_interrupts\fP – \fB[in]\fP Number of interrupts of the accelerator 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetAcceleratorState(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_accelerator_state\fP  *state) 
+Get the state of a accelerator resource property
+.sp
+Returns the accelerator state of a accelerator.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query \- must be of type FPGA_ACCELERATOR 
+.IP \(bu 2
+\fBstate\fP – \fB[out]\fP Pointer to a accelerator state variable of the accelerator 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetAcceleratorState(\fI\%fpga_properties\fP  prop, \fI\%fpga_accelerator_state\fP  state) 
+Set the state of an accelerator resource property
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify \- must be of type FPGA_ACCELERATOR 
+.IP \(bu 2
+\fBstate\fP – \fB[in]\fP accelerator state of the accelerator resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetObjectID(const  \fI\%fpga_properties\fP  prop, uint64_t  *object_id) 
+Get the object ID of a resource
+.sp
+Returns the object ID of a resource. The object ID is a 64 bit identifier that is unique within a single node or system. It represents a similar concept as the token, but can be used across processes (e.g. passed on the command line).
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBobject_id\fP – \fB[out]\fP Pointer to a 64bit memory location to store the object ID in 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetObjectID(const  \fI\%fpga_properties\fP  prop, uint64_t  object_id) 
+Set the object ID of a resource
+.sp
+Sets the object ID of a resource. The object ID is a 64 bit identifier that is unique within a single node or system. It represents a similar concept as the token, but can be used across processes (e.g. passed on the command line).
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBobject_id\fP – \fB[in]\fP A 64bit value to use as the object ID 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetNumErrors(const  \fI\%fpga_properties\fP  prop, uint32_t  *num_errors) 
+Get the number of errors that can be reported by a resource
+.sp
+Returns the number of error registers understood by a resource.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBnum_errors\fP – \fB[out]\fP Pointer to a 32 bit memory location to store the number of supported errors in 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetNumErrors(const  \fI\%fpga_properties\fP  prop, uint32_t  num_errors) 
+Set the number of error registers
+.sp
+Set the number of error registers understood by a resource to enumerate.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBnum_errors\fP – \fB[in]\fP Number of errors 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetInterface(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_interface\fP  *interface) 
+Get the OPAE plugin interface implemented by a resource
+.sp
+Returns the plugin interface enumerator.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBinterface\fP – \fB[out]\fP Pointer to an fpga_interface location to store the interface in 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetInterface(const  \fI\%fpga_properties\fP  prop, \fI\%fpga_interface\fP  interface) 
+Set the OPAE plugin interface implemented by a resource
+.sp
+Set the plugin interface enumerator.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBinterface\fP – \fB[in]\fP The interface enumerator to set 
+.UNINDENT
+.TP
+.B Returns
+See “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetSubsystemVendorID(const  \fI\%fpga_properties\fP  prop, uint16_t  *subsystem_vendor_id) 
+Get the subsystem vendor id of an FPGA resource property
+.sp
+Returns the subsystem vendor id of an FPGA.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBsubsystem_vendor_id\fP – \fB[out]\fP Pointer to a vendor id variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetSubsystemVendorID(\fI\%fpga_properties\fP  prop, uint16_t  subsystem_vendor_id) 
+Set the subsystem vendor id of an FPGA resource property
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBsubsystem_vendor_id\fP – \fB[in]\fP Subsystem Vendor id of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesGetSubsystemDeviceID(const  \fI\%fpga_properties\fP  prop, uint16_t  *subsystem_device_id) 
+Get the subsystem device id of an FPGA resource property
+.sp
+Returns the subsystem device id of an FPGA.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to query 
+.IP \(bu 2
+\fBsubsystem_device_id\fP – \fB[out]\fP Pointer to a device id variable of the FPGA 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPropertiesSetSubsystemDeviceID(\fI\%fpga_properties\fP  prop, uint16_t  subsystem_device_id) 
+Set the subsystem device id of an FPGA resource property
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBprop\fP – \fB[in]\fP Properties object to modify 
+.IP \(bu 2
+\fBsubsystem_device_id\fP – \fB[in]\fP Subsystem Device id of the FPGA resource 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. See also “Accessor Return Values” in \fI\%properties.h\fP\&. 
+.UNINDENT
+.UNINDENT
+.SH ACCESS API
+.sp
+The access API provides functions for opening and closing FPGA resources.
+Opening a resource yields an fpga_handle, which denotes ownership and can be
+used in subsequent API calls to interact with a specific resource. Ownership
+can be exclusive or shared.
+.SS access.h
+.sp
+Functions to acquire, release, and reset OPAE FPGA resources. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaOpen(\fI\%fpga_token\fP  token, \fI\%fpga_handle\fP  *handle, int  flags) 
+Open an FPGA object
+.sp
+Acquires ownership of the FPGA resource referred to by ‘token’.
+.sp
+Most often this will be used to open an accelerator object to directly interact with an accelerator function, or to open an FPGA object to perform management functions.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtoken\fP – \fB[in]\fP Pointer to token identifying resource to acquire ownership of 
+.IP \(bu 2
+\fBhandle\fP – \fB[out]\fP Pointer to preallocated memory to place a handle in. This handle will be used in subsequent API calls. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP One of the following flags:.INDENT 2.0
+.IP \(bu 2
+FPGA_OPEN_SHARED allows the resource to be opened multiple times (not supported in ASE) Shared resources (including buffers) are released when all associated handles have been closed (either explicitly with \fI\%fpgaClose()\fP or by process termination). 
+.UNINDENT
+
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NOT_FOUND if the resource for ‘token’ could not be found. FPGA_INVALID_PARAM if ‘token’ does not refer to a resource that can be opened, or if either argument is NULL or invalid. FPGA_EXCEPTION if an internal exception occurred while creating the handle. FPGA_NO_DRIVER if the driver is not loaded. FPGA_BUSY if trying to open a resource that has already been opened in exclusive mode. FPGA_NO_ACCESS if the current process’ privileges are not sufficient to open the resource. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaClose(\fI\%fpga_handle\fP  handle) 
+Close a previously opened FPGA object
+.sp
+Relinquishes ownership of a previously \fI\%fpgaOpen()\fPed resource. This enables others to acquire ownership if the resource was opened exclusively. Also deallocates / unmaps MMIO and UMsg memory areas.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBhandle\fP – \fB[in]\fP Handle to previously opened FPGA object 
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if handle does not refer to an acquired resource, or if handle is NULL. FPGA_EXCEPTION if an internal error occurred while accessing the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaReset(\fI\%fpga_handle\fP  handle) 
+Reset an FPGA object
+.sp
+Performs an accelerator reset.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBhandle\fP – \fB[in]\fP Handle to previously opened FPGA object 
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if handle does not refer to an acquired resource or to a resource that cannot be reset. FPGA_EXCEPTION if an internal error occurred while trying to access the handle or resetting the resource. 
+.UNINDENT
+.UNINDENT
+.SH EVENT API
+.sp
+The event API provides functions and types for handling asynchronous events
+such as errors or accelerator interrupts.
+.sp
+To natively support asynchronous event, the driver for the FPGA platform
+needs to support events natively (in which case the OPAE C library will
+register the event directly with the driver). For some platforms that do not
+support interrupt\-driven event delivery, you need to run the FPGA Daemon
+(fpgad) to enable asynchronous OPAE events. fpgad will act as a proxy for the
+application and deliver asynchronous notifications for registered events.
+.SS event.h
+.sp
+Functions for registering events and managing the lifecycle for \fBfpga_event_handle\fPs. 
+.sp
+OPAE provides an interface to asynchronous events that can be generated by different FPGA resources. The event API provides functions to register for these events; associated with every event a process has registered for is an fpga_event_handle, which encapsulates the OS\-specific data structure for event objects. On Linux, an fpga_event_handle can be used as a file descriptor and passed to select(), poll(), epoll() and similar functions to wait for asynchronous events. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaCreateEventHandle(\fI\%fpga_event_handle\fP  *event_handle) 
+Initialize an event_handle
+.sp
+Platform independent way to initialize an event_handle used for notifications from the driver to application. For Linux, this function creates an eventfd and returns the eventfd file descriptor in \fB*event_handle\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent_handle\fP – \fB[out]\fP Pointer to event handle variable.
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if \fBevent_handle\fP is NULL. FPGA_NOT_SUPPORTED if platform does not support events. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaDestroyEventHandle(\fI\%fpga_event_handle\fP  *event_handle) 
+Destroy an event_handle
+.sp
+Destroy handle and free resources. On Linux this corresponds to closing the file descriptor pointed to by handle
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaDestroyEventHandle()\fP requires the address of an event_handle as created by \fI\%fpgaCreateEventHandle()\fP\&. Passing any other value results in undefined behavior.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent_handle\fP – \fB[in]\fP Pointer to handle to be destroyed
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if \fBevent_handle\fP is NULL. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetOSObjectFromEventHandle(const  \fI\%fpga_event_handle\fP  eh, int  *fd) 
+Get OS object from event handle
+.sp
+Check validity of event handle, and get the OS object used to subscribe and unsubscribe to events. On Linux, the object corresponds to a file descriptor.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBeh\fP – \fB[in]\fP Event handle to get the descriptor value from 
+.IP \(bu 2
+\fBfd\fP – \fB[out]\fP integer to store the descriptor value
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if \fBevent_handle\fP is invalid. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaRegisterEvent(\fI\%fpga_handle\fP  handle, \fI\%fpga_event_type\fP  event_type, \fI\%fpga_event_handle\fP  event_handle, uint32_t  flags) 
+Register an FPGA event
+.sp
+This function tells the driver that the caller is interested in notification for the event specified by the type and flags pair.
+.sp
+The event_handle points to an OS specific mechanism for event notification. An event_handle is associated with only a single event.
+.sp
+In case of user interrupts, the flags parameter will be used to specify the vector ID. The value of the flags parameter indicates the vector ID, no bit encoding is used.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened FPGA resource. 
+.IP \(bu 2
+\fBevent_type\fP – \fB[in]\fP Type of event 
+.IP \(bu 2
+\fBevent_handle\fP – \fB[in]\fP Handle to previously opened resource for event notification. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Optional argument for specifying additional information about event. For example irq number for interrupt events. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if handle does not refer to a resource supporting the requested event, or if event_handle is not valid. FPGA_EXCEPTION if an internal exception occurred while accessing the handle or the event_handle. On Linux: FPGA_NO_DAEMON if the driver does not support the requested event and there is no FPGA Daemon (fpgad) running to proxy it. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaUnregisterEvent(\fI\%fpga_handle\fP  handle, \fI\%fpga_event_type\fP  event_type, \fI\%fpga_event_handle\fP  event_handle) 
+Unregister an FPGA event
+.sp
+This function tells the driver that the caller is no longer interested in notification for the event associated with the event_handle
+.sp
+The event_handle points to an OS specific mechanism for event notification. An event_handle is associated with only a single event.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened FPGA resource. 
+.IP \(bu 2
+\fBevent_type\fP – \fB[in]\fP Type of event to unregister. 
+.IP \(bu 2
+\fBevent_handle\fP – \fB[in]\fP Handle to previously registered resource for event notification. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if handle does not refer to a resource supporting the requested event, or if event_handle is not valid. FPGA_EXCEPTION if an internal error occurred accessing the handle or the event_handle. 
+.UNINDENT
+.UNINDENT
+.SH MMIO AND SHARED MEMORY APIS
+.sp
+These APIs feature functions for mapping and accessing control registers
+through memory\-mapped IO (mmio.h), allocating and sharing system memory
+buffers with an accelerator (buffer.h), and using low\-latency notifications
+(umsg.h).
+.SS mmio.h
+.sp
+Functions for mapping and accessing MMIO space. 
+.sp
+Most FPGA accelerators provide access to control registers through memory\-mappable address spaces, commonly referred to as “MMIO spaces”. This file provides functions to map, unmap, read, and write MMIO spaces.
+.sp
+Note that an accelerator may have multiple MMIO spaces, denoted by the \fBmmio_num\fP argument of the APIs below. The meaning and properties of each MMIO space are up to the accelerator designer. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaWriteMMIO64(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num, uint64_t  offset, uint64_t  value) 
+Write 64 bit value to MMIO space
+.sp
+This function will write to MMIO space of the target object at a specified offset.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP Byte offset into MMIO space 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP Value to write (64 bit) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaReadMMIO64(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num, uint64_t  offset, uint64_t  *value) 
+Read 64 bit value from MMIO space
+.sp
+This function will read from MMIO space of the target object at a specified offset.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP Byte offset into MMIO space 
+.IP \(bu 2
+\fBvalue\fP – \fB[out]\fP Pointer to memory where read value is returned (64 bit) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaWriteMMIO32(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num, uint64_t  offset, uint32_t  value) 
+Write 32 bit value to MMIO space
+.sp
+This function will write to MMIO space of the target object at a specified offset.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP Byte offset into MMIO space 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP Value to write (32 bit) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaReadMMIO32(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num, uint64_t  offset, uint32_t  *value) 
+Read 32 bit value from MMIO space
+.sp
+This function will read from MMIO space of the target object at a specified offset.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP Byte offset into MMIO space 
+.IP \(bu 2
+\fBvalue\fP – \fB[out]\fP Pointer to memory where read value is returned (32 bit) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaWriteMMIO512(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num, uint64_t  offset, const  void  *value) 
+Write 512 bit value to MMIO space
+.sp
+512 bit MMIO writes may not be supported on all platforms.
+.sp
+This function will write to MMIO space of the target object at a specified offset.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP Byte offset into MMIO space 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP Pointer to memory holding value to write (512 bits) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaMapMMIO(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num, uint64_t  **mmio_ptr) 
+Map MMIO space
+.sp
+This function will return a pointer to the specified MMIO space of the target object in process virtual memory, if supported by the target. Some MMIO spaces may be restricted to privileged processes, depending on the used handle and type.
+.sp
+After mapping the respective MMIO space, you can access it through direct pointer operations (observing supported access sizes and alignments of the target platform and accelerator).
+.sp
+
+If the caller passes in NULL for mmio_ptr, no mapping will be performed, and no virtual address will be returned, though the call will return \fBFPGA_OK\fP\&. This implies that all accesses will be performed through \fI\%fpgaReadMMIO32()\fP, \fI\%fpgaWriteMMIO32()\fP, fpgeReadMMIO64(), and \fI\%fpgaWriteMMIO64()\fP\&. This is the only supported case for ASE.
+.sp
+The number of available MMIO spaces can be retrieved through the num_mmio property (fpgaPropertyGetNumMMIO()).
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Some targets (such as the ASE simulator) do not support memory\-mapping of IO register spaces and will not return a pointer to an actually mapped space. Instead, they will return \fBFPGA_NOT_SUPPORTED\fP\&. Usually, these platforms still allow the application to issue MMIO operations using \fI\%fpgaReadMMIO32()\fP, \fI\%fpgaWriteMMIO32()\fP, fpgeReadMMIO64(), and \fI\%fpgaWriteMMIO64()\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.IP \(bu 2
+\fBmmio_ptr\fP – \fB[out]\fP Pointer to memory where a pointer to the MMIO space will be returned. May be NULL, in which case no pointer is returned. Returned address may be NULL if underlying platform does not support memory mapping for register access. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. FPGA_NO_ACCESS if the process’ permissions are not sufficient to map the requested MMIO space. FPGA_NOT_SUPPORTED if platform does not support memory mapped IO. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaUnmapMMIO(\fI\%fpga_handle\fP  handle, uint32_t  mmio_num) 
+Unmap MMIO space
+.sp
+This function will unmap a previously mapped MMIO space of the target object, rendering any pointers to it invalid.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This call is only supported by hardware targets, not by ASE simulation.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened resource 
+.IP \(bu 2
+\fBmmio_num\fP – \fB[in]\fP Number of MMIO space to access 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.SS buffer.h
+.sp
+Functions for allocating and sharing system memory with an FPGA accelerator. 
+.sp
+To share memory between a software application and an FPGA accelerator, these functions set up system components (e.g. an IOMMU) to allow accelerator access to a provided memory region.
+.sp
+There are a number of restrictions on what memory can be shared, depending on platform capabilities. Usually, FPGA accelerators to not have access to virtual address mappings of the CPU, so they can only access physical addresses. To support this, the OPAE C library on Linux uses hugepages to allocate large, contiguous pages of physical memory that can be shared with an accelerator. It also supports sharing memory that has already been allocated by an application, as long as that memory satisfies the requirements of being physically contigous and page\-aligned. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaPrepareBuffer(\fI\%fpga_handle\fP  handle, uint64_t  len, void  **buf_addr, uint64_t  *wsid, int  flags) 
+Prepare a shared memory buffer
+.sp
+Prepares a memory buffer for shared access between an accelerator and the calling process. This may either include allocation of physical memory, or preparation of already allocated memory for sharing. The latter case is indicated by supplying the FPGA_BUF_PREALLOCATED flag.
+.sp
+This function will ask the driver to pin the indicated memory (make it non\-swappable), and program the IOMMU to allow access from the accelerator. If the buffer was not pre\-allocated (flag FPGA_BUF_PREALLOCATED), the function will also allocate physical memory of the requested size and map the memory into the caller’s process’ virtual address space. It returns in ‘wsid’ an fpga_buffer object that can be used to program address registers in the accelerator for shared access to the memory.
+.sp
+When using FPGA_BUF_PREALLOCATED, the input len must be a non\-zero multiple of the page size, else the function returns FPGA_INVALID_PARAM. When not using FPGA_BUF_PREALLOCATED, the input len is rounded up to the nearest multiple of page size.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+As a special case, when FPGA_BUF_PREALLOCATED is present in flags, if len == 0 and buf_addr == NULL, then the function returns FPGA_OK if pre\-allocated buffers are supported. In this case, a return value other than FPGA_OK indicates that pre\-allocated buffers are not supported. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBlen\fP – \fB[in]\fP Length of the buffer to allocate/prepare in bytes 
+.IP \(bu 2
+\fBbuf_addr\fP – \fB[inout]\fP Virtual address of buffer. Contents may be NULL (OS will choose mapping) or non\-NULL (OS will take contents as a hint for the virtual address). 
+.IP \(bu 2
+\fBwsid\fP – \fB[out]\fP Handle to the allocated/prepared buffer to be used with other functions 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags. FPGA_BUF_PREALLOCATED indicates that memory pointed at in ‘*buf_addr’ is already allocated an mapped into virtual memory. FPGA_BUF_READ_ONLY pins pages with only read access from the FPGA. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NO_MEMORY if the requested memory could not be allocated. FPGA_INVALID_PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaReleaseBuffer(\fI\%fpga_handle\fP  handle, uint64_t  wsid) 
+Release a shared memory buffer
+.sp
+Releases a previously prepared shared buffer. If the buffer was allocated using fpgaPrepareBuffer (FPGA_BUF_PREALLOCATED was not specified), this call will deallocate/free that memory. Otherwise, it will only be returned to it’s previous state (pinned/unpinned, cached/non\-cached).
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBwsid\fP – \fB[in]\fP Handle to the allocated/prepared buffer 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetIOAddress(\fI\%fpga_handle\fP  handle, uint64_t  wsid, uint64_t  *ioaddr) 
+Retrieve base IO address for buffer
+.sp
+This function is used to acquire the physical base address (on some platforms called IO Virtual Address or IOVA) for a shared buffer identified by wsid.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This function will disappear once the APIs for secure sharing of buffer addresses is implemented.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBwsid\fP – \fB[in]\fP Buffer handle / workspace ID referring to the buffer for which the IO address is requested 
+.IP \(bu 2
+\fBioaddr\fP – \fB[out]\fP Pointer to memory where the IO address will be returned 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle. FPGA_NOT_FOUND if \fBwsid\fP does not refer to a previously shared buffer. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaBindSVA(\fI\%fpga_handle\fP  handle, uint32_t  *pasid) 
+Bind IOMMU shared virtual addressing
+.sp
+When PCIe PASID, ATS and PRS capabilities are enabled, some platforms support binding the IOMMU to user space virtual addresses.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBpasid\fP – \fB[out]\fP Process address space ID, set if not NULL. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success and FPGA_NOT_SUPPORTED otherwise. 
+.UNINDENT
+.UNINDENT
+.SS umsg.h
+.sp
+FPGA UMsg API. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetNumUmsg(\fI\%fpga_handle\fP  handle, uint64_t  *value) 
+Get number of Umsgs
+.sp
+Retuns number of umsg supported by AFU.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBvalue\fP – \fB[out]\fP Returns number of UMsgs 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if input parameter combination is not valid. FPGA_EXCEPTION if input parameter fpga handle is not valid. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaSetUmsgAttributes(\fI\%fpga_handle\fP  handle, uint64_t  value) 
+Sets Umsg hint
+.sp
+Writes usmg hint bit.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP Value to use for UMsg hint, Umsg hit is N wide bitvector where N = number of Umsgs. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if input parameter combination is not valid. FPGA_EXCEPTION if input parameter fpga handle is not valid. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaTriggerUmsg(\fI\%fpga_handle\fP  handle, uint64_t  value) 
+Trigger Umsg
+.sp
+Writes a 64\-bit value to trigger low\-latency accelerator notification mechanism (UMsgs).
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP Value to use for UMsg 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if input parameter combination is not valid. FPGA_EXCEPTION if input parameter fpga handle is not valid. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetUmsgPtr(\fI\%fpga_handle\fP  handle, uint64_t  **umsg_ptr) 
+Access UMsg memory directly
+.sp
+This function will return a pointer to the memory allocated for low latency accelerator notifications (UMsgs).
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened accelerator resource 
+.IP \(bu 2
+\fBumsg_ptr\fP – \fB[out]\fP Pointer to memory where a pointer to the virtual address space will be returned 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if input parameter combination is not valid. FPGA_EXCEPTION if input parameter fpga handle is not valid. FPGA_NO_MEMORY if memory allocation fails or system doesn’t configure huge pages. 
+.UNINDENT
+.UNINDENT
+.SH MANAGEMENT API
+.sp
+The management APIs define functions for reconfiguring an FPGA (writing new
+partial bitstreams) as well as assigning accelerators to host interfaces.
+.SS manage.h
+.sp
+Functions for managing FPGA configurations. 
+.sp
+FPGA accelerators can be reprogrammed at run time by providing new partial bitstreams (“green bitstreams”). This file defines API functions for programming green bitstreams as well as for assigning accelerators to host interfaces for more complex deployment setups, such as virtualized systems. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaAssignPortToInterface(\fI\%fpga_handle\fP  fpga, uint32_t  interface_num, uint32_t  slot_num, int  flags) 
+Assign Port to a host interface.
+.sp
+This function assign Port to a host interface for subsequent use. Only Port that have been assigned to a host interface can be opened by \fI\%fpgaOpen()\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfpga\fP – \fB[in]\fP Handle to an FPGA object previously opened that both the host interface and the slot belong to 
+.IP \(bu 2
+\fBinterface_num\fP – \fB[in]\fP Host interface number 
+.IP \(bu 2
+\fBslot_num\fP – \fB[in]\fP Slot number 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags (to be defined) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success FPGA_INVALID_PARAM if input parameter combination is not valid. FPGA_EXCEPTION if an exception occcurred accessing the \fBfpga\fP handle. FPGA_NOT_SUPPORTED if driver does not support assignment. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaAssignToInterface(\fI\%fpga_handle\fP  fpga, \fI\%fpga_token\fP  accelerator, uint32_t  host_interface, int  flags) 
+Assign an accelerator to a host interface
+.sp
+This function assigns an accelerator to a host interface for subsequent use. Only accelerators that have been assigned to a host interface can be opened by \fI\%fpgaOpen()\fP\&.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This function is currently not supported.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfpga\fP – \fB[in]\fP Handle to an FPGA object previously opened that both the host interface and the accelerator belong to 
+.IP \(bu 2
+\fBaccelerator\fP – \fB[in]\fP accelerator to assign 
+.IP \(bu 2
+\fBhost_interface\fP – \fB[in]\fP Host interface to assign accelerator to 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags (to be defined) 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaReleaseFromInterface(\fI\%fpga_handle\fP  fpga, \fI\%fpga_token\fP  accelerator) 
+Unassign a previously assigned accelerator
+.sp
+This function removes the assignment of an accelerator to an host interface (e.g. to be later assigned to a different host interface). As a consequence, the accelerator referred to by token ‘accelerator’ will be reset during the course of this function.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This function is currently not supported.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfpga\fP – \fB[in]\fP Handle to an FPGA object previously opened that both the host interface and the accelerator belong to 
+.IP \(bu 2
+\fBaccelerator\fP – \fB[in]\fP accelerator to unassign/release 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaReconfigureSlot(\fI\%fpga_handle\fP  fpga, uint32_t  slot, const  uint8_t  *bitstream, size_t  bitstream_len, int  flags) 
+Reconfigure a slot
+.sp
+Sends a green bitstream file to an FPGA to reconfigure a specific slot. This call, if successful, will overwrite the currently programmed AFU in that slot with the AFU in the provided bitstream.
+.sp
+As part of the reconfiguration flow, all accelerators associated with this slot will be unassigned and reset.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+By default, fpgaReconfigureSlot will not allow reconfiguring a slot with an accelerator in use. Add the flag FPGA_RECONF_FORCE to force reconfiguration without checking for accelerators in use. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfpga\fP – \fB[in]\fP Handle to an FPGA object previously opened 
+.IP \(bu 2
+\fBslot\fP – \fB[in]\fP Token identifying the slot to reconfigure 
+.IP \(bu 2
+\fBbitstream\fP – \fB[in]\fP Pointer to memory holding the bitstream 
+.IP \(bu 2
+\fBbitstream_len\fP – \fB[in]\fP Length of the bitstream in bytes 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control behavior of reconfiguration. Value of 0 indicates no flags. FPGA_RECONF_FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use. 
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if the provided parameters are not valid. FPGA_EXCEPTION if an internal error occurred accessing the handle or while sending the bitstream data to the driver. FPGA_BUSY if the accelerator for the given slot is in use. FPGA_RECONF_ERROR on errors reported by the driver (such as CRC or protocol errors).
+.UNINDENT
+.UNINDENT
+.SH METRICS API
+.sp
+The metrics APIs define functions for discovery/enumeration of metrics information
+and reading metrics values.
+.SS metrics.h
+.sp
+Functions for Discover/ Enumerates metrics and retrieves values. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetNumMetrics(\fI\%fpga_handle\fP  handle, uint64_t  *num_metrics) 
+Enumerates number of metrics
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened fpga resource 
+.IP \(bu 2
+\fBnum_metrics\fP – \fB[inout]\fP Number of metrics are discovered in fpga resource
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not discovered 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetMetricsInfo(\fI\%fpga_handle\fP  handle, \fI\%fpga_metric_info\fP  *metric_info, uint64_t  *num_metrics) 
+Retrieve metrics information
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened fpga resource 
+.IP \(bu 2
+\fBmetric_info\fP – \fB[inout]\fP Pointer to array of metric info struct user allocates metrics info array
+.IP \(bu 2
+\fBnum_metrics\fP – \fB[inout]\fP Size of metric info array
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetMetricsByIndex(\fI\%fpga_handle\fP  handle, uint64_t  *metric_num, uint64_t  num_metric_indexes, \fI\%fpga_metric\fP  *metrics) 
+Retrieve metrics values by index
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened fpga resource 
+.IP \(bu 2
+\fBmetric_num\fP – \fB[inout]\fP Pointer to array of metric index user allocates metric array 
+.IP \(bu 2
+\fBnum_metric_indexes\fP – \fB[inout]\fP Size of metric array 
+.IP \(bu 2
+\fBmetrics\fP – \fB[inout]\fP pointer to array of metric struct
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetMetricsByName(\fI\%fpga_handle\fP  handle, char  **metrics_names, uint64_t  num_metric_names, \fI\%fpga_metric\fP  *metrics) 
+Retrieve metric values by names
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened fpga resource 
+.IP \(bu 2
+\fBmetrics_names\fP – \fB[inout]\fP Pointer to array of metrics name user allocates metrics name array 
+.IP \(bu 2
+\fBnum_metric_names\fP – \fB[inout]\fP Size of metric name array 
+.IP \(bu 2
+\fBmetrics\fP – \fB[inout]\fP Pointer to array of metric struct
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaGetMetricsThresholdInfo(\fI\%fpga_handle\fP  handle, struct  \fI\%metric_threshold\fP  *metric_thresholds, uint32_t  *num_thresholds) 
+Retrieve metrics / sendor threshold information and values
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle to previously opened fpga resource 
+.IP \(bu 2
+\fBmetrics_threshold\fP – \fB[inout]\fP pointer to array of metric thresholds user allocates threshold array memory Number of thresholds returns enumerated thresholds if user pass NULL metrics_thresholds 
+.IP \(bu 2
+\fBnum_thresholds\fP – \fB[inout]\fP number of thresholds
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not found. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics. 
+.UNINDENT
+.UNINDENT
+.SH SYSOBJECT
+.sp
+The SysObject API can be used to get system objects by name. Names used with
+the SysObject API are driver\-specific and may not be compatible across plugins
+and/or drivers. For example, SysObject names used with the xfpga plugin will
+apply to the OPAE Linux Kernel driver and refer to sysfs nodes under the sysfs
+tree for the resource used with the SysObject API.
+.SS sysobject.h
+.sp
+Functions to read/write from system objects. On Linux systems with the OPAE kernel driver, this is used to access sysfs nodes created by the driver. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaTokenGetObject(\fI\%fpga_token\fP  token, const  char  *name, \fI\%fpga_object\fP  *object, int  flags) 
+Create an \fBfpga_object\fP data structures. An \fBfpga_object\fP is a handle to an FPGA resource which can be an attribute, register or a container. This object is read\-only. 
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Names that begin with ‘.’ or ‘/’ or contain ‘..’ are not allowed and result in FPGA_INVALID_PARAM being returned 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtoken\fP – \fB[in]\fP Token identifying a resource (accelerator or device) 
+.IP \(bu 2
+\fBname\fP – \fB[in]\fP A key identifying an object belonging to a resource. 
+.IP \(bu 2
+\fBobject\fP – \fB[out]\fP Pointer to memory to store the object in 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaHandleGetObject(\fI\%fpga_handle\fP  handle, const  char  *name, \fI\%fpga_object\fP  *object, int  flags) 
+Create an \fBfpga_object\fP data structure from a handle. An \fBfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container. This object has read/write access.. 
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Names that begin with ‘.’ or ‘/’ or contain ‘..’ are not allowed and result in FPGA_INVALID_PARAM being returned 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBhandle\fP – \fB[in]\fP Handle identifying a resource (accelerator or device) 
+.IP \(bu 2
+\fBname\fP – \fB[in]\fP A key identifying an object belonging to a resource. 
+.IP \(bu 2
+\fBobject\fP – \fB[out]\fP Pointer to memory to store the object in 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Control behavior of object identification and creation FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectGetObject(\fI\%fpga_object\fP  parent, const  char  *name, \fI\%fpga_object\fP  *object, int  flags) 
+Create an \fBfpga_object\fP data structure from a parent object. An \fBfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read\-write access to the object data. 
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Names that begin with ‘.’ or ‘/’ or contain ‘..’ are not allowed and result in FPGA_INVALID_PARAM being returned 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBparent\fP – \fB[in]\fP A parent container \fBfpga_object\fP\&. 
+.IP \(bu 2
+\fBname\fP – \fB[in]\fP A key identifying a sub\-object of the parent container. 
+.IP \(bu 2
+\fBobject\fP – \fB[out]\fP Pointer to memory to store the object in. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid \- this includes a parent object that is not a container object. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectGetObjectAt(\fI\%fpga_object\fP  parent, size_t  idx, \fI\%fpga_object\fP  *object) 
+Create an \fBfpga_object\fP data structure from a parent object using a given index. An \fBfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read\-write access to the object data. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBparent\fP – \fB[in]\fP A parent container ‘fpga_object’ 
+.IP \(bu 2
+\fBidx\fP – \fB[in]\fP A positive index less than the size reported by the parent. 
+.IP \(bu 2
+\fBobject\fP – \fB[out]\fP Pointer to memory to store the object in.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied parameters is invalid \- this includes a parent object that is not a container object. FPGA_NOT_FOUND if an object cannot be found with the given key. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectGetType(\fI\%fpga_object\fP  obj, enum  \fI\%fpga_sysobject_type\fP  *type) 
+Get the sysobject type (container or attribute) 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – \fB[in]\fP An fpga_object instance 
+.IP \(bu 2
+\fBtype\fP – \fB[out]\fP The type of object (FPGA_OBJECT_CONTAINER or FPGA_OBJECT_ATTRIBUTE)
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters are null or invalid 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaDestroyObject(\fI\%fpga_object\fP  *obj) 
+Free memory used for the fpga_object data structure. 
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+\fI\%fpgaDestroyObject()\fP requires the address of an fpga_object as created by \fI\%fpgaTokenGetObject()\fP, \fI\%fpgaHandleGetObject()\fP, or \fI\%fpgaObjectGetObject()\fP\&. Passing any other value results in undefind behavior.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+\fBobj\fP – Pointer to the fpga_object instance to destroy
+.TP
+.B Returns
+FPGA_OK on success, FPGA_INVALID_PARAM if the object is NULL, FPGA_EXCEPTION if an internal error is encountered. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectGetSize(\fI\%fpga_object\fP  obj, uint32_t  *value, int  flags) 
+Retrieve the size of the object. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – \fB[in]\fP An fpga_object instance. 
+.IP \(bu 2
+\fBvalue\fP – \fB[out]\fP Pointer to variable to store size in. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the size.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success. FPGA_INVALID_PARAM if any of supplied parameters is invalid. FPGA_EXCEPTION if error occurred. 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectRead(\fI\%fpga_object\fP  obj, uint8_t  *buffer, size_t  offset, size_t  len, int  flags) 
+Read bytes from an FPGA object. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – \fB[in]\fP An fpga_object instance. 
+.IP \(bu 2
+\fBbuffer\fP – \fB[out]\fP Pointer to a buffer to read bytes into. 
+.IP \(bu 2
+\fBoffset\fP – \fB[in]\fP Byte offset relative to objects internal buffer where to begin reading bytes from. 
+.IP \(bu 2
+\fBlen\fP – \fB[in]\fP The length, in bytes, to read from the object. 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectRead64(\fI\%fpga_object\fP  obj, uint64_t  *value, int  flags) 
+Read a 64\-bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. 
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – \fB[in]\fP An fpga_object instance 
+.IP \(bu 2
+\fBvalue\fP – \fB[out]\fP Pointer to a 64\-bit variable to store the value in 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data. If FPGA_OBJECT_RAW is used, then the data will be read as raw bytes into the uint64_t pointer variable.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  fpgaObjectWrite64(\fI\%fpga_object\fP  obj, uint64_t  value, int  flags) 
+Write 64\-bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. 
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+The object must have been created using a handle to a resource. 
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBobj\fP – \fB[in]\fP An fpga_object instance. 
+.IP \(bu 2
+\fBvalue\fP – \fB[in]\fP The value to write to the object 
+.IP \(bu 2
+\fBflags\fP – \fB[in]\fP Flags that control how the object is written If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes.
+.UNINDENT
+.TP
+.B Returns
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid
+.UNINDENT
+.UNINDENT
+.SH UTILITIES
+.sp
+Functions for mapping fpga_result values to meaningful error strings are
+provided by the utilities API.
+.SS utils.h
+.sp
+Utility functions and macros for the FPGA API. 
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B const  char  *fpgaErrStr(\fI\%fpga_result\fP  e) 
+Return human\-readable error message
+.sp
+Returns a pointer to a human\-readable error message corresponding to the provided fpga_error error code.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBe\fP – \fB[in]\fP Error code (as returned by another FPGA API function 
+.TP
+.B Returns
+Pointer to a descriptive error message string 
+.UNINDENT
+.UNINDENT
+.SH SAMPLES
+.sp
+Code samples demonstrate how to use OPAE C API.
+.SS hello_fpga.c
+.sp
+A code sample illustrates the basic usage of the OPAE C API. 
+.sp
+The sample is a host application that demonstrates the basic steps of interacting with FPGA using the OPAE library. These steps include:
+.sp
+.INDENT 0.0
+.IP \(bu 2
+FPGA enumeration
+.IP \(bu 2
+Resource acquiring and releasing
+.IP \(bu 2
+Managing shared memory buffer
+.IP \(bu 2
+MMIO read and write
+.UNINDENT
+
+.sp
+The sample also demonstrates OPAE’s object model, such as tokens, handles, and properties.
+.sp
+The sample requires a native loopback mode (NLB) test image to be loaded on the FPGA. Refer to \fI\%Quick Start Guide\fP for full instructions on building, configuring, and running this code sample. 
+.sp
+Defines
+.INDENT 0.0
+.TP
+.B TEST_TIMEOUT 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CL(x) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B LOG2_CL 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B MB(x) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CACHELINE_ALIGNED_ADDR(p) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B LPBK1_BUFFER_SIZE 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B LPBK1_BUFFER_ALLOCATION_SIZE 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B LPBK1_DSM_SIZE 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_SRC_ADDR 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_DST_ADDR 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_CTL 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_STATUS1 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_CFG 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_NUM_LINES 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B DSM_STATUS_TEST_COMPLETE 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B CSR_AFU_DSM_BASEL 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B NLB0_AFUID 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B N3000_AFUID 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B FPGA_NLB0_UUID_H 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B FPGA_NLB0_UUID_L 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ON_ERR_GOTO(res, label, desc) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B GETOPT_STRING 
+.UNINDENT
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B int  usleep(unsigned) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B void  print_err(const  char  *s, \fI\%fpga_result\fP  res) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B void  help(void) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  parse_args(int  argc, char  *argv[]) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  find_fpga(\fI\%fpga_properties\fP  device_filter, \fI\%fpga_guid\fP  afu_guid, \fI\%fpga_token\fP  *accelerator_token, uint32_t  *num_matches_accelerators) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B bool  probe_for_ase(void) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  find_nlb_n3000(\fI\%fpga_handle\fP  accelerator_handle, uint64_t  *afu_baddr) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B int  main(int  argc, char  *argv[]) 
+.UNINDENT
+.sp
+Variables
+.INDENT 0.0
+.TP
+.B struct config config  = {.open_flags = 0,.run_n3000 = 0}
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  cache_line 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  config 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B int  open_flags 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B int  run_n3000 
+.UNINDENT
+.UNINDENT
+.SS hello_events.c
+.sp
+A code sample of using OPAE event API. 
+.sp
+This sample starts two processes. One process injects an artificial fatal error to sysfs; while the other tries to asynchronously capture and handle the event. This sample code exercises all major functions of the event API, including creating and destroying event handles, register and unregister events, polling on event file descriptor, and getting the OS object associated with an event. For a full discussion of OPAE event API, refer to event.h\&. 
+.sp
+Defines
+.INDENT 0.0
+.TP
+.B FME_SYSFS_INJECT_ERROR 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ON_ERR_GOTO(res, label, desc) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B GETOPT_STRING 
+.UNINDENT
+.sp
+Functions
+.INDENT 0.0
+.TP
+.B int  usleep(unsigned) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B void  print_err(const  char  *s, \fI\%fpga_result\fP  res) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  inject_ras_fatal_error(\fI\%fpga_token\fP  fme_token, uint8_t  err) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B void  *error_thread(void  *arg) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B void  help(void) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  parse_args(int  argc, char  *argv[]) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fI\%fpga_result\fP  find_fpga(\fI\%fpga_properties\fP  device_filter, \fI\%fpga_token\fP  *fpga, uint32_t  *num_matches) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B int  main(int  argc, char  *argv[]) 
+.UNINDENT
+.INDENT 0.0
+.TP
+.B struct  ras_inject_error 
+.sp
+Public Members
+.INDENT 7.0
+.TP
+.B union  \fI\%ras_inject_error\fP::[anonymous]  [anonymous] 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ras_inject_error.__unnamed88__
+.
+Public Members
+.INDENT 7.0
+.TP
+.B uint64_t  csr 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B struct  \fI\%ras_inject_error\fP::[anonymous]::[anonymous]  [anonymous] 
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ras_inject_error.__unnamed88__.__unnamed90__
+.
+Public Members
+.INDENT 7.0
+.TP
+.B uint64_t  catastrophicr_error 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  fatal_error 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  nonfatal_error 
+.UNINDENT
+.INDENT 7.0
+.TP
+.B uint64_t  rsvd 
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

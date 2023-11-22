@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__uio__device__region" kind="struct" language="C++" prot="public">
+    <compoundname>opae_uio_device_region</compoundname>
+    <includes refid="uio_8h" local="no">opae/uio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__uio__device__region_1a20fd192f4d257ba3e4b8622af81a1916" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_uio_device_region::region_index</definition>
+        <argsstring></argsstring>
+        <name>region_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="54" column="10" bodyfile="include/opae/uio.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__uio__device__region_1a5bf9d879f514ef0c88dde0ec5676082d" prot="public" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* opae_uio_device_region::region_ptr</definition>
+        <argsstring></argsstring>
+        <name>region_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="55" column="9" bodyfile="include/opae/uio.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__uio__device__region_1aa8c1dc455663807cd6178945a917692e" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t opae_uio_device_region::region_page_offset</definition>
+        <argsstring></argsstring>
+        <name>region_page_offset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="56" column="8" bodyfile="include/opae/uio.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__uio__device__region_1aadf0885c5e3af4a91110e1b207b092bd" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t opae_uio_device_region::region_size</definition>
+        <argsstring></argsstring>
+        <name>region_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="57" column="8" bodyfile="include/opae/uio.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__uio__device__region_1ade4d30e7975d0d995bcc4056fc340bc5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__uio__device__region" kindref="compound">opae_uio_device_region</ref> *</type>
+        <definition>struct opae_uio_device_region* opae_uio_device_region::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="58" column="29" bodyfile="include/opae/uio.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>MMIO region info</para>
+<para>Describes a range of mappable MMIO. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_uio_device_region</label>
+        <link refid="structopae__uio__device__region"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/uio.h" line="53" column="1" bodyfile="include/opae/uio.h" bodystart="53" bodyend="59"/>
+    <listofallmembers>
+      <member refid="structopae__uio__device__region_1ade4d30e7975d0d995bcc4056fc340bc5" prot="public" virt="non-virtual"><scope>opae_uio_device_region</scope><name>next</name></member>
+      <member refid="structopae__uio__device__region_1a20fd192f4d257ba3e4b8622af81a1916" prot="public" virt="non-virtual"><scope>opae_uio_device_region</scope><name>region_index</name></member>
+      <member refid="structopae__uio__device__region_1aa8c1dc455663807cd6178945a917692e" prot="public" virt="non-virtual"><scope>opae_uio_device_region</scope><name>region_page_offset</name></member>
+      <member refid="structopae__uio__device__region_1a5bf9d879f514ef0c88dde0ec5676082d" prot="public" virt="non-virtual"><scope>opae_uio_device_region</scope><name>region_ptr</name></member>
+      <member refid="structopae__uio__device__region_1aadf0885c5e3af4a91110e1b207b092bd" prot="public" virt="non-virtual"><scope>opae_uio_device_region</scope><name>region_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

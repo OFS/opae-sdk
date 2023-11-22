@@ -1,0 +1,330 @@
+.TH "host_exerciser::he_cache_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::he_cache_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/cxl_he_cache_cmd\&.h>\fP
+.PP
+Inherits \fBhost_exerciser::he_cmd\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhe_cache_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~he_cache_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBfeatureid\fP () const override"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBguidl\fP () const override"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBguidh\fP () const override"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "int \fBhe_run_fpga_rd_cache_hit_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_fpga_wr_cache_hit_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_fpga_rd_cache_miss_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_fpga_wr_cache_miss_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_host_rd_cache_hit_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_host_wr_cache_hit_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_host_rd_cache_miss_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBhe_run_host_wr_cache_miss_test\fP ()"
+.br
+.ti -1c
+.RI "void \fBhe_forcetestcmpl\fP ()"
+.br
+.ti -1c
+.RI "bool \fBhe_continuousmode\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "bool \fBhe_continuousmode_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_contmodetime_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_linerep_count_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_stride_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_test_\fP"
+.br
+.ti -1c
+.RI "bool \fBhe_test_all_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_dev_instance_\fP"
+.br
+.ti -1c
+.RI "bool \fBhe_stride_cmd_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_cls_count_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBhe_latency_iterations_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 49 of file cxl_he_cache_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "host_exerciser::he_cache_cmd::he_cache_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 51 of file cxl_he_cache_cmd\&.h\&.
+.SS "virtual host_exerciser::he_cache_cmd::~he_cache_cmd ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 57 of file cxl_he_cache_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* host_exerciser::he_cache_cmd::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 59 of file cxl_he_cache_cmd\&.h\&.
+.SS "virtual const char* host_exerciser::he_cache_cmd::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 61 of file cxl_he_cache_cmd\&.h\&.
+.SS "virtual const char* host_exerciser::he_cache_cmd::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 65 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References HE_CACHE_AFU_ID\&.
+.SS "virtual uint64_t host_exerciser::he_cache_cmd::featureid () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 67 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References MEM_TG_FEATURE_ID\&.
+.SS "virtual uint64_t host_exerciser::he_cache_cmd::guidl () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 69 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References MEM_TG_FEATURE_GUIDL\&.
+.SS "virtual uint64_t host_exerciser::he_cache_cmd::guidh () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 71 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References MEM_TG_FEATURE_GUIDH\&.
+.SS "virtual void host_exerciser::he_cache_cmd::add_options (CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 73 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References app, host_exerciser::he_bias, host_exerciser::he_cmd::he_bias_, he_cls_count_, he_continuousmode_, he_contmodetime_, host_exerciser::he_cxl_device, he_dev_instance_, he_latency_iterations_, he_linerep_count_, he_stride_, host_exerciser::he_cmd::he_target_, host_exerciser::he_targets, he_test_, and host_exerciser::he_test_modes\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 132 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_read(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, opae::afu_test::afu::free_cache_read(), opae::afu_test::afu::free_dsm(), host_exerciser::he_cmd::get_ticks(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_CXL_RD_LATENCY, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_latency_iterations_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), HE_PRTEST_SCENARIO, host_exerciser::HE_RD_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::HE_RD_CONFIG, host_exerciser::HE_RD_NUM_LINES, host_exerciser::he_cmd::he_start_test(), he_stride_, he_stride_cmd_, host_exerciser::he_cmd::he_target_, host_exerciser::HE_TARGET_FPGA, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::LATENCY_FACTOR, opae::afu_test::afu::logger_, host_exerciser::he_cmd::numa_node_, host_exerciser::RD_LINE_S, host_exerciser::he_cmd::rd_table_ctl_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_rd_config::value, host_exerciser::he_rd_addr_table_ctrl::value, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 302 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_read_write(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, opae::afu_test::afu::free_cache_read_write(), opae::afu_test::afu::free_dsm(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), HE_PRTEST_SCENARIO, host_exerciser::HE_RD_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::HE_RD_CONFIG, host_exerciser::HE_RD_NUM_LINES, host_exerciser::he_cmd::he_start_test(), he_stride_, he_stride_cmd_, host_exerciser::he_cmd::he_target_, host_exerciser::HE_TARGET_FPGA, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::HE_WR_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_wr_cfg_, host_exerciser::HE_WR_CONFIG, host_exerciser::HE_WR_NUM_LINES, host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::he_cmd::numa_node_, host_exerciser::RD_LINE_S, host_exerciser::he_cmd::rd_table_ctl_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_wr_config::value, host_exerciser::he_wr_addr_table_ctrl::value, host_exerciser::he_rd_config::value, host_exerciser::he_rd_addr_table_ctrl::value, host_exerciser::WR_LINE_M, host_exerciser::he_cmd::wr_table_ctl_, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 452 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_read(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, opae::afu_test::afu::free_cache_read(), opae::afu_test::afu::free_dsm(), host_exerciser::he_cmd::get_ticks(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_CXL_RD_LATENCY, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_latency_iterations_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), host_exerciser::HE_RD_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::HE_RD_CONFIG, host_exerciser::HE_RD_NUM_LINES, host_exerciser::he_cmd::he_start_test(), he_stride_, he_stride_cmd_, host_exerciser::he_cmd::he_target_, host_exerciser::HE_TARGET_FPGA, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::LATENCY_FACTOR, opae::afu_test::afu::logger_, host_exerciser::he_cmd::numa_node_, host_exerciser::RD_LINE_I, host_exerciser::he_cmd::rd_table_ctl_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_rd_config::value, host_exerciser::he_rd_addr_table_ctrl::value, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 581 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_write(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, opae::afu_test::afu::free_cache_write(), opae::afu_test::afu::free_dsm(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::he_cmd::he_start_test(), he_stride_, he_stride_cmd_, host_exerciser::he_cmd::he_target_, host_exerciser::HE_TARGET_FPGA, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::HE_WR_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_wr_cfg_, host_exerciser::HE_WR_CONFIG, host_exerciser::HE_WR_NUM_LINES, host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::he_cmd::numa_node_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_wr_config::value, host_exerciser::he_wr_addr_table_ctrl::value, host_exerciser::WR_LINE_I, host_exerciser::he_cmd::wr_table_ctl_, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 681 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_read(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, host_exerciser::BUFFER_SIZE_32KB, opae::afu_test::afu::free_cache_read(), opae::afu_test::afu::free_dsm(), g_stop_thread, opae::afu_test::afu::get_read(), host_exerciser::he_cmd::get_ticks(), host_exerciser::he_cache_thread(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_CXL_RD_LATENCY, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_latency_iterations_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), host_exerciser::HE_RD_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::HE_RD_CONFIG, host_exerciser::HE_RD_NUM_LINES, host_exerciser::he_cmd::he_start_test(), he_stride_, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::LATENCY_FACTOR, opae::afu_test::afu::logger_, host_exerciser::he_cmd::numa_node_, host_exerciser::RD_LINE_S, host_exerciser::he_cmd::rd_table_ctl_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_rd_config::value, host_exerciser::he_rd_addr_table_ctrl::value, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 821 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_write(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, host_exerciser::BUFFER_SIZE_32KB, opae::afu_test::afu::free_cache_write(), opae::afu_test::afu::free_dsm(), g_stop_thread, opae::afu_test::afu::get_write(), host_exerciser::he_cache_thread(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::he_cmd::he_start_test(), he_stride_, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::HE_WR_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_wr_cfg_, host_exerciser::HE_WR_CONFIG, host_exerciser::HE_WR_NUM_LINES, host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::he_cmd::numa_node_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_wr_config::value, host_exerciser::he_wr_addr_table_ctrl::value, host_exerciser::WR_PUSH_I, host_exerciser::he_cmd::wr_table_ctl_, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 924 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_read(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, opae::afu_test::afu::free_cache_read(), opae::afu_test::afu::free_dsm(), host_exerciser::he_cmd::get_ticks(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_CXL_RD_LATENCY, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_latency_iterations_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), host_exerciser::HE_RD_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::HE_RD_CONFIG, host_exerciser::HE_RD_NUM_LINES, host_exerciser::he_cmd::he_start_test(), he_stride_, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::LATENCY_FACTOR, opae::afu_test::afu::logger_, host_exerciser::he_cmd::numa_node_, host_exerciser::RD_LINE_I, host_exerciser::he_cmd::rd_table_ctl_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_rd_config::value, host_exerciser::he_rd_addr_table_ctrl::value, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 1049 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References opae::afu_test::afu::allocate_cache_write(), opae::afu_test::afu::allocate_dsm(), host_exerciser::BUFFER_SIZE_2MB, opae::afu_test::afu::free_cache_write(), opae::afu_test::afu::free_dsm(), he_cls_count_, he_continuousmode(), he_continuousmode_, host_exerciser::HE_INFO, host_exerciser::he_cmd::he_info_, he_linerep_count_, host_exerciser::he_cmd::he_perf_counters(), host_exerciser::he_cmd::he_rd_cfg_, host_exerciser::he_cmd::he_start_test(), he_stride_, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::HE_WR_ADDR_TABLE_CTRL, host_exerciser::he_cmd::he_wr_cfg_, host_exerciser::HE_WR_CONFIG, host_exerciser::HE_WR_NUM_LINES, host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::host_exerciser_errors(), host_exerciser::he_cmd::numa_node_, host_exerciser::he_cmd::rd_table_ctl_, opae::afu_test::afu::read64(), host_exerciser::he_info::value, host_exerciser::he_wr_config::value, host_exerciser::he_wr_addr_table_ctrl::value, host_exerciser::he_rd_addr_table_ctrl::value, host_exerciser::WR_PUSH_I, host_exerciser::he_cmd::wr_table_ctl_, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run()\&.
+.SS "void host_exerciser::he_cache_cmd::he_forcetestcmpl ()\fC [inline]\fP"
+
+.PP
+Definition at line 1143 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References host_exerciser::HE_CTL, host_exerciser::he_cmd::he_ctl_, host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::he_cmd::host_exe_, usleep(), host_exerciser::he_ctl::value, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by he_continuousmode()\&.
+.SS "bool host_exerciser::he_cache_cmd::he_continuousmode ()\fC [inline]\fP"
+
+.PP
+Definition at line 1159 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References g_he_exit, he_continuousmode_, he_contmodetime_, he_forcetestcmpl(), host_exerciser::he_cmd::host_exe_, and opae::afu_test::afu::logger_\&.
+.PP
+Referenced by he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), he_run_host_rd_cache_hit_test(), he_run_host_rd_cache_miss_test(), he_run_host_wr_cache_hit_test(), and he_run_host_wr_cache_miss_test()\&.
+.SS "virtual int host_exerciser::he_cache_cmd::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 1178 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References app, host_exerciser::HE_CTL, host_exerciser::he_cmd::he_ctl_, host_exerciser::HE_FPGA_RD_CACHE_HIT, host_exerciser::HE_FPGA_RD_CACHE_MISS, host_exerciser::HE_FPGA_WR_CACHE_HIT, host_exerciser::HE_FPGA_WR_CACHE_MISS, host_exerciser::HE_HOST_RD_CACHE_HIT, host_exerciser::HE_HOST_RD_CACHE_MISS, host_exerciser::HE_HOST_WR_CACHE_HIT, host_exerciser::HE_HOST_WR_CACHE_MISS, he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), he_run_host_rd_cache_hit_test(), he_run_host_rd_cache_miss_test(), he_run_host_wr_cache_hit_test(), he_run_host_wr_cache_miss_test(), host_exerciser::he_cmd::he_set_bias_mode(), he_stride_cmd_, he_test_, host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::numa_node_, host_exerciser::he_cmd::print_csr(), host_exerciser::he_ctl::value, host_exerciser::he_cmd::verify_numa_node(), and opae::afu_test::afu::write64()\&.
+.SH "Field Documentation"
+.PP 
+.SS "bool host_exerciser::he_cache_cmd::he_continuousmode_\fC [protected]\fP"
+
+.PP
+Definition at line 1253 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), he_continuousmode(), he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), he_run_host_rd_cache_hit_test(), he_run_host_rd_cache_miss_test(), he_run_host_wr_cache_hit_test(), and he_run_host_wr_cache_miss_test()\&.
+.SS "uint32_t host_exerciser::he_cache_cmd::he_contmodetime_\fC [protected]\fP"
+
+.PP
+Definition at line 1254 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), and he_continuousmode()\&.
+.SS "uint32_t host_exerciser::he_cache_cmd::he_linerep_count_\fC [protected]\fP"
+
+.PP
+Definition at line 1255 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), he_run_host_rd_cache_hit_test(), he_run_host_rd_cache_miss_test(), he_run_host_wr_cache_hit_test(), and he_run_host_wr_cache_miss_test()\&.
+.SS "uint32_t host_exerciser::he_cache_cmd::he_stride_\fC [protected]\fP"
+
+.PP
+Definition at line 1256 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), he_run_host_rd_cache_hit_test(), he_run_host_rd_cache_miss_test(), he_run_host_wr_cache_hit_test(), and he_run_host_wr_cache_miss_test()\&.
+.SS "uint32_t host_exerciser::he_cache_cmd::he_test_\fC [protected]\fP"
+
+.PP
+Definition at line 1257 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "bool host_exerciser::he_cache_cmd::he_test_all_\fC [protected]\fP"
+
+.PP
+Definition at line 1258 of file cxl_he_cache_cmd\&.h\&.
+.SS "uint32_t host_exerciser::he_cache_cmd::he_dev_instance_\fC [protected]\fP"
+
+.PP
+Definition at line 1259 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options()\&.
+.SS "bool host_exerciser::he_cache_cmd::he_stride_cmd_\fC [protected]\fP"
+
+.PP
+Definition at line 1260 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), and run()\&.
+.SS "uint32_t host_exerciser::he_cache_cmd::he_cls_count_\fC [protected]\fP"
+
+.PP
+Definition at line 1261 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_fpga_wr_cache_hit_test(), he_run_fpga_wr_cache_miss_test(), he_run_host_rd_cache_hit_test(), he_run_host_rd_cache_miss_test(), he_run_host_wr_cache_hit_test(), and he_run_host_wr_cache_miss_test()\&.
+.SS "uint64_t host_exerciser::he_cache_cmd::he_latency_iterations_\fC [protected]\fP"
+
+.PP
+Definition at line 1262 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by add_options(), he_run_fpga_rd_cache_hit_test(), he_run_fpga_rd_cache_miss_test(), he_run_host_rd_cache_hit_test(), and he_run_host_rd_cache_miss_test()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

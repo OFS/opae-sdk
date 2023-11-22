@@ -1,0 +1,73 @@
+\doxysection{samples/hssi/hssi.cpp File Reference}
+\label{hssi_8cpp}\index{samples/hssi/hssi.cpp@{samples/hssi/hssi.cpp}}
+{\ttfamily \#include $<$csignal$>$}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+afu.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+10g\+\_\+cmd.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+100g\+\_\+cmd.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd.\+h\char`\"{}}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{hssi_8cpp_a83e1379f5adf4452f72fcc0be266a7b5}{sig\+\_\+handler}} (int signum)
+\item 
+int \mbox{\hyperlink{hssi_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classhssi__afu}{hssi\+\_\+afu}} \mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{hssi_8cpp_a83e1379f5adf4452f72fcc0be266a7b5}} 
+\index{hssi.cpp@{hssi.cpp}!sig\_handler@{sig\_handler}}
+\index{sig\_handler@{sig\_handler}!hssi.cpp@{hssi.cpp}}
+\doxysubsubsection{\texorpdfstring{sig\_handler()}{sig\_handler()}}
+{\footnotesize\ttfamily void sig\+\_\+handler (\begin{DoxyParamCaption}\item[{int}]{signum }\end{DoxyParamCaption})}
+
+
+
+Definition at line 36 of file hssi.\+cpp.
+
+
+
+References app, and opae\+::afu\+\_\+test\+::afu\+::current\+\_\+command().
+
+
+
+Referenced by main().
+
+\mbox{\label{hssi_8cpp_a0ddf1224851353fc92bfbff6f499fa97}} 
+\index{hssi.cpp@{hssi.cpp}!main@{main}}
+\index{main@{main}!hssi.cpp@{hssi.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Definition at line 54 of file hssi.\+cpp.
+
+
+
+References app, opae\+::afu\+\_\+test\+::afu\+::main(), opae\+::afu\+\_\+test\+::afu\+::register\+\_\+command(), and sig\+\_\+handler().
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}} 
+\index{hssi.cpp@{hssi.cpp}!app@{app}}
+\index{app@{app}!hssi.cpp@{hssi.cpp}}
+\doxysubsubsection{\texorpdfstring{app}{app}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classhssi__afu}{hssi\+\_\+afu}} app}
+
+
+
+Definition at line 34 of file hssi.\+cpp.
+
+
+
+Referenced by opae\+::afu\+\_\+test\+::command\+::add\+\_\+options(), dummy\+\_\+afu\+::mmio\+\_\+test\+::add\+\_\+options(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::add\+\_\+options(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd\+::add\+\_\+options(), hssi\+\_\+100g\+\_\+cmd\+::add\+\_\+options(), hssi\+\_\+10g\+\_\+cmd\+::add\+\_\+options(), hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::add\+\_\+options(), hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd\+::add\+\_\+options(), hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd\+::add\+\_\+options(), main(), opae\+::afu\+\_\+test\+::afu\+::main(), opae\+::afu\+\_\+test\+::afu\+::run(), host\+\_\+exerciser\+::host\+\_\+exerciser\+::run(), cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::run(), dummy\+\_\+afu\+::dummy\+\_\+afu\+::run(), mem\+\_\+tg\+::mem\+\_\+tg\+::run(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::run(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd\+::run(), dummy\+\_\+afu\+::ddr\+\_\+test\+::run(), dummy\+\_\+afu\+::lpbk\+\_\+test\+::run(), dummy\+\_\+afu\+::mmio\+\_\+test\+::run(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run(), cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test\+::run(), hssi\+\_\+100g\+\_\+cmd\+::run(), hssi\+\_\+10g\+\_\+cmd\+::run(), hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::run(), hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd\+::run(), hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd\+::run(), mem\+\_\+tg\+::tg\+\_\+test\+::run(), dummy\+\_\+afu\+::mmio\+\_\+test\+::run\+\_\+perf(), and sig\+\_\+handler().
+

@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: breathe
+Version: 4.33.1
+Summary: Sphinx Doxygen renderer
+Home-page: https://github.com/michaeljones/breathe
+Author: Michael Jones
+Author-email: m.pricejones@gmail.com
+License: BSD
+Download-URL: https://github.com/michaeljones/breathe
+Platform: any
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Documentation
+Classifier: Topic :: Text Processing
+Classifier: Topic :: Utilities
+License-File: LICENSE
+Requires-Dist: Sphinx (<5,>=3.0)
+Requires-Dist: docutils (>=0.12)
+
+
+Breathe is an extension to reStructuredText and Sphinx to be able to read and
+ render `Doxygen <http://www.doxygen.org>`__ xml output.
+
+

@@ -1,0 +1,499 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="cxl__mem__tg_8h" kind="file" language="C++">
+    <compoundname>cxl_mem_tg.h</compoundname>
+    <includes refid="token_8h" local="no">opae/cxx/core/token.h</includes>
+    <includes local="no">iostream</includes>
+    <includes local="no">string</includes>
+    <includes local="no">vector</includes>
+    <includes local="yes">afu_test.h</includes>
+    <includedby refid="cxl__mem__tg_8cpp" local="yes">samples/cxl_mem_tg/cxl_mem_tg.cpp</includedby>
+    <includedby refid="cxl__tg__test_8h" local="yes">samples/cxl_mem_tg/cxl_tg_test.h</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.h</label>
+        <link refid="cxl__mem__tg_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>cstdint</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="28">
+        <label>afu_test.h</label>
+      </node>
+      <node id="15">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="27">
+        <label>string</label>
+      </node>
+      <node id="23">
+        <label>map</label>
+      </node>
+      <node id="17">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="13">
+        <label>exception</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="11">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>vector</label>
+      </node>
+      <node id="19">
+        <label>array</label>
+      </node>
+      <node id="14">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>iostream</label>
+      </node>
+      <node id="26">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>type_traits</label>
+      </node>
+      <node id="18">
+        <label>algorithm</label>
+      </node>
+      <node id="16">
+        <label>stdio.h</label>
+      </node>
+      <node id="20">
+        <label>cstring</label>
+      </node>
+      <node id="24">
+        <label>memory</label>
+      </node>
+      <node id="10">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.h</label>
+        <link refid="cxl__mem__tg_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>samples/cxl_mem_tg/cxl_tg_test.h</label>
+        <link refid="cxl__tg__test_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.cpp</label>
+        <link refid="cxl__mem__tg_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="unioncxl__mem__tg_1_1mem__tg__ctl" prot="public">cxl_mem_tg::mem_tg_ctl</innerclass>
+    <innerclass refid="unioncxl__mem__tg_1_1mem__tg__status" prot="public">cxl_mem_tg::mem_tg_status</innerclass>
+    <innerclass refid="unioncxl__mem__tg_1_1mem__tg0__count" prot="public">cxl_mem_tg::mem_tg0_count</innerclass>
+    <innerclass refid="unioncxl__mem__tg_1_1mem__tg1__count" prot="public">cxl_mem_tg::mem_tg1_count</innerclass>
+    <innerclass refid="classcxl__mem__tg_1_1cxl__mem__tg" prot="public">cxl_mem_tg::cxl_mem_tg</innerclass>
+    <innerclass refid="structcxl__mem__tg_1_1mem__tg__ctl_8____unnamed52____" prot="public">cxl_mem_tg::mem_tg_ctl.__unnamed52__</innerclass>
+    <innerclass refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55____" prot="public">cxl_mem_tg::mem_tg_status.__unnamed55__</innerclass>
+    <innerclass refid="structcxl__mem__tg_1_1mem__tg0__count_8____unnamed58____" prot="public">cxl_mem_tg::mem_tg0_count.__unnamed58__</innerclass>
+    <innerclass refid="structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61____" prot="public">cxl_mem_tg::mem_tg1_count.__unnamed61__</innerclass>
+    <innernamespace refid="namespacecxl__mem__tg">cxl_mem_tg</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="token_8h" kindref="compound">opae/cxx/core/token.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;afu_test.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">std;</highlight></codeline>
+<codeline lineno="35" refid="namespacecxl__mem__tg" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacecxl__mem__tg" kindref="compound">cxl_mem_tg</ref><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1fpga_1_1types_1_1token" kindref="compound">opae::fpga::types::token</ref>;</highlight></codeline>
+<codeline lineno="37" refid="namespacecxl__mem__tg_1a7187f3c940e7b0bede33c18321170c26" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="dummy__afu_8cpp_1a67fa09f58e3e39d9604e1422af718ad5" kindref="member">AFU_ID</ref><sp/>=<sp/></highlight><highlight class="stringliteral">&quot;4DADEA34-2C78-48CB-A3DC-5B831F5CECBB&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="namespacecxl__mem__tg_1a7488ec5ac28f6679e818452cb7b347ec" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="namespacecxl__mem__tg_1a7488ec5ac28f6679e818452cb7b347ec" kindref="member">MEM_TG_TEST_TIMEOUT</ref><sp/>=<sp/>3000000;</highlight></codeline>
+<codeline lineno="40" refid="namespacecxl__mem__tg_1ae2fec4e55f5f8fbfb78d0c38ec1e3289" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="namespacecxl__mem__tg_1ae2fec4e55f5f8fbfb78d0c38ec1e3289" kindref="member">TEST_SLEEP_INVL</ref><sp/>=<sp/>100;</highlight></codeline>
+<codeline lineno="41" refid="namespacecxl__mem__tg_1a7e452dc886e26cc1525c4533efbfd1c8" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="namespacecxl__mem__tg_1a7e452dc886e26cc1525c4533efbfd1c8" kindref="member">TG_CTRL_CLEAR</ref><sp/>=<sp/>0x8000000000000000;</highlight></codeline>
+<codeline lineno="42" refid="namespacecxl__mem__tg_1adf88f83a1ea74efb4228b2e7de8d8ae8" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="namespacecxl__mem__tg_1adf88f83a1ea74efb4228b2e7de8d8ae8" kindref="member">TG_SLEEP</ref><sp/>=<sp/>300<sp/>/<sp/>1000;</highlight></codeline>
+<codeline lineno="43" refid="namespacecxl__mem__tg_1ad72ec47242a649d327e0bde858f7f2b5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="namespacecxl__mem__tg_1ad72ec47242a649d327e0bde858f7f2b5" kindref="member">TG_FREQ</ref><sp/>=<sp/>400<sp/>*<sp/>1000;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46" refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3a7cbd86dff0180f632d573ef7e5a55057" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3a7cbd86dff0180f632d573ef7e5a55057" kindref="member">TG_STATUS_ACTIVE</ref><sp/>=<sp/>0x1,</highlight></codeline>
+<codeline lineno="47" refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3a8e63adddabc288e5498f2f4df66f0b27" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3a8e63adddabc288e5498f2f4df66f0b27" kindref="member">TG_STATUS_TIMEOUT</ref><sp/>=<sp/>0x2,</highlight></codeline>
+<codeline lineno="48" refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3ad6d2ca96385ead5241bb420e1e7ae64e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3ad6d2ca96385ead5241bb420e1e7ae64e" kindref="member">TG_STATUS_ERROR</ref><sp/>=<sp/>0x4,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3aa0b11c71d367595e2a12c20197b44ce9" kindref="member">TG_STATUS_PASS</ref><sp/>=<sp/>0x8</highlight></codeline>
+<codeline lineno="50" refid="namespacecxl__mem__tg_1a9346c08ca8d6da1adde540395a909db3aa0b11c71d367595e2a12c20197b44ce9" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="53" refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2ae50331c964539f5dd5c26007735d4ed3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2ae50331c964539f5dd5c26007735d4ed3" kindref="member">TG_ADDR_RAND</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="54" refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2ab7e300ecb7930052b948a653ddcaa184" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2ab7e300ecb7930052b948a653ddcaa184" kindref="member">TG_ADDR_SEQ</ref><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="55" refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2af669ed7de6b50d6000674e9427d25182" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2af669ed7de6b50d6000674e9427d25182" kindref="member">TG_ADDR_RAND_SEQ</ref><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2a92b5675ef5ee0396ead56070a486e58e" kindref="member">TG_ADDR_ONE_HOT</ref><sp/>=<sp/>3</highlight></codeline>
+<codeline lineno="57" refid="namespacecxl__mem__tg_1aa4af1bf553a1eaba8cd8f49e614476e2a92b5675ef5ee0396ead56070a486e58e" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="60" refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa7407f4233717e1d98f8a776390eb82af" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa7407f4233717e1d98f8a776390eb82af" kindref="member">TG_DATA_FIXED</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="61" refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa657e027c0dafddd6b1507f6cce1194ad" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa657e027c0dafddd6b1507f6cce1194ad" kindref="member">TG_DATA_PRBS7</ref><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="62" refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa17eadd59787408f22df400c34c6a1b0a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa17eadd59787408f22df400c34c6a1b0a" kindref="member">TG_DATA_PRBS15</ref><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="63" refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaae5e9b7fe639f5d85614b3a1759b7c659" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaae5e9b7fe639f5d85614b3a1759b7c659" kindref="member">TG_DATA_PRBS31</ref><sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa71564d8355c494d5a258cb5c26b4fc98" kindref="member">TG_DATA_ROTATING</ref><sp/>=<sp/>4</highlight></codeline>
+<codeline lineno="65" refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa71564d8355c494d5a258cb5c26b4fc98" refkind="member"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="namespacecxl__mem__tg_1a4adbfbc2d17a8a0c2a818f243385336a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;std::string,<sp/>uint32_t&gt;<sp/><ref refid="namespacecxl__mem__tg_1a4adbfbc2d17a8a0c2a818f243385336a" kindref="member">tg_pattern</ref><sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;fixed&quot;</highlight><highlight class="normal">,<sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa7407f4233717e1d98f8a776390eb82af" kindref="member">TG_DATA_FIXED</ref>},<sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;prbs7&quot;</highlight><highlight class="normal">,<sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa657e027c0dafddd6b1507f6cce1194ad" kindref="member">TG_DATA_PRBS7</ref>},</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;prbs15&quot;</highlight><highlight class="normal">,<sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaa17eadd59787408f22df400c34c6a1b0a" kindref="member">TG_DATA_PRBS15</ref>},<sp/>{</highlight><highlight class="stringliteral">&quot;prbs31&quot;</highlight><highlight class="normal">,<sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaae5e9b7fe639f5d85614b3a1759b7c659" kindref="member">TG_DATA_PRBS31</ref>},</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;rot1&quot;</highlight><highlight class="normal">,<sp/><ref refid="namespacecxl__mem__tg_1aa1d50ccef06b3cce729d5a785c2cfdeaae5e9b7fe639f5d85614b3a1759b7c659" kindref="member">TG_DATA_PRBS31</ref>},</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="74" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea01597032eab3f760346c82fbc788ec5c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea01597032eab3f760346c82fbc788ec5c" kindref="member">AFU_DFH</ref><sp/>=<sp/>0x0000,</highlight></codeline>
+<codeline lineno="75" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eae1b3a54124834078d9db7680c3caa7bd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eae1b3a54124834078d9db7680c3caa7bd" kindref="member">AFU_ID_L</ref><sp/>=<sp/>0x0008,</highlight></codeline>
+<codeline lineno="76" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea5debc24069234094ad6ba398106c65fb" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea5debc24069234094ad6ba398106c65fb" kindref="member">AFU_ID_H</ref><sp/>=<sp/>0x0010,</highlight></codeline>
+<codeline lineno="77" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eaaa35301298cf8446efb61505e0798fa0" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eaaa35301298cf8446efb61505e0798fa0" kindref="member">NEXT_AFU</ref><sp/>=<sp/>0x0018,</highlight></codeline>
+<codeline lineno="78" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea0664bd36175dd3d76875ebaa52980af6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea0664bd36175dd3d76875ebaa52980af6" kindref="member">AFU_DFH_RSVD</ref><sp/>=<sp/>0x0020,</highlight></codeline>
+<codeline lineno="79" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea762eb285e7fc88be1e742b50533c5f9a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea762eb285e7fc88be1e742b50533c5f9a" kindref="member">SCRATCHPAD</ref><sp/>=<sp/>0x0028,</highlight></codeline>
+<codeline lineno="80" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea4756bce556cb643e0aa2c409f21f0c37" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea4756bce556cb643e0aa2c409f21f0c37" kindref="member">MEM_TG_CTRL</ref><sp/>=<sp/>0x0030,</highlight></codeline>
+<codeline lineno="81" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eadd994b8040392db4076101038b417fe4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eadd994b8040392db4076101038b417fe4" kindref="member">MEM_TG_STAT</ref><sp/>=<sp/>0x0038,</highlight></codeline>
+<codeline lineno="82" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea88d8b198bfb44c9dcad46aa0ab207970" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea88d8b198bfb44c9dcad46aa0ab207970" kindref="member">MEM_TG_CLK_COUNT</ref><sp/>=<sp/>0x0050,</highlight></codeline>
+<codeline lineno="83" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eaf6d9bbd396589527f372a7b48f1a4d92" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eaf6d9bbd396589527f372a7b48f1a4d92" kindref="member">MEM_TG_WR_COUNT</ref><sp/>=<sp/>0x0058,</highlight></codeline>
+<codeline lineno="84" refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea0fd9d1b39b6d59014ef01787ec3a4eef" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea0fd9d1b39b6d59014ef01787ec3a4eef" kindref="member">MEM_TG_CLK_FREQ</ref><sp/>=<sp/>0x0060,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="86" refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>=<sp/>0x1000;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="comment">//<sp/>TG<sp/>Address<sp/>Map<sp/>--<sp/>Byte<sp/>addressed</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="90" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a21e0b7931a80741eb0c73747a3fe4377" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a21e0b7931a80741eb0c73747a3fe4377" kindref="member">TG_VERSION</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x000,</highlight></codeline>
+<codeline lineno="91" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9afbeb224f5b1d32e9b55b1ce8fcc9e32c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9afbeb224f5b1d32e9b55b1ce8fcc9e32c" kindref="member">TG_START</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x004,</highlight></codeline>
+<codeline lineno="92" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad02dea59ee54f68764340c1c233829b1" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad02dea59ee54f68764340c1c233829b1" kindref="member">TG_LOOP_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x008,</highlight></codeline>
+<codeline lineno="93" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aab71456eea9b0ccecabf1e0891954a0e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aab71456eea9b0ccecabf1e0891954a0e" kindref="member">TG_WRITE_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x00C,</highlight></codeline>
+<codeline lineno="94" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a411d376733b772443344588a2cac4458" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a411d376733b772443344588a2cac4458" kindref="member">TG_READ_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x010,</highlight></codeline>
+<codeline lineno="95" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aa30e3bd5cec3f3cd992e6121bdbab09e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aa30e3bd5cec3f3cd992e6121bdbab09e" kindref="member">TG_WRITE_REPEAT_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x014,</highlight></codeline>
+<codeline lineno="96" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a90a29710d3b2099c1795a61d2622076e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a90a29710d3b2099c1795a61d2622076e" kindref="member">TG_READ_REPEAT_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x018,</highlight></codeline>
+<codeline lineno="97" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab821353518367c2fcd2ab57a9c6e7840" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab821353518367c2fcd2ab57a9c6e7840" kindref="member">TG_BURST_LENGTH</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01C,</highlight></codeline>
+<codeline lineno="98" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a88ec11b1fb1a062f02451c50b0016949" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a88ec11b1fb1a062f02451c50b0016949" kindref="member">TG_CLEAR</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x020,</highlight></codeline>
+<codeline lineno="99" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab64e524dd316d881cc22757087d33439" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab64e524dd316d881cc22757087d33439" kindref="member">TG_RW_GEN_IDLE_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x038,</highlight></codeline>
+<codeline lineno="100" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aed6f3dfb644b6e070fefcaf16e2e1d11" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aed6f3dfb644b6e070fefcaf16e2e1d11" kindref="member">TG_RW_GEN_LOOP_IDLE_COUNT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x03C,</highlight></codeline>
+<codeline lineno="101" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ae286a4c714c99b08b1002ee3ed1a587f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ae286a4c714c99b08b1002ee3ed1a587f" kindref="member">TG_SEQ_START_ADDR_WR</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x040,</highlight></codeline>
+<codeline lineno="102" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a7709164257a8f5718596b5ab2c472ad4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a7709164257a8f5718596b5ab2c472ad4" kindref="member">TG_ADDR_MODE_WR</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x080,</highlight></codeline>
+<codeline lineno="103" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad39fc44c8edf2e15dad6d831aa6fe819" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad39fc44c8edf2e15dad6d831aa6fe819" kindref="member">TG_RETURN_TO_START_ADDR</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0C0,</highlight></codeline>
+<codeline lineno="104" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9acf979f868802b88029d479d18111f465" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9acf979f868802b88029d479d18111f465" kindref="member">TG_SEQ_ADDR_INCR</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0100,</highlight></codeline>
+<codeline lineno="105" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a201705870a4fa204363246058cb2076e" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a201705870a4fa204363246058cb2076e" kindref="member">TG_SEQ_START_ADDR_RD</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x140,</highlight></codeline>
+<codeline lineno="106" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a9ce33fc8beaf69c76c4ce3776805d1c4" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a9ce33fc8beaf69c76c4ce3776805d1c4" kindref="member">TG_ADDR_MODE_RD</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x180,</highlight></codeline>
+<codeline lineno="107" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9af157488b545676cc548397859997b02a" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9af157488b545676cc548397859997b02a" kindref="member">TG_PASS</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x1C0,</highlight></codeline>
+<codeline lineno="108" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a0b00917713940ec859e81f0a86dc562f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a0b00917713940ec859e81f0a86dc562f" kindref="member">TG_FAIL</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x1C4,</highlight></codeline>
+<codeline lineno="109" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a6c4409c3d1f07c62bcd75fd3b05467fe" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a6c4409c3d1f07c62bcd75fd3b05467fe" kindref="member">TG_FAIL_COUNT_L</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x1C8,</highlight></codeline>
+<codeline lineno="110" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a1382e3f82472ef4eb8dcbbb17e377285" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a1382e3f82472ef4eb8dcbbb17e377285" kindref="member">TG_FAIL_COUNT_H</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01CC,</highlight></codeline>
+<codeline lineno="111" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9afaf1344c0006254f6f4947ed9728bee6" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9afaf1344c0006254f6f4947ed9728bee6" kindref="member">TG_FIRST_FAIL_ADDR_L</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01D0,</highlight></codeline>
+<codeline lineno="112" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aa10c574348ce256ce6987b453ab10f70" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aa10c574348ce256ce6987b453ab10f70" kindref="member">TG_FIRST_FAIL_ADDR_H</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01D4,</highlight></codeline>
+<codeline lineno="113" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a810379cbef2d3d1791fb853c8a7d3792" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a810379cbef2d3d1791fb853c8a7d3792" kindref="member">TG_TOTAL_READ_COUNT_L</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01D8,</highlight></codeline>
+<codeline lineno="114" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab3188e1e50ec3ed8a6eed8dafd7e3bfe" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab3188e1e50ec3ed8a6eed8dafd7e3bfe" kindref="member">TG_TOTAL_READ_COUNT_H</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01DC,</highlight></codeline>
+<codeline lineno="115" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a397a7f61b4c32a69262d9db33ec35fda" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a397a7f61b4c32a69262d9db33ec35fda" kindref="member">TG_TEST_COMPLETE</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01E0,</highlight></codeline>
+<codeline lineno="116" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad69950385bd5a8260e9262d3473d65e9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad69950385bd5a8260e9262d3473d65e9" kindref="member">TG_INVERT_BYTEEN</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01E4,</highlight></codeline>
+<codeline lineno="117" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab7a46ab46b32d143ea74bd68d6e1708c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab7a46ab46b32d143ea74bd68d6e1708c" kindref="member">TG_RESTART_DEFAULT_TRAFFIC</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01E8,</highlight></codeline>
+<codeline lineno="118" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a138084b5a721464cfb312d4d675410bf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a138084b5a721464cfb312d4d675410bf" kindref="member">TG_USER_WORM_EN</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01EC,</highlight></codeline>
+<codeline lineno="119" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a50c1a9359d982b1f90a076434a82062b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a50c1a9359d982b1f90a076434a82062b" kindref="member">TG_TEST_BYTEEN</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01F0,</highlight></codeline>
+<codeline lineno="120" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9acd7be04dcb9016fd18b247be44487e93" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9acd7be04dcb9016fd18b247be44487e93" kindref="member">TG_TIMEOUT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01F4,</highlight></codeline>
+<codeline lineno="121" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aad2624687ce89631f8307ceb034b86e8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aad2624687ce89631f8307ceb034b86e8" kindref="member">TG_NUM_DATA_GEN</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01F8,</highlight></codeline>
+<codeline lineno="122" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a6d207aa57db45407a6d02d79c5a0f7e3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a6d207aa57db45407a6d02d79c5a0f7e3" kindref="member">TG_NUM_BYTEEN_GEN</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x01FC,</highlight></codeline>
+<codeline lineno="123" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a8f351711d6e1137882a8248bb4536fb8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a8f351711d6e1137882a8248bb4536fb8" kindref="member">TG_RDATA_WIDTH</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0200,</highlight></codeline>
+<codeline lineno="124" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab50773a7b547928a51e3ebb30a00b0fa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab50773a7b547928a51e3ebb30a00b0fa" kindref="member">TG_ERROR_REPORT</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0208,</highlight></codeline>
+<codeline lineno="125" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a75cfc6f2b701f77e83465a606133b241" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a75cfc6f2b701f77e83465a606133b241" kindref="member">TG_PNF</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0240,</highlight></codeline>
+<codeline lineno="126" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a0452589b12a20397977344288abae82f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a0452589b12a20397977344288abae82f" kindref="member">TG_FAIL_EXPECTED_DATA</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0340,</highlight></codeline>
+<codeline lineno="127" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a26ef0000b2f002b1fe653aeb6d2677ee" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a26ef0000b2f002b1fe653aeb6d2677ee" kindref="member">TG_FAIL_READ_DATA</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0440,</highlight></codeline>
+<codeline lineno="128" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad19fda5e987a2fae893421a426f6766d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ad19fda5e987a2fae893421a426f6766d" kindref="member">TG_DATA_SEED</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0540,</highlight></codeline>
+<codeline lineno="129" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab95729a6c6553c58502a0f1306f1b004" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9ab95729a6c6553c58502a0f1306f1b004" kindref="member">TG_BYTEEN_SEED</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0580,</highlight></codeline>
+<codeline lineno="130" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9adf412af7a4ff3287fe327afee84e348d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9adf412af7a4ff3287fe327afee84e348d" kindref="member">TG_PPPG_SEL</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x05C0,</highlight></codeline>
+<codeline lineno="131" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a3c528143f8a6d19ca435a0f458cc29b8" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a3c528143f8a6d19ca435a0f458cc29b8" kindref="member">TG_BYTEEN_SEL</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0600,</highlight></codeline>
+<codeline lineno="132" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aece950f87a9fd52ec05f2326d00499fd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aece950f87a9fd52ec05f2326d00499fd" kindref="member">TG_ADDR_FIELD_RELATIVE_FREQ</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0640,</highlight></codeline>
+<codeline lineno="133" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aeb51b5206be439a4f73216c8737b15f2" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9aeb51b5206be439a4f73216c8737b15f2" kindref="member">TG_ADDR_FIELD_MSB_INDEX</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0680,</highlight></codeline>
+<codeline lineno="134" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a4373da92590dd537b2f82603b269fd6f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a4373da92590dd537b2f82603b269fd6f" kindref="member">TG_BURSTLENGTH_OVERFLOW_OCCURRED</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x06C0,</highlight></codeline>
+<codeline lineno="135" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a8382e8133ee151e0c00c1993011deeaa" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a8382e8133ee151e0c00c1993011deeaa" kindref="member">TG_BURSTLENGTH_FAIL_ADDR_L</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0700,</highlight></codeline>
+<codeline lineno="136" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a0e3799ef4889e3dae68d80346fee6d61" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a0e3799ef4889e3dae68d80346fee6d61" kindref="member">TG_BURSTLENGTH_FAIL_ADDR_H</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0704,</highlight></codeline>
+<codeline lineno="137" refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a533db7920ef8344cb657bc340e903227" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacecxl__mem__tg_1a001f2f66547e050fa059f9843621d0f9a533db7920ef8344cb657bc340e903227" kindref="member">TG_WORM_MODE_TARGETTED_DATA</ref><sp/>=<sp/><ref refid="namespacecxl__mem__tg_1afb32111a410e98fdae3118bc9a2c9277" kindref="member">MEM_TG_CFG_OFFSET</ref><sp/>+<sp/>0x0740,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Traffic<sp/>generator<sp/>capability</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="unioncxl__mem__tg_1_1mem__tg__ctl" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unioncxl__mem__tg_1_1mem__tg__ctl" kindref="compound">mem_tg_ctl</ref><sp/>{</highlight></codeline>
+<codeline lineno="142" refid="unioncxl__mem__tg_1_1mem__tg__ctl_1ae89ad06cbbc38d660c0035221dadfe8ea7247aca431da924bf3a05696a0c9b245" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>offset<sp/>=<sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea4756bce556cb643e0aa2c409f21f0c37" kindref="member">MEM_TG_CTRL</ref><sp/>};</highlight></codeline>
+<codeline lineno="143" refid="unioncxl__mem__tg_1_1mem__tg__ctl_1a064066ce04a14c6a0003a1bd82934285" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="unioncxl__mem__tg_1_1mem__tg__ctl_1a064066ce04a14c6a0003a1bd82934285" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="144" refid="structcxl__mem__tg_1_1mem__tg__ctl_8____unnamed52____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>tg_capability<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Rsvd_63_3<sp/>:<sp/>59;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>counter_clear<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Memory<sp/>Traffic<sp/>Generator<sp/>Status</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152" refid="unioncxl__mem__tg_1_1mem__tg__status" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unioncxl__mem__tg_1_1mem__tg__status" kindref="compound">mem_tg_status</ref><sp/>{</highlight></codeline>
+<codeline lineno="153" refid="unioncxl__mem__tg_1_1mem__tg__status_1ac8b6a489b14ba2987089db65edb906d4a7fe5ab5b3039f80443210df5817b5b19" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>offset<sp/>=<sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eadd994b8040392db4076101038b417fe4" kindref="member">MEM_TG_STAT</ref><sp/>};</highlight></codeline>
+<codeline lineno="154" refid="unioncxl__mem__tg_1_1mem__tg__status_1a8d3557bfa4cdee21e16f8c81f8e916ad" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="unioncxl__mem__tg_1_1mem__tg__status_1a8d3557bfa4cdee21e16f8c81f8e916ad" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="155" refid="structcxl__mem__tg_1_1mem__tg__status_8____unnamed55____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>tg_status0<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>tg_status1<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>tg_status2<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>tg_status3<sp/>:<sp/>4;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>Rsvd_63_16<sp/>:<sp/>48;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Memory<sp/>Traffic<sp/>Generator<sp/>count</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165" refid="unioncxl__mem__tg_1_1mem__tg0__count" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unioncxl__mem__tg_1_1mem__tg0__count" kindref="compound">mem_tg0_count</ref><sp/>{</highlight></codeline>
+<codeline lineno="166" refid="unioncxl__mem__tg_1_1mem__tg0__count_1a123af22dbcb86da65843eda854efae30ac3b9b421a674466165ecbff1a02e7ffc" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>offset<sp/>=<sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09ea88d8b198bfb44c9dcad46aa0ab207970" kindref="member">MEM_TG_CLK_COUNT</ref><sp/>};</highlight></codeline>
+<codeline lineno="167" refid="unioncxl__mem__tg_1_1mem__tg0__count_1af8f26542fdec3205f42fd60e743ade1f" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="unioncxl__mem__tg_1_1mem__tg0__count_1af8f26542fdec3205f42fd60e743ade1f" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="168" refid="structcxl__mem__tg_1_1mem__tg0__count_8____unnamed58____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>count<sp/>:<sp/>64;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Memory<sp/>Traffic<sp/>Generator<sp/>count</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="unioncxl__mem__tg_1_1mem__tg1__count" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unioncxl__mem__tg_1_1mem__tg1__count" kindref="compound">mem_tg1_count</ref><sp/>{</highlight></codeline>
+<codeline lineno="175" refid="unioncxl__mem__tg_1_1mem__tg1__count_1ad3fcfd06558d7f34995ee57b6c5deb6ba89b8f65025fedebfac46a85efe0b627c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>offset<sp/>=<sp/><ref refid="namespacecxl__mem__tg_1a8ba6380a3d80e0f4b6ec8ef2529ae09eaf6d9bbd396589527f372a7b48f1a4d92" kindref="member">MEM_TG_WR_COUNT</ref><sp/>};</highlight></codeline>
+<codeline lineno="176" refid="unioncxl__mem__tg_1_1mem__tg1__count_1a27b48fef8d4f3bd4e4d1ffe146f6e4f4" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="unioncxl__mem__tg_1_1mem__tg1__count_1a27b48fef8d4f3bd4e4d1ffe146f6e4f4" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="177" refid="structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61____" refkind="compound"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>count<sp/>:<sp/>64;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/>};</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182" refid="namespacecxl__mem__tg_1ae21fb3ab55ae8cb59106b87200d95a7d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref>;</highlight></codeline>
+<codeline lineno="183" refid="namespacecxl__mem__tg_1ab54b53736c1e8bd7876a69f2baef17b2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">test_command</ref><sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">opae::afu_test::command</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="classcxl__mem__tg_1_1cxl__mem__tg" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="namespacecxl__mem__tg" kindref="compound">cxl_mem_tg</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref><sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="187" refid="classcxl__mem__tg_1_1cxl__mem__tg_1a296cb2e6e2cb7e04c3795c4d1cb87217" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1a296cb2e6e2cb7e04c3795c4d1cb87217" kindref="member">cxl_mem_tg</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*afu_id<sp/>=<sp/><ref refid="dummy__afu_8cpp_1a67fa09f58e3e39d9604e1422af718ad5" kindref="member">AFU_ID</ref>)</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">test_afu</ref>(</highlight><highlight class="stringliteral">&quot;cxl_mem_tg_afu&quot;</highlight><highlight class="normal">,<sp/>afu_id),</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count_(1),</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mem_ch_(0),</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loop_(1),</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wcnt_(1),</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rcnt_(1),</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bcnt_(1),</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stride_(1),</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mem_speed_(<ref refid="namespacecxl__mem__tg_1ad72ec47242a649d327e0bde858f7f2b5" kindref="member">TG_FREQ</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>iterations</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight><highlight class="stringliteral">&quot;--count&quot;</highlight><highlight class="normal">,<sp/>count_,<sp/></highlight><highlight class="stringliteral">&quot;Number<sp/>of<sp/>iterations<sp/>to<sp/>run&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;default_val(</highlight><highlight class="stringliteral">&quot;1&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Loops</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight><highlight class="stringliteral">&quot;--loops&quot;</highlight><highlight class="normal">,<sp/>loop_,<sp/></highlight><highlight class="stringliteral">&quot;Number<sp/>of<sp/>read/write<sp/>loops<sp/>to<sp/>be<sp/>run&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;transform(CLI::Range(1,<sp/>268435456))-&gt;default_val(</highlight><highlight class="stringliteral">&quot;1&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Writes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight><highlight class="stringliteral">&quot;-w,--writes&quot;</highlight><highlight class="normal">,<sp/>wcnt_,</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Number<sp/>of<sp/>unique<sp/>write<sp/>transactions<sp/>per<sp/>loop&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;transform(CLI::Range(0,<sp/>4095))-&gt;default_val(</highlight><highlight class="stringliteral">&quot;1&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Reads</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight><highlight class="stringliteral">&quot;-r,--reads&quot;</highlight><highlight class="normal">,<sp/>rcnt_,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Number<sp/>of<sp/>unique<sp/>read<sp/>transactions<sp/>per<sp/>loop&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;transform(CLI::Range(0,<sp/>4095))-&gt;default_val(</highlight><highlight class="stringliteral">&quot;1&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Address<sp/>Stride</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight><highlight class="stringliteral">&quot;--stride&quot;</highlight><highlight class="normal">,<sp/>stride_,</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Address<sp/>stride<sp/>for<sp/>each<sp/>sequential<sp/>transaction&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;default_val(</highlight><highlight class="stringliteral">&quot;1&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Data<sp/>pattern</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>app_.add_option(</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;--data&quot;</highlight><highlight class="normal">,<sp/>pattern_,</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Memory<sp/>traffic<sp/>data<sp/>pattern:<sp/>fixed,<sp/>prbs7,<sp/>prbs15,<sp/>prbs31,<sp/>rot1&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;transform(CLI::CheckedTransformer(<ref refid="namespacecxl__mem__tg_1a4adbfbc2d17a8a0c2a818f243385336a" kindref="member">tg_pattern</ref>))</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-&gt;default_val(</highlight><highlight class="stringliteral">&quot;fixed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="classcxl__mem__tg_1_1cxl__mem__tg_1ab2e71f7f0b48b5e59b4240c180cb9447" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1ab2e71f7f0b48b5e59b4240c180cb9447" kindref="member">run</ref>(CLI::App<sp/>*<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>,<sp/><ref refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" kindref="member">test_command::ptr_t</ref><sp/>test)</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>res<sp/>=<sp/>exit_codes::not_run;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/>logger_-&gt;info(</highlight><highlight class="stringliteral">&quot;starting<sp/>test<sp/>run,<sp/>count<sp/>of<sp/>{0:d}&quot;</highlight><highlight class="normal">,<sp/>count_);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(count<sp/>&lt;<sp/>count_)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger_-&gt;debug(</highlight><highlight class="stringliteral">&quot;starting<sp/>iteration:<sp/>{0:d}&quot;</highlight><highlight class="normal">,<sp/>count<sp/>+<sp/>1);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d" kindref="member">test_afu::run</ref>(<ref refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" kindref="member">app</ref>,<sp/>test);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count++;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>logger_-&gt;debug(</highlight><highlight class="stringliteral">&quot;end<sp/>iteration:<sp/>{0:d}&quot;</highlight><highlight class="normal">,<sp/>count);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(std::exception<sp/>&amp;ex)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>logger_-&gt;error(ex.what());</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/>exit_codes::exception;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pass<sp/>=<sp/>res<sp/>==<sp/>exit_codes::success<sp/>?<sp/></highlight><highlight class="stringliteral">&quot;PASS&quot;</highlight><highlight class="normal"><sp/>:<sp/></highlight><highlight class="stringliteral">&quot;FAIL&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>logger_-&gt;info(</highlight><highlight class="stringliteral">&quot;Test<sp/>{}({}):<sp/>{}&quot;</highlight><highlight class="normal">,<sp/>test-&gt;name(),<sp/>count,<sp/>pass);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/>spdlog::drop_all();</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="251" refid="classcxl__mem__tg_1_1cxl__mem__tg_1acae142eced8d47e700e622befe91ce04" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1acae142eced8d47e700e622befe91ce04" kindref="member">count_</ref>;</highlight></codeline>
+<codeline lineno="252" refid="classcxl__mem__tg_1_1cxl__mem__tg_1a4908bbf8b834edcbe31492711d74f7d7" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1a4908bbf8b834edcbe31492711d74f7d7" kindref="member">mem_ch_</ref>;</highlight></codeline>
+<codeline lineno="253" refid="classcxl__mem__tg_1_1cxl__mem__tg_1a8ea17c5df9494ad27e1e95f31d489858" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1a8ea17c5df9494ad27e1e95f31d489858" kindref="member">loop_</ref>;</highlight></codeline>
+<codeline lineno="254" refid="classcxl__mem__tg_1_1cxl__mem__tg_1aba0cb59c437869963df1d5e222f73805" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1aba0cb59c437869963df1d5e222f73805" kindref="member">wcnt_</ref>;</highlight></codeline>
+<codeline lineno="255" refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae57b9fd56466bebb5321490005803215" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae57b9fd56466bebb5321490005803215" kindref="member">rcnt_</ref>;</highlight></codeline>
+<codeline lineno="256" refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae9800086ad36084c5641526bc5940a0f" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae9800086ad36084c5641526bc5940a0f" kindref="member">bcnt_</ref>;</highlight></codeline>
+<codeline lineno="257" refid="classcxl__mem__tg_1_1cxl__mem__tg_1aba649e8e87f688e8e66332f3d94f6698" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1aba649e8e87f688e8e66332f3d94f6698" kindref="member">stride_</ref>;</highlight></codeline>
+<codeline lineno="258" refid="classcxl__mem__tg_1_1cxl__mem__tg_1ad0796f52001b9197d16889609d44c034" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1ad0796f52001b9197d16889609d44c034" kindref="member">pattern_</ref>;</highlight></codeline>
+<codeline lineno="259" refid="classcxl__mem__tg_1_1cxl__mem__tg_1afd50553bb554f47c1fc061195891f448" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1afd50553bb554f47c1fc061195891f448" kindref="member">mem_speed_</ref>;</highlight></codeline>
+<codeline lineno="260" refid="classcxl__mem__tg_1_1cxl__mem__tg_1ad7709a24252d85accf090db72df0b970" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1ad7709a24252d85accf090db72df0b970" kindref="member">status_</ref>;</highlight></codeline>
+<codeline lineno="261" refid="classcxl__mem__tg_1_1cxl__mem__tg_1a7d7ceebe3ce1b800de536ac8c12e4d76" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1a7d7ceebe3ce1b800de536ac8c12e4d76" kindref="member">tg_offset_</ref>;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263" refid="classcxl__mem__tg_1_1cxl__mem__tg_1a1196abdb029343d2812802aa01e4ada9" refkind="member"><highlight class="normal"><sp/><sp/>std::map&lt;uint32_t,<sp/>uint32_t&gt;<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1a1196abdb029343d2812802aa01e4ada9" kindref="member">limits_</ref>;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265" refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae1aef01e746ba0f0327ca5be1544b28f" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae1aef01e746ba0f0327ca5be1544b28f" kindref="member">get_offset</ref>(uint32_t<sp/>base,<sp/>uint32_t<sp/>i)</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>limit<sp/>=<sp/>limits_.find(base);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>base<sp/>+<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint64_t)<sp/>*<sp/>i;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limit<sp/>!=<sp/>limits_.end()<sp/>&amp;&amp;<sp/>offset<sp/>&gt;<sp/>limit-&gt;second<sp/>-<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint64_t))<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::out_of_range(</highlight><highlight class="stringliteral">&quot;offset<sp/>out<sp/>range<sp/>in<sp/>csr<sp/>space&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>offset;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274" refid="classcxl__mem__tg_1_1cxl__mem__tg_1a7b6b2438e7e91612a2fe3be286efad82" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref><sp/><ref refid="classcxl__mem__tg_1_1cxl__mem__tg_1a7b6b2438e7e91612a2fe3be286efad82" kindref="member">get_token</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>handle_-&gt;get_token();<sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="276"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>cxl_mem_tg</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="samples/cxl_mem_tg/cxl_mem_tg.h"/>
+  </compounddef>
+</doxygen>

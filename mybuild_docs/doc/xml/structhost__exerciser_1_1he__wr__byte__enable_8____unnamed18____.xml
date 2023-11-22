@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__wr__byte__enable_8____unnamed18____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_wr_byte_enable.__unnamed18__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__byte__enable_8____unnamed18_____1a9cd78695742babe209a3ae2d19a9f487" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>write_byte_enable</name>
+        <bitfield> 64</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="161" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_wr_byte_enable.__unnamed18__</label>
+        <link refid="structhost__exerciser_1_1he__wr__byte__enable_8____unnamed18____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="160" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="160" bodyend="162"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__wr__byte__enable_8____unnamed18_____1a9cd78695742babe209a3ae2d19a9f487" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_byte_enable.__unnamed18__</scope><name>write_byte_enable</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

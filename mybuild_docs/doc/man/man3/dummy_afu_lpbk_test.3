@@ -1,0 +1,95 @@
+.TH "dummy_afu::lpbk_test" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+dummy_afu::lpbk_test
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/dummy_afu/lpbk\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBlpbk_test\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~lpbk_test\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBsource_\fP"
+.br
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBdestination_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 35 of file lpbk\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "dummy_afu::lpbk_test::lpbk_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 38 of file lpbk\&.h\&.
+.SS "virtual dummy_afu::lpbk_test::~lpbk_test ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 39 of file lpbk\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* dummy_afu::lpbk_test::name () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 40 of file lpbk\&.h\&.
+.SS "virtual const char* dummy_afu::lpbk_test::description () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 45 of file lpbk\&.h\&.
+.SS "virtual int dummy_afu::lpbk_test::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 50 of file lpbk\&.h\&.
+.PP
+References app, destination_, dummy_afu::MEM_TEST_CTRL, dummy_afu::MEM_TEST_DST_ADDR, dummy_afu::MEM_TEST_SRC_ADDR, and source_\&.
+.SH "Field Documentation"
+.PP 
+.SS "\fBshared_buffer::ptr_t\fP dummy_afu::lpbk_test::source_\fC [protected]\fP"
+
+.PP
+Definition at line 68 of file lpbk\&.h\&.
+.PP
+Referenced by run()\&.
+.SS "\fBshared_buffer::ptr_t\fP dummy_afu::lpbk_test::destination_\fC [protected]\fP"
+
+.PP
+Definition at line 69 of file lpbk\&.h\&.
+.PP
+Referenced by run()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

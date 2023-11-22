@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__hash__map" kind="struct" language="C++" prot="public">
+    <compoundname>opae_hash_map</compoundname>
+    <includes refid="hash__map_8h" local="no">opae/hash_map.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__hash__map_1a63068218b83c3a932af0744583d4d52d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_hash_map::num_buckets</definition>
+        <argsstring></argsstring>
+        <name>num_buckets</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="85" column="10" bodyfile="include/opae/hash_map.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1a358c866ba990349f752a6783bea8d1f4" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_hash_map::hash_seed</definition>
+        <argsstring></argsstring>
+        <name>hash_seed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="86" column="10" bodyfile="include/opae/hash_map.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1a8465d6028ce340508e8d819130d08ecf" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae__hash__map__item" kindref="compound">opae_hash_map_item</ref> **</type>
+        <definition>opae_hash_map_item** opae_hash_map::buckets</definition>
+        <argsstring></argsstring>
+        <name>buckets</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="87" column="20" bodyfile="include/opae/hash_map.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1a14ba2f6e8a4681fdd9c1b2a2e1b619e2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae_hash_map::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="88" column="5" bodyfile="include/opae/hash_map.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1afaa41a41911809ba9b50adae302cc606" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* opae_hash_map::cleanup_context</definition>
+        <argsstring></argsstring>
+        <name>cleanup_context</name>
+        <briefdescription>
+<para>Optional second parameter to key_cleanup and value_cleanup. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="89" column="6" bodyfile="include/opae/hash_map.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1afa7da5e87861430406531aa356f689ca" prot="public" static="no" mutable="no">
+        <type>uint32_t(*</type>
+        <definition>uint32_t(* opae_hash_map::key_hash) (uint32_t num_buckets, uint32_t hash_seed, void *key)</definition>
+        <argsstring>)(uint32_t num_buckets, uint32_t hash_seed, void *key)</argsstring>
+        <name>key_hash</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="90" column="1" bodyfile="include/opae/hash_map.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1ad17135479de98e413bd2070306664864" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* opae_hash_map::key_compare) (void *keya, void *keyb)</definition>
+        <argsstring>)(void *keya, void *keyb)</argsstring>
+        <name>key_compare</name>
+        <briefdescription>
+<para>(required) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="93" column="1" bodyfile="include/opae/hash_map.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1af8011981f985e00b4c6a0fff31da3eac" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* opae_hash_map::key_cleanup) (void *key, void *context)</definition>
+        <argsstring>)(void *key, void *context)</argsstring>
+        <name>key_cleanup</name>
+        <briefdescription>
+<para>(optional) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="94" column="1" bodyfile="include/opae/hash_map.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__hash__map_1a9fda942cec9921df1bfee590ebf0600d" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* opae_hash_map::value_cleanup) (void *value, void *context)</definition>
+        <argsstring>)(void *value, void *context)</argsstring>
+        <name>value_cleanup</name>
+        <briefdescription>
+<para>(optional) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="95" column="1" bodyfile="include/opae/hash_map.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Hash map object.</para>
+<para>This structure defines the internals of the hash map. Each of the parameters supplied to <ref refid="hash__map_8h_1a5d8b6eed0eea3e1e74de38cb04c1d4e2" kindref="member">opae_hash_map_init()</ref> is stored in the structure. All parameters are required, except key_cleanup and value_cleanup, which may optionally be NULL. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_hash_map</label>
+        <link refid="structopae__hash__map"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+buckets</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae_hash_map_item</label>
+        <link refid="structopae__hash__map__item"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/hash_map.h" line="84" column="1" bodyfile="include/opae/hash_map.h" bodystart="84" bodyend="96"/>
+    <listofallmembers>
+      <member refid="structopae__hash__map_1a8465d6028ce340508e8d819130d08ecf" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>buckets</name></member>
+      <member refid="structopae__hash__map_1afaa41a41911809ba9b50adae302cc606" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>cleanup_context</name></member>
+      <member refid="structopae__hash__map_1a14ba2f6e8a4681fdd9c1b2a2e1b619e2" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>flags</name></member>
+      <member refid="structopae__hash__map_1a358c866ba990349f752a6783bea8d1f4" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>hash_seed</name></member>
+      <member refid="structopae__hash__map_1af8011981f985e00b4c6a0fff31da3eac" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>key_cleanup</name></member>
+      <member refid="structopae__hash__map_1ad17135479de98e413bd2070306664864" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>key_compare</name></member>
+      <member refid="structopae__hash__map_1afa7da5e87861430406531aa356f689ca" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>key_hash</name></member>
+      <member refid="structopae__hash__map_1a63068218b83c3a932af0744583d4d52d" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>num_buckets</name></member>
+      <member refid="structopae__hash__map_1a9fda942cec9921df1bfee590ebf0600d" prot="public" virt="non-virtual"><scope>opae_hash_map</scope><name>value_cleanup</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,239 @@
+\doxysection{cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg Class Reference}
+\label{classcxl__mem__tg_1_1cxl__mem__tg}\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+
+
+{\ttfamily \#include $<$/root/samples/cxl\+\_\+mem\+\_\+tg/cxl\+\_\+mem\+\_\+tg.\+h$>$}
+
+Inheritance diagram for cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classcxl__mem__tg_1_1cxl__mem__tg}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_a296cb2e6e2cb7e04c3795c4d1cb87217}{cxl\+\_\+mem\+\_\+tg}} (const char $\ast$afu\+\_\+id=\mbox{\hyperlink{namespacecxl__mem__tg_a7187f3c940e7b0bede33c18321170c26}{AFU\+\_\+\+ID}})
+\item 
+virtual int \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ab2e71f7f0b48b5e59b4240c180cb9447}{run}} (CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}, \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{test\+\_\+command\+::ptr\+\_\+t}} test) override
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ae1aef01e746ba0f0327ca5be1544b28f}{get\+\_\+offset}} (uint32\+\_\+t base, uint32\+\_\+t i) const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_a7b6b2438e7e91612a2fe3be286efad82}{get\+\_\+token}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_acae142eced8d47e700e622befe91ce04}{count\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_a4908bbf8b834edcbe31492711d74f7d7}{mem\+\_\+ch\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_a8ea17c5df9494ad27e1e95f31d489858}{loop\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_aba0cb59c437869963df1d5e222f73805}{wcnt\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ae57b9fd56466bebb5321490005803215}{rcnt\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ae9800086ad36084c5641526bc5940a0f}{bcnt\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_aba649e8e87f688e8e66332f3d94f6698}{stride\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ad0796f52001b9197d16889609d44c034}{pattern\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_afd50553bb554f47c1fc061195891f448}{mem\+\_\+speed\+\_\+}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_ad7709a24252d85accf090db72df0b970}{status\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_a7d7ceebe3ce1b800de536ac8c12e4d76}{tg\+\_\+offset\+\_\+}}
+\item 
+std\+::map$<$ uint32\+\_\+t, uint32\+\_\+t $>$ \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__mem__tg_a1196abdb029343d2812802aa01e4ada9}{limits\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 185 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_a296cb2e6e2cb7e04c3795c4d1cb87217}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!cxl\_mem\_tg@{cxl\_mem\_tg}}
+\index{cxl\_mem\_tg@{cxl\_mem\_tg}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{cxl\_mem\_tg()}{cxl\_mem\_tg()}}
+{\footnotesize\ttfamily cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg (\begin{DoxyParamCaption}\item[{const char $\ast$}]{afu\+\_\+id = {\ttfamily \mbox{\hyperlink{namespacecxl__mem__tg_a7187f3c940e7b0bede33c18321170c26}{AFU\+\_\+\+ID}}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 187 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+References cxl\+\_\+mem\+\_\+tg\+::tg\+\_\+pattern.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_ab2e71f7f0b48b5e59b4240c180cb9447}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!run@{run}}
+\index{run@{run}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::run (\begin{DoxyParamCaption}\item[{CLI\+::\+App $\ast$}]{app,  }\item[{\mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{test\+\_\+command\+::ptr\+\_\+t}}}]{test }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{classopae_1_1afu__test_1_1afu_a2b3d816eac276d4ec1aaa6e9a632b32d}{opae\+::afu\+\_\+test\+::afu}}.
+
+
+
+Definition at line 228 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+References app, and opae\+::afu\+\_\+test\+::afu\+::run().
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_ae1aef01e746ba0f0327ca5be1544b28f}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!get\_offset@{get\_offset}}
+\index{get\_offset@{get\_offset}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{get\_offset()}{get\_offset()}}
+{\footnotesize\ttfamily uint32\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::get\+\_\+offset (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{base,  }\item[{uint32\+\_\+t}]{i }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 265 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_a7b6b2438e7e91612a2fe3be286efad82}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!get\_token@{get\_token}}
+\index{get\_token@{get\_token}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{get\_token()}{get\_token()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::get\+\_\+token (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 274 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_acae142eced8d47e700e622befe91ce04}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!count\_@{count\_}}
+\index{count\_@{count\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{count\_}{count\_}}
+{\footnotesize\ttfamily uint32\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::count\+\_\+}
+
+
+
+Definition at line 251 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_a4908bbf8b834edcbe31492711d74f7d7}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!mem\_ch\_@{mem\_ch\_}}
+\index{mem\_ch\_@{mem\_ch\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{mem\_ch\_}{mem\_ch\_}}
+{\footnotesize\ttfamily uint32\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::mem\+\_\+ch\+\_\+}
+
+
+
+Definition at line 252 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_a8ea17c5df9494ad27e1e95f31d489858}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!loop\_@{loop\_}}
+\index{loop\_@{loop\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{loop\_}{loop\_}}
+{\footnotesize\ttfamily uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::loop\+\_\+}
+
+
+
+Definition at line 253 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_aba0cb59c437869963df1d5e222f73805}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!wcnt\_@{wcnt\_}}
+\index{wcnt\_@{wcnt\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{wcnt\_}{wcnt\_}}
+{\footnotesize\ttfamily uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::wcnt\+\_\+}
+
+
+
+Definition at line 254 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_ae57b9fd56466bebb5321490005803215}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!rcnt\_@{rcnt\_}}
+\index{rcnt\_@{rcnt\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{rcnt\_}{rcnt\_}}
+{\footnotesize\ttfamily uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::rcnt\+\_\+}
+
+
+
+Definition at line 255 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_ae9800086ad36084c5641526bc5940a0f}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!bcnt\_@{bcnt\_}}
+\index{bcnt\_@{bcnt\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{bcnt\_}{bcnt\_}}
+{\footnotesize\ttfamily uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::bcnt\+\_\+}
+
+
+
+Definition at line 256 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_aba649e8e87f688e8e66332f3d94f6698}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!stride\_@{stride\_}}
+\index{stride\_@{stride\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{stride\_}{stride\_}}
+{\footnotesize\ttfamily uint32\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::stride\+\_\+}
+
+
+
+Definition at line 257 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_ad0796f52001b9197d16889609d44c034}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!pattern\_@{pattern\_}}
+\index{pattern\_@{pattern\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{pattern\_}{pattern\_}}
+{\footnotesize\ttfamily uint32\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::pattern\+\_\+}
+
+
+
+Definition at line 258 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_afd50553bb554f47c1fc061195891f448}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!mem\_speed\_@{mem\_speed\_}}
+\index{mem\_speed\_@{mem\_speed\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{mem\_speed\_}{mem\_speed\_}}
+{\footnotesize\ttfamily uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::mem\+\_\+speed\+\_\+}
+
+
+
+Definition at line 259 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_ad7709a24252d85accf090db72df0b970}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!status\_@{status\_}}
+\index{status\_@{status\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{status\_}{status\_}}
+{\footnotesize\ttfamily uint32\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::status\+\_\+}
+
+
+
+Definition at line 260 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_a7d7ceebe3ce1b800de536ac8c12e4d76}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!tg\_offset\_@{tg\_offset\_}}
+\index{tg\_offset\_@{tg\_offset\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{tg\_offset\_}{tg\_offset\_}}
+{\footnotesize\ttfamily uint64\+\_\+t cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::tg\+\_\+offset\+\_\+}
+
+
+
+Definition at line 261 of file cxl\+\_\+mem\+\_\+tg.\+h.
+
+\mbox{\label{classcxl__mem__tg_1_1cxl__mem__tg_a1196abdb029343d2812802aa01e4ada9}} 
+\index{cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}!limits\_@{limits\_}}
+\index{limits\_@{limits\_}!cxl\_mem\_tg::cxl\_mem\_tg@{cxl\_mem\_tg::cxl\_mem\_tg}}
+\doxysubsubsection{\texorpdfstring{limits\_}{limits\_}}
+{\footnotesize\ttfamily std\+::map$<$uint32\+\_\+t, uint32\+\_\+t$>$ cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+mem\+\_\+tg\+::limits\+\_\+}
+
+
+
+Definition at line 263 of file cxl\+\_\+mem\+\_\+tg.\+h.
+

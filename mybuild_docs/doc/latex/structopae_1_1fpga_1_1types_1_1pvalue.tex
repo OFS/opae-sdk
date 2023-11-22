@@ -1,0 +1,438 @@
+\doxysection{opae\+::fpga\+::types\+::pvalue$<$ T $>$ Struct Template Reference}
+\label{structopae_1_1fpga_1_1types_1_1pvalue}\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+
+
+Wraps OPAE properties defined in the OPAE C API by associating an {\ttfamily fpga\+\_\+properties} reference with the getters and setters defined for a property.  
+
+
+
+
+{\ttfamily \#include $<$opae/cxx/core/pvalue.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::conditional$<$ std\+::is\+\_\+same$<$ T, char $\ast$ $>$\+::value, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}($\ast$)(\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}, T), \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}($\ast$)(\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}, T $\ast$)$>$\+::type \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}{getter\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Define getter function as getter\+\_\+t For {\ttfamily char$\ast$} types, do not use T$\ast$ as the second argument but instead use T. \end{DoxyCompactList}\item 
+typedef \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}($\ast$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_ab6fde171274b6487500035771f9938c6}{setter\+\_\+t}}) (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}, T)
+\begin{DoxyCompactList}\small\item\em Define the setter function as setter\+\_\+t. \end{DoxyCompactList}\item 
+typedef std\+::conditional$<$ std\+::is\+\_\+same$<$ T, char $\ast$ $>$\+::value, typename std\+::string, T $>$\+::type \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a1b43105d816e48f6aa6bfd23f18ab929}{copy\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Define the type of our copy variable For {\ttfamily char$\ast$} types use std\+::string as the copy. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_ad7f2f4a9ba69e28ca33fa69f341e3fa6}{pvalue}} ()
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a1e692a4696493a3368f29efc6651e119}{pvalue}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$p, \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}{getter\+\_\+t}} g, \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_ab6fde171274b6487500035771f9938c6}{setter\+\_\+t}} s)
+\begin{DoxyCompactList}\small\item\em pvalue contructor that takes in a reference to fpga\+\_\+properties and corresponding accessor methods for a property \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ T $>$ \& \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a97a474b20191622779815c21be1957f7}{operator=}} (const T \&v)
+\begin{DoxyCompactList}\small\item\em Overload of {\ttfamily =} operator that calls the wrapped setter. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a6a7af8459d8f54fa79d72bccf54d636b}{operator==}} (const T \&other)
+\begin{DoxyCompactList}\small\item\em Compare a property for equality with a value. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a88159c07b32bbe0c6ed9d7def238bf19}{update}} ()
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a7e0338e36a3156d9052c40b58dcdb15d}{operator copy\+\_\+t}} ()
+\begin{DoxyCompactList}\small\item\em Implicit converter operator -\/ calls the wrapped getter. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a525cba878a020f7151f2f2a0d34fbede}{get\+\_\+value}} (T \&value) const
+\item 
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a5594067a17aa24a1e0d642b26b10b3be}{is\+\_\+set}} () const
+\item 
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_aebcd10073f31aee3ed0bbd84b2526541}{invalidate}} ()
+\item 
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a0ac919fa7c6a0ac864cba14cf0f900c7}{update}} ()
+\begin{DoxyCompactList}\small\item\em Template specialization of {\ttfamily char$\ast$} type property updater. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a7b815ca34873415ed3b4e6b02cc9f470}{props\+\_\+}}
+\item 
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a02da787e86c4c5bcfbb4afdfc7804a3f}{is\+\_\+set\+\_\+}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}{getter\+\_\+t}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a9951039654216c93861a1687817afb6e}{get\+\_\+}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_ab6fde171274b6487500035771f9938c6}{setter\+\_\+t}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_aa3589206d8260d34501cc08933d0885c}{set\+\_\+}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a1b43105d816e48f6aa6bfd23f18ab929}{copy\+\_\+t}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a3a7f1a3bf6b95062b649655335a7dab6}{copy\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a826b900df7d5a5fda09c22e9f42fc5e8}{operator$<$$<$}} (std\+::ostream \&ostr, const \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ T $>$ \&p)
+\begin{DoxyCompactList}\small\item\em Stream overalod operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\newline
+struct opae\+::fpga\+::types\+::pvalue$<$ T $>$}
+
+Wraps OPAE properties defined in the OPAE C API by associating an {\ttfamily fpga\+\_\+properties} reference with the getters and setters defined for a property. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & The type of the property value being wrapped \\
+\hline
+\end{DoxyTemplParams}
+
+
+Definition at line 145 of file pvalue.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!getter\_t@{getter\_t}}
+\index{getter\_t@{getter\_t}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{getter\_t}{getter\_t}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+typedef std\+::conditional$<$ std\+::is\+\_\+same$<$T, char $\ast$$>$\+::value, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} ($\ast$)(\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}, T), \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} ($\ast$)(\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}, T $\ast$)$>$\+::type \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}{getter\+\_\+t}}}
+
+
+
+Define getter function as getter\+\_\+t For {\ttfamily char$\ast$} types, do not use T$\ast$ as the second argument but instead use T. 
+
+
+
+Definition at line 153 of file pvalue.\+h.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_ab6fde171274b6487500035771f9938c6}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!setter\_t@{setter\_t}}
+\index{setter\_t@{setter\_t}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{setter\_t}{setter\_t}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+typedef \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}($\ast$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::setter\+\_\+t) (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}, T)}
+
+
+
+Define the setter function as setter\+\_\+t. 
+
+
+
+Definition at line 159 of file pvalue.\+h.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a1b43105d816e48f6aa6bfd23f18ab929}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!copy\_t@{copy\_t}}
+\index{copy\_t@{copy\_t}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{copy\_t}{copy\_t}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+typedef std\+::conditional$<$std\+::is\+\_\+same$<$T, char $\ast$$>$\+::value, typename std\+::string, T$>$\+::type \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a1b43105d816e48f6aa6bfd23f18ab929}{copy\+\_\+t}}}
+
+
+
+Define the type of our copy variable For {\ttfamily char$\ast$} types use std\+::string as the copy. 
+
+
+
+Definition at line 166 of file pvalue.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_ad7f2f4a9ba69e28ca33fa69f341e3fa6}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!pvalue@{pvalue}}
+\index{pvalue@{pvalue}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{pvalue()}{pvalue()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 168 of file pvalue.\+h.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a1e692a4696493a3368f29efc6651e119}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!pvalue@{pvalue}}
+\index{pvalue@{pvalue}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{pvalue()}{pvalue()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}{getter\+\_\+t}}}]{g,  }\item[{\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_ab6fde171274b6487500035771f9938c6}{setter\+\_\+t}}}]{s }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+pvalue contructor that takes in a reference to fpga\+\_\+properties and corresponding accessor methods for a property 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & A reference to an fpga\+\_\+properties \\
+\hline
+{\em g} & The getter function \\
+\hline
+{\em s} & The setter function \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 178 of file pvalue.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a97a474b20191622779815c21be1957f7}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$T$>$\& \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::operator= (\begin{DoxyParamCaption}\item[{const T \&}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Overload of {\ttfamily =} operator that calls the wrapped setter. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em v} & The value to set\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A reference to itself 
+\end{DoxyReturn}
+
+
+Definition at line 188 of file pvalue.\+h.
+
+
+
+References ASSERT\+\_\+\+FPGA\+\_\+\+OK, opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::copy\+\_\+, opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::is\+\_\+set\+\_\+, opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::props\+\_\+, and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::set\+\_\+.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a6a7af8459d8f54fa79d72bccf54d636b}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!operator==@{operator==}}
+\index{operator==@{operator==}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::operator== (\begin{DoxyParamCaption}\item[{const T \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Compare a property for equality with a value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em other} & The value being compared to\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether or not the property is equal to the value 
+\end{DoxyReturn}
+
+
+Definition at line 203 of file pvalue.\+h.
+
+
+
+References opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::copy\+\_\+, and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::is\+\_\+set().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a88159c07b32bbe0c6ed9d7def238bf19}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!update@{update}}
+\index{update@{update}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 205 of file pvalue.\+h.
+
+
+
+References ASSERT\+\_\+\+FPGA\+\_\+\+OK, opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::copy\+\_\+, opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::get\+\_\+, opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::is\+\_\+set\+\_\+, and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::props\+\_\+.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator copy\+\_\+t().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a7e0338e36a3156d9052c40b58dcdb15d}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!operator copy\_t@{operator copy\_t}}
+\index{operator copy\_t@{operator copy\_t}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{operator copy\_t()}{operator copy\_t()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::operator \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a1b43105d816e48f6aa6bfd23f18ab929}{copy\+\_\+t}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Implicit converter operator -\/ calls the wrapped getter. 
+
+\begin{DoxyReturn}{Returns}
+The property value after calling the getter or a default value of the value type 
+\end{DoxyReturn}
+
+
+Definition at line 216 of file pvalue.\+h.
+
+
+
+References opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::copy\+\_\+, and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a525cba878a020f7151f2f2a0d34fbede}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!get\_value@{get\_value}}
+\index{get\_value@{get\_value}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{get\_value()}{get\_value()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::get\+\_\+value (\begin{DoxyParamCaption}\item[{T \&}]{value }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 222 of file pvalue.\+h.
+
+
+
+References opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::get\+\_\+, and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::props\+\_\+.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a5594067a17aa24a1e0d642b26b10b3be}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!is\_set@{is\_set}}
+\index{is\_set@{is\_set}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{is\_set()}{is\_set()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::is\+\_\+set (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Tracks whether the cached local copy of the pvalue is valid. 
+
+Definition at line 249 of file pvalue.\+h.
+
+
+
+References opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::is\+\_\+set\+\_\+.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator==().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_aebcd10073f31aee3ed0bbd84b2526541}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!invalidate@{invalidate}}
+\index{invalidate@{invalidate}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{invalidate()}{invalidate()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::invalidate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Invalidate the cached local copy of the pvalue. 
+
+Definition at line 253 of file pvalue.\+h.
+
+
+
+References opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::is\+\_\+set\+\_\+.
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a0ac919fa7c6a0ac864cba14cf0f900c7}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!update@{update}}
+\index{update@{update}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ char $\ast$ $>$\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Template specialization of {\ttfamily char$\ast$} type property updater. 
+
+\begin{DoxyReturn}{Returns}
+The result of the property getter function. 
+\end{DoxyReturn}
+
+
+Definition at line 269 of file pvalue.\+h.
+
+
+
+References ASSERT\+\_\+\+FPGA\+\_\+\+OK.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a826b900df7d5a5fda09c22e9f42fc5e8}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{ostr,  }\item[{const \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ T $>$ \&}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Stream overalod operator. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ostr} & The output stream \\
+\hline
+{\em p} & A reference to a pvalue$<$\+T$>$ object\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The stream operator after streaming the property value 
+\end{DoxyReturn}
+
+
+Definition at line 232 of file pvalue.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a7b815ca34873415ed3b4e6b02cc9f470}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!props\_@{props\_}}
+\index{props\_@{props\_}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{props\_}{props\_}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}$\ast$ \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::props\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 256 of file pvalue.\+h.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::get\+\_\+value(), opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator=(), and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a02da787e86c4c5bcfbb4afdfc7804a3f}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!is\_set\_@{is\_set\_}}
+\index{is\_set\_@{is\_set\_}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{is\_set\_}{is\_set\_}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+bool \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::is\+\_\+set\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 257 of file pvalue.\+h.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::invalidate(), opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::is\+\_\+set(), opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator=(), and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a9951039654216c93861a1687817afb6e}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!get\_@{get\_}}
+\index{get\_@{get\_}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{get\_}{get\_}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a40b6ecebfe823b05ac5afe418ccb373d}{getter\+\_\+t}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::get\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 258 of file pvalue.\+h.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::get\+\_\+value(), and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::update().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_aa3589206d8260d34501cc08933d0885c}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!set\_@{set\_}}
+\index{set\_@{set\_}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{set\_}{set\_}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_ab6fde171274b6487500035771f9938c6}{setter\+\_\+t}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::set\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 259 of file pvalue.\+h.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator=().
+
+\mbox{\label{structopae_1_1fpga_1_1types_1_1pvalue_a3a7f1a3bf6b95062b649655335a7dab6}} 
+\index{opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}!copy\_@{copy\_}}
+\index{copy\_@{copy\_}!opae::fpga::types::pvalue$<$ T $>$@{opae::fpga::types::pvalue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{copy\_}{copy\_}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue_a1b43105d816e48f6aa6bfd23f18ab929}{copy\+\_\+t}} \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{opae\+::fpga\+::types\+::pvalue}}$<$ T $>$\+::copy\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 260 of file pvalue.\+h.
+
+
+
+Referenced by opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator copy\+\_\+t(), opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator=(), opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::operator==(), and opae\+::fpga\+::types\+::pvalue$<$ T $>$\+::update().
+

@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structthreshold" kind="struct" language="C++" prot="public">
+    <compoundname>threshold</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structthreshold_1a3b1e319947fc05dfb36ded4fb08940b3" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char threshold::threshold_name[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>threshold_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="239" column="6" bodyfile="include/opae/types.h" bodystart="239" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structthreshold_1a65fef448c835c04ba240e1fed004192e" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t threshold::is_valid</definition>
+        <argsstring></argsstring>
+        <name>is_valid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="240" column="10" bodyfile="include/opae/types.h" bodystart="240" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structthreshold_1a1af0ffe5e1a7dd82234952db9ab1bc40" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double threshold::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="241" column="8" bodyfile="include/opae/types.h" bodystart="241" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Threshold struct </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>threshold</label>
+        <link refid="structthreshold"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="238" column="1" bodyfile="include/opae/types.h" bodystart="238" bodyend="242"/>
+    <listofallmembers>
+      <member refid="structthreshold_1a65fef448c835c04ba240e1fed004192e" prot="public" virt="non-virtual"><scope>threshold</scope><name>is_valid</name></member>
+      <member refid="structthreshold_1a3b1e319947fc05dfb36ded4fb08940b3" prot="public" virt="non-virtual"><scope>threshold</scope><name>threshold_name</name></member>
+      <member refid="structthreshold_1a1af0ffe5e1a7dd82234952db9ab1bc40" prot="public" virt="non-virtual"><scope>threshold</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

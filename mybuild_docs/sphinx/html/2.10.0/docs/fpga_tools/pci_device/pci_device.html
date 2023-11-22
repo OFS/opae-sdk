@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pci_device &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="opae.io" href="../opae.io/opae.io.html" />
+    <link rel="prev" title="opaevfio" href="../opaevfio/opaevfio.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pci_device</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options">OPTIONS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#positional-arguments">POSITIONAL ARGUMENTS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-arguments">OPTIONAL ARGUMENTS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>pci_device</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/pci_device/pci_device.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="pci-device">
+<h1>pci_device<a class="headerlink" href="#pci-device" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pci_device</span> <span class="pre">[-h]</span> <span class="pre">[-E]</span> <span class="pre">device-filter</span> <span class="pre">[{aer,remove,rescan,topology,unbind,vf}]</span></code></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>pci_device is a tool to aid in common operations for managing PCIe devices and
+drivers.</p>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="positional-arguments">
+<h3>POSITIONAL ARGUMENTS<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>`device filter`
+
+PCIe address of a device or vendor/device ID pair.
+The PCIe address follows the format of [segment:]bus:device.function
+while the vendor/device ID pair follows the format [vendor ID]:[device ID]
+where at least one of these must be present.
+
+`{aer,remove,rescan,topology,unbind,vf}`
+
+action to perform on device
+
+`aer`
+Perform AER (Advanced Error Reporting) operations.
+The aer action has its own sub-commands which are listed below:
+
+* `dump` sub-command will print out the AER error counters as reported
+   by the sysfs files for the device.
+* `mask` can either print out the current AER mask bits or set them
+  * If `show` or `print` (or nothing) is given after the `mask`
+    command, it will show the current mask bits for AER.
+By default output will be written in stdout but can be written to an
+output file if `-o|--output FILENAME` argument is given.
+  * If `all` is given after the `mask` command, it will mask all bits
+    (by setting the values to 0xffffffff and 0xffffffff).
+  * If `off` is given after the `mask` command, it will unmask all
+    bits (by setting the values to 0x0 and 0x0).
+  * If two numbers are present after the `mask` command, those two
+    numbers will be used to set the mask bits.
+Values for setting the mask can also be read in from an input file if
+`-i|--input FILENAME` argument is given.
+
+_NOTE_: mask related operations require root privileges
+
+
+`remove`
+
+Remove the pci device from the pci bus
+
+`rescan`
+
+Rescan the bus as identified by the bus component of the PCIe device address
+
+&#39;topology`
+
+Print the PCIe topology from the root port to the PCIe device.
+This shows the PCIe tree rooted at the PCIe root port.
+Each line shows the the PCIe address, vendor ID, and device ID along with
+the driver bound to the device. The indentnation is used to show
+parent/child relationship of devices.
+
+The line listing the target PCIe device as identified by the given PCIe
+address will be highlighted in green while the endpoints will be
+highlighted in cyan.
+
+The example below shows the topology of an N3000 device with eight virtual
+functions created from one of the Ethernet controllers:
+
+```console
+[pci_address(0000:3a:00.0), pci_id(0x8086, 0x2030)] (pcieport)
+    [pci_address(0000:3b:00.0), pci_id(0x10b5, 0x8747)] (pcieport)
+        [pci_address(0000:3c:09.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:3f:00.0), pci_id(0x8086, 0x0b30)] (dfl-pci)
+        [pci_address(0000:3c:11.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:43:00.0), pci_id(0x8086, 0x0b32)] (no driver)
+	[pci_address(0000:3c:08.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:3d:02.0), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:00.1), pci_id(0x8086, 0x0d58)] (i40e)
+            [pci_address(0000:3d:02.7), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.5), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.3), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.1), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:00.0), pci_id(0x8086, 0x0d58)] (i40e)
+            [pci_address(0000:3d:02.6), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.4), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.2), pci_id(0x8086, 0x154c)] (iavf)
+        [pci_address(0000:3c:10.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:41:00.0), pci_id(0x8086, 0x0d58)] (i40e)
+            [pci_address(0000:41:00.1), pci_id(0x8086, 0x0d58)] (i40e)
+
+```
+
+`unbind`
+
+Unbind the driver bound to the device.
+
+`vf`
+
+Create/destroy VFs (virtual functions) by setting the number here.
+The number given here will be written to sriov_numvfs sysfs file triggering
+the PCIe subsystem to create/destroy VFs so that the current number of VFs
+will be equal to the given number. If the number given is outside of the total VFs supported, an error message will be displayed to indicate this.
+</pre></div>
+</div>
+</div>
+<div class="section" id="optional-arguments">
+<h3>OPTIONAL ARGUMENTS<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>`-h, --help`
+
+show this help message and exit
+
+`-E, --other-endpoints`
+
+perform action on peer PCIe devices
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">pci_device</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="mi">3</span><span class="n">d</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="n">remove</span>
+<span class="n">pci_device</span><span class="w"> </span><span class="mo">0000</span><span class="o">:</span><span class="mi">3</span><span class="n">d</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="n">rescan</span>
+<span class="n">pci_device</span><span class="w"> </span><span class="mi">3</span><span class="n">d</span><span class="o">:</span><span class="mf">00.0</span><span class="w"> </span><span class="n">topology</span>
+<span class="nl">pci_device</span><span class="w"> </span><span class="p">:</span><span class="mi">0</span><span class="n">b30</span><span class="w"> </span><span class="n">topology</span>
+<span class="nl">pci_device</span><span class="w"> </span><span class="p">:</span><span class="mi">0</span><span class="n">b30</span><span class="w"> </span><span class="n">aer</span>
+<span class="nl">pci_device</span><span class="w"> </span><span class="p">:</span><span class="mi">0</span><span class="n">b30</span><span class="w"> </span><span class="n">aer</span><span class="w"> </span><span class="n">mask</span>
+<span class="nl">pci_device</span><span class="w"> </span><span class="p">:</span><span class="mi">0</span><span class="n">b30</span><span class="w"> </span><span class="n">aer</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="n">all</span>
+<span class="nl">pci_device</span><span class="w"> </span><span class="p">:</span><span class="mi">0</span><span class="n">b30</span><span class="w"> </span><span class="n">aer</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">mask</span><span class="p">.</span><span class="n">dat</span>
+<span class="nl">pci_device</span><span class="w"> </span><span class="p">:</span><span class="mi">0</span><span class="n">b30</span><span class="w"> </span><span class="n">aer</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">-</span><span class="n">i</span><span class="w"> </span><span class="n">mask</span><span class="p">.</span><span class="n">dat</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Document</span><span class="w"> </span><span class="n">Version</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Intel</span><span class="w"> </span><span class="n">Acceleration</span><span class="w"> </span><span class="n">Stack</span><span class="w"> </span><span class="n">Version</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Changes</span>
+<span class="o">-----------------|----------------------------------|--------</span>
+<span class="mf">2021.01.13</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">IOFS</span><span class="w"> </span><span class="n">EA</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Initial</span><span class="w"> </span><span class="n">release</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../opaevfio/opaevfio.html" class="btn btn-neutral float-left" title="opaevfio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../opae.io/opae.io.html" class="btn btn-neutral float-right" title="opae.io" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__dsm__status" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_dsm_status</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1ab760bd8d5c508a85bc2e8994e2c7edde" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::test_completed</definition>
+        <argsstring></argsstring>
+        <name>test_completed</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="297" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="297" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a260eaaadbf1e06745d95dba4eb729ff2" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::dsm_number</definition>
+        <argsstring></argsstring>
+        <name>dsm_number</name>
+        <bitfield> 15</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="298" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="298" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a82ecba774d0c87a69adaac15275662ab" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::res1</definition>
+        <argsstring></argsstring>
+        <name>res1</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="299" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="299" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a6bd23b5241622c4a5be147291842cf9e" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::err_vector</definition>
+        <argsstring></argsstring>
+        <name>err_vector</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="300" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="300" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a4bbc5cfeffdb4a66c0a56fd46827eedd" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::num_ticks</definition>
+        <argsstring></argsstring>
+        <name>num_ticks</name>
+        <bitfield> 40</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="301" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="301" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a9999c693487dffaa84bcdf13401c80e9" compoundref="host__exerciser__cmd_8h" startline="129" endline="132">host_exerciser::host_exerciser_cmd::dsm_num_ticks</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a2765e988474ae1a9ffdbd140f7e5c49b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::res2</definition>
+        <argsstring></argsstring>
+        <name>res2</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="302" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="302" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1ada5d5d02c713fa2f0b5682eecdb7a02c" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::num_reads_h</definition>
+        <argsstring></argsstring>
+        <name>num_reads_h</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="303" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="303" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a533fb9839b1d008fff8a3ef65e13ab2e" compoundref="host__exerciser__cmd_8h" startline="135" endline="138">host_exerciser::host_exerciser_cmd::dsm_num_reads</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a7ea350aafb859dcf3c0875eea35ac36c" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::num_writes_h</definition>
+        <argsstring></argsstring>
+        <name>num_writes_h</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="304" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="304" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a92d3684fd6d98c706ff5708f3d22b18c" compoundref="host__exerciser__cmd_8h" startline="141" endline="144">host_exerciser::host_exerciser_cmd::dsm_num_writes</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1af0301349c3f7e495c64bbb0210bd595a" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::num_reads_l</definition>
+        <argsstring></argsstring>
+        <name>num_reads_l</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="305" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="305" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a533fb9839b1d008fff8a3ef65e13ab2e" compoundref="host__exerciser__cmd_8h" startline="135" endline="138">host_exerciser::host_exerciser_cmd::dsm_num_reads</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1ac677d9a7dc9bce8b5978864e8c0c7e6c" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::num_writes_l</definition>
+        <argsstring></argsstring>
+        <name>num_writes_l</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="306" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="306" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a92d3684fd6d98c706ff5708f3d22b18c" compoundref="host__exerciser__cmd_8h" startline="141" endline="144">host_exerciser::host_exerciser_cmd::dsm_num_writes</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a0815448f7076ec6cdba7242f1c71b3c3" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::penalty_start</definition>
+        <argsstring></argsstring>
+        <name>penalty_start</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="307" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="307" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a6fe1e0417476d1f659dce6e605774949" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::res3</definition>
+        <argsstring></argsstring>
+        <name>res3</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="308" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="308" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a93a3a735a7ff1de123303980281ff6ed" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::penalty_end</definition>
+        <argsstring></argsstring>
+        <name>penalty_end</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="309" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="309" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1ac762af688b03bc74b851276f63f18c52" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::res4</definition>
+        <argsstring></argsstring>
+        <name>res4</name>
+        <bitfield> 24</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="310" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="310" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1adafdaeeae346ed83510195ba039b9a26" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_dsm_status::ab_error_info</definition>
+        <argsstring></argsstring>
+        <name>ab_error_info</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="311" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="311" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__dsm__status_1a5d606261c3fb29410403b6ac1f1b2da0" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_dsm_status::res5[7]</definition>
+        <argsstring>[7]</argsstring>
+        <name>res5</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="312" column="10" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="312" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_dsm_status</label>
+        <link refid="structhost__exerciser_1_1he__dsm__status"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="296" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="296" bodyend="313"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1adafdaeeae346ed83510195ba039b9a26" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>ab_error_info</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a260eaaadbf1e06745d95dba4eb729ff2" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>dsm_number</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a6bd23b5241622c4a5be147291842cf9e" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>err_vector</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1ada5d5d02c713fa2f0b5682eecdb7a02c" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>num_reads_h</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1af0301349c3f7e495c64bbb0210bd595a" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>num_reads_l</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a4bbc5cfeffdb4a66c0a56fd46827eedd" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>num_ticks</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a7ea350aafb859dcf3c0875eea35ac36c" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>num_writes_h</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1ac677d9a7dc9bce8b5978864e8c0c7e6c" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>num_writes_l</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a93a3a735a7ff1de123303980281ff6ed" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>penalty_end</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a0815448f7076ec6cdba7242f1c71b3c3" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>penalty_start</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a82ecba774d0c87a69adaac15275662ab" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>res1</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a2765e988474ae1a9ffdbd140f7e5c49b" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>res2</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a6fe1e0417476d1f659dce6e605774949" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>res3</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1ac762af688b03bc74b851276f63f18c52" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>res4</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1a5d606261c3fb29410403b6ac1f1b2da0" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>res5</name></member>
+      <member refid="structhost__exerciser_1_1he__dsm__status_1ab760bd8d5c508a85bc2e8994e2c7edde" prot="public" virt="non-virtual"><scope>host_exerciser::he_dsm_status</scope><name>test_completed</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

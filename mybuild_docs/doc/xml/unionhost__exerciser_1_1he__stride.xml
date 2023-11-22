@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__stride" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_stride</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__stride_1a16f62ef57b104697564e582db274a6e9" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@128</name>
+        <enumvalue id="unionhost__exerciser_1_1he__stride_1a16f62ef57b104697564e582db274a6e9a0590e61f18301509eff48efd04a46d2f" prot="public">
+          <name>offset</name>
+          <initializer>= HE_STRIDE</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="286" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="286" bodyend="288"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__stride_1a5b93da4f8eed75ad0a82b96725e7852b" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_stride::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="289" column="12" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="289" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__stride_1a60a7a8146a3c673903bb0e15c4e18e0b" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_stride::@129</type>
+        <definition>struct host_exerciser::he_stride::@129 host_exerciser::he_stride::@130</definition>
+        <argsstring></argsstring>
+        <name>@130</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="292" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_stride</label>
+        <link refid="unionhost__exerciser_1_1he__stride"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="285" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="285" bodyend="293"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__stride_1a16f62ef57b104697564e582db274a6e9a0590e61f18301509eff48efd04a46d2f" prot="public" virt="non-virtual"><scope>host_exerciser::he_stride</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__stride_1a5b93da4f8eed75ad0a82b96725e7852b" prot="public" virt="non-virtual"><scope>host_exerciser::he_stride</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

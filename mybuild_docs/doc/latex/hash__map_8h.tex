@@ -1,0 +1,249 @@
+\doxysection{include/opae/hash\+\_\+map.h File Reference}
+\label{hash__map_8h}\index{include/opae/hash\_map.h@{include/opae/hash\_map.h}}
+
+
+A general-\/purpose hybrid array/list hash map implementation.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$opae/types\+\_\+enum.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{hash__map_8h_structopae__hash__map__item}{opae\+\_\+hash\+\_\+map\+\_\+item}}
+\item 
+struct \mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{hash__map_8h_a2f858c6198f438f243a9b886e361fa0c}{opae\+\_\+hash\+\_\+map\+\_\+flags}} \{ \mbox{\hyperlink{hash__map_8h_a2f858c6198f438f243a9b886e361fa0ca4089fe07cd9c5d05ea168d2b49beae5d}{OPAE\+\_\+\+HASH\+\_\+\+MAP\+\_\+\+UNIQUE\+\_\+\+KEYSPACE}} = (1u $<$$<$ 0)
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hash__map_8h_a5d8b6eed0eea3e1e74de38cb04c1d4e2}{opae\+\_\+hash\+\_\+map\+\_\+init}} (\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$hm, uint32\+\_\+t num\+\_\+buckets, uint32\+\_\+t hash\+\_\+seed, int flags, uint32\+\_\+t($\ast$key\+\_\+hash)(uint32\+\_\+t num\+\_\+buckets, uint32\+\_\+t hash\+\_\+seed, void $\ast$key), int($\ast$key\+\_\+compare)(void $\ast$keya, void $\ast$keyb), void($\ast$key\+\_\+cleanup)(void $\ast$key, void $\ast$context), void($\ast$value\+\_\+cleanup)(void $\ast$value, void $\ast$context))
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hash__map_8h_ae42574e8d296806a5b395fce978a1338}{opae\+\_\+hash\+\_\+map\+\_\+add}} (\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$hm, void $\ast$key, void $\ast$value)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hash__map_8h_a2cf46fb910f75709741009e5f6c42b16}{opae\+\_\+hash\+\_\+map\+\_\+find}} (\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$hm, void $\ast$key, void $\ast$$\ast$value)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hash__map_8h_a5750c806056b605248bee90399e64e29}{opae\+\_\+hash\+\_\+map\+\_\+remove}} (\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$hm, void $\ast$key)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{hash__map_8h_adb709ed616790bfc7fd58d2b3f72b69c}{opae\+\_\+hash\+\_\+map\+\_\+destroy}} (\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$hm)
+\item 
+bool \mbox{\hyperlink{hash__map_8h_a6d05504a7cf422f506626a68a9aca28e}{opae\+\_\+hash\+\_\+map\+\_\+is\+\_\+empty}} (\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$hm)
+\item 
+uint32\+\_\+t \mbox{\hyperlink{hash__map_8h_a21604f9336e0cff5cacdfa01d0d56b87}{opae\+\_\+u64\+\_\+key\+\_\+hash}} (uint32\+\_\+t num\+\_\+buckets, uint32\+\_\+t hash\+\_\+seed, void $\ast$key)
+\item 
+int \mbox{\hyperlink{hash__map_8h_abccdf1c3216e0b98093641cd44f93a10}{opae\+\_\+u64\+\_\+key\+\_\+compare}} (void $\ast$keya, void $\ast$keyb)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+A general-\/purpose hybrid array/list hash map implementation. 
+
+Presents a generic interface for mapping key objects to value objects. Both keys and values may be arbitrary data structures. The user supplies the means by which the hash of values is generated and by which the keys are compared to each other. 
+
+\doxysubsection{Data Structure Documentation}
+\index{opae\_hash\_map\_item@{opae\_hash\_map\_item}}\label{structopae__hash__map__item}
+\doxysubsubsection{struct opae\+\_\+hash\+\_\+map\+\_\+item}
+List link item.
+
+This structure provides the association between key and value. When the supplied hash function for keys A and B returns the same bucket index, both A and B can co-\/exist on the same list rooted at the bucket index. 
+
+Definition at line 70 of file hash\+\_\+map.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{hash__map_8h_a2bc84efb62b050093f82300b050f9476}} 
+void $\ast$&
+key&
+\\
+\hline
+
+\mbox{\label{hash__map_8h_a90e4ff6c4d033b0076d462069671f3c5}} 
+void $\ast$&
+value&
+\\
+\hline
+
+\mbox{\label{hash__map_8h_a426277c984ea3e44d733ade585aef233}} 
+struct \_opae\_hash\_map\_item $\ast$&
+next&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{hash__map_8h_a2f858c6198f438f243a9b886e361fa0c}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_flags@{opae\_hash\_map\_flags}}
+\index{opae\_hash\_map\_flags@{opae\_hash\_map\_flags}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_flags}{opae\_hash\_map\_flags}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{hash__map_8h_a2f858c6198f438f243a9b886e361fa0c}{opae\+\_\+hash\+\_\+map\+\_\+flags}}}
+
+Flags used to initialize a hash map.
+
+OPAE\+\_\+\+HASH\+\_\+\+MAP\+\_\+\+UNIQUE\+\_\+\+KEYSPACE says that the user provides a guarantee that the key space is truly unique. In other words, when the provided hash function for keys A and B returns the same bucket index, the key comparison function when comparing A and B will never return a result saying that the keys are equal in value. This is helpful in situations where the key space is guaranteed to produce unique values, for example a memory allocator. When the key space is guaranteed to be unique, \mbox{\hyperlink{hash__map_8h_ae42574e8d296806a5b395fce978a1338}{opae\+\_\+hash\+\_\+map\+\_\+add()}} can implement a small performance improvement. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPAE\_HASH\_MAP\_UNIQUE\_KEYSPACE@{OPAE\_HASH\_MAP\_UNIQUE\_KEYSPACE}!hash\_map.h@{hash\_map.h}}\index{hash\_map.h@{hash\_map.h}!OPAE\_HASH\_MAP\_UNIQUE\_KEYSPACE@{OPAE\_HASH\_MAP\_UNIQUE\_KEYSPACE}}}\mbox{\label{hash__map_8h_a2f858c6198f438f243a9b886e361fa0ca4089fe07cd9c5d05ea168d2b49beae5d}} 
+OPAE\+\_\+\+HASH\+\_\+\+MAP\+\_\+\+UNIQUE\+\_\+\+KEYSPACE&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 58 of file hash\+\_\+map.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{hash__map_8h_a5d8b6eed0eea3e1e74de38cb04c1d4e2}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_init@{opae\_hash\_map\_init}}
+\index{opae\_hash\_map\_init@{opae\_hash\_map\_init}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_init()}{opae\_hash\_map\_init()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+\_\+hash\+\_\+map\+\_\+init (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$}]{hm,  }\item[{uint32\+\_\+t}]{num\+\_\+buckets,  }\item[{uint32\+\_\+t}]{hash\+\_\+seed,  }\item[{int}]{flags,  }\item[{uint32\+\_\+t($\ast$)(uint32\+\_\+t num\+\_\+buckets, uint32\+\_\+t hash\+\_\+seed, void $\ast$key)}]{key\+\_\+hash,  }\item[{int($\ast$)(void $\ast$keya, void $\ast$keyb)}]{key\+\_\+compare,  }\item[{void($\ast$)(void $\ast$key, void $\ast$context)}]{key\+\_\+cleanup,  }\item[{void($\ast$)(void $\ast$value, void $\ast$context)}]{value\+\_\+cleanup }\end{DoxyParamCaption})}
+
+Initialize a hash map
+
+Populates the hash map data structure and allocates the buckets array.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em hm} & A pointer to the storage for the hash map object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em num\+\_\+buckets} & The desired size of the buckets array. Each array entry may be empty (NULL), or may contain a list of \mbox{\hyperlink{hash__map_8h_structopae__hash__map__item}{opae\+\_\+hash\+\_\+map\+\_\+item}} structures for which the given key\+\_\+hash function returned the same key hash value. \\
+\hline
+\mbox{\texttt{ in}}  & {\em hash\+\_\+seed} & A seed value used during key hash computation. This value will be the hash\+\_\+seed parameter to the key hash function. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Initialization flags. See opae\+\_\+hash\+\_\+map\+\_\+flags. \\
+\hline
+\mbox{\texttt{ in}}  & {\em key\+\_\+hash} & A pointer to a function that produces the hash value, given the number of buckets, the hash seed, and the key. Valid values are between 0 and num\+\_\+buckets -\/ 1, inclusively. \\
+\hline
+\mbox{\texttt{ in}}  & {\em key\+\_\+compare} & A pointer to a function that compares two keys. The return value is similar to that of strcmp(), where a negative value means that keya $<$ keyb, 0 means that keya == keyb, and a positive values means that keya $>$ keyb. \\
+\hline
+\mbox{\texttt{ in}}  & {\em key\+\_\+cleanup} & A pointer to a function that is called when a key is being removed from the map. This function is optional and may be NULL. When supplied, the function is responsible for freeing any resources allocated when the key was created. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value\+\_\+cleanup} & A pointer to a function that is called when a value is being removed from the map. This function is optional and may be NULL. When supplied, the function is responsible for freeing any resources allocated when the value was created. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the required parameters are NULL, or FPGA\+\_\+\+NO\+\_\+\+MEMORY if the bucket array could not be allocated. 
+\end{DoxyReturn}
+\mbox{\label{hash__map_8h_ae42574e8d296806a5b395fce978a1338}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_add@{opae\_hash\_map\_add}}
+\index{opae\_hash\_map\_add@{opae\_hash\_map\_add}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_add()}{opae\_hash\_map\_add()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+\_\+hash\+\_\+map\+\_\+add (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$}]{hm,  }\item[{void $\ast$}]{key,  }\item[{void $\ast$}]{value }\end{DoxyParamCaption})}
+
+Map a key to a value
+
+Inserts a mapping from key to value in the given hash map object. Subsequent calls to \mbox{\hyperlink{hash__map_8h_a2cf46fb910f75709741009e5f6c42b16}{opae\+\_\+hash\+\_\+map\+\_\+find()}} that are given the key will retrieve the value.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em hm} & A pointer to the storage for the hash map object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em key} & The hash map key. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & The hash map value. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if hm is NULL, FPGA\+\_\+\+NO\+\_\+\+MEMORY if malloc() fails when allocating the list item, or FPGA\+\_\+\+INVALID\+\_\+\+PARAM if the key hash produced by key\+\_\+hash is out of bounds. 
+\end{DoxyReturn}
+\mbox{\label{hash__map_8h_a2cf46fb910f75709741009e5f6c42b16}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_find@{opae\_hash\_map\_find}}
+\index{opae\_hash\_map\_find@{opae\_hash\_map\_find}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_find()}{opae\_hash\_map\_find()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+\_\+hash\+\_\+map\+\_\+find (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$}]{hm,  }\item[{void $\ast$}]{key,  }\item[{void $\ast$$\ast$}]{value }\end{DoxyParamCaption})}
+
+Retrieve the value for a given key
+
+Given a key that was previously passed to \mbox{\hyperlink{hash__map_8h_ae42574e8d296806a5b395fce978a1338}{opae\+\_\+hash\+\_\+map\+\_\+add()}}, retrieve its associated value.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em hm} & A pointer to the storage for the hash map object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em key} & The hash map key. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & A pointer to receive the hash map value. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if hm is NULL or if the key hash produced by key\+\_\+hash is out of bounds, or FPGA\+\_\+\+NOT\+\_\+\+FOUND if the given key was not found in the hash map. 
+\end{DoxyReturn}
+\mbox{\label{hash__map_8h_a5750c806056b605248bee90399e64e29}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_remove@{opae\_hash\_map\_remove}}
+\index{opae\_hash\_map\_remove@{opae\_hash\_map\_remove}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_remove()}{opae\_hash\_map\_remove()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+\_\+hash\+\_\+map\+\_\+remove (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$}]{hm,  }\item[{void $\ast$}]{key }\end{DoxyParamCaption})}
+
+Remove a key/value association
+
+Given a key that was previously passed to \mbox{\hyperlink{hash__map_8h_ae42574e8d296806a5b395fce978a1338}{opae\+\_\+hash\+\_\+map\+\_\+add()}}, remove the key and its associated value, calling the cleanup functions as needed.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em hm} & A pointer to the storage for the hash map object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em key} & The hash map key. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM when hm is NULL or when the key hash produced by key\+\_\+hash is out of bounds, or FPGA\+\_\+\+NOT\+\_\+\+FOUND if the key is not found in the hash map. 
+\end{DoxyReturn}
+\mbox{\label{hash__map_8h_adb709ed616790bfc7fd58d2b3f72b69c}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_destroy@{opae\_hash\_map\_destroy}}
+\index{opae\_hash\_map\_destroy@{opae\_hash\_map\_destroy}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_destroy()}{opae\_hash\_map\_destroy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+\_\+hash\+\_\+map\+\_\+destroy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$}]{hm }\end{DoxyParamCaption})}
+
+Tear down a hash map
+
+Given a hash map that was previously initialized by \mbox{\hyperlink{hash__map_8h_a5d8b6eed0eea3e1e74de38cb04c1d4e2}{opae\+\_\+hash\+\_\+map\+\_\+init()}}, destroy the hash map, releasing all keys, values, and the bucket array.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em hm} & A pointer to the storage for the hash map object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success or FPGA\+\_\+\+INVALID\+\_\+\+PARAM is hm is NULL. 
+\end{DoxyReturn}
+\mbox{\label{hash__map_8h_a6d05504a7cf422f506626a68a9aca28e}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_hash\_map\_is\_empty@{opae\_hash\_map\_is\_empty}}
+\index{opae\_hash\_map\_is\_empty@{opae\_hash\_map\_is\_empty}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_hash\_map\_is\_empty()}{opae\_hash\_map\_is\_empty()}}
+{\footnotesize\ttfamily bool opae\+\_\+hash\+\_\+map\+\_\+is\+\_\+empty (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structopae__hash__map}{opae\+\_\+hash\+\_\+map}} $\ast$}]{hm }\end{DoxyParamCaption})}
+
+Determine whether a hash map is empty
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em hm} & A pointer to the storage for the hash map object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if there are no key/value mappings present, false otherwise. 
+\end{DoxyReturn}
+\mbox{\label{hash__map_8h_a21604f9336e0cff5cacdfa01d0d56b87}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_u64\_key\_hash@{opae\_u64\_key\_hash}}
+\index{opae\_u64\_key\_hash@{opae\_u64\_key\_hash}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_u64\_key\_hash()}{opae\_u64\_key\_hash()}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+\_\+u64\+\_\+key\+\_\+hash (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{num\+\_\+buckets,  }\item[{uint32\+\_\+t}]{hash\+\_\+seed,  }\item[{void $\ast$}]{key }\end{DoxyParamCaption})}
+
+Convenience hash function for arbitrary pointers/64-\/bit values.
+
+Simply converts the key to a uint64\+\_\+t and then performs the modulus operation with the configured num\+\_\+buckets. hash\+\_\+seed is unused. \mbox{\label{hash__map_8h_abccdf1c3216e0b98093641cd44f93a10}} 
+\index{hash\_map.h@{hash\_map.h}!opae\_u64\_key\_compare@{opae\_u64\_key\_compare}}
+\index{opae\_u64\_key\_compare@{opae\_u64\_key\_compare}!hash\_map.h@{hash\_map.h}}
+\doxysubsubsection{\texorpdfstring{opae\_u64\_key\_compare()}{opae\_u64\_key\_compare()}}
+{\footnotesize\ttfamily int opae\+\_\+u64\+\_\+key\+\_\+compare (\begin{DoxyParamCaption}\item[{void $\ast$}]{keya,  }\item[{void $\ast$}]{keyb }\end{DoxyParamCaption})}
+
+Convenience key comparison function for 64-\/bit values.
+
+Simply converts the key pointers to uint64\+\_\+t\textquotesingle{}s and performs unsigned integer comparison. 

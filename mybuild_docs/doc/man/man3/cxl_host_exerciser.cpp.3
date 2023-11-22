@@ -1,0 +1,48 @@
+.TH "samples/cxl_host_exerciser/cxl_host_exerciser.cpp" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/cxl_host_exerciser/cxl_host_exerciser.cpp
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <CLI/CLI\&.hpp>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <signal\&.h>\fP
+.br
+\fC#include 'cxl_he_cache_cmd\&.h'\fP
+.br
+\fC#include 'cxl_he_cache_lpbk_cmd\&.h'\fP
+.br
+\fC#include 'cxl_host_exerciser\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBhe_sig_handler\fP (int)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void he_sig_handler (int)"
+
+.PP
+Definition at line 39 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by main()\&.
+.SS "int main (int argc, char * argv[])"
+
+.PP
+Definition at line 36 of file cxl_host_exerciser\&.cpp\&.
+.PP
+References app, he_sig_handler(), opae::afu_test::afu::main(), and opae::afu_test::afu::register_command()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionopae_1_1afu__test_1_1pcie__address" kind="union" language="C++" prot="public">
+    <compoundname>opae::afu_test::pcie_address</compoundname>
+    <includes refid="he__cache__test_8h" local="no">/root/samples/cxl_host_exerciser/he_cache_test.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionopae_1_1afu__test_1_1pcie__address_1a7a062970db60a7bba46e10fd459eeb43" prot="public" static="no" mutable="no">
+        <type>struct opae::afu_test::pcie_address::@44</type>
+        <definition>struct opae::afu_test::pcie_address::@44 opae::afu_test::pcie_address::fields</definition>
+        <argsstring></argsstring>
+        <name>fields</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="192" column="10"/>
+        <referencedby refid="unionopae_1_1afu__test_1_1pcie__address_1afb2617e2ed297046217e2a47de73f5ab" compoundref="he__cache__test_8h" startline="195" endline="226">parse</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="unionopae_1_1afu__test_1_1pcie__address_1ab3ea036b3be673377eb47e8f6bdc5e5f" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae::afu_test::pcie_address::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="193" column="12" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="unionopae_1_1afu__test_1_1pcie__address_1afb2617e2ed297046217e2a47de73f5ab" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="unionopae_1_1afu__test_1_1pcie__address" kindref="compound">pcie_address</ref></type>
+        <definition>static pcie_address opae::afu_test::pcie_address::parse</definition>
+        <argsstring>(const char *s)</argsstring>
+        <name>parse</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="195" column="23" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="195" bodyend="226"/>
+        <references refid="unionopae_1_1afu__test_1_1pcie__address_1a7a062970db60a7bba46e10fd459eeb43">fields</references>
+        <references refid="he__cache__test_8h_1ac205be2172292384dd687b5471a87eddaf55f3a57a0940f0e7803957d4bf84b90" compoundref="he__cache__test_8h" startline="57">MATCHES_SIZE</references>
+        <references refid="namespaceopae_1_1afu__test_1a51c524d228e9ad342ed2e1a45efe741b" compoundref="he__cache__test_8h" startline="178" endline="184">opae::afu_test::parse_match_int</references>
+        <references refid="he__cache__test_8h_1a1e352638b03b00b213cfc2de11524ee4" compoundref="he__cache__test_8h" startline="54">sbdf_pattern</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::afu_test::pcie_address</label>
+        <link refid="unionopae_1_1afu__test_1_1pcie__address"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/he_cache_test.h" line="186" column="1" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="186" bodyend="227"/>
+    <listofallmembers>
+      <member refid="unionopae_1_1afu__test_1_1pcie__address_1a7a062970db60a7bba46e10fd459eeb43" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address</scope><name>fields</name></member>
+      <member refid="unionopae_1_1afu__test_1_1pcie__address_1afb2617e2ed297046217e2a47de73f5ab" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address</scope><name>parse</name></member>
+      <member refid="unionopae_1_1afu__test_1_1pcie__address_1ab3ea036b3be673377eb47e8f6bdc5e5f" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

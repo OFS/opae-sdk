@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structconfig" kind="struct" language="C++" prot="public">
+    <compoundname>config</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structconfig_1a56a710b532c4f7d6213fbd173920ffca" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int config::open_flags</definition>
+        <argsstring></argsstring>
+        <name>open_flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_fpga/hello_fpga.c" line="130" column="5" bodyfile="samples/hello_fpga/hello_fpga.c" bodystart="130" bodyend="-1"/>
+        <referencedby refid="hello__fpga_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__fpga_8c" startline="314" endline="544">main</referencedby>
+        <referencedby refid="hello__fpga_8c_1a3a1b6f72679286eae6f9eec936cc5533" compoundref="hello__fpga_8c" startline="156" endline="204">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structconfig_1a860ca20f3c0dd13da4979632fb61f505" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int config::run_n3000</definition>
+        <argsstring></argsstring>
+        <name>run_n3000</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_fpga/hello_fpga.c" line="131" column="5" bodyfile="samples/hello_fpga/hello_fpga.c" bodystart="131" bodyend="-1"/>
+        <referencedby refid="hello__fpga_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__fpga_8c" startline="314" endline="544">main</referencedby>
+        <referencedby refid="hello__fpga_8c_1a3a1b6f72679286eae6f9eec936cc5533" compoundref="hello__fpga_8c" startline="156" endline="204">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structconfig_1a026c31834bf67496b4a0af04d40e2adb" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float config::interval_sec</definition>
+        <argsstring></argsstring>
+        <name>interval_sec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="103" column="7" bodyfile="samples/object_api/object_api.c" bodystart="103" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>config</label>
+        <link refid="structconfig"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hello_fpga/hello_fpga.c" line="129" column="1" bodyfile="samples/hello_fpga/hello_fpga.c" bodystart="129" bodyend="132"/>
+    <listofallmembers>
+      <member refid="structconfig_1a026c31834bf67496b4a0af04d40e2adb" prot="public" virt="non-virtual"><scope>config</scope><name>interval_sec</name></member>
+      <member refid="structconfig_1a56a710b532c4f7d6213fbd173920ffca" prot="public" virt="non-virtual"><scope>config</scope><name>open_flags</name></member>
+      <member refid="structconfig_1a860ca20f3c0dd13da4979632fb61f505" prot="public" virt="non-virtual"><scope>config</scope><name>run_n3000</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

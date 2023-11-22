@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____" kind="struct" language="C++" prot="public">
+    <compoundname>dummy_afu::ddr_test_ctrl.__unnamed71__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a63afce2e700bbbba301fd9a8c63e76dd" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>DDRBank0StartTest</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="95" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a4b9b4dd11109036366c339e295c6671e" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>DDRBank1StartTest</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="96" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a2839cffa7595242294856a029bf8b14b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>DDRBank2StartTest</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="97" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a69b14e807c3c4688b2f0a90b85227f1f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>DDRBank3StartTest</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="98" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a34deb90418b2775e73aee1a6d90defea" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved4</name>
+        <bitfield> 60</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="99" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::ddr_test_ctrl.__unnamed71__</label>
+        <link refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="94" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="94" bodyend="100"/>
+    <listofallmembers>
+      <member refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a63afce2e700bbbba301fd9a8c63e76dd" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl.__unnamed71__</scope><name>DDRBank0StartTest</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a4b9b4dd11109036366c339e295c6671e" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl.__unnamed71__</scope><name>DDRBank1StartTest</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a2839cffa7595242294856a029bf8b14b" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl.__unnamed71__</scope><name>DDRBank2StartTest</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a69b14e807c3c4688b2f0a90b85227f1f" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl.__unnamed71__</scope><name>DDRBank3StartTest</name></member>
+      <member refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71_____1a34deb90418b2775e73aee1a6d90defea" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_ctrl.__unnamed71__</scope><name>Reserved4</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

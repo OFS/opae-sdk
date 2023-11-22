@@ -1,0 +1,545 @@
+\doxysection{include/opae/types.h File Reference}
+\label{types_8h}\index{include/opae/types.h@{include/opae/types.h}}
+
+
+Type definitions for FPGA API.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$opae/types\+\_\+enum.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}}
+\item 
+struct \mbox{\hyperlink{types_8h_structfpga__error__info}{fpga\+\_\+error\+\_\+info}}
+\item 
+union \mbox{\hyperlink{types_8h_unionmetric__value}{metric\+\_\+value}}
+\item 
+struct \mbox{\hyperlink{types_8h_structfpga__metric__info}{fpga\+\_\+metric\+\_\+info}}
+\item 
+struct \mbox{\hyperlink{types_8h_structfpga__metric}{fpga\+\_\+metric}}
+\item 
+struct \mbox{\hyperlink{types_8h_structthreshold}{threshold}}
+\item 
+struct \mbox{\hyperlink{types_8h_structmetric__threshold}{metric\+\_\+threshold}}
+\item 
+struct \mbox{\hyperlink{types_8h_structfpga__token__header}{fpga\+\_\+token\+\_\+header}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{types_8h_a6af563bebf37e9c908aa7fe8470efa8f}{FPGA\+\_\+\+ERROR\+\_\+\+NAME\+\_\+\+MAX}}~64
+\item 
+\#define \mbox{\hyperlink{types_8h_a38d47f983b7adaa90dda28ef60de86ca}{FPGA\+\_\+\+METRIC\+\_\+\+STR\+\_\+\+SIZE}}~256
+\item 
+\#define \mbox{\hyperlink{types_8h_a8a497e598ca0addd676b0c4719011b47}{fpga\+\_\+is\+\_\+parent\+\_\+child}}(\+\_\+\+\_\+parent\+\_\+hdr,  \+\_\+\+\_\+child\+\_\+hdr)
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef void $\ast$ \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}
+\item 
+typedef void $\ast$ \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}
+\item 
+typedef void $\ast$ \mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}
+\item 
+typedef uint8\+\_\+t \mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}}\mbox{[}16\mbox{]}
+\item 
+typedef void $\ast$ \mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}}
+\item 
+typedef void $\ast$ \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Type definitions for FPGA API. 
+
+OPAE uses the three opaque types fpga\+\_\+properties, fpga\+\_\+token, and fpga\+\_\+handle to create a hierarchy of objects that can be used to enumerate, reference, acquire, and query FPGA resources. This object model is designed to be extensible to account for different FPGA architectures and platforms.\hypertarget{types_8h_autotoc_md1}{}\doxysubsubsection{Initialization}\label{types_8h_autotoc_md1}
+OPAEs management of the opaque types {\ttfamily fpga\+\_\+properties}, {\ttfamily fpga\+\_\+token}, and {\ttfamily fpga\+\_\+handle} relies on the proper initialization of variables of these types. In other words, before doing anything with a variable of one of these opaque types, you need to first initialize them.
+
+The respective functions that initialize opaque types are\+:
+
+
+\begin{DoxyItemize}
+\item \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}} and \mbox{\hyperlink{properties_8h_ac51c19bdd763a98e143a938c47963905}{fpga\+Clone\+Properties()}} for {\ttfamily fpga\+\_\+properties}
+\item \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}} and \mbox{\hyperlink{enum_8h_a43a84795de460e8288070b672ef90a59}{fpga\+Clone\+Token()}} for {\ttfamily fpga\+\_\+token}
+\item \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}} for {\ttfamily fpga\+\_\+handle}
+\end{DoxyItemize}
+
+This should intuitively make sense -\/ \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}} creates {\ttfamily fpga\+\_\+properties} objects, \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}} creates {\ttfamily fpga\+\_\+token} objects, \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}} creates {\ttfamily fpga\+\_\+handle} objects, and \mbox{\hyperlink{properties_8h_ac51c19bdd763a98e143a938c47963905}{fpga\+Clone\+Properties()}} and \mbox{\hyperlink{enum_8h_a43a84795de460e8288070b672ef90a59}{fpga\+Clone\+Token()}} clone (create) {\ttfamily fpga\+\_\+properties} and {\ttfamily fpga\+\_\+token} objects, respectively.
+
+Since these opaque types are interpreted as pointers (they are typedef\textquotesingle{}d to a {\ttfamily void $\ast$}), passing an uninitialized opaque type into any function except the respective initailzation function will result in undefined behaviour, because OPAE will try to follow an invalid pointer. Undefined behaviour in this case may include an unexpected error code, or an application crash. 
+
+\doxysubsection{Data Structure Documentation}
+\index{fpga\_version@{fpga\_version}}\label{structfpga__version}
+\doxysubsubsection{struct fpga\+\_\+version}
+Semantic version
+
+Data structure for expressing version identifiers following the semantic versioning scheme. Used in various properties for tracking component versions. 
+
+Definition at line 142 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_ad7129ea29f56980bf4031b860102565f}} 
+uint8\_t&
+major&
+Major version \\
+\hline
+
+\mbox{\label{types_8h_a0f3eb4a91ba70d0a60f56174c685b762}} 
+uint8\_t&
+minor&
+Minor version \\
+\hline
+
+\mbox{\label{types_8h_a3c5b1d07c0628aa9b6f3bd086ed0d962}} 
+uint16\_t&
+patch&
+Revision or patchlevel \\
+\hline
+
+\end{DoxyFields}
+\index{fpga\_error\_info@{fpga\_error\_info}}\label{structfpga__error__info}
+\doxysubsubsection{struct fpga\+\_\+error\+\_\+info}
+
+
+Definition at line 169 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_a63e0ccbeddbe44792e1c1f7375243751}} 
+char&
+name\mbox{[}64\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_a8f3a6c3707e10f13a55662a081494e69}} 
+bool&
+can\_clear&
+name of the error \\
+\hline
+
+\end{DoxyFields}
+\index{metric\_value@{metric\_value}}\label{unionmetric__value}
+\doxysubsubsection{union metric\+\_\+value}
+Metric value union 
+
+Definition at line 200 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_a3157831ae4c4f8ecda1f61bdaea2ef13}} 
+uint64\_t&
+ivalue&
+\\
+\hline
+
+\mbox{\label{types_8h_a40409d5d9e5b9f16e3270bed34404871}} 
+double&
+dvalue&
+\\
+\hline
+
+\mbox{\label{types_8h_a171100c87da379700719f03ccac03092}} 
+float&
+fvalue&
+\\
+\hline
+
+\mbox{\label{types_8h_aee6957b949306871afb1d006b066409f}} 
+bool&
+bvalue&
+\\
+\hline
+
+\end{DoxyFields}
+\index{fpga\_metric\_info@{fpga\_metric\_info}}\label{structfpga__metric__info}
+\doxysubsubsection{struct fpga\+\_\+metric\+\_\+info}
+Metric info struct 
+
+Definition at line 212 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_adfdb0c64c6e3d00d35f9c8996cf36463}} 
+uint64\_t&
+metric\_num&
+\\
+\hline
+
+\mbox{\label{types_8h_af2e751ebec0b9526a73a59a29461a64a}} 
+\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\_guid}}&
+metric\_guid&
+\\
+\hline
+
+\mbox{\label{types_8h_a38d4fbdc2acde2f19711c9733db6e24c}} 
+char&
+qualifier\_name\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_aa3930b74a55578cf4f030f9ae284b848}} 
+char&
+group\_name\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_a3d336a0f9766b5c8e6a00069c2cc13e0}} 
+char&
+metric\_name\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_a537b1236822cc923a44ed0440dc8500a}} 
+char&
+metric\_units\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_a3aef82b39037b6e4646f811fea4f93e4}} 
+enum \mbox{\hyperlink{types__enum_8h_ab10f51ceeb88998e5d0389cbd3d55bcc}{fpga\_metric\_datatype}}&
+metric\_datatype&
+\\
+\hline
+
+\mbox{\label{types_8h_a0f1ee188177b88a3ade06b635c45743b}} 
+enum \mbox{\hyperlink{types__enum_8h_a04334291d3fe08ee2385f534629f3094}{fpga\_metric\_type}}&
+metric\_type&
+\\
+\hline
+
+\end{DoxyFields}
+\index{fpga\_metric@{fpga\_metric}}\label{structfpga__metric}
+\doxysubsubsection{struct fpga\+\_\+metric}
+Metric struct 
+
+Definition at line 227 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_a05d5221efe860841a350b4c81c26f8d2}} 
+uint64\_t&
+metric\_num&
+\\
+\hline
+
+\mbox{\label{types_8h_a0e64950f7e2c90ca97009d564cca1d04}} 
+\mbox{\hyperlink{types_8h_unionmetric__value}{metric\_value}}&
+value&
+\\
+\hline
+
+\mbox{\label{types_8h_a43c9f922234a08609b8c586ec948e6b1}} 
+bool&
+isvalid&
+\\
+\hline
+
+\end{DoxyFields}
+\index{threshold@{threshold}}\label{structthreshold}
+\doxysubsubsection{struct threshold}
+Threshold struct 
+
+Definition at line 238 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_a3b1e319947fc05dfb36ded4fb08940b3}} 
+char&
+threshold\_name\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_a65fef448c835c04ba240e1fed004192e}} 
+uint32\_t&
+is\_valid&
+\\
+\hline
+
+\mbox{\label{types_8h_a1af0ffe5e1a7dd82234952db9ab1bc40}} 
+double&
+value&
+\\
+\hline
+
+\end{DoxyFields}
+\index{metric\_threshold@{metric\_threshold}}\label{structmetric__threshold}
+\doxysubsubsection{struct metric\+\_\+threshold}
+
+
+Definition at line 244 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_a63c4387d2ad646feb31c6f3dac3fb987}} 
+char&
+metric\_name\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{types_8h_abf891f1ebf3009188f833562401c01c7}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+upper\_nr\_threshold&
+\\
+\hline
+
+\mbox{\label{types_8h_ab4343b83ae47a10bfdeb223297d761f9}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+upper\_c\_threshold&
+\\
+\hline
+
+\mbox{\label{types_8h_a2bc47facaf3ef988f041e2401a9ca38b}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+upper\_nc\_threshold&
+\\
+\hline
+
+\mbox{\label{types_8h_a731aa786b82861be91dba21a71b8a729}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+lower\_nr\_threshold&
+\\
+\hline
+
+\mbox{\label{types_8h_a7e56a0642bbea2cdd5c688e56bd622d7}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+lower\_c\_threshold&
+\\
+\hline
+
+\mbox{\label{types_8h_a023d220c713f20476c51c164b59d0a7b}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+lower\_nc\_threshold&
+\\
+\hline
+
+\mbox{\label{types_8h_ae212230698181daf72fbbfe71a0fb1e5}} 
+\mbox{\hyperlink{types_8h_structthreshold}{threshold}}&
+hysteresis&
+\\
+\hline
+
+\end{DoxyFields}
+\index{fpga\_token\_header@{fpga\_token\_header}}\label{structfpga__token__header}
+\doxysubsubsection{struct fpga\+\_\+token\+\_\+header}
+Internal token type header
+
+Each plugin (dfl\+: libxfpga.\+so, vfio\+: libopae-\/v.\+so) implements its own proprietary token type. This header {\itshape must} appear at offset zero within that structure.
+
+eg, see lib/plugins/xfpga/types\+\_\+int.\+h\+:struct \+\_\+fpga\+\_\+token and lib/plugins/vfio/opae\+\_\+vfio.\+h\+:struct \+\_\+vfio\+\_\+token. 
+
+Definition at line 264 of file types.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{types_8h_a2f1ca035b23b1d256c0897c87088e3e9}} 
+uint64\_t&
+magic&
+\\
+\hline
+
+\mbox{\label{types_8h_a9d6a110f9565c98f6af128b544ccd9d7}} 
+uint16\_t&
+vendor\_id&
+\\
+\hline
+
+\mbox{\label{types_8h_adbd582f365bccde67633a77ee997b82f}} 
+uint16\_t&
+device\_id&
+\\
+\hline
+
+\mbox{\label{types_8h_a9d99b916146fb609bf7266ee5facea92}} 
+uint16\_t&
+segment&
+\\
+\hline
+
+\mbox{\label{types_8h_a0e5a70d6ef42a26544d85ea50340fb36}} 
+uint8\_t&
+bus&
+\\
+\hline
+
+\mbox{\label{types_8h_a44e4a70a27892c61fd9dc0ef8899ce87}} 
+uint8\_t&
+device&
+\\
+\hline
+
+\mbox{\label{types_8h_ae517a83a32a886df54165c583cc5aa0a}} 
+uint8\_t&
+function&
+\\
+\hline
+
+\mbox{\label{types_8h_aa51f72f309bb8d31b997592b802db331}} 
+\mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\_interface}}&
+interface&
+\\
+\hline
+
+\mbox{\label{types_8h_aedd4a4c842c5c40092041dc02ea059b2}} 
+\mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\_objtype}}&
+objtype&
+\\
+\hline
+
+\mbox{\label{types_8h_ada99f326ab6582aa3a209ef6b9bd4003}} 
+uint64\_t&
+object\_id&
+\\
+\hline
+
+\mbox{\label{types_8h_ae24e0a1d32b1f940e7ffb96a34c31345}} 
+\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\_guid}}&
+guid&
+\\
+\hline
+
+\mbox{\label{types_8h_aeaca575d589325a187b9abea66a4192a}} 
+uint16\_t&
+subsystem\_vendor\_id&
+\\
+\hline
+
+\mbox{\label{types_8h_a2710b5d055ec2e27b627e27dfa84007f}} 
+uint16\_t&
+subsystem\_device\_id&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{types_8h_a6af563bebf37e9c908aa7fe8470efa8f}} 
+\index{types.h@{types.h}!FPGA\_ERROR\_NAME\_MAX@{FPGA\_ERROR\_NAME\_MAX}}
+\index{FPGA\_ERROR\_NAME\_MAX@{FPGA\_ERROR\_NAME\_MAX}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{FPGA\_ERROR\_NAME\_MAX}{FPGA\_ERROR\_NAME\_MAX}}
+{\footnotesize\ttfamily \#define FPGA\+\_\+\+ERROR\+\_\+\+NAME\+\_\+\+MAX~64}
+
+Information about an error register
+
+This data structure captures information about an error register exposed by an accelerator resource. The error API provides functions to retrieve these information structures from a particular resource. 
+
+Definition at line 168 of file types.\+h.
+
+\mbox{\label{types_8h_a38d47f983b7adaa90dda28ef60de86ca}} 
+\index{types.h@{types.h}!FPGA\_METRIC\_STR\_SIZE@{FPGA\_METRIC\_STR\_SIZE}}
+\index{FPGA\_METRIC\_STR\_SIZE@{FPGA\_METRIC\_STR\_SIZE}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{FPGA\_METRIC\_STR\_SIZE}{FPGA\_METRIC\_STR\_SIZE}}
+{\footnotesize\ttfamily \#define FPGA\+\_\+\+METRIC\+\_\+\+STR\+\_\+\+SIZE~256}
+
+FPGA Metric string size 
+
+Definition at line 195 of file types.\+h.
+
+\mbox{\label{types_8h_a8a497e598ca0addd676b0c4719011b47}} 
+\index{types.h@{types.h}!fpga\_is\_parent\_child@{fpga\_is\_parent\_child}}
+\index{fpga\_is\_parent\_child@{fpga\_is\_parent\_child}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_is\_parent\_child}{fpga\_is\_parent\_child}}
+{\footnotesize\ttfamily \#define fpga\+\_\+is\+\_\+parent\+\_\+child(\begin{DoxyParamCaption}\item[{}]{\+\_\+\+\_\+parent\+\_\+hdr,  }\item[{}]{\+\_\+\+\_\+child\+\_\+hdr }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((\_\_parent\_hdr)-\/>objtype == FPGA\_DEVICE) \&\& \(\backslash\)}
+\DoxyCodeLine{ ((\_\_child\_hdr)-\/>objtype == FPGA\_ACCELERATOR) \&\& \(\backslash\)}
+\DoxyCodeLine{ ((\_\_parent\_hdr)-\/>segment == (\_\_child\_hdr)-\/>segment) \&\& \(\backslash\)}
+\DoxyCodeLine{ ((\_\_parent\_hdr)-\/>bus == (\_\_child\_hdr)-\/>bus) \&\& \(\backslash\)}
+\DoxyCodeLine{ ((\_\_parent\_hdr)-\/>device == (\_\_child\_hdr)-\/>device))}
+
+\end{DoxyCode}
+Determine token parent/child relationship
+
+Given pointers to two \mbox{\hyperlink{types_8h_structfpga__token__header}{fpga\+\_\+token\+\_\+header}} structs, determine whether the first is the parent of the second. A parent will have objtype == FPGA\+\_\+\+DEVICE. A child will have objtype == FPGA\+\_\+\+ACCELERATOR. The PCIe address of the two headers will match in all but the function fields. 
+
+Definition at line 288 of file types.\+h.
+
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\label{types_8h_ab868bdeab946a8059abe7e9c114aee56}} 
+\index{types.h@{types.h}!fpga\_properties@{fpga\_properties}}
+\index{fpga\_properties@{fpga\_properties}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_properties}{fpga\_properties}}
+{\footnotesize\ttfamily typedef void$\ast$ \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}
+
+Object for expressing FPGA resource properties
+
+{\ttfamily fpga\+\_\+properties} objects encapsulate all enumerable information about an FPGA resources. They can be used for two purposes\+: selective enumeration (discovery) and querying information about existing resources.
+
+For selective enumeration, usually an empty {\ttfamily fpga\+\_\+properties} object is created (using \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}}) and then populated with the desired criteria for enumeration. An array of {\ttfamily fpga\+\_\+properties} can then be passed to \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}}, which will return a list of {\ttfamily fpga\+\_\+token} objects matching these criteria.
+
+For querying properties of existing FPGA resources, \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}} can also take an {\ttfamily fpga\+\_\+token} and will return an {\ttfamily fpga\+\_\+properties} object populated with information about the resource referenced by that token.
+
+After use, {\ttfamily fpga\+\_\+properties} objects should be destroyed using fpga\+\_\+destroy\+Properties() to free backing memory used by the {\ttfamily fpga\+\_\+properties} object. 
+
+Definition at line 92 of file types.\+h.
+
+\mbox{\label{types_8h_a252f538a10fb51d0988ed52946516d9e}} 
+\index{types.h@{types.h}!fpga\_token@{fpga\_token}}
+\index{fpga\_token@{fpga\_token}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_token}{fpga\_token}}
+{\footnotesize\ttfamily typedef void$\ast$ \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}
+
+Token for referencing FPGA resources
+
+An {\ttfamily fpga\+\_\+token} serves as a reference to a specific FPGA resource present in the system. Holding an {\ttfamily fpga\+\_\+token} does not constitute ownership of the FPGA resource -\/ it merely allows the user to query further information about a resource, or to use \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}} to acquire ownership.
+
+{\ttfamily fpga\+\_\+token}s are usually returned by \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}} or \mbox{\hyperlink{properties_8h_aa3d6d131a85e9c7cff4844c0931c1591}{fpga\+Properties\+Get\+Parent()}}, and used by \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}} to acquire ownership and yield a handle to the resource. Some API calls also take {\ttfamily fpga\+\_\+token}s as arguments if they don\textquotesingle{}t require ownership of the resource in question. 
+
+Definition at line 107 of file types.\+h.
+
+\mbox{\label{types_8h_a4ad40f31195233b629bcde187b0556d5}} 
+\index{types.h@{types.h}!fpga\_handle@{fpga\_handle}}
+\index{fpga\_handle@{fpga\_handle}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_handle}{fpga\_handle}}
+{\footnotesize\ttfamily typedef void$\ast$ \mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}
+
+Handle to an FPGA resource
+
+A valid {\ttfamily fpga\+\_\+handle} object, as populated by \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}, denotes ownership of an FPGA resource. Note that ownership can be exclusive or shared, depending on the flags used in \mbox{\hyperlink{access_8h_addde6b2bafcd6632a2c0b595c6bc0ef3}{fpga\+Open()}}. Ownership can be released by calling \mbox{\hyperlink{access_8h_ac83789ebb65dc6b2adeae3d7e7fa3e79}{fpga\+Close()}}, which will render the underlying handle invalid.
+
+Many OPAE C API functions require a valid token (which is synonymous with ownership of the resource). 
+
+Definition at line 120 of file types.\+h.
+
+\mbox{\label{types_8h_af0b6683499be79fab39ac41db02e7abf}} 
+\index{types.h@{types.h}!fpga\_guid@{fpga\_guid}}
+\index{fpga\_guid@{fpga\_guid}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_guid}{fpga\_guid}}
+{\footnotesize\ttfamily typedef uint8\+\_\+t fpga\+\_\+guid\mbox{[}16\mbox{]}}
+
+Globally unique identifier (GUID)
+
+GUIDs are used widely within OPAE for helping identify FPGA resources. For example, every FPGA resource has a {\ttfamily guid} property, which can be (and in the case of FPGA\+\_\+\+ACCELERATOR resource primarily is) used for enumerating a resource of a specific type.
+
+{\ttfamily fpga\+\_\+guid} is compatible with libuuid\textquotesingle{}s uuid\+\_\+t, so users can use libuuid functions like uuid\+\_\+parse() to create and work with GUIDs. 
+
+Definition at line 133 of file types.\+h.
+
+\mbox{\label{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}} 
+\index{types.h@{types.h}!fpga\_event\_handle@{fpga\_event\_handle}}
+\index{fpga\_event\_handle@{fpga\_event\_handle}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_event\_handle}{fpga\_event\_handle}}
+{\footnotesize\ttfamily typedef void$\ast$ \mbox{\hyperlink{types_8h_acccb4e3dd49efd2b0999b14bf05d5aad}{fpga\+\_\+event\+\_\+handle}}}
+
+Handle to an event object
+
+OPAE provides an interface to asynchronous events that can be generated by different FPGA resources. The event API provides functions to register for these events; associated with every event a process has registered for is an {\ttfamily fpga\+\_\+event\+\_\+handle}, which encapsulates the OS-\/specific data structure for event objects.
+
+After use, {\ttfamily fpga\+\_\+event\+\_\+handle} objects should be destroyed using \mbox{\hyperlink{event_8h_ab8e748d1c491717d677a96c23dee987b}{fpga\+Destroy\+Event\+Handle()}} to free backing memory used by the {\ttfamily fpga\+\_\+event\+\_\+handle} object. 
+
+Definition at line 160 of file types.\+h.
+
+\mbox{\label{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}} 
+\index{types.h@{types.h}!fpga\_object@{fpga\_object}}
+\index{fpga\_object@{fpga\_object}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{fpga\_object}{fpga\_object}}
+{\footnotesize\ttfamily typedef void$\ast$ \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}
+
+Object pertaining to an FPGA resource as identified by a unique name
+
+An {\ttfamily fpga\+\_\+object} represents either a device attribute or a container of attributes. Similar to filesystems, a \textquotesingle{}/\textquotesingle{} may be used to seperate objects in an object hierarchy. Once on object is acquired, it may be used to read or write data in a resource attribute or to query sub-\/objects if the object is a container object. The data in an object is buffered and will be kept around until the object is destroyed. Additionally, the data in an attribute can by synchronized from the owning resource using the FPGA\+\_\+\+OBJECT\+\_\+\+SYNC flag during read operations. The name identifying the object is unique with respect to the resource that owns it. A parent resource may be identified by an {\ttfamily fpga\+\_\+token} object, by an {\ttfamily fpga\+\_\+handle} object, or another {\ttfamily fpga\+\_\+object} object. If a handle object is used when opening the object, then the object is opened with read-\/write access. Otherwise, the object is read-\/only. 
+
+Definition at line 189 of file types.\+h.
+

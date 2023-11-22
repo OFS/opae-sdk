@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_0d44eeeddab72afd6caf3c7b0f1309a3" kind="dir">
+    <compoundname>samples/cxl_host_exerciser</compoundname>
+    <innerfile refid="cxl__he__cache__cmd_8h">cxl_he_cache_cmd.h</innerfile>
+    <innerfile refid="cxl__he__cache__lpbk__cmd_8h">cxl_he_cache_lpbk_cmd.h</innerfile>
+    <innerfile refid="cxl__he__cmd_8h">cxl_he_cmd.h</innerfile>
+    <innerfile refid="cxl__host__exerciser_8cpp">cxl_host_exerciser.cpp</innerfile>
+    <innerfile refid="cxl__host__exerciser_8h">cxl_host_exerciser.h</innerfile>
+    <innerfile refid="he__cache__test_8h">he_cache_test.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/cxl_host_exerciser/"/>
+  </compounddef>
+</doxygen>

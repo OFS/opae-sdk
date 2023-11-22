@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structDFH_8____unnamed132_____8____unnamed134____" kind="struct" language="C++" prot="public">
+    <compoundname>DFH.__unnamed132__.__unnamed134__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1ab80bb7740288fda1f201890375a60c8f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <bitfield> 12</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="170" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1a11521be0d4298edc1d011316a1032c99" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>major_rev</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="171" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1ad0cab90d8d20d57e2f2b9be52f7dd25d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <bitfield> 24</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="172" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1ad985f63c4c4b313bcc1d5db6c9b79f4b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>eol</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="173" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1a0e8d7e3a05c9a274d1059add1dda5f98" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>reserved41</name>
+        <bitfield> 7</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="174" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1a5fab36f0641df8efa21f88fd3da3b304" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>minor_rev</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="175" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1a2af72f100c356273d46284f6fd1dfc08" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="176" column="18"/>
+      </memberdef>
+      <memberdef kind="variable" id="structDFH_8____unnamed132_____8____unnamed134_____1a599dcce2998a6b40b1e38e8c6006cb0a" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="177" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>DFH.__unnamed132__.__unnamed134__</label>
+        <link refid="structDFH_8____unnamed132_____8____unnamed134____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_100g_cmd.h" line="169" column="7" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="169" bodyend="178"/>
+    <listofallmembers>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1ad985f63c4c4b313bcc1d5db6c9b79f4b" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>eol</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1ab80bb7740288fda1f201890375a60c8f" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>id</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1a11521be0d4298edc1d011316a1032c99" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>major_rev</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1a5fab36f0641df8efa21f88fd3da3b304" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>minor_rev</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1ad0cab90d8d20d57e2f2b9be52f7dd25d" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>next</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1a0e8d7e3a05c9a274d1059add1dda5f98" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>reserved41</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1a599dcce2998a6b40b1e38e8c6006cb0a" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>type</name></member>
+      <member refid="structDFH_8____unnamed132_____8____unnamed134_____1a2af72f100c356273d46284f6fd1dfc08" prot="public" virt="non-virtual"><scope>DFH.__unnamed132__.__unnamed134__</scope><name>version</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

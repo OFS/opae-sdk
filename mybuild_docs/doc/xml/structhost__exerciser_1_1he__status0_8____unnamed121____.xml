@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__status0_8____unnamed121____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_status0.__unnamed121__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__status0_8____unnamed121_____1affa900c1a78a86a553b0da57273eccad" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>numWrites</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="252" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__status0_8____unnamed121_____1a312b0a681be1050d8c6995cbea955190" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>numReads</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="253" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_status0.__unnamed121__</label>
+        <link refid="structhost__exerciser_1_1he__status0_8____unnamed121____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="251" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="251" bodyend="254"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__status0_8____unnamed121_____1a312b0a681be1050d8c6995cbea955190" prot="public" virt="non-virtual"><scope>host_exerciser::he_status0.__unnamed121__</scope><name>numReads</name></member>
+      <member refid="structhost__exerciser_1_1he__status0_8____unnamed121_____1affa900c1a78a86a553b0da57273eccad" prot="public" virt="non-virtual"><scope>host_exerciser::he_status0.__unnamed121__</scope><name>numWrites</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,232 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classhssi__pkt__filt__100g__cmd" kind="class" language="C++" prot="public">
+    <compoundname>hssi_pkt_filt_100g_cmd</compoundname>
+    <basecompoundref refid="classhssi__100g__cmd" prot="public" virt="non-virtual">hssi_100g_cmd</basecompoundref>
+    <includes refid="hssi__pkt__filt__100g__cmd_8h" local="no">/root/samples/hssi/hssi_pkt_filt_100g_cmd.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classhssi__pkt__filt__100g__cmd_1a20f52fb50c5f3319258a92ef3cf1a90f" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_pkt_filt_100g_cmd::dfl_dev_</definition>
+        <argsstring></argsstring>
+        <name>dfl_dev_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="84" column="15" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="84" bodyend="-1"/>
+        <referencedby refid="classhssi__pkt__filt__100g__cmd_1a3e74b621df757adbb0b9d8472a43248f" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="48" endline="55">add_options</referencedby>
+        <referencedby refid="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="57" endline="81">run</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classhssi__pkt__filt__100g__cmd_1a3e3db45f2f96f7f65082f964bd42a10a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>hssi_pkt_filt_100g_cmd::hssi_pkt_filt_100g_cmd</definition>
+        <argsstring>()</argsstring>
+        <name>hssi_pkt_filt_100g_cmd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="34" column="3" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="34" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__pkt__filt__100g__cmd_1ab866053ecaeb4ae7b92dc9ac94dfef35" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* hssi_pkt_filt_100g_cmd::name</definition>
+        <argsstring>() const override</argsstring>
+        <name>name</name>
+        <reimplements refid="classhssi__100g__cmd_1a2ac9bd89910c7d6b4f3d5c0ef3ccf252">name</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="38" column="22" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="38" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__pkt__filt__100g__cmd_1af6666e8a956190f1032cef988eae2fe6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* hssi_pkt_filt_100g_cmd::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="classhssi__100g__cmd_1a0e8f86e83c2d30a042da6f16e41cb3ce">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="43" column="22" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__pkt__filt__100g__cmd_1a3e74b621df757adbb0b9d8472a43248f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void hssi_pkt_filt_100g_cmd::add_options</definition>
+        <argsstring>(CLI::App *app) override</argsstring>
+        <name>add_options</name>
+        <reimplements refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904">add_options</reimplements>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="48" column="16" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="48" bodyend="55"/>
+        <references refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">hssi_100g_cmd::add_options</references>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classhssi__pkt__filt__100g__cmd_1a20f52fb50c5f3319258a92ef3cf1a90f" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="84">dfl_dev_</references>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int hssi_pkt_filt_100g_cmd::run</definition>
+        <argsstring>(test_afu *afu, CLI::App *app) override</argsstring>
+        <name>run</name>
+        <reimplements refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926">run</reimplements>
+        <param>
+          <type><ref refid="cxl__tg__test_8h_1abc250359b0b249806cbba4173e9644b4" kindref="member">test_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="57" column="15" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="57" bodyend="81"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" compoundref="hssi__100g__cmd_8h" startline="639">hssi_100g_cmd::dest_addr_</references>
+        <references refid="classhssi__pkt__filt__100g__cmd_1a20f52fb50c5f3319258a92ef3cf1a90f" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="84">dfl_dev_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" compoundref="he__cache__test_8h" startline="278">opae::afu_test::afu::error</references>
+        <references refid="hssi__cmd_8h_1a02028d30e3cea7b4e76419c00a1c6e6d" compoundref="hssi__cmd_8h" startline="40">INVALID_MAC</references>
+        <references refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" compoundref="hssi__cmd_8h" startline="121" endline="132">hssi_cmd::mac_bits_for</references>
+        <references refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</references>
+        <references refid="classhssi__cmd_1a0cfec35cb1e5910bd54f2ad9122fe6f9" compoundref="hssi__cmd_8h" startline="88" endline="119">hssi_cmd::set_pkt_filt_dest</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" compoundref="he__cache__test_8h" startline="273">opae::afu_test::afu::success</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>hssi_pkt_filt_100g_cmd</label>
+        <link refid="classhssi__pkt__filt__100g__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="3">
+        <label>hssi_cmd</label>
+        <link refid="classhssi__cmd"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>hssi_100g_cmd</label>
+        <link refid="classhssi__100g__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>hssi_pkt_filt_100g_cmd</label>
+        <link refid="classhssi__pkt__filt__100g__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="3">
+        <label>hssi_cmd</label>
+        <link refid="classhssi__cmd"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>hssi_100g_cmd</label>
+        <link refid="classhssi__100g__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_pkt_filt_100g_cmd.h" line="31" column="1" bodyfile="samples/hssi/hssi_pkt_filt_100g_cmd.h" bodystart="32" bodyend="85"/>
+    <listofallmembers>
+      <member refid="classhssi__pkt__filt__100g__cmd_1a3e74b621df757adbb0b9d8472a43248f" prot="public" virt="virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>add_options</name></member>
+      <member refid="classhssi__100g__cmd_1a74c6040308212cd53dc598359ee319f0" prot="public" virt="virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>afu_id</name></member>
+      <member refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>calc_performance</name></member>
+      <member refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>capture_perf</name></member>
+      <member refid="classhssi__cmd_1a4d645c1913180d63ad93330589ab0892" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>clock_freq_for</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>command</name></member>
+      <member refid="classhssi__100g__cmd_1a87688bc407d45f0c648a3a8636eca3db" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>continuous_</name></member>
+      <member refid="classhssi__100g__cmd_1a42069ef54edff7924b1e7127c67f9a22" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>contmonitor_</name></member>
+      <member refid="classhssi__100g__cmd_1aeecaf85339dcf800a0fa53a456df27c2" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>data_64</name></member>
+      <member refid="classhssi__pkt__filt__100g__cmd_1af6666e8a956190f1032cef988eae2fe6" prot="public" virt="virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>description</name></member>
+      <member refid="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>dest_addr_</name></member>
+      <member refid="classhssi__pkt__filt__100g__cmd_1a20f52fb50c5f3319258a92ef3cf1a90f" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>dfl_dev_</name></member>
+      <member refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>enable_eth_loopback</name></member>
+      <member refid="classhssi__100g__cmd_1aa0a117f3d240d96f78a6355922292b76" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>end_select_</name></member>
+      <member refid="classhssi__100g__cmd_1afb165abcd4bc91fb813dbb0badeefedf" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>end_size_</name></member>
+      <member refid="classhssi__100g__cmd_1af3db6112939ee4024b08f4c800c18ef6" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>eth_ifc_</name></member>
+      <member refid="classhssi__100g__cmd_1af47a5b14c39f63416f61c7e2cff1829b" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>eth_loopback_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" virt="pure-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>featureid</name></member>
+      <member refid="classhssi__100g__cmd_1a49339b1918720ef7901cf78aacbd1327" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>gap_</name></member>
+      <member refid="classhssi__100g__cmd_1aac9bacf0ad601f646a759426c31feaa4" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>get_user_input</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" virt="pure-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>guidh</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" virt="pure-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>guidl</name></member>
+      <member refid="classhssi__100g__cmd_1a272bac05983a284c0bf972d3d487258d" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>hssi_100g_cmd</name></member>
+      <member refid="classhssi__cmd_1a9241a77d197ac297be1ea1759c24fe08" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>hssi_cmd</name></member>
+      <member refid="classhssi__pkt__filt__100g__cmd_1a3e3db45f2f96f7f65082f964bd42a10a" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>hssi_pkt_filt_100g_cmd</name></member>
+      <member refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>int_to_hex</name></member>
+      <member refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>mac_bits_for</name></member>
+      <member refid="classhssi__100g__cmd_1ab23e7abcc352add26ab6c3f726100410" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>move_cursor</name></member>
+      <member refid="classhssi__pkt__filt__100g__cmd_1ab866053ecaeb4ae7b92dc9ac94dfef35" prot="public" virt="virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>name</name></member>
+      <member refid="classhssi__100g__cmd_1a02a72d1c81ed666a40bf28cd3524607d" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>num_packets_</name></member>
+      <member refid="classhssi__100g__cmd_1ab035b798f21f9a36e1f4dd47023ef754" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>pattern_</name></member>
+      <member refid="classhssi__100g__cmd_1a3ed679b346bbdb71b10257b07f31298d" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>port_</name></member>
+      <member refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>print_monitor_data</name></member>
+      <member refid="classhssi__100g__cmd_1a059acd53ef63ce8eda3f0e9e8b8f09f1" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>print_monitor_headers</name></member>
+      <member refid="classhssi__100g__cmd_1adedc4e33cb2ef457b66822f80ec5373c" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>print_registers</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>ptr_t</name></member>
+      <member refid="classhssi__100g__cmd_1a711ab34a9639ea0ca56622e8aa355a69" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>quit_monitor</name></member>
+      <member refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>read_performance</name></member>
+      <member refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>reset_monitor</name></member>
+      <member refid="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0" prot="public" virt="virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>run</name></member>
+      <member refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>run_monitor</name></member>
+      <member refid="classhssi__cmd_1a308020145dd686d7b5ab1a4bf22ee9c7" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>run_process</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>running_</name></member>
+      <member refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>select_port</name></member>
+      <member refid="classhssi__cmd_1a0cfec35cb1e5910bd54f2ad9122fe6f9" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>set_pkt_filt_dest</name></member>
+      <member refid="classhssi__cmd_1ab9e34f47f9b8507649f79894950ed59e" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>show_eth_stats</name></member>
+      <member refid="classhssi__100g__cmd_1ae1cb27623d716c598f1c3f9d1efea893" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>src_addr_</name></member>
+      <member refid="classhssi__100g__cmd_1aaf54dae4a089c878c40bbb830994a3fe" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>stall_disable</name></member>
+      <member refid="classhssi__100g__cmd_1aa60e47554dd2bae485f49d773255f7b0" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>stall_enable</name></member>
+      <member refid="classhssi__100g__cmd_1a903f4acd96b9833b465389c4197c6428" prot="protected" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>start_size_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>stop</name></member>
+      <member refid="classhssi__100g__cmd_1a17a10d74f5c3836a7cfe847c618073e9" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>timestamp_in_seconds</name></member>
+      <member refid="classhssi__100g__cmd_1a17f87d943b75bf98510e103bf94bbb9e" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>total_per_second</name></member>
+      <member refid="classhssi__100g__cmd_1a06b70f259d026f9409986b9f0b3790d0" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>write_csr_addr</name></member>
+      <member refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" prot="public" virt="non-virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>write_ctrl_config</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>hssi_pkt_filt_100g_cmd</scope><name>~command</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

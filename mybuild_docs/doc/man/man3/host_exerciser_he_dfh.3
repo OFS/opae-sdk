@@ -1,0 +1,112 @@
+.TH "host_exerciser::he_dfh" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::he_dfh
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/cxl_host_exerciser\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBoffset\fP = HE_DFH }"
+.br
+.ti -1c
+.RI "enum { \fBoffset\fP = HE_DFH }"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBvalue\fP"
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint64_t \fBCcipVersionNumber\fP: 12"
+.br
+.ti -1c
+.RI "uint64_t \fBAfuMajVersion\fP: 4"
+.br
+.ti -1c
+.RI "uint64_t \fBNextDfhOffset\fP: 24"
+.br
+.ti -1c
+.RI "uint64_t \fBEOL\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBReserved\fP: 19"
+.br
+.ti -1c
+.RI "uint64_t \fBFeatureType\fP: 4"
+.br
+.ti -1c
+.RI "}; "
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint16_t \fBCcipVersionNumber\fP: 12"
+.br
+.ti -1c
+.RI "uint8_t \fBAfuMajVersion\fP: 4"
+.br
+.ti -1c
+.RI "uint32_t \fBNextDfhOffset\fP: 24"
+.br
+.ti -1c
+.RI "uint8_t \fBEOL\fP: 1"
+.br
+.ti -1c
+.RI "uint32_t \fBReserved\fP: 19"
+.br
+.ti -1c
+.RI "uint8_t \fBFeatureType\fP: 4"
+.br
+.ti -1c
+.RI "}; "
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 100 of file cxl_host_exerciser\&.h\&.
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 101 of file cxl_host_exerciser\&.h\&.
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 123 of file host_exerciser\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t host_exerciser::he_dfh::value"
+
+.PP
+Definition at line 102 of file cxl_host_exerciser\&.h\&.
+.SS "struct { \&.\&.\&. } "
+
+.SS "struct { \&.\&.\&. } "
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

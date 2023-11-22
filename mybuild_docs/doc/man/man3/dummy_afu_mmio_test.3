@@ -1,0 +1,146 @@
+.TH "dummy_afu::mmio_test" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+dummy_afu::mmio_test
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/dummy_afu/mmio\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBmmio_test\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~mmio_test\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP)"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.ti -1c
+.RI "int \fBrun_perf\fP (\fBdummy_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBcount_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBsp_index_\fP"
+.br
+.ti -1c
+.RI "bool \fBperf_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBwidth_\fP"
+.br
+.ti -1c
+.RI "std::string \fBop_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 93 of file mmio\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "dummy_afu::mmio_test::mmio_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 96 of file mmio\&.h\&.
+.SS "virtual dummy_afu::mmio_test::~mmio_test ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 105 of file mmio\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* dummy_afu::mmio_test::name () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 106 of file mmio\&.h\&.
+.PP
+Referenced by run_perf()\&.
+.SS "virtual const char* dummy_afu::mmio_test::description () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 111 of file mmio\&.h\&.
+.SS "virtual void dummy_afu::mmio_test::add_options (CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 116 of file mmio\&.h\&.
+.PP
+References app, count_, op_, perf_, sp_index_, and width_\&.
+.SS "virtual int dummy_afu::mmio_test::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 131 of file mmio\&.h\&.
+.PP
+References app, count_, dummy_afu::MMIO_TEST_SCRATCHPAD, perf_, run_perf(), dummy_afu::SCRATCHPAD, and sp_index_\&.
+.SS "int dummy_afu::mmio_test::run_perf (\fBdummy_afu\fP * afu, CLI::App * app)\fC [inline]\fP"
+
+.PP
+Definition at line 155 of file mmio\&.h\&.
+.PP
+References app, count_, name(), op_, and width_\&.
+.PP
+Referenced by run()\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t dummy_afu::mmio_test::count_\fC [private]\fP"
+
+.PP
+Definition at line 181 of file mmio\&.h\&.
+.PP
+Referenced by add_options(), run(), and run_perf()\&.
+.SS "uint32_t dummy_afu::mmio_test::sp_index_\fC [private]\fP"
+
+.PP
+Definition at line 182 of file mmio\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "bool dummy_afu::mmio_test::perf_\fC [private]\fP"
+
+.PP
+Definition at line 183 of file mmio\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t dummy_afu::mmio_test::width_\fC [private]\fP"
+
+.PP
+Definition at line 184 of file mmio\&.h\&.
+.PP
+Referenced by add_options(), and run_perf()\&.
+.SS "std::string dummy_afu::mmio_test::op_\fC [private]\fP"
+
+.PP
+Definition at line 185 of file mmio\&.h\&.
+.PP
+Referenced by add_options(), and run_perf()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

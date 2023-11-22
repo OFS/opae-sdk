@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classhost__exerciser_1_1host__exerciser__lpbk" kind="class" language="C++" prot="public">
+    <compoundname>host_exerciser::host_exerciser_lpbk</compoundname>
+    <basecompoundref refid="classhost__exerciser_1_1host__exerciser__cmd" prot="public" virt="non-virtual">host_exerciser::host_exerciser_cmd</basecompoundref>
+    <includes refid="host__exerciser__lpbk_8h" local="no">/root/samples/host_exerciser/host_exerciser_lpbk.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classhost__exerciser_1_1host__exerciser__lpbk_1ae4b34910b78e02ba644c5035014d3611" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>host_exerciser::host_exerciser_lpbk::host_exerciser_lpbk</definition>
+        <argsstring>()</argsstring>
+        <name>host_exerciser_lpbk</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser_lpbk.h" line="42" column="3" bodyfile="samples/host_exerciser/host_exerciser_lpbk.h" bodystart="42" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1host__exerciser__lpbk_1a0ca8801096015d8abefc887041dcda07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual host_exerciser::host_exerciser_lpbk::~host_exerciser_lpbk</definition>
+        <argsstring>()</argsstring>
+        <name>~host_exerciser_lpbk</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser_lpbk.h" line="44" column="11" bodyfile="samples/host_exerciser/host_exerciser_lpbk.h" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1host__exerciser__lpbk_1a427eb571ae0d6a13307cd69687741ba6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::host_exerciser_lpbk::name</definition>
+        <argsstring>() const override</argsstring>
+        <name>name</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052">name</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser_lpbk.h" line="45" column="22" bodyfile="samples/host_exerciser/host_exerciser_lpbk.h" bodystart="45" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1host__exerciser__lpbk_1a422ab0c863af2211448578f01d49c39d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::host_exerciser_lpbk::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser_lpbk.h" line="50" column="22" bodyfile="samples/host_exerciser/host_exerciser_lpbk.h" bodystart="50" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1host__exerciser__lpbk_1ae8ec166b98127b3f1f577ca8bc1e7040" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::host_exerciser_lpbk::afu_id</definition>
+        <argsstring>() const override</argsstring>
+        <name>afu_id</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb">afu_id</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser_lpbk.h" line="55" column="22" bodyfile="samples/host_exerciser/host_exerciser_lpbk.h" bodystart="55" bodyend="58"/>
+        <references refid="host__exerciser__lpbk_8h_1afd5fda82b5bc6a4e2af9d0cf49445f78" compoundref="host__exerciser__lpbk_8h" startline="31">LPBK_AFU_ID</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>host_exerciser::host_exerciser_lpbk</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__lpbk"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>host_exerciser::host_exerciser_cmd</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::host_exerciser_lpbk</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__lpbk"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>host_exerciser::host_exerciser_cmd</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#host_exe_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#he_lpbk_ctl_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>#he_interrupt_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>#he_lpbk_cfg_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="4">
+        <label>host_exerciser::host_exerciser</label>
+        <link refid="classhost__exerciser_1_1host__exerciser"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>host_exerciser::he_cfg</label>
+        <link refid="unionhost__exerciser_1_1he__cfg"/>
+      </node>
+      <node id="6">
+        <label>host_exerciser::he_ctl</label>
+        <link refid="unionhost__exerciser_1_1he__ctl"/>
+      </node>
+      <node id="7">
+        <label>host_exerciser::he_interrupt0</label>
+        <link refid="unionhost__exerciser_1_1he__interrupt0"/>
+      </node>
+      <node id="5">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser_lpbk.h" line="39" column="1" bodyfile="samples/host_exerciser/host_exerciser_lpbk.h" bodystart="40" bodyend="61"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>add_options</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__lpbk_1ae8ec166b98127b3f1f577ca8bc1e7040" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>afu_id</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1aede1dc5b8f51b0a9119abb2cab54dd30" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>cacheline_aligned_addr</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>command</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__lpbk_1a422ab0c863af2211448578f01d49c39d" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>description</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1ac88ce251d60f9496d039fa8125920b50" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>destination_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a15060baa3ae0403a90156b7d7eefdad1" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>dsm_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a533fb9839b1d008fff8a3ef65e13ab2e" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>dsm_num_reads</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a9999c693487dffaa84bcdf13401c80e9" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>dsm_num_ticks</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a92d3684fd6d98c706ff5708f3d22b18c" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>dsm_num_writes</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" virt="pure-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>featureid</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a2653d2dbc6852f4a87f2b4584df6f736" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>get_cfg_reqlen</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" virt="pure-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>guidh</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" virt="pure-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>guidl</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a1d77b83392d4cb0e0f21677ce73fffdd" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_compare_buffer</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a81766a7d2da59b6e66a89981f4f7f5c7" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_continuousmode</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a3f45f83a1b1baf50f08787d25b866d33" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_dump_buffer</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a672161648b4f66883bc47ef0d6fe0b57" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_forcetestcmpl</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a9bf1efb0f48fe335643cf4e7d77dadd7" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_init_src_buffer</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a324b2ebdd099b3e8ed6e12281fa95628" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_interrupt</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a5f81b3e1ce55057b7d1e49fe2a9133a9" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_interrupt_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a78dab209d059322d173d77caff13bd16" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_lpbk_api_ver_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a709bbfaba5a6a52fd2b05a5caf5a3415" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_lpbk_atomics_supported_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1abe17e7a5912b89f2cccffc7b2c119cb0" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_lpbk_cfg_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a995fa8ea50dfc6b59a80784a20e56866" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_lpbk_ctl_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a414be1769450fa74ee0e622159f7ebfb" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_lpbk_max_reqlen_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a69151663bf338cf126429e7cdd555432" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_num_xfers_to_bw</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a9b75ff69ffc1f2078b5e9fb5c3f74830" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_perf_counters</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a23e2128ba0753d1b767983a6cf8f11d8" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>he_wait_test_completion</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a427ab13cdfdbe49b60b4f3c225899d44" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>host_exe_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a39b41493c2a243ad8e9eed18b6d61d1a" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>host_exerciser_cmd</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a93731bfcf8563a4f664e61dd0eccda4c" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>host_exerciser_errors</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__lpbk_1ae4b34910b78e02ba644c5035014d3611" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>host_exerciser_lpbk</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1ac8ae82a49783ce23453d196c0dfe137b" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>host_exerciser_status</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a571f127ba35f9348482090610f26a3fa" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>host_exerciser_swtestmsg</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a37e774e7e6d25187d0801e5f77ecec1c" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>is_ase_sim_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__lpbk_1a427eb571ae0d6a13307cd69687741ba6" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>name</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1aa52560a3df999e96661079da1f1e4262" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>parse_input_options</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>ptr_t</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>run</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1ae6e828551852c834e830f9bfeb13bbd5" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>run_all_tests</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1aa97f70a05e8316fa5b6039effbceb8d2" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>run_single_test</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>running_</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a91adae5c2765cd1a16dec63e5e26e893" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>set_cfg_reqlen</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a7e74e36eaff5db9b33291fbe4748dee1" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>set_cfg_reqlen</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1adecb328ddf1fd375c17afb03f02d401b" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>source_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>stop</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1ad32d7e0c503d15815bc66c01bf4c2b22" prot="protected" virt="non-virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>token_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>~command</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__cmd_1a53dc085be65fff680e433ee29793ab51" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>~host_exerciser_cmd</name></member>
+      <member refid="classhost__exerciser_1_1host__exerciser__lpbk_1a0ca8801096015d8abefc887041dcda07" prot="public" virt="virtual"><scope>host_exerciser::host_exerciser_lpbk</scope><name>~host_exerciser_lpbk</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

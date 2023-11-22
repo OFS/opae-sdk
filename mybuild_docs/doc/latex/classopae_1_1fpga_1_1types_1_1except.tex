@@ -1,0 +1,178 @@
+\doxysection{opae\+::fpga\+::types\+::except Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1except}\index{opae::fpga::types::except@{opae::fpga::types::except}}
+
+
+{\ttfamily \#include $<$opae/cxx/core/except.\+h$>$}
+
+Inheritance diagram for opae\+::fpga\+::types\+::except\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{classopae_1_1fpga_1_1types_1_1except}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_a84db8167d096b004d28c45e0d600a507}{except}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} loc) noexcept
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_a607953d122ae8c0c9abf9bbaaa2bd3b0}{except}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} res, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} loc) noexcept
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_a4f48810eb0499e595115100915503e54}{except}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} res, const char $\ast$msg, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} loc) noexcept
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_af08375009434a1748d613712108204c9}{what}} () const noexcept override
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_ae3ed4c7022f603abeeb98bcb0f583cf7}{operator fpga\+\_\+result}} () const noexcept
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const std\+::size\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_af8bfb55f096792ad770e5cd5110e929a}{MAX\+\_\+\+EXCEPT}} = 256
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_a21c2cbaa1fa87c94c40b32853659e70b}{res\+\_\+}}
+\item 
+const char $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_ad4ee478e3ab82c0ed668a53601d2e457}{msg\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_a52506f4e5b1af21ddfbecb251f028ec4}{loc\+\_\+}}
+\item 
+char \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_ab58e8409be0f32b8651a9dd54cadfaef}{buf\+\_\+}} \mbox{[}\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_af8bfb55f096792ad770e5cd5110e929a}{MAX\+\_\+\+EXCEPT}}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Generic OPAE exception
+
+An except tracks the source line of origin and an optional fpga\+\_\+result. If no fpga\+\_\+result is given, then FPGA\+\_\+\+EXCEPTION is used. 
+
+Definition at line 78 of file except.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_a84db8167d096b004d28c45e0d600a507}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!except@{except}}
+\index{except@{except}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{except()}{except()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::except\+::except (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}}}]{loc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+except constructor The fpga\+\_\+result value is FPGA\+\_\+\+EXCEPTION.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em loc} & Location where the exception was constructed. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_a607953d122ae8c0c9abf9bbaaa2bd3b0}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!except@{except}}
+\index{except@{except}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{except()}{except()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::except\+::except (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{res,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}}}]{loc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+except constructor
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em res} & The fpga\+\_\+result value associated with this exception. \\
+\hline
+\mbox{\texttt{ in}}  & {\em loc} & Location where the exception was constructed. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_a4f48810eb0499e595115100915503e54}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!except@{except}}
+\index{except@{except}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{except()}{except()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::except\+::except (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{res,  }\item[{const char $\ast$}]{msg,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}}}]{loc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [noexcept]}}
+
+except constructor
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em res} & The fpga\+\_\+result value associated with this exception. \\
+\hline
+\mbox{\texttt{ in}}  & {\em msg} & The error message as a string \\
+\hline
+\mbox{\texttt{ in}}  & {\em loc} & Location where the exception was constructed. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_af08375009434a1748d613712108204c9}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!what@{what}}
+\index{what@{what}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{what()}{what()}}
+{\footnotesize\ttfamily virtual const char$\ast$ opae\+::fpga\+::types\+::except\+::what (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}, {\ttfamily [noexcept]}}
+
+Convert this except to an informative string. \mbox{\label{classopae_1_1fpga_1_1types_1_1except_ae3ed4c7022f603abeeb98bcb0f583cf7}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!operator fpga\_result@{operator fpga\_result}}
+\index{operator fpga\_result@{operator fpga\_result}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{operator fpga\_result()}{operator fpga\_result()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::except\+::operator \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+Convert this except to its fpga\+\_\+result. 
+
+Definition at line 110 of file except.\+h.
+
+
+
+References res\+\_\+.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_af8bfb55f096792ad770e5cd5110e929a}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!MAX\_EXCEPT@{MAX\_EXCEPT}}
+\index{MAX\_EXCEPT@{MAX\_EXCEPT}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{MAX\_EXCEPT}{MAX\_EXCEPT}}
+{\footnotesize\ttfamily const std\+::size\+\_\+t opae\+::fpga\+::types\+::except\+::\+MAX\+\_\+\+EXCEPT = 256\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 80 of file except.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_a21c2cbaa1fa87c94c40b32853659e70b}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!res\_@{res\_}}
+\index{res\_@{res\_}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{res\_}{res\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} opae\+::fpga\+::types\+::except\+::res\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 113 of file except.\+h.
+
+
+
+Referenced by operator fpga\+\_\+result().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_ad4ee478e3ab82c0ed668a53601d2e457}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!msg\_@{msg\_}}
+\index{msg\_@{msg\_}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{msg\_}{msg\_}}
+{\footnotesize\ttfamily const char$\ast$ opae\+::fpga\+::types\+::except\+::msg\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 114 of file except.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_a52506f4e5b1af21ddfbecb251f028ec4}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!loc\_@{loc\_}}
+\index{loc\_@{loc\_}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{loc\_}{loc\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1src__location}{src\+\_\+location}} opae\+::fpga\+::types\+::except\+::loc\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 115 of file except.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1except_ab58e8409be0f32b8651a9dd54cadfaef}} 
+\index{opae::fpga::types::except@{opae::fpga::types::except}!buf\_@{buf\_}}
+\index{buf\_@{buf\_}!opae::fpga::types::except@{opae::fpga::types::except}}
+\doxysubsubsection{\texorpdfstring{buf\_}{buf\_}}
+{\footnotesize\ttfamily char opae\+::fpga\+::types\+::except\+::buf\+\_\+\mbox{[}\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1except_af8bfb55f096792ad770e5cd5110e929a}{MAX\+\_\+\+EXCEPT}}\mbox{]}\hspace{0.3cm}{\ttfamily [mutable]}, {\ttfamily [protected]}}
+
+
+
+Definition at line 116 of file except.\+h.
+

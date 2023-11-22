@@ -1,0 +1,535 @@
+\doxysection{opae\+::fpga\+::types\+::properties Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1properties}\index{opae::fpga::types::properties@{opae::fpga::types::properties}}
+
+
+{\ttfamily \#include $<$opae/cxx/core/properties.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_aac8f376e4bc640a71ff628f536a10584}{properties}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}} \&p)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}} \& \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a6f3cb44a161ed02f4a9916d32851192b}{operator=}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}} \&p)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_ab2c64365c493b7b08ff9207bb128ebbe}{$\sim$properties}} ()
+\item 
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a9a976757deb492ada54d65c6ca1aefe9}{c\+\_\+type}} () const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_ac5a3a372377aea865cbb8345d737127d}{operator fpga\+\_\+properties}} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_ab2b9142ce432de4aff9c0a20e9bc4c42}{get}} ()
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a736a6f59a42279056bf3b0877099bd10}{get}} (\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} guid\+\_\+in)
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_abff4b12dfc1a08d861690a5b9a773fb9}{get}} (\mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}} objtype)
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_aeeb323cca03dd9e26f8b769d9da9ce48}{get}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token}{token}} $>$ t)
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a365bdca95b6af6592c714fad6a9d096a}{get}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} t)
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a3cf32f0e11436d76747a18222f18e4fa}{get}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} $>$ h)
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a63f080b4941991367ba9900af2e6a0b4}{type}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint32\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a5913b325cac373affa91ed5d9196ad41}{num\+\_\+errors}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint16\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a0a3dfe2e229074b9c2b895d2712d4fc0}{segment}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint8\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a8dc399536eb26ce0b4d434aa7e170316}{bus}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint8\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a2da094689d6f9e1ff83a318863e96d95}{device}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint8\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a500427aedb78b3a8fdc68211e0d69bf1}{function}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint8\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a7e727ae54ad257953cd2b0e570c452a1}{socket\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint32\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a42d618739d9d8d00873457a6af5b8613}{num\+\_\+slots}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint64\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_adbda11d711131de6441cf8537321ec83}{bbs\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ \mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a6b0c7cd23a8c0b3e4c55f6c60ae7d620}{bbs\+\_\+version}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint16\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_aa263ac16432be869fc6070209476a0fd}{vendor\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint16\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a16200ec67ed7b2bbf55475c68b932adb}{device\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint16\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a33f8fa0fd03531574fbd0f13e06b02ba}{subsystem\+\_\+vendor\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint16\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a7a2df1b361f7f8ab5c0c2443631f6b30}{subsystem\+\_\+device\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ char $\ast$ $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a41d099cbad8556f3de7f9ff8cf3f092e}{model}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint64\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a8ed3e82ae73b34aa2d729aba2cd8140c}{local\+\_\+memory\+\_\+size}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint64\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a5a2ebe1ce0870eaa6bb578cbf49fe6ff}{capabilities}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint32\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a64fabfeaa7795cef364ca444a6535ed8}{num\+\_\+mmio}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint32\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a07f7a33e0efdc84d39c9ffc5d6374c72}{num\+\_\+interrupts}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_aa046d54251503d161faa02b99a64f0c4}{accelerator\+\_\+state}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ uint64\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_af001f70fa59cd5c49cf28af50e2d2d5f}{object\+\_\+id}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a800b2f5a7f12753741e542165a255eca}{parent}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$ \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a2bd162e2835a510e9c32ab214c458af4}{interface}}
+\item 
+\mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a927bd5aa11cd56706046164da9494b58}{guid}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const std\+::vector$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_ac9e35b67fef37b1d0ab8c6d17549a35c}{none}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a7c81729de274502f8c5f7e1001060ebb}{properties}} (bool alloc\+\_\+props=true)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_abc025fb8c6b491807571899f5841e0f8}{props\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Wraps an OPAE fpga\+\_\+properties object.
+
+properties are information describing an accelerator resource that is identified by its token. The properties are used during enumeration to narrow the search for an accelerator resource, and after enumeration to provide the configuration of that resource. 
+
+Definition at line 51 of file properties.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}}$>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{opae\+::fpga\+::types\+::properties\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 53 of file properties.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_aac8f376e4bc640a71ff628f536a10584}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!properties@{properties}}
+\index{properties@{properties}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{properties()}{properties()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::properties\+::properties (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}} \&}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_ab2c64365c493b7b08ff9207bb128ebbe}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!````~properties@{$\sim$properties}}
+\index{````~properties@{$\sim$properties}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{$\sim$properties()}{~properties()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::properties\+::$\sim$properties (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a7c81729de274502f8c5f7e1001060ebb}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!properties@{properties}}
+\index{properties@{properties}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{properties()}{properties()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::properties\+::properties (\begin{DoxyParamCaption}\item[{bool}]{alloc\+\_\+props = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a6f3cb44a161ed02f4a9916d32851192b}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}}\& opae\+::fpga\+::types\+::properties\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties}{properties}} \&}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a9a976757deb492ada54d65c6ca1aefe9}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!c\_type@{c\_type}}
+\index{c\_type@{c\_type}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{c\_type()}{c\_type()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} opae\+::fpga\+::types\+::properties\+::c\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Get the underlying fpga\+\_\+properties object. 
+
+Definition at line 69 of file properties.\+h.
+
+
+
+References props\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_ac5a3a372377aea865cbb8345d737127d}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!operator fpga\_properties@{operator fpga\_properties}}
+\index{operator fpga\_properties@{operator fpga\_properties}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{operator fpga\_properties()}{operator fpga\_properties()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::properties\+::operator \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Get the underlying fpga\+\_\+properties object. 
+
+Definition at line 73 of file properties.\+h.
+
+
+
+References props\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_ab2b9142ce432de4aff9c0a20e9bc4c42}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!get@{get}}
+\index{get@{get}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [1/6]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::properties\+::get (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Create a new properties object. \begin{DoxyReturn}{Returns}
+A properties smart pointer. 
+\end{DoxyReturn}
+
+
+Referenced by hssi\+\_\+cmd\+::clock\+\_\+freq\+\_\+for(), hssi\+\_\+afu\+::ethernet\+\_\+interface(), and host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::parse\+\_\+input\+\_\+options().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a736a6f59a42279056bf3b0877099bd10}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!get@{get}}
+\index{get@{get}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [2/6]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::properties\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}}}]{guid\+\_\+in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Create a new properties object from a guid. 
+\begin{DoxyParams}{Parameters}
+{\em guid\+\_\+in} & A guid to set in the properties \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A properties smart pointer with its guid initialized to guid\+\_\+in 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_abff4b12dfc1a08d861690a5b9a773fb9}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!get@{get}}
+\index{get@{get}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [3/6]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::properties\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}}}]{objtype }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Create a new properties object from an fpga\+\_\+objtype. 
+\begin{DoxyParams}{Parameters}
+{\em objtype} & An object type to set in the properties \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A properties smart pointer with its object type set to objtype. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_aeeb323cca03dd9e26f8b769d9da9ce48}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!get@{get}}
+\index{get@{get}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [4/6]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::properties\+::get (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token}{token}} $>$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Retrieve the properties for a given token object. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em t} & A token identifying the accelerator resource. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A properties smart pointer for the given token. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a365bdca95b6af6592c714fad6a9d096a}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!get@{get}}
+\index{get@{get}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [5/6]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::properties\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Retrieve the properties for a given fpga\+\_\+token. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em t} & An fpga\+\_\+token identifying the accelerator resource. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A properties smart pointer for the given fpga\+\_\+token. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a3cf32f0e11436d76747a18222f18e4fa}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!get@{get}}
+\index{get@{get}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [6/6]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::properties\+::get (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}} $>$}]{h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Retrieve the properties for a given handle object. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em h} & A handle identifying the accelerator resource. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A properties smart pointer for the given handle. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_ac9e35b67fef37b1d0ab8c6d17549a35c}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!none@{none}}
+\index{none@{none}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{none}{none}}
+{\footnotesize\ttfamily const std\+::vector$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1properties_a00a34265b465af961adedd706615f348}{properties\+::ptr\+\_\+t}}$>$ opae\+::fpga\+::types\+::properties\+::none\hspace{0.3cm}{\ttfamily [static]}}
+
+An empty vector of properties. Useful for enumerating based on a \char`\"{}match all\char`\"{} criteria. 
+
+Definition at line 59 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_abc025fb8c6b491807571899f5841e0f8}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!props\_@{props\_}}
+\index{props\_@{props\_}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{props\_}{props\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} opae\+::fpga\+::types\+::properties\+::props\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 112 of file properties.\+h.
+
+
+
+Referenced by c\+\_\+type(), and operator fpga\+\_\+properties().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a63f080b4941991367ba9900af2e6a0b4}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!type@{type}}
+\index{type@{type}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$\mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}}$>$ opae\+::fpga\+::types\+::properties\+::type}
+
+
+
+Definition at line 115 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a5913b325cac373affa91ed5d9196ad41}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!num\_errors@{num\_errors}}
+\index{num\_errors@{num\_errors}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{num\_errors}{num\_errors}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint32\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::num\+\_\+errors}
+
+
+
+Definition at line 116 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a0a3dfe2e229074b9c2b895d2712d4fc0}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!segment@{segment}}
+\index{segment@{segment}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{segment}{segment}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint16\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::segment}
+
+
+
+Definition at line 117 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a8dc399536eb26ce0b4d434aa7e170316}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!bus@{bus}}
+\index{bus@{bus}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{bus}{bus}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint8\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::bus}
+
+
+
+Definition at line 118 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a2da094689d6f9e1ff83a318863e96d95}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!device@{device}}
+\index{device@{device}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint8\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::device}
+
+
+
+Definition at line 119 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a500427aedb78b3a8fdc68211e0d69bf1}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!function@{function}}
+\index{function@{function}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{function}{function}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint8\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::function}
+
+
+
+Definition at line 120 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a7e727ae54ad257953cd2b0e570c452a1}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!socket\_id@{socket\_id}}
+\index{socket\_id@{socket\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{socket\_id}{socket\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint8\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::socket\+\_\+id}
+
+
+
+Definition at line 121 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a42d618739d9d8d00873457a6af5b8613}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!num\_slots@{num\_slots}}
+\index{num\_slots@{num\_slots}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{num\_slots}{num\_slots}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint32\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::num\+\_\+slots}
+
+
+
+Definition at line 122 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_adbda11d711131de6441cf8537321ec83}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!bbs\_id@{bbs\_id}}
+\index{bbs\_id@{bbs\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{bbs\_id}{bbs\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint64\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::bbs\+\_\+id}
+
+
+
+Definition at line 123 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a6b0c7cd23a8c0b3e4c55f6c60ae7d620}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!bbs\_version@{bbs\_version}}
+\index{bbs\_version@{bbs\_version}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{bbs\_version}{bbs\_version}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$\mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}}$>$ opae\+::fpga\+::types\+::properties\+::bbs\+\_\+version}
+
+
+
+Definition at line 124 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_aa263ac16432be869fc6070209476a0fd}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!vendor\_id@{vendor\_id}}
+\index{vendor\_id@{vendor\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{vendor\_id}{vendor\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint16\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::vendor\+\_\+id}
+
+
+
+Definition at line 125 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a16200ec67ed7b2bbf55475c68b932adb}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!device\_id@{device\_id}}
+\index{device\_id@{device\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{device\_id}{device\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint16\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::device\+\_\+id}
+
+
+
+Definition at line 126 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a33f8fa0fd03531574fbd0f13e06b02ba}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!subsystem\_vendor\_id@{subsystem\_vendor\_id}}
+\index{subsystem\_vendor\_id@{subsystem\_vendor\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{subsystem\_vendor\_id}{subsystem\_vendor\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint16\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::subsystem\+\_\+vendor\+\_\+id}
+
+
+
+Definition at line 127 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a7a2df1b361f7f8ab5c0c2443631f6b30}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!subsystem\_device\_id@{subsystem\_device\_id}}
+\index{subsystem\_device\_id@{subsystem\_device\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{subsystem\_device\_id}{subsystem\_device\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint16\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::subsystem\+\_\+device\+\_\+id}
+
+
+
+Definition at line 128 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a41d099cbad8556f3de7f9ff8cf3f092e}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!model@{model}}
+\index{model@{model}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{model}{model}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$char $\ast$$>$ opae\+::fpga\+::types\+::properties\+::model}
+
+
+
+Definition at line 129 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a8ed3e82ae73b34aa2d729aba2cd8140c}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!local\_memory\_size@{local\_memory\_size}}
+\index{local\_memory\_size@{local\_memory\_size}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{local\_memory\_size}{local\_memory\_size}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint64\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::local\+\_\+memory\+\_\+size}
+
+
+
+Definition at line 130 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a5a2ebe1ce0870eaa6bb578cbf49fe6ff}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!capabilities@{capabilities}}
+\index{capabilities@{capabilities}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{capabilities}{capabilities}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint64\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::capabilities}
+
+
+
+Definition at line 131 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a64fabfeaa7795cef364ca444a6535ed8}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!num\_mmio@{num\_mmio}}
+\index{num\_mmio@{num\_mmio}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{num\_mmio}{num\_mmio}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint32\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::num\+\_\+mmio}
+
+
+
+Definition at line 132 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a07f7a33e0efdc84d39c9ffc5d6374c72}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!num\_interrupts@{num\_interrupts}}
+\index{num\_interrupts@{num\_interrupts}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{num\_interrupts}{num\_interrupts}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint32\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::num\+\_\+interrupts}
+
+
+
+Definition at line 133 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_aa046d54251503d161faa02b99a64f0c4}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!accelerator\_state@{accelerator\_state}}
+\index{accelerator\_state@{accelerator\_state}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{accelerator\_state}{accelerator\_state}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$\mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}}$>$ opae\+::fpga\+::types\+::properties\+::accelerator\+\_\+state}
+
+
+
+Definition at line 134 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_af001f70fa59cd5c49cf28af50e2d2d5f}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!object\_id@{object\_id}}
+\index{object\_id@{object\_id}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{object\_id}{object\_id}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$uint64\+\_\+t$>$ opae\+::fpga\+::types\+::properties\+::object\+\_\+id}
+
+
+
+Definition at line 135 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a800b2f5a7f12753741e542165a255eca}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!parent@{parent}}
+\index{parent@{parent}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{parent}{parent}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}$>$ opae\+::fpga\+::types\+::properties\+::parent}
+
+
+
+Definition at line 136 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a2bd162e2835a510e9c32ab214c458af4}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!interface@{interface}}
+\index{interface@{interface}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{interface}{interface}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1pvalue}{pvalue}}$<$\mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}}$>$ opae\+::fpga\+::types\+::properties\+::interface}
+
+
+
+Definition at line 137 of file properties.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1properties_a927bd5aa11cd56706046164da9494b58}} 
+\index{opae::fpga::types::properties@{opae::fpga::types::properties}!guid@{guid}}
+\index{guid@{guid}!opae::fpga::types::properties@{opae::fpga::types::properties}}
+\doxysubsubsection{\texorpdfstring{guid}{guid}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structopae_1_1fpga_1_1types_1_1guid__t}{guid\+\_\+t}} opae\+::fpga\+::types\+::properties\+::guid}
+
+
+
+Definition at line 138 of file properties.\+h.
+

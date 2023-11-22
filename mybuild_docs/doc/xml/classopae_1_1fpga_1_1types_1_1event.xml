@@ -1,0 +1,265 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1event" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::event</compoundname>
+    <includes refid="events_8h" local="no">opae/cxx/core/events.h</includes>
+    <innerclass refid="structopae_1_1fpga_1_1types_1_1event_1_1type__t" prot="public">opae::fpga::types::event::type_t</innerclass>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1event_1a018f8b02575a7ed99cc013463f319e03" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1event" kindref="compound">event</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;event&gt; opae::fpga::types::event::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="42" column="27" bodyfile="include/opae/cxx/core/events.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1event_1ad977259db55cfabca075e017a9e533e2" prot="private" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+        <definition>handle::ptr_t opae::fpga::types::event::handle_</definition>
+        <argsstring></argsstring>
+        <name>handle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="104" column="17" bodyfile="include/opae/cxx/core/events.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1event_1a81cce03e252830b2e49d5d1a9b6dfd18" prot="private" static="no" mutable="no">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1event_1_1type__t" kindref="compound">event::type_t</ref></type>
+        <definition>event::type_t opae::fpga::types::event::type_</definition>
+        <argsstring></argsstring>
+        <name>type_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="105" column="17" bodyfile="include/opae/cxx/core/events.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1event_1a6fedb2b8e81a38dfdd4e0fb05b6576ce" prot="private" static="no" mutable="no">
+        <type><ref refid="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" kindref="member">fpga_event_handle</ref></type>
+        <definition>fpga_event_handle opae::fpga::types::event::event_handle_</definition>
+        <argsstring></argsstring>
+        <name>event_handle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="106" column="21" bodyfile="include/opae/cxx/core/events.h" bodystart="106" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1event_1aecd61a05a41f306168b93da471d34d56" compoundref="events_8h" startline="70" endline="70">get</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1event_1a069e9a4b3148da8f05ee5eeb5f9ba4aa" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae::fpga::types::event::os_object_</definition>
+        <argsstring></argsstring>
+        <name>os_object_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="107" column="7" bodyfile="include/opae/cxx/core/events.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1event_1a9b74e1205c51020e8725b6d739564baa" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual opae::fpga::types::event::~event</definition>
+        <argsstring>()</argsstring>
+        <name>~event</name>
+        <briefdescription>
+<para>Destroy event and associated resources. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="47" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1event_1aecd61a05a41f306168b93da471d34d56" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" kindref="member">fpga_event_handle</ref></type>
+        <definition>fpga_event_handle opae::fpga::types::event::get</definition>
+        <argsstring>()</argsstring>
+        <name>get</name>
+        <briefdescription>
+<para>Get the fpga_event_handle contained in this object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The fpga_event_handle contained in this object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="70" column="21" bodyfile="include/opae/cxx/core/events.h" bodystart="70" bodyend="70"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1event_1a6fedb2b8e81a38dfdd4e0fb05b6576ce" compoundref="events_8h" startline="106">event_handle_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1event_1a25cefc7f2b28be11f45efcbb242e8beb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::event::operator fpga_event_handle</definition>
+        <argsstring>()</argsstring>
+        <name>operator fpga_event_handle</name>
+        <briefdescription>
+<para>Coversion operator for converting to fpga_event_handle objects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The fpga_event_handle contained in this object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="77" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1event_1a48c524ef2931034e37187ccde27b1ab8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae::fpga::types::event::os_object</definition>
+        <argsstring>() const</argsstring>
+        <name>os_object</name>
+        <briefdescription>
+<para>Get OS Object from the event object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get an OS specific object from the event which can be used to subscribe for events. On Linux, the object corresponds to a file descriptor that can be used with select/poll/epoll calls.</para>
+<para><simplesect kind="return"><para>An integer object representing the OS object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="100" column="7"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1event_1aebb5fa8450368e3288b25c729b6dbacf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1event_1a018f8b02575a7ed99cc013463f319e03" kindref="member">event::ptr_t</ref></type>
+        <definition>static event::ptr_t opae::fpga::types::event::register_event</definition>
+        <argsstring>(handle::ptr_t h, event::type_t t, int flags=0)</argsstring>
+        <name>register_event</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type><ref refid="structopae_1_1fpga_1_1types_1_1event_1_1type__t" kindref="compound">event::type_t</ref></type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Factory function to create event objects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A shared ptr of a resource handle </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The resource type </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event registration flags passed on to fpgaRegisterEvent</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A shared ptr to an event object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="88" column="23"/>
+        <referencedby refid="classdummy__afu_1_1dummy__afu_1af04b7db0dd1a4cc07a892805e02b4a4f" compoundref="dummy__afu_8h" startline="261" endline="265">dummy_afu::dummy_afu::register_interrupt</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1a9d136f152136497d7e7ea37761b93d83" compoundref="host__exerciser_8h" startline="499" endline="503">host_exerciser::host_exerciser::register_interrupt</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1event_1a9c08908d257f2d172e623a16dc9d2b07" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::event::event</definition>
+        <argsstring>(handle::ptr_t h, event::type_t t, fpga_event_handle event_h)</argsstring>
+        <name>event</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type><ref refid="structopae_1_1fpga_1_1types_1_1event_1_1type__t" kindref="compound">event::type_t</ref></type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" kindref="member">fpga_event_handle</ref></type>
+          <declname>event_h</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/events.h" line="103" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Wraps fpga event routines in OPAE C. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>opae::fpga::types::event::type_t</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1event_1_1type__t"/>
+      </node>
+      <node id="1">
+        <label>opae::fpga::types::event</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1event"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>-type_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/events.h" line="40" column="1" bodyfile="include/opae/cxx/core/events.h" bodystart="40" bodyend="108"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a9c08908d257f2d172e623a16dc9d2b07" prot="private" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>event</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a6fedb2b8e81a38dfdd4e0fb05b6576ce" prot="private" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>event_handle_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1aecd61a05a41f306168b93da471d34d56" prot="public" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1ad977259db55cfabca075e017a9e533e2" prot="private" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>handle_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a25cefc7f2b28be11f45efcbb242e8beb" prot="public" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>operator fpga_event_handle</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a48c524ef2931034e37187ccde27b1ab8" prot="public" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>os_object</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a069e9a4b3148da8f05ee5eeb5f9ba4aa" prot="private" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>os_object_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a018f8b02575a7ed99cc013463f319e03" prot="public" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1aebb5fa8450368e3288b25c729b6dbacf" prot="public" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>register_event</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a81cce03e252830b2e49d5d1a9b6dfd18" prot="private" virt="non-virtual"><scope>opae::fpga::types::event</scope><name>type_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1event_1a9b74e1205c51020e8725b6d739564baa" prot="public" virt="virtual"><scope>opae::fpga::types::event</scope><name>~event</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

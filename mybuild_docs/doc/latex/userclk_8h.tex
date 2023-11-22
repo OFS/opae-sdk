@@ -1,0 +1,63 @@
+\doxysection{include/opae/userclk.h File Reference}
+\label{userclk_8h}\index{include/opae/userclk.h@{include/opae/userclk.h}}
+
+
+Functions for setting and get afu user clock.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{userclk_8h_af82f255d29eea463f82ac0f1bc885edb}{fpga\+Set\+User\+Clock}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t high\+\_\+clk, uint64\+\_\+t low\+\_\+clk, int flags)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{userclk_8h_a5562f9ec92c3dc8bb201587c91ef8352}{fpga\+Get\+User\+Clock}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t $\ast$high\+\_\+clk, uint64\+\_\+t $\ast$low\+\_\+clk, int flags)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions for setting and get afu user clock. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{userclk_8h_af82f255d29eea463f82ac0f1bc885edb}} 
+\index{userclk.h@{userclk.h}!fpgaSetUserClock@{fpgaSetUserClock}}
+\index{fpgaSetUserClock@{fpgaSetUserClock}!userclk.h@{userclk.h}}
+\doxysubsubsection{\texorpdfstring{fpgaSetUserClock()}{fpgaSetUserClock()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Set\+User\+Clock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t}]{high\+\_\+clk,  }\item[{uint64\+\_\+t}]{low\+\_\+clk,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+set afu user clock high and low 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource. \\
+\hline
+\mbox{\texttt{ in}}  & {\em high\+\_\+clk} & AFU High user clock frequency in MHz. \\
+\hline
+\mbox{\texttt{ in}}  & {\em low\+\_\+clk} & AFU Low user clock frequency in MHz. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags Reserved.\\
+\hline
+\end{DoxyParams}
+.$\ast$\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the handle. 
+\end{DoxyReturn}
+\mbox{\label{userclk_8h_a5562f9ec92c3dc8bb201587c91ef8352}} 
+\index{userclk.h@{userclk.h}!fpgaGetUserClock@{fpgaGetUserClock}}
+\index{fpgaGetUserClock@{fpgaGetUserClock}!userclk.h@{userclk.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetUserClock()}{fpgaGetUserClock()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+User\+Clock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t $\ast$}]{high\+\_\+clk,  }\item[{uint64\+\_\+t $\ast$}]{low\+\_\+clk,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Get afu user clock high and low 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened accelerator resource. \\
+\hline
+\mbox{\texttt{ out}}  & {\em high\+\_\+clk} & AFU High user clock frequency in MHz. \\
+\hline
+\mbox{\texttt{ out}}  & {\em low\+\_\+clk} & AFU Low user clock frequency in MHz. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags Reserved.\\
+\hline
+\end{DoxyParams}
+.$\ast$\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if invalid parameters were provided, or if the parameter combination is not valid. FPGA\+\_\+\+EXCEPTION if an internal exception occurred while trying to access the handle. 
+\end{DoxyReturn}

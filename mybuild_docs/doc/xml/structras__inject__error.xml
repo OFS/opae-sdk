@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structras__inject__error" kind="struct" language="C++" prot="public">
+    <compoundname>ras_inject_error</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structras__inject__error_1a05c7a0580a630740fb7b8a9fbce837b9" prot="public" static="no" mutable="no">
+        <type>union ras_inject_error::@87</type>
+        <definition>union ras_inject_error::@87 ras_inject_error::@88</definition>
+        <argsstring></argsstring>
+        <name>@88</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="89" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>ras_inject_error</label>
+        <link refid="structras__inject__error"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hello_events/hello_events.c" line="76" column="1" bodyfile="samples/hello_events/hello_events.c" bodystart="76" bodyend="90"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

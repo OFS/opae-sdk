@@ -1,0 +1,363 @@
+\doxysection{opae\+::fpga\+::types\+::sysobject Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1sysobject}\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+
+
+{\ttfamily \#include $<$opae/cxx/core/sysobject.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a113c998356671d5e03d526b8c1c8e5aa}{sysobject}} ()=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_ac687a5693b259d5e0390361225e999fc}{sysobject}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}} \&o)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}} \& \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_adf8b59f15dbd3d4514e0397cf5133a07}{operator=}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}} \&o)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a8722a8fdb2c7de416e8f47280d1c1888}{get}} (const std\+::string \&name, int flags=0)
+\begin{DoxyCompactList}\small\item\em Get a sysobject from an object. This will be read-\/write if its parent was created from a handle.. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_afdbd6396094b0c1c274fa64c18c88119}{get}} (int index)
+\begin{DoxyCompactList}\small\item\em Get a sysobject from a container object. This will be read-\/write if its parent was created from a handle.. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a8f86033c1116397d837a2b6a92ddbbf4}{$\sim$sysobject}} ()
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_ae9374e6aa30648d2c364888bed55c71f}{size}} () const
+\begin{DoxyCompactList}\small\item\em Get the size (in bytes) of the object. \end{DoxyCompactList}\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a4120492ac81789a245d8384497a4d374}{read64}} (int flags=0) const
+\begin{DoxyCompactList}\small\item\em Read a 64-\/bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a71b53fc73a644e490252f57e28939618}{write64}} (uint64\+\_\+t value, int flags=0) const
+\begin{DoxyCompactList}\small\item\em Write 64-\/bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a119935a32c66e6a6d3e7e700a3181863}{bytes}} (int flags=0) const
+\begin{DoxyCompactList}\small\item\em Get all raw bytes from the object. \end{DoxyCompactList}\item 
+std\+::vector$<$ uint8\+\_\+t $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a9e248a37ffa6f6f33fd50d5d81b7b90d}{bytes}} (uint32\+\_\+t offset, uint32\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_ae9374e6aa30648d2c364888bed55c71f}{size}}, int flags=0) const
+\begin{DoxyCompactList}\small\item\em Get a subset of raw bytes from the object. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}{fpga\+\_\+sysobject\+\_\+type}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_af16b5a7266e18ac298884f72f4a941a3}{type}} () const
+\item 
+\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a13b45599ddc9e902bf6cfabf20e02768}{c\+\_\+type}} () const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_ac1cb2fa7b43facfdbc70d5a033e394c1}{operator fpga\+\_\+object}} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_af82679125fec13b5731ab619808f2ccb}{get}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} t, const std\+::string \&name, int flags=0)
+\begin{DoxyCompactList}\small\item\em Get a sysobject from a token. This will be read-\/only. \end{DoxyCompactList}\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a91b4775d5e1d6520ce6fba54db990bb7}{get}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} h, const std\+::string \&name, int flags=0)
+\begin{DoxyCompactList}\small\item\em Get a sysobject from a handle. This will be read-\/write. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a152cbb0823356ecb633b295a2c45fd43}{sysobject}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} sysobj, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token}{token}}, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} hnd)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a2982d55edea60fcf80245da9592c3abf}{sysobject\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a9b4075f8e189e37c5992f724dc7380b4}{token\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_acb5d249e9d682ef0f228a0296b7fe851}{handle\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Wraps the OPAE fpga\+\_\+object primitive. sysobject\textquotesingle{}s are created from a call to fpga\+Token\+Get\+Object, fpga\+Handle\+Get\+Object, or fpga\+Object\+Get\+Object 
+
+Definition at line 42 of file sysobject.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}}$>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{opae\+::fpga\+::types\+::sysobject\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 44 of file sysobject.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a113c998356671d5e03d526b8c1c8e5aa}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!sysobject@{sysobject}}
+\index{sysobject@{sysobject}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{sysobject()}{sysobject()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::sysobject\+::sysobject (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_ac687a5693b259d5e0390361225e999fc}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!sysobject@{sysobject}}
+\index{sysobject@{sysobject}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{sysobject()}{sysobject()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::sysobject\+::sysobject (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}} \&}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a8f86033c1116397d837a2b6a92ddbbf4}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!````~sysobject@{$\sim$sysobject}}
+\index{````~sysobject@{$\sim$sysobject}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{$\sim$sysobject()}{~sysobject()}}
+{\footnotesize\ttfamily virtual opae\+::fpga\+::types\+::sysobject\+::$\sim$sysobject (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a152cbb0823356ecb633b295a2c45fd43}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!sysobject@{sysobject}}
+\index{sysobject@{sysobject}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{sysobject()}{sysobject()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::sysobject\+::sysobject (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{sysobj,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}}}]{token,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{hnd }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_adf8b59f15dbd3d4514e0397cf5133a07}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}}\& opae\+::fpga\+::types\+::sysobject\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject}{sysobject}} \&}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_af82679125fec13b5731ab619808f2ccb}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!get@{get}}
+\index{get@{get}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::sysobject\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}}}]{t,  }\item[{const std\+::string \&}]{name,  }\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Get a sysobject from a token. This will be read-\/only. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em t} & Token object representing a resource. \\
+\hline
+\mbox{\texttt{ in}}  & {\em name} & An identifier representing an object belonging to a resource represented by the token. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Control behavior of object identification and creation. FPGA\+\_\+\+OBJECT\+\_\+\+GLOB is used to indicate that the name should be treated as a globbing expression. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL indicates that subobjects be created for all objects below the current object identified by name.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared\+\_\+ptr to a sysobject instance. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a91b4775d5e1d6520ce6fba54db990bb7}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!get@{get}}
+\index{get@{get}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::sysobject\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{h,  }\item[{const std\+::string \&}]{name,  }\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Get a sysobject from a handle. This will be read-\/write. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em h} & Handle object representing an open resource. \\
+\hline
+\mbox{\texttt{ in}}  & {\em name} & An identifier representing an object belonging to a resource represented by the handle. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Control behavior of object identification and creation. FPGA\+\_\+\+OBJECT\+\_\+\+GLOB is used to indicate that the name should be treated as a globbing expression. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL indicates that subobjects be created for all objects below the current object identified by name.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared\+\_\+ptr to a sysobject instance. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a8722a8fdb2c7de416e8f47280d1c1888}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!get@{get}}
+\index{get@{get}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::sysobject\+::get (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Get a sysobject from an object. This will be read-\/write if its parent was created from a handle.. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em name} & An identifier representing an object belonging to this object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Control behavior of object identification and creation. FPGA\+\_\+\+OBJECT\+\_\+\+GLOB is used to indicate that the name should be treated as a globbing expression. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL indicates that subobjects be created for all objects. Flags are defaulted to 0 meaning no flags.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared\+\_\+ptr to a sysobject instance. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_afdbd6396094b0c1c274fa64c18c88119}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!get@{get}}
+\index{get@{get}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1sysobject_a1a64124cb599b2944cd2cda0081e2653}{sysobject\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::sysobject\+::get (\begin{DoxyParamCaption}\item[{int}]{index }\end{DoxyParamCaption})}
+
+
+
+Get a sysobject from a container object. This will be read-\/write if its parent was created from a handle.. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em index} & An index number to get.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A shared\+\_\+ptr to a sysobject instance. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_ae9374e6aa30648d2c364888bed55c71f}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!size@{size}}
+\index{size@{size}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{size()}{size()}}
+{\footnotesize\ttfamily uint32\+\_\+t opae\+::fpga\+::types\+::sysobject\+::size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Get the size (in bytes) of the object. 
+
+\begin{DoxyReturn}{Returns}
+The number of bytes that the object occupies in memory. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a4120492ac81789a245d8384497a4d374}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!read64@{read64}}
+\index{read64@{read64}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{read64()}{read64()}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::sysobject\+::read64 (\begin{DoxyParamCaption}\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+
+Read a 64-\/bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how the object is read If FPGA\+\_\+\+OBJECT\+\_\+\+SYNC is used then object will update its buffered copy before retrieving the data. If FPGA\+\_\+\+OBJECT\+\_\+\+RAW is used, then the data will be read as raw bytes into the uint64\+\_\+t pointer variable. Flags are defaulted to 0 meaning no flags.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A 64-\/bit value from the object. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a71b53fc73a644e490252f57e28939618}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!write64@{write64}}
+\index{write64@{write64}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{write64()}{write64()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::sysobject\+::write64 (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{value,  }\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+
+Write 64-\/bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em value} & The value to write to the object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how the object is written If FPGA\+\_\+\+OBJECT\+\_\+\+RAW is used, then the value will be written as raw bytes. Flags are defaulted to 0 meaning no flags.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+This operation will force a sync operation to update its cached buffer 
+\end{DoxyNote}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a119935a32c66e6a6d3e7e700a3181863}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!bytes@{bytes}}
+\index{bytes@{bytes}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{bytes()}{bytes()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::vector$<$uint8\+\_\+t$>$ opae\+::fpga\+::types\+::sysobject\+::bytes (\begin{DoxyParamCaption}\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+
+Get all raw bytes from the object. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how object is read If FPGA\+\_\+\+OBJECT\+\_\+\+SYNC is used then object will update its buffered copy before retrieving the data.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A vector of all bytes in the object. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a9e248a37ffa6f6f33fd50d5d81b7b90d}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!bytes@{bytes}}
+\index{bytes@{bytes}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{bytes()}{bytes()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::vector$<$uint8\+\_\+t$>$ opae\+::fpga\+::types\+::sysobject\+::bytes (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{offset,  }\item[{uint32\+\_\+t}]{size,  }\item[{int}]{flags = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+
+Get a subset of raw bytes from the object. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The bytes offset for the start of the returned vector. \\
+\hline
+\mbox{\texttt{ in}}  & {\em size} & The number of bytes for the returned vector. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how object is read If FPGA\+\_\+\+OBJECT\+\_\+\+SYNC is used then object will update its buffered copy before retrieving the data.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A vector of size bytes in the object starting at offset. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_af16b5a7266e18ac298884f72f4a941a3}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!type@{type}}
+\index{type@{type}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{type()}{type()}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}{fpga\+\_\+sysobject\+\_\+type}} opae\+::fpga\+::types\+::sysobject\+::type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+Get the object type (attribute or container) \mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a13b45599ddc9e902bf6cfabf20e02768}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!c\_type@{c\_type}}
+\index{c\_type@{c\_type}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{c\_type()}{c\_type()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} opae\+::fpga\+::types\+::sysobject\+::c\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the underlying fpga\+\_\+object primitive. 
+
+Definition at line 185 of file sysobject.\+h.
+
+
+
+References sysobject\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_ac1cb2fa7b43facfdbc70d5a033e394c1}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!operator fpga\_object@{operator fpga\_object}}
+\index{operator fpga\_object@{operator fpga\_object}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{operator fpga\_object()}{operator fpga\_object()}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::sysobject\+::operator \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the underlying fpga\+\_\+object primitive. 
+
+Definition at line 189 of file sysobject.\+h.
+
+
+
+References sysobject\+\_\+.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a2982d55edea60fcf80245da9592c3abf}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!sysobject\_@{sysobject\_}}
+\index{sysobject\_@{sysobject\_}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{sysobject\_}{sysobject\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} opae\+::fpga\+::types\+::sysobject\+::sysobject\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 193 of file sysobject.\+h.
+
+
+
+Referenced by c\+\_\+type(), and operator fpga\+\_\+object().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_a9b4075f8e189e37c5992f724dc7380b4}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!token\_@{token\_}}
+\index{token\_@{token\_}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{token\_}{token\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::sysobject\+::token\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 194 of file sysobject.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1sysobject_acb5d249e9d682ef0f228a0296b7fe851}} 
+\index{opae::fpga::types::sysobject@{opae::fpga::types::sysobject}!handle\_@{handle\_}}
+\index{handle\_@{handle\_}!opae::fpga::types::sysobject@{opae::fpga::types::sysobject}}
+\doxysubsubsection{\texorpdfstring{handle\_}{handle\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::sysobject\+::handle\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 195 of file sysobject.\+h.
+

@@ -1,0 +1,1035 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classhssi__100g__cmd" kind="class" language="C++" prot="public">
+    <compoundname>hssi_100g_cmd</compoundname>
+    <basecompoundref refid="classhssi__cmd" prot="public" virt="non-virtual">hssi_cmd</basecompoundref>
+    <derivedcompoundref refid="classhssi__pkt__filt__100g__cmd" prot="public" virt="non-virtual">hssi_pkt_filt_100g_cmd</derivedcompoundref>
+    <includes refid="hssi__100g__cmd_8h" local="no">/root/samples/hssi/hssi_100g_cmd.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a3ed679b346bbdb71b10257b07f31298d" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; int &gt;</type>
+        <definition>std::vector&lt;int&gt; hssi_100g_cmd::port_</definition>
+        <argsstring></argsstring>
+        <name>port_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="633" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="633" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" compoundref="hssi__100g__cmd_8h" startline="345" endline="356">reset_monitor</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1af47a5b14c39f63416f61c7e2cff1829b" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::eth_loopback_</definition>
+        <argsstring></argsstring>
+        <name>eth_loopback_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="634" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="634" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a02a72d1c81ed666a40bf28cd3524607d" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t hssi_100g_cmd::num_packets_</definition>
+        <argsstring></argsstring>
+        <name>num_packets_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="635" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="635" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a49339b1918720ef7901cf78aacbd1327" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::gap_</definition>
+        <argsstring></argsstring>
+        <name>gap_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="636" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="636" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1ab035b798f21f9a36e1f4dd47023ef754" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::pattern_</definition>
+        <argsstring></argsstring>
+        <name>pattern_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="637" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="637" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1ae1cb27623d716c598f1c3f9d1efea893" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::src_addr_</definition>
+        <argsstring></argsstring>
+        <name>src_addr_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="638" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="638" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" compoundref="hssi__100g__cmd_8h" startline="291" endline="297">select_port</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::dest_addr_</definition>
+        <argsstring></argsstring>
+        <name>dest_addr_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="639" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="639" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+        <referencedby refid="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="57" endline="81">hssi_pkt_filt_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" compoundref="hssi__100g__cmd_8h" startline="291" endline="297">select_port</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1af3db6112939ee4024b08f4c800c18ef6" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::eth_ifc_</definition>
+        <argsstring></argsstring>
+        <name>eth_ifc_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="640" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="640" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a903f4acd96b9833b465389c4197c6428" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t hssi_100g_cmd::start_size_</definition>
+        <argsstring></argsstring>
+        <name>start_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="641" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="641" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" compoundref="hssi__100g__cmd_8h" startline="309" endline="323">run_monitor</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1afb165abcd4bc91fb813dbb0badeefedf" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t hssi_100g_cmd::end_size_</definition>
+        <argsstring></argsstring>
+        <name>end_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="642" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="642" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1aa0a117f3d240d96f78a6355922292b76" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::end_select_</definition>
+        <argsstring></argsstring>
+        <name>end_select_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="643" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="643" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a87688bc407d45f0c648a3a8636eca3db" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string hssi_100g_cmd::continuous_</definition>
+        <argsstring></argsstring>
+        <name>continuous_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="644" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="644" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhssi__100g__cmd_1a42069ef54edff7924b1e7127c67f9a22" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t hssi_100g_cmd::contmonitor_</definition>
+        <argsstring></argsstring>
+        <name>contmonitor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="645" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="645" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" compoundref="hssi__100g__cmd_8h" startline="99" endline="152">add_options</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classhssi__100g__cmd_1a272bac05983a284c0bf972d3d487258d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>hssi_100g_cmd::hssi_100g_cmd</definition>
+        <argsstring>()</argsstring>
+        <name>hssi_100g_cmd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="73" column="3" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="73" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a2ac9bd89910c7d6b4f3d5c0ef3ccf252" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* hssi_100g_cmd::name</definition>
+        <argsstring>() const override</argsstring>
+        <name>name</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052">name</reimplements>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1ab866053ecaeb4ae7b92dc9ac94dfef35">name</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="89" column="22" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="89" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a0e8f86e83c2d30a042da6f16e41cb3ce" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* hssi_100g_cmd::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e">description</reimplements>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1af6666e8a956190f1032cef988eae2fe6">description</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="94" column="22" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="94" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void hssi_100g_cmd::add_options</definition>
+        <argsstring>(CLI::App *app) override</argsstring>
+        <name>add_options</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6">add_options</reimplements>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1a3e74b621df757adbb0b9d8472a43248f">add_options</reimplementedby>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="99" column="16" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="99" bodyend="152"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classhssi__100g__cmd_1a87688bc407d45f0c648a3a8636eca3db" compoundref="hssi__100g__cmd_8h" startline="644">continuous_</references>
+        <references refid="classhssi__100g__cmd_1a42069ef54edff7924b1e7127c67f9a22" compoundref="hssi__100g__cmd_8h" startline="645">contmonitor_</references>
+        <references refid="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" compoundref="hssi__100g__cmd_8h" startline="639">dest_addr_</references>
+        <references refid="classhssi__100g__cmd_1aa0a117f3d240d96f78a6355922292b76" compoundref="hssi__100g__cmd_8h" startline="643">end_select_</references>
+        <references refid="classhssi__100g__cmd_1afb165abcd4bc91fb813dbb0badeefedf" compoundref="hssi__100g__cmd_8h" startline="642">end_size_</references>
+        <references refid="classhssi__100g__cmd_1af3db6112939ee4024b08f4c800c18ef6" compoundref="hssi__100g__cmd_8h" startline="640">eth_ifc_</references>
+        <references refid="classhssi__100g__cmd_1af47a5b14c39f63416f61c7e2cff1829b" compoundref="hssi__100g__cmd_8h" startline="634">eth_loopback_</references>
+        <references refid="classhssi__100g__cmd_1a49339b1918720ef7901cf78aacbd1327" compoundref="hssi__100g__cmd_8h" startline="636">gap_</references>
+        <references refid="classhssi__100g__cmd_1a02a72d1c81ed666a40bf28cd3524607d" compoundref="hssi__100g__cmd_8h" startline="635">num_packets_</references>
+        <references refid="classhssi__100g__cmd_1ab035b798f21f9a36e1f4dd47023ef754" compoundref="hssi__100g__cmd_8h" startline="637">pattern_</references>
+        <references refid="classhssi__100g__cmd_1a3ed679b346bbdb71b10257b07f31298d" compoundref="hssi__100g__cmd_8h" startline="633">port_</references>
+        <references refid="classhssi__100g__cmd_1ae1cb27623d716c598f1c3f9d1efea893" compoundref="hssi__100g__cmd_8h" startline="638">src_addr_</references>
+        <references refid="classhssi__100g__cmd_1a903f4acd96b9833b465389c4197c6428" compoundref="hssi__100g__cmd_8h" startline="641">start_size_</references>
+        <referencedby refid="classhssi__pkt__filt__100g__cmd_1a3e74b621df757adbb0b9d8472a43248f" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="48" endline="55">hssi_pkt_filt_100g_cmd::add_options</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a17a10d74f5c3836a7cfe847c618073e9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t hssi_100g_cmd::timestamp_in_seconds</definition>
+        <argsstring>(uint64_t x) const</argsstring>
+        <name>timestamp_in_seconds</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="154" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="154" bodyend="157"/>
+        <references refid="hssi__100g__cmd_8h_1aa5a6207365d657a308ecacca1d66e2e3" compoundref="hssi__100g__cmd_8h" startline="62">CONV_SEC</references>
+        <referencedby refid="classhssi__100g__cmd_1a17f87d943b75bf98510e103bf94bbb9e" compoundref="hssi__100g__cmd_8h" startline="159" endline="164">total_per_second</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a17f87d943b75bf98510e103bf94bbb9e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t hssi_100g_cmd::total_per_second</definition>
+        <argsstring>(uint64_t y, uint64_t z) const</argsstring>
+        <name>total_per_second</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="159" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="159" bodyend="164"/>
+        <references refid="classhssi__100g__cmd_1a17a10d74f5c3836a7cfe847c618073e9" compoundref="hssi__100g__cmd_8h" startline="154" endline="157">timestamp_in_seconds</references>
+        <referencedby refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">calc_performance</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1aeecaf85339dcf800a0fa53a456df27c2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t hssi_100g_cmd::data_64</definition>
+        <argsstring>(uint32_t lowerbytes, uint32_t higherbytes) const</argsstring>
+        <name>data_64</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>lowerbytes</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>higherbytes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="196" column="12" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="196" bodyend="199"/>
+        <references refid="hssi__100g__cmd_8h_1a7a95c3d359fa7be9791278583466a35c" compoundref="hssi__100g__cmd_8h" startline="61">CSR_SHIFT</references>
+        <referencedby refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">read_performance</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::read_performance</definition>
+        <argsstring>(perf_data *perf, hssi_afu *hafu) const</argsstring>
+        <name>read_performance</name>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>perf</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="201" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="201" bodyend="207"/>
+        <references refid="hssi__100g__cmd_8h_1aec9082ad39ed56cd9cfefe83b55d5210" compoundref="hssi__100g__cmd_8h" startline="56">CSR_RX_END_TIMESTAMP_HI</references>
+        <references refid="hssi__100g__cmd_8h_1ae7424ee4fb40df6f1a308260407b15b9" compoundref="hssi__100g__cmd_8h" startline="55">CSR_RX_END_TIMESTAMP_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a2628f7d3344635d3561093753cbdbd3a" compoundref="hssi__100g__cmd_8h" startline="46">CSR_STATS_RX_CNT_HI</references>
+        <references refid="hssi__100g__cmd_8h_1ad85e6d492f6f8a94ed1c54e7b1063880" compoundref="hssi__100g__cmd_8h" startline="45">CSR_STATS_RX_CNT_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a3c1e564e8378cdf8c648dd7550d21c22" compoundref="hssi__100g__cmd_8h" startline="48">CSR_STATS_RX_GD_CNT_HI</references>
+        <references refid="hssi__100g__cmd_8h_1a102bb1584ecbab4395315317c25a3795" compoundref="hssi__100g__cmd_8h" startline="47">CSR_STATS_RX_GD_CNT_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a7ebebec43c003cbaaa44cc9c41dcdd0f" compoundref="hssi__100g__cmd_8h" startline="44">CSR_STATS_TX_CNT_HI</references>
+        <references refid="hssi__100g__cmd_8h_1a094ea00f75f1e5b6ff883969b1156adb" compoundref="hssi__100g__cmd_8h" startline="43">CSR_STATS_TX_CNT_LO</references>
+        <references refid="classhssi__100g__cmd_1aeecaf85339dcf800a0fa53a456df27c2" compoundref="hssi__100g__cmd_8h" startline="196" endline="199">data_64</references>
+        <references refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" compoundref="hssi__afu_8h" startline="179" endline="183">hssi_afu::mbox_read</references>
+        <references refid="structperf__data_1ac09d03c4186246c23aa04fba521b42e2" compoundref="hssi__100g__cmd_8h" startline="190">perf_data::rx_count</references>
+        <references refid="structperf__data_1a8c213a812b7613bee56cc02835ccb94a" compoundref="hssi__100g__cmd_8h" startline="191">perf_data::rx_good_packet_count</references>
+        <references refid="structperf__data_1a91811766745d11dc2a2f2c1b1a7dae22" compoundref="hssi__100g__cmd_8h" startline="192">perf_data::rx_pkt_sec</references>
+        <references refid="structperf__data_1ae1747e09f4ee6b78caedd6cce2360fc5" compoundref="hssi__100g__cmd_8h" startline="189">perf_data::tx_count</references>
+        <referencedby refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" compoundref="hssi__100g__cmd_8h" startline="299" endline="307">capture_perf</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::calc_performance</definition>
+        <argsstring>(perf_data *old_perf, perf_data *new_perf, perf_data *perf, uint64_t size) const</argsstring>
+        <name>calc_performance</name>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>old_perf</declname>
+        </param>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>new_perf</declname>
+        </param>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>perf</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="209" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="209" bodyend="216"/>
+        <references refid="structperf__data_1a4f9cb54703a3140df3e88d4b7600e107" compoundref="hssi__100g__cmd_8h" startline="193">perf_data::bw</references>
+        <references refid="structperf__data_1ac09d03c4186246c23aa04fba521b42e2" compoundref="hssi__100g__cmd_8h" startline="190">perf_data::rx_count</references>
+        <references refid="structperf__data_1a8c213a812b7613bee56cc02835ccb94a" compoundref="hssi__100g__cmd_8h" startline="191">perf_data::rx_good_packet_count</references>
+        <references refid="structperf__data_1a91811766745d11dc2a2f2c1b1a7dae22" compoundref="hssi__100g__cmd_8h" startline="192">perf_data::rx_pkt_sec</references>
+        <references refid="classhssi__100g__cmd_1a17f87d943b75bf98510e103bf94bbb9e" compoundref="hssi__100g__cmd_8h" startline="159" endline="164">total_per_second</references>
+        <references refid="structperf__data_1ae1747e09f4ee6b78caedd6cce2360fc5" compoundref="hssi__100g__cmd_8h" startline="189">perf_data::tx_count</references>
+        <referencedby refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" compoundref="hssi__100g__cmd_8h" startline="309" endline="323">run_monitor</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1aa60e47554dd2bae485f49d773255f7b0" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t hssi_100g_cmd::stall_enable</definition>
+        <argsstring>(hssi_afu *hafu) const</argsstring>
+        <name>stall_enable</name>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="218" column="11" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="218" bodyend="225"/>
+        <references refid="hssi__100g__cmd_8h_1a55fbc642000a43fc2dbbeca1c9b8577d" compoundref="hssi__100g__cmd_8h" startline="42">CSR_STATS_CTRL</references>
+        <references refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" compoundref="hssi__afu_8h" startline="179" endline="183">hssi_afu::mbox_read</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <referencedby refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" compoundref="hssi__100g__cmd_8h" startline="299" endline="307">capture_perf</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1aaf54dae4a089c878c40bbb830994a3fe" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t hssi_100g_cmd::stall_disable</definition>
+        <argsstring>(hssi_afu *hafu) const</argsstring>
+        <name>stall_disable</name>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="227" column="11" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="227" bodyend="234"/>
+        <references refid="hssi__100g__cmd_8h_1a55fbc642000a43fc2dbbeca1c9b8577d" compoundref="hssi__100g__cmd_8h" startline="42">CSR_STATS_CTRL</references>
+        <references refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" compoundref="hssi__afu_8h" startline="179" endline="183">hssi_afu::mbox_read</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <referencedby refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" compoundref="hssi__100g__cmd_8h" startline="299" endline="307">capture_perf</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::write_ctrl_config</definition>
+        <argsstring>(hssi_afu *hafu, ctrl_config config_data) const</argsstring>
+        <name>write_ctrl_config</name>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <param>
+          <type><ref refid="structctrl__config" kindref="compound">ctrl_config</ref></type>
+          <declname>config_data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="236" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="236" bodyend="241"/>
+        <references refid="hssi__100g__cmd_8h_1af5c76870891f7c381cfdaa22ffbc35d2" compoundref="hssi__100g__cmd_8h" startline="33">CSR_CTRL0</references>
+        <references refid="hssi__100g__cmd_8h_1a7554dc134c218d9179b00f5b4d7ad325" compoundref="hssi__100g__cmd_8h" startline="34">CSR_CTRL1</references>
+        <references refid="hssi__100g__cmd_8h_1a0a05a8264291bfde19dd9e440fe37c19" compoundref="hssi__100g__cmd_8h" startline="32">CSR_PKT_SIZE</references>
+        <references refid="structctrl__config_1a24d19d0023013270e4f30fd6d8b972ac" compoundref="hssi__100g__cmd_8h" startline="184">ctrl_config::ctrl0_data</references>
+        <references refid="structctrl__config_1a94d430962eddc3a57f4ad266739811da" compoundref="hssi__100g__cmd_8h" startline="185">ctrl_config::ctrl1_data</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <references refid="structctrl__config_1afb14a5a450b96fa0d96b720330b1718a" compoundref="hssi__100g__cmd_8h" startline="183">ctrl_config::pkt_size_data</references>
+        <referencedby refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" compoundref="hssi__100g__cmd_8h" startline="291" endline="297">select_port</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a06b70f259d026f9409986b9f0b3790d0" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::write_csr_addr</definition>
+        <argsstring>(hssi_afu *hafu, uint64_t bin_src_addr, uint64_t bin_dest_addr) const</argsstring>
+        <name>write_csr_addr</name>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>bin_src_addr</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>bin_dest_addr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="243" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="243" bodyend="250"/>
+        <references refid="hssi__100g__cmd_8h_1a8a766b54f6df2c0067d1685249a90014" compoundref="hssi__100g__cmd_8h" startline="36">CSR_DST_ADDR_HI</references>
+        <references refid="hssi__100g__cmd_8h_1a9e0b4232ed9782703da9fef62fa93e9c" compoundref="hssi__100g__cmd_8h" startline="35">CSR_DST_ADDR_LO</references>
+        <references refid="hssi__100g__cmd_8h_1ac216de60fb702c641fbbc4a56f03ebc0" compoundref="hssi__100g__cmd_8h" startline="38">CSR_SRC_ADDR_HI</references>
+        <references refid="hssi__100g__cmd_8h_1ae7f7c54caf64237c1f718e943aed46de" compoundref="hssi__100g__cmd_8h" startline="37">CSR_SRC_ADDR_LO</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <referencedby refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" compoundref="hssi__100g__cmd_8h" startline="291" endline="297">select_port</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a059acd53ef63ce8eda3f0e9e8b8f09f1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; hssi_100g_cmd::print_monitor_headers</definition>
+        <argsstring>(std::ostream &amp;os, uint32_t max_timer) const</argsstring>
+        <name>print_monitor_headers</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>max_timer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="252" column="17" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="252" bodyend="272"/>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; hssi_100g_cmd::print_monitor_data</definition>
+        <argsstring>(std::ostream &amp;os, perf_data *data, int port, uint32_t timer) const</argsstring>
+        <name>print_monitor_data</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="274" column="17" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="274" bodyend="289"/>
+        <references refid="structperf__data_1a4f9cb54703a3140df3e88d4b7600e107" compoundref="hssi__100g__cmd_8h" startline="193">perf_data::bw</references>
+        <references refid="structperf__data_1ac09d03c4186246c23aa04fba521b42e2" compoundref="hssi__100g__cmd_8h" startline="190">perf_data::rx_count</references>
+        <references refid="structperf__data_1a8c213a812b7613bee56cc02835ccb94a" compoundref="hssi__100g__cmd_8h" startline="191">perf_data::rx_good_packet_count</references>
+        <references refid="structperf__data_1a91811766745d11dc2a2f2c1b1a7dae22" compoundref="hssi__100g__cmd_8h" startline="192">perf_data::rx_pkt_sec</references>
+        <references refid="structperf__data_1ae1747e09f4ee6b78caedd6cce2360fc5" compoundref="hssi__100g__cmd_8h" startline="189">perf_data::tx_count</references>
+        <referencedby refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" compoundref="hssi__100g__cmd_8h" startline="309" endline="323">run_monitor</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::select_port</definition>
+        <argsstring>(int port, ctrl_config config_data, hssi_afu *hafu) const</argsstring>
+        <name>select_port</name>
+        <param>
+          <type>int</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type><ref refid="structctrl__config" kindref="compound">ctrl_config</ref></type>
+          <declname>config_data</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="291" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="291" bodyend="297"/>
+        <references refid="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" compoundref="hssi__100g__cmd_8h" startline="639">dest_addr_</references>
+        <references refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" compoundref="hssi__cmd_8h" startline="121" endline="132">hssi_cmd::mac_bits_for</references>
+        <references refid="classhssi__100g__cmd_1ae1cb27623d716c598f1c3f9d1efea893" compoundref="hssi__100g__cmd_8h" startline="638">src_addr_</references>
+        <references refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" compoundref="hssi__afu_8h" startline="43">TRAFFIC_CTRL_PORT_SEL</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <references refid="classhssi__100g__cmd_1a06b70f259d026f9409986b9f0b3790d0" compoundref="hssi__100g__cmd_8h" startline="243" endline="250">write_csr_addr</references>
+        <references refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" compoundref="hssi__100g__cmd_8h" startline="236" endline="241">write_ctrl_config</references>
+        <referencedby refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" compoundref="hssi__100g__cmd_8h" startline="345" endline="356">reset_monitor</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::capture_perf</definition>
+        <argsstring>(perf_data *old_perf_data, hssi_afu *hafu) const</argsstring>
+        <name>capture_perf</name>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>old_perf_data</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="299" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="299" bodyend="307"/>
+        <references refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">read_performance</references>
+        <references refid="classhssi__100g__cmd_1aaf54dae4a089c878c40bbb830994a3fe" compoundref="hssi__100g__cmd_8h" startline="227" endline="234">stall_disable</references>
+        <references refid="classhssi__100g__cmd_1aa60e47554dd2bae485f49d773255f7b0" compoundref="hssi__100g__cmd_8h" startline="218" endline="225">stall_enable</references>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" compoundref="hssi__100g__cmd_8h" startline="309" endline="323">run_monitor</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; hssi_100g_cmd::run_monitor</definition>
+        <argsstring>(std::ostream &amp;os, perf_data *old_perf_data, int port, hssi_afu *hafu, uint32_t timer)</argsstring>
+        <name>run_monitor</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type><ref refid="structperf__data" kindref="compound">perf_data</ref> *</type>
+          <declname>old_perf_data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="309" column="17" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="309" bodyend="323"/>
+        <references refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">calc_performance</references>
+        <references refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" compoundref="hssi__100g__cmd_8h" startline="299" endline="307">capture_perf</references>
+        <references refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" compoundref="hssi__100g__cmd_8h" startline="274" endline="289">print_monitor_data</references>
+        <references refid="classhssi__100g__cmd_1a903f4acd96b9833b465389c4197c6428" compoundref="hssi__100g__cmd_8h" startline="641">start_size_</references>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1aac9bacf0ad601f646a759426c31feaa4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>char</type>
+        <definition>char hssi_100g_cmd::get_user_input</definition>
+        <argsstring>(char key) const</argsstring>
+        <name>get_user_input</name>
+        <param>
+          <type>char</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="325" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="325" bodyend="335"/>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a711ab34a9639ea0ca56622e8aa355a69" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::quit_monitor</definition>
+        <argsstring>(uint8_t size, std::string move, hssi_afu *hafu) const</argsstring>
+        <name>quit_monitor</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>move</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="337" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="337" bodyend="343"/>
+        <references refid="hssi__100g__cmd_8h_1af5c76870891f7c381cfdaa22ffbc35d2" compoundref="hssi__100g__cmd_8h" startline="33">CSR_CTRL0</references>
+        <references refid="hssi__100g__cmd_8h_1a55fbc642000a43fc2dbbeca1c9b8577d" compoundref="hssi__100g__cmd_8h" startline="42">CSR_STATS_CTRL</references>
+        <references refid="hssi__100g__cmd_8h_1a74bb106424b810f839713e04798b9004" compoundref="hssi__100g__cmd_8h" startline="63">DATA_CNF_PKT_NUM</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <references refid="classhssi__100g__cmd_1ab23e7abcc352add26ab6c3f726100410" compoundref="hssi__100g__cmd_8h" startline="358" endline="366">move_cursor</references>
+        <references refid="hssi__100g__cmd_8h_1ac328e551bde3d39b6d7b8cc9e048d941" compoundref="hssi__100g__cmd_8h" startline="59">ZERO</references>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::reset_monitor</definition>
+        <argsstring>(std::vector&lt; int &gt; port_, std::string move, ctrl_config config_data, hssi_afu *hafu) const</argsstring>
+        <name>reset_monitor</name>
+        <param>
+          <type>std::vector&lt; int &gt;</type>
+          <declname>port_</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>move</declname>
+        </param>
+        <param>
+          <type><ref refid="structctrl__config" kindref="compound">ctrl_config</ref></type>
+          <declname>config_data</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="345" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="345" bodyend="356"/>
+        <references refid="hssi__100g__cmd_8h_1a55fbc642000a43fc2dbbeca1c9b8577d" compoundref="hssi__100g__cmd_8h" startline="42">CSR_STATS_CTRL</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <references refid="classhssi__100g__cmd_1ab23e7abcc352add26ab6c3f726100410" compoundref="hssi__100g__cmd_8h" startline="358" endline="366">move_cursor</references>
+        <references refid="hssi__100g__cmd_8h_1a206b6f5362e56b51ca957635350b70b6" compoundref="hssi__100g__cmd_8h" startline="60">ONE</references>
+        <references refid="classhssi__100g__cmd_1a3ed679b346bbdb71b10257b07f31298d" compoundref="hssi__100g__cmd_8h" startline="633">port_</references>
+        <references refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" compoundref="hssi__100g__cmd_8h" startline="291" endline="297">select_port</references>
+        <references refid="hssi__100g__cmd_8h_1ac328e551bde3d39b6d7b8cc9e048d941" compoundref="hssi__100g__cmd_8h" startline="59">ZERO</references>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1ab23e7abcc352add26ab6c3f726100410" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void hssi_100g_cmd::move_cursor</definition>
+        <argsstring>(uint8_t size, std::string move) const</argsstring>
+        <name>move_cursor</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>move</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="358" column="8" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="358" bodyend="366"/>
+        <referencedby refid="classhssi__100g__cmd_1a711ab34a9639ea0ca56622e8aa355a69" compoundref="hssi__100g__cmd_8h" startline="337" endline="343">quit_monitor</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" compoundref="hssi__100g__cmd_8h" startline="345" endline="356">reset_monitor</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int hssi_100g_cmd::run</definition>
+        <argsstring>(test_afu *afu, CLI::App *app) override</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd">run</reimplements>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0">run</reimplementedby>
+        <param>
+          <type><ref refid="cxl__tg__test_8h_1abc250359b0b249806cbba4173e9644b4" kindref="member">test_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="368" column="15" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="368" bodyend="578"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" compoundref="hssi__100g__cmd_8h" startline="299" endline="307">capture_perf</references>
+        <references refid="classhssi__100g__cmd_1a87688bc407d45f0c648a3a8636eca3db" compoundref="hssi__100g__cmd_8h" startline="644">continuous_</references>
+        <references refid="classhssi__100g__cmd_1a42069ef54edff7924b1e7127c67f9a22" compoundref="hssi__100g__cmd_8h" startline="645">contmonitor_</references>
+        <references refid="hssi__100g__cmd_8h_1af5c76870891f7c381cfdaa22ffbc35d2" compoundref="hssi__100g__cmd_8h" startline="33">CSR_CTRL0</references>
+        <references refid="hssi__100g__cmd_8h_1a7554dc134c218d9179b00f5b4d7ad325" compoundref="hssi__100g__cmd_8h" startline="34">CSR_CTRL1</references>
+        <references refid="hssi__100g__cmd_8h_1a8a766b54f6df2c0067d1685249a90014" compoundref="hssi__100g__cmd_8h" startline="36">CSR_DST_ADDR_HI</references>
+        <references refid="hssi__100g__cmd_8h_1a9e0b4232ed9782703da9fef62fa93e9c" compoundref="hssi__100g__cmd_8h" startline="35">CSR_DST_ADDR_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a0a05a8264291bfde19dd9e440fe37c19" compoundref="hssi__100g__cmd_8h" startline="32">CSR_PKT_SIZE</references>
+        <references refid="hssi__100g__cmd_8h_1ac216de60fb702c641fbbc4a56f03ebc0" compoundref="hssi__100g__cmd_8h" startline="38">CSR_SRC_ADDR_HI</references>
+        <references refid="hssi__100g__cmd_8h_1ae7f7c54caf64237c1f718e943aed46de" compoundref="hssi__100g__cmd_8h" startline="37">CSR_SRC_ADDR_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a142064f22375847e503fe45dd6be3c62" compoundref="hssi__100g__cmd_8h" startline="41">CSR_TX_COUNT</references>
+        <references refid="structctrl__config_1a24d19d0023013270e4f30fd6d8b972ac" compoundref="hssi__100g__cmd_8h" startline="184">ctrl_config::ctrl0_data</references>
+        <references refid="structctrl__config_1a94d430962eddc3a57f4ad266739811da" compoundref="hssi__100g__cmd_8h" startline="185">ctrl_config::ctrl1_data</references>
+        <references refid="hssi__100g__cmd_8h_1ab222bed94f6c29e3c1970935f0d6e5e5" compoundref="hssi__100g__cmd_8h" startline="67">CURSOR_DOWN</references>
+        <references refid="hssi__100g__cmd_8h_1a70efb5dccaa6fceb0309f24ca94c7a11" compoundref="hssi__100g__cmd_8h" startline="66">CURSOR_UP</references>
+        <references refid="hssi__100g__cmd_8h_1aaefe7551a85b7b26574e644830962bce" compoundref="hssi__100g__cmd_8h" startline="64">DATA_CNF_CONTINUOUS_MODE</references>
+        <references refid="hssi__100g__cmd_8h_1a1cec299bc80c083399406f9111d3e763" compoundref="hssi__100g__cmd_8h" startline="65">DATA_CNF_FIXED_MODE</references>
+        <references refid="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" compoundref="hssi__100g__cmd_8h" startline="639">dest_addr_</references>
+        <references refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" compoundref="hssi__cmd_8h" startline="152" endline="161">hssi_cmd::enable_eth_loopback</references>
+        <references refid="classhssi__100g__cmd_1aa0a117f3d240d96f78a6355922292b76" compoundref="hssi__100g__cmd_8h" startline="643">end_select_</references>
+        <references refid="classhssi__100g__cmd_1afb165abcd4bc91fb813dbb0badeefedf" compoundref="hssi__100g__cmd_8h" startline="642">end_size_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" compoundref="he__cache__test_8h" startline="278">opae::afu_test::afu::error</references>
+        <references refid="hssi__afu_8h_1ac0baaf0917fee2104b9c6b44075298a2" compoundref="hssi__afu_8h" startline="38">ETH_AFU_DFH</references>
+        <references refid="classhssi__100g__cmd_1af3db6112939ee4024b08f4c800c18ef6" compoundref="hssi__100g__cmd_8h" startline="640">eth_ifc_</references>
+        <references refid="classhssi__100g__cmd_1af47a5b14c39f63416f61c7e2cff1829b" compoundref="hssi__100g__cmd_8h" startline="634">eth_loopback_</references>
+        <references refid="classhssi__afu_1a0a5190683fbccdd1ed97c89fc148981e" compoundref="hssi__afu_8h" startline="89" endline="118">hssi_afu::ethernet_interface</references>
+        <references refid="classhssi__100g__cmd_1a49339b1918720ef7901cf78aacbd1327" compoundref="hssi__100g__cmd_8h" startline="636">gap_</references>
+        <references refid="classhssi__100g__cmd_1aac9bacf0ad601f646a759426c31feaa4" compoundref="hssi__100g__cmd_8h" startline="325" endline="335">get_user_input</references>
+        <references refid="hssi__cmd_8h_1a02028d30e3cea7b4e76419c00a1c6e6d" compoundref="hssi__cmd_8h" startline="40">INVALID_MAC</references>
+        <references refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" compoundref="hssi__cmd_8h" startline="121" endline="132">hssi_cmd::mac_bits_for</references>
+        <references refid="hssi__100g__cmd_8h_1a401e1a60d6381236216b6a130a6685bd" compoundref="hssi__100g__cmd_8h" startline="68">MAX_PORT</references>
+        <references refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" compoundref="hssi__afu_8h" startline="179" endline="183">hssi_afu::mbox_read</references>
+        <references refid="classhssi__afu_1ac82026f100617124ebf962ebf3283d4a" compoundref="hssi__afu_8h" startline="120" endline="124">hssi_afu::mbox_write</references>
+        <references refid="classhssi__100g__cmd_1ab23e7abcc352add26ab6c3f726100410" compoundref="hssi__100g__cmd_8h" startline="358" endline="366">move_cursor</references>
+        <references refid="classhssi__100g__cmd_1a02a72d1c81ed666a40bf28cd3524607d" compoundref="hssi__100g__cmd_8h" startline="635">num_packets_</references>
+        <references refid="classhssi__100g__cmd_1ab035b798f21f9a36e1f4dd47023ef754" compoundref="hssi__100g__cmd_8h" startline="637">pattern_</references>
+        <references refid="structctrl__config_1afb14a5a450b96fa0d96b720330b1718a" compoundref="hssi__100g__cmd_8h" startline="183">ctrl_config::pkt_size_data</references>
+        <references refid="classhssi__100g__cmd_1a3ed679b346bbdb71b10257b07f31298d" compoundref="hssi__100g__cmd_8h" startline="633">port_</references>
+        <references refid="classhssi__100g__cmd_1a059acd53ef63ce8eda3f0e9e8b8f09f1" compoundref="hssi__100g__cmd_8h" startline="252" endline="272">print_monitor_headers</references>
+        <references refid="classhssi__100g__cmd_1adedc4e33cb2ef457b66822f80ec5373c" compoundref="hssi__100g__cmd_8h" startline="585" endline="630">print_registers</references>
+        <references refid="classhssi__100g__cmd_1a711ab34a9639ea0ca56622e8aa355a69" compoundref="hssi__100g__cmd_8h" startline="337" endline="343">quit_monitor</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" compoundref="hssi__100g__cmd_8h" startline="345" endline="356">reset_monitor</references>
+        <references refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" compoundref="hssi__100g__cmd_8h" startline="309" endline="323">run_monitor</references>
+        <references refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" compoundref="he__cache__test_8h" startline="246" endline="246">opae::afu_test::command::running</references>
+        <references refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" compoundref="hssi__100g__cmd_8h" startline="291" endline="297">select_port</references>
+        <references refid="classhssi__cmd_1ab9e34f47f9b8507649f79894950ed59e" compoundref="hssi__cmd_8h" startline="146" endline="150">hssi_cmd::show_eth_stats</references>
+        <references refid="classhssi__100g__cmd_1ae1cb27623d716c598f1c3f9d1efea893" compoundref="hssi__100g__cmd_8h" startline="638">src_addr_</references>
+        <references refid="classhssi__100g__cmd_1a903f4acd96b9833b465389c4197c6428" compoundref="hssi__100g__cmd_8h" startline="641">start_size_</references>
+        <references refid="hssi__100g__cmd_8h_1abd1123d1a3a1f52c36d99b27e993e282" compoundref="hssi__100g__cmd_8h" startline="58">STOP_BITS</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" compoundref="he__cache__test_8h" startline="273">opae::afu_test::afu::success</references>
+        <references refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" compoundref="hssi__afu_8h" startline="43">TRAFFIC_CTRL_PORT_SEL</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0" compoundref="hssi__pkt__filt__100g__cmd_8h" startline="57" endline="81">hssi_pkt_filt_100g_cmd::run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1a74c6040308212cd53dc598359ee319f0" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* hssi_100g_cmd::afu_id</definition>
+        <argsstring>() const override</argsstring>
+        <name>afu_id</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb">afu_id</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="580" column="22" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="580" bodyend="583"/>
+      </memberdef>
+      <memberdef kind="function" id="classhssi__100g__cmd_1adedc4e33cb2ef457b66822f80ec5373c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; hssi_100g_cmd::print_registers</definition>
+        <argsstring>(std::ostream &amp;os, hssi_afu *hafu) const</argsstring>
+        <name>print_registers</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>os</declname>
+        </param>
+        <param>
+          <type><ref refid="classhssi__afu" kindref="compound">hssi_afu</ref> *</type>
+          <declname>hafu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="585" column="17" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="585" bodyend="630"/>
+        <references refid="hssi__afu_8h_1ab2b3c37ae1a49971b27a9fbdbcc4d1d3" compoundref="hssi__afu_8h" startline="44">AFU_SCRATCHPAD</references>
+        <references refid="hssi__100g__cmd_8h_1a602a750c11a9a1d76a93d09e07d5b818" compoundref="hssi__100g__cmd_8h" startline="31">CSR_BLOCK_ID</references>
+        <references refid="hssi__100g__cmd_8h_1af5c76870891f7c381cfdaa22ffbc35d2" compoundref="hssi__100g__cmd_8h" startline="33">CSR_CTRL0</references>
+        <references refid="hssi__100g__cmd_8h_1a7554dc134c218d9179b00f5b4d7ad325" compoundref="hssi__100g__cmd_8h" startline="34">CSR_CTRL1</references>
+        <references refid="hssi__100g__cmd_8h_1a8a766b54f6df2c0067d1685249a90014" compoundref="hssi__100g__cmd_8h" startline="36">CSR_DST_ADDR_HI</references>
+        <references refid="hssi__100g__cmd_8h_1a9e0b4232ed9782703da9fef62fa93e9c" compoundref="hssi__100g__cmd_8h" startline="35">CSR_DST_ADDR_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a5d96623e1c28ac8f4cc57c9d1b7b7aa2" compoundref="hssi__100g__cmd_8h" startline="40">CSR_MLB_RST</references>
+        <references refid="hssi__100g__cmd_8h_1a0a05a8264291bfde19dd9e440fe37c19" compoundref="hssi__100g__cmd_8h" startline="32">CSR_PKT_SIZE</references>
+        <references refid="hssi__100g__cmd_8h_1a11092ef81e45b10a893afb7d17ffbe08" compoundref="hssi__100g__cmd_8h" startline="39">CSR_RX_COUNT</references>
+        <references refid="hssi__100g__cmd_8h_1a05235435e367aa50d75498e0132c976c" compoundref="hssi__100g__cmd_8h" startline="30">CSR_SCRATCH</references>
+        <references refid="hssi__100g__cmd_8h_1ac216de60fb702c641fbbc4a56f03ebc0" compoundref="hssi__100g__cmd_8h" startline="38">CSR_SRC_ADDR_HI</references>
+        <references refid="hssi__100g__cmd_8h_1ae7f7c54caf64237c1f718e943aed46de" compoundref="hssi__100g__cmd_8h" startline="37">CSR_SRC_ADDR_LO</references>
+        <references refid="hssi__100g__cmd_8h_1a142064f22375847e503fe45dd6be3c62" compoundref="hssi__100g__cmd_8h" startline="41">CSR_TX_COUNT</references>
+        <references refid="hssi__afu_8h_1ac0baaf0917fee2104b9c6b44075298a2" compoundref="hssi__afu_8h" startline="38">ETH_AFU_DFH</references>
+        <references refid="hssi__afu_8h_1a8b95eb7d4b6d30992c5274633ab33fef" compoundref="hssi__afu_8h" startline="40">ETH_AFU_ID_H</references>
+        <references refid="hssi__afu_8h_1abe08ed7e56c85bcf7089b573333dd320" compoundref="hssi__afu_8h" startline="39">ETH_AFU_ID_L</references>
+        <references refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" compoundref="hssi__cmd_8h" startline="164" endline="172">hssi_cmd::int_to_hex</references>
+        <references refid="classhssi__afu_1aa1c3fda715b06ed934c8a0bee85786fd" compoundref="hssi__afu_8h" startline="179" endline="183">hssi_afu::mbox_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="hssi__afu_8h_1a461eab73cc68f8fa3a50edaae21cfee3" compoundref="hssi__afu_8h" startline="41">TRAFFIC_CTRL_CMD</references>
+        <references refid="hssi__afu_8h_1a3ce04cd0dea4df8da87b9f643cb4d069" compoundref="hssi__afu_8h" startline="42">TRAFFIC_CTRL_DATA</references>
+        <references refid="hssi__afu_8h_1a0a379a8f9138cdda028b7d15a52d9e39" compoundref="hssi__afu_8h" startline="43">TRAFFIC_CTRL_PORT_SEL</references>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">run</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>hssi_pkt_filt_100g_cmd</label>
+        <link refid="classhssi__pkt__filt__100g__cmd"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="2">
+        <label>hssi_cmd</label>
+        <link refid="classhssi__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>hssi_100g_cmd</label>
+        <link refid="classhssi__100g__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="2">
+        <label>hssi_cmd</label>
+        <link refid="classhssi__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>hssi_100g_cmd</label>
+        <link refid="classhssi__100g__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_100g_cmd.h" line="70" column="1" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="71" bodyend="646"/>
+    <listofallmembers>
+      <member refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904" prot="public" virt="virtual"><scope>hssi_100g_cmd</scope><name>add_options</name></member>
+      <member refid="classhssi__100g__cmd_1a74c6040308212cd53dc598359ee319f0" prot="public" virt="virtual"><scope>hssi_100g_cmd</scope><name>afu_id</name></member>
+      <member refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>calc_performance</name></member>
+      <member refid="classhssi__100g__cmd_1a5df04375e87839df67bc031db777b440" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>capture_perf</name></member>
+      <member refid="classhssi__cmd_1a4d645c1913180d63ad93330589ab0892" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>clock_freq_for</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>command</name></member>
+      <member refid="classhssi__100g__cmd_1a87688bc407d45f0c648a3a8636eca3db" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>continuous_</name></member>
+      <member refid="classhssi__100g__cmd_1a42069ef54edff7924b1e7127c67f9a22" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>contmonitor_</name></member>
+      <member refid="classhssi__100g__cmd_1aeecaf85339dcf800a0fa53a456df27c2" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>data_64</name></member>
+      <member refid="classhssi__100g__cmd_1a0e8f86e83c2d30a042da6f16e41cb3ce" prot="public" virt="virtual"><scope>hssi_100g_cmd</scope><name>description</name></member>
+      <member refid="classhssi__100g__cmd_1a823ae50e9262fffd9f0a81348164c9f0" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>dest_addr_</name></member>
+      <member refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>enable_eth_loopback</name></member>
+      <member refid="classhssi__100g__cmd_1aa0a117f3d240d96f78a6355922292b76" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>end_select_</name></member>
+      <member refid="classhssi__100g__cmd_1afb165abcd4bc91fb813dbb0badeefedf" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>end_size_</name></member>
+      <member refid="classhssi__100g__cmd_1af3db6112939ee4024b08f4c800c18ef6" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>eth_ifc_</name></member>
+      <member refid="classhssi__100g__cmd_1af47a5b14c39f63416f61c7e2cff1829b" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>eth_loopback_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" virt="pure-virtual"><scope>hssi_100g_cmd</scope><name>featureid</name></member>
+      <member refid="classhssi__100g__cmd_1a49339b1918720ef7901cf78aacbd1327" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>gap_</name></member>
+      <member refid="classhssi__100g__cmd_1aac9bacf0ad601f646a759426c31feaa4" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>get_user_input</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" virt="pure-virtual"><scope>hssi_100g_cmd</scope><name>guidh</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" virt="pure-virtual"><scope>hssi_100g_cmd</scope><name>guidl</name></member>
+      <member refid="classhssi__100g__cmd_1a272bac05983a284c0bf972d3d487258d" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>hssi_100g_cmd</name></member>
+      <member refid="classhssi__cmd_1a9241a77d197ac297be1ea1759c24fe08" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>hssi_cmd</name></member>
+      <member refid="classhssi__cmd_1ae4683ed6127d0ac876b8f24a83bbdc1f" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>int_to_hex</name></member>
+      <member refid="classhssi__cmd_1a153a98d3c481a21b25abed3a6e25192f" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>mac_bits_for</name></member>
+      <member refid="classhssi__100g__cmd_1ab23e7abcc352add26ab6c3f726100410" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>move_cursor</name></member>
+      <member refid="classhssi__100g__cmd_1a2ac9bd89910c7d6b4f3d5c0ef3ccf252" prot="public" virt="virtual"><scope>hssi_100g_cmd</scope><name>name</name></member>
+      <member refid="classhssi__100g__cmd_1a02a72d1c81ed666a40bf28cd3524607d" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>num_packets_</name></member>
+      <member refid="classhssi__100g__cmd_1ab035b798f21f9a36e1f4dd47023ef754" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>pattern_</name></member>
+      <member refid="classhssi__100g__cmd_1a3ed679b346bbdb71b10257b07f31298d" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>port_</name></member>
+      <member refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>print_monitor_data</name></member>
+      <member refid="classhssi__100g__cmd_1a059acd53ef63ce8eda3f0e9e8b8f09f1" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>print_monitor_headers</name></member>
+      <member refid="classhssi__100g__cmd_1adedc4e33cb2ef457b66822f80ec5373c" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>print_registers</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>ptr_t</name></member>
+      <member refid="classhssi__100g__cmd_1a711ab34a9639ea0ca56622e8aa355a69" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>quit_monitor</name></member>
+      <member refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>read_performance</name></member>
+      <member refid="classhssi__100g__cmd_1a31fd86c8dc63ea8efcaf9baa09d4021f" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>reset_monitor</name></member>
+      <member refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" prot="public" virt="virtual"><scope>hssi_100g_cmd</scope><name>run</name></member>
+      <member refid="classhssi__100g__cmd_1a094298cb31537a46b339965fe8196a01" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>run_monitor</name></member>
+      <member refid="classhssi__cmd_1a308020145dd686d7b5ab1a4bf22ee9c7" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>run_process</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>running_</name></member>
+      <member refid="classhssi__100g__cmd_1a8ac850cb4095cd6a8be0a7af0bbfa9f1" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>select_port</name></member>
+      <member refid="classhssi__cmd_1a0cfec35cb1e5910bd54f2ad9122fe6f9" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>set_pkt_filt_dest</name></member>
+      <member refid="classhssi__cmd_1ab9e34f47f9b8507649f79894950ed59e" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>show_eth_stats</name></member>
+      <member refid="classhssi__100g__cmd_1ae1cb27623d716c598f1c3f9d1efea893" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>src_addr_</name></member>
+      <member refid="classhssi__100g__cmd_1aaf54dae4a089c878c40bbb830994a3fe" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>stall_disable</name></member>
+      <member refid="classhssi__100g__cmd_1aa60e47554dd2bae485f49d773255f7b0" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>stall_enable</name></member>
+      <member refid="classhssi__100g__cmd_1a903f4acd96b9833b465389c4197c6428" prot="protected" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>start_size_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>stop</name></member>
+      <member refid="classhssi__100g__cmd_1a17a10d74f5c3836a7cfe847c618073e9" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>timestamp_in_seconds</name></member>
+      <member refid="classhssi__100g__cmd_1a17f87d943b75bf98510e103bf94bbb9e" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>total_per_second</name></member>
+      <member refid="classhssi__100g__cmd_1a06b70f259d026f9409986b9f0b3790d0" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>write_csr_addr</name></member>
+      <member refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" prot="public" virt="non-virtual"><scope>hssi_100g_cmd</scope><name>write_ctrl_config</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>hssi_100g_cmd</scope><name>~command</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

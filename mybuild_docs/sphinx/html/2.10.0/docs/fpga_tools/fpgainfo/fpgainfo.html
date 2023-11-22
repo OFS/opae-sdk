@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fpgainfo &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="fpgasupdate" href="../fpgasupdate/fpgasupdate.html" />
+    <link rel="prev" title="fpgadiag" href="../fpgadiag/README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">fpgainfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fpgainfo-commands">FPGAINFO COMMANDS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-arguments">OPTIONAL ARGUMENTS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-arguments">COMMON ARGUMENTS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#errors-arguments">ERRORS ARGUMENTS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phy-arguments">PHY ARGUMENTS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#events-arguments">EVENTS ARGUMENTS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fpgainfo</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/fpgainfo/fpgainfo.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fpgainfo">
+<h1>fpgainfo<a class="headerlink" href="#fpgainfo" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">   fpgainfo [-h] [-S &lt;segment&gt;] [-B &lt;bus&gt;] [-D &lt;device&gt;] [-F &lt;function&gt;] [PCI_ADDR]</span>
+<span class="go">            {errors,power,temp,fme,port,bmc,mac,phy,security}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following:
+<code class="docutils literal notranslate"><span class="pre">errors</span></code>, <code class="docutils literal notranslate"><span class="pre">power</span></code>, <code class="docutils literal notranslate"><span class="pre">temp</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>, <code class="docutils literal notranslate"><span class="pre">fme</span></code>, <code class="docutils literal notranslate"><span class="pre">bmc</span></code>, <code class="docutils literal notranslate"><span class="pre">phy</span></code> or <code class="docutils literal notranslate"><span class="pre">mac</span></code>,<code class="docutils literal notranslate"><span class="pre">security</span></code>,<code class="docutils literal notranslate"><span class="pre">events</span></code>.
+Some commands may also have other arguments or options that control their behavior.</p>
+<p>For systems with multiple FPGA devices, you can specify the BDF to limit the output to the FPGA resource
+with the corresponding PCIe configuration. If not specified, information displays for all resources for
+the given command.</p>
+<div class="section" id="fpgainfo-commands">
+<h3>FPGAINFO COMMANDS<a class="headerlink" href="#fpgainfo-commands" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">errors</span></code></p>
+<p>Show/clear errors of an FPGA resource that the first argument specifies.
+<code class="docutils literal notranslate"><span class="pre">fpgainfo</span></code> displays information in human readable form.</p>
+<p><code class="docutils literal notranslate"><span class="pre">power</span></code></p>
+<p>Show total the power in watts that the FPGA hardware consumes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">temp</span></code></p>
+<p>Show FPGA temperature values in degrees Celcius.</p>
+<p><code class="docutils literal notranslate"><span class="pre">port</span></code></p>
+<p>Show information about the port such as the AFU ID of currently loaded AFU.</p>
+<p><code class="docutils literal notranslate"><span class="pre">fme</span></code></p>
+<p>Show information about the FPGA platform including the partial reconfiguration (PR) Interface ID, the OPAE version,
+and the FPGA Interface Manager (FIM) ID.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bmc</span></code></p>
+<p>Show all Board Management Controller sensor values for the FPGA resource, if available.</p>
+<p><code class="docutils literal notranslate"><span class="pre">phy</span></code></p>
+<p>Show information about the PHY integrated in the FPGA, if available.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mac</span></code></p>
+<p>Show information about the MAC address in ROM attached to the FPGA, if available.</p>
+<p><code class="docutils literal notranslate"><span class="pre">security</span></code></p>
+<p>Show information about the security keys, hashs and flash count, if available.</p>
+<p><code class="docutils literal notranslate"><span class="pre">events</span></code></p>
+<p>Show information about events and sensors, if available.</p>
+</div>
+</div>
+<div class="section" id="optional-arguments">
+<h2>OPTIONAL ARGUMENTS<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p>
+<p>Prints help information and exit.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--version,</span> <span class="pre">-v</span></code></p>
+<p>Prints version information and exit.</p>
+</div>
+<div class="section" id="common-arguments">
+<h2>COMMON ARGUMENTS<a class="headerlink" href="#common-arguments" title="Permalink to this headline">¶</a></h2>
+<p>The following arguments are common to all commands and are optional.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-S,</span> <span class="pre">--segment</span></code></p>
+<p>PCIe segment number of resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-B,</span> <span class="pre">--bus</span></code></p>
+<p>PCIe bus number of resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-D,</span> <span class="pre">--device</span></code></p>
+<p>PCIe device number of resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-F,</span> <span class="pre">--function</span></code></p>
+<p>PCIe function number of resource.</p>
+<div class="section" id="errors-arguments">
+<h3>ERRORS ARGUMENTS<a class="headerlink" href="#errors-arguments" title="Permalink to this headline">¶</a></h3>
+<p>The first argument to the <code class="docutils literal notranslate"><span class="pre">errors</span></code> command specifies the resource type. It must be one of the following:
+<code class="docutils literal notranslate"><span class="pre">fme</span></code>,<code class="docutils literal notranslate"><span class="pre">port</span></code>,<code class="docutils literal notranslate"><span class="pre">all</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">fme</span></code></p>
+<p>Show/clear FME errors.</p>
+<p><code class="docutils literal notranslate"><span class="pre">port</span></code></p>
+<p>Show/clear PORT errors.</p>
+<p><code class="docutils literal notranslate"><span class="pre">all</span></code></p>
+<p>Show/clear errors for all resources.</p>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">&lt;command-args&gt;</span></code> arguments are:</p>
+<p><code class="docutils literal notranslate"><span class="pre">--clear,</span> <span class="pre">-c</span></code></p>
+<p>Clear errors for the given FPGA resource.</p>
+</div>
+<div class="section" id="phy-arguments">
+<h3>PHY ARGUMENTS<a class="headerlink" href="#phy-arguments" title="Permalink to this headline">¶</a></h3>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">&lt;command-args&gt;</span></code> argument is:</p>
+<p><code class="docutils literal notranslate"><span class="pre">--group,</span> <span class="pre">-G</span></code></p>
+<p>Select which PHY group(s) information to show.</p>
+</div>
+<div class="section" id="events-arguments">
+<h3>EVENTS ARGUMENTS<a class="headerlink" href="#events-arguments" title="Permalink to this headline">¶</a></h3>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">&lt;command-args&gt;</span></code> argument is:</p>
+<p><code class="docutils literal notranslate"><span class="pre">--list,-l</span></code></p>
+<p>List boots (implies –all).</p>
+<p><code class="docutils literal notranslate"><span class="pre">--boot,-b</span></code></p>
+<p>Boot index to use, i.e:
+    0 for current boot (default).
+    1 for previous boot, etc.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--count,-c</span></code></p>
+<p>Number of events to print.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--all,-a</span></code></p>
+<p>Print all events.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--sensors,-s</span></code></p>
+<p>Print sensor data too.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--bits,-i</span></code></p>
+<p>Print bit values too.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--help,-h</span></code></p>
+<p>Print this help.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>This command shows the current power telemetry:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo power</span>
+</pre></div>
+</div>
+<p>This command shows the current temperature readings:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo temp</span>
+</pre></div>
+</div>
+<p>This command shows FME resource errors:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo errors fme</span>
+</pre></div>
+</div>
+<p>This command clears all errors on all resources:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo errors all -c</span>
+</pre></div>
+</div>
+<p>This command shows information of the FME on bus 0x5e</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo fme -B 0x5e</span>
+</pre></div>
+</div>
+<p>This command shows information of the FPGA security on bus 0x5e</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo security -B 0x5e</span>
+</pre></div>
+</div>
+<p>This command shows all events and sensors information including sensor bits:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./fpgainfo events -asi</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+| 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated description of the <code class="docutils literal notranslate"><span class="pre">fme</span></code> command |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fpgadiag/README.html" class="btn btn-neutral float-left" title="fpgadiag" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fpgasupdate/fpgasupdate.html" class="btn btn-neutral float-right" title="fpgasupdate" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

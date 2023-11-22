@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPAE C API Programming Guide &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="OPAE Python Bindings" href="../../pyopae/README.html" />
+    <link rel="prev" title="OPAE Installation Guide" href="../../install_guide/installation_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OPAE C API Programming Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opae-role">OPAE Role</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#intel-accelerator-stack-hardware-terminology">Intel Accelerator Stack Hardware Terminology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opae-software-concepts-reflected-in-the-c-api">OPAE Software Concepts Reflected in the C API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opae-library">OPAE Library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-code">Sample Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#high-level-directory-structure">High-Level Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-application-flow">Basic Application Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-components">API Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#object-models">Object Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fpga-resource-properties">FPGA Resource Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#opae-c-api-return-codes">OPAE C API Return Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-models">Usage Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#query-and-search-for-a-resource">Query and Search for a Resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#acquire-and-release-a-resource">Acquire and Release a Resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared-memory-buffer">Shared Memory Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mmio">MMIO</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>OPAE C API Programming Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_api/prog_guide/readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="opae-c-api-programming-guide">
+<h1>OPAE C API Programming Guide<a class="headerlink" href="#opae-c-api-programming-guide" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The OPAE C library (<em>libopae-c</em>) is a lightweight user-space library that
+provides abstractions for FPGA resources in a compute environment. The OPAE C library
+builds on the driver stack that supports the FPGA device, abstracting
+hardware- and OS-specific details. It provides access to the underlying FPGA
+resources as a set of features available to software programs
+running on the host. These features include the acceleration logic
+preconfigured on the FPGA and functions to manage and reconfigure
+the FPGA. The library enables your applications to
+transparently and seamlessly benefit from FPGA-based acceleration.</p>
+<p><img alt="Layered architecture" src="../../../_images/FPGA-lib-1.png" /></p>
+<p>By providing a unified C API, the library supports different FPGA
+integration and deployment models, ranging from single-node systems with one or
+a few FPGA devices to large-scale FPGA deployments in a data center.
+At one end of the spectrum, the API supports a simple application using a PCIe link to reconfigure
+the FPGA with different accelerator functions. At the other end of the spectrum, resource
+management and orchestration services in a data center can use this API to
+discover and select FPGA resources and then allocate them for use by acceleration workloads.</p>
+</div>
+<div class="section" id="opae-role">
+<h2>OPAE Role<a class="headerlink" href="#opae-role" title="Permalink to this headline">¶</a></h2>
+<p>The OPAE provides a common base layer for a wide range of
+applications without sacrificing performance or efficiency. The abstraction layer limits
+the details of the FPGA hardware that software applications must handle.</p>
+<p>The OPAE provides consistent interfaces to crucial components of the platform. The  OPAE does not constrain
+frameworks and applications by making optimizations with limited applicability. When the OPAE does
+provide convenience functions or optimizations, they are optional.</p>
+<p>For example, the OPAE provides an interface to allocate physically contiguous
+buffers in system memory that user-space software and an accelerator can share.
+This interface enables the most basic feature set of
+allocating and sharing a large page of memory in one API call. However, it
+does <em>not</em> provide a malloc()-like interface backed by a memory pool or slab
+allocator. Higher layers of the software stack can make such
+domain-specific optimizations.</p>
+</div>
+<div class="section" id="intel-accelerator-stack-hardware-terminology">
+<h2>Intel Accelerator Stack Hardware Terminology<a class="headerlink" href="#intel-accelerator-stack-hardware-terminology" title="Permalink to this headline">¶</a></h2>
+<p>The following terms define the hardware and hardware processes involved in creating an accelerator function.</p>
+<ul class="simple">
+<li><p>FPGA: <a class="reference external" href="https://en.wikipedia.org/wiki/Field-programmable_gate_array">Field Programmable Gate Array</a>
+is a discrete or integrated device connecting to a host CPU via PCIe or other type of interconnects.</p></li>
+<li><p>Accelerator Function Unit (AFU): The AFU is the supplied implementation of an accelerator, typically
+in HDL. AFUs implement a function such as compression, encryption, or mathematical operations.
+The Quartus Prime Pro software synthesizes the RTL logic into a bitstream.</p></li>
+<li><p>Accelerator Function (AF): The AF is the compiled binary for an AFU. An AF is a raw binary file (.rbf)
+bitstream. A tool (<em>fpgaconf</em>) reconfigures the FPGA using an AF bitstream.</p></li>
+<li><p>Reconfiguration: The process of reprogramming the FPGA with a different AF.</p></li>
+</ul>
+</div>
+<div class="section" id="opae-software-concepts-reflected-in-the-c-api">
+<h2>OPAE Software Concepts Reflected in the C API<a class="headerlink" href="#opae-software-concepts-reflected-in-the-c-api" title="Permalink to this headline">¶</a></h2>
+<p>The following OPAE data structures and functions integrate AFUs into the OPAE environment.
+The OPAE C API models these data structures and functions. For more information on the object
+models refer to the <a class="reference external" href="#object-models">Object model</a> section.</p>
+<ul class="simple">
+<li><p>Accelerator: An accelerator is an allocable accelerator function implemented in an FPGA.
+An accelerator tracks the  <em>ownership</em> of an AFU (or part of it) for a process that uses it.
+Multiple processes can share an accelerator.</p></li>
+<li><p>Device: The OPAE enumerates and models two device types: the FPGA and the AFU.</p></li>
+<li><p>Events: Events are asynchronous notifications. The FPGA driver
+triggers particular events to indicate error conditions. Accelerator logic can also
+define its own events. User applications can choose to be
+notified when particular events occur and respond appropriately.</p></li>
+<li><p>Shared memory buffers: Software allocates shared memory buffers in user process memory
+on the host. Shared memory buffers facilitate data transfers between the user process and the
+accelerator that it owns.</p></li>
+</ul>
+</div>
+<div class="section" id="opae-library">
+<h2>OPAE Library<a class="headerlink" href="#opae-library" title="Permalink to this headline">¶</a></h2>
+<p>Linking with this library is straightforward.
+Code using the  OPAE library should include the header file <code class="docutils literal notranslate"><span class="pre">fpga.h</span></code>. Taking the GCC
+compiler on Linux as an example, here is the simplest compile and link command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">gcc</span> <span class="pre">myprog.c</span> <span class="pre">-I&lt;/path/to/fpga.h&gt;</span> <span class="pre">-L&lt;/path/to/libopae-c.so&gt;</span> <span class="pre">-lopae-c</span> <span class="pre">-luuid</span> <span class="pre">-ljson-c</span> <span class="pre">-lpthread</span></code></p>
+<p>.. note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>The OPAE library uses the third-party `libuuid` and `libjson-c` libraries that are not distributed with 
+the OPAE library. Make sure to install these libraries.
+</pre></div>
+</div>
+</div>
+<div class="section" id="sample-code">
+<h2>Sample Code<a class="headerlink" href="#sample-code" title="Permalink to this headline">¶</a></h2>
+<p>The library source includes two code samples. Use these samples
+to learn how to call functions in the library. Build and run these samples
+to determine if your installation and environment are set up properly.</p>
+<p>Refer to the <a class="reference external" href="https://www.altera.com/content/altera-www/global/en_us/index/documentation/dnv1485190478614.html#vks1498593668425">Running the Hello FPGA Example</a> chapter in the <em>Intel® Acceleration Stack
+Quick Start Guide for for Intel Programmable Acceleration Card with Intel Arria® 10 GX FPGA</em> for more information about using the sample code.</p>
+</div>
+<div class="section" id="high-level-directory-structure">
+<h2>High-Level Directory Structure<a class="headerlink" href="#high-level-directory-structure" title="Permalink to this headline">¶</a></h2>
+<p>Building and installing the OPAE library results in the following directory structure on the Linux OS.
+Windows and MacOS have similar directories and files.</p>
+<p>|Directory &amp; Files |Contents |
+|——————|———|
+|include/opae      |Directory containing all header files|
+|include/opae/fpga.h |Top-level header for user code to include|
+|include/opae/access.h |Header file for accelerator acquire/release, MMIO, memory management, event handling, and so on |
+|include/opae/bitstream.h |Header file for bitstream manipulation functions |
+|include/opae/common.h |Header file for error reporting functions |
+|include/opae/enum.h |Header file for AFU enumeration functions |
+|include/opae/manage.h |Header file for FPGA management functions |
+|include/opae/types.h |Various type definitions |
+|lib               |Directory containing shared library files |
+|lib/libopae-c.so    |The shared dynamic library for linking with the user application |
+|doc               |Directory containing API documentation |
+|doc/html          |Directory for documentation of HTML format
+|doc/latex         |Directory for documentation of LaTex format
+|doc/man           |Directory for documentation of Unix man page format</p>
+</div>
+<div class="section" id="basic-application-flow">
+<h2>Basic Application Flow<a class="headerlink" href="#basic-application-flow" title="Permalink to this headline">¶</a></h2>
+<p>The figure below shows the basic application flow from the
+viewpoint of a user-process.</p>
+<p><img alt="Basic flow" src="../../../_images/FPGA-lib-3.PNG" /></p>
+</div>
+<div class="section" id="api-components">
+<h2>API Components<a class="headerlink" href="#api-components" title="Permalink to this headline">¶</a></h2>
+<p>The API object model abstracts the physical FPGA device and
+available functions. It is a generalized model and extends to
+describe any FPGA type.</p>
+<div class="section" id="object-models">
+<h3>Object Models<a class="headerlink" href="#object-models" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_objtype</span></code>: An enum type that represents the type of an FPGA resource, either <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> or <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code>.
+An <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> object corresponds to a physical FPGA device. Only <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> objects can invoke management functions.
+The <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code> represents an instance of an AFU.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_token</span></code>: An opaque type that represents a resource known to, but not
+necessarily owned by, the calling process. The calling process must own a
+resource before it can invoke functions of the resource.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_handle</span></code>: An opaque type that represents a resource owned by the
+calling process. The API functions <code class="docutils literal notranslate"><span class="pre">fpgaOpen()</span></code> and <code class="docutils literal notranslate"><span class="pre">fpgaClose()</span></code> acquire and release ownership of a resource that an <code class="docutils literal notranslate"><span class="pre">fpga_handle</span></code> represents. (Refer to the <a class="reference external" href="#functions">Functions</a> section for more information.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_properties</span></code>: An opaque type for a properties object. Your
+applications use these properties to query and search for appropriate resources. The
+<a class="reference external" href="#fpga-resource-properties">FPGA Resource Properties</a> section documents properties visible to your
+applications.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_event_handle</span></code>: An opaque handle the FPGA driver uses to notify your
+application about an event.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_event_type</span></code>: An enum type that represents the types of events. The following are valid values:
+<code class="docutils literal notranslate"><span class="pre">FPGA_EVENT_INTERRUPT</span></code>, <code class="docutils literal notranslate"><span class="pre">FPGA_EVENT_ERROR</span></code>, and <code class="docutils literal notranslate"><span class="pre">FPGA_EVENT_POWER_THERMAL</span></code>. (The Intel Programmable Acceleration Card (PAC) with
+Intel Arria 10 GX FPGA does not handle thermal and power events.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fpga_result</span></code>: An enum type to represent the result of an API function. If the
+function returns successfully the result is <code class="docutils literal notranslate"><span class="pre">FPGA_OK</span></code>. Otherwise, the result is
+the appropriate error codes. Function <code class="docutils literal notranslate"><span class="pre">fpgaErrStr()</span></code> translates an error code
+into human-readable strings.</p></li>
+</ul>
+</div>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<p>The table below groups important API calls by their functionality. For more information about each of the functions, refer to the
+<a class="reference external" href="https://opae.github.io/0.13.0/docs/fpga_api/fpga_api.html">OPAE C API reference manual</a>.</p>
+<p>|Functionality |API Call |FPGA |Accelerator|Description |
+|:——–|:———-|:—–:|:—–:|:———————–|
+|Enumeration | <code class="docutils literal notranslate"><span class="pre">fpgaEnumerate()</span></code> |Yes| Yes| Query FPGA resources that match certain properties |
+|Enumeration: Properties | <code class="docutils literal notranslate"><span class="pre">fpga[Get,</span> <span class="pre">Update,</span> <span class="pre">Clear,</span> <span class="pre">Clone,</span> <span class="pre">Destroy</span> <span class="pre">Properties]()</span></code> |Yes| Yes| Manage <code class="docutils literal notranslate"><span class="pre">fpga_properties</span></code> life cycle |
+|           | <code class="docutils literal notranslate"><span class="pre">fpgaPropertiesGet[Prop]()</span></code> | Yes| Yes|Get the specified property <em>Prop</em>, from the <a class="reference external" href="#fpga-resource-properties">FPGA Resource Properties</a> table |
+|           | <code class="docutils literal notranslate"><span class="pre">fpgaPropertiesSet[Prop]()</span></code> | Yes| Yes|Set the specified property <em>Prop</em>, from the <a class="reference external" href="#fpga-resource-properties">FPGA Resource Properties</a> table |
+|Access: Ownership  | <code class="docutils literal notranslate"><span class="pre">fpga[Open,</span> <span class="pre">Close]()</span></code> | Yes| Yes|Acquire/release ownership |
+|Access: Reset      | <code class="docutils literal notranslate"><span class="pre">fpgaReset()</span></code> |Yes| Yes| Reset an accelerator |
+|Access: Event handling | <code class="docutils literal notranslate"><span class="pre">fpga[Register,</span> <span class="pre">Unregister]Event()</span></code> |Yes| Yes| Register/unregister an event to be notified about |
+|               | <code class="docutils literal notranslate"><span class="pre">fpga[Create,</span> <span class="pre">Destroy]EventHandle()</span></code>|Yes| Yes| Manage <code class="docutils literal notranslate"><span class="pre">fpga_event_handle</span></code> life cycle |
+|Access: MMIO       | <code class="docutils literal notranslate"><span class="pre">fpgaMapMMIO()</span></code>, <code class="docutils literal notranslate"><span class="pre">fpgaUnMapMMIO()</span></code> |Yes| Yes| Map/unmap MMIO space |
+|           | <code class="docutils literal notranslate"><span class="pre">fpgaGetMMIOInfo()</span></code> |Yes| Yes| Get information about the specified MMIO space |
+|           | <code class="docutils literal notranslate"><span class="pre">fpgaReadMMIO[32,</span> <span class="pre">64]()</span></code> | Yes| Yes|Read a 32-bit or 64-bit value from MMIO space |
+|           | <code class="docutils literal notranslate"><span class="pre">fpgaWriteMMIO[32,</span> <span class="pre">64]()</span></code> |Yes| Yes| Write a 32-bit or 64-bit value to MMIO space |
+|Memory management: Shared memory | <code class="docutils literal notranslate"><span class="pre">fpga[Prepare,</span> <span class="pre">Release]Buffer()</span></code> |Yes| Yes| Manage memory buffer shared between the calling process and an accelerator |
+|              | <code class="docutils literal notranslate"><span class="pre">fpgaGetIOAddress()</span></code> | Yes| Yes|Return the device I/O address of a shared memory buffer |
+|Management: Reconfiguration | <code class="docutils literal notranslate"><span class="pre">fpgaReconfigureSlot()</span></code> | Yes | No | Replace an existing AFU with a new one |
+|Error report | <code class="docutils literal notranslate"><span class="pre">fpgaErrStr()</span></code> | Yes| Yes|Map an error code to a human readable string |</p>
+<p>.. note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">UMsg</span><span class="w"> </span><span class="n">APIs</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">supported</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Intel</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="w"> </span><span class="n">PAC</span><span class="w"> </span><span class="n">cards</span><span class="p">.</span><span class="w"> </span><span class="n">They</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">deprecated</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="n">release</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fpga-resource-properties">
+<h3>FPGA Resource Properties<a class="headerlink" href="#fpga-resource-properties" title="Permalink to this headline">¶</a></h3>
+<p>Applications query resource properties by specifying the property name for <code class="docutils literal notranslate"><span class="pre">Prop</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">fpgaPropertiesGet[Prop]()</span></code> and <code class="docutils literal notranslate"><span class="pre">fpgaPropertiesSet[Prop]()</span></code> functions. The FPGA and Accelerator
+columns state whether or not the Property is available for the FPGA or Accelerator objects.</p>
+<p>|Property |FPGA |Accelerator |Description |
+|:———|:—–:|:—-:|:—–|
+|Parent |No |Yes |<code class="docutils literal notranslate"><span class="pre">fpga_token</span></code> of the parent object |
+|ObjectType |Yes |Yes |The type of the resource: either <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> or <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code> |
+|Bus |Yes |Yes |The bus number |
+|Device |Yes |Yes |The PCI device number |
+|Function |Yes |Yes |The PCI function number |
+|SocketId |Yes |Yes |The socket ID |
+|DeviceId |Yes |Yes |The device ID |
+|NumSlots |Yes |No |Number of AFU slots available on an <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> resource |
+|BBSID |Yes |No |The FPGA Interface Manager (FIM) ID of an <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> resource |
+|BBSVersion |Yes |No |The FIM version of an <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> resource |
+|VendorId |Yes |No |The vendor ID of an <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> resource |
+|GUID |Yes |Yes |The GUID of an <code class="docutils literal notranslate"><span class="pre">FPGA_DEVICE</span></code> or <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code> resource |
+|NumMMIO |No |Yes |The number of MMIO space of an <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code> resource |
+|NumInterrupts |No |Yes |The number of interrupts of an <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code> resource |
+|AcceleratorState |No |Yes |The state of an <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR</span></code> resource: either <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR_ASSIGNED</span></code> or <code class="docutils literal notranslate"><span class="pre">FPGA_ACCELERATOR_UNASSIGNED</span></code>|</p>
+</div>
+</div>
+<div class="section" id="opae-c-api-return-codes">
+<h2>OPAE C API Return Codes<a class="headerlink" href="#opae-c-api-return-codes" title="Permalink to this headline">¶</a></h2>
+<p>The OPAE C library returns a code for every exported public API function.  <code class="docutils literal notranslate"><span class="pre">FPGA_OK</span></code> indicates successful completion
+of the requested operation. Any return code other than <code class="docutils literal notranslate"><span class="pre">FPGA_OK</span></code> indicates an error or unexpected
+behavior. When using the OPAE C API, always check the API return codes.</p>
+<p>|Error Code|Description|
+|———-|———–|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_OK</span></code>|Operation completed successfully|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_INVALID_PARAM</span></code>|Invalid parameter supplied|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_BUSY</span></code>|Resource is busy|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_EXCEPTION</span></code>|An exception occurred|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_NOT_FOUND</span></code>|A required resource was not found|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_NO_MEMORY</span></code>|Not enough memory to complete operation|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_NOT_SUPPORTED</span></code>|Requested operation is not supported|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_NO_DRIVER</span></code>|Driver is not loaded|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_NO_DAEMON</span></code>|FPGA Daemon (<code class="docutils literal notranslate"><span class="pre">fpgad</span></code>) is not running|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_NO_ACCESS</span></code>|Insufficient privileges or permissions|
+|<code class="docutils literal notranslate"><span class="pre">FPGA_RECONF_ERROR</span></code>|Error while reconfiguring FPGA|</p>
+</div>
+<div class="section" id="usage-models">
+<h2>Usage Models<a class="headerlink" href="#usage-models" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="query-and-search-for-a-resource">
+<h3>Query and Search for a Resource<a class="headerlink" href="#query-and-search-for-a-resource" title="Permalink to this headline">¶</a></h3>
+<p>The user-code first populates an <code class="docutils literal notranslate"><span class="pre">fpga_properties</span></code> object with the required properties.
+Then, <code class="docutils literal notranslate"><span class="pre">fpgaEnumerate()</span></code> searches for matching resources. <code class="docutils literal notranslate"><span class="pre">fpgaEnumerate()</span></code> may return more
+than one matching resource.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fpga/fpga.h&quot;</span>
+
+<span class="n">fpga_guid</span><span class="w">               </span><span class="n">guid</span><span class="p">;</span>
+<span class="n">fpga_properties</span><span class="w">         </span><span class="n">filter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="n">fpga_result</span><span class="w">             </span><span class="n">res</span><span class="p">;</span>
+<span class="n">fpga_token</span><span class="w">              </span><span class="n">tokens</span><span class="p">[</span><span class="n">MAX_NUM_TOKENS</span><span class="p">];</span>
+<span class="kt">uint32_t</span><span class="w">                </span><span class="n">num_matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="cm">/* Start with an empty properties object */</span>
+<span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaGetProperties</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">filter</span><span class="p">);</span>
+
+<span class="cm">/* Populate the properties object with required values.</span>
+<span class="cm">   In this case, search for accelerators that matches </span>
+<span class="cm">   the specified GUID.</span>
+<span class="cm">*/</span>
+<span class="n">uuid_parse</span><span class="p">(</span><span class="n">GUID</span><span class="p">,</span><span class="w"> </span><span class="n">guid</span><span class="p">);</span>
+<span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPropertiesSetObjectType</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">FPGA_ACCELERATOR</span><span class="p">);</span>
+<span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPropertiesSetGuid</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">guid</span><span class="p">);</span>
+
+<span class="cm">/* Query the number of matching resources */</span>
+<span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaEnumerate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">num_matches</span><span class="p">);</span>
+
+<span class="cm">/* Return tokens for all matching resources */</span>
+<span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaEnumerate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tokens</span><span class="p">,</span><span class="w"> </span><span class="n">num_matches</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">num_matches</span><span class="p">);</span>
+
+<span class="cm">/* Destroy the properties object */</span>
+<span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaDestroyProperties</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">);</span>
+
+<span class="cm">/* More code */</span>
+<span class="p">......</span>
+
+<span class="cm">/* Destroy tokens */</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_matches</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaDestroyToken</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">fpgaEnumerate()</span></code> function can take multiple <code class="docutils literal notranslate"><span class="pre">fpga_properties</span></code>objects in an array. In such cases,
+the function performs a logical OR of  the properties object and returns resources that match any of
+the multiple properties. The  <code class="docutils literal notranslate"><span class="pre">fpga_token</span></code> objects that <code class="docutils literal notranslate"><span class="pre">fpgaEnumerate()</span></code> returns, do not signify
+ownership. To acquire ownership of a resource represented by a token, pass the token to <code class="docutils literal notranslate"><span class="pre">fpgaOpen()</span></code>.</p>
+</div>
+<div class="section" id="acquire-and-release-a-resource">
+<h3>Acquire and Release a Resource<a class="headerlink" href="#acquire-and-release-a-resource" title="Permalink to this headline">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">fpgaOpen()</span></code> and <code class="docutils literal notranslate"><span class="pre">fpgaClose()</span></code> to acquire and release ownership of a resource.
+The calling process must own the resource before it can initiate MMIO, access share memory buffers,
+and use functions offered by the resource.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fpga/fpga.h&quot;</span>
+
+<span class="w">    </span><span class="n">fpga_handle</span><span class="w">             </span><span class="n">handle</span><span class="p">;</span>
+<span class="w">    </span><span class="n">fpga_result</span><span class="w">             </span><span class="n">res</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Acquire ownership of a resource that </span>
+<span class="cm">    `fpgaEnumerate()` previously returned as a token */</span>
+<span class="w">     </span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaOpen</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">handle</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* More code */</span>
+<span class="w">    </span><span class="p">......</span>
+
+<span class="w">    </span><span class="cm">/* Release the ownership */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaClose</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="shared-memory-buffer">
+<h3>Shared Memory Buffer<a class="headerlink" href="#shared-memory-buffer" title="Permalink to this headline">¶</a></h3>
+<p>This code snippet shows how to prepare a memory buffer to be shared between the
+calling process and an accelerator.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fpga/fpga.h&quot;</span>
+
+<span class="w">    </span><span class="n">fpga_handle</span><span class="w">             </span><span class="n">handle</span><span class="p">;</span>
+<span class="w">    </span><span class="n">fpga_result</span><span class="w">             </span><span class="n">res</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Hint for the virtual address of the buffer */</span>
+<span class="w">    </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w">       </span><span class="o">*</span><span class="n">addr_hint</span><span class="p">;</span>
+<span class="w">    </span><span class="cm">/* An ID we can use to reference the buffer later */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">                </span><span class="n">bufid</span><span class="p">;</span>
+<span class="w">    </span><span class="cm">/* Flag to indicate whether or not the buffer is preallocated */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">                     </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Allocate (if necessary), pin, and map a buffer to be accessible</span>
+<span class="cm">       by an accelerator</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaPrepareBuffer</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">BUF_SIZE</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">addr_hint</span><span class="p">,</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">bufid</span><span class="p">,</span><span class="w"> </span><span class="n">flag</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* The actual address mapped to the buffer */</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w">                </span><span class="n">iova</span><span class="p">;</span>
+<span class="w">    </span><span class="cm">/* Get the IO virtual address for the buffer */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaGetIOAddress</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">bufid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">iova</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Inform the accelerator about the virtual address by writing to its mapped</span>
+<span class="cm">       register file</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="p">......</span>
+
+<span class="w">    </span><span class="cm">/* More code */</span>
+<span class="w">    </span><span class="p">......</span>
+
+<span class="w">    </span><span class="cm">/* Release the shared buffer */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaReleaseBuffer</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">bufid</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>.. note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>The `flag` variable can take a constant `FPGA_BUF_PREALLOCATED` to
+indicate that the calling process has already allocated the address space
+that `addr_hint` points to.
+</pre></div>
+</div>
+</div>
+<div class="section" id="mmio">
+<h3>MMIO<a class="headerlink" href="#mmio" title="Permalink to this headline">¶</a></h3>
+<p>This code snippet shows how to map and unmap the register file of an accelerator into the
+calling process’s virtual memory space.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fpga/fpga.h&quot;</span>
+
+<span class="w">    </span><span class="n">fpga_handle</span><span class="w">             </span><span class="n">handle</span><span class="p">;</span>
+<span class="w">    </span><span class="n">fpga_result</span><span class="w">             </span><span class="n">res</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Index of the MMIO space. There might be multiple spaces on an accelerator */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">                </span><span class="n">mmio_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="cm">/* Mapped address */</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w">                </span><span class="n">mmio_addr</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Map MMIO */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaMapMMIO</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">mmio_num</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mmio_addr</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Write to a 32-bit value to the mapped register file at a certain byte</span>
+<span class="cm">       offset.</span>
+
+<span class="cm">       CSR_CTL is the offset in the mapped space to where the value will be</span>
+<span class="cm">       written. It&#39;s defined elsewhere.</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaWriteMMIO32</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">mmio_num</span><span class="p">,</span><span class="w"> </span><span class="n">CSR_CTL</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* More code */</span>
+<span class="w">    </span><span class="p">......</span>
+
+<span class="w">    </span><span class="cm">/* Unmap MMIO */</span>
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpgaUnmapMMIO</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">mmio_num</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>.. Note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Every</span><span class="w"> </span><span class="n">AFU</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">its</span><span class="w"> </span><span class="n">own</span><span class="w"> </span><span class="k">register</span><span class="w"> </span><span class="n">adress</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">its</span><span class="w"> </span><span class="n">own</span><span class="w"> </span><span class="n">protocol</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">control</span><span class="w"> </span><span class="n">operation</span><span class="w"> </span><span class="n">through</span><span class="w"> </span>
+<span class="n">the</span><span class="w"> </span><span class="n">registers</span><span class="p">.</span><span class="w"> </span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../install_guide/installation_guide.html" class="btn btn-neutral float-left" title="OPAE Installation Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../pyopae/README.html" class="btn btn-neutral float-right" title="OPAE Python Bindings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

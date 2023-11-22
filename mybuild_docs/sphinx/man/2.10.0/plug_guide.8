@@ -1,0 +1,515 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "PLUG_GUIDE" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+plug_guide \- OPAE Plugin API
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH OVERVIEW
+.sp
+Beginning with OPAE C library version 1.2.0, OPAE implements a plugin\-centric
+model. This guide serves as a reference to define the makeup of an OPAE C API
+plugin and to describe a sequence of steps that one may follow when constructing
+an OPAE C API plugin.
+.SH PLUGIN REQUIRED FUNCTIONS
+.sp
+An OPAE C API plugin is a runtime\-loadable shared object library, also known as
+a module. On Linux systems, the \fIdl\fP family of APIs from libdl are used to
+interact with shared objects. Refer to “man dlopen” and “man dlsym” for examples
+of using the libdl API.
+.sp
+An OPAE C API plugin implements one required function. This function is required
+to have C linkage, so that its name is not mangled.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    int opae_plugin_configure(opae_api_adapter_table *table, const char *config);
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+During initialization, the OPAE plugin manager component loads each plugin,
+searching for its \fBopae_plugin_configure\fP function. If none is found, then
+the plugin manager rejects that plugin. When it is found, \fBopae_plugin_configure\fP
+is called passing a pointer to a freshly\-created \fBopae_api_adapter_table\fP and
+a buffer consisting of configuration data for the plugin.
+.sp
+The job of the \fBopae_plugin_configure\fP function is to populate the given adapter
+table with each of the plugin’s API entry points and to consume and comprehend
+the given configuration data in preparation for initialization.
+.SH OPAE API ADAPTER TABLE
+.sp
+The adapter table is a data structure that contains function pointer entry points
+for each of the OPAE APIs implemented by a plugin. In this way, it adapts the
+plugin\-specific behavior to the more general case of a flat C API. Note that
+OPAE applications are only required to link with opae\-c. In other words, the
+name of the plugin library should not appear on the linker command line. In this
+way, plugins are truly decoupled from the OPAE C API, and they are required to
+adapt to the strict API specification by populating the adapter table only. No
+other linkage is required nor recommended.
+.sp
+\fBadapter.h\fP contains the definition of the \fBopae_api_adapter_table\fP\&. An abbreviated
+version is depicted below, along with supporting type \fBopae_plugin\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    typedef struct _opae_plugin {
+        char *path;
+        void *dl_handle;
+    } opae_plugin;
+
+    typedef struct _opae_api_adapter_table {
+
+        struct _opae_api_adapater_table *next;
+        opae_plugin plugin;
+
+        fpga_result (*fpgaOpen)(fpga_token token, fpga_handle *handle,
+                                int flags);
+
+        fpga_result (*fpgaClose)(fpga_handle handle);
+
+        ...
+
+        fpga_result (*fpgaEnumerate)(const fpga_properties *filters,
+                                     uint32_t num_filters, fpga_token *tokens,
+                                     uint32_t max_tokens,
+                                     uint32_t *num_matches);
+
+        ...
+
+        // configuration functions
+        int (*initialize)(void);
+        int (*finalize)(void);
+
+        // first\-level query
+        bool (*supports_device)(const char *device_type);
+        bool (*supports_host)(const char *hostname);
+
+    } opae_api_adapter_table;
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Some points worth noting are that the adapter tables are organized in memory by
+adding them to a linked list data structure. This is the use of the \fBnext\fP
+structure member. (The list management is handled by the plugin manager.)
+The \fBplugin\fP structure member contains the handle to the shared object instance,
+as created by \fBdlopen\fP\&. This handle is used in the plugin’s \fBopae_plugin_configure\fP
+to load plugin entry points. A plugin need only implement the portion of the
+OPAE C API that a target application needs. Any API entry points that are not
+supported should be left as NULL pointers (the default) in the adapter table.
+When an OPAE API that has no associated entry point in the adapter table is
+called, the result for objects associated with that plugin will be
+\fBFPGA_NOT_SUPPORTED\fP\&.
+.sp
+The following code illustrates a portion of the \fBopae_plugin_configure\fP for
+a theoretical OPAE C API plugin libfoo.so:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_plugin.c */
+
+    int opae_plugin_configure(opae_api_adapter_table *table, const char *config)
+    {
+        adapter\->fpgaOpen = dlsym(adapter\->plugin.dl_handle, "foo_fpgaOpen");
+        adapter\->fpgaClose =
+                dlsym(adapter\->plugin.dl_handle, "foo_fpgaClose");
+
+        ...
+
+        adapter\->fpgaEnumerate =
+                dlsym(adapter\->plugin.dl_handle, "foo_fpgaEnumerate");
+
+        ...
+
+        return 0;
+    }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Notice that the implementations of the API entry points for plugin libfoo.so
+are prefixed with \fBfoo_\fP\&. This is the recommended practice to avoid name
+collisions and to enhance the debugability of the application. Upon successful
+configuration, \fBopae_plugin_configure\fP returns 0 to indicate success. A
+non\-zero return value indicates failure and causes the plugin manager to
+reject the plugin from futher consideration.
+.SH PLUGIN OPTIONAL FUNCTIONS
+.sp
+Once the plugin manager loads and configures each plugin, it uses the adapter
+table to call back into the plugin so that it can be made ready for runtime.
+This is the job of the \fBopae_plugin_initialize\fP entry point, whose signature
+is defined as:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    int opae_plugin_initialize(void);
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The function takes no parameters, as the configuration data was already given
+to the plugin by \fBopae_plugin_configure\fP\&. \fBopae_plugin_initialize\fP returns 0
+if no errors were encountered during initialization. A non\-zero return code
+indicates that plugin initialization failed. A plugin makes its
+\fBopae_plugin_initialize\fP available to the plugin manager by populating the
+adapter table’s \fBinitialize\fP entry point as shown:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_plugin.c */
+
+    int foo_plugin_initialize(void)
+    {
+        ...
+
+        return 0; /* success */
+    }
+
+    int opae_plugin_configure(opae_api_adapter_table *table, const char *config)
+    {
+        ... 
+
+        adapter\->initialize =
+                dlsym(adapter\->plugin.dl_handle, "foo_plugin_initialize");
+
+        ...
+
+        return 0;
+    }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+If a plugin does not implement an \fBopae_plugin_initialize\fP entry point, then
+the \fBinitialize\fP member of the adapter table should be left uninitialized.
+During plugin initialization, if a plugin has no \fBopae_plugin_initialize\fP
+entry in its adapter table, the plugin initialization step will be skipped,
+and the plugin will be considered to have initialized successfully.
+.sp
+Once plugin initialization is complete for all loaded plugins, the system
+is considered to be running and fully functional.
+.sp
+During teardown, the plugin manager uses the adapter table to call into each
+plugin’s \fBopae_plugin_finalize\fP entry point, whose signature is defined as:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    int opae_plugin_finalize(void);
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBopae_plugin_finalize\fP returns 0 if no errors were encountered during teardown.
+A non\-zero return code indicates that plugin teardown failed. A plugin makes
+its \fBopae_plugin_finalize\fP available to the plugin manager by populating the
+adapter table’s \fBfinalize\fP entry point as shown:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_plugin.c */
+
+    int foo_plugin_finalize(void)
+    {
+        ...
+
+        return 0; /* success */
+    }
+
+    int opae_plugin_configure(opae_api_adapter_table *table, const char *config)
+    {
+        ... 
+
+        adapter\->finalize =
+                dlsym(adapter\->plugin.dl_handle, "foo_plugin_finalize");
+
+        ...
+
+        return 0;
+    }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+If a plugin does not implement an \fBopae_plugin_finalize\fP entry point, then
+the \fBfinalize\fP member of the adapter table should be left uninitialized.
+During plugin cleanup, if a plugin has no \fBopae_plugin_finalize\fP entry
+point in its adapter table, the plugin finalize step will be skipped, and
+the plugin will be considered to have finalized successfully.
+.sp
+In addition to \fBinitialize\fP and \fBfinalize\fP, an OPAE C API plugin has two
+further optional entry points that relate to device enumeration. During
+enumeration, when a plugin is being considered for a type of device, the
+plugin may provide input on that decision by exporting an
+\fBopae_plugin_supports_device\fP entry point in the adapter table:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    bool opae_plugin_supports_device(const char *device_type);
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBopae_plugin_supports_device\fP returns true if the given device type is
+supported and false if it is not. A false return value from
+\fBopae_plugin_supports_device\fP causes device enumeration to skip the
+plugin.
+.sp
+Populating the \fBopae_plugin_supports_device\fP is done as:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_plugin.c */
+
+    bool foo_plugin_supports_device(const char *device_type)
+    {
+        if (/* device_type is supported */)
+            return true;
+
+        ...
+
+        return false;
+    }
+
+    int opae_plugin_configure(opae_api_adapter_table *table, const char *config)
+    {
+        ... 
+
+        adapter\->supports_device =
+                dlsym(adapter\->plugin.dl_handle, "foo_plugin_supports_device");
+
+        ...
+
+        return 0;
+    }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fIopae_plugin_supports_device\fP mechanism serves as a placeholder only.
+It is not implemented in the current version of the OPAE C API.
+.UNINDENT
+.UNINDENT
+.sp
+Similarly to determining whether a plugin supports a type of device, a plugin
+may also answer questions about network host support by populating an
+\fBopae_plugin_supports_host\fP entry point in the adapter table:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    bool opae_plugin_supports_host(const char *hostname);
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBopae_plugin_supports_host\fP returns true if the given hostname is supported
+and false if it is not. A false return value from \fBopae_plugin_supports_host\fP
+causes device enumeration to skip the plugin.
+.sp
+Populating the \fBopae_plugin_supports_host\fP is done as:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_plugin.c */
+
+    bool foo_plugin_supports_host(const char *hostname)
+    {
+        if (/* hostname is supported */)
+            return true;
+
+        ...
+
+        return false;
+    }
+
+    int opae_plugin_configure(opae_api_adapter_table *table, const char *config)
+    {
+        ... 
+
+        adapter\->supports_host =
+                dlsym(adapter\->plugin.dl_handle, "foo_plugin_supports_host");
+
+        ...
+
+        return 0;
+    }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fIopae_plugin_supports_host\fP mechanism serves as a placeholder only.
+It is not implemented in the current version of the OPAE C API.
+.UNINDENT
+.UNINDENT
+.SH PLUGIN CONSTRUCTION
+.sp
+The steps required to implement an OPAE C API plugin, libfoo.so, are:
+.INDENT 0.0
+.IP \(bu 2
+Create foo_plugin.c: implements \fBopae_plugin_configure\fP,
+\fBopae_plugin_initialize\fP, \fBopae_plugin_finalize\fP, \fBopae_plugin_supports_device\fP,
+and \fBopae_plugin_supports_host\fP as described in the previous sections.
+.IP \(bu 2
+Create foo_plugin.h: implements function prototypes for each of the
+plugin\-specific OPAE C APIs.
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_plugin.h */
+
+    fpga_result foo_fpgaOpen(fpga_token token, fpga_handle *handle,
+                             int flags);
+
+    fpga_result foo_fpgaClose(fpga_handle handle);
+
+    ...
+
+    fpga_result foo_fpgaEnumerate(const fpga_properties *filters,
+                                  uint32_t num_filters, fpga_token *tokens,
+                                  uint32_t max_tokens,
+                                  uint32_t *num_matches);
+    ...
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Create foo_types.h: implements plugin\-specific types for opaque data
+structures.
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    /* foo_types.h */
+
+    struct _foo_token {
+        ...
+    };
+
+    struct _foo_handle {
+        ...
+    };
+
+    struct _foo_event_handle {
+        ...
+    };
+
+    struct _foo_object {
+        ...
+    };
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Create foo_enum.c: implements \fBfoo_fpgaEnumerate\fP,
+\fBfoo_fpgaCloneToken\fP, and \fBfoo_fpgaDestroyToken\fP\&.
+.IP \(bu 2
+Create foo_open.c: implements \fBfoo_fpgaOpen\fP\&.
+.IP \(bu 2
+Create foo_close.c: implements \fBfoo_fpgaClose\fP\&.
+.IP \(bu 2
+Create foo_props.c: implements \fBfoo_fpgaGetProperties\fP,
+\fBfoo_fpgaGetPropertiesFromHandle\fP, \fBfoo_fpgaUpdateProperties\fP
+.IP \(bu 2
+Create foo_mmio.c: implements \fBfoo_fpgaMapMMIO\fP, \fBfoo_fpgaUnmapMMIO\fP
+\fBfoo_fpgaWriteMMIO64\fP, \fBfoo_fpgaReadMMIO64\fP, \fBfoo_fpgaWriteMMIO32\fP,
+\fBfoo_fpgaReadMMIO32\fP\&.
+.IP \(bu 2
+Create foo_buff.c: implements \fBfoo_fpgaPrepareBuffer\fP,
+\fBfoo_fpgaReleaseBuffer\fP, \fBfoo_fpgaGetIOAddress\fP\&.
+.IP \(bu 2
+Create foo_error.c: implements \fBfoo_fpgaReadError\fP, \fBfoo_fpgaClearError\fP,
+\fBfoo_fpgaClearAllErrors\fP, \fBfoo_fpgaGetErrorInfo\fP\&.
+.IP \(bu 2
+Create foo_event.c: implements \fBfoo_fpgaCreateEventHandle\fP,
+\fBfoo_fpgaDestroyEventHandle\fP, \fBfoo_fpgaGetOSObjectFromEventHandle\fP,
+\fBfoo_fpgaRegisterEvent\fP, \fBfoo_fpgaUnregisterEvent\fP\&.
+.IP \(bu 2
+Create foo_reconf.c: implements \fBfoo_fpgaReconfigureSlot\fP\&.
+.IP \(bu 2
+Create foo_obj.c: implements \fBfoo_fpgaTokenGetObject\fP,
+\fBfoo_fpgaHandleGetObject\fP, \fBfoo_fpgaObjectGetObject\fP,
+\fBfoo_fpgaDestroyObject\fP, \fBfoo_fpgaObjectGetSize\fP, \fBfoo_fpgaObjectRead\fP,
+\fBfoo_fpgaObjectRead64\fP, \fBfoo_fpgaObjectWrite64\fP\&.
+.IP \(bu 2
+Create foo_clk.c: implements \fBfoo_fpgaSetUserClock\fP,
+\fBfoo_fpgaGetUserClock\fP\&.
+.UNINDENT
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

@@ -1,0 +1,384 @@
+\doxysection{opae\+::fpga\+::types\+::shared\+\_\+buffer Class Reference}
+\label{classopae_1_1fpga_1_1types_1_1shared__buffer}\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+
+
+{\ttfamily \#include $<$opae/cxx/core/shared\+\_\+buffer.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::size\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} $>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a94af424818d524cb897b1bc6a13ba5f7}{shared\+\_\+buffer}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} \&)=delete
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} \& \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a0ec4bb470ad2b48722a14fcdce1db2f8}{operator=}} (const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} \&)=delete
+\item 
+virtual \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a0dda51993e7c2ad5ed8f2759cdb002a5}{$\sim$shared\+\_\+buffer}} ()
+\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aeffe4f3dcd9bec506e322ece0e54dff7}{release}} ()
+\begin{DoxyCompactList}\small\item\em Disassociate the \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} object from the resource used to create it. If the buffer was allocated using the allocate function then the buffer is freed. \end{DoxyCompactList}\item 
+volatile uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ade3a3102e5162ba8bb793342bdbf58f2}{c\+\_\+type}} () const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_acf517c2237550557c7b5f6e16c9b74b9}{owner}} () const
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a615559ac054e924fc9cf853ea625fb47}{size}} () const
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ae927b9d7e242873e6df1c831ed35f291}{wsid}} () const
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_acbdabbc8d4ef32caa9c231a73c5a2761}{io\+\_\+address}} () const
+\item 
+void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a0df9843bfb38be926cfbc564e2e21f3d}{fill}} (int c)
+\item 
+int \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a2eddbc4e93b5afb0822b08ac905e4980}{compare}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{ptr\+\_\+t}} other, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} len) const
+\item 
+{\footnotesize template$<$typename T $>$ }\\T \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_abc03852d5a07e5a5f30bf9086b35950b}{read}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} offset) const
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a49c8d0b03a0e47c8b58f84301ac34559}{write}} (const T \&value, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} offset)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a5a3761aa33084d9a4038e457903e189b}{allocate}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}}, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} len, bool read\+\_\+only=false)
+\item 
+static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aaf0b68c33a84e081652f203443aad788}{attach}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}}, uint8\+\_\+t $\ast$base, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} len, bool read\+\_\+only=false)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_af3459a34de90e2dc37b608925d82acdf}{shared\+\_\+buffer}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle}{handle}}, \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} len, uint8\+\_\+t $\ast$virt, uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ae927b9d7e242873e6df1c831ed35f291}{wsid}}, uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_acbdabbc8d4ef32caa9c231a73c5a2761}{io\+\_\+address}})
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a9e5f35cda6592f57fb45494a6ea7b416}{handle\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ace6962636a4abb52615ba899b5a1f0be}{len\+\_\+}}
+\item 
+uint8\+\_\+t $\ast$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa8265521240b457d2a80814e1e6b8b20}{virt\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aedeb7bdc69160d09413a93ab2710ef57}{wsid\+\_\+}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ad8d6169b66456e78a22a4575e5f50535}{io\+\_\+address\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Host/\+AFU shared memory blocks
+
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} abstracts a memory block that may be shared between the host cpu and an accelerator. The block may be allocated by the \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} class itself (see allocate), or it may be allocated elsewhere and then attached to a \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} object via attach. 
+
+Definition at line 50 of file shared\+\_\+buffer.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!size\_t@{size\_t}}
+\index{size\_t@{size\_t}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{size\_t}{size\_t}}
+{\footnotesize\ttfamily typedef std\+::size\+\_\+t \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{opae\+::fpga\+::types\+::shared\+\_\+buffer\+::size\+\_\+t}}}
+
+
+
+Definition at line 52 of file shared\+\_\+buffer.\+h.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}}$>$ \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{opae\+::fpga\+::types\+::shared\+\_\+buffer\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 53 of file shared\+\_\+buffer.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a94af424818d524cb897b1bc6a13ba5f7}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!shared\_buffer@{shared\_buffer}}
+\index{shared\_buffer@{shared\_buffer}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{shared\_buffer()}{shared\_buffer()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::shared\+\_\+buffer\+::shared\+\_\+buffer (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a0dda51993e7c2ad5ed8f2759cdb002a5}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!````~shared\_buffer@{$\sim$shared\_buffer}}
+\index{````~shared\_buffer@{$\sim$shared\_buffer}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{$\sim$shared\_buffer()}{~shared\_buffer()}}
+{\footnotesize\ttfamily virtual opae\+::fpga\+::types\+::shared\+\_\+buffer\+::$\sim$shared\+\_\+buffer (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} destructor. \mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_af3459a34de90e2dc37b608925d82acdf}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!shared\_buffer@{shared\_buffer}}
+\index{shared\_buffer@{shared\_buffer}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{shared\_buffer()}{shared\_buffer()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily opae\+::fpga\+::types\+::shared\+\_\+buffer\+::shared\+\_\+buffer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{handle,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}}]{len,  }\item[{uint8\+\_\+t $\ast$}]{virt,  }\item[{uint64\+\_\+t}]{wsid,  }\item[{uint64\+\_\+t}]{io\+\_\+address }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a0ec4bb470ad2b48722a14fcdce1db2f8}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!operator=@{operator=}}
+\index{operator=@{operator=}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}}\& opae\+::fpga\+::types\+::shared\+\_\+buffer\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [delete]}}
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a5a3761aa33084d9a4038e457903e189b}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!allocate@{allocate}}
+\index{allocate@{allocate}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{allocate()}{allocate()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::shared\+\_\+buffer\+::allocate (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{handle,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}}]{len,  }\item[{bool}]{read\+\_\+only = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} factory method -\/ allocate a \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}}. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & The handle used to allocate the buffer. \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & The length in bytes of the requested buffer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A valid \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} smart pointer on success, or an empty smart pointer on failure. 
+\end{DoxyReturn}
+
+
+Referenced by dummy\+\_\+afu\+::dummy\+\_\+afu\+::allocate(), and host\+\_\+exerciser\+::host\+\_\+exerciser\+::allocate().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_aaf0b68c33a84e081652f203443aad788}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!attach@{attach}}
+\index{attach@{attach}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{attach()}{attach()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::shared\+\_\+buffer\+::attach (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}}}]{handle,  }\item[{uint8\+\_\+t $\ast$}]{base,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}}]{len,  }\item[{bool}]{read\+\_\+only = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Attach a pre-\/allocated buffer to a \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} object.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & The handle used to attach the buffer. \\
+\hline
+\mbox{\texttt{ in}}  & {\em base} & The base of the pre-\/allocated memory. \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & The size of the pre-\/allocated memory, which must be a multiple of the page size. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A valid \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} smart pointer on success, or an empty smart pointer on failure. 
+\end{DoxyReturn}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_aeffe4f3dcd9bec506e322ece0e54dff7}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!release@{release}}
+\index{release@{release}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{release()}{release()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::shared\+\_\+buffer\+::release (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Disassociate the \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} object from the resource used to create it. If the buffer was allocated using the allocate function then the buffer is freed. 
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_ade3a3102e5162ba8bb793342bdbf58f2}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!c\_type@{c\_type}}
+\index{c\_type@{c\_type}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{c\_type()}{c\_type()}}
+{\footnotesize\ttfamily volatile uint8\+\_\+t$\ast$ opae\+::fpga\+::types\+::shared\+\_\+buffer\+::c\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the virtual address of the buffer base.
+
+\begin{DoxyNote}{Note}
+Instances of a shared buffer can only be created using either \textquotesingle{}allocate\textquotesingle{} or \textquotesingle{}attach\textquotesingle{} static factory function. Because these functions return a shared pointer (std\+::shared\+\_\+ptr) to the instance, references to an instance are counted automatically by design of the shared\+\_\+ptr class. Calling \textquotesingle{}\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ade3a3102e5162ba8bb793342bdbf58f2}{c\+\_\+type()}}\textquotesingle{} function is provided to get access to the raw data but isn\textquotesingle{}t used in tracking its reference count. Assigning this to a variable should be done in limited scopes as this variable can be defined in an outer scope and may outlive the \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} object. Once the reference count in the shared\+\_\+ptr reaches zero, the \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} object will be released and deallocated, turning any variables assigned from a call to \textquotesingle{}\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_ade3a3102e5162ba8bb793342bdbf58f2}{c\+\_\+type()}}\textquotesingle{} into dangling pointers. 
+\end{DoxyNote}
+
+
+Definition at line 104 of file shared\+\_\+buffer.\+h.
+
+
+
+References virt\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_acf517c2237550557c7b5f6e16c9b74b9}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!owner@{owner}}
+\index{owner@{owner}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{owner()}{owner()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::shared\+\_\+buffer\+::owner (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the handle smart pointer associated with this buffer. 
+
+Definition at line 109 of file shared\+\_\+buffer.\+h.
+
+
+
+References handle\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a615559ac054e924fc9cf853ea625fb47}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!size@{size}}
+\index{size@{size}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{size()}{size()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} opae\+::fpga\+::types\+::shared\+\_\+buffer\+::size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the length of the buffer in bytes. 
+
+Definition at line 113 of file shared\+\_\+buffer.\+h.
+
+
+
+References len\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_ae927b9d7e242873e6df1c831ed35f291}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!wsid@{wsid}}
+\index{wsid@{wsid}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{wsid()}{wsid()}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::shared\+\_\+buffer\+::wsid (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the underlying buffer\textquotesingle{}s workspace id. 
+
+Definition at line 117 of file shared\+\_\+buffer.\+h.
+
+
+
+References wsid\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_acbdabbc8d4ef32caa9c231a73c5a2761}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!io\_address@{io\_address}}
+\index{io\_address@{io\_address}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{io\_address()}{io\_address()}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::shared\+\_\+buffer\+::io\+\_\+address (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Retrieve the address of the buffer suitable for programming into the accelerator device. 
+
+Definition at line 122 of file shared\+\_\+buffer.\+h.
+
+
+
+References io\+\_\+address\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a0df9843bfb38be926cfbc564e2e21f3d}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!fill@{fill}}
+\index{fill@{fill}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{fill()}{fill()}}
+{\footnotesize\ttfamily void opae\+::fpga\+::types\+::shared\+\_\+buffer\+::fill (\begin{DoxyParamCaption}\item[{int}]{c }\end{DoxyParamCaption})}
+
+Write c to each byte location in the buffer. \mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a2eddbc4e93b5afb0822b08ac905e4980}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!compare@{compare}}
+\index{compare@{compare}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{compare()}{compare()}}
+{\footnotesize\ttfamily int opae\+::fpga\+::types\+::shared\+\_\+buffer\+::compare (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{ptr\+\_\+t}}}]{other,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}}]{len }\end{DoxyParamCaption}) const}
+
+Compare this \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer}{shared\+\_\+buffer}} (the first len bytes) to that held in other, using memcmp(). \mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_abc03852d5a07e5a5f30bf9086b35950b}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!read@{read}}
+\index{read@{read}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{read()}{read()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+T opae\+::fpga\+::types\+::shared\+\_\+buffer\+::read (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}}]{offset }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Read a T-\/sized block of memory at the given location. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em offset} & The byte offset from the start of the buffer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A T from buffer base + offset. 
+\end{DoxyReturn}
+
+
+Definition at line 138 of file shared\+\_\+buffer.\+h.
+
+
+
+References len\+\_\+, OPAECXX\+\_\+\+HERE, and virt\+\_\+.
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a49c8d0b03a0e47c8b58f84301ac34559}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!write@{write}}
+\index{write@{write}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{write()}{write()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void opae\+::fpga\+::types\+::shared\+\_\+buffer\+::write (\begin{DoxyParamCaption}\item[{const T \&}]{value,  }\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}}}]{offset }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Write a T-\/sized block of memory to the given location. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em value} & The value to write. \\
+\hline
+\mbox{\texttt{ in}}  & {\em offset} & The byte offset from the start of the buffer. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 154 of file shared\+\_\+buffer.\+h.
+
+
+
+References len\+\_\+, OPAECXX\+\_\+\+HERE, and virt\+\_\+.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_a9e5f35cda6592f57fb45494a6ea7b416}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!handle\_@{handle\_}}
+\index{handle\_@{handle\_}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{handle\_}{handle\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1handle_a89607a8f09e983ac77b3ba6b37c4f14e}{handle\+::ptr\+\_\+t}} opae\+::fpga\+::types\+::shared\+\_\+buffer\+::handle\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 168 of file shared\+\_\+buffer.\+h.
+
+
+
+Referenced by owner().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_ace6962636a4abb52615ba899b5a1f0be}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!len\_@{len\_}}
+\index{len\_@{len\_}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{len\_}{len\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_a958fbecd1d6456b8e8950daffb7aa3ae}{size\+\_\+t}} opae\+::fpga\+::types\+::shared\+\_\+buffer\+::len\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 169 of file shared\+\_\+buffer.\+h.
+
+
+
+Referenced by read(), size(), and write().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_aa8265521240b457d2a80814e1e6b8b20}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!virt\_@{virt\_}}
+\index{virt\_@{virt\_}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{virt\_}{virt\_}}
+{\footnotesize\ttfamily uint8\+\_\+t$\ast$ opae\+::fpga\+::types\+::shared\+\_\+buffer\+::virt\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 170 of file shared\+\_\+buffer.\+h.
+
+
+
+Referenced by c\+\_\+type(), read(), and write().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_aedeb7bdc69160d09413a93ab2710ef57}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!wsid\_@{wsid\_}}
+\index{wsid\_@{wsid\_}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{wsid\_}{wsid\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::shared\+\_\+buffer\+::wsid\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 171 of file shared\+\_\+buffer.\+h.
+
+
+
+Referenced by wsid().
+
+\mbox{\label{classopae_1_1fpga_1_1types_1_1shared__buffer_ad8d6169b66456e78a22a4575e5f50535}} 
+\index{opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}!io\_address\_@{io\_address\_}}
+\index{io\_address\_@{io\_address\_}!opae::fpga::types::shared\_buffer@{opae::fpga::types::shared\_buffer}}
+\doxysubsubsection{\texorpdfstring{io\_address\_}{io\_address\_}}
+{\footnotesize\ttfamily uint64\+\_\+t opae\+::fpga\+::types\+::shared\+\_\+buffer\+::io\+\_\+address\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 172 of file shared\+\_\+buffer.\+h.
+
+
+
+Referenced by io\+\_\+address().
+

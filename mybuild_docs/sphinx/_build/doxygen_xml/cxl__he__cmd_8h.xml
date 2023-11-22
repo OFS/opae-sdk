@@ -1,0 +1,797 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="cxl__he__cmd_8h" kind="file" language="C++">
+    <compoundname>cxl_he_cmd.h</compoundname>
+    <includes local="no">map</includes>
+    <includes local="no">numa.h</includes>
+    <includes local="no">unistd.h</includes>
+    <includes refid="cxl__he__cmd_8h" local="yes">cxl_he_cmd.h</includes>
+    <includes refid="cxl__host__exerciser_8h" local="yes">cxl_host_exerciser.h</includes>
+    <includes refid="he__cache__test_8h" local="yes">he_cache_test.h</includes>
+    <includedby refid="cxl__he__cache__cmd_8h" local="yes">samples/cxl_host_exerciser/cxl_he_cache_cmd.h</includedby>
+    <includedby refid="cxl__he__cmd_8h" local="yes">samples/cxl_host_exerciser/cxl_he_cmd.h</includedby>
+    <incdepgraph>
+      <node id="17">
+        <label>stdbool.h</label>
+      </node>
+      <node id="8">
+        <label>glob.h</label>
+      </node>
+      <node id="37">
+        <label>opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>cstdint</label>
+      </node>
+      <node id="15">
+        <label>stdint.h</label>
+      </node>
+      <node id="49">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="46">
+        <label>stdlib.h</label>
+      </node>
+      <node id="6">
+        <label>he_cache_test.h</label>
+        <link refid="he__cache__test_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>cxl_host_exerciser.h</label>
+        <link refid="cxl__host__exerciser_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>fcntl.h</label>
+      </node>
+      <node id="38">
+        <label>opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="44">
+        <label>string</label>
+      </node>
+      <node id="52">
+        <label>CLI/CLI.hpp</label>
+      </node>
+      <node id="2">
+        <label>map</label>
+      </node>
+      <node id="48">
+        <label>sys/ioctl.h</label>
+      </node>
+      <node id="55">
+        <label>spdlog/sinks/basic_file_sink.h</label>
+      </node>
+      <node id="27">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="23">
+        <label>exception</label>
+      </node>
+      <node id="16">
+        <label>stddef.h</label>
+      </node>
+      <node id="43">
+        <label>opae/cxx/core/version.h</label>
+        <link refid="cxx_2core_2version_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>opae/cxx/core/except.h</label>
+        <link refid="except_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>spdlog/spdlog.h</label>
+      </node>
+      <node id="10">
+        <label>opae/cxx/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>string.h</label>
+      </node>
+      <node id="7">
+        <label>future</label>
+      </node>
+      <node id="4">
+        <label>unistd.h</label>
+      </node>
+      <node id="19">
+        <label>opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>vector</label>
+      </node>
+      <node id="54">
+        <label>spdlog/sinks/stdout_color_sinks.h</label>
+      </node>
+      <node id="29">
+        <label>array</label>
+      </node>
+      <node id="24">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae/cxx/core/errors.h</label>
+        <link refid="errors_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>iostream</label>
+      </node>
+      <node id="35">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>numa.h</label>
+      </node>
+      <node id="14">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>chrono</label>
+      </node>
+      <node id="1">
+        <label>samples/cxl_host_exerciser/cxl_he_cmd.h</label>
+        <link refid="cxl__he__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="1" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>fpga-dfl.h</label>
+      </node>
+      <node id="42">
+        <label>thread</label>
+      </node>
+      <node id="51">
+        <label>sys/syscall.h</label>
+      </node>
+      <node id="32">
+        <label>type_traits</label>
+      </node>
+      <node id="28">
+        <label>algorithm</label>
+      </node>
+      <node id="45">
+        <label>regex.h</label>
+      </node>
+      <node id="26">
+        <label>stdio.h</label>
+      </node>
+      <node id="30">
+        <label>cstring</label>
+      </node>
+      <node id="33">
+        <label>memory</label>
+      </node>
+      <node id="41">
+        <label>initializer_list</label>
+      </node>
+      <node id="9">
+        <label>inttypes.h</label>
+      </node>
+      <node id="20">
+        <label>opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.cpp</label>
+        <link refid="cxl__host__exerciser_8cpp"/>
+      </node>
+      <node id="1">
+        <label>samples/cxl_host_exerciser/cxl_he_cmd.h</label>
+        <link refid="cxl__he__cmd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="1" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_cmd.h</label>
+        <link refid="cxl__he__cache__cmd_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classhost__exerciser_1_1he__cmd" prot="public">host_exerciser::he_cmd</innerclass>
+    <innernamespace refid="namespacehost__exerciser">host_exerciser</innernamespace>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="cxl__he__cmd_8h_1a28365d57577012efff59abf8a50e0d1a" prot="public" static="no">
+        <name>HE_TEST_STARTED</name>
+        <initializer>&quot;Test started ......&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cmd.h" line="35" column="9" bodyfile="samples/cxl_host_exerciser/cxl_he_cmd.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="cxl__he__cmd_8h_1ae0324905f71f58f134e47401bd79b0e7" prot="public" static="no">
+        <name>HE_PRTEST_SCENARIO</name>
+        <initializer>&quot;Pretest scenario started ......&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cmd.h" line="36" column="9" bodyfile="samples/cxl_host_exerciser/cxl_he_cmd.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;numa.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="cxl__he__cmd_8h" kindref="compound">cxl_he_cmd.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="cxl__host__exerciser_8h" kindref="compound">cxl_host_exerciser.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="he__cache__test_8h" kindref="compound">he_cache_test.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="cxl__he__cmd_8h_1a28365d57577012efff59abf8a50e0d1a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>HE_TEST_STARTED<sp/><sp/><sp/><sp/><sp/><sp/>&quot;Test<sp/>started<sp/>......&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="cxl__he__cmd_8h_1ae0324905f71f58f134e47401bd79b0e7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>HE_PRTEST_SCENARIO<sp/><sp/><sp/>&quot;Pretest<sp/>scenario<sp/>started<sp/>......&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacehost__exerciser" kindref="compound">host_exerciser</ref><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="classhost__exerciser_1_1he__cmd" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classhost__exerciser_1_1he__cmd" kindref="compound">he_cmd</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">test_command</ref><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="42" refid="classhost__exerciser_1_1he__cmd_1ae16a7859284a742398f3ec3340897faf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ae16a7859284a742398f3ec3340897faf" kindref="member">he_cmd</ref>()<sp/>:<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>(NULL),<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a2d45199e7732d491a7064eea6ca587ed" kindref="member">he_clock_mhz_</ref>(400),<sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref>(0),<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" kindref="member">he_target_</ref>(0),</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" kindref="member">he_bias_</ref>(0)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" kindref="member">he_info_</ref>.<ref refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" kindref="member">he_rd_cfg_</ref>.<ref refid="unionhost__exerciser_1_1he__rd__config_1acd0ff90fadb9fa964c3ab553168c3739" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" kindref="member">he_wr_cfg_</ref>.<ref refid="unionhost__exerciser_1_1he__wr__config_1accd244b7cfc37a62fc034a2eb3098623" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" kindref="member">rd_table_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" kindref="member">wr_table_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="classhost__exerciser_1_1he__cmd_1a976086a0f5886ad570642a152c26d560" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a976086a0f5886ad570642a152c26d560" kindref="member">~he_cmd</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>number<sp/>of<sp/>transactions<sp/>to<sp/>bandwidth<sp/>(GB/s)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="classhost__exerciser_1_1he__cmd_1aa00565e79a248e635ea25986fdbf41d0" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aa00565e79a248e635ea25986fdbf41d0" kindref="member">he_num_xfers_to_bw</ref>(uint64_t<sp/>num_lines,<sp/>uint64_t<sp/>num_ticks)<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)(num_lines<sp/>*<sp/>64)<sp/>/<sp/>((1000.0<sp/>/<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a2d45199e7732d491a7064eea6ca587ed" kindref="member">he_clock_mhz_</ref><sp/>*<sp/>num_ticks));</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" kindref="member">he_perf_counters</ref>(<ref refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4" kindref="member">he_cxl_latency</ref><sp/>cxl_latency<sp/>=<sp/><ref refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4a92dbb5ac604c6744a28687c41d70d2c2" kindref="member">HE_CXL_LATENCY_NONE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structhost__exerciser_1_1he__cache__dsm__status" kindref="compound">he_cache_dsm_status</ref><sp/>*dsm_status<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>dsm_status<sp/>=<sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal"><ref refid="structhost__exerciser_1_1he__cache__dsm__status" kindref="compound">he_cache_dsm_status</ref><sp/>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint8_t<sp/>*)(<ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" kindref="member">get_dsm</ref>()));</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dsm_status)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;\n*********<sp/>DSM<sp/>Status<sp/>CSR<sp/>Start<sp/>*********&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;test<sp/>completed<sp/>:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a613c2340545dd8507a39bd4701f9b9aa" kindref="member">test_completed</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;dsm<sp/>number:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ac46685a232de0ff1b1ecf41fda598876" kindref="member">dsm_number</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;error<sp/>vector:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a382ed250702e46303829e108f37b2f12" kindref="member">err_vector</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;num<sp/>ticks:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;num<sp/>reads:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" kindref="member">num_reads</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;num<sp/>writes:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1aee8983e796569d69015613801d020f69" kindref="member">num_writes</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;penalty<sp/>start:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a5de12b551cbd91ed53ae54e3ec4c2b2c" kindref="member">penalty_start</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;penalty<sp/>end:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a540a4a1063b04c34477558aef1c56f9d" kindref="member">penalty_end</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;actual<sp/>data:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a97a983911d1619ad65e8a4e719230c75" kindref="member">actual_data</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;expected<sp/>data:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a60d0cf65b8c39bdc9bbd174a1e03397a" kindref="member">expected_data</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>latency<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structperf__data" kindref="compound">perf_data</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>print<sp/>bandwidth</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structperf__data" kindref="compound">perf_data</ref><sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aa00565e79a248e635ea25986fdbf41d0" kindref="member">he_num_xfers_to_bw</ref>(dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" kindref="member">num_reads</ref><sp/>+</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1aee8983e796569d69015613801d020f69" kindref="member">num_writes</ref>,<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cxl_latency<sp/>==<sp/><ref refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" kindref="member">HE_CXL_RD_LATENCY</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//To<sp/>convert<sp/>clock<sp/>ticks<sp/>to<sp/>nanoseconds,multiply<sp/>the<sp/>clock<sp/>ticks<sp/>by<sp/>2.5</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>latency<sp/>=<sp/>(double)(dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref><sp/>*<sp/>2.5);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;info(</highlight><highlight class="stringliteral">&quot;Bandwidth:<sp/>{0:0.3f}<sp/>GB/s<sp/>Total<sp/>transaction<sp/>time:<sp/>{1:0.2f}<sp/><sp/>nanoseconds&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structperf__data" kindref="compound">perf_data</ref>,<sp/>latency);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;info(</highlight><highlight class="stringliteral">&quot;Bandwidth:<sp/>{0:0.3f}<sp/>GB/s&quot;</highlight><highlight class="normal">,<sp/><ref refid="structperf__data" kindref="compound">perf_data</ref>);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;info(</highlight><highlight class="stringliteral">&quot;Read<sp/>Latency:<sp/>N/A&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;*********<sp/>DSM<sp/>Status<sp/>CSR<sp/>end<sp/>*********&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="classhost__exerciser_1_1he__cmd_1ae405e118f67c274dcd176d16467df79c" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ae405e118f67c274dcd176d16467df79c" kindref="member">print_csr</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_DFH:0x{:x}&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa96f5f9ad616abbff98f88fd8d3749eec" kindref="member">HE_DFH</ref>));</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ID_L:0x{:x}&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa994517cdf13de8a08a6fbcebc5d4b7eb" kindref="member">HE_ID_L</ref>));</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ID_H:0x{:x}&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa89326af32d3ac7eb75a59785c9ff1ee3" kindref="member">HE_ID_H</ref>));</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_SCRATCHPAD0:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aa712f6bdeef038f12b2943223e36a3702" kindref="member">HE_SCRATCHPAD0</ref>));</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_DSM_BASE:0x{:x}&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a9940ff171541be267a8cf74277844b32" kindref="member">HE_DSM_BASE</ref>));</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_CTL:0x{:x}&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" kindref="member">HE_CTL</ref>));</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_INFO:0x{:x}&quot;</highlight><highlight class="normal">,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" kindref="member">HE_INFO</ref>));</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_WR_NUM_LINES:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a3b1b6c8c2fcbf57ad624de1077356fd4" kindref="member">HE_WR_NUM_LINES</ref>));</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_WR_BYTE_ENABLE:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab8930a0aeafce2a45089f931c333f205" kindref="member">HE_WR_BYTE_ENABLE</ref>));</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_WR_CONFIG:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab29c859275463170cc2bbb6e2fb0297c" kindref="member">HE_WR_CONFIG</ref>));</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_WR_ADDR_TABLE_CTRL:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a1adff58b128d7f57593d15ed67a54fc6" kindref="member">HE_WR_ADDR_TABLE_CTRL</ref>));</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_WR_ADDR_TABLE_DATA:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a6d77f005b2d7e53be9d91ef0593eadda" kindref="member">HE_WR_ADDR_TABLE_DATA</ref>));</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_RD_NUM_LINES:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" kindref="member">HE_RD_NUM_LINES</ref>));</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_RD_CONFIG:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" kindref="member">HE_RD_CONFIG</ref>));</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_RD_ADDR_TABLE_CTRL:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" kindref="member">HE_RD_ADDR_TABLE_CTRL</ref>));</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_RD_ADDR_TABLE_DATA:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a300dc5ac788c901d20f421a24af98d7f" kindref="member">HE_RD_ADDR_TABLE_DATA</ref>));</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_STATUS:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248aca954c7b87a79cfff2d4d6f6c8e23eb1" kindref="member">HE_ERROR_STATUS</ref>));</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_EXP_DATA:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a2845aa2671b2f9a6235667aa6bc76ce0" kindref="member">HE_ERROR_EXP_DATA</ref>));</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA0:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a76ad387e8d2fb4639563c8e0272aa28c" kindref="member">HE_ERROR_ACT_DATA0</ref>));</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA1:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8cbbda04e37bbff5290a1ac024909baa" kindref="member">HE_ERROR_ACT_DATA1</ref>));</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA2:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a2daca8866beee6f107128bb3bb23d2cb" kindref="member">HE_ERROR_ACT_DATA2</ref>));</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA3:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ad8040e2bd695023243cd93bc540b1ae9" kindref="member">HE_ERROR_ACT_DATA3</ref>));</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA4:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a872972b8d10fc0f8c38eb8bffc6a9537" kindref="member">HE_ERROR_ACT_DATA4</ref>));</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA5:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248aac19634eecfe2a67e232d483d5b07f7d" kindref="member">HE_ERROR_ACT_DATA5</ref>));</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA6:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a237210f2c6acd07b79645c8196c00d7f" kindref="member">HE_ERROR_ACT_DATA6</ref>));</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" kindref="member">logger_</ref>-&gt;debug(</highlight><highlight class="stringliteral">&quot;HE_ERROR_ACT_DATA7:0x{:x}&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8253c945a94fbb2dd2a45ae100ae6683" kindref="member">HE_ERROR_ACT_DATA7</ref>));</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176" refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" kindref="member">host_exerciser_errors</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="unionhost__exerciser_1_1he__err__status" kindref="compound">he_err_status</ref><sp/>err_status;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>err<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref><sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>err_status.<ref refid="unionhost__exerciser_1_1he__err__status_1a540ba9ec4957d1d78ca7099466d41490" kindref="member">value</ref><sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248aca954c7b87a79cfff2d4d6f6c8e23eb1" kindref="member">HE_ERROR_STATUS</ref>);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err_status.data_error<sp/>==<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Data<sp/>Integrity<sp/>Check<sp/>error<sp/>occured&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err_status.err_index<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>occurred<sp/>at<sp/>cache<sp/>line<sp/>address:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err_status.err_index</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a2845aa2671b2f9a6235667aa6bc76ce0" kindref="member">HE_ERROR_EXP_DATA</ref>);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a76ad387e8d2fb4639563c8e0272aa28c" kindref="member">HE_ERROR_ACT_DATA0</ref>);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data0:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8cbbda04e37bbff5290a1ac024909baa" kindref="member">HE_ERROR_ACT_DATA1</ref>);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data1:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a2daca8866beee6f107128bb3bb23d2cb" kindref="member">HE_ERROR_ACT_DATA2</ref>);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data2:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ad8040e2bd695023243cd93bc540b1ae9" kindref="member">HE_ERROR_ACT_DATA3</ref>);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data3:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a872972b8d10fc0f8c38eb8bffc6a9537" kindref="member">HE_ERROR_ACT_DATA4</ref>);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data4:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248aac19634eecfe2a67e232d483d5b07f7d" kindref="member">HE_ERROR_ACT_DATA5</ref>);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data5:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a237210f2c6acd07b79645c8196c00d7f" kindref="member">HE_ERROR_ACT_DATA6</ref>);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data6:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" kindref="member">read64</ref>(<ref refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8253c945a94fbb2dd2a45ae100ae6683" kindref="member">HE_ERROR_ACT_DATA7</ref>);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>Expected<sp/>Data7:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>err<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220" refid="classhost__exerciser_1_1he__cmd_1af3fd4e59c9b27facd6b78a7bded1bc04" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1af3fd4e59c9b27facd6b78a7bded1bc04" kindref="member">parse_input_options</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>)</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" kindref="member">he_wait_test_completion</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Wait<sp/>for<sp/>test<sp/>completion<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>timeout<sp/>=<sp/><ref refid="namespacehost__exerciser_1a4d5f99e45d6527c0a2e376d00329612a" kindref="member">HELPBK_TEST_TIMEOUT</ref>;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*status_ptr<sp/>=<sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" kindref="member">get_dsm</ref>();</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(0<sp/>==<sp/>((*status_ptr)<sp/>&amp;<sp/>0x1))<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9" kindref="member">usleep</ref>(<ref refid="namespacehost__exerciser_1a37f4cd6ba67fd8899f4218bba01b2b96" kindref="member">HELPBK_TEST_SLEEP_INVL</ref>);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(--timeout<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HE<sp/>Cache<sp/>time<sp/>out<sp/>error&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243" refid="classhost__exerciser_1_1he__cmd_1ae2911007f89cd36d54495a534b405721" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ae2911007f89cd36d54495a534b405721" kindref="member">he_set_bias_mode</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Target<sp/>memory<sp/>HOST<sp/>set<sp/>BIAS<sp/>host</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" kindref="member">he_target_</ref><sp/>==<sp/><ref refid="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a7f8712a5623abfd073edf0859128ab8e" kindref="member">HE_TARGET_HOST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.bias_support<sp/>=<sp/><ref refid="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15aa4d06aaac0f2a27387b5fc9461a75ca3" kindref="member">HOSTMEM_BIAS</ref>;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Target<sp/>memory<sp/>FPGA<sp/>set<sp/>BIAS<sp/>host/device</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" kindref="member">he_bias_</ref><sp/>==<sp/><ref refid="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15aa4d06aaac0f2a27387b5fc9461a75ca3" kindref="member">HOSTMEM_BIAS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.bias_support<sp/>=<sp/><ref refid="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15aa4d06aaac0f2a27387b5fc9461a75ca3" kindref="member">HOSTMEM_BIAS</ref>;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Wrong<sp/>BIAS<sp/>mode<sp/>for<sp/>specified<sp/>target<sp/>memory<sp/>type&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Target<sp/>memory<sp/>FPGA<sp/>set<sp/>BIAS<sp/>host/device</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" kindref="member">he_bias_</ref><sp/>==<sp/><ref refid="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15aa4d06aaac0f2a27387b5fc9461a75ca3" kindref="member">HOSTMEM_BIAS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.bias_support<sp/>=<sp/><ref refid="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15ad7cf526a75d59ecc712f3208c999a816" kindref="member">FPGAMEM_HOST_BIAS</ref>;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.bias_support<sp/>=<sp/><ref refid="namespacehost__exerciser_1a6bb2d96272ec06618f0a61a7d0699c15a53f78272c191221a7b8d94466d9ee76a" kindref="member">FPGAMEM_DEVICE_BIAS</ref>;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268" refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" kindref="member">he_start_test</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>str<sp/>=<sp/><ref refid="cxl__he__cmd_8h_1a28365d57577012efff59abf8a50e0d1a" kindref="member">HE_TEST_STARTED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>start<sp/>test</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.Start<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" kindref="member">write64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" kindref="member">HE_CTL</ref>,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref>);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.Start<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" kindref="member">write64</ref>(<ref refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" kindref="member">HE_CTL</ref>,<sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>.<ref refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" kindref="member">value</ref>);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/>str<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278" refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" kindref="member">verify_numa_node</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(numa_available()<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;System<sp/>does<sp/>not<sp/>support<sp/>NUMA<sp/>API&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n<sp/>=<sp/>numa_max_node();</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Number<sp/>nodes<sp/>on<sp/>system:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>n<sp/>+<sp/>1<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numa_node<sp/>=<sp/>numa_node_of_cpu(sched_getcpu());</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HE<sp/>Cache<sp/>app<sp/>numa<sp/>node:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>numa_node<sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" kindref="member">he_target_</ref><sp/>==<sp/><ref refid="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a7f8712a5623abfd073edf0859128ab8e" kindref="member">HE_TARGET_HOST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref><sp/>=<sp/>numa_node;</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HE_TARGET_HOST<sp/>numa<sp/>node:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>find<sp/>fpga<sp/>numa<sp/>node<sp/>number</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref><sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cout<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;HE_TARGET_FPGA<sp/>numa<sp/>node:&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref><sp/>&lt;&lt;<sp/>endl;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304" refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" kindref="member">he_get_perf</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/><ref refid="structperf__data" kindref="compound">perf_data</ref>,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">*<sp/>latency,</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4" kindref="member">he_cxl_latency</ref><sp/>cxl_latency<sp/>=<sp/><ref refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4a92dbb5ac604c6744a28687c41d70d2c2" kindref="member">HE_CXL_LATENCY_NONE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structhost__exerciser_1_1he__cache__dsm__status" kindref="compound">he_cache_dsm_status</ref>*<sp/>dsm_status<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>dsm_status<sp/>=<sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal"><ref refid="structhost__exerciser_1_1he__cache__dsm__status" kindref="compound">he_cache_dsm_status</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint8_t*)(<ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" kindref="member">get_dsm</ref>()));</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dsm_status)</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structperf__data" kindref="compound">perf_data</ref><sp/>=</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classhost__exerciser_1_1he__cmd_1aa00565e79a248e635ea25986fdbf41d0" kindref="member">he_num_xfers_to_bw</ref>(dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" kindref="member">num_reads</ref><sp/>+<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1aee8983e796569d69015613801d020f69" kindref="member">num_writes</ref>,</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref>);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cxl_latency<sp/>==<sp/><ref refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" kindref="member">HE_CXL_RD_LATENCY</ref><sp/>&amp;&amp;<sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" kindref="member">num_reads</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*latency<sp/>=<sp/>(double)((dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref><sp/>/<sp/>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" kindref="member">num_reads</ref>)</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>(2.5));</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329" refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" refkind="member"><highlight class="normal"><sp/><sp/>uint64_t<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" kindref="member">get_ticks</ref>()<sp/>{</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structhost__exerciser_1_1he__cache__dsm__status" kindref="compound">he_cache_dsm_status</ref>*<sp/>dsm_status<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>dsm_status<sp/>=<sp/></highlight><highlight class="keyword">reinterpret_cast&lt;</highlight><highlight class="normal"><ref refid="structhost__exerciser_1_1he__cache__dsm__status" kindref="compound">he_cache_dsm_status</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint8_t*)(<ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>-&gt;<ref refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" kindref="member">get_dsm</ref>()));</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dsm_status)</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref><sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>dsm_status-&gt;<ref refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" kindref="member">num_ticks</ref>;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="343" refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacehost__exerciser" kindref="compound">host_exerciser</ref><sp/>*<ref refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" kindref="member">host_exe_</ref>;</highlight></codeline>
+<codeline lineno="344" refid="classhost__exerciser_1_1he__cmd_1a2d45199e7732d491a7064eea6ca587ed" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a2d45199e7732d491a7064eea6ca587ed" kindref="member">he_clock_mhz_</ref>;</highlight></codeline>
+<codeline lineno="345" refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" kindref="member">numa_node_</ref>;</highlight></codeline>
+<codeline lineno="346" refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" kindref="member">he_target_</ref>;</highlight></codeline>
+<codeline lineno="347" refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" refkind="member"><highlight class="normal"><sp/><sp/>uint32_t<sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" kindref="member">he_bias_</ref>;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="349" refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="unionhost__exerciser_1_1he__ctl" kindref="compound">he_ctl</ref><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" kindref="member">he_ctl_</ref>;</highlight></codeline>
+<codeline lineno="350" refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="unionhost__exerciser_1_1he__info" kindref="compound">he_info</ref><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" kindref="member">he_info_</ref>;</highlight></codeline>
+<codeline lineno="351" refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="unionhost__exerciser_1_1he__rd__config" kindref="compound">he_rd_config</ref><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" kindref="member">he_rd_cfg_</ref>;</highlight></codeline>
+<codeline lineno="352" refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="unionhost__exerciser_1_1he__wr__config" kindref="compound">he_wr_config</ref><sp/><ref refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" kindref="member">he_wr_cfg_</ref>;</highlight></codeline>
+<codeline lineno="353" refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl" kindref="compound">he_rd_addr_table_ctrl</ref><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" kindref="member">rd_table_ctl_</ref>;</highlight></codeline>
+<codeline lineno="354" refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl" kindref="compound">he_wr_addr_table_ctrl</ref><sp/><ref refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" kindref="member">wr_table_ctl_</ref>;</highlight></codeline>
+<codeline lineno="355"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="356"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>end<sp/>of<sp/>namespace<sp/>host_exerciser</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="samples/cxl_host_exerciser/cxl_he_cmd.h"/>
+  </compounddef>
+</doxygen>

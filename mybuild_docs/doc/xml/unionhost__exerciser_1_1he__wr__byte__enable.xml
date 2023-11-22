@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__wr__byte__enable" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_wr_byte_enable</compoundname>
+    <includes refid="cxl__host__exerciser_8h" local="no">/root/samples/cxl_host_exerciser/cxl_host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__wr__byte__enable_1ab8811165ca63e1087b0c4a62e95ef519" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@16</name>
+        <enumvalue id="unionhost__exerciser_1_1he__wr__byte__enable_1ab8811165ca63e1087b0c4a62e95ef519af3ffc3366f4512ee826fb525e74e49d9" prot="public">
+          <name>offset</name>
+          <initializer>= HE_WR_BYTE_ENABLE</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="158" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="158" bodyend="158"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__wr__byte__enable_1afb26631d2d7bb32f48432f5d50c2b528" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_wr_byte_enable::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="159" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__wr__byte__enable_1a16c7ac8fa3a1b6148dc9199a0b190633" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_wr_byte_enable::@17</type>
+        <definition>struct host_exerciser::he_wr_byte_enable::@17 host_exerciser::he_wr_byte_enable::@18</definition>
+        <argsstring></argsstring>
+        <name>@18</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="162" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_wr_byte_enable</label>
+        <link refid="unionhost__exerciser_1_1he__wr__byte__enable"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="157" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="157" bodyend="163"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__wr__byte__enable_1ab8811165ca63e1087b0c4a62e95ef519af3ffc3366f4512ee826fb525e74e49d9" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_byte_enable</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__wr__byte__enable_1afb26631d2d7bb32f48432f5d50c2b528" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_byte_enable</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,385 @@
+.TH "opae::fpga::types::properties" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::properties
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/properties\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::shared_ptr< \fBproperties\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBproperties\fP (const \fBproperties\fP &p)=delete"
+.br
+.ti -1c
+.RI "\fBproperties\fP & \fBoperator=\fP (const \fBproperties\fP &p)=delete"
+.br
+.ti -1c
+.RI "\fB~properties\fP ()"
+.br
+.ti -1c
+.RI "\fBfpga_properties\fP \fBc_type\fP () const"
+.br
+.ti -1c
+.RI "\fBoperator fpga_properties\fP () const"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBproperties::ptr_t\fP \fBget\fP ()"
+.br
+.ti -1c
+.RI "static \fBproperties::ptr_t\fP \fBget\fP (\fBfpga_guid\fP guid_in)"
+.br
+.ti -1c
+.RI "static \fBproperties::ptr_t\fP \fBget\fP (\fBfpga_objtype\fP objtype)"
+.br
+.ti -1c
+.RI "static \fBproperties::ptr_t\fP \fBget\fP (std::shared_ptr< \fBtoken\fP > t)"
+.br
+.ti -1c
+.RI "static \fBproperties::ptr_t\fP \fBget\fP (\fBfpga_token\fP t)"
+.br
+.ti -1c
+.RI "static \fBproperties::ptr_t\fP \fBget\fP (std::shared_ptr< \fBhandle\fP > h)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBpvalue\fP< \fBfpga_objtype\fP > \fBtype\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint32_t > \fBnum_errors\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint16_t > \fBsegment\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint8_t > \fBbus\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint8_t > \fBdevice\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint8_t > \fBfunction\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint8_t > \fBsocket_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint32_t > \fBnum_slots\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint64_t > \fBbbs_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< \fBfpga_version\fP > \fBbbs_version\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint16_t > \fBvendor_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint16_t > \fBdevice_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint16_t > \fBsubsystem_vendor_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint16_t > \fBsubsystem_device_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< char * > \fBmodel\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint64_t > \fBlocal_memory_size\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint64_t > \fBcapabilities\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint32_t > \fBnum_mmio\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint32_t > \fBnum_interrupts\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< \fBfpga_accelerator_state\fP > \fBaccelerator_state\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< uint64_t > \fBobject_id\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< \fBfpga_token\fP > \fBparent\fP"
+.br
+.ti -1c
+.RI "\fBpvalue\fP< \fBfpga_interface\fP > \fBinterface\fP"
+.br
+.ti -1c
+.RI "\fBguid_t\fP \fBguid\fP"
+.br
+.in -1c
+.SS "Static Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "static const std::vector< \fBproperties::ptr_t\fP > \fBnone\fP"
+.br
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBproperties\fP (bool alloc_props=true)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_properties\fP \fBprops_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Wraps an OPAE fpga_properties object\&.
+.PP
+properties are information describing an accelerator resource that is identified by its token\&. The properties are used during enumeration to narrow the search for an accelerator resource, and after enumeration to provide the configuration of that resource\&. 
+.PP
+Definition at line 51 of file properties\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::shared_ptr<\fBproperties\fP> \fBopae::fpga::types::properties::ptr_t\fP"
+
+.PP
+Definition at line 53 of file properties\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::properties::properties (const \fBproperties\fP & p)\fC [delete]\fP"
+
+.SS "opae::fpga::types::properties::~properties ()"
+
+.SS "opae::fpga::types::properties::properties (bool alloc_props = \fCtrue\fP)\fC [private]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBproperties\fP& opae::fpga::types::properties::operator= (const \fBproperties\fP & p)\fC [delete]\fP"
+
+.SS "\fBfpga_properties\fP opae::fpga::types::properties::c_type () const\fC [inline]\fP"
+Get the underlying fpga_properties object\&. 
+.PP
+Definition at line 69 of file properties\&.h\&.
+.PP
+References props_\&.
+.SS "opae::fpga::types::properties::operator \fBfpga_properties\fP () const\fC [inline]\fP"
+Get the underlying fpga_properties object\&. 
+.PP
+Definition at line 73 of file properties\&.h\&.
+.PP
+References props_\&.
+.SS "static \fBproperties::ptr_t\fP opae::fpga::types::properties::get ()\fC [static]\fP"
+Create a new properties object\&. 
+.PP
+\fBReturns\fP
+.RS 4
+A properties smart pointer\&. 
+.RE
+.PP
+
+.PP
+Referenced by hssi_cmd::clock_freq_for(), hssi_afu::ethernet_interface(), and host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "static \fBproperties::ptr_t\fP opae::fpga::types::properties::get (\fBfpga_guid\fP guid_in)\fC [static]\fP"
+Create a new properties object from a guid\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIguid_in\fP A guid to set in the properties 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A properties smart pointer with its guid initialized to guid_in 
+.RE
+.PP
+
+.SS "static \fBproperties::ptr_t\fP opae::fpga::types::properties::get (\fBfpga_objtype\fP objtype)\fC [static]\fP"
+Create a new properties object from an fpga_objtype\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIobjtype\fP An object type to set in the properties 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A properties smart pointer with its object type set to objtype\&. 
+.RE
+.PP
+
+.SS "static \fBproperties::ptr_t\fP opae::fpga::types::properties::get (std::shared_ptr< \fBtoken\fP > t)\fC [static]\fP"
+Retrieve the properties for a given token object\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIt\fP A token identifying the accelerator resource\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A properties smart pointer for the given token\&. 
+.RE
+.PP
+
+.SS "static \fBproperties::ptr_t\fP opae::fpga::types::properties::get (\fBfpga_token\fP t)\fC [static]\fP"
+Retrieve the properties for a given fpga_token\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIt\fP An fpga_token identifying the accelerator resource\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A properties smart pointer for the given fpga_token\&. 
+.RE
+.PP
+
+.SS "static \fBproperties::ptr_t\fP opae::fpga::types::properties::get (std::shared_ptr< \fBhandle\fP > h)\fC [static]\fP"
+Retrieve the properties for a given handle object\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIh\fP A handle identifying the accelerator resource\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A properties smart pointer for the given handle\&. 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "const std::vector<\fBproperties::ptr_t\fP> opae::fpga::types::properties::none\fC [static]\fP"
+An empty vector of properties\&. Useful for enumerating based on a 'match all' criteria\&. 
+.PP
+Definition at line 59 of file properties\&.h\&.
+.SS "\fBfpga_properties\fP opae::fpga::types::properties::props_\fC [private]\fP"
+
+.PP
+Definition at line 112 of file properties\&.h\&.
+.PP
+Referenced by c_type(), and operator fpga_properties()\&.
+.SS "\fBpvalue\fP<\fBfpga_objtype\fP> opae::fpga::types::properties::type"
+
+.PP
+Definition at line 115 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint32_t> opae::fpga::types::properties::num_errors"
+
+.PP
+Definition at line 116 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint16_t> opae::fpga::types::properties::segment"
+
+.PP
+Definition at line 117 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint8_t> opae::fpga::types::properties::bus"
+
+.PP
+Definition at line 118 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint8_t> opae::fpga::types::properties::device"
+
+.PP
+Definition at line 119 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint8_t> opae::fpga::types::properties::function"
+
+.PP
+Definition at line 120 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint8_t> opae::fpga::types::properties::socket_id"
+
+.PP
+Definition at line 121 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint32_t> opae::fpga::types::properties::num_slots"
+
+.PP
+Definition at line 122 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint64_t> opae::fpga::types::properties::bbs_id"
+
+.PP
+Definition at line 123 of file properties\&.h\&.
+.SS "\fBpvalue\fP<\fBfpga_version\fP> opae::fpga::types::properties::bbs_version"
+
+.PP
+Definition at line 124 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint16_t> opae::fpga::types::properties::vendor_id"
+
+.PP
+Definition at line 125 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint16_t> opae::fpga::types::properties::device_id"
+
+.PP
+Definition at line 126 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint16_t> opae::fpga::types::properties::subsystem_vendor_id"
+
+.PP
+Definition at line 127 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint16_t> opae::fpga::types::properties::subsystem_device_id"
+
+.PP
+Definition at line 128 of file properties\&.h\&.
+.SS "\fBpvalue\fP<char *> opae::fpga::types::properties::model"
+
+.PP
+Definition at line 129 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint64_t> opae::fpga::types::properties::local_memory_size"
+
+.PP
+Definition at line 130 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint64_t> opae::fpga::types::properties::capabilities"
+
+.PP
+Definition at line 131 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint32_t> opae::fpga::types::properties::num_mmio"
+
+.PP
+Definition at line 132 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint32_t> opae::fpga::types::properties::num_interrupts"
+
+.PP
+Definition at line 133 of file properties\&.h\&.
+.SS "\fBpvalue\fP<\fBfpga_accelerator_state\fP> opae::fpga::types::properties::accelerator_state"
+
+.PP
+Definition at line 134 of file properties\&.h\&.
+.SS "\fBpvalue\fP<uint64_t> opae::fpga::types::properties::object_id"
+
+.PP
+Definition at line 135 of file properties\&.h\&.
+.SS "\fBpvalue\fP<\fBfpga_token\fP> opae::fpga::types::properties::parent"
+
+.PP
+Definition at line 136 of file properties\&.h\&.
+.SS "\fBpvalue\fP<\fBfpga_interface\fP> opae::fpga::types::properties::interface"
+
+.PP
+Definition at line 137 of file properties\&.h\&.
+.SS "\fBguid_t\fP opae::fpga::types::properties::guid"
+
+.PP
+Definition at line 138 of file properties\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

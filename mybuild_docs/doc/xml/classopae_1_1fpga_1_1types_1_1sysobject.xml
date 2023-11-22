@@ -1,0 +1,595 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1sysobject" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::sysobject</compoundname>
+    <includes refid="cxx_2core_2sysobject_8h" local="no">opae/cxx/core/sysobject.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;sysobject&gt; opae::fpga::types::sysobject::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="44" column="27" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" prot="private" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+        <definition>fpga_object opae::fpga::types::sysobject::sysobject_</definition>
+        <argsstring></argsstring>
+        <name>sysobject_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="193" column="15" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="193" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1sysobject_1a13b45599ddc9e902bf6cfabf20e02768" compoundref="cxx_2core_2sysobject_8h" startline="185" endline="185">c_type</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1sysobject_1ac1cb2fa7b43facfdbc70d5a033e394c1" compoundref="cxx_2core_2sysobject_8h" startline="189" endline="189">operator fpga_object</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1sysobject_1a9b4075f8e189e37c5992f724dc7380b4" prot="private" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+        <definition>token::ptr_t opae::fpga::types::sysobject::token_</definition>
+        <argsstring></argsstring>
+        <name>token_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="194" column="16" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1sysobject_1acb5d249e9d682ef0f228a0296b7fe851" prot="private" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+        <definition>handle::ptr_t opae::fpga::types::sysobject::handle_</definition>
+        <argsstring></argsstring>
+        <name>handle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="195" column="17" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a113c998356671d5e03d526b8c1c8e5aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::sysobject::sysobject</definition>
+        <argsstring>()=delete</argsstring>
+        <name>sysobject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="46" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1ac687a5693b259d5e0390361225e999fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::sysobject::sysobject</definition>
+        <argsstring>(const sysobject &amp;o)=delete</argsstring>
+        <name>sysobject</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="48" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1adf8b59f15dbd3d4514e0397cf5133a07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref> &amp;</type>
+        <definition>sysobject&amp; opae::fpga::types::sysobject::operator=</definition>
+        <argsstring>(const sysobject &amp;o)=delete</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1sysobject" kindref="compound">sysobject</ref> &amp;</type>
+          <declname>o</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="50" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a8722a8fdb2c7de416e8f47280d1c1888" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref></type>
+        <definition>sysobject::ptr_t opae::fpga::types::sysobject::get</definition>
+        <argsstring>(const std::string &amp;name, int flags=0)</argsstring>
+        <name>get</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Get a sysobject from an object. This will be read-write if its parent was created from a handle.. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An identifier representing an object belonging to this object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects. Flags are defaulted to 0 meaning no flags.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A shared_ptr to a sysobject instance. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="103" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1afdbd6396094b0c1c274fa64c18c88119" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref></type>
+        <definition>sysobject::ptr_t opae::fpga::types::sysobject::get</definition>
+        <argsstring>(int index)</argsstring>
+        <name>get</name>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get a sysobject from a container object. This will be read-write if its parent was created from a handle.. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An index number to get.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A shared_ptr to a sysobject instance. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="113" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a8f86033c1116397d837a2b6a92ddbbf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual opae::fpga::types::sysobject::~sysobject</definition>
+        <argsstring>()</argsstring>
+        <name>~sysobject</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="115" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1ae9374e6aa30648d2c364888bed55c71f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t opae::fpga::types::sysobject::size</definition>
+        <argsstring>() const</argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Get the size (in bytes) of the object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The number of bytes that the object occupies in memory. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="122" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a4120492ac81789a245d8384497a4d374" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::sysobject::read64</definition>
+        <argsstring>(int flags=0) const</argsstring>
+        <name>read64</name>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Read a 64-bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data. If FPGA_OBJECT_RAW is used, then the data will be read as raw bytes into the uint64_t pointer variable. Flags are defaulted to 0 meaning no flags.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A 64-bit value from the object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="137" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a71b53fc73a644e490252f57e28939618" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::sysobject::write64</definition>
+        <argsstring>(uint64_t value, int flags=0) const</argsstring>
+        <name>write64</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Write 64-bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value to write to the object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how the object is written If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes. Flags are defaulted to 0 meaning no flags.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>This operation will force a sync operation to update its cached buffer </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="152" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a119935a32c66e6a6d3e7e700a3181863" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; uint8_t &gt;</type>
+        <definition>std::vector&lt;uint8_t&gt; opae::fpga::types::sysobject::bytes</definition>
+        <argsstring>(int flags=0) const</argsstring>
+        <name>bytes</name>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Get all raw bytes from the object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A vector of all bytes in the object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="163" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a9e248a37ffa6f6f33fd50d5d81b7b90d" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; uint8_t &gt;</type>
+        <definition>std::vector&lt;uint8_t&gt; opae::fpga::types::sysobject::bytes</definition>
+        <argsstring>(uint32_t offset, uint32_t size, int flags=0) const</argsstring>
+        <name>bytes</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Get a subset of raw bytes from the object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The bytes offset for the start of the returned vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The number of bytes for the returned vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A vector of size bytes in the object starting at offset. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="176" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1af16b5a7266e18ac298884f72f4a941a3" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>enum <ref refid="types__enum_8h_1a3ac77596a20038a5e0691ec8bb6c6299" kindref="member">fpga_sysobject_type</ref></type>
+        <definition>enum fpga_sysobject_type opae::fpga::types::sysobject::type</definition>
+        <argsstring>() const</argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the object type (attribute or container) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="176" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a13b45599ddc9e902bf6cfabf20e02768" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+        <definition>fpga_object opae::fpga::types::sysobject::c_type</definition>
+        <argsstring>() const</argsstring>
+        <name>c_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the underlying fpga_object primitive. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="185" column="15" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="185" bodyend="185"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" compoundref="cxx_2core_2sysobject_8h" startline="193">sysobject_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1ac1cb2fa7b43facfdbc70d5a033e394c1" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::sysobject::operator fpga_object</definition>
+        <argsstring>() const</argsstring>
+        <name>operator fpga_object</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the underlying fpga_object primitive. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="189" column="3" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="189" bodyend="189"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" compoundref="cxx_2core_2sysobject_8h" startline="193">sysobject_</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1af82679125fec13b5731ab619808f2ccb" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref></type>
+        <definition>static sysobject::ptr_t opae::fpga::types::sysobject::get</definition>
+        <argsstring>(token::ptr_t t, const std::string &amp;name, int flags=0)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+          <declname>t</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Get a sysobject from a token. This will be read-only. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Token object representing a resource. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An identifier representing an object belonging to a resource represented by the token. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A shared_ptr to a sysobject instance. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="67" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a91b4775d5e1d6520ce6fba54db990bb7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" kindref="member">sysobject::ptr_t</ref></type>
+        <definition>static sysobject::ptr_t opae::fpga::types::sysobject::get</definition>
+        <argsstring>(handle::ptr_t h, const std::string &amp;name, int flags=0)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Get a sysobject from a handle. This will be read-write. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle object representing an open resource. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An identifier representing an object belonging to a resource represented by the handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control behavior of object identification and creation. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A shared_ptr to a sysobject instance. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="85" column="27"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1sysobject_1a152cbb0823356ecb633b295a2c45fd43" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::sysobject::sysobject</definition>
+        <argsstring>(fpga_object sysobj, token::ptr_t token, handle::ptr_t hnd)</argsstring>
+        <name>sysobject</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>sysobj</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>hnd</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/sysobject.h" line="192" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Wraps the OPAE fpga_object primitive. sysobject&apos;s are created from a call to fpgaTokenGetObject, fpgaHandleGetObject, or fpgaObjectGetObject </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::sysobject</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1sysobject"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/sysobject.h" line="42" column="1" bodyfile="include/opae/cxx/core/sysobject.h" bodystart="42" bodyend="196"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a119935a32c66e6a6d3e7e700a3181863" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>bytes</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a9e248a37ffa6f6f33fd50d5d81b7b90d" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>bytes</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a13b45599ddc9e902bf6cfabf20e02768" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>c_type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1af82679125fec13b5731ab619808f2ccb" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a91b4775d5e1d6520ce6fba54db990bb7" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a8722a8fdb2c7de416e8f47280d1c1888" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1afdbd6396094b0c1c274fa64c18c88119" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1acb5d249e9d682ef0f228a0296b7fe851" prot="private" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>handle_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1ac1cb2fa7b43facfdbc70d5a033e394c1" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>operator fpga_object</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1adf8b59f15dbd3d4514e0397cf5133a07" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>operator=</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a1a64124cb599b2944cd2cda0081e2653" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a4120492ac81789a245d8384497a4d374" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>read64</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1ae9374e6aa30648d2c364888bed55c71f" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>size</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a113c998356671d5e03d526b8c1c8e5aa" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>sysobject</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1ac687a5693b259d5e0390361225e999fc" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>sysobject</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a152cbb0823356ecb633b295a2c45fd43" prot="private" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>sysobject</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a2982d55edea60fcf80245da9592c3abf" prot="private" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>sysobject_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a9b4075f8e189e37c5992f724dc7380b4" prot="private" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>token_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1af16b5a7266e18ac298884f72f4a941a3" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a71b53fc73a644e490252f57e28939618" prot="public" virt="non-virtual"><scope>opae::fpga::types::sysobject</scope><name>write64</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1sysobject_1a8f86033c1116397d837a2b6a92ddbbf4" prot="public" virt="virtual"><scope>opae::fpga::types::sysobject</scope><name>~sysobject</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

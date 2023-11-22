@@ -1,0 +1,181 @@
+.TH "opae::fpga::types::event" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::event \- Wraps fpga event routines in OPAE C\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/events\&.h>\fP
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBtype_t\fP"
+.br
+.RI "C++ struct that is interchangeable with fpga_event_type enum\&. "
+.in -1c
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::shared_ptr< \fBevent\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual \fB~event\fP ()"
+.br
+.RI "Destroy event and associated resources\&. "
+.ti -1c
+.RI "\fBfpga_event_handle\fP \fBget\fP ()"
+.br
+.RI "Get the fpga_event_handle contained in this object\&. "
+.ti -1c
+.RI "\fBoperator fpga_event_handle\fP ()"
+.br
+.RI "Coversion operator for converting to fpga_event_handle objects\&. "
+.ti -1c
+.RI "int \fBos_object\fP () const"
+.br
+.RI "Get OS Object from the event object\&. "
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBevent::ptr_t\fP \fBregister_event\fP (\fBhandle::ptr_t\fP h, \fBevent::type_t\fP t, int flags=0)"
+.br
+.RI "Factory function to create event objects\&. "
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBevent\fP (\fBhandle::ptr_t\fP h, \fBevent::type_t\fP t, \fBfpga_event_handle\fP event_h)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBhandle::ptr_t\fP \fBhandle_\fP"
+.br
+.ti -1c
+.RI "\fBevent::type_t\fP \fBtype_\fP"
+.br
+.ti -1c
+.RI "\fBfpga_event_handle\fP \fBevent_handle_\fP"
+.br
+.ti -1c
+.RI "int \fBos_object_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Wraps fpga event routines in OPAE C\&. 
+.PP
+Definition at line 40 of file events\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::shared_ptr<\fBevent\fP> \fBopae::fpga::types::event::ptr_t\fP"
+
+.PP
+Definition at line 42 of file events\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "virtual opae::fpga::types::event::~event ()\fC [virtual]\fP"
+
+.PP
+Destroy event and associated resources\&. 
+.SS "opae::fpga::types::event::event (\fBhandle::ptr_t\fP h, \fBevent::type_t\fP t, \fBfpga_event_handle\fP event_h)\fC [private]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBfpga_event_handle\fP opae::fpga::types::event::get ()\fC [inline]\fP"
+
+.PP
+Get the fpga_event_handle contained in this object\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The fpga_event_handle contained in this object 
+.RE
+.PP
+
+.PP
+Definition at line 70 of file events\&.h\&.
+.PP
+References event_handle_\&.
+.SS "opae::fpga::types::event::operator \fBfpga_event_handle\fP ()"
+
+.PP
+Coversion operator for converting to fpga_event_handle objects\&. 
+.PP
+\fBReturns\fP
+.RS 4
+The fpga_event_handle contained in this object 
+.RE
+.PP
+
+.SS "static \fBevent::ptr_t\fP opae::fpga::types::event::register_event (\fBhandle::ptr_t\fP h, \fBevent::type_t\fP t, int flags = \fC0\fP)\fC [static]\fP"
+
+.PP
+Factory function to create event objects\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIh\fP A shared ptr of a resource handle 
+.br
+\fIt\fP The resource type 
+.br
+\fIflags\fP Event registration flags passed on to fpgaRegisterEvent
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A shared ptr to an event object 
+.RE
+.PP
+
+.PP
+Referenced by dummy_afu::dummy_afu::register_interrupt(), and host_exerciser::host_exerciser::register_interrupt()\&.
+.SS "int opae::fpga::types::event::os_object () const"
+
+.PP
+Get OS Object from the event object\&. Get an OS specific object from the event which can be used to subscribe for events\&. On Linux, the object corresponds to a file descriptor that can be used with select/poll/epoll calls\&.
+.PP
+\fBReturns\fP
+.RS 4
+An integer object representing the OS object 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "\fBhandle::ptr_t\fP opae::fpga::types::event::handle_\fC [private]\fP"
+
+.PP
+Definition at line 104 of file events\&.h\&.
+.SS "\fBevent::type_t\fP opae::fpga::types::event::type_\fC [private]\fP"
+
+.PP
+Definition at line 105 of file events\&.h\&.
+.SS "\fBfpga_event_handle\fP opae::fpga::types::event::event_handle_\fC [private]\fP"
+
+.PP
+Definition at line 106 of file events\&.h\&.
+.PP
+Referenced by get()\&.
+.SS "int opae::fpga::types::event::os_object_\fC [private]\fP"
+
+.PP
+Definition at line 107 of file events\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

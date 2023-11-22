@@ -1,0 +1,998 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classhost__exerciser_1_1he__cache__cmd" kind="class" language="C++" prot="public">
+    <compoundname>host_exerciser::he_cache_cmd</compoundname>
+    <basecompoundref refid="classhost__exerciser_1_1he__cmd" prot="public" virt="non-virtual">host_exerciser::he_cmd</basecompoundref>
+    <includes refid="cxl__he__cache__cmd_8h" local="no">/root/samples/cxl_host_exerciser/cxl_he_cache_cmd.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool host_exerciser::he_cache_cmd::he_continuousmode_</definition>
+        <argsstring></argsstring>
+        <name>he_continuousmode_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1253" column="8" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1253" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1ac516e18c3f57820b78488ea0cfe24cdd" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_cmd::he_contmodetime_</definition>
+        <argsstring></argsstring>
+        <name>he_contmodetime_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1254" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1254" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_cmd::he_linerep_count_</definition>
+        <argsstring></argsstring>
+        <name>he_linerep_count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1255" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1255" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_cmd::he_stride_</definition>
+        <argsstring></argsstring>
+        <name>he_stride_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1256" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1256" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1aa4864cede6f93292a6ec178b5ee098c6" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_cmd::he_test_</definition>
+        <argsstring></argsstring>
+        <name>he_test_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1257" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1257" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1a857ad914201b7132e32ff7c785576ea8" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool host_exerciser::he_cache_cmd::he_test_all_</definition>
+        <argsstring></argsstring>
+        <name>he_test_all_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1258" column="8" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1a53a60243c460e1f5465c2646d55f45c1" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_cmd::he_dev_instance_</definition>
+        <argsstring></argsstring>
+        <name>he_dev_instance_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1259" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1259" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool host_exerciser::he_cache_cmd::he_stride_cmd_</definition>
+        <argsstring></argsstring>
+        <name>he_stride_cmd_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1260" column="8" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1260" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" prot="protected" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_cmd::he_cls_count_</definition>
+        <argsstring></argsstring>
+        <name>he_cls_count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1261" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1261" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" prot="protected" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_cache_cmd::he_latency_iterations_</definition>
+        <argsstring></argsstring>
+        <name>he_latency_iterations_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1262" column="12" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1262" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" compoundref="cxl__he__cache__cmd_8h" startline="73" endline="130">add_options</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a8c785d49f1bcdc97dfe628e2c6b73f0b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>host_exerciser::he_cache_cmd::he_cache_cmd</definition>
+        <argsstring>()</argsstring>
+        <name>he_cache_cmd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="51" column="3" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="51" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a8a973b9525ef874425536585cb288c26" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual host_exerciser::he_cache_cmd::~he_cache_cmd</definition>
+        <argsstring>()</argsstring>
+        <name>~he_cache_cmd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="57" column="11" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a817e135851552b388df4af1039f51e39" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::he_cache_cmd::name</definition>
+        <argsstring>() const override</argsstring>
+        <name>name</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052">name</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="59" column="22" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a41dc4ccfd8a759ce5e4b0c3938c4247a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::he_cache_cmd::description</definition>
+        <argsstring>() const override</argsstring>
+        <name>description</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e">description</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="61" column="22" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="61" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1adc969104b344f02d51efe21402fec3b4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* host_exerciser::he_cache_cmd::afu_id</definition>
+        <argsstring>() const override</argsstring>
+        <name>afu_id</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb">afu_id</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="65" column="22" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="65" bodyend="65"/>
+        <references refid="cxl__host__exerciser_8h_1a72d02b17946176eac3d194950f7f02c8" compoundref="cxl__host__exerciser_8h" startline="33">HE_CACHE_AFU_ID</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1af36a2ca6d571c1a7afe9d5228c93743d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t host_exerciser::he_cache_cmd::featureid</definition>
+        <argsstring>() const override</argsstring>
+        <name>featureid</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7">featureid</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="67" column="20" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="67" bodyend="67"/>
+        <references refid="cxl__host__exerciser_8h_1a4736703a0eb0915314304d527acdf55d" compoundref="cxl__host__exerciser_8h" startline="30">MEM_TG_FEATURE_ID</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a3d15cc0e3c84891d1f51967714c669ae" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t host_exerciser::he_cache_cmd::guidl</definition>
+        <argsstring>() const override</argsstring>
+        <name>guidl</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32">guidl</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="69" column="20" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="69" bodyend="69"/>
+        <references refid="cxl__host__exerciser_8h_1adba62009c92f202c4e9fc163301f26c3" compoundref="cxl__host__exerciser_8h" startline="31">MEM_TG_FEATURE_GUIDL</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a97721da6ffb1f46a1f2b0cee970774b8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t host_exerciser::he_cache_cmd::guidh</definition>
+        <argsstring>() const override</argsstring>
+        <name>guidh</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85">guidh</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="71" column="20" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="71" bodyend="71"/>
+        <references refid="cxl__host__exerciser_8h_1af5fc626e065828ba08501e0fb894b4c7" compoundref="cxl__host__exerciser_8h" startline="32">MEM_TG_FEATURE_GUIDH</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void host_exerciser::he_cache_cmd::add_options</definition>
+        <argsstring>(CLI::App *app) override</argsstring>
+        <name>add_options</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6">add_options</reimplements>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="73" column="16" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="73" bodyend="130"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="namespacehost__exerciser_1a06c6876e392a9a89941d649a7162f8c9" compoundref="cxl__host__exerciser_8h" startline="337">host_exerciser::he_bias</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" compoundref="cxl__he__cmd_8h" startline="347">host_exerciser::he_cmd::he_bias_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ac516e18c3f57820b78488ea0cfe24cdd" compoundref="cxl__he__cache__cmd_8h" startline="1254">he_contmodetime_</references>
+        <references refid="namespacehost__exerciser_1a7d0aa3fa8a77d912617648e824ab251f" compoundref="cxl__host__exerciser_8h" startline="348">host_exerciser::he_cxl_device</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a53a60243c460e1f5465c2646d55f45c1" compoundref="cxl__he__cache__cmd_8h" startline="1259">he_dev_instance_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" compoundref="cxl__he__cache__cmd_8h" startline="1262">he_latency_iterations_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" compoundref="cxl__he__cmd_8h" startline="346">host_exerciser::he_cmd::he_target_</references>
+        <references refid="namespacehost__exerciser_1aa029adb74bb308968e3ab7ce3036610d" compoundref="cxl__host__exerciser_8h" startline="331">host_exerciser::he_targets</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1aa4864cede6f93292a6ec178b5ee098c6" compoundref="cxl__he__cache__cmd_8h" startline="1257">he_test_</references>
+        <references refid="namespacehost__exerciser_1a9236a519bfc92f2e8a8cf399433bf29b" compoundref="cxl__host__exerciser_8h" startline="312">host_exerciser::he_test_modes</references>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_hit_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_fpga_rd_cache_hit_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="132" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="132" bodyend="300"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" compoundref="he__cache__test_8h" startline="604" endline="644">opae::afu_test::afu::allocate_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" compoundref="he__cache__test_8h" startline="646" endline="671">opae::afu_test::afu::free_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" compoundref="cxl__he__cmd_8h" startline="329" endline="340">host_exerciser::he_cmd::get_ticks</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" compoundref="cxl__host__exerciser_8h" startline="307">host_exerciser::HE_CXL_RD_LATENCY</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" compoundref="cxl__he__cache__cmd_8h" startline="1262">he_latency_iterations_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="cxl__he__cmd_8h_1ae0324905f71f58f134e47401bd79b0e7" compoundref="cxl__he__cmd_8h" startline="36">HE_PRTEST_SCENARIO</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" compoundref="cxl__host__exerciser_8h" startline="67">host_exerciser::HE_RD_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" compoundref="cxl__host__exerciser_8h" startline="66">host_exerciser::HE_RD_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" compoundref="cxl__host__exerciser_8h" startline="65">host_exerciser::HE_RD_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" compoundref="cxl__he__cache__cmd_8h" startline="1260">he_stride_cmd_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" compoundref="cxl__he__cmd_8h" startline="346">host_exerciser::he_cmd::he_target_</references>
+        <references refid="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a1253eee565e44c426c6a34eadfaa0821" compoundref="cxl__host__exerciser_8h" startline="300">host_exerciser::HE_TARGET_FPGA</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="namespacehost__exerciser_1a7181c0e391f834ad9cdda3e578176b3a" compoundref="cxl__host__exerciser_8h" startline="47">host_exerciser::LATENCY_FACTOR</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a383b82e47fbec58b8a1b328d3be3ab35" compoundref="cxl__host__exerciser_8h" startline="84">host_exerciser::RD_LINE_S</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" compoundref="cxl__he__cmd_8h" startline="353">host_exerciser::he_cmd::rd_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__config_1acd0ff90fadb9fa964c3ab553168c3739" compoundref="cxl__host__exerciser_8h" startline="217">host_exerciser::he_rd_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" compoundref="cxl__host__exerciser_8h" startline="235">host_exerciser::he_rd_addr_table_ctrl::value</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_fpga_wr_cache_hit_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="302" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="302" bodyend="450"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1ae9f15c76d68e94b445c2c1c21f727d1a" compoundref="he__cache__test_8h" startline="741" endline="786">opae::afu_test::afu::allocate_cache_read_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1adadb65558a3a54ba88e96b872d43b30d" compoundref="he__cache__test_8h" startline="788" endline="820">opae::afu_test::afu::free_cache_read_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="cxl__he__cmd_8h_1ae0324905f71f58f134e47401bd79b0e7" compoundref="cxl__he__cmd_8h" startline="36">HE_PRTEST_SCENARIO</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" compoundref="cxl__host__exerciser_8h" startline="67">host_exerciser::HE_RD_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" compoundref="cxl__host__exerciser_8h" startline="66">host_exerciser::HE_RD_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" compoundref="cxl__host__exerciser_8h" startline="65">host_exerciser::HE_RD_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" compoundref="cxl__he__cache__cmd_8h" startline="1260">he_stride_cmd_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" compoundref="cxl__he__cmd_8h" startline="346">host_exerciser::he_cmd::he_target_</references>
+        <references refid="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a1253eee565e44c426c6a34eadfaa0821" compoundref="cxl__host__exerciser_8h" startline="300">host_exerciser::HE_TARGET_FPGA</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a1adff58b128d7f57593d15ed67a54fc6" compoundref="cxl__host__exerciser_8h" startline="63">host_exerciser::HE_WR_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" compoundref="cxl__he__cmd_8h" startline="352">host_exerciser::he_cmd::he_wr_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab29c859275463170cc2bbb6e2fb0297c" compoundref="cxl__host__exerciser_8h" startline="62">host_exerciser::HE_WR_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a3b1b6c8c2fcbf57ad624de1077356fd4" compoundref="cxl__host__exerciser_8h" startline="60">host_exerciser::HE_WR_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a383b82e47fbec58b8a1b328d3be3ab35" compoundref="cxl__host__exerciser_8h" startline="84">host_exerciser::RD_LINE_S</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" compoundref="cxl__he__cmd_8h" startline="353">host_exerciser::he_cmd::rd_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__config_1accd244b7cfc37a62fc034a2eb3098623" compoundref="cxl__host__exerciser_8h" startline="168">host_exerciser::he_wr_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" compoundref="cxl__host__exerciser_8h" startline="186">host_exerciser::he_wr_addr_table_ctrl::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__config_1acd0ff90fadb9fa964c3ab553168c3739" compoundref="cxl__host__exerciser_8h" startline="217">host_exerciser::he_rd_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" compoundref="cxl__host__exerciser_8h" startline="235">host_exerciser::he_rd_addr_table_ctrl::value</references>
+        <references refid="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfae5bc76f014dcbb30bf9377d595d738c7" compoundref="cxl__host__exerciser_8h" startline="91">host_exerciser::WR_LINE_M</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" compoundref="cxl__he__cmd_8h" startline="354">host_exerciser::he_cmd::wr_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_fpga_rd_cache_miss_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_fpga_rd_cache_miss_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="452" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="452" bodyend="579"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" compoundref="he__cache__test_8h" startline="604" endline="644">opae::afu_test::afu::allocate_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" compoundref="he__cache__test_8h" startline="646" endline="671">opae::afu_test::afu::free_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" compoundref="cxl__he__cmd_8h" startline="329" endline="340">host_exerciser::he_cmd::get_ticks</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" compoundref="cxl__host__exerciser_8h" startline="307">host_exerciser::HE_CXL_RD_LATENCY</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" compoundref="cxl__he__cache__cmd_8h" startline="1262">he_latency_iterations_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" compoundref="cxl__host__exerciser_8h" startline="67">host_exerciser::HE_RD_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" compoundref="cxl__host__exerciser_8h" startline="66">host_exerciser::HE_RD_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" compoundref="cxl__host__exerciser_8h" startline="65">host_exerciser::HE_RD_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" compoundref="cxl__he__cache__cmd_8h" startline="1260">he_stride_cmd_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" compoundref="cxl__he__cmd_8h" startline="346">host_exerciser::he_cmd::he_target_</references>
+        <references refid="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a1253eee565e44c426c6a34eadfaa0821" compoundref="cxl__host__exerciser_8h" startline="300">host_exerciser::HE_TARGET_FPGA</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="namespacehost__exerciser_1a7181c0e391f834ad9cdda3e578176b3a" compoundref="cxl__host__exerciser_8h" startline="47">host_exerciser::LATENCY_FACTOR</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a8615bca5d3aa6d3f844bd4f9c5f07e2e" compoundref="cxl__host__exerciser_8h" startline="83">host_exerciser::RD_LINE_I</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" compoundref="cxl__he__cmd_8h" startline="353">host_exerciser::he_cmd::rd_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__config_1acd0ff90fadb9fa964c3ab553168c3739" compoundref="cxl__host__exerciser_8h" startline="217">host_exerciser::he_rd_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" compoundref="cxl__host__exerciser_8h" startline="235">host_exerciser::he_rd_addr_table_ctrl::value</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_fpga_wr_cache_miss_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="581" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="581" bodyend="679"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1ac2756579ad42be859b696a1880a703a2" compoundref="he__cache__test_8h" startline="673" endline="712">opae::afu_test::afu::allocate_cache_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a4f75d9580bec86a37adc9829e038bcf4" compoundref="he__cache__test_8h" startline="714" endline="739">opae::afu_test::afu::free_cache_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" compoundref="cxl__he__cache__cmd_8h" startline="1260">he_stride_cmd_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" compoundref="cxl__he__cmd_8h" startline="346">host_exerciser::he_cmd::he_target_</references>
+        <references refid="namespacehost__exerciser_1a7e3f43915a1b25c35bb95863a87b1429a1253eee565e44c426c6a34eadfaa0821" compoundref="cxl__host__exerciser_8h" startline="300">host_exerciser::HE_TARGET_FPGA</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a1adff58b128d7f57593d15ed67a54fc6" compoundref="cxl__host__exerciser_8h" startline="63">host_exerciser::HE_WR_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" compoundref="cxl__he__cmd_8h" startline="352">host_exerciser::he_cmd::he_wr_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab29c859275463170cc2bbb6e2fb0297c" compoundref="cxl__host__exerciser_8h" startline="62">host_exerciser::HE_WR_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a3b1b6c8c2fcbf57ad624de1077356fd4" compoundref="cxl__host__exerciser_8h" startline="60">host_exerciser::HE_WR_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__config_1accd244b7cfc37a62fc034a2eb3098623" compoundref="cxl__host__exerciser_8h" startline="168">host_exerciser::he_wr_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" compoundref="cxl__host__exerciser_8h" startline="186">host_exerciser::he_wr_addr_table_ctrl::value</references>
+        <references refid="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa9f9b0eb93b101bd67e617acc0e38a671" compoundref="cxl__host__exerciser_8h" startline="90">host_exerciser::WR_LINE_I</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" compoundref="cxl__he__cmd_8h" startline="354">host_exerciser::he_cmd::wr_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_host_rd_cache_hit_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="681" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="681" bodyend="819"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" compoundref="he__cache__test_8h" startline="604" endline="644">opae::afu_test::afu::allocate_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="namespacehost__exerciser_1a0a736cbba6907deb25688e3082084e56" compoundref="cxl__host__exerciser_8h" startline="43">host_exerciser::BUFFER_SIZE_32KB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" compoundref="he__cache__test_8h" startline="646" endline="671">opae::afu_test::afu::free_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="cxl__he__cache__cmd_8h_1a35a6655d1abb4deeabbe0fdebc1bd68c" compoundref="cxl__he__cache__cmd_8h" startline="36">g_stop_thread</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a1ec221419c8668d8b14e1b7e6c056b98" compoundref="he__cache__test_8h" startline="824" endline="824">opae::afu_test::afu::get_read</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" compoundref="cxl__he__cmd_8h" startline="329" endline="340">host_exerciser::he_cmd::get_ticks</references>
+        <references refid="namespacehost__exerciser_1a63cc59095cdb804e9d969dbd8445b35d" compoundref="cxl__he__cache__cmd_8h" startline="1265" endline="1290">host_exerciser::he_cache_thread</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" compoundref="cxl__host__exerciser_8h" startline="307">host_exerciser::HE_CXL_RD_LATENCY</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" compoundref="cxl__he__cache__cmd_8h" startline="1262">he_latency_iterations_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" compoundref="cxl__host__exerciser_8h" startline="67">host_exerciser::HE_RD_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" compoundref="cxl__host__exerciser_8h" startline="66">host_exerciser::HE_RD_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" compoundref="cxl__host__exerciser_8h" startline="65">host_exerciser::HE_RD_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="namespacehost__exerciser_1a7181c0e391f834ad9cdda3e578176b3a" compoundref="cxl__host__exerciser_8h" startline="47">host_exerciser::LATENCY_FACTOR</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a383b82e47fbec58b8a1b328d3be3ab35" compoundref="cxl__host__exerciser_8h" startline="84">host_exerciser::RD_LINE_S</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" compoundref="cxl__he__cmd_8h" startline="353">host_exerciser::he_cmd::rd_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__config_1acd0ff90fadb9fa964c3ab553168c3739" compoundref="cxl__host__exerciser_8h" startline="217">host_exerciser::he_rd_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" compoundref="cxl__host__exerciser_8h" startline="235">host_exerciser::he_rd_addr_table_ctrl::value</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_host_wr_cache_hit_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="821" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="821" bodyend="922"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1ac2756579ad42be859b696a1880a703a2" compoundref="he__cache__test_8h" startline="673" endline="712">opae::afu_test::afu::allocate_cache_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="namespacehost__exerciser_1a0a736cbba6907deb25688e3082084e56" compoundref="cxl__host__exerciser_8h" startline="43">host_exerciser::BUFFER_SIZE_32KB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a4f75d9580bec86a37adc9829e038bcf4" compoundref="he__cache__test_8h" startline="714" endline="739">opae::afu_test::afu::free_cache_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="cxl__he__cache__cmd_8h_1a35a6655d1abb4deeabbe0fdebc1bd68c" compoundref="cxl__he__cache__cmd_8h" startline="36">g_stop_thread</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1abff0d8566f3e4bfe138f44eadab9b16f" compoundref="he__cache__test_8h" startline="826" endline="826">opae::afu_test::afu::get_write</references>
+        <references refid="namespacehost__exerciser_1a63cc59095cdb804e9d969dbd8445b35d" compoundref="cxl__he__cache__cmd_8h" startline="1265" endline="1290">host_exerciser::he_cache_thread</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a1adff58b128d7f57593d15ed67a54fc6" compoundref="cxl__host__exerciser_8h" startline="63">host_exerciser::HE_WR_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" compoundref="cxl__he__cmd_8h" startline="352">host_exerciser::he_cmd::he_wr_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab29c859275463170cc2bbb6e2fb0297c" compoundref="cxl__host__exerciser_8h" startline="62">host_exerciser::HE_WR_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a3b1b6c8c2fcbf57ad624de1077356fd4" compoundref="cxl__host__exerciser_8h" startline="60">host_exerciser::HE_WR_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__config_1accd244b7cfc37a62fc034a2eb3098623" compoundref="cxl__host__exerciser_8h" startline="168">host_exerciser::he_wr_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" compoundref="cxl__host__exerciser_8h" startline="186">host_exerciser::he_wr_addr_table_ctrl::value</references>
+        <references refid="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa56f244dab07fac79a257306c87d88468" compoundref="cxl__host__exerciser_8h" startline="92">host_exerciser::WR_PUSH_I</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" compoundref="cxl__he__cmd_8h" startline="354">host_exerciser::he_cmd::wr_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_host_rd_cache_miss_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_host_rd_cache_miss_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="924" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="924" bodyend="1047"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" compoundref="he__cache__test_8h" startline="604" endline="644">opae::afu_test::afu::allocate_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" compoundref="he__cache__test_8h" startline="646" endline="671">opae::afu_test::afu::free_cache_read</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" compoundref="cxl__he__cmd_8h" startline="329" endline="340">host_exerciser::he_cmd::get_ticks</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1a37ffa3c2ac30b63e2b03cc8f6e52c4a4ad7b91477904acff1abcaba47619bf1a5" compoundref="cxl__host__exerciser_8h" startline="307">host_exerciser::HE_CXL_RD_LATENCY</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" compoundref="cxl__he__cache__cmd_8h" startline="1262">he_latency_iterations_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a321b37ff8fc5472a16b46da5631a6357" compoundref="cxl__host__exerciser_8h" startline="67">host_exerciser::HE_RD_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a8871c897146f0f2eaccd5077f6181472" compoundref="cxl__host__exerciser_8h" startline="66">host_exerciser::HE_RD_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a344481e3ac1122c5e74bb59a7a934409" compoundref="cxl__host__exerciser_8h" startline="65">host_exerciser::HE_RD_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="namespacehost__exerciser_1a7181c0e391f834ad9cdda3e578176b3a" compoundref="cxl__host__exerciser_8h" startline="47">host_exerciser::LATENCY_FACTOR</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="namespacehost__exerciser_1a5bd22f57a22dd60a9586ce15bbf7f983a8615bca5d3aa6d3f844bd4f9c5f07e2e" compoundref="cxl__host__exerciser_8h" startline="83">host_exerciser::RD_LINE_I</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" compoundref="cxl__he__cmd_8h" startline="353">host_exerciser::he_cmd::rd_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__config_1acd0ff90fadb9fa964c3ab553168c3739" compoundref="cxl__host__exerciser_8h" startline="217">host_exerciser::he_rd_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" compoundref="cxl__host__exerciser_8h" startline="235">host_exerciser::he_rd_addr_table_ctrl::value</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test</definition>
+        <argsstring>()</argsstring>
+        <name>he_run_host_wr_cache_miss_test</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1049" column="7" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1049" bodyend="1140"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1ac2756579ad42be859b696a1880a703a2" compoundref="he__cache__test_8h" startline="673" endline="712">opae::afu_test::afu::allocate_cache_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" compoundref="he__cache__test_8h" startline="530" endline="570">opae::afu_test::afu::allocate_dsm</references>
+        <references refid="namespacehost__exerciser_1a61b58598a908fe8bbf0db3dcfc8b706f" compoundref="cxl__host__exerciser_8h" startline="42">host_exerciser::BUFFER_SIZE_2MB</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a4f75d9580bec86a37adc9829e038bcf4" compoundref="he__cache__test_8h" startline="714" endline="739">opae::afu_test::afu::free_cache_write</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" compoundref="he__cache__test_8h" startline="572" endline="598">opae::afu_test::afu::free_dsm</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" compoundref="cxl__he__cache__cmd_8h" startline="1261">he_cls_count_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a63ab354d6a895d75d3ea2681c4a73c85" compoundref="cxl__host__exerciser_8h" startline="59">host_exerciser::HE_INFO</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" compoundref="cxl__he__cmd_8h" startline="350">host_exerciser::he_cmd::he_info_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" compoundref="cxl__he__cache__cmd_8h" startline="1255">he_linerep_count_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" compoundref="cxl__he__cmd_8h" startline="351">host_exerciser::he_cmd::he_rd_cfg_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" compoundref="cxl__he__cmd_8h" startline="268" endline="276">host_exerciser::he_cmd::he_start_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" compoundref="cxl__he__cache__cmd_8h" startline="1256">he_stride_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a1adff58b128d7f57593d15ed67a54fc6" compoundref="cxl__host__exerciser_8h" startline="63">host_exerciser::HE_WR_ADDR_TABLE_CTRL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" compoundref="cxl__he__cmd_8h" startline="352">host_exerciser::he_cmd::he_wr_cfg_</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248ab29c859275463170cc2bbb6e2fb0297c" compoundref="cxl__host__exerciser_8h" startline="62">host_exerciser::HE_WR_CONFIG</references>
+        <references refid="namespacehost__exerciser_1aa650b87101d59c62f5aeee6f8e767248a3b1b6c8c2fcbf57ad624de1077356fd4" compoundref="cxl__host__exerciser_8h" startline="60">host_exerciser::HE_WR_NUM_LINES</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" compoundref="cxl__he__cmd_8h" startline="176" endline="218">host_exerciser::he_cmd::host_exerciser_errors</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" compoundref="cxl__he__cmd_8h" startline="353">host_exerciser::he_cmd::rd_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" compoundref="he__cache__test_8h" startline="508" endline="511">opae::afu_test::afu::read64</references>
+        <references refid="unionhost__exerciser_1_1he__info_1aaaf25a13dda64632f7091cc099d097c5" compoundref="cxl__host__exerciser_8h" startline="138">host_exerciser::he_info::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__config_1accd244b7cfc37a62fc034a2eb3098623" compoundref="cxl__host__exerciser_8h" startline="168">host_exerciser::he_wr_config::value</references>
+        <references refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" compoundref="cxl__host__exerciser_8h" startline="186">host_exerciser::he_wr_addr_table_ctrl::value</references>
+        <references refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl_1a7992154b1fd2f7028221f3aeb840b0a4" compoundref="cxl__host__exerciser_8h" startline="235">host_exerciser::he_rd_addr_table_ctrl::value</references>
+        <references refid="namespacehost__exerciser_1af1c4e1cf2fb828e63fa13fab9b8d34dfa56f244dab07fac79a257306c87d88468" compoundref="cxl__host__exerciser_8h" startline="92">host_exerciser::WR_PUSH_I</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" compoundref="cxl__he__cmd_8h" startline="354">host_exerciser::he_cmd::wr_table_ctl_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" compoundref="cxl__he__cache__cmd_8h" startline="1178" endline="1250">run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a060899ac85f7634bc4a83ec3b771234b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void host_exerciser::he_cache_cmd::he_forcetestcmpl</definition>
+        <argsstring>()</argsstring>
+        <name>he_forcetestcmpl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1143" column="8" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1143" bodyend="1156"/>
+        <references refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" compoundref="cxl__host__exerciser_8h" startline="58">host_exerciser::HE_CTL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" compoundref="cxl__he__cmd_8h" startline="349">host_exerciser::he_cmd::he_ctl_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9">usleep</references>
+        <references refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" compoundref="cxl__host__exerciser_8h" startline="125">host_exerciser::he_ctl::value</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" compoundref="cxl__he__cache__cmd_8h" startline="1159" endline="1176">he_continuousmode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool host_exerciser::he_cache_cmd::he_continuousmode</definition>
+        <argsstring>()</argsstring>
+        <name>he_continuousmode</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1159" column="8" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1159" bodyend="1176"/>
+        <references refid="cxl__he__cache__cmd_8h_1a4f532053bdd1e2f076153f1063783b6e" compoundref="cxl__he__cache__cmd_8h" startline="35">g_he_exit</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" compoundref="cxl__he__cache__cmd_8h" startline="1253">he_continuousmode_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ac516e18c3f57820b78488ea0cfe24cdd" compoundref="cxl__he__cache__cmd_8h" startline="1254">he_contmodetime_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a060899ac85f7634bc4a83ec3b771234b" compoundref="cxl__he__cache__cmd_8h" startline="1143" endline="1156">he_forcetestcmpl</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int host_exerciser::he_cache_cmd::run</definition>
+        <argsstring>(test_afu *afu, CLI::App *app)</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd">run</reimplements>
+        <param>
+          <type><ref refid="namespacehost__exerciser_1a3396b0a2f5f048347375ed7968bf936f" kindref="member">test_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="1178" column="15" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="1178" bodyend="1250"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="namespacehost__exerciser_1afc876826cec1f18e5dd446b0556f409aabd5379c2a756d7f71b6707abdfc88089" compoundref="cxl__host__exerciser_8h" startline="58">host_exerciser::HE_CTL</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" compoundref="cxl__he__cmd_8h" startline="349">host_exerciser::he_cmd::he_ctl_</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ad211a335379d690f23f9561bdd1e4aea" compoundref="cxl__host__exerciser_8h" startline="283">host_exerciser::HE_FPGA_RD_CACHE_HIT</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979afc8a66080da962c0f662ff19ec429a0b" compoundref="cxl__host__exerciser_8h" startline="286">host_exerciser::HE_FPGA_RD_CACHE_MISS</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ae25066dd8d70eddfe8b4fb3f9771c92a" compoundref="cxl__host__exerciser_8h" startline="284">host_exerciser::HE_FPGA_WR_CACHE_HIT</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ac7679022e0d491948f9439be39524836" compoundref="cxl__host__exerciser_8h" startline="287">host_exerciser::HE_FPGA_WR_CACHE_MISS</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979a237b3d2bbc5e51b408936c8879e0ef8e" compoundref="cxl__host__exerciser_8h" startline="289">host_exerciser::HE_HOST_RD_CACHE_HIT</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ac1f7a621fcee208489af401304507857" compoundref="cxl__host__exerciser_8h" startline="292">host_exerciser::HE_HOST_RD_CACHE_MISS</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979a67f17167a9df28c18e6125573d488bfa" compoundref="cxl__host__exerciser_8h" startline="290">host_exerciser::HE_HOST_WR_CACHE_HIT</references>
+        <references refid="namespacehost__exerciser_1aa80f63fac1f69c78c803dc78b3e31979ab048697a1ec0a6ef71078d01dab304ee" compoundref="cxl__host__exerciser_8h" startline="293">host_exerciser::HE_HOST_WR_CACHE_MISS</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" compoundref="cxl__he__cache__cmd_8h" startline="132" endline="300">he_run_fpga_rd_cache_hit_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" compoundref="cxl__he__cache__cmd_8h" startline="452" endline="579">he_run_fpga_rd_cache_miss_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">he_run_fpga_wr_cache_hit_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">he_run_fpga_wr_cache_miss_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" compoundref="cxl__he__cache__cmd_8h" startline="681" endline="819">he_run_host_rd_cache_hit_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" compoundref="cxl__he__cache__cmd_8h" startline="924" endline="1047">he_run_host_rd_cache_miss_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">he_run_host_wr_cache_hit_test</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">he_run_host_wr_cache_miss_test</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ae2911007f89cd36d54495a534b405721" compoundref="cxl__he__cmd_8h" startline="243" endline="265">host_exerciser::he_cmd::he_set_bias_mode</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" compoundref="cxl__he__cache__cmd_8h" startline="1260">he_stride_cmd_</references>
+        <references refid="classhost__exerciser_1_1he__cache__cmd_1aa4864cede6f93292a6ec178b5ee098c6" compoundref="cxl__he__cache__cmd_8h" startline="1257">he_test_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" compoundref="cxl__he__cmd_8h" startline="343">host_exerciser::he_cmd::host_exe_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" compoundref="cxl__he__cmd_8h" startline="345">host_exerciser::he_cmd::numa_node_</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1ae405e118f67c274dcd176d16467df79c" compoundref="cxl__he__cmd_8h" startline="102" endline="174">host_exerciser::he_cmd::print_csr</references>
+        <references refid="unionhost__exerciser_1_1he__ctl_1a066fc894df88d1a22eef795038163e7d" compoundref="cxl__host__exerciser_8h" startline="125">host_exerciser::he_ctl::value</references>
+        <references refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" compoundref="cxl__he__cmd_8h" startline="278" endline="301">host_exerciser::he_cmd::verify_numa_node</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" compoundref="he__cache__test_8h" startline="513" endline="516">opae::afu_test::afu::write64</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="2">
+        <label>host_exerciser::he_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>host_exerciser::he_cache_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cache__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="9">
+        <label>host_exerciser::he_info</label>
+        <link refid="unionhost__exerciser_1_1he__info"/>
+      </node>
+      <node id="10">
+        <label>host_exerciser::he_rd_config</label>
+        <link refid="unionhost__exerciser_1_1he__rd__config"/>
+      </node>
+      <node id="6">
+        <label>host_exerciser::he_wr_addr_table_ctrl</label>
+        <link refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl"/>
+      </node>
+      <node id="3">
+        <label>test_command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+      <node id="4">
+        <label>host_exerciser::host_exerciser</label>
+        <link refid="classhost__exerciser_1_1host__exerciser"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>host_exerciser::he_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cmd"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#host_exe_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#wr_table_ctl_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>#he_wr_cfg_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>#he_ctl_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#he_info_</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>#he_rd_cfg_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>#rd_table_ctl_</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>host_exerciser::he_rd_addr_table_ctrl</label>
+        <link refid="unionhost__exerciser_1_1he__rd__addr__table__ctrl"/>
+      </node>
+      <node id="8">
+        <label>host_exerciser::he_ctl</label>
+        <link refid="unionhost__exerciser_1_1he__ctl"/>
+      </node>
+      <node id="1">
+        <label>host_exerciser::he_cache_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cache__cmd"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>host_exerciser::he_wr_config</label>
+        <link refid="unionhost__exerciser_1_1he__wr__config"/>
+      </node>
+      <node id="5">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" line="49" column="1" bodyfile="samples/cxl_host_exerciser/cxl_he_cache_cmd.h" bodystart="49" bodyend="1263"/>
+    <listofallmembers>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>add_options</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1adc969104b344f02d51efe21402fec3b4" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>afu_id</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>command</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a41dc4ccfd8a759ce5e4b0c3938c4247a" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>description</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1af36a2ca6d571c1a7afe9d5228c93743d" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>featureid</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>get_ticks</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a97721da6ffb1f46a1f2b0cee970774b8" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>guidh</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a3d15cc0e3c84891d1f51967714c669ae" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>guidl</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ab89826b350afe5ab4fce536a82fc745e" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_bias_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a8c785d49f1bcdc97dfe628e2c6b73f0b" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_cache_cmd</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a2d45199e7732d491a7064eea6ca587ed" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_clock_mhz_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a8539577c086f6e436b3d80e4e21e14d3" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_cls_count_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ae16a7859284a742398f3ec3340897faf" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_cmd</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a762fa5cf0c7c151b44c11184a2f2e87a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_continuousmode</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1ad662e355b75488c1e0eb155335badaac" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_continuousmode_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1ac516e18c3f57820b78488ea0cfe24cdd" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_contmodetime_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ab34ca6db81f3f50c8ab368fd27e6a9c9" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_ctl_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a53a60243c460e1f5465c2646d55f45c1" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_dev_instance_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a060899ac85f7634bc4a83ec3b771234b" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_forcetestcmpl</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_get_perf</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ad49704bb2bf6ccfcd38a6f97c8f9d68c" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_info_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1ae9bd9e13f5b9cc9e2e64be79a2d59a8f" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_latency_iterations_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a31dce311f00c89932259680f7429945c" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_linerep_count_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1aa00565e79a248e635ea25986fdbf41d0" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_num_xfers_to_bw</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_perf_counters</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a4cc72bfa28ed905f24925b9a36f48209" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_rd_cfg_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1af698fea396aaf2c7082070b775507974" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_fpga_rd_cache_hit_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a757f7242d634e1868f2bb74d96919895" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_fpga_rd_cache_miss_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_fpga_wr_cache_hit_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_fpga_wr_cache_miss_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a250727bf9827f6987ce8dbbb17bdd5f5" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_host_rd_cache_hit_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1aca5dc55e285d1ee8da150d2cbdd7118f" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_host_rd_cache_miss_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_host_wr_cache_hit_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_run_host_wr_cache_miss_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ae2911007f89cd36d54495a534b405721" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_set_bias_mode</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a620842e34b55acae0ed65870f2aa3b17" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_start_test</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a3d2902767bc99ffda4c5e09ac4eba815" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_stride_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1ab6f97df0fc6c78c776a9876556b0770f" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_stride_cmd_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a5a1a28a1c79bd7d58f0b1741a094d2af" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_target_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1aa4864cede6f93292a6ec178b5ee098c6" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_test_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a857ad914201b7132e32ff7c785576ea8" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_test_all_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_wait_test_completion</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ac68c9fa27b0e8699ca401c64930ae262" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>he_wr_cfg_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1aee1926f43ce4f9e05d108bf7a4df862f" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>host_exe_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a7677d9010bc02b8a520b12d1a1ff4625" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>host_exerciser_errors</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a817e135851552b388df4af1039f51e39" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>name</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1af6bc7cba5e077c535db0aa67c6a4bf07" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>numa_node_</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1af3fd4e59c9b27facd6b78a7bded1bc04" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>parse_input_options</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1ae405e118f67c274dcd176d16467df79c" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>print_csr</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>ptr_t</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a90da23fb1585370e8ae38ce073420c7b" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>rd_table_ctl_</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>run</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>running_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>stop</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a82424fd9783c7d0316e43fe030b18620" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>verify_numa_node</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a48cc8df12dc8e7f58cf302865eb31b3c" prot="protected" virt="non-virtual"><scope>host_exerciser::he_cache_cmd</scope><name>wr_table_ctl_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>~command</name></member>
+      <member refid="classhost__exerciser_1_1he__cache__cmd_1a8a973b9525ef874425536585cb288c26" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>~he_cache_cmd</name></member>
+      <member refid="classhost__exerciser_1_1he__cmd_1a976086a0f5886ad570642a152c26d560" prot="public" virt="virtual"><scope>host_exerciser::he_cache_cmd</scope><name>~he_cmd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

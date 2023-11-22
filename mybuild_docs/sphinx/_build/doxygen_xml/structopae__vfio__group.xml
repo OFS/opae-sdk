@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__group" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_group</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__group_1aa7f7d7923d85bdb630b0b1ec49be5f92" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* opae_vfio_group::group_device</definition>
+        <argsstring></argsstring>
+        <name>group_device</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Full path to the group device. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="70" column="6" bodyfile="include/opae/vfio.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__group_1a51d7ad18b5d27f7713877bc9e7f31c92" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae_vfio_group::group_fd</definition>
+        <argsstring></argsstring>
+        <name>group_fd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>File descriptor for the group device. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="71" column="5" bodyfile="include/opae/vfio.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>VFIO group</para>
+<para>Each device managed by vfio-pci belongs to a VFIO group rooted at /dev/vfio/N, where N is the group number. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_vfio_group</label>
+        <link refid="structopae__vfio__group"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="69" column="1" bodyfile="include/opae/vfio.h" bodystart="69" bodyend="72"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__group_1aa7f7d7923d85bdb630b0b1ec49be5f92" prot="public" virt="non-virtual"><scope>opae_vfio_group</scope><name>group_device</name></member>
+      <member refid="structopae__vfio__group_1a51d7ad18b5d27f7713877bc9e7f31c92" prot="public" virt="non-virtual"><scope>opae_vfio_group</scope><name>group_fd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

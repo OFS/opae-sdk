@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="unionhost__exerciser_1_1he__wr__addr__table__ctrl" kind="union" language="C++" prot="public">
+    <compoundname>host_exerciser::he_wr_addr_table_ctrl</compoundname>
+    <includes refid="cxl__host__exerciser_8h" local="no">/root/samples/cxl_host_exerciser/cxl_host_exerciser.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a472c206e1bb60d08238126b6ba711fdf" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@22</name>
+        <enumvalue id="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a472c206e1bb60d08238126b6ba711fdfad279c414308721c163fbcc04e625828c" prot="public">
+          <name>offset</name>
+          <initializer>= HE_WR_ADDR_TABLE_CTRL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="185" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="185" bodyend="185"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_wr_addr_table_ctrl::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="186" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="186" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1ae16a7859284a742398f3ec3340897faf" compoundref="cxl__he__cmd_8h" startline="42" endline="51">host_exerciser::he_cmd::he_cmd</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a49cb8e1fbb80fbdf1b17086c5c41bfbc" compoundref="cxl__he__cache__cmd_8h" startline="302" endline="450">host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1ad52d911bd48ffa4ed15f60b016949e0a" compoundref="cxl__he__cache__cmd_8h" startline="581" endline="679">host_exerciser::he_cache_cmd::he_run_fpga_wr_cache_miss_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a659777c8ecf70cf2ef2c01394da45ff1" compoundref="cxl__he__cache__cmd_8h" startline="821" endline="922">host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1acd2cfde882772e681f798a074b09652a" compoundref="cxl__he__cache__cmd_8h" startline="1049" endline="1140">host_exerciser::he_cache_cmd::he_run_host_wr_cache_miss_test</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1ab5a02e842fb0606552a4aa2103c2e544" prot="public" static="no" mutable="no">
+        <type>struct host_exerciser::he_wr_addr_table_ctrl::@23</type>
+        <definition>struct host_exerciser::he_wr_addr_table_ctrl::@23 host_exerciser::he_wr_addr_table_ctrl::@24</definition>
+        <argsstring></argsstring>
+        <name>@24</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="192" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_wr_addr_table_ctrl</label>
+        <link refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="184" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="184" bodyend="193"/>
+    <listofallmembers>
+      <member refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a472c206e1bb60d08238126b6ba711fdfad279c414308721c163fbcc04e625828c" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_addr_table_ctrl</scope><name>offset</name></member>
+      <member refid="unionhost__exerciser_1_1he__wr__addr__table__ctrl_1a007fbeef981749640f30468b1e0d171f" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_addr_table_ctrl</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

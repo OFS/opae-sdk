@@ -1,0 +1,171 @@
+\doxysection{hssi\+\_\+200g\+\_\+400g\+\_\+cmd Class Reference}
+\label{classhssi__200g__400g__cmd}\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+
+
+{\ttfamily \#include $<$/root/samples/hssi/hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h$>$}
+
+Inheritance diagram for hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classhssi__200g__400g__cmd}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classhssi__200g__400g__cmd_a6576b0cd822b6905274bfc28378cb4ff}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}} ()
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classhssi__200g__400g__cmd_aa5bca1a5de01d4255636ecea60a873dc}{name}} () const override
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classhssi__200g__400g__cmd_a401a104aba6f68ad2eb94ce2e164bb40}{description}} () const override
+\item 
+virtual void \mbox{\hyperlink{classhssi__200g__400g__cmd_a191d1450d1fcfe7023bfac66efa7fc74}{add\+\_\+options}} (CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}) override
+\item 
+virtual int \mbox{\hyperlink{classhssi__200g__400g__cmd_ac363df78df0704d447931248f8e889ed}{run}} (\mbox{\hyperlink{cxl__tg__test_8h_abc250359b0b249806cbba4173e9644b4}{test\+\_\+afu}} $\ast$afu, CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}) override
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classhssi__200g__400g__cmd_a42c0511ab227d3cc418dc944d4ba24ab}{afu\+\_\+id}} () const override
+\item 
+std\+::ostream \& \mbox{\hyperlink{classhssi__200g__400g__cmd_a69cf64d96002221fa5916edc02336b3f}{print\+\_\+registers}} (std\+::ostream \&os, \mbox{\hyperlink{classhssi__afu}{hssi\+\_\+afu}} $\ast$hafu) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{classhssi__200g__400g__cmd_a41bf807af704f3bfb68c77eeca9a42f8}{num\+\_\+packets\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 95 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classhssi__200g__400g__cmd_a6576b0cd822b6905274bfc28378cb4ff}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{hssi\_200g\_400g\_cmd()}{hssi\_200g\_400g\_cmd()}}
+{\footnotesize\ttfamily hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::hssi\+\_\+200g\+\_\+400g\+\_\+cmd (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 97 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classhssi__200g__400g__cmd_aa5bca1a5de01d4255636ecea60a873dc}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!name@{name}}
+\index{name@{name}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{name()}{name()}}
+{\footnotesize\ttfamily virtual const char$\ast$ hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a2892a3d443d007a55cbfe9ec93835052}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 99 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{classhssi__200g__400g__cmd_a401a104aba6f68ad2eb94ce2e164bb40}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!description@{description}}
+\index{description@{description}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{description()}{description()}}
+{\footnotesize\ttfamily virtual const char$\ast$ hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::description (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a064a25924cdd32c14f4a68694f924d5e}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 101 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{classhssi__200g__400g__cmd_a191d1450d1fcfe7023bfac66efa7fc74}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!add\_options@{add\_options}}
+\index{add\_options@{add\_options}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{add\_options()}{add\_options()}}
+{\footnotesize\ttfamily virtual void hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::add\+\_\+options (\begin{DoxyParamCaption}\item[{CLI\+::\+App $\ast$}]{app }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{classopae_1_1afu__test_1_1command_aa91365cda1ee7a6049d8a5403b2e15e6}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 105 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+
+
+References app, and num\+\_\+packets\+\_\+.
+
+\mbox{\label{classhssi__200g__400g__cmd_ac363df78df0704d447931248f8e889ed}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!run@{run}}
+\index{run@{run}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::run (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{cxl__tg__test_8h_abc250359b0b249806cbba4173e9644b4}{test\+\_\+afu}} $\ast$}]{afu,  }\item[{CLI\+::\+App $\ast$}]{app }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a18fe26fd1da4bec29da4fbfbeb172bbd}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 111 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+
+
+References app, CSR\+\_\+\+AFU\+\_\+400\+G\+\_\+\+TG\+\_\+\+EN, CSR\+\_\+\+HW\+\_\+\+PC\+\_\+\+CTRL, CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+LOOP\+\_\+\+CNT, CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+ROM\+\_\+\+ADDR, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB, opae\+::afu\+\_\+test\+::afu\+::error, hssi\+\_\+afu\+::mbox\+\_\+read(), hssi\+\_\+afu\+::mbox\+\_\+write(), num\+\_\+packets\+\_\+, print\+\_\+registers(), opae\+::afu\+\_\+test\+::afu\+::read64(), opae\+::afu\+\_\+test\+::command\+::running(), opae\+::afu\+\_\+test\+::afu\+::success, TRAFFIC\+\_\+\+CTRL\+\_\+\+PORT\+\_\+\+SEL, USER\+\_\+\+CLKFREQ\+\_\+\+N6001, and opae\+::afu\+\_\+test\+::afu\+::write64().
+
+\mbox{\label{classhssi__200g__400g__cmd_a42c0511ab227d3cc418dc944d4ba24ab}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!afu\_id@{afu\_id}}
+\index{afu\_id@{afu\_id}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{afu\_id()}{afu\_id()}}
+{\footnotesize\ttfamily virtual const char$\ast$ hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::afu\+\_\+id (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a51d5c7afb132598121e20be5b0eab5fb}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 265 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+\mbox{\label{classhssi__200g__400g__cmd_a69cf64d96002221fa5916edc02336b3f}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!print\_registers@{print\_registers}}
+\index{print\_registers@{print\_registers}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{print\_registers()}{print\_registers()}}
+{\footnotesize\ttfamily std\+::ostream\& hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::print\+\_\+registers (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{os,  }\item[{\mbox{\hyperlink{classhssi__afu}{hssi\+\_\+afu}} $\ast$}]{hafu }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 274 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+
+
+References AFU\+\_\+\+SCRATCHPAD, CSR\+\_\+\+AFU\+\_\+400\+G\+\_\+\+TG\+\_\+\+EN, CSR\+\_\+\+HW\+\_\+\+PC\+\_\+\+CTRL, CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+LOOP\+\_\+\+CNT, CSR\+\_\+\+HW\+\_\+\+TEST\+\_\+\+ROM\+\_\+\+ADDR, CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+RX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+END\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TIMESTAMP\+\_\+\+TG\+\_\+\+START\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+EOP\+\_\+\+CNT\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+ERR\+\_\+\+CNT\+\_\+\+MSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+LSB, CSR\+\_\+\+STAT\+\_\+\+TX\+\_\+\+SOP\+\_\+\+CNT\+\_\+\+MSB, ETH\+\_\+\+AFU\+\_\+\+DFH, ETH\+\_\+\+AFU\+\_\+\+ID\+\_\+H, ETH\+\_\+\+AFU\+\_\+\+ID\+\_\+L, hssi\+\_\+cmd\+::int\+\_\+to\+\_\+hex(), hssi\+\_\+afu\+::mbox\+\_\+read(), opae\+::afu\+\_\+test\+::afu\+::read64(), TRAFFIC\+\_\+\+CTRL\+\_\+\+CMD, TRAFFIC\+\_\+\+CTRL\+\_\+\+DATA, and TRAFFIC\+\_\+\+CTRL\+\_\+\+PORT\+\_\+\+SEL.
+
+
+
+Referenced by run().
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classhssi__200g__400g__cmd_a41bf807af704f3bfb68c77eeca9a42f8}} 
+\index{hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}!num\_packets\_@{num\_packets\_}}
+\index{num\_packets\_@{num\_packets\_}!hssi\_200g\_400g\_cmd@{hssi\_200g\_400g\_cmd}}
+\doxysubsubsection{\texorpdfstring{num\_packets\_}{num\_packets\_}}
+{\footnotesize\ttfamily uint32\+\_\+t hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::num\+\_\+packets\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 373 of file hssi\+\_\+200g\+\_\+400g\+\_\+cmd.\+h.
+
+
+
+Referenced by add\+\_\+options(), and run().
+

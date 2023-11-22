@@ -1,0 +1,126 @@
+.TH "host_exerciser::he_cache_lpbk_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::he_cache_lpbk_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd\&.h>\fP
+.PP
+Inherits \fBhost_exerciser::he_cmd\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhe_cache_lpbk_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~he_cache_lpbk_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBfeatureid\fP () const override"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBguidl\fP () const override"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBguidh\fP () const override"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 33 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "host_exerciser::he_cache_lpbk_cmd::he_cache_lpbk_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 35 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.SS "virtual host_exerciser::he_cache_lpbk_cmd::~he_cache_lpbk_cmd ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 36 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* host_exerciser::he_cache_lpbk_cmd::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 38 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.SS "virtual const char* host_exerciser::he_cache_lpbk_cmd::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 40 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.SS "virtual const char* host_exerciser::he_cache_lpbk_cmd::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 44 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.PP
+References HE_CACHE_AFU_ID\&.
+.SS "virtual uint64_t host_exerciser::he_cache_lpbk_cmd::featureid () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 46 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.PP
+References MEM_TG_FEATURE_ID\&.
+.SS "virtual uint64_t host_exerciser::he_cache_lpbk_cmd::guidl () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 48 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.PP
+References MEM_TG_FEATURE_GUIDL\&.
+.SS "virtual uint64_t host_exerciser::he_cache_lpbk_cmd::guidh () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 50 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.PP
+References MEM_TG_FEATURE_GUIDH\&.
+.SS "virtual void host_exerciser::he_cache_lpbk_cmd::add_options (CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 51 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.PP
+References app, host_exerciser::he_cmd::he_target_, and host_exerciser::he_targets\&.
+.SS "virtual int host_exerciser::he_cache_lpbk_cmd::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 59 of file cxl_he_cache_lpbk_cmd\&.h\&.
+.PP
+References app, host_exerciser::HE_CTL, host_exerciser::he_cmd::he_ctl_, host_exerciser::he_cmd::host_exe_, host_exerciser::he_cmd::numa_node_, host_exerciser::he_ctl::value, host_exerciser::he_cmd::verify_numa_node(), and opae::afu_test::afu::write64()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

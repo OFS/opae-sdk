@@ -1,0 +1,346 @@
+.TH "opae::fpga::types::handle" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::handle
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/handle\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::shared_ptr< \fBhandle\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhandle\fP (const \fBhandle\fP &)=delete"
+.br
+.ti -1c
+.RI "\fBhandle\fP & \fBoperator=\fP (const \fBhandle\fP &)=delete"
+.br
+.ti -1c
+.RI "virtual \fB~handle\fP ()"
+.br
+.ti -1c
+.RI "\fBfpga_handle\fP \fBc_type\fP () const"
+.br
+.ti -1c
+.RI "\fBoperator fpga_handle\fP () const"
+.br
+.ti -1c
+.RI "void \fBreconfigure\fP (uint32_t slot, const uint8_t *bitstream, size_t size, int flags)"
+.br
+.RI "Load a bitstream into an FPGA slot\&. "
+.ti -1c
+.RI "uint32_t \fBread_csr32\fP (uint64_t offset, uint32_t csr_space=0) const"
+.br
+.RI "Read 32 bits from a CSR belonging to a resource associated with a handle\&. "
+.ti -1c
+.RI "void \fBwrite_csr32\fP (uint64_t offset, uint32_t value, uint32_t csr_space=0)"
+.br
+.RI "Write 32 bit to a CSR belonging to a resource associated with a handle\&. "
+.ti -1c
+.RI "uint64_t \fBread_csr64\fP (uint64_t offset, uint32_t csr_space=0) const"
+.br
+.RI "Read 64 bits from a CSR belonging to a resource associated with a handle\&. "
+.ti -1c
+.RI "void \fBwrite_csr64\fP (uint64_t offset, uint64_t value, uint32_t csr_space=0)"
+.br
+.RI "Write 64 bits to a CSR belonging to a resource associated with a handle\&. "
+.ti -1c
+.RI "void \fBwrite_csr512\fP (uint64_t offset, const void *value, uint32_t csr_space=0)"
+.br
+.RI "Write 512 bits to a CSR belonging to a resource associated with a handle\&. "
+.ti -1c
+.RI "uint8_t * \fBmmio_ptr\fP (uint64_t offset, uint32_t csr_space=0) const"
+.br
+.ti -1c
+.RI "virtual void \fBreset\fP ()"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBclose\fP ()"
+.br
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBget_token\fP () const"
+.br
+.ti -1c
+.RI "uint32_t \fBbind_sva\fP ()"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBhandle::ptr_t\fP \fBopen\fP (\fBfpga_token\fP \fBtoken\fP, int flags)"
+.br
+.ti -1c
+.RI "static \fBhandle::ptr_t\fP \fBopen\fP (\fBtoken::ptr_t\fP \fBtoken\fP, int flags)"
+.br
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhandle\fP (\fBfpga_handle\fP h)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_handle\fP \fBhandle_\fP"
+.br
+.ti -1c
+.RI "\fBfpga_token\fP \fBtoken_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBpasid_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+An allocated accelerator resource
+.PP
+Represents an accelerator resource that has been allocated by OPAE\&. Depending on the type of resource, its register space may be read/written using a handle object\&. 
+.PP
+Definition at line 45 of file handle\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::shared_ptr<\fBhandle\fP> \fBopae::fpga::types::handle::ptr_t\fP"
+
+.PP
+Definition at line 47 of file handle\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::handle::handle (const \fBhandle\fP &)\fC [delete]\fP"
+
+.SS "virtual opae::fpga::types::handle::~handle ()\fC [virtual]\fP"
+
+.SS "opae::fpga::types::handle::handle (\fBfpga_handle\fP h)\fC [private]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBhandle\fP& opae::fpga::types::handle::operator= (const \fBhandle\fP &)\fC [delete]\fP"
+
+.SS "\fBfpga_handle\fP opae::fpga::types::handle::c_type () const\fC [inline]\fP"
+Retrieve the underlying OPAE handle\&. 
+.PP
+Definition at line 56 of file handle\&.h\&.
+.PP
+References handle_\&.
+.SS "opae::fpga::types::handle::operator \fBfpga_handle\fP () const\fC [inline]\fP"
+Retrieve the underlying OPAE handle\&. 
+.PP
+Definition at line 60 of file handle\&.h\&.
+.PP
+References handle_\&.
+.SS "void opae::fpga::types::handle::reconfigure (uint32_t slot, const uint8_t * bitstream, size_t size, int flags)"
+
+.PP
+Load a bitstream into an FPGA slot\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIslot\fP The slot number to program 
+.br
+\fIbitstream\fP The bitstream binary data 
+.br
+\fIsize\fP The size of the bitstream 
+.br
+\fIflags\fP Flags that control behavior of reconfiguration\&. Value of 0 indicates no flags\&. FPGA_RECONF_FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use\&.
+.RE
+.PP
+\fBExceptions\fP
+.RS 4
+\fI\fBinvalid_param\fP\fP if the handle is not an FPGA device handle or if the other parameters are not valid\&. 
+.br
+\fIexception\fP if an internal error is encountered\&. 
+.br
+\fIbusy\fP if the accelerator for the given slot is in use\&. 
+.br
+\fI\fBreconf_error\fP\fP if errors are reported by the driver (CRC or protocol errors)\&. 
+.RE
+.PP
+
+.SS "uint32_t opae::fpga::types::handle::read_csr32 (uint64_t offset, uint32_t csr_space = \fC0\fP) const"
+
+.PP
+Read 32 bits from a CSR belonging to a resource associated with a handle\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The register offset 
+.br
+\fIcsr_space\fP The CSR space to read from\&. Default is 0\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The 32-bit value read from the CSR 
+.RE
+.PP
+
+.SS "void opae::fpga::types::handle::write_csr32 (uint64_t offset, uint32_t value, uint32_t csr_space = \fC0\fP)"
+
+.PP
+Write 32 bit to a CSR belonging to a resource associated with a handle\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The register offset\&. 
+.br
+\fIvalue\fP The 32-bit value to write to the register\&. 
+.br
+\fIcsr_space\fP The CSR space to read from\&. Default is 0\&. 
+.RE
+.PP
+
+.SS "uint64_t opae::fpga::types::handle::read_csr64 (uint64_t offset, uint32_t csr_space = \fC0\fP) const"
+
+.PP
+Read 64 bits from a CSR belonging to a resource associated with a handle\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The register offset 
+.br
+\fIcsr_space\fP The CSR space to read from\&. Default is 0\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The 64-bit value read from the CSR 
+.RE
+.PP
+
+.SS "void opae::fpga::types::handle::write_csr64 (uint64_t offset, uint64_t value, uint32_t csr_space = \fC0\fP)"
+
+.PP
+Write 64 bits to a CSR belonging to a resource associated with a handle\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The register offset\&. 
+.br
+\fIvalue\fP The 64-bit value to write to the register\&. 
+.br
+\fIcsr_space\fP The CSR space to read from\&. Default is 0\&. 
+.RE
+.PP
+
+.SS "void opae::fpga::types::handle::write_csr512 (uint64_t offset, const void * value, uint32_t csr_space = \fC0\fP)"
+
+.PP
+Write 512 bits to a CSR belonging to a resource associated with a handle\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The register offset\&. 
+.br
+\fIvalue\fP Pointer to the 512-bit value to write to the register\&. 
+.br
+\fIcsr_space\fP The CSR space to read from\&. Default is 0\&. 
+.RE
+.PP
+
+.SS "uint8_t* opae::fpga::types::handle::mmio_ptr (uint64_t offset, uint32_t csr_space = \fC0\fP) const"
+Retrieve a pointer to the MMIO region\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIoffset\fP The byte offset to add to MMIO base\&. 
+.br
+\fIcsr_space\fP The desired CSR space\&. Default is 0\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+MMIO base + offset 
+.RE
+.PP
+
+.SS "static \fBhandle::ptr_t\fP opae::fpga::types::handle::open (\fBfpga_token\fP token, int flags)\fC [static]\fP"
+Open an accelerator resource, given a raw fpga_token
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP A token describing the accelerator resource to be allocated\&.
+.br
+\fIflags\fP The flags parameter to \fBfpgaOpen()\fP\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+pointer to the mmio base + offset for the given csr space 
+.RE
+.PP
+
+.SS "static \fBhandle::ptr_t\fP opae::fpga::types::handle::open (\fBtoken::ptr_t\fP token, int flags)\fC [static]\fP"
+Open an accelerator resource, given a token object
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP A token object describing the accelerator resource to be allocated\&.
+.br
+\fIflags\fP The flags parameter to \fBfpgaOpen()\fP\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+shared ptr to a handle object 
+.RE
+.PP
+
+.SS "virtual void opae::fpga::types::handle::reset ()\fC [virtual]\fP"
+Reset the accelerator identified by this handle 
+.SS "\fBfpga_result\fP opae::fpga::types::handle::close ()"
+Close an accelerator resource (if opened)
+.PP
+\fBReturns\fP
+.RS 4
+fpga_result indication the result of closing the handle or FPGA_EXCEPTION if handle is not opened
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This is available for explicitly closing a handle\&. The destructor for handle will call close\&. 
+.RE
+.PP
+
+.SS "\fBtoken::ptr_t\fP opae::fpga::types::handle::get_token () const"
+Retrieve the token corresponding to this handle object\&. 
+.SS "uint32_t opae::fpga::types::handle::bind_sva ()"
+Bind IOMMU shared virtual addressing
+.PP
+\fBReturns\fP
+.RS 4
+the non-zero process address space ID on success or zero on failure\&. 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "\fBfpga_handle\fP opae::fpga::types::handle::handle_\fC [private]\fP"
+
+.PP
+Definition at line 199 of file handle\&.h\&.
+.PP
+Referenced by c_type(), and operator fpga_handle()\&.
+.SS "\fBfpga_token\fP opae::fpga::types::handle::token_\fC [private]\fP"
+
+.PP
+Definition at line 200 of file handle\&.h\&.
+.SS "uint32_t opae::fpga::types::handle::pasid_\fC [private]\fP"
+
+.PP
+Definition at line 201 of file handle\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

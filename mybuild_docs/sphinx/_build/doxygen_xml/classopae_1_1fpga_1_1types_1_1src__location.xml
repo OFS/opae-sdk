@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1src__location" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::src_location</compoundname>
+    <includes refid="except_8h" local="no">opae/cxx/core/except.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1src__location_1a5f8a4ed4689e7dbafb4b6d78057c064c" prot="private" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* opae::fpga::types::src_location::file_</definition>
+        <argsstring></argsstring>
+        <name>file_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="63" column="14" bodyfile="include/opae/cxx/core/except.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1src__location_1a1bb3647316406de3745e3f65af4108e6" prot="private" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* opae::fpga::types::src_location::fn_</definition>
+        <argsstring></argsstring>
+        <name>fn_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="64" column="14" bodyfile="include/opae/cxx/core/except.h" bodystart="64" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1src__location_1a85e8edcb82dd85fbbb53c327541bd667" compoundref="except_8h" startline="56" endline="56">fn</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1src__location_1ae2b7d039ac7da1702409ee07028ab6cf" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae::fpga::types::src_location::line_</definition>
+        <argsstring></argsstring>
+        <name>line_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="65" column="7" bodyfile="include/opae/cxx/core/except.h" bodystart="65" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1src__location_1a9dfb5ebf31b205490604b1ee60359cff" compoundref="except_8h" startline="60" endline="60">line</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1src__location_1aa873a93570e4652a4ca9e806d94fa7f6" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::src_location::src_location</definition>
+        <argsstring>(const char *file, const char *fn, int line) noexcept</argsstring>
+        <name>src_location</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>fn</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref> constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">file</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The source file name, typically <bold>FILE</bold>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">fn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The current function, typically <bold>func</bold>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The current line number, typically <bold>LINE</bold>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="44" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1src__location_1a0df0d9a994b3c66491ac4ee85ba5cba5" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::src_location::src_location</definition>
+        <argsstring>(const src_location &amp;other) noexcept</argsstring>
+        <name>src_location</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="46" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1src__location_1a51cbdd224603d8523c99ccb21f1908fa" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref> &amp;</type>
+        <definition>src_location&amp; opae::fpga::types::src_location::operator=</definition>
+        <argsstring>(const src_location &amp;other) noexcept</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1src__location" kindref="compound">src_location</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="48" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1src__location_1a82f6ed23a0d1d947b0f1754ed066e45d" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* opae::fpga::types::src_location::file</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>file</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the file name component of the location. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="52" column="14"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1src__location_1a85e8edcb82dd85fbbb53c327541bd667" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* opae::fpga::types::src_location::fn</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>fn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the function name component of the location. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="56" column="14" bodyfile="include/opae/cxx/core/except.h" bodystart="56" bodyend="56"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1src__location_1a1bb3647316406de3745e3f65af4108e6" compoundref="except_8h" startline="64">fn_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1src__location_1a9dfb5ebf31b205490604b1ee60359cff" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae::fpga::types::src_location::line</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>line</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the line number component of the location. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/except.h" line="60" column="7" bodyfile="include/opae/cxx/core/except.h" bodystart="60" bodyend="60"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1src__location_1ae2b7d039ac7da1702409ee07028ab6cf" compoundref="except_8h" startline="65">line_</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Identify a particular line in a source file. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::src_location</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1src__location"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/except.h" line="37" column="1" bodyfile="include/opae/cxx/core/except.h" bodystart="37" bodyend="66"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a82f6ed23a0d1d947b0f1754ed066e45d" prot="public" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>file</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a5f8a4ed4689e7dbafb4b6d78057c064c" prot="private" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>file_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a85e8edcb82dd85fbbb53c327541bd667" prot="public" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>fn</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a1bb3647316406de3745e3f65af4108e6" prot="private" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>fn_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a9dfb5ebf31b205490604b1ee60359cff" prot="public" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>line</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1ae2b7d039ac7da1702409ee07028ab6cf" prot="private" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>line_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a51cbdd224603d8523c99ccb21f1908fa" prot="public" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>operator=</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1aa873a93570e4652a4ca9e806d94fa7f6" prot="public" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>src_location</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1src__location_1a0df0d9a994b3c66491ac4ee85ba5cba5" prot="public" virt="non-virtual"><scope>opae::fpga::types::src_location</scope><name>src_location</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

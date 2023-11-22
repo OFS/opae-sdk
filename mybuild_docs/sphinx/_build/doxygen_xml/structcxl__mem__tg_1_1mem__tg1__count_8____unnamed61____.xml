@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61____" kind="struct" language="C++" prot="public">
+    <compoundname>cxl_mem_tg::mem_tg1_count.__unnamed61__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61_____1ae2942a04780e223b215eb8b663cf5353" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <bitfield> 64</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="178" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>cxl_mem_tg::mem_tg1_count.__unnamed61__</label>
+        <link refid="structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="177" column="3" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="177" bodyend="179"/>
+    <listofallmembers>
+      <member refid="structcxl__mem__tg_1_1mem__tg1__count_8____unnamed61_____1ae2942a04780e223b215eb8b663cf5353" prot="public" virt="non-virtual"><scope>cxl_mem_tg::mem_tg1_count.__unnamed61__</scope><name>count</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

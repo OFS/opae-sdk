@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1error" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::error</compoundname>
+    <includes refid="errors_8h" local="no">opae/cxx/core/errors.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1error_1a1ebeb4e4a63d9807d50c13b98a07ac2f" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1error" kindref="compound">error</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;error&gt; opae::fpga::types::error::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="44" column="27" bodyfile="include/opae/cxx/core/errors.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1error_1a8fed4f6624e3d0644525642468c52d60" prot="private" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+        <definition>token::ptr_t opae::fpga::types::error::token_</definition>
+        <argsstring></argsstring>
+        <name>token_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="94" column="16" bodyfile="include/opae/cxx/core/errors.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1error_1a686b42984c8fce14c6ebfb102d8a9a64" prot="private" static="no" mutable="no">
+        <type><ref refid="structfpga__error__info" kindref="compound">fpga_error_info</ref></type>
+        <definition>fpga_error_info opae::fpga::types::error::error_info_</definition>
+        <argsstring></argsstring>
+        <name>error_info_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="95" column="19" bodyfile="include/opae/cxx/core/errors.h" bodystart="95" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1error_1a9817aa22e5e5ba22a32bd203ebdf22a8" compoundref="errors_8h" startline="90" endline="90">c_type</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1error_1a7adabe502dd600e493263d684359e7ac" compoundref="errors_8h" startline="73" endline="73">can_clear</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1error_1a30ead52bd6a86f4a3cc7045e9dce0c20" compoundref="errors_8h" startline="66" endline="66">name</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1error_1afb19c6ae95eb21e047925477adc9f3b4" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae::fpga::types::error::error_num_</definition>
+        <argsstring></argsstring>
+        <name>error_num_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="96" column="12" bodyfile="include/opae/cxx/core/errors.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a81fa63e406170f777b19ede3889845be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::error::error</definition>
+        <argsstring>(const error &amp;e)=delete</argsstring>
+        <name>error</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1error" kindref="compound">error</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="46" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a736a48278182c76699a959192ab23bf7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1error" kindref="compound">error</ref> &amp;</type>
+        <definition>error&amp; opae::fpga::types::error::operator=</definition>
+        <argsstring>(const error &amp;e)=delete</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1error" kindref="compound">error</ref> &amp;</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="48" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a30ead52bd6a86f4a3cc7045e9dce0c20" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string opae::fpga::types::error::name</definition>
+        <argsstring>()</argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Get the error register name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>A std::string object set to the error name. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="66" column="15" bodyfile="include/opae/cxx/core/errors.h" bodystart="66" bodyend="66"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1error_1a686b42984c8fce14c6ebfb102d8a9a64" compoundref="errors_8h" startline="95">error_info_</references>
+        <references refid="structfpga__error__info_1a63e0ccbeddbe44792e1c1f7375243751" compoundref="types_8h" startline="170">fpga_error_info::name</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a7adabe502dd600e493263d684359e7ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool opae::fpga::types::error::can_clear</definition>
+        <argsstring>()</argsstring>
+        <name>can_clear</name>
+        <briefdescription>
+<para>Indicates whether an error register can be cleared. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>A boolean value indicating if the error register can be cleared. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="73" column="8" bodyfile="include/opae/cxx/core/errors.h" bodystart="73" bodyend="73"/>
+        <references refid="structfpga__error__info_1a8f3a6c3707e10f13a55662a081494e69" compoundref="types_8h" startline="171">fpga_error_info::can_clear</references>
+        <references refid="classopae_1_1fpga_1_1types_1_1error_1a686b42984c8fce14c6ebfb102d8a9a64" compoundref="errors_8h" startline="95">error_info_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1acc656f405ba3e3b500604ad64ff0b970" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::error::read_value</definition>
+        <argsstring>()</argsstring>
+        <name>read_value</name>
+        <briefdescription>
+<para>Read the raw value contained in the associated error register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>A 64-bit value (unparsed) read from the error register </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="80" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a98daa1df4a7d000945797a3259153a6d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::error::~error</definition>
+        <argsstring>()</argsstring>
+        <name>~error</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="82" column="3" bodyfile="include/opae/cxx/core/errors.h" bodystart="82" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a9817aa22e5e5ba22a32bd203ebdf22a8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structfpga__error__info" kindref="compound">fpga_error_info</ref></type>
+        <definition>fpga_error_info opae::fpga::types::error::c_type</definition>
+        <argsstring>() const</argsstring>
+        <name>c_type</name>
+        <briefdescription>
+<para>Get the C data structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The <ref refid="structfpga__error__info" kindref="compound">fpga_error_info</ref> that contains the name and the can_clear boolean. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="90" column="19" bodyfile="include/opae/cxx/core/errors.h" bodystart="90" bodyend="90"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1error_1a686b42984c8fce14c6ebfb102d8a9a64" compoundref="errors_8h" startline="95">error_info_</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a75af4be53a11d3e79639a84c79209567" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1error_1a1ebeb4e4a63d9807d50c13b98a07ac2f" kindref="member">error::ptr_t</ref></type>
+        <definition>static error::ptr_t opae::fpga::types::error::get</definition>
+        <argsstring>(token::ptr_t tok, uint32_t num)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+          <declname>tok</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Factory function for creating an error object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tok</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The token object representing a resource. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The index of the error register. This must be lower than the num_errors property of the resource.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A shared_ptr containing the error object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="59" column="23"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1error_1a1acdf18b1cb09e0ee1539a6f845c8251" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::error::error</definition>
+        <argsstring>(token::ptr_t token, uint32_t num)</argsstring>
+        <name>error</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/errors.h" line="93" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An error object represents an error register for a resource. This is used to read out the raw value in the register. No parsing is done by this class. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::error</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1error"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>-error_info_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>fpga_error_info</label>
+        <link refid="structfpga__error__info"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/errors.h" line="42" column="1" bodyfile="include/opae/cxx/core/errors.h" bodystart="42" bodyend="97"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a9817aa22e5e5ba22a32bd203ebdf22a8" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>c_type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a7adabe502dd600e493263d684359e7ac" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>can_clear</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a81fa63e406170f777b19ede3889845be" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>error</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a1acdf18b1cb09e0ee1539a6f845c8251" prot="private" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>error</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a686b42984c8fce14c6ebfb102d8a9a64" prot="private" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>error_info_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1afb19c6ae95eb21e047925477adc9f3b4" prot="private" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>error_num_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a75af4be53a11d3e79639a84c79209567" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>get</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a30ead52bd6a86f4a3cc7045e9dce0c20" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>name</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a736a48278182c76699a959192ab23bf7" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>operator=</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a1ebeb4e4a63d9807d50c13b98a07ac2f" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1acc656f405ba3e3b500604ad64ff0b970" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>read_value</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a8fed4f6624e3d0644525642468c52d60" prot="private" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>token_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1error_1a98daa1df4a7d000945797a3259153a6d" prot="public" virt="non-virtual"><scope>opae::fpga::types::error</scope><name>~error</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

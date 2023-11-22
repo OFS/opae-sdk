@@ -1,0 +1,1027 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="vfio_8h" kind="file" language="C++">
+    <compoundname>vfio.h</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">pthread.h</includes>
+    <includes local="no">linux/vfio.h</includes>
+    <includes refid="mem__alloc_8h" local="no">opae/mem_alloc.h</includes>
+    <includes refid="hash__map_8h" local="no">opae/hash_map.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="6">
+        <label>opae/mem_alloc.h</label>
+        <link refid="mem__alloc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>pthread.h</label>
+      </node>
+      <node id="1">
+        <label>include/opae/vfio.h</label>
+        <link refid="vfio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>linux/vfio.h</label>
+      </node>
+      <node id="2">
+        <label>stdio.h</label>
+      </node>
+      <node id="7">
+        <label>opae/hash_map.h</label>
+        <link refid="hash__map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structopae__vfio__iova__range" prot="public">opae_vfio_iova_range</innerclass>
+    <innerclass refid="structopae__vfio__group" prot="public">opae_vfio_group</innerclass>
+    <innerclass refid="structopae__vfio__sparse__info" prot="public">opae_vfio_sparse_info</innerclass>
+    <innerclass refid="structopae__vfio__device__region" prot="public">opae_vfio_device_region</innerclass>
+    <innerclass refid="structopae__vfio__device__irq" prot="public">opae_vfio_device_irq</innerclass>
+    <innerclass refid="structopae__vfio__device" prot="public">opae_vfio_device</innerclass>
+    <innerclass refid="structopae__vfio__buffer" prot="public">opae_vfio_buffer</innerclass>
+    <innerclass refid="structopae__vfio" prot="public">opae_vfio</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="vfio_8h_1adea46291b4fdd1878def41704f8acb5c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>opae_vfio_buffer_flags</name>
+        <enumvalue id="vfio_8h_1adea46291b4fdd1878def41704f8acb5ca0ff03bd0152afe6ff864e32e78af2702" prot="public">
+          <name>OPAE_VFIO_BUF_PREALLOCATED</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Use existing buffer </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Flags for <ref refid="vfio_8h_1a782b8c30e14075d1c69af9c8e2998578" kindref="member">opae_vfio_buffer_allocate_ex()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="340" column="1" bodyfile="include/opae/vfio.h" bodystart="340" bodyend="342"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_open</definition>
+        <argsstring>(struct opae_vfio *v, const char *pciaddr)</argsstring>
+        <name>opae_vfio_open</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>pciaddr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Open and populate a VFIO device</para>
+<para>Opens the PCIe device corresponding to the address given in pciaddr. The device must be bound to the vfio-pci driver prior to opening it. The data structures corresponding to IOVA space, MMIO regions, and DMA buffers are initialized.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Storage for the device info. May be stack-resident. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">pciaddr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The PCIe address of the requested device. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".sh"><codeline><highlight class="normal">$<sp/>sudo<sp/>opaevfio<sp/>-i<sp/>0000:00:00.0<sp/>-u<sp/>user<sp/>-g<sp/>group</highlight></codeline>
+</programlisting></para>
+<para>Example <programlisting filename=".c"><codeline><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>v;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" kindref="member">opae_vfio_open</ref>(&amp;v,<sp/></highlight><highlight class="stringliteral">&quot;0000:00:00.0&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="191" column="5" declfile="include/opae/vfio.h" declline="191" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a8d6d1f473a26bc0fbe83e6894b8fb607" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_secure_open</definition>
+        <argsstring>(struct opae_vfio *v, const char *pciaddr, const char *token)</argsstring>
+        <name>opae_vfio_secure_open</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>pciaddr</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Open and populate a VFIO device</para>
+<para>Opens the PCIe device corresponding to the address given in pciaddr, using the VF token (GUID) given in token. The device must be bound to the vfio-pci driver prior to opening it. The data structures corresponding to IOVA space, MMIO regions, and DMA buffers are initialized.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Storage for the device info. May be stack-resident. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">pciaddr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The PCIe address of the requested device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The GUID representing the VF token. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".sh"><codeline><highlight class="normal">$<sp/>sudo<sp/>opaevfio<sp/>-i<sp/>0000:00:00.0<sp/>-u<sp/>user<sp/>-g<sp/>group</highlight></codeline>
+</programlisting></para>
+<para>Example <programlisting filename=".c"><codeline><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>v;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a8d6d1f473a26bc0fbe83e6894b8fb607" kindref="member">opae_vfio_secure_open</ref>(&amp;v,<sp/></highlight><highlight class="stringliteral">&quot;0000:00:00.0&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;00f5ad6b-2edd-422e-9d1e-34124c686fec&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="223" column="5" declfile="include/opae/vfio.h" declline="223" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1afc30450c9b7ebc22709557cac5ab9181" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_region_get</definition>
+        <argsstring>(struct opae_vfio *v, uint32_t index, uint8_t **ptr, size_t *size)</argsstring>
+        <name>opae_vfio_region_get</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t **</type>
+          <declname>ptr</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Query device MMIO region</para>
+<para>Retrieves info describing the MMIO region with the given region index. The device structure v must have been previously opened by a call to opae_vfio_open.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The zero-based index of the desired MMIO region. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the virtual address for the region. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the size of the MMIO region. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error (including index out-of-range). Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".c"><codeline><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>v;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*fme_virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*port_virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>fme_size<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>port_size<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" kindref="member">opae_vfio_open</ref>(&amp;v,<sp/></highlight><highlight class="stringliteral">&quot;0000:00:00.0&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="vfio_8h_1afc30450c9b7ebc22709557cac5ab9181" kindref="member">opae_vfio_region_get</ref>(&amp;v,<sp/>0,<sp/>&amp;fme_virt,<sp/>&amp;fme_size);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="vfio_8h_1afc30450c9b7ebc22709557cac5ab9181" kindref="member">opae_vfio_region_get</ref>(&amp;v,<sp/>2,<sp/>&amp;port_virt,<sp/>&amp;port_size);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="259" column="5" declfile="include/opae/vfio.h" declline="259" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_buffer_allocate</definition>
+        <argsstring>(struct opae_vfio *v, size_t *size, uint8_t **buf, uint64_t *iova)</argsstring>
+        <name>opae_vfio_buffer_allocate</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>uint8_t **</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>iova</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Allocate and map system buffer</para>
+<para>Allocate, map, and retrieve info for a system buffer capable of DMA. Saves an entry in the v-&gt;cont_buffers list. If the buffer is not explicitly freed by opae_vfio_buffer_free, it will be freed during opae_vfio_close.</para>
+<para>mmap is used for the allocation. If the size is greater than 2MB, then the allocation request is fulfilled by a 1GB huge page. Else, if the size is greater than 4096, then the request is fulfilled by a 2MB huge page. Else, the request is fulfilled by the non-huge page pool.</para>
+<para><simplesect kind="note"><para>Allocations from the huge page pool require that huge pages be configured on the system. Huge pages may be configured on the kernel boot command prompt. Example default_hugepagesz=1G hugepagesz=1G hugepages=2 hugepagesz=2M hugepages=8</para>
+</simplesect>
+<simplesect kind="note"><para>Huge pages may also be configured at runtime. Example sudo sh -c &apos;echo 8 &gt; /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages&apos; sudo sh -c &apos;echo 2 &gt; /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages&apos;</para>
+</simplesect>
+<simplesect kind="note"><para>Be sure that the IOMMU is also enabled using the follow kernel boot command: intel_iommu=on</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the requested size. The size may be rounded to the next page size prior to return from the function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the virtual address for the buffer. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">iova</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the IOVA address for the buffer. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".c"><codeline><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>v;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz;</highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*buf_2m_virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*buf_1g_virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>buf_2m_iova<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>buf_1g_iova<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" kindref="member">opae_vfio_open</ref>(&amp;v,<sp/></highlight><highlight class="stringliteral">&quot;0000:00:00.0&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>sz<sp/>=<sp/>2<sp/>*<sp/>1024<sp/>*<sp/>1024;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" kindref="member">opae_vfio_buffer_allocate</ref>(&amp;v,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;sz,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_2m_virt,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_2m_iova))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>allocation<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>sz<sp/>=<sp/>1024<sp/>*<sp/>1024<sp/>*<sp/>1024;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" kindref="member">opae_vfio_buffer_allocate</ref>(&amp;v,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;sz,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_1g_virt,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_1g_iova))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>allocation<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="333" column="5" declfile="include/opae/vfio.h" declline="333" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a782b8c30e14075d1c69af9c8e2998578" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_buffer_allocate_ex</definition>
+        <argsstring>(struct opae_vfio *v, size_t *size, uint8_t **buf, uint64_t *iova, int flags)</argsstring>
+        <name>opae_vfio_buffer_allocate_ex</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>uint8_t **</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>iova</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Allocate and map system buffer (extended w/ flags)</para>
+<para>Allocate, map, and retrieve info for a system buffer capable of DMA. Saves an entry in the v-&gt;cont_buffers list. If the buffer is not explicitly freed by opae_vfio_buffer_free, it will be freed during opae_vfio_close, unless OPAE_VFIO_BUF_PREALLOCATED is used in which case the buffer is not freed by this library.</para>
+<para>When not using OPAE_VFIO_BUF_PREALLOCATED, mmap is used for the allocation. If the size is greater than 2MB, then the allocation request is fulfilled by a 1GB huge page. Else, if the size is greater than 4096, then the request is fulfilled by a 2MB huge page. Else, the request is fulfilled by the non-huge page pool.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the requested size. The size may be rounded to the next page size prior to return from the function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the virtual address for the buffer/input buffer pointer when using OPAE_VFIO_BUF_PREALLOCATED. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">iova</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the IOVA address for the buffer. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".c"><codeline><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>v;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz<sp/>=<sp/>MY_BUF_SIZE;</highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*prealloc_virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>iova<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">prealloc_virt<sp/>=<sp/>allocate_my_buffer(sz);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" kindref="member">opae_vfio_open</ref>(&amp;v,<sp/></highlight><highlight class="stringliteral">&quot;0000:00:00.0&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a782b8c30e14075d1c69af9c8e2998578" kindref="member">opae_vfio_buffer_allocate_ex</ref>(&amp;v,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;sz,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;prealloc_virt,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;iova,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="vfio_8h_1adea46291b4fdd1878def41704f8acb5ca0ff03bd0152afe6ff864e32e78af2702" kindref="member">OPAE_VFIO_BUF_PREALLOCATED</ref>))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>allocation<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="394" column="5" declfile="include/opae/vfio.h" declline="394" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a30f0a317cbcfd12e6918dd11ec4c95f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structopae__vfio__buffer" kindref="compound">opae_vfio_buffer</ref> *</type>
+        <definition>struct opae_vfio_buffer* opae_vfio_buffer_info</definition>
+        <argsstring>(struct opae_vfio *v, uint8_t *vaddr)</argsstring>
+        <name>opae_vfio_buffer_info</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>vaddr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Extract the internal data structure pointer for the given vaddr</para>
+<para>The virtual address vaddr must correspond to a buffer previously allocated by <ref refid="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" kindref="member">opae_vfio_buffer_allocate()</ref> or <ref refid="vfio_8h_1a782b8c30e14075d1c69af9c8e2998578" kindref="member">opae_vfio_buffer_allocate_ex()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">vaddr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The user virtual address of the desired buffer info struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>NULL on lookup error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="412" column="23" declfile="include/opae/vfio.h" declline="412" declcolumn="23"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1ae2a60d829698d793ab9a4ad351d2596d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_buffer_free</definition>
+        <argsstring>(struct opae_vfio *v, uint8_t *buf)</argsstring>
+        <name>opae_vfio_buffer_free</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unmap and free a system buffer</para>
+<para>The buffer corresponding to buf must have been created by a previous call to opae_vfio_buffer_allocate.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The virtual address corresponding to the buffer to be freed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".c"><codeline><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz;</highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*buf_2m_virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>buf_2m_iova<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">sz<sp/>=<sp/>2<sp/>*<sp/>1024<sp/>*<sp/>1024;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" kindref="member">opae_vfio_buffer_allocate</ref>(&amp;v,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;sz,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_2m_virt,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_2m_iova))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>allocation<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>use<sp/>the<sp/>buffer</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1ae2a60d829698d793ab9a4ad351d2596d" kindref="member">opae_vfio_buffer_free</ref>(&amp;v,<sp/>buf_2m_virt))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>free<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="447" column="5" declfile="include/opae/vfio.h" declline="447" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a8fbe20ee37934b7a6bcebdd648a37191" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_irq_enable</definition>
+        <argsstring>(struct opae_vfio *v, uint32_t index, uint32_t subindex, int event_fd)</argsstring>
+        <name>opae_vfio_irq_enable</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>subindex</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>event_fd</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Enable an IRQ</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ category. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ to enable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">event_fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The file descriptor, created by eventfd(). Interrupts will result in this event_fd being signaled. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="463" column="5" declfile="include/opae/vfio.h" declline="463" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a97498e4d858a172906abfded4bce5199" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_irq_unmask</definition>
+        <argsstring>(struct opae_vfio *v, uint32_t index, uint32_t subindex)</argsstring>
+        <name>opae_vfio_irq_unmask</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>subindex</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unmask an IRQ</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ category. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ to unmask. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="477" column="5" declfile="include/opae/vfio.h" declline="477" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a94ee809a7040b9bec0a694ca65b0f3f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_irq_mask</definition>
+        <argsstring>(struct opae_vfio *v, uint32_t index, uint32_t subindex)</argsstring>
+        <name>opae_vfio_irq_mask</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>subindex</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Mask an IRQ</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ category. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ to mask. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="490" column="5" declfile="include/opae/vfio.h" declline="490" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1abcce6f91ff59553d5893c4d3632cb87c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_vfio_irq_disable</definition>
+        <argsstring>(struct opae_vfio *v, uint32_t index, uint32_t subindex)</argsstring>
+        <name>opae_vfio_irq_disable</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>subindex</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Disable an IRQ</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE VFIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ category. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The IRQ to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="503" column="5" declfile="include/opae/vfio.h" declline="503" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="vfio_8h_1a70fd22e64704c8f0090adb810d51fa83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae_vfio_close</definition>
+        <argsstring>(struct opae_vfio *v)</argsstring>
+        <name>opae_vfio_close</name>
+        <param>
+          <type>struct <ref refid="structopae__vfio" kindref="compound">opae_vfio</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Release and close a VFIO device</para>
+<para>The given device pointer must have been previously initialized by opae_vfio_open. Releases all data structures, including any DMA buffer allocations that have not be explicitly freed by opae_vfio_buffer_free.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Storage for the device info. May be stack-resident.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+Example <programlisting filename=".c"><codeline><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>v;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" kindref="member">opae_vfio_open</ref>(&amp;v,<sp/></highlight><highlight class="stringliteral">&quot;0000:00:00.0&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>interact<sp/>with<sp/>the<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>...</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>free<sp/>the<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="vfio_8h_1a70fd22e64704c8f0090adb810d51fa83" kindref="member">opae_vfio_close</ref>(&amp;v);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting></para>
+<para>Example <programlisting filename=".sh"><codeline><highlight class="normal">$<sp/>sudo<sp/>opaevfio<sp/>-r<sp/>0000:00:00.0</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="536" column="6" declfile="include/opae/vfio.h" declline="536" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>APIs to manage a PCIe device via vfio-pci. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Presents a simple interface for interacting with a PCIe device that is bound to the vfio-pci driver. See <ulink url="https://kernel.org/doc/Documentation/vfio.txt">https://kernel.org/doc/Documentation/vfio.txt</ulink> for a description of vfio-pci.</para>
+<para>Provides APIs for opening/closing the device, querying info about the MMIO regions of the device, and allocating/mapping and freeing/unmapping DMA buffers. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2020-2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__OPAE_VFIO_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__OPAE_VFIO_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;pthread.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/vfio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="mem__alloc_8h" kindref="compound">opae/mem_alloc.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="hash__map_8h" kindref="compound">opae/hash_map.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="structopae__vfio__iova__range" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__iova__range" kindref="compound">opae_vfio_iova_range</ref><sp/>{</highlight></codeline>
+<codeline lineno="58" refid="structopae__vfio__iova__range_1ae44d6d78fc59fec1829117f80f09d676" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structopae__vfio__iova__range_1ae44d6d78fc59fec1829117f80f09d676" kindref="member">start</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structopae__vfio__iova__range_1a8e09837d655b7187d704d1dec69bd3e2" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structopae__vfio__iova__range_1a8e09837d655b7187d704d1dec69bd3e2" kindref="member">end</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structopae__vfio__iova__range_1acdadb8bd4497fd424a045de13f1c0570" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__iova__range" kindref="compound">opae_vfio_iova_range</ref><sp/>*<ref refid="structopae__vfio__iova__range_1acdadb8bd4497fd424a045de13f1c0570" kindref="member">next</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="structopae__vfio__group" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__group" kindref="compound">opae_vfio_group</ref><sp/>{</highlight></codeline>
+<codeline lineno="70" refid="structopae__vfio__group_1aa7f7d7923d85bdb630b0b1ec49be5f92" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structopae__vfio__group_1aa7f7d7923d85bdb630b0b1ec49be5f92" kindref="member">group_device</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structopae__vfio__group_1a51d7ad18b5d27f7713877bc9e7f31c92" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio__group_1a51d7ad18b5d27f7713877bc9e7f31c92" kindref="member">group_fd</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="structopae__vfio__sparse__info" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__sparse__info" kindref="compound">opae_vfio_sparse_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="81" refid="structopae__vfio__sparse__info_1a0f2a85a947a552ace76e299bd66dc91d" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__sparse__info_1a0f2a85a947a552ace76e299bd66dc91d" kindref="member">index</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82" refid="structopae__vfio__sparse__info_1afc2d2ce14bb3aeaba49efa5e8a063dfb" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__sparse__info_1afc2d2ce14bb3aeaba49efa5e8a063dfb" kindref="member">offset</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83" refid="structopae__vfio__sparse__info_1adefec9a427d225b75b9b272710174df8" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__sparse__info_1adefec9a427d225b75b9b272710174df8" kindref="member">size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="84" refid="structopae__vfio__sparse__info_1a68ad8ff776b8b47536d8f515eadffaa4" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structopae__vfio__sparse__info_1a68ad8ff776b8b47536d8f515eadffaa4" kindref="member">ptr</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structopae__vfio__sparse__info_1a6557e0f64b5cb7f9e89218aaa535d583" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__sparse__info" kindref="compound">opae_vfio_sparse_info</ref><sp/>*<ref refid="structopae__vfio__sparse__info_1a6557e0f64b5cb7f9e89218aaa535d583" kindref="member">next</ref>;<sp/></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structopae__vfio__device__region" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device__region" kindref="compound">opae_vfio_device_region</ref><sp/>{</highlight></codeline>
+<codeline lineno="94" refid="structopae__vfio__device__region_1a276412974a0b0ffb91ac3200149761b0" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__device__region_1a276412974a0b0ffb91ac3200149761b0" kindref="member">region_index</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structopae__vfio__device__region_1a37bbecd990a16e1d985bece6d8395e86" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structopae__vfio__device__region_1a37bbecd990a16e1d985bece6d8395e86" kindref="member">region_ptr</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structopae__vfio__device__region_1add69a93ef216ab2ed1a053f506605f8e" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio__device__region_1add69a93ef216ab2ed1a053f506605f8e" kindref="member">region_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="97" refid="structopae__vfio__device__region_1a52a91a9da49e5a61dbb5e8f511733aba" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__sparse__info" kindref="compound">opae_vfio_sparse_info</ref><sp/>*<ref refid="structopae__vfio__device__region_1a52a91a9da49e5a61dbb5e8f511733aba" kindref="member">region_sparse</ref>;<sp/></highlight></codeline>
+<codeline lineno="98" refid="structopae__vfio__device__region_1ad58eb4a337da7515de0acca200a2463c" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device__region" kindref="compound">opae_vfio_device_region</ref><sp/>*<ref refid="structopae__vfio__device__region_1ad58eb4a337da7515de0acca200a2463c" kindref="member">next</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="structopae__vfio__device__irq" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device__irq" kindref="compound">opae_vfio_device_irq</ref><sp/>{</highlight></codeline>
+<codeline lineno="107" refid="structopae__vfio__device__irq_1a8a7ea1141298b55129019cc8e1672bb9" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__device__irq_1a8a7ea1141298b55129019cc8e1672bb9" kindref="member">flags</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="108" refid="structopae__vfio__device__irq_1ae80f357cdeaa6c6e20031cedcaad5712" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__device__irq_1ae80f357cdeaa6c6e20031cedcaad5712" kindref="member">index</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109" refid="structopae__vfio__device__irq_1ae8531b9a37c51672f1e8693a8473cad2" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__device__irq_1ae8531b9a37c51672f1e8693a8473cad2" kindref="member">count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="110" refid="structopae__vfio__device__irq_1a066566f8808335166498fbce4d8a5211" refkind="member"><highlight class="normal"><sp/><sp/><sp/>int32_t<sp/>*<ref refid="structopae__vfio__device__irq_1a066566f8808335166498fbce4d8a5211" kindref="member">event_fds</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="111" refid="structopae__vfio__device__irq_1a59f2bf38b7882ff09232e83ba7dea984" refkind="member"><highlight class="normal"><sp/><sp/><sp/>int32_t<sp/>*<ref refid="structopae__vfio__device__irq_1a59f2bf38b7882ff09232e83ba7dea984" kindref="member">masks</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="112" refid="structopae__vfio__device__irq_1a80db0fd825bd3d7b73c4a70b86be60b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device__irq" kindref="compound">opae_vfio_device_irq</ref><sp/>*<ref refid="structopae__vfio__device__irq_1a80db0fd825bd3d7b73c4a70b86be60b5" kindref="member">next</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="structopae__vfio__device" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device" kindref="compound">opae_vfio_device</ref><sp/>{</highlight></codeline>
+<codeline lineno="122" refid="structopae__vfio__device_1a5567cac847af54d1b68cd11de6d9071a" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio__device_1a5567cac847af54d1b68cd11de6d9071a" kindref="member">device_fd</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="123" refid="structopae__vfio__device_1a484988f748aa324957a2046bc2590e10" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structopae__vfio__device_1a484988f748aa324957a2046bc2590e10" kindref="member">device_config_offset</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="124" refid="structopae__vfio__device_1ad9ca3ae45cd69d3eec04297820c98db4" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__device_1ad9ca3ae45cd69d3eec04297820c98db4" kindref="member">device_num_regions</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="125" refid="structopae__vfio__device_1ab45bac066081e611b23ff38c90ab6f26" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device__region" kindref="compound">opae_vfio_device_region</ref><sp/>*<ref refid="structopae__vfio__device_1ab45bac066081e611b23ff38c90ab6f26" kindref="member">regions</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="126" refid="structopae__vfio__device_1ad4fc938dbf2c96ea60222912b4ed72ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__vfio__device_1ad4fc938dbf2c96ea60222912b4ed72ca" kindref="member">device_num_irqs</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="127" refid="structopae__vfio__device_1a491523e147d7ae93d48b49d713bdce7c" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device__irq" kindref="compound">opae_vfio_device_irq</ref><sp/>*<ref refid="structopae__vfio__device_1a491523e147d7ae93d48b49d713bdce7c" kindref="member">irqs</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="structopae__vfio__buffer" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__buffer" kindref="compound">opae_vfio_buffer</ref><sp/>{</highlight></codeline>
+<codeline lineno="136" refid="structopae__vfio__buffer_1a10c301384270143e76d93675740d2a05" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structopae__vfio__buffer_1a10c301384270143e76d93675740d2a05" kindref="member">buffer_ptr</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="137" refid="structopae__vfio__buffer_1a52535a9a9d8c7a129fb313d14a96dc47" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio__buffer_1a52535a9a9d8c7a129fb313d14a96dc47" kindref="member">buffer_size</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="138" refid="structopae__vfio__buffer_1a4bccc7115924108b58c421955a6b9775" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structopae__vfio__buffer_1a4bccc7115924108b58c421955a6b9775" kindref="member">buffer_iova</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="139" refid="structopae__vfio__buffer_1a9e334d32ec820b06a9d263bc158da2ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio__buffer_1a9e334d32ec820b06a9d263bc158da2ed" kindref="member">flags</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="140"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="structopae__vfio" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>{</highlight></codeline>
+<codeline lineno="150" refid="structopae__vfio_1ad9ef4790801de907acfa18409dedfaab" refkind="member"><highlight class="normal"><sp/><sp/><sp/>pthread_mutex_t<sp/><ref refid="structopae__vfio_1ad9ef4790801de907acfa18409dedfaab" kindref="member">lock</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="151" refid="structopae__vfio_1a7ca65a6a199f57795216b4af7e152b7e" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structopae__vfio_1a7ca65a6a199f57795216b4af7e152b7e" kindref="member">cont_device</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="152" refid="structopae__vfio_1a12cbdd053863723e3b51564dab3b1de5" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structopae__vfio_1a12cbdd053863723e3b51564dab3b1de5" kindref="member">cont_pciaddr</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="153" refid="structopae__vfio_1a7cdb7430f296c4c469dc54f075014245" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio_1a7cdb7430f296c4c469dc54f075014245" kindref="member">cont_fd</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="154" refid="structopae__vfio_1a65cb87d5caf739177f1627f369704ea4" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__iova__range" kindref="compound">opae_vfio_iova_range</ref><sp/>*<ref refid="structopae__vfio_1a65cb87d5caf739177f1627f369704ea4" kindref="member">cont_ranges</ref>;<sp/></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmem__alloc" kindref="compound">mem_alloc</ref><sp/><ref refid="structopae__vfio_1a27de65bf440333362258d9da72fb93d7" kindref="member">iova_alloc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__group" kindref="compound">opae_vfio_group</ref><sp/><ref refid="structopae__vfio_1a5aa9019a215689bb45c6de05425489e0" kindref="member">group</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__device" kindref="compound">opae_vfio_device</ref><sp/><ref refid="structopae__vfio_1a0321bdb1c77dad0ad3f57d32d5f00de6" kindref="member">device</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="158" refid="structopae__vfio_1a421b8a46f5c5bca0d663f415f567dc19" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/><ref refid="structopae__vfio_1a421b8a46f5c5bca0d663f415f567dc19" kindref="member">cont_buffers</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="159"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191" refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a3d3ccbf4a24acbe8f3fc4d973ab46b1a" kindref="member">opae_vfio_open</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*pciaddr);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223" refid="vfio_8h_1a8d6d1f473a26bc0fbe83e6894b8fb607" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a8d6d1f473a26bc0fbe83e6894b8fb607" kindref="member">opae_vfio_secure_open</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*pciaddr,</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*token);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259" refid="vfio_8h_1afc30450c9b7ebc22709557cac5ab9181" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1afc30450c9b7ebc22709557cac5ab9181" kindref="member">opae_vfio_region_get</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>**ptr,</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333" refid="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a63c468f18994a45604b372c31a1e26cf" kindref="member">opae_vfio_buffer_allocate</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size,</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>**buf,</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*iova);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340" refid="vfio_8h_1adea46291b4fdd1878def41704f8acb5c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1adea46291b4fdd1878def41704f8acb5c" kindref="member">opae_vfio_buffer_flags</ref><sp/>{</highlight></codeline>
+<codeline lineno="341" refid="vfio_8h_1adea46291b4fdd1878def41704f8acb5ca0ff03bd0152afe6ff864e32e78af2702" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="vfio_8h_1adea46291b4fdd1878def41704f8acb5ca0ff03bd0152afe6ff864e32e78af2702" kindref="member">OPAE_VFIO_BUF_PREALLOCATED</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="342"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394" refid="vfio_8h_1a782b8c30e14075d1c69af9c8e2998578" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a782b8c30e14075d1c69af9c8e2998578" kindref="member">opae_vfio_buffer_allocate_ex</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size,</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>**buf,</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>*iova,</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"></highlight></codeline>
+<codeline lineno="412" refid="vfio_8h_1a30f0a317cbcfd12e6918dd11ec4c95f3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__vfio__buffer" kindref="compound">opae_vfio_buffer</ref><sp/>*<ref refid="vfio_8h_1a30f0a317cbcfd12e6918dd11ec4c95f3" kindref="member">opae_vfio_buffer_info</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*vaddr);</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"></highlight></codeline>
+<codeline lineno="447" refid="vfio_8h_1ae2a60d829698d793ab9a4ad351d2596d" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1ae2a60d829698d793ab9a4ad351d2596d" kindref="member">opae_vfio_buffer_free</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf);</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463" refid="vfio_8h_1a8fbe20ee37934b7a6bcebdd648a37191" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a8fbe20ee37934b7a6bcebdd648a37191" kindref="member">opae_vfio_irq_enable</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>subindex,</highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>event_fd);</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"></highlight></codeline>
+<codeline lineno="477" refid="vfio_8h_1a97498e4d858a172906abfded4bce5199" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a97498e4d858a172906abfded4bce5199" kindref="member">opae_vfio_irq_unmask</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>subindex);</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"></highlight></codeline>
+<codeline lineno="490" refid="vfio_8h_1a94ee809a7040b9bec0a694ca65b0f3f7" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a94ee809a7040b9bec0a694ca65b0f3f7" kindref="member">opae_vfio_irq_mask</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>subindex);</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"></highlight></codeline>
+<codeline lineno="503" refid="vfio_8h_1abcce6f91ff59553d5893c4d3632cb87c" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1abcce6f91ff59553d5893c4d3632cb87c" kindref="member">opae_vfio_irq_disable</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="504"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>subindex);</highlight></codeline>
+<codeline lineno="506"><highlight class="normal"></highlight></codeline>
+<codeline lineno="536" refid="vfio_8h_1a70fd22e64704c8f0090adb810d51fa83" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="vfio_8h_1a70fd22e64704c8f0090adb810d51fa83" kindref="member">opae_vfio_close</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__vfio" kindref="compound">opae_vfio</ref><sp/>*v);</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"></highlight></codeline>
+<codeline lineno="538"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="539"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="540"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="541"><highlight class="normal"></highlight></codeline>
+<codeline lineno="542"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__OPAE_VFIO_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/vfio.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_wr_num_lines.__unnamed15__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15_____1a04c4bda156e24e30095580f754d2baae" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>write_num_lines</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="151" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15_____1a7f005c3fa691e77c52d3297cc2699072" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>reserved</name>
+        <bitfield> 48</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="152" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_wr_num_lines.__unnamed15__</label>
+        <link refid="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="150" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="150" bodyend="153"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15_____1a7f005c3fa691e77c52d3297cc2699072" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_num_lines.__unnamed15__</scope><name>reserved</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__num__lines_8____unnamed15_____1a04c4bda156e24e30095580f754d2baae" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_num_lines.__unnamed15__</scope><name>write_num_lines</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

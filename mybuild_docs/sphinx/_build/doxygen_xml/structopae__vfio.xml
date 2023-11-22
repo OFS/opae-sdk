@@ -1,0 +1,246 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio_1ad9ef4790801de907acfa18409dedfaab" prot="public" static="no" mutable="no">
+        <type>pthread_mutex_t</type>
+        <definition>pthread_mutex_t opae_vfio::lock</definition>
+        <argsstring></argsstring>
+        <name>lock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>For thread safety. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="150" column="17" bodyfile="include/opae/vfio.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a7ca65a6a199f57795216b4af7e152b7e" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* opae_vfio::cont_device</definition>
+        <argsstring></argsstring>
+        <name>cont_device</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>&quot;/dev/vfio/vfio&quot; </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="151" column="6" bodyfile="include/opae/vfio.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a12cbdd053863723e3b51564dab3b1de5" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* opae_vfio::cont_pciaddr</definition>
+        <argsstring></argsstring>
+        <name>cont_pciaddr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>PCIe address, eg 0000:00:00.0 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="152" column="6" bodyfile="include/opae/vfio.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a7cdb7430f296c4c469dc54f075014245" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae_vfio::cont_fd</definition>
+        <argsstring></argsstring>
+        <name>cont_fd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Container file descriptor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="153" column="5" bodyfile="include/opae/vfio.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a65cb87d5caf739177f1627f369704ea4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__iova__range" kindref="compound">opae_vfio_iova_range</ref> *</type>
+        <definition>struct opae_vfio_iova_range* opae_vfio::cont_ranges</definition>
+        <argsstring></argsstring>
+        <name>cont_ranges</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>List of IOVA ranges. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="154" column="27" bodyfile="include/opae/vfio.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a27de65bf440333362258d9da72fb93d7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmem__alloc" kindref="compound">mem_alloc</ref></type>
+        <definition>struct mem_alloc opae_vfio::iova_alloc</definition>
+        <argsstring></argsstring>
+        <name>iova_alloc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Allocator for IOVA space. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="154" column="27" bodyfile="include/opae/vfio.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a5aa9019a215689bb45c6de05425489e0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__group" kindref="compound">opae_vfio_group</ref></type>
+        <definition>struct opae_vfio_group opae_vfio::group</definition>
+        <argsstring></argsstring>
+        <name>group</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The VFIO device group. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="154" column="27" bodyfile="include/opae/vfio.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a0321bdb1c77dad0ad3f57d32d5f00de6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__device" kindref="compound">opae_vfio_device</ref></type>
+        <definition>struct opae_vfio_device opae_vfio::device</definition>
+        <argsstring></argsstring>
+        <name>device</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The VFIO device. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="154" column="27" bodyfile="include/opae/vfio.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio_1a421b8a46f5c5bca0d663f415f567dc19" prot="public" static="no" mutable="no">
+        <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref></type>
+        <definition>opae_hash_map opae_vfio::cont_buffers</definition>
+        <argsstring></argsstring>
+        <name>cont_buffers</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Map of allocated DMA buffers. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="158" column="15" bodyfile="include/opae/vfio.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>OPAE VFIO device abstraction</para>
+<para>This structure is used to interact with the OPAE VFIO API. It tracks data related to the VFIO container, group, and device. A mutex is provided for thread safety. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>opae_vfio_device_irq</label>
+        <link refid="structopae__vfio__device__irq"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>opae_vfio_device</label>
+        <link refid="structopae__vfio__device"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>+regions</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>+irqs</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae_hash_map</label>
+        <link refid="structopae__hash__map"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+buckets</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>opae_vfio_group</label>
+        <link refid="structopae__vfio__group"/>
+      </node>
+      <node id="10">
+        <label>mem_alloc</label>
+        <link refid="structmem__alloc"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>+allocated</edgelabel>
+          <edgelabel>+free</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opae_vfio</label>
+        <link refid="structopae__vfio"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+cont_buffers</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+device</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>+group</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>+cont_ranges</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>+iova_alloc</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>opae_vfio_device_region</label>
+        <link refid="structopae__vfio__device__region"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>+region_sparse</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>opae_vfio_sparse_info</label>
+        <link refid="structopae__vfio__sparse__info"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>mem_link</label>
+        <link refid="structmem__link"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>+next</edgelabel>
+          <edgelabel>+prev</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>opae_vfio_iova_range</label>
+        <link refid="structopae__vfio__iova__range"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>opae_hash_map_item</label>
+        <link refid="structopae__hash__map__item"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="149" column="1" bodyfile="include/opae/vfio.h" bodystart="149" bodyend="159"/>
+    <listofallmembers>
+      <member refid="structopae__vfio_1a421b8a46f5c5bca0d663f415f567dc19" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>cont_buffers</name></member>
+      <member refid="structopae__vfio_1a7ca65a6a199f57795216b4af7e152b7e" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>cont_device</name></member>
+      <member refid="structopae__vfio_1a7cdb7430f296c4c469dc54f075014245" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>cont_fd</name></member>
+      <member refid="structopae__vfio_1a12cbdd053863723e3b51564dab3b1de5" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>cont_pciaddr</name></member>
+      <member refid="structopae__vfio_1a65cb87d5caf739177f1627f369704ea4" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>cont_ranges</name></member>
+      <member refid="structopae__vfio_1a0321bdb1c77dad0ad3f57d32d5f00de6" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>device</name></member>
+      <member refid="structopae__vfio_1a5aa9019a215689bb45c6de05425489e0" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>group</name></member>
+      <member refid="structopae__vfio_1a27de65bf440333362258d9da72fb93d7" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>iova_alloc</name></member>
+      <member refid="structopae__vfio_1ad9ef4790801de907acfa18409dedfaab" prot="public" virt="non-virtual"><scope>opae_vfio</scope><name>lock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

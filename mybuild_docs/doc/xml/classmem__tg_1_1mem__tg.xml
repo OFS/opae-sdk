@@ -1,0 +1,413 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classmem__tg_1_1mem__tg" kind="class" language="C++" prot="public">
+    <compoundname>mem_tg::mem_tg</compoundname>
+    <basecompoundref refid="classopae_1_1afu__test_1_1afu" prot="public" virt="non-virtual">opae::afu_test::afu</basecompoundref>
+    <includes refid="mem__tg_8h" local="no">/root/samples/mem_tg/mem_tg.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1aa878e5e65a3b83b2d3807993605e08a9" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::count_</definition>
+        <argsstring></argsstring>
+        <name>count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="213" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="213" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt;std::string&gt; mem_tg::mem_tg::mem_ch_</definition>
+        <argsstring></argsstring>
+        <name>mem_ch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="214" column="15" bodyfile="samples/mem_tg/mem_tg.h" bodystart="214" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" compoundref="tg__test_8h" startline="218" endline="309">mem_tg::tg_test::run</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" compoundref="tg__test_8h" startline="124" endline="153">mem_tg::tg_test::tg_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::loop_</definition>
+        <argsstring></argsstring>
+        <name>loop_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="215" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="215" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" compoundref="tg__test_8h" startline="124" endline="153">mem_tg::tg_test::tg_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::wcnt_</definition>
+        <argsstring></argsstring>
+        <name>wcnt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="216" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="216" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::rcnt_</definition>
+        <argsstring></argsstring>
+        <name>rcnt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="217" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="217" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::bcnt_</definition>
+        <argsstring></argsstring>
+        <name>bcnt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="218" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="218" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" compoundref="tg__test_8h" startline="124" endline="153">mem_tg::tg_test::tg_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1af774e6feb4e8dcacef4b3f23cc7d5ede" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::stride_</definition>
+        <argsstring></argsstring>
+        <name>stride_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="219" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="219" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1aa158961ac57acd0d6cbe5b4701e693f0" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::pattern_</definition>
+        <argsstring></argsstring>
+        <name>pattern_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="220" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="220" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::mem_speed_</definition>
+        <argsstring></argsstring>
+        <name>mem_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="221" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="221" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1a20aca3e96e317412ade0812dbb9e3d2d" compoundref="tg__test_8h" startline="78" endline="81">mem_tg::tg_test::bw_calc</referencedby>
+        <referencedby refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" compoundref="mem__tg_8h" startline="245" endline="262">duplicate</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" compoundref="tg__test_8h" startline="218" endline="309">mem_tg::tg_test::run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::status_</definition>
+        <argsstring></argsstring>
+        <name>status_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="222" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="222" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a60c04995edf8449efbb5d76d76bd5871" compoundref="tg__test_8h" startline="124" endline="153">mem_tg::tg_test::tg_wait_test_completion</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t mem_tg::mem_tg::tg_offset_</definition>
+        <argsstring></argsstring>
+        <name>tg_offset_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="223" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="223" bodyend="-1"/>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa9a2ef74bb44575e90abd161773337ee" compoundref="tg__test_8h" startline="155" endline="178">mem_tg::tg_test::config_input_options</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1aa4a52fa4a7e268e6911172f12611816d" compoundref="tg__test_8h" startline="181" endline="207">mem_tg::tg_test::run_mem_test</referencedby>
+        <referencedby refid="classmem__tg_1_1tg__test_1a56b732f00be2546a98773de00c97f87a" compoundref="tg__test_8h" startline="83" endline="122">mem_tg::tg_test::tg_perf</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classmem__tg_1_1mem__tg_1abfe7736f3e7edc20f0232a3d8df7d6b3" prot="public" static="no" mutable="no">
+        <type>std::map&lt; uint32_t, uint32_t &gt;</type>
+        <definition>std::map&lt;uint32_t, uint32_t&gt; mem_tg::mem_tg::limits_</definition>
+        <argsstring></argsstring>
+        <name>limits_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="225" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="225" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classmem__tg_1_1mem__tg_1a0368cda5c46775544441ab3e09d8f595" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>mem_tg::mem_tg::mem_tg</definition>
+        <argsstring>(const char *afu_id=AFU_ID)</argsstring>
+        <name>mem_tg</name>
+        <param>
+          <type>const char *</type>
+          <declname>afu_id</declname>
+          <defval><ref refid="namespacemem__tg_1af02ccce98e14a5901318de5305ff2792" kindref="member">AFU_ID</ref></defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="141" column="3" bodyfile="samples/mem_tg/mem_tg.h" bodystart="141" bodyend="186"/>
+        <references refid="namespacemem__tg_1aa321b366aefc06c5924ed83f3fac4109" compoundref="mem__tg_8h" startline="64">mem_tg::tg_pattern</references>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1mem__tg_1ac85aabb722c846ac48ec6be8f06b1f6a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int mem_tg::mem_tg::run</definition>
+        <argsstring>(CLI::App *app, test_command::ptr_t test) override</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d">run</reimplements>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" kindref="member">test_command::ptr_t</ref></type>
+          <declname>test</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="188" column="15" bodyfile="samples/mem_tg/mem_tg.h" bodystart="188" bodyend="210"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d" compoundref="he__cache__test_8h" startline="477" endline="498">opae::afu_test::afu::run</references>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1mem__tg_1ac1c0cff60b1dc60b9e0d5be523bdf9b3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t mem_tg::mem_tg::get_offset</definition>
+        <argsstring>(uint32_t base, uint32_t i) const</argsstring>
+        <name>get_offset</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="227" column="12" bodyfile="samples/mem_tg/mem_tg.h" bodystart="227" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1mem__tg_1a4c347292a75105027f821ae3d0cffca0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+        <definition>token::ptr_t mem_tg::mem_tg::get_token</definition>
+        <argsstring>()</argsstring>
+        <name>get_token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="237" column="16" bodyfile="samples/mem_tg/mem_tg.h" bodystart="237" bodyend="240"/>
+      </memberdef>
+      <memberdef kind="function" id="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void mem_tg::mem_tg::duplicate</definition>
+        <argsstring>(mem_tg *duplicate_obj) const</argsstring>
+        <name>duplicate</name>
+        <param>
+          <type><ref refid="classmem__tg_1_1mem__tg" kindref="compound">mem_tg</ref> *</type>
+          <declname>duplicate_obj</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/mem_tg/mem_tg.h" line="245" column="8" bodyfile="samples/mem_tg/mem_tg.h" bodystart="245" bodyend="262"/>
+        <references refid="classopae_1_1afu__test_1_1afu_1af29e9be9b338fcda6a5d02a0431bf522" compoundref="he__cache__test_8h" startline="832">opae::afu_test::afu::afu_id_</references>
+        <references refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" compoundref="mem__tg_8h" startline="218">bcnt_</references>
+        <references refid="classmem__tg_1_1mem__tg_1aa878e5e65a3b83b2d3807993605e08a9" compoundref="mem__tg_8h" startline="213">count_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a410d46e06fe9a836ec107a08cf8576a0" compoundref="he__cache__test_8h" startline="835">opae::afu_test::afu::log_level_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" compoundref="he__cache__test_8h" startline="862">opae::afu_test::afu::logger_</references>
+        <references refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" compoundref="mem__tg_8h" startline="215">loop_</references>
+        <references refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" compoundref="mem__tg_8h" startline="221">mem_speed_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1aee6c870bd4c573cd06893f815232a1dc" compoundref="he__cache__test_8h" startline="831">opae::afu_test::afu::name_</references>
+        <references refid="classmem__tg_1_1mem__tg_1aa158961ac57acd0d6cbe5b4701e693f0" compoundref="mem__tg_8h" startline="220">pattern_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1ae9b4f7f4daba866467f04e9c64d660ee" compoundref="he__cache__test_8h" startline="834">opae::afu_test::afu::pci_addr_</references>
+        <references refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" compoundref="mem__tg_8h" startline="217">rcnt_</references>
+        <references refid="classmem__tg_1_1mem__tg_1af774e6feb4e8dcacef4b3f23cc7d5ede" compoundref="mem__tg_8h" startline="219">stride_</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a75f121f0ea96c60091ca1223f5b29004" compoundref="he__cache__test_8h" startline="836">opae::afu_test::afu::timeout_msec_</references>
+        <references refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" compoundref="mem__tg_8h" startline="216">wcnt_</references>
+        <referencedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1" compoundref="tg__test_8h" startline="218" endline="309">mem_tg::tg_test::run</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>mem_tg::mem_tg</label>
+        <link refid="classmem__tg_1_1mem__tg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>mem_tg::mem_tg</label>
+        <link refid="classmem__tg_1_1mem__tg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/mem_tg/mem_tg.h" line="139" column="1" bodyfile="samples/mem_tg/mem_tg.h" bodystart="139" bodyend="264"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1afu_1a845e58d643b7c868c6dc84277dc88a81" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>afu</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1af29e9be9b338fcda6a5d02a0431bf522" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>afu_id_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>allocate_cache_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ae9f15c76d68e94b445c2c1c21f727d1a" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>allocate_cache_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ac2756579ad42be859b696a1880a703a2" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>allocate_cache_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>allocate_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1abe62e0407c33466b7d6bf5005276fdc3" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>app_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1a666f25cb5cdd7bdcdfd945e18e1cbf2f" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>bcnt_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad3e39bbb116a49dce6c1043755ebf2df" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>cli</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4461ef32b1ec7b4bd81614a6491cb23e" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>command_fn</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a3a7e209b3faad4cfd9472cc19d6685f7" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>commands_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1aa878e5e65a3b83b2d3807993605e08a9" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>count_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a2db800c668b606885c4f4c405f8da4bc" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>current_command</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a62081683d3d299f6a71540923eca6291" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>current_command_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a36d7214cdf09708a4eba033e21447434" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>dev_path_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a868b16ab618cfdbd8f8bd403b2ba2af7" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>dsm_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4784e4f7a10529f0f107c7f241b89767" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>dsm_buffer_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1a9960e153571fac14c64eb604b459f54d" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>duplicate</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>error</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a8b98ec99513ca15fc4c00d45ccd64fa5" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>exception</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>exit_codes</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a99dd66842fa780a0ceb7dda617c4e38b" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>fd_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adacf6b9b42c1b28c391d8cc4d93023ca" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>find_dev_feature</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>free_cache_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adadb65558a3a54ba88e96b872d43b30d" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>free_cache_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4f75d9580bec86a37adc9829e038bcf4" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>free_cache_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>free_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>get_dsm</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1ac1c0cff60b1dc60b9e0d5be523bdf9b3" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>get_offset</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a1ec221419c8668d8b14e1b7e6c056b98" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>get_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ac03cc5d56c562425a9bcbbe1c2edf7c0" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>get_read_write</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1a4c347292a75105027f821ae3d0cffca0" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>get_token</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1abff0d8566f3e4bfe138f44eadab9b16f" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>get_write</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1abfe7736f3e7edc20f0232a3d8df7d6b3" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>limits_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a410d46e06fe9a836ec107a08cf8576a0" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>log_level_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>logger_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1af7b8104540b7f3acf91f0e7115733318" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>loop_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1acacf9a109b0c623a7cee83acae4582cf" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>main</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad08ddd74d13e31d4aacf22c87b81fc6e" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>map_mmio</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1ae8eaf03b82b2f4e79920aba58feb1cee" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>mem_ch_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1a921692228f2ce76e661eec4e58eb959c" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>mem_speed_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1a0368cda5c46775544441ab3e09d8f595" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>mem_tg</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a9b40ebeb9a922bed3bdb079e6285b4e2" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>mmio_base_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1acb52665e466bb54609b5ac81d4dfd282" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>mmio_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aee6c870bd4c573cd06893f815232a1dc" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>name_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a0a753cba76e13abc6b16f98745712372" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>no_access</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a5b5cf74a6eb73cf60867b2f81a810624" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>not_found</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a04ee7cb880c09f91baf6c572a753154d" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>not_run</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a7af4fff79b88676402bff5f5274b941d" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>open_handle</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1aa158961ac57acd0d6cbe5b4701e693f0" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>pattern_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ae9b4f7f4daba866467f04e9c64d660ee" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>pci_addr_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1abbf19481486cb11b3a7e6907ffbeff60" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>rcnt_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad55f0e9505cb20d242e7c53005d2f462" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>rd_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a5fd0b4fdfb3009117ff4a9f79cf84743" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>rd_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a6a13abfbef7c0e17b35bf8dc11c06f00" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>rd_wr_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1afd43e84a2d933b6141298f89eae7d22e" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>rd_wr_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aec158ebde0d3442da9a1bf4979e73a0d" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>read32</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>read64</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a66b79e6a2f6e58f8379823f0d675a139" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>register_command</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a127d8571f7052515afc1d400c0981604" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>reset_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a607ed076daacf92b1482fba24edacd6e" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>rinfo_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1ac85aabb722c846ac48ec6be8f06b1f6a" prot="public" virt="virtual"><scope>mem_tg::mem_tg</scope><name>run</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1a610e8d4094bf6d993634daf2f0ba7fdf" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>status_</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1af774e6feb4e8dcacef4b3f23cc7d5ede" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>stride_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>success</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1aad68b3a2869f06e8a141dce0af8dae67" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>tg_offset_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a75f121f0ea96c60091ca1223f5b29004" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>timeout_msec_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aba7d799aad72ececb2b9eb68c8919353" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>unmap_mmio</name></member>
+      <member refid="classmem__tg_1_1mem__tg_1ada68c840a6bb6a09ad61e7f2d777257c" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>wcnt_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a39bda33296e1b0fb5a486c349d098c77" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>wr_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ab6736eb6d461e288c0f7846c741bb511" prot="protected" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>wr_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>write32</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" prot="public" virt="non-virtual"><scope>mem_tg::mem_tg</scope><name>write64</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a9f5b3668c254e92f8f2506916f97a232" prot="public" virt="virtual"><scope>mem_tg::mem_tg</scope><name>~afu</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

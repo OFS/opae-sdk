@@ -1,0 +1,367 @@
+.TH "samples/n5010-ctl/n5010-ctl.c" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/n5010-ctl/n5010-ctl.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <error\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include <signal\&.h>\fP
+.br
+\fC#include <getopt\&.h>\fP
+.br
+\fC#include <opae/fpga\&.h>\fP
+.br
+\fC#include <uuid/uuid\&.h>\fP
+.br
+\fC#include <endian\&.h>\fP
+.br
+\fC#include 'argsfilter\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBn5010_test\fP"
+.br
+.ti -1c
+.RI "struct \fBn5010\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDFH_EOL\fP(h)   ((h >> 40) & 1)"
+.br
+.ti -1c
+.RI "#define \fBDFH_NEXT\fP(h)   ((h >> 16) & 0xffffff)"
+.br
+.ti -1c
+.RI "#define \fBDFH_TYPE\fP(h)   ((h >> 60) & 0xf)"
+.br
+.ti -1c
+.RI "#define \fBDFH_TYPE_AFU\fP   1"
+.br
+.ti -1c
+.RI "#define \fBMAX_PORT\fP   3"
+.br
+.ti -1c
+.RI "#define \fBINVALID_PORT\fP   (\fBMAX_PORT\fP + 1)"
+.br
+.ti -1c
+.RI "#define \fBCVL0_QSFP01_SWITCH\fP   0x28"
+.br
+.ti -1c
+.RI "#define \fBCVL1_QSFP23_SWITCH\fP   0x30"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBsignal_callback_handler\fP (int signum)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_setread_switch\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_read_switch\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_run\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_open\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static void \fBfpga_close\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_base\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static void \fBfpga_dump\fP (struct \fBn5010\fP *\fBn5010\fP, uint64_t offset, size_t count)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_set_switch\fP (struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_read_switch_port\fP (struct \fBn5010\fP *\fBn5010\fP, uint32_t cvl)"
+.br
+.ti -1c
+.RI "static \fBfpga_result\fP \fBfpga_run\fP (__attribute__((unused)) struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "static void \fBprint_usage\fP (FILE *f)"
+.br
+.ti -1c
+.RI "static bool \fBparse_port\fP (struct \fBn5010\fP *\fBn5010\fP, const char *port_str)"
+.br
+.ti -1c
+.RI "static bool \fBparse_mode\fP (struct \fBn5010\fP *\fBn5010\fP, const char *mode)"
+.br
+.ti -1c
+.RI "static int \fBparse_args\fP (int argc, char **argv, struct \fBn5010\fP *\fBn5010\fP)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char **argv)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "char const  * \fBdefault_guid\fP = 'c48d4e2a\-9121\-497d\-adc7\-3640729ec6f7'"
+.br
+.ti -1c
+.RI "static volatile bool \fBstop\fP = false"
+.br
+.ti -1c
+.RI "static const struct \fBn5010_test\fP \fBn5010_test\fP []"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct n5010"
+.PP 
+Definition at line 76 of file n5010\-ctl\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+\fBfpga_properties\fP \fIfilter\fP 
+.br
+.PP
+\fBfpga_token\fP \fItoken\fP 
+.br
+.PP
+\fBfpga_handle\fP \fIhandle\fP 
+.br
+.PP
+\fBfpga_guid\fP \fIguid\fP 
+.br
+.PP
+uint64_t \fIbase\fP 
+.br
+.PP
+const struct \fBn5010_test\fP * \fItest\fP 
+.br
+.PP
+uint64_t \fIport\fP 
+.br
+.PP
+bool \fIdebug\fP 
+.br
+.PP
+uint \fIopen_mode\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define DFH_EOL(h)   ((h >> 40) & 1)"
+
+.PP
+Definition at line 43 of file n5010\-ctl\&.c\&.
+.SS "#define DFH_NEXT(h)   ((h >> 16) & 0xffffff)"
+
+.PP
+Definition at line 44 of file n5010\-ctl\&.c\&.
+.SS "#define DFH_TYPE(h)   ((h >> 60) & 0xf)"
+
+.PP
+Definition at line 45 of file n5010\-ctl\&.c\&.
+.SS "#define DFH_TYPE_AFU   1"
+
+.PP
+Definition at line 46 of file n5010\-ctl\&.c\&.
+.SS "#define MAX_PORT   3"
+
+.PP
+Definition at line 48 of file n5010\-ctl\&.c\&.
+.SS "#define INVALID_PORT   (\fBMAX_PORT\fP + 1)"
+
+.PP
+Definition at line 49 of file n5010\-ctl\&.c\&.
+.SS "#define CVL0_QSFP01_SWITCH   0x28"
+
+.PP
+Definition at line 50 of file n5010\-ctl\&.c\&.
+.SS "#define CVL1_QSFP23_SWITCH   0x30"
+
+.PP
+Definition at line 51 of file n5010\-ctl\&.c\&.
+.SH "Function Documentation"
+.PP 
+.SS "void signal_callback_handler (int signum)"
+
+.PP
+Definition at line 58 of file n5010\-ctl\&.c\&.
+.PP
+References stop\&.
+.PP
+Referenced by main()\&.
+.SS "static \fBfpga_result\fP fpga_setread_switch (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 305 of file n5010\-ctl\&.c\&.
+.PP
+References fpga_read_switch(), fpga_set_switch(), INVALID_PORT, and n5010::port\&.
+.SS "static \fBfpga_result\fP fpga_read_switch (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 298 of file n5010\-ctl\&.c\&.
+.PP
+References fpga_read_switch_port()\&.
+.PP
+Referenced by fpga_setread_switch()\&.
+.SS "static \fBfpga_result\fP fpga_run (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.SS "static \fBfpga_result\fP fpga_open (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 107 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::filter, FPGA_ACCELERATOR, FPGA_NOT_FOUND, FPGA_OK, FPGA_OPEN_SHARED, fpgaClose(), fpgaEnumerate(), fpgaErrStr(), fpgaMapMMIO(), fpgaOpen(), fpgaPropertiesSetGUID(), fpgaPropertiesSetObjectType(), n5010::guid, n5010::handle, and n5010::token\&.
+.PP
+Referenced by main()\&.
+.SS "static void fpga_close (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 156 of file n5010\-ctl\&.c\&.
+.PP
+References FPGA_OK, fpgaClose(), fpgaDestroyToken(), fpgaErrStr(), fpgaUnmapMMIO(), n5010::handle, and n5010::token\&.
+.PP
+Referenced by main()\&.
+.SS "static \fBfpga_result\fP fpga_base (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 180 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::base, DFH_EOL, DFH_NEXT, DFH_TYPE, DFH_TYPE_AFU, FPGA_NOT_FOUND, FPGA_OK, fpgaErrStr(), fpgaReadMMIO64(), n5010::guid, and n5010::handle\&.
+.PP
+Referenced by main()\&.
+.SS "static void fpga_dump (struct \fBn5010\fP * n5010, uint64_t offset, size_t count)\fC [static]\fP"
+
+.PP
+Definition at line 246 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::base, n5010::debug, fpgaReadMMIO64(), and n5010::handle\&.
+.PP
+Referenced by main()\&.
+.SS "static \fBfpga_result\fP fpga_set_switch (struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 263 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::base, CVL0_QSFP01_SWITCH, CVL1_QSFP23_SWITCH, FPGA_OK, fpgaErrStr(), fpgaWriteMMIO64(), n5010::handle, and n5010::port\&.
+.PP
+Referenced by fpga_setread_switch()\&.
+.SS "static \fBfpga_result\fP fpga_read_switch_port (struct \fBn5010\fP * n5010, uint32_t cvl)\fC [static]\fP"
+
+.PP
+Definition at line 285 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::base, CVL0_QSFP01_SWITCH, CVL1_QSFP23_SWITCH, fpgaReadMMIO64(), and n5010::handle\&.
+.PP
+Referenced by fpga_read_switch()\&.
+.SS "static \fBfpga_result\fP fpga_run (__attribute__((unused)) struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 319 of file n5010\-ctl\&.c\&.
+.PP
+References stop\&.
+.SS "static void print_usage (FILE * f)\fC [static]\fP"
+
+.PP
+Definition at line 328 of file n5010\-ctl\&.c\&.
+.PP
+References default_guid\&.
+.PP
+Referenced by parse_args()\&.
+.SS "static bool parse_port (struct \fBn5010\fP * n5010, const char * port_str)\fC [static]\fP"
+
+.PP
+Definition at line 344 of file n5010\-ctl\&.c\&.
+.PP
+References MAX_PORT, and n5010::port\&.
+.PP
+Referenced by parse_args()\&.
+.SS "static bool parse_mode (struct \fBn5010\fP * n5010, const char * mode)\fC [static]\fP"
+
+.PP
+Definition at line 362 of file n5010\-ctl\&.c\&.
+.PP
+References n5010_test, n5010_test::name, and n5010::test\&.
+.PP
+Referenced by parse_args()\&.
+.SS "static int parse_args (int argc, char ** argv, struct \fBn5010\fP * n5010)\fC [static]\fP"
+
+.PP
+Definition at line 385 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::debug, default_guid, n5010::guid, INVALID_PORT, options, parse_mode(), parse_port(), n5010::port, and print_usage()\&.
+.PP
+Referenced by main()\&.
+.SS "int main (int argc, char ** argv)"
+
+.PP
+Definition at line 440 of file n5010\-ctl\&.c\&.
+.PP
+References n5010::filter, fpga_base(), fpga_close(), fpga_dump(), FPGA_EXCEPTION, FPGA_OK, fpga_open(), fpgaDestroyProperties(), fpgaErrStr(), fpgaGetProperties(), n5010_test::func, n5010_test, parse_args(), signal_callback_handler(), and n5010::test\&.
+.SH "Variable Documentation"
+.PP 
+.SS "char const* default_guid = 'c48d4e2a\-9121\-497d\-adc7\-3640729ec6f7'"
+
+.PP
+Definition at line 53 of file n5010\-ctl\&.c\&.
+.PP
+Referenced by parse_args(), and print_usage()\&.
+.SS "volatile bool stop = false\fC [static]\fP"
+
+.PP
+Definition at line 57 of file n5010\-ctl\&.c\&.
+.PP
+Referenced by fpga_run(), and signal_callback_handler()\&.
+.SS "const struct \fBn5010_test\fP \fBn5010_test\fP[]\fC [static]\fP"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+   {
+      \&.name = "setsw",
+      \&.func = fpga_setread_switch,
+   },
+   {
+      \&.name = "readsw",
+      \&.func = fpga_read_switch,
+   },
+   {
+      \&.name = "runsw",
+      \&.func = fpga_run,
+   },
+}
+.fi
+.PP
+Definition at line 89 of file n5010\-ctl\&.c\&.
+.PP
+Referenced by main(), and parse_mode()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

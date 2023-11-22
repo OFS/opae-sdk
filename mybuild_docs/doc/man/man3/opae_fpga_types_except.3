@@ -1,0 +1,136 @@
+.TH "opae::fpga::types::except" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::except
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/except\&.h>\fP
+.PP
+Inherits std::exception\&.
+.PP
+Inherited by \fBopae::fpga::types::busy\fP, \fBopae::fpga::types::exception\fP, \fBopae::fpga::types::invalid_param\fP, \fBopae::fpga::types::no_access\fP, \fBopae::fpga::types::no_daemon\fP, \fBopae::fpga::types::no_driver\fP, \fBopae::fpga::types::no_memory\fP, \fBopae::fpga::types::not_found\fP, \fBopae::fpga::types::not_supported\fP, and \fBopae::fpga::types::reconf_error\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBexcept\fP (\fBsrc_location\fP loc) noexcept"
+.br
+.ti -1c
+.RI "\fBexcept\fP (\fBfpga_result\fP res, \fBsrc_location\fP loc) noexcept"
+.br
+.ti -1c
+.RI "\fBexcept\fP (\fBfpga_result\fP res, const char *msg, \fBsrc_location\fP loc) noexcept"
+.br
+.ti -1c
+.RI "virtual const char * \fBwhat\fP () const noexcept override"
+.br
+.ti -1c
+.RI "\fBoperator fpga_result\fP () const noexcept"
+.br
+.in -1c
+.SS "Static Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "static const std::size_t \fBMAX_EXCEPT\fP = 256"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBres_\fP"
+.br
+.ti -1c
+.RI "const char * \fBmsg_\fP"
+.br
+.ti -1c
+.RI "\fBsrc_location\fP \fBloc_\fP"
+.br
+.ti -1c
+.RI "char \fBbuf_\fP [\fBMAX_EXCEPT\fP]"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Generic OPAE exception
+.PP
+An except tracks the source line of origin and an optional fpga_result\&. If no fpga_result is given, then FPGA_EXCEPTION is used\&. 
+.PP
+Definition at line 78 of file except\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::except::except (\fBsrc_location\fP loc)\fC [noexcept]\fP"
+except constructor The fpga_result value is FPGA_EXCEPTION\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIloc\fP Location where the exception was constructed\&. 
+.RE
+.PP
+
+.SS "opae::fpga::types::except::except (\fBfpga_result\fP res, \fBsrc_location\fP loc)\fC [noexcept]\fP"
+except constructor
+.PP
+\fBParameters\fP
+.RS 4
+\fIres\fP The fpga_result value associated with this exception\&. 
+.br
+\fIloc\fP Location where the exception was constructed\&. 
+.RE
+.PP
+
+.SS "opae::fpga::types::except::except (\fBfpga_result\fP res, const char * msg, \fBsrc_location\fP loc)\fC [noexcept]\fP"
+except constructor
+.PP
+\fBParameters\fP
+.RS 4
+\fIres\fP The fpga_result value associated with this exception\&. 
+.br
+\fImsg\fP The error message as a string 
+.br
+\fIloc\fP Location where the exception was constructed\&. 
+.RE
+.PP
+
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* opae::fpga::types::except::what () const\fC [override]\fP, \fC [virtual]\fP, \fC [noexcept]\fP"
+Convert this except to an informative string\&. 
+.SS "opae::fpga::types::except::operator \fBfpga_result\fP () const\fC [inline]\fP, \fC [noexcept]\fP"
+Convert this except to its fpga_result\&. 
+.PP
+Definition at line 110 of file except\&.h\&.
+.PP
+References res_\&.
+.SH "Field Documentation"
+.PP 
+.SS "const std::size_t opae::fpga::types::except::MAX_EXCEPT = 256\fC [static]\fP"
+
+.PP
+Definition at line 80 of file except\&.h\&.
+.SS "\fBfpga_result\fP opae::fpga::types::except::res_\fC [protected]\fP"
+
+.PP
+Definition at line 113 of file except\&.h\&.
+.PP
+Referenced by operator fpga_result()\&.
+.SS "const char* opae::fpga::types::except::msg_\fC [protected]\fP"
+
+.PP
+Definition at line 114 of file except\&.h\&.
+.SS "\fBsrc_location\fP opae::fpga::types::except::loc_\fC [protected]\fP"
+
+.PP
+Definition at line 115 of file except\&.h\&.
+.SS "char opae::fpga::types::except::buf_[\fBMAX_EXCEPT\fP]\fC [mutable]\fP, \fC [protected]\fP"
+
+.PP
+Definition at line 116 of file except\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

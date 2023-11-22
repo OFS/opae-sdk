@@ -1,0 +1,742 @@
+.TH "include/opae/vfio.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/vfio.h \- APIs to manage a PCIe device via vfio-pci\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <pthread\&.h>\fP
+.br
+\fC#include <linux/vfio\&.h>\fP
+.br
+\fC#include <opae/mem_alloc\&.h>\fP
+.br
+\fC#include <opae/hash_map\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBopae_vfio_iova_range\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_group\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_sparse_info\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_device_region\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_device_irq\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_device\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_buffer\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBopae_vfio_buffer_flags\fP { \fBOPAE_VFIO_BUF_PREALLOCATED\fP = 1 }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBopae_vfio_open\fP (struct \fBopae_vfio\fP *v, const char *pciaddr)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_secure_open\fP (struct \fBopae_vfio\fP *v, const char *pciaddr, const char *token)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_region_get\fP (struct \fBopae_vfio\fP *v, uint32_t index, uint8_t **ptr, size_t *size)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_buffer_allocate\fP (struct \fBopae_vfio\fP *v, size_t *size, uint8_t **buf, uint64_t *iova)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_buffer_allocate_ex\fP (struct \fBopae_vfio\fP *v, size_t *size, uint8_t **buf, uint64_t *iova, int flags)"
+.br
+.ti -1c
+.RI "struct \fBopae_vfio_buffer\fP * \fBopae_vfio_buffer_info\fP (struct \fBopae_vfio\fP *v, uint8_t *vaddr)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_buffer_free\fP (struct \fBopae_vfio\fP *v, uint8_t *buf)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_irq_enable\fP (struct \fBopae_vfio\fP *v, uint32_t index, uint32_t subindex, int event_fd)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_irq_unmask\fP (struct \fBopae_vfio\fP *v, uint32_t index, uint32_t subindex)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_irq_mask\fP (struct \fBopae_vfio\fP *v, uint32_t index, uint32_t subindex)"
+.br
+.ti -1c
+.RI "int \fBopae_vfio_irq_disable\fP (struct \fBopae_vfio\fP *v, uint32_t index, uint32_t subindex)"
+.br
+.ti -1c
+.RI "void \fBopae_vfio_close\fP (struct \fBopae_vfio\fP *v)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+APIs to manage a PCIe device via vfio-pci\&. 
+
+Presents a simple interface for interacting with a PCIe device that is bound to the vfio-pci driver\&. See https://kernel.org/doc/Documentation/vfio.txt for a description of vfio-pci\&.
+.PP
+Provides APIs for opening/closing the device, querying info about the MMIO regions of the device, and allocating/mapping and freeing/unmapping DMA buffers\&. 
+.PP
+Definition in file \fBvfio\&.h\fP\&.
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct opae_vfio_iova_range"
+.PP 
+IO Virtual Address Range
+.PP
+A range of allocatable IOVA offsets\&. Used for mapping DMA buffers\&. 
+.PP
+Definition at line 57 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIstart\fP Start of this range of offsets\&. 
+.br
+.PP
+uint64_t \fIend\fP End of this range of offsets\&. 
+.br
+.PP
+struct \fBopae_vfio_iova_range\fP * \fInext\fP Pointer to next in list\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio_group"
+.PP 
+VFIO group
+.PP
+Each device managed by vfio-pci belongs to a VFIO group rooted at /dev/vfio/N, where N is the group number\&. 
+.PP
+Definition at line 69 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+char * \fIgroup_device\fP Full path to the group device\&. 
+.br
+.PP
+int \fIgroup_fd\fP File descriptor for the group device\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio_sparse_info"
+.PP 
+MMIO sparse-mappable region info
+.PP
+Describes a range of sparse-mappable MMIO, for MMIO ranges that have non-contiguous addresses\&. 
+.PP
+Definition at line 80 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIindex\fP Region index, from 0\&. 
+.br
+.PP
+uint32_t \fIoffset\fP Offset of sparse region\&. 
+.br
+.PP
+uint32_t \fIsize\fP Size of sparse region\&. 
+.br
+.PP
+uint8_t * \fIptr\fP Virtual address of sparse region\&. 
+.br
+.PP
+struct \fBopae_vfio_sparse_info\fP * \fInext\fP Pointer to next in list\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio_device_region"
+.PP 
+MMIO region info
+.PP
+Describes a range of mappable MMIO\&. 
+.PP
+Definition at line 93 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIregion_index\fP Region index, from 0\&. 
+.br
+.PP
+uint8_t * \fIregion_ptr\fP Virtual address of region\&. 
+.br
+.PP
+size_t \fIregion_size\fP Size of region\&. 
+.br
+.PP
+struct \fBopae_vfio_sparse_info\fP * \fIregion_sparse\fP For sparse regions\&. 
+.br
+.PP
+struct \fBopae_vfio_device_region\fP * \fInext\fP Pointer to next in list\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio_device_irq"
+.PP 
+Interrupt info
+.PP
+Describes an interrupt capability\&. 
+.PP
+Definition at line 106 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIflags\fP Flags\&. See struct vfio_irq_info\&. 
+.br
+.PP
+uint32_t \fIindex\fP The IRQ index\&. 
+.br
+.PP
+uint32_t \fIcount\fP Number of IRQs at this index\&. 
+.br
+.PP
+int32_t * \fIevent_fds\fP Event file descriptors\&. 
+.br
+.PP
+int32_t * \fImasks\fP IRQ masks\&. 
+.br
+.PP
+struct \fBopae_vfio_device_irq\fP * \fInext\fP Pointer to next in list\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio_device"
+.PP 
+VFIO device
+.PP
+Each VFIO device has a file descriptor that is used to query information about the device MMIO regions and config space\&. 
+.PP
+Definition at line 121 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+int \fIdevice_fd\fP Device file descriptor\&. 
+.br
+.PP
+uint64_t \fIdevice_config_offset\fP Offset of PCIe config space\&. 
+.br
+.PP
+uint32_t \fIdevice_num_regions\fP Total MMIO region count\&. 
+.br
+.PP
+struct \fBopae_vfio_device_region\fP * \fIregions\fP Region list pointer\&. 
+.br
+.PP
+uint32_t \fIdevice_num_irqs\fP IRQ index count\&. 
+.br
+.PP
+struct \fBopae_vfio_device_irq\fP * \fIirqs\fP IRQ list pointer\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio_buffer"
+.PP 
+System DMA buffer
+.PP
+Describes a system memory address space that is capable of DMA\&. 
+.PP
+Definition at line 135 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint8_t * \fIbuffer_ptr\fP Buffer virtual address\&. 
+.br
+.PP
+size_t \fIbuffer_size\fP Buffer size\&. 
+.br
+.PP
+uint64_t \fIbuffer_iova\fP Buffer IOVA address\&. 
+.br
+.PP
+int \fIflags\fP See opae_vfio_buffer_flags\&. 
+.br
+.PP
+.RE
+.PP
+.SH "struct opae_vfio"
+.PP 
+OPAE VFIO device abstraction
+.PP
+This structure is used to interact with the OPAE VFIO API\&. It tracks data related to the VFIO container, group, and device\&. A mutex is provided for thread safety\&. 
+.PP
+Definition at line 149 of file vfio\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+pthread_mutex_t \fIlock\fP For thread safety\&. 
+.br
+.PP
+char * \fIcont_device\fP '/dev/vfio/vfio' 
+.br
+.PP
+char * \fIcont_pciaddr\fP PCIe address, eg 0000:00:00\&.0 
+.br
+.PP
+int \fIcont_fd\fP Container file descriptor\&. 
+.br
+.PP
+struct \fBopae_vfio_iova_range\fP * \fIcont_ranges\fP List of IOVA ranges\&. 
+.br
+.PP
+struct \fBmem_alloc\fP \fIiova_alloc\fP Allocator for IOVA space\&. 
+.br
+.PP
+struct \fBopae_vfio_group\fP \fIgroup\fP The VFIO device group\&. 
+.br
+.PP
+struct \fBopae_vfio_device\fP \fIdevice\fP The VFIO device\&. 
+.br
+.PP
+\fBopae_hash_map\fP \fIcont_buffers\fP Map of allocated DMA buffers\&. 
+.br
+.PP
+.RE
+.PP
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBopae_vfio_buffer_flags\fP"
+Flags for \fBopae_vfio_buffer_allocate_ex()\fP\&. 
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIOPAE_VFIO_BUF_PREALLOCATED \fP\fP
+Use existing buffer 
+.PP
+Definition at line 340 of file vfio\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "int opae_vfio_open (struct \fBopae_vfio\fP * v, const char * pciaddr)"
+Open and populate a VFIO device
+.PP
+Opens the PCIe device corresponding to the address given in pciaddr\&. The device must be bound to the vfio-pci driver prior to opening it\&. The data structures corresponding to IOVA space, MMIO regions, and DMA buffers are initialized\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP Storage for the device info\&. May be stack-resident\&. 
+.br
+\fIpciaddr\fP The PCIe address of the requested device\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+$ sudo opaevfio -i 0000:00:00\&.0 -u user -g group
+
+.fi
+.PP
+.PP
+Example 
+.PP
+.nf
+opae_vfio v;
+
+if (opae_vfio_open(&v, "0000:00:00\&.0")) {
+  // handle error
+}
+
+.fi
+.PP
+ 
+.SS "int opae_vfio_secure_open (struct \fBopae_vfio\fP * v, const char * pciaddr, const char * token)"
+Open and populate a VFIO device
+.PP
+Opens the PCIe device corresponding to the address given in pciaddr, using the VF token (GUID) given in token\&. The device must be bound to the vfio-pci driver prior to opening it\&. The data structures corresponding to IOVA space, MMIO regions, and DMA buffers are initialized\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP Storage for the device info\&. May be stack-resident\&. 
+.br
+\fIpciaddr\fP The PCIe address of the requested device\&. 
+.br
+\fItoken\fP The GUID representing the VF token\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+$ sudo opaevfio -i 0000:00:00\&.0 -u user -g group
+
+.fi
+.PP
+.PP
+Example 
+.PP
+.nf
+opae_vfio v;
+
+if (opae_vfio_secure_open(&v, "0000:00:00\&.0",
+                          "00f5ad6b-2edd-422e-9d1e-34124c686fec")) {
+  // handle error
+}
+
+.fi
+.PP
+ 
+.SS "int opae_vfio_region_get (struct \fBopae_vfio\fP * v, uint32_t index, uint8_t ** ptr, size_t * size)"
+Query device MMIO region
+.PP
+Retrieves info describing the MMIO region with the given region index\&. The device structure v must have been previously opened by a call to opae_vfio_open\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIindex\fP The zero-based index of the desired MMIO region\&. 
+.br
+\fIptr\fP Optional pointer to receive the virtual address for the region\&. Pass NULL to ignore\&. 
+.br
+\fIsize\fP Optional pointer to receive the size of the MMIO region\&. Pass NULL to ignore\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error (including index out-of-range)\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+opae_vfio v;
+
+uint8_t *fme_virt = NULL;
+uint8_t *port_virt = NULL;
+size_t fme_size = 0;
+size_t port_size = 0;
+
+if (opae_vfio_open(&v, "0000:00:00\&.0")) {
+  // handle error
+} else {
+  opae_vfio_region_get(&v, 0, &fme_virt, &fme_size);
+  opae_vfio_region_get(&v, 2, &port_virt, &port_size);
+}
+
+.fi
+.PP
+ 
+.SS "int opae_vfio_buffer_allocate (struct \fBopae_vfio\fP * v, size_t * size, uint8_t ** buf, uint64_t * iova)"
+Allocate and map system buffer
+.PP
+Allocate, map, and retrieve info for a system buffer capable of DMA\&. Saves an entry in the v->cont_buffers list\&. If the buffer is not explicitly freed by opae_vfio_buffer_free, it will be freed during opae_vfio_close\&.
+.PP
+mmap is used for the allocation\&. If the size is greater than 2MB, then the allocation request is fulfilled by a 1GB huge page\&. Else, if the size is greater than 4096, then the request is fulfilled by a 2MB huge page\&. Else, the request is fulfilled by the non-huge page pool\&.
+.PP
+\fBNote\fP
+.RS 4
+Allocations from the huge page pool require that huge pages be configured on the system\&. Huge pages may be configured on the kernel boot command prompt\&. Example default_hugepagesz=1G hugepagesz=1G hugepages=2 hugepagesz=2M hugepages=8
+.PP
+Huge pages may also be configured at runtime\&. Example sudo sh -c 'echo 8 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' sudo sh -c 'echo 2 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages'
+.PP
+Be sure that the IOMMU is also enabled using the follow kernel boot command: intel_iommu=on
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIsize\fP A pointer to the requested size\&. The size may be rounded to the next page size prior to return from the function\&. 
+.br
+\fIbuf\fP Optional pointer to receive the virtual address for the buffer\&. Pass NULL to ignore\&. 
+.br
+\fIiova\fP Optional pointer to receive the IOVA address for the buffer\&. Pass NULL to ignore\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+opae_vfio v;
+
+size_t sz;
+uint8_t *buf_2m_virt = NULL;
+uint8_t *buf_1g_virt = NULL;
+uint64_t buf_2m_iova = 0;
+uint64_t buf_1g_iova = 0;
+
+if (opae_vfio_open(&v, "0000:00:00\&.0")) {
+  // handle error
+} else {
+  sz = 2 * 1024 * 1024;
+  if (opae_vfio_buffer_allocate(&v,
+                                &sz,
+                                &buf_2m_virt,
+                                &buf_2m_iova)) {
+    // handle allocation error
+  }
+
+  sz = 1024 * 1024 * 1024;
+  if (opae_vfio_buffer_allocate(&v,
+                                &sz,
+                                &buf_1g_virt,
+                                &buf_1g_iova)) {
+    // handle allocation error
+  }
+}
+
+.fi
+.PP
+ 
+.SS "int opae_vfio_buffer_allocate_ex (struct \fBopae_vfio\fP * v, size_t * size, uint8_t ** buf, uint64_t * iova, int flags)"
+Allocate and map system buffer (extended w/ flags)
+.PP
+Allocate, map, and retrieve info for a system buffer capable of DMA\&. Saves an entry in the v->cont_buffers list\&. If the buffer is not explicitly freed by opae_vfio_buffer_free, it will be freed during opae_vfio_close, unless OPAE_VFIO_BUF_PREALLOCATED is used in which case the buffer is not freed by this library\&.
+.PP
+When not using OPAE_VFIO_BUF_PREALLOCATED, mmap is used for the allocation\&. If the size is greater than 2MB, then the allocation request is fulfilled by a 1GB huge page\&. Else, if the size is greater than 4096, then the request is fulfilled by a 2MB huge page\&. Else, the request is fulfilled by the non-huge page pool\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIsize\fP A pointer to the requested size\&. The size may be rounded to the next page size prior to return from the function\&. 
+.br
+\fIbuf\fP Optional pointer to receive the virtual address for the buffer/input buffer pointer when using OPAE_VFIO_BUF_PREALLOCATED\&. Pass NULL to ignore\&. 
+.br
+\fIiova\fP Optional pointer to receive the IOVA address for the buffer\&. Pass NULL to ignore\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+opae_vfio v;
+
+size_t sz = MY_BUF_SIZE;
+uint8_t *prealloc_virt = NULL;
+uint64_t iova = 0;
+
+prealloc_virt = allocate_my_buffer(sz);
+
+if (opae_vfio_open(&v, "0000:00:00\&.0")) {
+  // handle error
+} else {
+  if (opae_vfio_buffer_allocate_ex(&v,
+                                   &sz,
+                                   &prealloc_virt,
+                                   &iova,
+                                   OPAE_VFIO_BUF_PREALLOCATED)) {
+    // handle allocation error
+  }
+}
+
+.fi
+.PP
+ 
+.SS "struct \fBopae_vfio_buffer\fP* opae_vfio_buffer_info (struct \fBopae_vfio\fP * v, uint8_t * vaddr)"
+Extract the internal data structure pointer for the given vaddr
+.PP
+The virtual address vaddr must correspond to a buffer previously allocated by \fBopae_vfio_buffer_allocate()\fP or \fBopae_vfio_buffer_allocate_ex()\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIvaddr\fP The user virtual address of the desired buffer info struct\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+NULL on lookup error\&. 
+.RE
+.PP
+
+.SS "int opae_vfio_buffer_free (struct \fBopae_vfio\fP * v, uint8_t * buf)"
+Unmap and free a system buffer
+.PP
+The buffer corresponding to buf must have been created by a previous call to opae_vfio_buffer_allocate\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIbuf\fP The virtual address corresponding to the buffer to be freed\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+size_t sz;
+uint8_t *buf_2m_virt = NULL;
+uint64_t buf_2m_iova = 0;
+
+sz = 2 * 1024 * 1024;
+if (opae_vfio_buffer_allocate(&v,
+                              &sz,
+                              &buf_2m_virt,
+                              &buf_2m_iova)) {
+  // handle allocation error
+} else {
+  // use the buffer
+
+  if (opae_vfio_buffer_free(&v, buf_2m_virt)) {
+    // handle free error
+  }
+}
+
+.fi
+.PP
+ 
+.SS "int opae_vfio_irq_enable (struct \fBopae_vfio\fP * v, uint32_t index, uint32_t subindex, int event_fd)"
+Enable an IRQ
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIindex\fP The IRQ category\&. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX\&. 
+.br
+\fIsubindex\fP The IRQ to enable\&. 
+.br
+\fIevent_fd\fP The file descriptor, created by eventfd()\&. Interrupts will result in this event_fd being signaled\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&. 
+.RE
+.PP
+
+.SS "int opae_vfio_irq_unmask (struct \fBopae_vfio\fP * v, uint32_t index, uint32_t subindex)"
+Unmask an IRQ
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIindex\fP The IRQ category\&. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX\&. 
+.br
+\fIsubindex\fP The IRQ to unmask\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&. 
+.RE
+.PP
+
+.SS "int opae_vfio_irq_mask (struct \fBopae_vfio\fP * v, uint32_t index, uint32_t subindex)"
+Mask an IRQ
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIindex\fP The IRQ category\&. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX\&. 
+.br
+\fIsubindex\fP The IRQ to mask\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&. 
+.RE
+.PP
+
+.SS "int opae_vfio_irq_disable (struct \fBopae_vfio\fP * v, uint32_t index, uint32_t subindex)"
+Disable an IRQ
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP The open OPAE VFIO device\&. 
+.br
+\fIindex\fP The IRQ category\&. For MSI-X, use VFIO_PCI_MSIX_IRQ_INDEX\&. 
+.br
+\fIsubindex\fP The IRQ to disable\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&. 
+.RE
+.PP
+
+.SS "void opae_vfio_close (struct \fBopae_vfio\fP * v)"
+Release and close a VFIO device
+.PP
+The given device pointer must have been previously initialized by opae_vfio_open\&. Releases all data structures, including any DMA buffer allocations that have not be explicitly freed by opae_vfio_buffer_free\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIv\fP Storage for the device info\&. May be stack-resident\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+opae_vfio v;
+
+if (opae_vfio_open(&v, "0000:00:00\&.0")) {
+  // handle error
+} else {
+  // interact with the device
+  \&.\&.\&.
+  // free the device
+  opae_vfio_close(&v);
+}
+
+.fi
+.PP
+.PP
+Example 
+.PP
+.nf
+$ sudo opaevfio -r 0000:00:00\&.0
+
+.fi
+.PP
+ 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

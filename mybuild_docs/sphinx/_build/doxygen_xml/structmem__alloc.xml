@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structmem__alloc" kind="struct" language="C++" prot="public">
+    <compoundname>mem_alloc</compoundname>
+    <includes refid="mem__alloc_8h" local="no">opae/mem_alloc.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmem__alloc_1a5921b4ec4ba3b8fa0087a5211802f995" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmem__link" kindref="compound">mem_link</ref></type>
+        <definition>struct mem_link mem_alloc::free</definition>
+        <argsstring></argsstring>
+        <name>free</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mem_alloc.h" line="47" column="15" bodyfile="include/opae/mem_alloc.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmem__alloc_1af373018dfb1f354faf143b9fb04a3ca4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmem__link" kindref="compound">mem_link</ref></type>
+        <definition>struct mem_link mem_alloc::allocated</definition>
+        <argsstring></argsstring>
+        <name>allocated</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mem_alloc.h" line="47" column="15" bodyfile="include/opae/mem_alloc.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>mem_alloc</label>
+        <link refid="structmem__alloc"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+allocated</edgelabel>
+          <edgelabel>+free</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>mem_link</label>
+        <link refid="structmem__link"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+next</edgelabel>
+          <edgelabel>+prev</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/mem_alloc.h" line="50" column="1" bodyfile="include/opae/mem_alloc.h" bodystart="50" bodyend="53"/>
+    <listofallmembers>
+      <member refid="structmem__alloc_1af373018dfb1f354faf143b9fb04a3ca4" prot="public" virt="non-virtual"><scope>mem_alloc</scope><name>allocated</name></member>
+      <member refid="structmem__alloc_1a5921b4ec4ba3b8fa0087a5211802f995" prot="public" virt="non-virtual"><scope>mem_alloc</scope><name>free</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

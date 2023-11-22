@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1MapKeyComparator" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::MapKeyComparator</compoundname>
+    <includes refid="host__exerciser_8h" local="no">/root/samples/host_exerciser/host_exerciser.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structhost__exerciser_1_1MapKeyComparator_1a44a01a2bb3c22ff9bf4b0b411e655ae2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool host_exerciser::MapKeyComparator::operator()</definition>
+        <argsstring>(const std::string &amp;a, const std::string &amp;b) const</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="324" column="8" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="324" bodyend="330"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::MapKeyComparator</label>
+        <link refid="structhost__exerciser_1_1MapKeyComparator"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="322" column="1" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="323" bodyend="331"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1MapKeyComparator_1a44a01a2bb3c22ff9bf4b0b411e655ae2" prot="public" virt="non-virtual"><scope>host_exerciser::MapKeyComparator</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__uio" kind="struct" language="C++" prot="public">
+    <compoundname>opae_uio</compoundname>
+    <includes refid="uio_8h" local="no">opae/uio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__uio_1a956d6cbe927983ba6447e934e4b465e5" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char opae_uio::device_path[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>device_path</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="69" column="6" bodyfile="include/opae/uio.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__uio_1a824941d1debb8fd8edf502f828b7d9a6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int opae_uio::device_fd</definition>
+        <argsstring></argsstring>
+        <name>device_fd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="70" column="5" bodyfile="include/opae/uio.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__uio_1a7b891a77bc896a02c7a0aaa0ee008468" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__uio__device__region" kindref="compound">opae_uio_device_region</ref> *</type>
+        <definition>struct opae_uio_device_region* opae_uio::regions</definition>
+        <argsstring></argsstring>
+        <name>regions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="71" column="29" bodyfile="include/opae/uio.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>OPAE UIO device abstraction</para>
+<para>This structure is used to interact with the OPAE UIO API. Each UIO device has a file descriptor that is used to mmap its regions into user address space. Each device also has one or more MMIO regions. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>opae_uio_device_region</label>
+        <link refid="structopae__uio__device__region"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opae_uio</label>
+        <link refid="structopae__uio"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+regions</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/uio.h" line="68" column="1" bodyfile="include/opae/uio.h" bodystart="68" bodyend="72"/>
+    <listofallmembers>
+      <member refid="structopae__uio_1a824941d1debb8fd8edf502f828b7d9a6" prot="public" virt="non-virtual"><scope>opae_uio</scope><name>device_fd</name></member>
+      <member refid="structopae__uio_1a956d6cbe927983ba6447e934e4b465e5" prot="public" virt="non-virtual"><scope>opae_uio</scope><name>device_path</name></member>
+      <member refid="structopae__uio_1a7b891a77bc896a02c7a0aaa0ee008468" prot="public" virt="non-virtual"><scope>opae_uio</scope><name>regions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

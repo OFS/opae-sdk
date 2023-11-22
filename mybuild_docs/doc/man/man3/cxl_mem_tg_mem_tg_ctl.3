@@ -1,0 +1,67 @@
+.TH "cxl_mem_tg::mem_tg_ctl" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cxl_mem_tg::mem_tg_ctl
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_mem_tg/cxl_mem_tg\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBoffset\fP = MEM_TG_CTRL }"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBvalue\fP"
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint64_t \fBtg_capability\fP: 4"
+.br
+.ti -1c
+.RI "uint64_t \fBRsvd_63_3\fP: 59"
+.br
+.ti -1c
+.RI "uint64_t \fBcounter_clear\fP: 1"
+.br
+.ti -1c
+.RI "}; "
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 141 of file cxl_mem_tg\&.h\&.
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 142 of file cxl_mem_tg\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t cxl_mem_tg::mem_tg_ctl::value"
+
+.PP
+Definition at line 143 of file cxl_mem_tg\&.h\&.
+.PP
+Referenced by cxl_mem_tg::cxl_tg_test::config_input_options(), and cxl_mem_tg::cxl_tg_test::tg_clear()\&.
+.SS "struct { \&.\&.\&. } "
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

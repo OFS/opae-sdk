@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="uniondummy__afu_1_1ddr__test__bank2__stat" kind="union" language="C++" prot="public">
+    <compoundname>dummy_afu::ddr_test_bank2_stat</compoundname>
+    <includes refid="dummy__afu_8h" local="no">/root/samples/dummy_afu/dummy_afu.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="uniondummy__afu_1_1ddr__test__bank2__stat_1ab45b1138a9723de818f886c0ec98791a" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@81</name>
+        <enumvalue id="uniondummy__afu_1_1ddr__test__bank2__stat_1ab45b1138a9723de818f886c0ec98791aa3b5fc2a73673ef8ffba47c5c0dc56baf" prot="public">
+          <name>offset</name>
+          <initializer>= DDR_TEST_BANK2_STAT</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="149" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="149" bodyend="151"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="uniondummy__afu_1_1ddr__test__bank2__stat_1a8acbcc0bc572c7ad68a2491bda817ddb" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t dummy_afu::ddr_test_bank2_stat::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="154" column="12" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="uniondummy__afu_1_1ddr__test__bank2__stat_1af99a20e3162282a7c264f7f76f19cb3a" prot="public" static="no" mutable="no">
+        <type>struct dummy_afu::ddr_test_bank2_stat::@82</type>
+        <definition>struct dummy_afu::ddr_test_bank2_stat::@82 dummy_afu::ddr_test_bank2_stat::@83</definition>
+        <argsstring></argsstring>
+        <name>@83</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="161" column="3"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="uniondummy__afu_1_1ddr__test__bank2__stat_1a5cfadb8d287a49d46efc9fae92dc6394" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>dummy_afu::ddr_test_bank2_stat::ddr_test_bank2_stat</definition>
+        <argsstring>(uint64_t v)</argsstring>
+        <name>ddr_test_bank2_stat</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="153" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="153" bodyend="153"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::ddr_test_bank2_stat</label>
+        <link refid="uniondummy__afu_1_1ddr__test__bank2__stat"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="148" column="1" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="148" bodyend="162"/>
+    <listofallmembers>
+      <member refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a5cfadb8d287a49d46efc9fae92dc6394" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat</scope><name>ddr_test_bank2_stat</name></member>
+      <member refid="uniondummy__afu_1_1ddr__test__bank2__stat_1ab45b1138a9723de818f886c0ec98791aa3b5fc2a73673ef8ffba47c5c0dc56baf" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat</scope><name>offset</name></member>
+      <member refid="uniondummy__afu_1_1ddr__test__bank2__stat_1a8acbcc0bc572c7ad68a2491bda817ddb" prot="public" virt="non-virtual"><scope>dummy_afu::ddr_test_bank2_stat</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

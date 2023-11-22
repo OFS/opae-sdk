@@ -1,0 +1,77 @@
+.TH "samples/host_exerciser/host_exerciser_cmd.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/host_exerciser/host_exerciser_cmd.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+\fC#include 'host_exerciser\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBhost_exerciser::host_exerciser_cmd\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBhost_exerciser\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBtest_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBhe_sig_handler\fP (int)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "volatile bool \fBg_he_exit\fP = false"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "using \fBtest_afu\fP =  \fBopae::afu_test::afu\fP"
+
+.PP
+Definition at line 33 of file host_exerciser_cmd\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "void he_sig_handler (int)"
+
+.PP
+Definition at line 42 of file host_exerciser_cmd\&.h\&.
+.PP
+References g_he_exit\&.
+.PP
+Referenced by main()\&.
+.SH "Variable Documentation"
+.PP 
+.SS "volatile bool g_he_exit = false"
+
+.PP
+Definition at line 39 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_continuousmode(), and he_sig_handler()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

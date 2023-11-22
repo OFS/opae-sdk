@@ -1,0 +1,246 @@
+\doxysection{include/opae/uio.h File Reference}
+\label{uio_8h}\index{include/opae/uio.h@{include/opae/uio.h}}
+
+
+APIs to manage a PCIe device via UIO.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{uio_8h_structopae__uio__device__region}{opae\+\_\+uio\+\_\+device\+\_\+region}}
+\item 
+struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{uio_8h_afad8f59a5be8c5d177a755bf4e56de2f}{OPAE\+\_\+\+UIO\+\_\+\+PATH\+\_\+\+MAX}}~256
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{uio_8h_af144910b738993ba8e6eb739b79c5a16}{opae\+\_\+uio\+\_\+open}} (struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}} $\ast$u, const char $\ast$dfl\+\_\+device)
+\item 
+int \mbox{\hyperlink{uio_8h_af8f4b24fd2828b3477ab657b6f4c4006}{opae\+\_\+uio\+\_\+region\+\_\+get}} (struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}} $\ast$u, uint32\+\_\+t index, uint8\+\_\+t $\ast$$\ast$ptr, size\+\_\+t $\ast$size)
+\item 
+void \mbox{\hyperlink{uio_8h_a0aacf36585d4d608e5b6ae8b74806aa9}{opae\+\_\+uio\+\_\+close}} (struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}} $\ast$u)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+APIs to manage a PCIe device via UIO. 
+
+Presents a simple interface for interacting with a DFL device that is bound to its UIO driver. See \href{https://kernel.org/doc/html/v4.14/driver-api/uio-howto.html}{\texttt{ https\+://kernel.\+org/doc/html/v4.\+14/driver-\/api/uio-\/howto.\+html}} for a description of UIO.
+
+Provides APIs for opening/closing the device and for querying info about the MMIO regions of the device. 
+
+\doxysubsection{Data Structure Documentation}
+\index{opae\_uio\_device\_region@{opae\_uio\_device\_region}}\label{structopae__uio__device__region}
+\doxysubsubsection{struct opae\+\_\+uio\+\_\+device\+\_\+region}
+MMIO region info
+
+Describes a range of mappable MMIO. 
+
+Definition at line 53 of file uio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{uio_8h_a20fd192f4d257ba3e4b8622af81a1916}} 
+uint32\_t&
+region\_index&
+\\
+\hline
+
+\mbox{\label{uio_8h_a5bf9d879f514ef0c88dde0ec5676082d}} 
+uint8\_t $\ast$&
+region\_ptr&
+\\
+\hline
+
+\mbox{\label{uio_8h_aa8c1dc455663807cd6178945a917692e}} 
+size\_t&
+region\_page\_offset&
+\\
+\hline
+
+\mbox{\label{uio_8h_aadf0885c5e3af4a91110e1b207b092bd}} 
+size\_t&
+region\_size&
+\\
+\hline
+
+\mbox{\label{uio_8h_ade4d30e7975d0d995bcc4056fc340bc5}} 
+struct \mbox{\hyperlink{uio_8h_structopae__uio__device__region}{opae\_uio\_device\_region}} $\ast$&
+next&
+\\
+\hline
+
+\end{DoxyFields}
+\index{opae\_uio@{opae\_uio}}\label{structopae__uio}
+\doxysubsubsection{struct opae\+\_\+uio}
+OPAE UIO device abstraction
+
+This structure is used to interact with the OPAE UIO API. Each UIO device has a file descriptor that is used to mmap its regions into user address space. Each device also has one or more MMIO regions. 
+
+Definition at line 68 of file uio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{uio_8h_a956d6cbe927983ba6447e934e4b465e5}} 
+char&
+device\_path\mbox{[}256\mbox{]}&
+\\
+\hline
+
+\mbox{\label{uio_8h_a824941d1debb8fd8edf502f828b7d9a6}} 
+int&
+device\_fd&
+\\
+\hline
+
+\mbox{\label{uio_8h_a7b891a77bc896a02c7a0aaa0ee008468}} 
+struct \mbox{\hyperlink{uio_8h_structopae__uio__device__region}{opae\_uio\_device\_region}} $\ast$&
+regions&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{uio_8h_afad8f59a5be8c5d177a755bf4e56de2f}} 
+\index{uio.h@{uio.h}!OPAE\_UIO\_PATH\_MAX@{OPAE\_UIO\_PATH\_MAX}}
+\index{OPAE\_UIO\_PATH\_MAX@{OPAE\_UIO\_PATH\_MAX}!uio.h@{uio.h}}
+\doxysubsubsection{\texorpdfstring{OPAE\_UIO\_PATH\_MAX}{OPAE\_UIO\_PATH\_MAX}}
+{\footnotesize\ttfamily \#define OPAE\+\_\+\+UIO\+\_\+\+PATH\+\_\+\+MAX~256}
+
+
+
+Definition at line 46 of file uio.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{uio_8h_af144910b738993ba8e6eb739b79c5a16}} 
+\index{uio.h@{uio.h}!opae\_uio\_open@{opae\_uio\_open}}
+\index{opae\_uio\_open@{opae\_uio\_open}!uio.h@{uio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_uio\_open()}{opae\_uio\_open()}}
+{\footnotesize\ttfamily int opae\+\_\+uio\+\_\+open (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}} $\ast$}]{u,  }\item[{const char $\ast$}]{dfl\+\_\+device }\end{DoxyParamCaption})}
+
+Open and populate a UIO device
+
+Opens the Device Feature List device corresponding to the device name given in dfl\+\_\+device, eg \char`\"{}dfl\+\_\+dev.\+10\char`\"{}. The device must be bound to the dfl-\/uio-\/pdev driver prior to opening it. The data structures corresponding to the MMIO regions are initialized.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em u} & Storage for the device. May be stack-\/resident. \\
+\hline
+\mbox{\texttt{ in}}  & {\em dfl\+\_\+device} & The name of the desired DFL device. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ sudo opaeuio -\/i -\/u lab -\/g lab dfl\_dev.10}
+
+\end{DoxyCode}
+
+
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct }opae\_uio u;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_uio\_open(\&u, \textcolor{stringliteral}{"{}dfl\_dev.10"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ 
+
+Referenced by hssi\+\_\+cmd\+::set\+\_\+pkt\+\_\+filt\+\_\+dest().
+
+\mbox{\label{uio_8h_af8f4b24fd2828b3477ab657b6f4c4006}} 
+\index{uio.h@{uio.h}!opae\_uio\_region\_get@{opae\_uio\_region\_get}}
+\index{opae\_uio\_region\_get@{opae\_uio\_region\_get}!uio.h@{uio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_uio\_region\_get()}{opae\_uio\_region\_get()}}
+{\footnotesize\ttfamily int opae\+\_\+uio\+\_\+region\+\_\+get (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}} $\ast$}]{u,  }\item[{uint32\+\_\+t}]{index,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{ptr,  }\item[{size\+\_\+t $\ast$}]{size }\end{DoxyParamCaption})}
+
+Query device MMIO region
+
+Retrieves info describing the MMIO region with the given region index. The device structure u must have been previously opened by a call to opae\+\_\+uio\+\_\+open.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em u} & The open OPAE UIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em index} & The zero-\/based index of the desired MMIO region. \\
+\hline
+\mbox{\texttt{ out}}  & {\em ptr} & Optional pointer to receive the virtual address for the region. Pass NULL to ignore. \\
+\hline
+\mbox{\texttt{ out}}  & {\em size} & Optional pointer to receive the size of the MMIO region. Pass NULL to ignore. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error (including index out-\/of-\/range). Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct }opae\_uio u;}
+\DoxyCodeLine{}
+\DoxyCodeLine{uint8\_t *virt = NULL;}
+\DoxyCodeLine{\textcolor{keywordtype}{size\_t} size = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_uio\_open(\&u, \textcolor{stringliteral}{"{}dfl\_dev.10"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  opae\_uio\_region\_get(\&u, 0, \&virt, \&size);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ 
+
+Referenced by hssi\+\_\+cmd\+::set\+\_\+pkt\+\_\+filt\+\_\+dest().
+
+\mbox{\label{uio_8h_a0aacf36585d4d608e5b6ae8b74806aa9}} 
+\index{uio.h@{uio.h}!opae\_uio\_close@{opae\_uio\_close}}
+\index{opae\_uio\_close@{opae\_uio\_close}!uio.h@{uio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_uio\_close()}{opae\_uio\_close()}}
+{\footnotesize\ttfamily void opae\+\_\+uio\+\_\+close (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{uio_8h_structopae__uio}{opae\+\_\+uio}} $\ast$}]{u }\end{DoxyParamCaption})}
+
+Release and close a UIO device
+
+The given device pointer must have been previously initialized by opae\+\_\+uio\+\_\+open. Releases all data structures.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em u} & Storage for the device info. May be stack-\/resident.\\
+\hline
+\end{DoxyParams}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct }opae\_uio u;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_uio\_open(\&u, \textcolor{stringliteral}{"{}dfl\_dev.10"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  \textcolor{comment}{// interact with the device}}
+\DoxyCodeLine{  ...}
+\DoxyCodeLine{  \textcolor{comment}{// free the device}}
+\DoxyCodeLine{  opae\_uio\_close(\&u);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ sudo opaeuio -\/r dfl\_dev.10}
+
+\end{DoxyCode}
+ 
+
+Referenced by hssi\+\_\+cmd\+::set\+\_\+pkt\+\_\+filt\+\_\+dest().
+

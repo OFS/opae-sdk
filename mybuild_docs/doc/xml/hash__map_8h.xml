@@ -1,0 +1,556 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="hash__map_8h" kind="file" language="C++">
+    <compoundname>hash_map.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="types__enum_8h" local="no">opae/types_enum.h</includes>
+    <includedby refid="vfio_8h" local="no">include/opae/vfio.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+      <node id="4">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="1">
+        <label>include/opae/hash_map.h</label>
+        <link refid="hash__map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>include/opae/vfio.h</label>
+        <link refid="vfio_8h"/>
+      </node>
+      <node id="1">
+        <label>include/opae/hash_map.h</label>
+        <link refid="hash__map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structopae__hash__map__item" prot="public">opae_hash_map_item</innerclass>
+    <innerclass refid="structopae__hash__map" prot="public">opae_hash_map</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="hash__map_8h_1a2f858c6198f438f243a9b886e361fa0c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>opae_hash_map_flags</name>
+        <enumvalue id="hash__map_8h_1a2f858c6198f438f243a9b886e361fa0ca4089fe07cd9c5d05ea168d2b49beae5d" prot="public">
+          <name>OPAE_HASH_MAP_UNIQUE_KEYSPACE</name>
+          <initializer>= (1u &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Flags used to initialize a hash map.</para>
+<para>OPAE_HASH_MAP_UNIQUE_KEYSPACE says that the user provides a guarantee that the key space is truly unique. In other words, when the provided hash function for keys A and B returns the same bucket index, the key comparison function when comparing A and B will never return a result saying that the keys are equal in value. This is helpful in situations where the key space is guaranteed to produce unique values, for example a memory allocator. When the key space is guaranteed to be unique, <ref refid="hash__map_8h_1ae42574e8d296806a5b395fce978a1338" kindref="member">opae_hash_map_add()</ref> can implement a small performance improvement. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="58" column="1" bodyfile="include/opae/hash_map.h" bodystart="58" bodyend="60"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="hash__map_8h_1a5d8b6eed0eea3e1e74de38cb04c1d4e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae_hash_map_init</definition>
+        <argsstring>(opae_hash_map *hm, uint32_t num_buckets, uint32_t hash_seed, int flags, uint32_t(*key_hash)(uint32_t num_buckets, uint32_t hash_seed, void *key), int(*key_compare)(void *keya, void *keyb), void(*key_cleanup)(void *key, void *context), void(*value_cleanup)(void *value, void *context))</argsstring>
+        <name>opae_hash_map_init</name>
+        <param>
+          <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref> *</type>
+          <declname>hm</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>num_buckets</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>hash_seed</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>uint32_t(*)(uint32_t num_buckets, uint32_t hash_seed, void *key)</type>
+          <declname>key_hash</declname>
+        </param>
+        <param>
+          <type>int(*)(void *keya, void *keyb)</type>
+          <declname>key_compare</declname>
+        </param>
+        <param>
+          <type>void(*)(void *key, void *context)</type>
+          <declname>key_cleanup</declname>
+        </param>
+        <param>
+          <type>void(*)(void *value, void *context)</type>
+          <declname>value_cleanup</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Initialize a hash map</para>
+<para>Populates the hash map data structure and allocates the buckets array.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">hm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the storage for the hash map object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">num_buckets</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The desired size of the buckets array. Each array entry may be empty (NULL), or may contain a list of <ref refid="structopae__hash__map__item" kindref="compound">opae_hash_map_item</ref> structures for which the given key_hash function returned the same key hash value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">hash_seed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A seed value used during key hash computation. This value will be the hash_seed parameter to the key hash function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialization flags. See opae_hash_map_flags. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">key_hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to a function that produces the hash value, given the number of buckets, the hash seed, and the key. Valid values are between 0 and num_buckets - 1, inclusively. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">key_compare</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to a function that compares two keys. The return value is similar to that of strcmp(), where a negative value means that keya &lt; keyb, 0 means that keya == keyb, and a positive values means that keya &gt; keyb. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">key_cleanup</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to a function that is called when a key is being removed from the map. This function is optional and may be NULL. When supplied, the function is responsible for freeing any resources allocated when the key was created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value_cleanup</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to a function that is called when a value is being removed from the map. This function is optional and may be NULL. When supplied, the function is responsible for freeing any resources allocated when the value was created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if any of the required parameters are NULL, or FPGA_NO_MEMORY if the bucket array could not be allocated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="131" column="13" declfile="include/opae/hash_map.h" declline="131" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1ae42574e8d296806a5b395fce978a1338" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae_hash_map_add</definition>
+        <argsstring>(opae_hash_map *hm, void *key, void *value)</argsstring>
+        <name>opae_hash_map_add</name>
+        <param>
+          <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref> *</type>
+          <declname>hm</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Map a key to a value</para>
+<para>Inserts a mapping from key to value in the given hash map object. Subsequent calls to <ref refid="hash__map_8h_1a2cf46fb910f75709741009e5f6c42b16" kindref="member">opae_hash_map_find()</ref> that are given the key will retrieve the value.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">hm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the storage for the hash map object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The hash map key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The hash map value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if hm is NULL, FPGA_NO_MEMORY if malloc() fails when allocating the list item, or FPGA_INVALID_PARAM if the key hash produced by key_hash is out of bounds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="156" column="13" declfile="include/opae/hash_map.h" declline="156" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1a2cf46fb910f75709741009e5f6c42b16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae_hash_map_find</definition>
+        <argsstring>(opae_hash_map *hm, void *key, void **value)</argsstring>
+        <name>opae_hash_map_find</name>
+        <param>
+          <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref> *</type>
+          <declname>hm</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>void **</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the value for a given key</para>
+<para>Given a key that was previously passed to <ref refid="hash__map_8h_1ae42574e8d296806a5b395fce978a1338" kindref="member">opae_hash_map_add()</ref>, retrieve its associated value.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">hm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the storage for the hash map object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The hash map key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to receive the hash map value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM if hm is NULL or if the key hash produced by key_hash is out of bounds, or FPGA_NOT_FOUND if the given key was not found in the hash map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="173" column="13" declfile="include/opae/hash_map.h" declline="173" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1a5750c806056b605248bee90399e64e29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae_hash_map_remove</definition>
+        <argsstring>(opae_hash_map *hm, void *key)</argsstring>
+        <name>opae_hash_map_remove</name>
+        <param>
+          <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref> *</type>
+          <declname>hm</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Remove a key/value association</para>
+<para>Given a key that was previously passed to <ref refid="hash__map_8h_1ae42574e8d296806a5b395fce978a1338" kindref="member">opae_hash_map_add()</ref>, remove the key and its associated value, calling the cleanup functions as needed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">hm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the storage for the hash map object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The hash map key. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success, FPGA_INVALID_PARAM when hm is NULL or when the key hash produced by key_hash is out of bounds, or FPGA_NOT_FOUND if the key is not found in the hash map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="189" column="13" declfile="include/opae/hash_map.h" declline="189" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1adb709ed616790bfc7fd58d2b3f72b69c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae_hash_map_destroy</definition>
+        <argsstring>(opae_hash_map *hm)</argsstring>
+        <name>opae_hash_map_destroy</name>
+        <param>
+          <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref> *</type>
+          <declname>hm</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Tear down a hash map</para>
+<para>Given a hash map that was previously initialized by <ref refid="hash__map_8h_1a5d8b6eed0eea3e1e74de38cb04c1d4e2" kindref="member">opae_hash_map_init()</ref>, destroy the hash map, releasing all keys, values, and the bucket array.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">hm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the storage for the hash map object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>FPGA_OK on success or FPGA_INVALID_PARAM is hm is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="201" column="13" declfile="include/opae/hash_map.h" declline="201" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1a6d05504a7cf422f506626a68a9aca28e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool opae_hash_map_is_empty</definition>
+        <argsstring>(opae_hash_map *hm)</argsstring>
+        <name>opae_hash_map_is_empty</name>
+        <param>
+          <type><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref> *</type>
+          <declname>hm</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine whether a hash map is empty</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">hm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A pointer to the storage for the hash map object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if there are no key/value mappings present, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="210" column="6" declfile="include/opae/hash_map.h" declline="210" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1a21604f9336e0cff5cacdfa01d0d56b87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t opae_u64_key_hash</definition>
+        <argsstring>(uint32_t num_buckets, uint32_t hash_seed, void *key)</argsstring>
+        <name>opae_u64_key_hash</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>num_buckets</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>hash_seed</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience hash function for arbitrary pointers/64-bit values.</para>
+<para>Simply converts the key to a uint64_t and then performs the modulus operation with the configured num_buckets. hash_seed is unused. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="219" column="10" declfile="include/opae/hash_map.h" declline="219" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="hash__map_8h_1abccdf1c3216e0b98093641cd44f93a10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_u64_key_compare</definition>
+        <argsstring>(void *keya, void *keyb)</argsstring>
+        <name>opae_u64_key_compare</name>
+        <param>
+          <type>void *</type>
+          <declname>keya</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>keyb</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience key comparison function for 64-bit values.</para>
+<para>Simply converts the key pointers to uint64_t&apos;s and performs unsigned integer comparison. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/hash_map.h" line="229" column="5" declfile="include/opae/hash_map.h" declline="229" declcolumn="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A general-purpose hybrid array/list hash map implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Presents a generic interface for mapping key objects to value objects. Both keys and values may be arbitrary data structures. The user supplies the means by which the hash of values is generated and by which the keys are compared to each other. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2022-2023,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__OPAE_HASH_MAP_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__OPAE_HASH_MAP_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types__enum_8h" kindref="compound">opae/types_enum.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="hash__map_8h_1a2f858c6198f438f243a9b886e361fa0c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>_opae_hash_map_flags<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><ref refid="hash__map_8h_1a2f858c6198f438f243a9b886e361fa0ca4089fe07cd9c5d05ea168d2b49beae5d" kindref="member">OPAE_HASH_MAP_UNIQUE_KEYSPACE</ref><sp/>=<sp/>(1u<sp/>&lt;&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="60" refid="hash__map_8h_1a2f858c6198f438f243a9b886e361fa0ca4089fe07cd9c5d05ea168d2b49beae5d" refkind="member"><highlight class="normal">}<sp/><ref refid="hash__map_8h_1a2f858c6198f438f243a9b886e361fa0c" kindref="member">opae_hash_map_flags</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structopae__hash__map__item" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">_opae_hash_map_item<sp/>{</highlight></codeline>
+<codeline lineno="71" refid="structopae__hash__map__item_1a2bc84efb62b050093f82300b050f9476" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structopae__hash__map__item_1a2bc84efb62b050093f82300b050f9476" kindref="member">key</ref>;</highlight></codeline>
+<codeline lineno="72" refid="structopae__hash__map__item_1a90e4ff6c4d033b0076d462069671f3c5" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structopae__hash__map__item_1a90e4ff6c4d033b0076d462069671f3c5" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="73" refid="structopae__hash__map__item_1a426277c984ea3e44d733ade585aef233" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">_opae_hash_map_item<sp/>*<ref refid="structopae__hash__map__item_1a426277c984ea3e44d733ade585aef233" kindref="member">next</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}<sp/><ref refid="structopae__hash__map__item" kindref="compound">opae_hash_map_item</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structopae__hash__map" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">_opae_hash_map<sp/>{</highlight></codeline>
+<codeline lineno="85" refid="structopae__hash__map_1a63068218b83c3a932af0744583d4d52d" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__hash__map_1a63068218b83c3a932af0744583d4d52d" kindref="member">num_buckets</ref>;</highlight></codeline>
+<codeline lineno="86" refid="structopae__hash__map_1a358c866ba990349f752a6783bea8d1f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__hash__map_1a358c866ba990349f752a6783bea8d1f4" kindref="member">hash_seed</ref>;</highlight></codeline>
+<codeline lineno="87" refid="structopae__hash__map_1a8465d6028ce340508e8d819130d08ecf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structopae__hash__map__item" kindref="compound">opae_hash_map_item</ref><sp/>**<ref refid="structopae__hash__map_1a8465d6028ce340508e8d819130d08ecf" kindref="member">buckets</ref>;</highlight></codeline>
+<codeline lineno="88" refid="structopae__hash__map_1a14ba2f6e8a4681fdd9c1b2a2e1b619e2" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structopae__hash__map_1a14ba2f6e8a4681fdd9c1b2a2e1b619e2" kindref="member">flags</ref>;</highlight></codeline>
+<codeline lineno="89" refid="structopae__hash__map_1afaa41a41911809ba9b50adae302cc606" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structopae__hash__map_1afaa41a41911809ba9b50adae302cc606" kindref="member">cleanup_context</ref>;<sp/></highlight></codeline>
+<codeline lineno="90" refid="structopae__hash__map_1afa7da5e87861430406531aa356f689ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/>(*key_hash)(uint32_t<sp/>num_buckets,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash_seed,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key);</highlight></codeline>
+<codeline lineno="93" refid="structopae__hash__map_1ad17135479de98e413bd2070306664864" refkind="member"><highlight class="normal"><sp/><sp/><sp/>int<sp/>(*key_compare)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*keya,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*keyb);<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94" refid="structopae__hash__map_1af8011981f985e00b4c6a0fff31da3eac" refkind="member"><highlight class="normal"><sp/><sp/><sp/>void<sp/>(*key_cleanup)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*context);<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structopae__hash__map_1a9fda942cec9921df1bfee590ebf0600d" refkind="member"><highlight class="normal"><sp/><sp/><sp/>void<sp/>(*value_cleanup)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*value,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*context);<sp/></highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}<sp/><ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="hash__map_8h_1a5d8b6eed0eea3e1e74de38cb04c1d4e2" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hash__map_8h_1a5d8b6eed0eea3e1e74de38cb04c1d4e2" kindref="member">opae_hash_map_init</ref>(<ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/>*hm,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>num_buckets,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash_seed,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>(*key_hash)(uint32_t<sp/>num_buckets,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash_seed,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key),</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>(*key_compare)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*keya,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*keyb),</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*key_cleanup)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*context),</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*value_cleanup)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*value,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*context));</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156" refid="hash__map_8h_1ae42574e8d296806a5b395fce978a1338" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hash__map_8h_1ae42574e8d296806a5b395fce978a1338" kindref="member">opae_hash_map_add</ref>(<ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/>*hm,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*value);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173" refid="hash__map_8h_1a2cf46fb910f75709741009e5f6c42b16" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hash__map_8h_1a2cf46fb910f75709741009e5f6c42b16" kindref="member">opae_hash_map_find</ref>(<ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/>*hm,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**value);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="hash__map_8h_1a5750c806056b605248bee90399e64e29" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hash__map_8h_1a5750c806056b605248bee90399e64e29" kindref="member">opae_hash_map_remove</ref>(<ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/>*hm,</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="hash__map_8h_1adb709ed616790bfc7fd58d2b3f72b69c" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hash__map_8h_1adb709ed616790bfc7fd58d2b3f72b69c" kindref="member">opae_hash_map_destroy</ref>(<ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/>*hm);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210" refid="hash__map_8h_1a6d05504a7cf422f506626a68a9aca28e" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="hash__map_8h_1a6d05504a7cf422f506626a68a9aca28e" kindref="member">opae_hash_map_is_empty</ref>(<ref refid="structopae__hash__map" kindref="compound">opae_hash_map</ref><sp/>*hm);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219" refid="hash__map_8h_1a21604f9336e0cff5cacdfa01d0d56b87" refkind="member"><highlight class="normal">uint32_t<sp/><ref refid="hash__map_8h_1a21604f9336e0cff5cacdfa01d0d56b87" kindref="member">opae_u64_key_hash</ref>(uint32_t<sp/>num_buckets,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash_seed,</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229" refid="hash__map_8h_1abccdf1c3216e0b98093641cd44f93a10" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="hash__map_8h_1abccdf1c3216e0b98093641cd44f93a10" kindref="member">opae_u64_key_compare</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*keya,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*keyb);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__OPAE_HASH_MAP_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/hash_map.h"/>
+  </compounddef>
+</doxygen>

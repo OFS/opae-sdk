@@ -1,0 +1,411 @@
+.TH "host_exerciser::host_exerciser_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::host_exerciser_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/host_exerciser/host_exerciser_cmd\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.PP
+Inherited by \fBhost_exerciser::host_exerciser_lpbk\fP, and \fBhost_exerciser::host_exerciser_mem\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhost_exerciser_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~host_exerciser_cmd\fP ()"
+.br
+.ti -1c
+.RI "void \fBhost_exerciser_status\fP ()"
+.br
+.ti -1c
+.RI "void \fBhost_exerciser_errors\fP ()"
+.br
+.ti -1c
+.RI "uint64_t \fBhost_exerciser_swtestmsg\fP ()"
+.br
+.ti -1c
+.RI "uint64_t \fBcacheline_aligned_addr\fP (uint64_t num)"
+.br
+.ti -1c
+.RI "double \fBhe_num_xfers_to_bw\fP (uint64_t num_lines, uint64_t num_ticks)"
+.br
+.ti -1c
+.RI "uint64_t \fBdsm_num_ticks\fP (const volatile \fBhe_dsm_status\fP *dsm_status)"
+.br
+.ti -1c
+.RI "uint64_t \fBdsm_num_reads\fP (const volatile \fBhe_dsm_status\fP *dsm_status)"
+.br
+.ti -1c
+.RI "uint64_t \fBdsm_num_writes\fP (const volatile \fBhe_dsm_status\fP *dsm_status)"
+.br
+.ti -1c
+.RI "void \fBhe_perf_counters\fP ()"
+.br
+.ti -1c
+.RI "bool \fBhe_interrupt\fP (\fBevent::ptr_t\fP ev)"
+.br
+.ti -1c
+.RI "bool \fBhe_wait_test_completion\fP ()"
+.br
+.ti -1c
+.RI "void \fBhe_forcetestcmpl\fP ()"
+.br
+.ti -1c
+.RI "void \fBhe_init_src_buffer\fP (\fBshared_buffer::ptr_t\fP buffer)"
+.br
+.ti -1c
+.RI "void \fBhe_dump_buffer\fP (\fBshared_buffer::ptr_t\fP buffer, const char *msg)"
+.br
+.ti -1c
+.RI "uint64_t \fBhe_compare_buffer\fP ()"
+.br
+.ti -1c
+.RI "bool \fBhe_continuousmode\fP ()"
+.br
+.ti -1c
+.RI "void \fBset_cfg_reqlen\fP (\fBhostexe_req_len\fP req_len)"
+.br
+.ti -1c
+.RI "void \fBset_cfg_reqlen\fP (uint32_t req_len)"
+.br
+.ti -1c
+.RI "\fBhostexe_req_len\fP \fBget_cfg_reqlen\fP ()"
+.br
+.ti -1c
+.RI "int \fBparse_input_options\fP ()"
+.br
+.ti -1c
+.RI "int \fBrun_single_test\fP ()"
+.br
+.ti -1c
+.RI "int \fBrun_all_tests\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBhe_cfg\fP \fBhe_lpbk_cfg_\fP"
+.br
+.ti -1c
+.RI "\fBhe_ctl\fP \fBhe_lpbk_ctl_\fP"
+.br
+.ti -1c
+.RI "\fBhost_exerciser\fP * \fBhost_exe_\fP"
+.br
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBsource_\fP"
+.br
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBdestination_\fP"
+.br
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBdsm_\fP"
+.br
+.ti -1c
+.RI "\fBhe_interrupt0\fP \fBhe_interrupt_\fP"
+.br
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBtoken_\fP"
+.br
+.ti -1c
+.RI "\fBhostexe_req_len\fP \fBhe_lpbk_max_reqlen_\fP"
+.br
+.ti -1c
+.RI "uint8_t \fBhe_lpbk_api_ver_\fP"
+.br
+.ti -1c
+.RI "bool \fBhe_lpbk_atomics_supported_\fP"
+.br
+.ti -1c
+.RI "bool \fBis_ase_sim_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 51 of file host_exerciser_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "host_exerciser::host_exerciser_cmd::host_exerciser_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 54 of file host_exerciser_cmd\&.h\&.
+.PP
+References he_lpbk_api_ver_, he_lpbk_atomics_supported_, he_lpbk_cfg_, he_lpbk_ctl_, he_lpbk_max_reqlen_, host_exerciser::HOSTEXE_CLS_8, is_ase_sim_, host_exerciser::he_ctl::value, and host_exerciser::he_cfg::value\&.
+.SS "virtual host_exerciser::host_exerciser_cmd::~host_exerciser_cmd ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 63 of file host_exerciser_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "void host_exerciser::host_exerciser_cmd::host_exerciser_status ()\fC [inline]\fP"
+
+.PP
+Definition at line 65 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::HE_STATUS0, host_exerciser::HE_STATUS1, host_exe_, opae::afu_test::afu::logger_, opae::afu_test::afu::read64(), host_exerciser::he_status0::value, and host_exerciser::he_status1::value\&.
+.PP
+Referenced by he_perf_counters(), and he_wait_test_completion()\&.
+.SS "void host_exerciser::host_exerciser_cmd::host_exerciser_errors ()\fC [inline]\fP"
+
+.PP
+Definition at line 91 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::HE_ERROR, host_exe_, opae::afu_test::afu::read64(), and host_exerciser::he_error::value\&.
+.PP
+Referenced by he_interrupt(), and he_wait_test_completion()\&.
+.SS "uint64_t host_exerciser::host_exerciser_cmd::host_exerciser_swtestmsg ()\fC [inline]\fP"
+
+.PP
+Definition at line 104 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::HE_SWTEST_MSG, host_exe_, and opae::afu_test::afu::read64()\&.
+.PP
+Referenced by he_compare_buffer()\&.
+.SS "uint64_t host_exerciser::host_exerciser_cmd::cacheline_aligned_addr (uint64_t num)\fC [inline]\fP"
+
+.PP
+Definition at line 119 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::LOG2_CL\&.
+.PP
+Referenced by run()\&.
+.SS "double host_exerciser::host_exerciser_cmd::he_num_xfers_to_bw (uint64_t num_lines, uint64_t num_ticks)\fC [inline]\fP"
+
+.PP
+Definition at line 124 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::host_exerciser::he_clock_mhz_, and host_exe_\&.
+.PP
+Referenced by he_perf_counters(), and run_all_tests()\&.
+.SS "uint64_t host_exerciser::host_exerciser_cmd::dsm_num_ticks (const volatile \fBhe_dsm_status\fP * dsm_status)\fC [inline]\fP"
+
+.PP
+Definition at line 129 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::he_dsm_status::num_ticks\&.
+.PP
+Referenced by he_perf_counters(), and run_all_tests()\&.
+.SS "uint64_t host_exerciser::host_exerciser_cmd::dsm_num_reads (const volatile \fBhe_dsm_status\fP * dsm_status)\fC [inline]\fP"
+
+.PP
+Definition at line 135 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::he_dsm_status::num_reads_h, and host_exerciser::he_dsm_status::num_reads_l\&.
+.PP
+Referenced by he_perf_counters(), and run_all_tests()\&.
+.SS "uint64_t host_exerciser::host_exerciser_cmd::dsm_num_writes (const volatile \fBhe_dsm_status\fP * dsm_status)\fC [inline]\fP"
+
+.PP
+Definition at line 141 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::he_dsm_status::num_writes_h, and host_exerciser::he_dsm_status::num_writes_l\&.
+.PP
+Referenced by he_perf_counters(), and run_all_tests()\&.
+.SS "void host_exerciser::host_exerciser_cmd::he_perf_counters ()\fC [inline]\fP"
+
+.PP
+Definition at line 146 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::CL, dsm_, dsm_num_reads(), dsm_num_ticks(), dsm_num_writes(), host_exerciser::host_exerciser::he_continuousmode_, he_lpbk_cfg_, he_num_xfers_to_bw(), host_exe_, host_exerciser::HOST_EXEMODE_READ, host_exerciser::HOST_EXEMODE_WRITE, host_exerciser_status(), opae::afu_test::afu::logger_, and host_exerciser::LPBK1_BUFFER_SIZE\&.
+.PP
+Referenced by he_continuousmode(), and run_single_test()\&.
+.SS "bool host_exerciser::host_exerciser_cmd::he_interrupt (\fBevent::ptr_t\fP ev)\fC [inline]\fP"
+
+.PP
+Definition at line 189 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::host_exerciser::compare(), destination_, he_lpbk_cfg_, host_exe_, host_exerciser::HOST_EXEMODE_LPBK1, host_exerciser_errors(), host_exerciser::host_exerciser::interrupt_wait(), and source_\&.
+.PP
+Referenced by run_single_test()\&.
+.SS "bool host_exerciser::host_exerciser_cmd::he_wait_test_completion ()\fC [inline]\fP"
+
+.PP
+Definition at line 204 of file host_exerciser_cmd\&.h\&.
+.PP
+References dsm_, host_exerciser::HELPBK_TEST_SLEEP_INVL, host_exerciser::HELPBK_TEST_TIMEOUT, host_exerciser_errors(), host_exerciser_status(), is_ase_sim_, and usleep()\&.
+.PP
+Referenced by he_forcetestcmpl(), and run_single_test()\&.
+.SS "void host_exerciser::host_exerciser_cmd::he_forcetestcmpl ()\fC [inline]\fP"
+
+.PP
+Definition at line 227 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::HE_CTL, he_lpbk_ctl_, he_wait_test_completion(), host_exe_, usleep(), host_exerciser::he_ctl::value, and opae::afu_test::afu::write32()\&.
+.PP
+Referenced by he_continuousmode()\&.
+.SS "void host_exerciser::host_exerciser_cmd::he_init_src_buffer (\fBshared_buffer::ptr_t\fP buffer)\fC [inline]\fP"
+
+.PP
+Definition at line 243 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::CL, host_exerciser::host_exerciser::fill(), he_lpbk_cfg_, host_exe_, host_exerciser::HOSTEXE_ATOMIC_CAS_4, host_exerciser::HOSTEXE_ATOMIC_CAS_8, and host_exerciser::HOSTEXE_ATOMIC_OFF\&.
+.PP
+Referenced by run(), and run_all_tests()\&.
+.SS "void host_exerciser::host_exerciser_cmd::he_dump_buffer (\fBshared_buffer::ptr_t\fP buffer, const char * msg)\fC [inline]\fP"
+
+.PP
+Definition at line 273 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::CL\&.
+.PP
+Referenced by run_single_test()\&.
+.SS "uint64_t host_exerciser::host_exerciser_cmd::he_compare_buffer ()\fC [inline]\fP"
+
+.PP
+Definition at line 295 of file host_exerciser_cmd\&.h\&.
+.PP
+References host_exerciser::CL, destination_, he_lpbk_cfg_, host_exerciser::HOST_EXEMODE_LPBK1, host_exerciser_swtestmsg(), host_exerciser::HOSTEXE_ATOMIC_OFF, and source_\&.
+.PP
+Referenced by run_single_test()\&.
+.SS "bool host_exerciser::host_exerciser_cmd::he_continuousmode ()\fC [inline]\fP"
+
+.PP
+Definition at line 376 of file host_exerciser_cmd\&.h\&.
+.PP
+References g_he_exit, host_exerciser::host_exerciser::he_continuousmode_, host_exerciser::host_exerciser::he_contmodetime_, he_forcetestcmpl(), he_perf_counters(), host_exe_, and opae::afu_test::afu::logger_\&.
+.PP
+Referenced by run_single_test()\&.
+.SS "void host_exerciser::host_exerciser_cmd::set_cfg_reqlen (\fBhostexe_req_len\fP req_len)\fC [inline]\fP"
+
+.PP
+Definition at line 396 of file host_exerciser_cmd\&.h\&.
+.PP
+References he_lpbk_cfg_\&.
+.PP
+Referenced by parse_input_options(), run_all_tests(), and set_cfg_reqlen()\&.
+.SS "void host_exerciser::host_exerciser_cmd::set_cfg_reqlen (uint32_t req_len)\fC [inline]\fP"
+
+.PP
+Definition at line 404 of file host_exerciser_cmd\&.h\&.
+.PP
+References set_cfg_reqlen()\&.
+.SS "\fBhostexe_req_len\fP host_exerciser::host_exerciser_cmd::get_cfg_reqlen ()\fC [inline]\fP"
+
+.PP
+Definition at line 409 of file host_exerciser_cmd\&.h\&.
+.PP
+References he_lpbk_cfg_\&.
+.PP
+Referenced by parse_input_options()\&.
+.SS "int host_exerciser::host_exerciser_cmd::parse_input_options ()\fC [inline]\fP"
+
+.PP
+Definition at line 415 of file host_exerciser_cmd\&.h\&.
+.PP
+References opae::fpga::types::properties::get(), get_cfg_reqlen(), host_exerciser::host_exerciser::he_continuousmode_, host_exerciser::host_exerciser::he_contmodetime_, host_exerciser::host_exerciser::he_delay_, host_exerciser::host_exerciser::he_interleave_, host_exerciser::host_exerciser::he_interrupt_, he_lpbk_api_ver_, he_lpbk_atomics_supported_, he_lpbk_cfg_, he_lpbk_max_reqlen_, host_exerciser::host_exerciser::he_modes_, host_exerciser::host_exerciser::he_req_atomic_func_, host_exerciser::host_exerciser::he_req_cls_len_, host_exerciser::host_exerciser::he_req_encoding_, host_exe_, host_exerciser::HOST_EXEMODE_LPBK1, host_exerciser::HOST_EXEMODE_TRPUT, host_exerciser::HOSTEXE_ATOMIC_OFF, host_exerciser::HOSTEXE_CLS_1, host_exerciser::HOSTEXE_ENCODING_DEFAULT, is_ase_sim_, host_exerciser::host_exerciser::option_passed(), set_cfg_reqlen(), and token_\&.
+.PP
+Referenced by run()\&.
+.SS "int host_exerciser::host_exerciser_cmd::run_single_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 503 of file host_exerciser_cmd\&.h\&.
+.PP
+References destination_, dsm_, host_exerciser::HE_CFG, he_compare_buffer(), he_continuousmode(), host_exerciser::host_exerciser::he_continuousmode_, host_exerciser::HE_CTL, he_dump_buffer(), he_interrupt(), host_exerciser::HE_INTERRUPT0, host_exerciser::host_exerciser::he_interrupt_, he_interrupt_, he_lpbk_cfg_, he_lpbk_ctl_, he_perf_counters(), he_wait_test_completion(), host_exe_, opae::afu_test::afu::logger_, host_exerciser::LPBK1_DSM_SIZE, host_exerciser::host_exerciser::register_interrupt(), source_, usleep(), host_exerciser::he_ctl::value, host_exerciser::he_cfg::value, host_exerciser::he_interrupt0::value, opae::afu_test::afu::write32(), and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by run(), and run_all_tests()\&.
+.SS "int host_exerciser::host_exerciser_cmd::run_all_tests ()\fC [inline]\fP"
+
+.PP
+Definition at line 600 of file host_exerciser_cmd\&.h\&.
+.PP
+References destination_, dsm_, dsm_num_reads(), dsm_num_ticks(), dsm_num_writes(), host_exerciser::host_exerciser::he_continuousmode_, host_exerciser::host_exerciser::he_contmodetime_, he_init_src_buffer(), he_lpbk_atomics_supported_, he_lpbk_cfg_, he_lpbk_max_reqlen_, he_num_xfers_to_bw(), host_exerciser::he_req_atomic_func, host_exerciser::he_req_cls_len, host_exe_, host_exerciser::HOST_EXEMODE_LPBK1, host_exerciser::HOST_EXEMODE_READ, host_exerciser::HOST_EXEMODE_TRPUT, host_exerciser::HOST_EXEMODE_WRITE, host_exerciser::HOSTEXE_ATOMIC_CAS_8, host_exerciser::HOSTEXE_ATOMIC_FADD_4, host_exerciser::HOSTEXE_ATOMIC_OFF, host_exerciser::HOSTEXE_CLS_1, host_exerciser::LPBK1_BUFFER_SIZE, run_single_test(), set_cfg_reqlen(), and source_\&.
+.PP
+Referenced by run()\&.
+.SS "virtual int host_exerciser::host_exerciser_cmd::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 730 of file host_exerciser_cmd\&.h\&.
+.PP
+References app, cacheline_aligned_addr(), host_exerciser::CL, destination_, dsm_, host_exerciser::host_exerciser::he_clock_mhz_, host_exerciser::HE_CTL, host_exerciser::HE_DSM_BASEH, host_exerciser::HE_DSM_BASEL, host_exerciser::HE_DST_ADDR, host_exerciser::HE_INFO0, he_init_src_buffer(), he_lpbk_api_ver_, he_lpbk_atomics_supported_, he_lpbk_ctl_, he_lpbk_max_reqlen_, host_exerciser::HE_NUM_LINES, host_exerciser::HE_SRC_ADDR, host_exerciser::host_exerciser::he_test_all_, host_exe_, host_exerciser::HOSTEXE_CLS_16, host_exerciser::HOSTEXE_CLS_8, opae::afu_test::afu::logger_, host_exerciser::LPBK1_BUFFER_ALLOCATION_SIZE, host_exerciser::LPBK1_BUFFER_SIZE, host_exerciser::LPBK1_DSM_SIZE, parse_input_options(), opae::afu_test::afu::read64(), run_all_tests(), run_single_test(), source_, token_, usleep(), and host_exerciser::he_ctl::value\&.
+.SH "Field Documentation"
+.PP 
+.SS "\fBhe_cfg\fP host_exerciser::host_exerciser_cmd::he_lpbk_cfg_\fC [protected]\fP"
+
+.PP
+Definition at line 826 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser_cmd(), get_cfg_reqlen(), he_compare_buffer(), he_init_src_buffer(), he_interrupt(), he_perf_counters(), parse_input_options(), run_all_tests(), run_single_test(), and set_cfg_reqlen()\&.
+.SS "\fBhe_ctl\fP host_exerciser::host_exerciser_cmd::he_lpbk_ctl_\fC [protected]\fP"
+
+.PP
+Definition at line 827 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser_cmd(), he_forcetestcmpl(), run(), and run_single_test()\&.
+.SS "\fBhost_exerciser\fP* host_exerciser::host_exerciser_cmd::host_exe_\fC [protected]\fP"
+
+.PP
+Definition at line 828 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by he_continuousmode(), he_forcetestcmpl(), he_init_src_buffer(), he_interrupt(), he_num_xfers_to_bw(), he_perf_counters(), host_exerciser_errors(), host_exerciser_status(), host_exerciser_swtestmsg(), parse_input_options(), run(), run_all_tests(), and run_single_test()\&.
+.SS "\fBshared_buffer::ptr_t\fP host_exerciser::host_exerciser_cmd::source_\fC [protected]\fP"
+
+.PP
+Definition at line 829 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by he_compare_buffer(), he_interrupt(), run(), run_all_tests(), and run_single_test()\&.
+.SS "\fBshared_buffer::ptr_t\fP host_exerciser::host_exerciser_cmd::destination_\fC [protected]\fP"
+
+.PP
+Definition at line 830 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by he_compare_buffer(), he_interrupt(), run(), run_all_tests(), and run_single_test()\&.
+.SS "\fBshared_buffer::ptr_t\fP host_exerciser::host_exerciser_cmd::dsm_\fC [protected]\fP"
+
+.PP
+Definition at line 831 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by he_perf_counters(), he_wait_test_completion(), run(), run_all_tests(), and run_single_test()\&.
+.SS "\fBhe_interrupt0\fP host_exerciser::host_exerciser_cmd::he_interrupt_\fC [protected]\fP"
+
+.PP
+Definition at line 832 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by run_single_test()\&.
+.SS "\fBtoken::ptr_t\fP host_exerciser::host_exerciser_cmd::token_\fC [protected]\fP"
+
+.PP
+Definition at line 833 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by parse_input_options(), and run()\&.
+.SS "\fBhostexe_req_len\fP host_exerciser::host_exerciser_cmd::he_lpbk_max_reqlen_\fC [protected]\fP"
+
+.PP
+Definition at line 834 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser_cmd(), parse_input_options(), run(), and run_all_tests()\&.
+.SS "uint8_t host_exerciser::host_exerciser_cmd::he_lpbk_api_ver_\fC [protected]\fP"
+
+.PP
+Definition at line 835 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser_cmd(), parse_input_options(), and run()\&.
+.SS "bool host_exerciser::host_exerciser_cmd::he_lpbk_atomics_supported_\fC [protected]\fP"
+
+.PP
+Definition at line 836 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser_cmd(), parse_input_options(), run(), and run_all_tests()\&.
+.SS "bool host_exerciser::host_exerciser_cmd::is_ase_sim_\fC [protected]\fP"
+
+.PP
+Definition at line 837 of file host_exerciser_cmd\&.h\&.
+.PP
+Referenced by host_exerciser_cmd(), he_wait_test_completion(), and parse_input_options()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,131 @@
+\doxysection{include/opae/metrics.h File Reference}
+\label{metrics_8h}\index{include/opae/metrics.h@{include/opae/metrics.h}}
+
+
+Functions for Discover/ Enumerates metrics and retrieves values.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{metrics_8h_ac4f079f737b78c4e9cd22b0d4dcd91aa}{fpga\+Get\+Num\+Metrics}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t $\ast$num\+\_\+metrics)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{metrics_8h_ac59305e77a52f5568f2eafc35277e1fa}{fpga\+Get\+Metrics\+Info}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, \mbox{\hyperlink{types_8h_structfpga__metric__info}{fpga\+\_\+metric\+\_\+info}} $\ast$metric\+\_\+info, uint64\+\_\+t $\ast$num\+\_\+metrics)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{metrics_8h_a3c956af4516f141d95527cdd4d22f786}{fpga\+Get\+Metrics\+By\+Index}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, uint64\+\_\+t $\ast$metric\+\_\+num, uint64\+\_\+t num\+\_\+metric\+\_\+indexes, \mbox{\hyperlink{types_8h_structfpga__metric}{fpga\+\_\+metric}} $\ast$metrics)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{metrics_8h_a2c19333a1eb6e0c51611fecaed2dc3a9}{fpga\+Get\+Metrics\+By\+Name}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, char $\ast$$\ast$metrics\+\_\+names, uint64\+\_\+t num\+\_\+metric\+\_\+names, \mbox{\hyperlink{types_8h_structfpga__metric}{fpga\+\_\+metric}} $\ast$metrics)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{metrics_8h_af3cafc3244fdd6e387d5e05d6b58cd13}{fpga\+Get\+Metrics\+Threshold\+Info}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, struct \mbox{\hyperlink{types_8h_structmetric__threshold}{metric\+\_\+threshold}} $\ast$metric\+\_\+thresholds, uint32\+\_\+t $\ast$num\+\_\+thresholds)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions for Discover/ Enumerates metrics and retrieves values. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{metrics_8h_ac4f079f737b78c4e9cd22b0d4dcd91aa}} 
+\index{metrics.h@{metrics.h}!fpgaGetNumMetrics@{fpgaGetNumMetrics}}
+\index{fpgaGetNumMetrics@{fpgaGetNumMetrics}!metrics.h@{metrics.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetNumMetrics()}{fpgaGetNumMetrics()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Num\+Metrics (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t $\ast$}]{num\+\_\+metrics }\end{DoxyParamCaption})}
+
+Enumerates number of metrics
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened fpga resource \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em num\+\_\+metrics} & Number of metrics are discovered in fpga resource\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the Metrics are not discovered 
+\end{DoxyReturn}
+\mbox{\label{metrics_8h_ac59305e77a52f5568f2eafc35277e1fa}} 
+\index{metrics.h@{metrics.h}!fpgaGetMetricsInfo@{fpgaGetMetricsInfo}}
+\index{fpgaGetMetricsInfo@{fpgaGetMetricsInfo}!metrics.h@{metrics.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetMetricsInfo()}{fpgaGetMetricsInfo()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Metrics\+Info (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{\mbox{\hyperlink{types_8h_structfpga__metric__info}{fpga\+\_\+metric\+\_\+info}} $\ast$}]{metric\+\_\+info,  }\item[{uint64\+\_\+t $\ast$}]{num\+\_\+metrics }\end{DoxyParamCaption})}
+
+Retrieve metrics information
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened fpga resource \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em metric\+\_\+info} & Pointer to array of metric info struct user allocates metrics info array\\
+\hline
+\mbox{\texttt{ in,out}}  & {\em num\+\_\+metrics} & Size of metric info array\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the Metrics are not found. FPGA\+\_\+\+NO\+\_\+\+MEMORY if there was not enough memory to enumerates metrics. 
+\end{DoxyReturn}
+\mbox{\label{metrics_8h_a3c956af4516f141d95527cdd4d22f786}} 
+\index{metrics.h@{metrics.h}!fpgaGetMetricsByIndex@{fpgaGetMetricsByIndex}}
+\index{fpgaGetMetricsByIndex@{fpgaGetMetricsByIndex}!metrics.h@{metrics.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetMetricsByIndex()}{fpgaGetMetricsByIndex()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Metrics\+By\+Index (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{uint64\+\_\+t $\ast$}]{metric\+\_\+num,  }\item[{uint64\+\_\+t}]{num\+\_\+metric\+\_\+indexes,  }\item[{\mbox{\hyperlink{types_8h_structfpga__metric}{fpga\+\_\+metric}} $\ast$}]{metrics }\end{DoxyParamCaption})}
+
+Retrieve metrics values by index
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened fpga resource \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em metric\+\_\+num} & Pointer to array of metric index user allocates metric array \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em num\+\_\+metric\+\_\+indexes} & Size of metric array \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em metrics} & pointer to array of metric struct\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the Metrics are not found. FPGA\+\_\+\+NO\+\_\+\+MEMORY if there was not enough memory to enumerates metrics. 
+\end{DoxyReturn}
+\mbox{\label{metrics_8h_a2c19333a1eb6e0c51611fecaed2dc3a9}} 
+\index{metrics.h@{metrics.h}!fpgaGetMetricsByName@{fpgaGetMetricsByName}}
+\index{fpgaGetMetricsByName@{fpgaGetMetricsByName}!metrics.h@{metrics.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetMetricsByName()}{fpgaGetMetricsByName()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Metrics\+By\+Name (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{char $\ast$$\ast$}]{metrics\+\_\+names,  }\item[{uint64\+\_\+t}]{num\+\_\+metric\+\_\+names,  }\item[{\mbox{\hyperlink{types_8h_structfpga__metric}{fpga\+\_\+metric}} $\ast$}]{metrics }\end{DoxyParamCaption})}
+
+Retrieve metric values by names
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened fpga resource \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em metrics\+\_\+names} & Pointer to array of metrics name user allocates metrics name array \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em num\+\_\+metric\+\_\+names} & Size of metric name array \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em metrics} & Pointer to array of metric struct\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the Metrics are not found 
+\end{DoxyReturn}
+\mbox{\label{metrics_8h_af3cafc3244fdd6e387d5e05d6b58cd13}} 
+\index{metrics.h@{metrics.h}!fpgaGetMetricsThresholdInfo@{fpgaGetMetricsThresholdInfo}}
+\index{fpgaGetMetricsThresholdInfo@{fpgaGetMetricsThresholdInfo}!metrics.h@{metrics.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetMetricsThresholdInfo()}{fpgaGetMetricsThresholdInfo()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Metrics\+Threshold\+Info (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{struct \mbox{\hyperlink{types_8h_structmetric__threshold}{metric\+\_\+threshold}} $\ast$}]{metric\+\_\+thresholds,  }\item[{uint32\+\_\+t $\ast$}]{num\+\_\+thresholds }\end{DoxyParamCaption})}
+
+Retrieve metrics / sendor threshold information and values
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle to previously opened fpga resource \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em metrics\+\_\+threshold} & pointer to array of metric thresholds user allocates threshold array memory Number of thresholds returns enumerated thresholds if user pass NULL metrics\+\_\+thresholds \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em num\+\_\+thresholds} & number of thresholds\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the Metrics are not found. FPGA\+\_\+\+NO\+\_\+\+MEMORY if there was not enough memory to enumerates metrics. 
+\end{DoxyReturn}

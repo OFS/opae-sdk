@@ -1,0 +1,196 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "PCI_DEVICE" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+pci_device \- Common operations for PCIe devices
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH SYNOPSIS
+.sp
+\fBpci_device [\-h] [\-E] device\-filter [{aer,remove,rescan,topology,unbind,vf}]\fP
+.SH DESCRIPTION
+.sp
+pci_device is a tool to aid in common operations for managing PCIe devices and
+drivers.
+.SH OPTIONS
+.SS POSITIONAL ARGUMENTS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\(gadevice filter\(ga
+
+PCIe address of a device or vendor/device ID pair.
+The PCIe address follows the format of [segment:]bus:device.function
+while the vendor/device ID pair follows the format [vendor ID]:[device ID]
+where at least one of these must be present.
+
+\(ga{aer,remove,rescan,topology,unbind,vf}\(ga
+
+action to perform on device
+
+\(gaaer\(ga
+Perform AER (Advanced Error Reporting) operations.
+The aer action has its own sub\-commands which are listed below:
+
+* \(gadump\(ga sub\-command will print out the AER error counters as reported
+   by the sysfs files for the device.
+* \(gamask\(ga can either print out the current AER mask bits or set them
+  * If \(gashow\(ga or \(gaprint\(ga (or nothing) is given after the \(gamask\(ga
+    command, it will show the current mask bits for AER.
+By default output will be written in stdout but can be written to an
+output file if \(ga\-o|\-\-output FILENAME\(ga argument is given.
+  * If \(gaall\(ga is given after the \(gamask\(ga command, it will mask all bits
+    (by setting the values to 0xffffffff and 0xffffffff).
+  * If \(gaoff\(ga is given after the \(gamask\(ga command, it will unmask all
+    bits (by setting the values to 0x0 and 0x0).
+  * If two numbers are present after the \(gamask\(ga command, those two
+    numbers will be used to set the mask bits.
+Values for setting the mask can also be read in from an input file if
+\(ga\-i|\-\-input FILENAME\(ga argument is given.
+
+_NOTE_: mask related operations require root privileges
+
+
+\(garemove\(ga
+
+Remove the pci device from the pci bus
+
+\(garescan\(ga
+
+Rescan the bus as identified by the bus component of the PCIe device address
+
+\(aqtopology\(ga
+
+Print the PCIe topology from the root port to the PCIe device.
+This shows the PCIe tree rooted at the PCIe root port.
+Each line shows the the PCIe address, vendor ID, and device ID along with
+the driver bound to the device. The indentnation is used to show
+parent/child relationship of devices.
+
+The line listing the target PCIe device as identified by the given PCIe
+address will be highlighted in green while the endpoints will be
+highlighted in cyan.
+
+The example below shows the topology of an N3000 device with eight virtual
+functions created from one of the Ethernet controllers:
+
+\(ga\(ga\(gaconsole
+[pci_address(0000:3a:00.0), pci_id(0x8086, 0x2030)] (pcieport)
+    [pci_address(0000:3b:00.0), pci_id(0x10b5, 0x8747)] (pcieport)
+        [pci_address(0000:3c:09.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:3f:00.0), pci_id(0x8086, 0x0b30)] (dfl\-pci)
+        [pci_address(0000:3c:11.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:43:00.0), pci_id(0x8086, 0x0b32)] (no driver)
+	[pci_address(0000:3c:08.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:3d:02.0), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:00.1), pci_id(0x8086, 0x0d58)] (i40e)
+            [pci_address(0000:3d:02.7), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.5), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.3), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.1), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:00.0), pci_id(0x8086, 0x0d58)] (i40e)
+            [pci_address(0000:3d:02.6), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.4), pci_id(0x8086, 0x154c)] (iavf)
+            [pci_address(0000:3d:02.2), pci_id(0x8086, 0x154c)] (iavf)
+        [pci_address(0000:3c:10.0), pci_id(0x10b5, 0x8747)] (pcieport)
+            [pci_address(0000:41:00.0), pci_id(0x8086, 0x0d58)] (i40e)
+            [pci_address(0000:41:00.1), pci_id(0x8086, 0x0d58)] (i40e)
+
+\(ga\(ga\(ga
+
+\(gaunbind\(ga
+
+Unbind the driver bound to the device.
+
+\(gavf\(ga
+
+Create/destroy VFs (virtual functions) by setting the number here.
+The number given here will be written to sriov_numvfs sysfs file triggering
+the PCIe subsystem to create/destroy VFs so that the current number of VFs
+will be equal to the given number. If the number given is outside of the total VFs supported, an error message will be displayed to indicate this.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS OPTIONAL ARGUMENTS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\(ga\-h, \-\-help\(ga
+
+show this help message and exit
+
+\(ga\-E, \-\-other\-endpoints\(ga
+
+perform action on peer PCIe devices
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pci_device 0000:3d:00.0 remove
+pci_device 0000:3d:00.0 rescan
+pci_device 3d:00.0 topology
+pci_device :0b30 topology
+pci_device :0b30 aer
+pci_device :0b30 aer mask
+pci_device :0b30 aer mask all
+pci_device :0b30 aer mask \-o mask.dat
+pci_device :0b30 aer mask \-i mask.dat
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH REVISION HISTORY
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Document Version | Intel Acceleration Stack Version | Changes
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-
+2021.01.13 | IOFS EA | Initial release.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

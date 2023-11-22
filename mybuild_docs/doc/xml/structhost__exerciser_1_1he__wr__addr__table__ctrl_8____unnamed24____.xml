@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1afa0605e0c361b4d97eb76beb46e12ed4" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>enable_address_table</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="188" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1ab3a002a398f5a657b2971a9b417a9850" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>enable_address_stride</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="189" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1a47101375aa96fa02cfb1d55fd00af989" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>stride</name>
+        <bitfield> 2</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="190" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1a7f005c3fa691e77c52d3297cc2699072" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>reserved</name>
+        <bitfield> 60</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="191" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</label>
+        <link refid="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="187" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="187" bodyend="192"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1ab3a002a398f5a657b2971a9b417a9850" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</scope><name>enable_address_stride</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1afa0605e0c361b4d97eb76beb46e12ed4" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</scope><name>enable_address_table</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1a7f005c3fa691e77c52d3297cc2699072" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</scope><name>reserved</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__addr__table__ctrl_8____unnamed24_____1a47101375aa96fa02cfb1d55fd00af989" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_addr_table_ctrl.__unnamed24__</scope><name>stride</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

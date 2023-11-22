@@ -1,0 +1,178 @@
+.TH "samples/hssi/hssi_200g_400g_cmd.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/hssi/hssi_200g_400g_cmd.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <cmath>\fP
+.br
+\fC#include 'hssi_cmd\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBhssi_200g_400g_cmd\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBCSR_AFU_400G_TG_EN\fP   0x0058"
+.br
+.ti -1c
+.RI "#define \fBCSR_HW_PC_CTRL\fP   0x0000"
+.br
+.ti -1c
+.RI "#define \fBCSR_HW_TEST_LOOP_CNT\fP   0x0004"
+.br
+.ti -1c
+.RI "#define \fBCSR_HW_TEST_ROM_ADDR\fP   0x0008"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TX_SOP_CNT_LSB\fP   0x0020"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TX_SOP_CNT_MSB\fP   0x0024"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TX_EOP_CNT_LSB\fP   0x0028"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TX_EOP_CNT_MSB\fP   0x002C"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TX_ERR_CNT_LSB\fP   0x0030"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TX_ERR_CNT_MSB\fP   0x0034"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_RX_SOP_CNT_LSB\fP   0x0038"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_RX_SOP_CNT_MSB\fP   0x003C"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_RX_EOP_CNT_LSB\fP   0x0040"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_RX_EOP_CNT_MSB\fP   0x0044"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_RX_ERR_CNT_LSB\fP   0x0048"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_RX_ERR_CNT_MSB\fP   0x004C"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TIMESTAMP_TG_START_LSB\fP   0x0050"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TIMESTAMP_TG_START_MSB\fP   0x0054"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TIMESTAMP_TG_END_LSB\fP   0x0058"
+.br
+.ti -1c
+.RI "#define \fBCSR_STAT_TIMESTAMP_TG_END_MSB\fP   0x005C"
+.br
+.ti -1c
+.RI "#define \fBUSER_CLKFREQ_N6001\fP     470\&.00"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define CSR_AFU_400G_TG_EN   0x0058"
+
+.PP
+Definition at line 65 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_HW_PC_CTRL   0x0000"
+
+.PP
+Definition at line 72 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_HW_TEST_LOOP_CNT   0x0004"
+
+.PP
+Definition at line 73 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_HW_TEST_ROM_ADDR   0x0008"
+
+.PP
+Definition at line 74 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TX_SOP_CNT_LSB   0x0020"
+
+.PP
+Definition at line 75 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TX_SOP_CNT_MSB   0x0024"
+
+.PP
+Definition at line 76 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TX_EOP_CNT_LSB   0x0028"
+
+.PP
+Definition at line 77 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TX_EOP_CNT_MSB   0x002C"
+
+.PP
+Definition at line 78 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TX_ERR_CNT_LSB   0x0030"
+
+.PP
+Definition at line 79 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TX_ERR_CNT_MSB   0x0034"
+
+.PP
+Definition at line 80 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_RX_SOP_CNT_LSB   0x0038"
+
+.PP
+Definition at line 81 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_RX_SOP_CNT_MSB   0x003C"
+
+.PP
+Definition at line 82 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_RX_EOP_CNT_LSB   0x0040"
+
+.PP
+Definition at line 83 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_RX_EOP_CNT_MSB   0x0044"
+
+.PP
+Definition at line 84 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_RX_ERR_CNT_LSB   0x0048"
+
+.PP
+Definition at line 85 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_RX_ERR_CNT_MSB   0x004C"
+
+.PP
+Definition at line 86 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TIMESTAMP_TG_START_LSB   0x0050"
+
+.PP
+Definition at line 87 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TIMESTAMP_TG_START_MSB   0x0054"
+
+.PP
+Definition at line 88 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TIMESTAMP_TG_END_LSB   0x0058"
+
+.PP
+Definition at line 89 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define CSR_STAT_TIMESTAMP_TG_END_MSB   0x005C"
+
+.PP
+Definition at line 90 of file hssi_200g_400g_cmd\&.h\&.
+.SS "#define USER_CLKFREQ_N6001     470\&.00"
+
+.PP
+Definition at line 92 of file hssi_200g_400g_cmd\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

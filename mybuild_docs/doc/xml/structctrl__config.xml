@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structctrl__config" kind="struct" language="C++" prot="public">
+    <compoundname>ctrl_config</compoundname>
+    <includes refid="hssi__100g__cmd_8h" local="no">/root/samples/hssi/hssi_100g_cmd.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structctrl__config_1afb14a5a450b96fa0d96b720330b1718a" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t ctrl_config::pkt_size_data</definition>
+        <argsstring></argsstring>
+        <name>pkt_size_data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="183" column="14" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="183" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" compoundref="hssi__100g__cmd_8h" startline="236" endline="241">hssi_100g_cmd::write_ctrl_config</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structctrl__config_1a24d19d0023013270e4f30fd6d8b972ac" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t ctrl_config::ctrl0_data</definition>
+        <argsstring></argsstring>
+        <name>ctrl0_data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="184" column="14" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="184" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" compoundref="hssi__100g__cmd_8h" startline="236" endline="241">hssi_100g_cmd::write_ctrl_config</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structctrl__config_1a94d430962eddc3a57f4ad266739811da" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t ctrl_config::ctrl1_data</definition>
+        <argsstring></argsstring>
+        <name>ctrl1_data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="185" column="14" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="185" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5f9156deb3980fa310215378a77c7b85" compoundref="hssi__100g__cmd_8h" startline="236" endline="241">hssi_100g_cmd::write_ctrl_config</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>ctrl_config</label>
+        <link refid="structctrl__config"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_100g_cmd.h" line="182" column="3" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="182" bodyend="186"/>
+    <listofallmembers>
+      <member refid="structctrl__config_1a24d19d0023013270e4f30fd6d8b972ac" prot="public" virt="non-virtual"><scope>ctrl_config</scope><name>ctrl0_data</name></member>
+      <member refid="structctrl__config_1a94d430962eddc3a57f4ad266739811da" prot="public" virt="non-virtual"><scope>ctrl_config</scope><name>ctrl1_data</name></member>
+      <member refid="structctrl__config_1afb14a5a450b96fa0d96b720330b1718a" prot="public" virt="non-virtual"><scope>ctrl_config</scope><name>pkt_size_data</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

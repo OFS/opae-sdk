@@ -1,0 +1,152 @@
+.TH "cxl_mem_tg::cxl_mem_tg" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cxl_mem_tg::cxl_mem_tg
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_mem_tg/cxl_mem_tg\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::afu\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBcxl_mem_tg\fP (const char *afu_id=\fBAFU_ID\fP)"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (CLI::App *\fBapp\fP, \fBtest_command::ptr_t\fP test) override"
+.br
+.ti -1c
+.RI "uint32_t \fBget_offset\fP (uint32_t base, uint32_t i) const"
+.br
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBget_token\fP ()"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBcount_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBmem_ch_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBloop_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBwcnt_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBrcnt_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBbcnt_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBstride_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBpattern_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBmem_speed_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBstatus_\fP"
+.br
+.ti -1c
+.RI "uint64_t \fBtg_offset_\fP"
+.br
+.ti -1c
+.RI "std::map< uint32_t, uint32_t > \fBlimits_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 185 of file cxl_mem_tg\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "cxl_mem_tg::cxl_mem_tg::cxl_mem_tg (const char * afu_id = \fC\fBAFU_ID\fP\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 187 of file cxl_mem_tg\&.h\&.
+.PP
+References cxl_mem_tg::tg_pattern\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual int cxl_mem_tg::cxl_mem_tg::run (CLI::App * app, \fBtest_command::ptr_t\fP test)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::afu\fP\&.
+.PP
+Definition at line 228 of file cxl_mem_tg\&.h\&.
+.PP
+References app, and opae::afu_test::afu::run()\&.
+.SS "uint32_t cxl_mem_tg::cxl_mem_tg::get_offset (uint32_t base, uint32_t i) const\fC [inline]\fP"
+
+.PP
+Definition at line 265 of file cxl_mem_tg\&.h\&.
+.SS "\fBtoken::ptr_t\fP cxl_mem_tg::cxl_mem_tg::get_token ()\fC [inline]\fP"
+
+.PP
+Definition at line 274 of file cxl_mem_tg\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t cxl_mem_tg::cxl_mem_tg::count_"
+
+.PP
+Definition at line 251 of file cxl_mem_tg\&.h\&.
+.SS "uint32_t cxl_mem_tg::cxl_mem_tg::mem_ch_"
+
+.PP
+Definition at line 252 of file cxl_mem_tg\&.h\&.
+.SS "uint64_t cxl_mem_tg::cxl_mem_tg::loop_"
+
+.PP
+Definition at line 253 of file cxl_mem_tg\&.h\&.
+.SS "uint64_t cxl_mem_tg::cxl_mem_tg::wcnt_"
+
+.PP
+Definition at line 254 of file cxl_mem_tg\&.h\&.
+.SS "uint64_t cxl_mem_tg::cxl_mem_tg::rcnt_"
+
+.PP
+Definition at line 255 of file cxl_mem_tg\&.h\&.
+.SS "uint64_t cxl_mem_tg::cxl_mem_tg::bcnt_"
+
+.PP
+Definition at line 256 of file cxl_mem_tg\&.h\&.
+.SS "uint32_t cxl_mem_tg::cxl_mem_tg::stride_"
+
+.PP
+Definition at line 257 of file cxl_mem_tg\&.h\&.
+.SS "uint32_t cxl_mem_tg::cxl_mem_tg::pattern_"
+
+.PP
+Definition at line 258 of file cxl_mem_tg\&.h\&.
+.SS "uint64_t cxl_mem_tg::cxl_mem_tg::mem_speed_"
+
+.PP
+Definition at line 259 of file cxl_mem_tg\&.h\&.
+.SS "uint32_t cxl_mem_tg::cxl_mem_tg::status_"
+
+.PP
+Definition at line 260 of file cxl_mem_tg\&.h\&.
+.SS "uint64_t cxl_mem_tg::cxl_mem_tg::tg_offset_"
+
+.PP
+Definition at line 261 of file cxl_mem_tg\&.h\&.
+.SS "std::map<uint32_t, uint32_t> cxl_mem_tg::cxl_mem_tg::limits_"
+
+.PP
+Definition at line 263 of file cxl_mem_tg\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

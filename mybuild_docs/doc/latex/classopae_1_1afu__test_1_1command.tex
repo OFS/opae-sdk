@@ -1,0 +1,224 @@
+\doxysection{opae\+::afu\+\_\+test\+::command Class Reference}
+\label{classopae_1_1afu__test_1_1command}\index{opae::afu\_test::command@{opae::afu\_test::command}}
+
+
+{\ttfamily \#include $<$/root/samples/cxl\+\_\+host\+\_\+exerciser/he\+\_\+cache\+\_\+test.\+h$>$}
+
+Inheritance diagram for opae\+::afu\+\_\+test\+::command\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=9.000000cm]{classopae_1_1afu__test_1_1command}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{command}} $>$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{ptr\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classopae_1_1afu__test_1_1command_a07de34c2af7ef6ae3c0e528888365b0c}{command}} ()
+\item 
+virtual \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a04e764764cc62327e60d94840590ee73}{$\sim$command}} ()
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a2892a3d443d007a55cbfe9ec93835052}{name}} () const =0
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a064a25924cdd32c14f4a68694f924d5e}{description}} () const =0
+\item 
+virtual int \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a18fe26fd1da4bec29da4fbfbeb172bbd}{run}} (\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}} $\ast$\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}}, CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}})=0
+\item 
+virtual void \mbox{\hyperlink{classopae_1_1afu__test_1_1command_aa91365cda1ee7a6049d8a5403b2e15e6}{add\+\_\+options}} (CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}})
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a51d5c7afb132598121e20be5b0eab5fb}{afu\+\_\+id}} () const
+\item 
+virtual uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1command_ad9698a8b5ee31447582c286a115724a7}{featureid}} () const =0
+\item 
+virtual uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1command_ac239529df959302ece72a162262c6c32}{guidl}} () const =0
+\item 
+virtual uint64\+\_\+t \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a7b9e6753ab014e81bb4dd7d1ddbaad85}{guidh}} () const =0
+\item 
+bool \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a36d9eff18f795e0bbf60d3e213b1a81f}{running}} () const
+\item 
+void \mbox{\hyperlink{classopae_1_1afu__test_1_1command_ab5200927c95fe844db13588f9288bf87}{stop}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::atomic$<$ bool $>$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a38b260d3448bfd7f2368b2ef585414be}{running\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 231 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!ptr\_t@{ptr\_t}}
+\index{ptr\_t@{ptr\_t}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{ptr\_t}{ptr\_t}}
+{\footnotesize\ttfamily typedef std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{classopae_1_1afu__test_1_1command}{command}}$>$ \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a11a258a1fa5a99a5be9bb34a87c48f41}{opae\+::afu\+\_\+test\+::command\+::ptr\+\_\+t}}}
+
+
+
+Definition at line 233 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1command_a07de34c2af7ef6ae3c0e528888365b0c}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!command@{command}}
+\index{command@{command}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{command()}{command()}}
+{\footnotesize\ttfamily opae\+::afu\+\_\+test\+::command\+::command (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 234 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_a04e764764cc62327e60d94840590ee73}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!````~command@{$\sim$command}}
+\index{````~command@{$\sim$command}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{$\sim$command()}{~command()}}
+{\footnotesize\ttfamily virtual opae\+::afu\+\_\+test\+::command\+::$\sim$command (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Definition at line 235 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1command_a2892a3d443d007a55cbfe9ec93835052}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!name@{name}}
+\index{name@{name}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{name()}{name()}}
+{\footnotesize\ttfamily virtual const char$\ast$ opae\+::afu\+\_\+test\+::command\+::name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classmem__tg_1_1tg__test_ae2be4babdc05e96ad0fd49044206ae07}{mem\+\_\+tg\+::tg\+\_\+test}}, \mbox{\hyperlink{classhssi__pkt__filt__10g__cmd_a55e611ba5a11117f8aa4f7a8d7377b64}{hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__pkt__filt__100g__cmd_ab866053ecaeb4ae7b92dc9ac94dfef35}{hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__200g__400g__cmd_aa5bca1a5de01d4255636ecea60a873dc}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__10g__cmd_af33928e3684381253c94728aa000932a}{hssi\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__100g__cmd_a2ac9bd89910c7d6b4f3d5c0ef3ccf252}{hssi\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__mem_a80bfac0224d74c52d42e2b57222e1504}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+mem}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__lpbk_a427eb571ae0d6a13307cd69687741ba6}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+lpbk}}, \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__tg__test_a79c9aab7798e80455d97fd8e79942228}{cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_a0ea268f42319ad21821cdc68bcbbb044}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_a817e135851552b388df4af1039f51e39}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}, \mbox{\hyperlink{classdummy__afu_1_1mmio__test_a1bfdb1527b7284659cba26e0d6dc7777}{dummy\+\_\+afu\+::mmio\+\_\+test}}, \mbox{\hyperlink{classdummy__afu_1_1lpbk__test_a00af051356068d57e098ff6a19a265d6}{dummy\+\_\+afu\+::lpbk\+\_\+test}}, and \mbox{\hyperlink{classdummy__afu_1_1ddr__test_a5062efb52f0cc3c8d744bd9f39f7298d}{dummy\+\_\+afu\+::ddr\+\_\+test}}.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_a064a25924cdd32c14f4a68694f924d5e}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!description@{description}}
+\index{description@{description}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{description()}{description()}}
+{\footnotesize\ttfamily virtual const char$\ast$ opae\+::afu\+\_\+test\+::command\+::description (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classmem__tg_1_1tg__test_a76d61f9943cf4224affb583f06eb1ef4}{mem\+\_\+tg\+::tg\+\_\+test}}, \mbox{\hyperlink{classhssi__pkt__filt__10g__cmd_a417eba4f19d689ece861b13af35d9535}{hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__pkt__filt__100g__cmd_af6666e8a956190f1032cef988eae2fe6}{hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__200g__400g__cmd_a401a104aba6f68ad2eb94ce2e164bb40}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__10g__cmd_a680495300041fec9bde25551362ce195}{hssi\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__100g__cmd_a0e8f86e83c2d30a042da6f16e41cb3ce}{hssi\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__mem_a22101d1a6fe6dbc791af67bc5c60de56}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+mem}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__lpbk_a422ab0c863af2211448578f01d49c39d}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+lpbk}}, \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__tg__test_a8c9aba82bd9e827467e43dfd4cc50a7f}{cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_ab7eff8c744aaba805f6a41635951ac15}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_a41dc4ccfd8a759ce5e4b0c3938c4247a}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}, \mbox{\hyperlink{classdummy__afu_1_1mmio__test_ae11ac9f28ce155a19cac986cdb054fa2}{dummy\+\_\+afu\+::mmio\+\_\+test}}, \mbox{\hyperlink{classdummy__afu_1_1lpbk__test_a034296c117fca4fe17f50bd90a47da63}{dummy\+\_\+afu\+::lpbk\+\_\+test}}, and \mbox{\hyperlink{classdummy__afu_1_1ddr__test_a9ee7389012ae0941132809478d6a517b}{dummy\+\_\+afu\+::ddr\+\_\+test}}.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_a18fe26fd1da4bec29da4fbfbeb172bbd}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!run@{run}}
+\index{run@{run}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int opae\+::afu\+\_\+test\+::command\+::run (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{afu}} $\ast$}]{afu,  }\item[{CLI\+::\+App $\ast$}]{app }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classmem__tg_1_1tg__test_a25caf2aba2c64d4c528724e836dd5ff1}{mem\+\_\+tg\+::tg\+\_\+test}}, \mbox{\hyperlink{classhssi__pkt__filt__10g__cmd_a805bdf9c5b4bc30e93caa61443c708a1}{hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__pkt__filt__100g__cmd_ae22f15c9dcfeb894b0928e930f3b91f0}{hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__200g__400g__cmd_ac363df78df0704d447931248f8e889ed}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__10g__cmd_a5b43c5b65f93917f74fb158c1261aeee}{hssi\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__100g__cmd_acf6da90316e7dd11f43f60df7a720926}{hssi\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__tg__test_a2916882019055c81a3e392d5ba420e82}{cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a83697b1ec3679aee9edec5b94bde79fa}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd}}, \mbox{\hyperlink{classdummy__afu_1_1mmio__test_a11bd14e2eaedd19a9b759f30dcc845a7}{dummy\+\_\+afu\+::mmio\+\_\+test}}, \mbox{\hyperlink{classdummy__afu_1_1lpbk__test_a22a64a8f79ef8e002d3ff75534d2f8e0}{dummy\+\_\+afu\+::lpbk\+\_\+test}}, \mbox{\hyperlink{classdummy__afu_1_1ddr__test_a5207a71d34529d7bfac6871282566edb}{dummy\+\_\+afu\+::ddr\+\_\+test}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_a00c9c2fbf616c3bd54c527209d5f8765}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, and \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_ae74784f608f368c80a40502de25e13a0}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_aa91365cda1ee7a6049d8a5403b2e15e6}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!add\_options@{add\_options}}
+\index{add\_options@{add\_options}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{add\_options()}{add\_options()}}
+{\footnotesize\ttfamily virtual void opae\+::afu\+\_\+test\+::command\+::add\+\_\+options (\begin{DoxyParamCaption}\item[{CLI\+::\+App $\ast$}]{app }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classhssi__pkt__filt__10g__cmd_aedff941fc7221899f93f2088b0d582e7}{hssi\+\_\+pkt\+\_\+filt\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__pkt__filt__100g__cmd_a3e74b621df757adbb0b9d8472a43248f}{hssi\+\_\+pkt\+\_\+filt\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__200g__400g__cmd_a191d1450d1fcfe7023bfac66efa7fc74}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__10g__cmd_a12f9d3d69d8822cdfb3c35b22c4654d8}{hssi\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__100g__cmd_a04f3d33cea2a2112156e2d3c055fd904}{hssi\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_a113c110ac6b3f414a087ed3019adafeb}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_a7ea9ac7a5e8355e976ac96f496108f35}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}, and \mbox{\hyperlink{classdummy__afu_1_1mmio__test_ad4e1d2ed8ec389198b09a5ce9c940aa5}{dummy\+\_\+afu\+::mmio\+\_\+test}}.
+
+
+
+Definition at line 239 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+References app.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_a51d5c7afb132598121e20be5b0eab5fb}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!afu\_id@{afu\_id}}
+\index{afu\_id@{afu\_id}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{afu\_id()}{afu\_id()}}
+{\footnotesize\ttfamily virtual const char$\ast$ opae\+::afu\+\_\+test\+::command\+::afu\+\_\+id (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classmem__tg_1_1tg__test_a8ae23413206e40e0aec6f51db2a03173}{mem\+\_\+tg\+::tg\+\_\+test}}, \mbox{\hyperlink{classhssi__200g__400g__cmd_a42c0511ab227d3cc418dc944d4ba24ab}{hssi\+\_\+200g\+\_\+400g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__10g__cmd_a0762cc43180e6bcd5fabc98461450949}{hssi\+\_\+10g\+\_\+cmd}}, \mbox{\hyperlink{classhssi__100g__cmd_a74c6040308212cd53dc598359ee319f0}{hssi\+\_\+100g\+\_\+cmd}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__mem_aaa97db87a8f37e7626fe40332f1f80b6}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+mem}}, \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__lpbk_ae8ec166b98127b3f1f577ca8bc1e7040}{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+lpbk}}, \mbox{\hyperlink{classcxl__mem__tg_1_1cxl__tg__test_abcd07262c0248d11ef15bc3c1a90d973}{cxl\+\_\+mem\+\_\+tg\+::cxl\+\_\+tg\+\_\+test}}, \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_a0626c7d3280125843db5e3a257e89e6c}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, and \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_adc969104b344f02d51efe21402fec3b4}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}.
+
+
+
+Definition at line 240 of file he\+\_\+cache\+\_\+test.\+h.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_ad9698a8b5ee31447582c286a115724a7}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!featureid@{featureid}}
+\index{featureid@{featureid}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{featureid()}{featureid()}}
+{\footnotesize\ttfamily virtual uint64\+\_\+t opae\+::afu\+\_\+test\+::command\+::featureid (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_aef5411cc95e437d3d3e8f3e39eda0af3}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, and \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_af36a2ca6d571c1a7afe9d5228c93743d}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_ac239529df959302ece72a162262c6c32}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!guidl@{guidl}}
+\index{guidl@{guidl}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{guidl()}{guidl()}}
+{\footnotesize\ttfamily virtual uint64\+\_\+t opae\+::afu\+\_\+test\+::command\+::guidl (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_a7d031954754042cdfb36e2ac47859552}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, and \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_a3d15cc0e3c84891d1f51967714c669ae}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_a7b9e6753ab014e81bb4dd7d1ddbaad85}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!guidh@{guidh}}
+\index{guidh@{guidh}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{guidh()}{guidh()}}
+{\footnotesize\ttfamily virtual uint64\+\_\+t opae\+::afu\+\_\+test\+::command\+::guidh (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implemented in \mbox{\hyperlink{classhost__exerciser_1_1he__cache__lpbk__cmd_a22f0bee536e83f805000e7cd81bbb154}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+lpbk\+\_\+cmd}}, and \mbox{\hyperlink{classhost__exerciser_1_1he__cache__cmd_a97721da6ffb1f46a1f2b0cee970774b8}{host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd}}.
+
+\mbox{\label{classopae_1_1afu__test_1_1command_a36d9eff18f795e0bbf60d3e213b1a81f}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!running@{running}}
+\index{running@{running}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{running()}{running()}}
+{\footnotesize\ttfamily bool opae\+::afu\+\_\+test\+::command\+::running (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 246 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+Referenced by hssi\+\_\+100g\+\_\+cmd\+::run(), hssi\+\_\+10g\+\_\+cmd\+::run(), and hssi\+\_\+200g\+\_\+400g\+\_\+cmd\+::run().
+
+\mbox{\label{classopae_1_1afu__test_1_1command_ab5200927c95fe844db13588f9288bf87}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!stop@{stop}}
+\index{stop@{stop}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{stop()}{stop()}}
+{\footnotesize\ttfamily void opae\+::afu\+\_\+test\+::command\+::stop (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 247 of file he\+\_\+cache\+\_\+test.\+h.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classopae_1_1afu__test_1_1command_a38b260d3448bfd7f2368b2ef585414be}} 
+\index{opae::afu\_test::command@{opae::afu\_test::command}!running\_@{running\_}}
+\index{running\_@{running\_}!opae::afu\_test::command@{opae::afu\_test::command}}
+\doxysubsubsection{\texorpdfstring{running\_}{running\_}}
+{\footnotesize\ttfamily std\+::atomic$<$bool$>$ opae\+::afu\+\_\+test\+::command\+::running\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 250 of file he\+\_\+cache\+\_\+test.\+h.
+

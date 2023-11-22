@@ -1,0 +1,418 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1afu__test_1_1command" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>opae::afu_test::command</compoundname>
+    <derivedcompoundref refid="classcxl__mem__tg_1_1cxl__tg__test" prot="public" virt="non-virtual">cxl_mem_tg::cxl_tg_test</derivedcompoundref>
+    <derivedcompoundref refid="classdummy__afu_1_1ddr__test" prot="public" virt="non-virtual">dummy_afu::ddr_test</derivedcompoundref>
+    <derivedcompoundref refid="classdummy__afu_1_1lpbk__test" prot="public" virt="non-virtual">dummy_afu::lpbk_test</derivedcompoundref>
+    <derivedcompoundref refid="classdummy__afu_1_1mmio__test" prot="public" virt="non-virtual">dummy_afu::mmio_test</derivedcompoundref>
+    <derivedcompoundref refid="classhost__exerciser_1_1he__cmd" prot="public" virt="non-virtual">host_exerciser::he_cmd</derivedcompoundref>
+    <derivedcompoundref refid="classhost__exerciser_1_1host__exerciser__cmd" prot="public" virt="non-virtual">host_exerciser::host_exerciser_cmd</derivedcompoundref>
+    <derivedcompoundref refid="classhssi__cmd" prot="public" virt="non-virtual">hssi_cmd</derivedcompoundref>
+    <derivedcompoundref refid="classmem__tg_1_1tg__test" prot="public" virt="non-virtual">mem_tg::tg_test</derivedcompoundref>
+    <includes refid="he__cache__test_8h" local="no">/root/samples/cxl_host_exerciser/he_cache_test.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1afu__test_1_1command" kindref="compound">command</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;command&gt; opae::afu_test::command::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="233" column="27" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; bool &gt;</type>
+        <definition>std::atomic&lt;bool&gt; opae::afu_test::command::running_</definition>
+        <argsstring></argsstring>
+        <name>running_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="250" column="15" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="250" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::afu_test::command::command</definition>
+        <argsstring>()</argsstring>
+        <name>command</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="234" column="3" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="234" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual opae::afu_test::command::~command</definition>
+        <argsstring>()</argsstring>
+        <name>~command</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="235" column="11" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="235" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>const char *</type>
+        <definition>virtual const char* opae::afu_test::command::name</definition>
+        <argsstring>() const =0</argsstring>
+        <name>name</name>
+        <reimplementedby refid="classdummy__afu_1_1ddr__test_1a5062efb52f0cc3c8d744bd9f39f7298d">name</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1lpbk__test_1a00af051356068d57e098ff6a19a265d6">name</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1mmio__test_1a1bfdb1527b7284659cba26e0d6dc7777">name</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1a817e135851552b388df4af1039f51e39">name</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0ea268f42319ad21821cdc68bcbbb044">name</reimplementedby>
+        <reimplementedby refid="classcxl__mem__tg_1_1cxl__tg__test_1a79c9aab7798e80455d97fd8e79942228">name</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__lpbk_1a427eb571ae0d6a13307cd69687741ba6">name</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__mem_1a80bfac0224d74c52d42e2b57222e1504">name</reimplementedby>
+        <reimplementedby refid="classhssi__100g__cmd_1a2ac9bd89910c7d6b4f3d5c0ef3ccf252">name</reimplementedby>
+        <reimplementedby refid="classhssi__10g__cmd_1af33928e3684381253c94728aa000932a">name</reimplementedby>
+        <reimplementedby refid="classhssi__200g__400g__cmd_1aa5bca1a5de01d4255636ecea60a873dc">name</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1ab866053ecaeb4ae7b92dc9ac94dfef35">name</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__10g__cmd_1a55e611ba5a11117f8aa4f7a8d7377b64">name</reimplementedby>
+        <reimplementedby refid="classmem__tg_1_1tg__test_1ae2be4babdc05e96ad0fd49044206ae07">name</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="236" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>const char *</type>
+        <definition>virtual const char* opae::afu_test::command::description</definition>
+        <argsstring>() const =0</argsstring>
+        <name>description</name>
+        <reimplementedby refid="classdummy__afu_1_1ddr__test_1a9ee7389012ae0941132809478d6a517b">description</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1lpbk__test_1a034296c117fca4fe17f50bd90a47da63">description</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1mmio__test_1ae11ac9f28ce155a19cac986cdb054fa2">description</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1a41dc4ccfd8a759ce5e4b0c3938c4247a">description</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1ab7eff8c744aaba805f6a41635951ac15">description</reimplementedby>
+        <reimplementedby refid="classcxl__mem__tg_1_1cxl__tg__test_1a8c9aba82bd9e827467e43dfd4cc50a7f">description</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__lpbk_1a422ab0c863af2211448578f01d49c39d">description</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__mem_1a22101d1a6fe6dbc791af67bc5c60de56">description</reimplementedby>
+        <reimplementedby refid="classhssi__100g__cmd_1a0e8f86e83c2d30a042da6f16e41cb3ce">description</reimplementedby>
+        <reimplementedby refid="classhssi__10g__cmd_1a680495300041fec9bde25551362ce195">description</reimplementedby>
+        <reimplementedby refid="classhssi__200g__400g__cmd_1a401a104aba6f68ad2eb94ce2e164bb40">description</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1af6666e8a956190f1032cef988eae2fe6">description</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__10g__cmd_1a417eba4f19d689ece861b13af35d9535">description</reimplementedby>
+        <reimplementedby refid="classmem__tg_1_1tg__test_1a76d61f9943cf4224affb583f06eb1ef4">description</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="237" column="22"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>int</type>
+        <definition>virtual int opae::afu_test::command::run</definition>
+        <argsstring>(afu *afu, CLI::App *app)=0</argsstring>
+        <name>run</name>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1ae74784f608f368c80a40502de25e13a0">run</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a00c9c2fbf616c3bd54c527209d5f8765">run</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1ddr__test_1a5207a71d34529d7bfac6871282566edb">run</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1lpbk__test_1a22a64a8f79ef8e002d3ff75534d2f8e0">run</reimplementedby>
+        <reimplementedby refid="classdummy__afu_1_1mmio__test_1a11bd14e2eaedd19a9b759f30dcc845a7">run</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa">run</reimplementedby>
+        <reimplementedby refid="classcxl__mem__tg_1_1cxl__tg__test_1a2916882019055c81a3e392d5ba420e82">run</reimplementedby>
+        <reimplementedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926">run</reimplementedby>
+        <reimplementedby refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee">run</reimplementedby>
+        <reimplementedby refid="classhssi__200g__400g__cmd_1ac363df78df0704d447931248f8e889ed">run</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1ae22f15c9dcfeb894b0928e930f3b91f0">run</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__10g__cmd_1a805bdf9c5b4bc30e93caa61443c708a1">run</reimplementedby>
+        <reimplementedby refid="classmem__tg_1_1tg__test_1a25caf2aba2c64d4c528724e836dd5ff1">run</reimplementedby>
+        <param>
+          <type><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="238" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void opae::afu_test::command::add_options</definition>
+        <argsstring>(CLI::App *app)</argsstring>
+        <name>add_options</name>
+        <reimplementedby refid="classdummy__afu_1_1mmio__test_1ad4e1d2ed8ec389198b09a5ce9c940aa5">add_options</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1a7ea9ac7a5e8355e976ac96f496108f35">add_options</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a113c110ac6b3f414a087ed3019adafeb">add_options</reimplementedby>
+        <reimplementedby refid="classhssi__100g__cmd_1a04f3d33cea2a2112156e2d3c055fd904">add_options</reimplementedby>
+        <reimplementedby refid="classhssi__10g__cmd_1a12f9d3d69d8822cdfb3c35b22c4654d8">add_options</reimplementedby>
+        <reimplementedby refid="classhssi__200g__400g__cmd_1a191d1450d1fcfe7023bfac66efa7fc74">add_options</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__100g__cmd_1a3e74b621df757adbb0b9d8472a43248f">add_options</reimplementedby>
+        <reimplementedby refid="classhssi__pkt__filt__10g__cmd_1aedff941fc7221899f93f2088b0d582e7">add_options</reimplementedby>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="239" column="16" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="239" bodyend="239"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* opae::afu_test::command::afu_id</definition>
+        <argsstring>() const</argsstring>
+        <name>afu_id</name>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1adc969104b344f02d51efe21402fec3b4">afu_id</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a0626c7d3280125843db5e3a257e89e6c">afu_id</reimplementedby>
+        <reimplementedby refid="classcxl__mem__tg_1_1cxl__tg__test_1abcd07262c0248d11ef15bc3c1a90d973">afu_id</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__lpbk_1ae8ec166b98127b3f1f577ca8bc1e7040">afu_id</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1host__exerciser__mem_1aaa97db87a8f37e7626fe40332f1f80b6">afu_id</reimplementedby>
+        <reimplementedby refid="classhssi__100g__cmd_1a74c6040308212cd53dc598359ee319f0">afu_id</reimplementedby>
+        <reimplementedby refid="classhssi__10g__cmd_1a0762cc43180e6bcd5fabc98461450949">afu_id</reimplementedby>
+        <reimplementedby refid="classhssi__200g__400g__cmd_1a42c0511ab227d3cc418dc944d4ba24ab">afu_id</reimplementedby>
+        <reimplementedby refid="classmem__tg_1_1tg__test_1a8ae23413206e40e0aec6f51db2a03173">afu_id</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="240" column="22" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="240" bodyend="240"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t opae::afu_test::command::featureid</definition>
+        <argsstring>() const =0</argsstring>
+        <name>featureid</name>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1af36a2ca6d571c1a7afe9d5228c93743d">featureid</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1aef5411cc95e437d3d3e8f3e39eda0af3">featureid</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="242" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t opae::afu_test::command::guidl</definition>
+        <argsstring>() const =0</argsstring>
+        <name>guidl</name>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1a3d15cc0e3c84891d1f51967714c669ae">guidl</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a7d031954754042cdfb36e2ac47859552">guidl</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="243" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>uint64_t</type>
+        <definition>virtual uint64_t opae::afu_test::command::guidh</definition>
+        <argsstring>() const =0</argsstring>
+        <name>guidh</name>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__cmd_1a97721da6ffb1f46a1f2b0cee970774b8">guidh</reimplementedby>
+        <reimplementedby refid="classhost__exerciser_1_1he__cache__lpbk__cmd_1a22f0bee536e83f805000e7cd81bbb154">guidh</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="244" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool opae::afu_test::command::running</definition>
+        <argsstring>() const</argsstring>
+        <name>running</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="246" column="8" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="246" bodyend="246"/>
+        <referencedby refid="classhssi__100g__cmd_1acf6da90316e7dd11f43f60df7a720926" compoundref="hssi__100g__cmd_8h" startline="368" endline="578">hssi_100g_cmd::run</referencedby>
+        <referencedby refid="classhssi__10g__cmd_1a5b43c5b65f93917f74fb158c1261aeee" compoundref="hssi__10g__cmd_8h" startline="152" endline="319">hssi_10g_cmd::run</referencedby>
+        <referencedby refid="classhssi__200g__400g__cmd_1ac363df78df0704d447931248f8e889ed" compoundref="hssi__200g__400g__cmd_8h" startline="111" endline="263">hssi_200g_400g_cmd::run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::afu_test::command::stop</definition>
+        <argsstring>()</argsstring>
+        <name>stop</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="247" column="8" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="247" bodyend="247"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="16">
+        <label>hssi_pkt_filt_10g_cmd</label>
+        <link refid="classhssi__pkt__filt__10g__cmd"/>
+        <childnode refid="15" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>host_exerciser::host_exerciser_lpbk</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__lpbk"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>host_exerciser::host_exerciser_cmd</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__cmd"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>hssi_pkt_filt_100g_cmd</label>
+        <link refid="classhssi__pkt__filt__100g__cmd"/>
+        <childnode refid="13" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>mem_tg::tg_test</label>
+        <link refid="classmem__tg_1_1tg__test"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>hssi_10g_cmd</label>
+        <link refid="classhssi__10g__cmd"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>host_exerciser::he_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cmd"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>hssi_cmd</label>
+        <link refid="classhssi__cmd"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>host_exerciser::host_exerciser_mem</label>
+        <link refid="classhost__exerciser_1_1host__exerciser__mem"/>
+        <childnode refid="9" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>dummy_afu::lpbk_test</label>
+        <link refid="classdummy__afu_1_1lpbk__test"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>host_exerciser::he_cache_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cache__cmd"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>hssi_200g_400g_cmd</label>
+        <link refid="classhssi__200g__400g__cmd"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>host_exerciser::he_cache_lpbk_cmd</label>
+        <link refid="classhost__exerciser_1_1he__cache__lpbk__cmd"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>hssi_100g_cmd</label>
+        <link refid="classhssi__100g__cmd"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>dummy_afu::ddr_test</label>
+        <link refid="classdummy__afu_1_1ddr__test"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>dummy_afu::mmio_test</label>
+        <link refid="classdummy__afu_1_1mmio__test"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cxl_mem_tg::cxl_tg_test</label>
+        <link refid="classcxl__mem__tg_1_1cxl__tg__test"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>opae::afu_test::command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::afu_test::command</label>
+        <link refid="classopae_1_1afu__test_1_1command"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/he_cache_test.h" line="231" column="1" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="231" bodyend="251"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1command_1aa91365cda1ee7a6049d8a5403b2e15e6" prot="public" virt="virtual"><scope>opae::afu_test::command</scope><name>add_options</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a51d5c7afb132598121e20be5b0eab5fb" prot="public" virt="virtual"><scope>opae::afu_test::command</scope><name>afu_id</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a07de34c2af7ef6ae3c0e528888365b0c" prot="public" virt="non-virtual"><scope>opae::afu_test::command</scope><name>command</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a064a25924cdd32c14f4a68694f924d5e" prot="public" virt="pure-virtual"><scope>opae::afu_test::command</scope><name>description</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ad9698a8b5ee31447582c286a115724a7" prot="public" virt="pure-virtual"><scope>opae::afu_test::command</scope><name>featureid</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a7b9e6753ab014e81bb4dd7d1ddbaad85" prot="public" virt="pure-virtual"><scope>opae::afu_test::command</scope><name>guidh</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ac239529df959302ece72a162262c6c32" prot="public" virt="pure-virtual"><scope>opae::afu_test::command</scope><name>guidl</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a2892a3d443d007a55cbfe9ec93835052" prot="public" virt="pure-virtual"><scope>opae::afu_test::command</scope><name>name</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" prot="public" virt="non-virtual"><scope>opae::afu_test::command</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a18fe26fd1da4bec29da4fbfbeb172bbd" prot="public" virt="pure-virtual"><scope>opae::afu_test::command</scope><name>run</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a36d9eff18f795e0bbf60d3e213b1a81f" prot="public" virt="non-virtual"><scope>opae::afu_test::command</scope><name>running</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a38b260d3448bfd7f2368b2ef585414be" prot="private" virt="non-virtual"><scope>opae::afu_test::command</scope><name>running_</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1ab5200927c95fe844db13588f9288bf87" prot="public" virt="non-virtual"><scope>opae::afu_test::command</scope><name>stop</name></member>
+      <member refid="classopae_1_1afu__test_1_1command_1a04e764764cc62327e60d94840590ee73" prot="public" virt="virtual"><scope>opae::afu_test::command</scope><name>~command</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

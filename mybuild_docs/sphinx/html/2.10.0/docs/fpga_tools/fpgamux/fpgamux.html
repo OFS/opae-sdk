@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fpgamux &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fpgamux</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/fpgamux/fpgamux.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fpgamux">
+<h1>fpgamux<a class="headerlink" href="#fpgamux" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">fpgamux [-h] [-S|--socket-id SOCKET_ID] [-B|--bus-number BUS] [-D|--device DEVICE] [-F|--function FUNCTION]</span>
+<span class="go">        [-G|--guid GUID] -m|--muxfile &lt;filepath.json&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgamux</span></code> tests multiple AFUs that are synthesized into a single AFU along with
+the CCIP-MUX basic building block (BBB). The CCIP-MUX uses the upper bits in the MMIO addresses to route MMIO
+reads and writes to the AFU running on the corresponding CCIP-MUX port. <code class="docutils literal notranslate"><span class="pre">fpgamux</span></code> uses a configuration file that
+lists the software components and correct configuration. <code class="docutils literal notranslate"><span class="pre">fpgamux</span></code> only runs on the Integrated FPGA Platform.
+You cannot run it on the PCIe accelerator card (PAC).</p>
+<p>.. note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">The</span><span class="w"> </span><span class="n">OPAE</span><span class="w"> </span><span class="n">driver</span><span class="w"> </span><span class="n">discovers</span><span class="w"> </span><span class="n">only</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">AFU</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">software</span><span class="w"> </span><span class="n">component</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span>
+<span class="w">  </span><span class="n">determines</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">GUID</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">enumeration</span><span class="p">.</span><span class="w"> </span><span class="n">Use</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="o">-</span><span class="n">G</span><span class="o">|--</span><span class="n">guid</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">override</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">GUID</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">software</span><span class="w"> </span><span class="n">component</span><span class="p">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="options">
+<h2>OPTIONS<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">-S</span> <span class="pre">SOCKET_ID,</span> <span class="pre">--socket-id</span> <span class="pre">SOCKET_ID</span></code></p>
+<p>socket id of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-B</span> <span class="pre">BUS,</span> <span class="pre">--bus</span> <span class="pre">BUS</span></code></p>
+<p>bus id of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-D</span> <span class="pre">DEVICE,</span> <span class="pre">--device</span> <span class="pre">DEVICE</span></code></p>
+<p>The device id of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-F</span> <span class="pre">FUNCTION,</span> <span class="pre">--function</span> <span class="pre">FUNCTION</span></code></p>
+<p>The function id of FPGA resource.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-G,</span> <span class="pre">--guid</span></code></p>
+<p>Specifies the GUID to use for the resource enumeration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-m,</span> <span class="pre">--muxfile</span> <span class="pre">&lt;filepath.json&gt;</span></code></p>
+<p>The path to the <code class="docutils literal notranslate"><span class="pre">fpgamux</span></code> configuration file. This file must be in JSON format following the
+schema described below.</p>
+</div>
+<div class="section" id="configuration">
+<h2>CONFIGURATION<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fpgamux</span></code> uses a configuration file (in JSON format) to determine what software components to instantiate and
+how to configure them to work with the AFUs. The schema includes the following elements:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;app&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;fpga_app&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;String&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;config&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Object&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following example shows a configuration with two components:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;app&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb0&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb0&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;config&quot;</span><span class="w"> </span><span class="o">:</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="s">&quot;begin&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;end&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;multi-cl&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cont&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cache-policy&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;wrline-M&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cache-hint&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;rdline-I&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;read-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh0&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;write-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh1&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;wrfence-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;write-vc&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-usec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-msec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-sec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-min&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-hour&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;freq&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">400000000</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;app&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb3&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;nlb3&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;config&quot;</span><span class="w"> </span><span class="o">:</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="s">&quot;mode&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;read&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;begin&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;end&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;multi-cl&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;strided-access&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cont&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;warm-fpga-cache&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cool-fpga-cache&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cool-cpu-cache&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cache-policy&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;wrline-M&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;cache-hint&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;rdline-I&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;read-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh0&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;write-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;vh1&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;wrfence-vc&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;write-vc&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;alt-wr-pattern&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-usec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-msec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-sec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-min&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;timeout-hour&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;freq&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">400000000</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+| 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | No changes from previous release.  |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

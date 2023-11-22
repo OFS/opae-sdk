@@ -1,0 +1,135 @@
+.TH "include/opae/metrics.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/metrics.h \- Functions for Discover/ Enumerates metrics and retrieves values\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetNumMetrics\fP (\fBfpga_handle\fP handle, uint64_t *num_metrics)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetMetricsInfo\fP (\fBfpga_handle\fP handle, \fBfpga_metric_info\fP *metric_info, uint64_t *num_metrics)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetMetricsByIndex\fP (\fBfpga_handle\fP handle, uint64_t *metric_num, uint64_t num_metric_indexes, \fBfpga_metric\fP *metrics)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetMetricsByName\fP (\fBfpga_handle\fP handle, char **metrics_names, uint64_t num_metric_names, \fBfpga_metric\fP *metrics)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetMetricsThresholdInfo\fP (\fBfpga_handle\fP handle, struct \fBmetric_threshold\fP *metric_thresholds, uint32_t *num_thresholds)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions for Discover/ Enumerates metrics and retrieves values\&. 
+
+
+.PP
+Definition in file \fBmetrics\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaGetNumMetrics (\fBfpga_handle\fP handle, uint64_t * num_metrics)"
+Enumerates number of metrics
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened fpga resource 
+.br
+\fInum_metrics\fP Number of metrics are discovered in fpga resource
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NOT_FOUND if the Metrics are not discovered 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetMetricsInfo (\fBfpga_handle\fP handle, \fBfpga_metric_info\fP * metric_info, uint64_t * num_metrics)"
+Retrieve metrics information
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened fpga resource 
+.br
+\fImetric_info\fP Pointer to array of metric info struct user allocates metrics info array
+.br
+\fInum_metrics\fP Size of metric info array
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NOT_FOUND if the Metrics are not found\&. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetMetricsByIndex (\fBfpga_handle\fP handle, uint64_t * metric_num, uint64_t num_metric_indexes, \fBfpga_metric\fP * metrics)"
+Retrieve metrics values by index
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened fpga resource 
+.br
+\fImetric_num\fP Pointer to array of metric index user allocates metric array 
+.br
+\fInum_metric_indexes\fP Size of metric array 
+.br
+\fImetrics\fP pointer to array of metric struct
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NOT_FOUND if the Metrics are not found\&. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetMetricsByName (\fBfpga_handle\fP handle, char ** metrics_names, uint64_t num_metric_names, \fBfpga_metric\fP * metrics)"
+Retrieve metric values by names
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened fpga resource 
+.br
+\fImetrics_names\fP Pointer to array of metrics name user allocates metrics name array 
+.br
+\fInum_metric_names\fP Size of metric name array 
+.br
+\fImetrics\fP Pointer to array of metric struct
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NOT_FOUND if the Metrics are not found 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetMetricsThresholdInfo (\fBfpga_handle\fP handle, struct \fBmetric_threshold\fP * metric_thresholds, uint32_t * num_thresholds)"
+Retrieve metrics / sendor threshold information and values
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened fpga resource 
+.br
+\fImetrics_threshold\fP pointer to array of metric thresholds user allocates threshold array memory Number of thresholds returns enumerated thresholds if user pass NULL metrics_thresholds 
+.br
+\fInum_thresholds\fP number of thresholds
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NOT_FOUND if the Metrics are not found\&. FPGA_NO_MEMORY if there was not enough memory to enumerates metrics\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

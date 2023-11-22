@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__num__lines_8____unnamed103____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_num_lines.__unnamed103__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__num__lines_8____unnamed103_____1a06566b7faaee6a619ed7f099a7dba3da" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>NumCacheLines</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="167" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__num__lines_8____unnamed103_____1a942d4e37dd5607ab68e54755540d4a47" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="168" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_num_lines.__unnamed103__</label>
+        <link refid="structhost__exerciser_1_1he__num__lines_8____unnamed103____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="166" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="166" bodyend="169"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__num__lines_8____unnamed103_____1a06566b7faaee6a619ed7f099a7dba3da" prot="public" virt="non-virtual"><scope>host_exerciser::he_num_lines.__unnamed103__</scope><name>NumCacheLines</name></member>
+      <member refid="structhost__exerciser_1_1he__num__lines_8____unnamed103_____1a942d4e37dd5607ab68e54755540d4a47" prot="public" virt="non-virtual"><scope>host_exerciser::he_num_lines.__unnamed103__</scope><name>Reserved</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

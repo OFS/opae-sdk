@@ -1,0 +1,367 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacedummy__afu" kind="namespace" language="C++">
+    <compoundname>dummy_afu</compoundname>
+    <innerclass refid="classdummy__afu_1_1ddr__test" prot="public">dummy_afu::ddr_test</innerclass>
+    <innerclass refid="uniondummy__afu_1_1afu__dfh" prot="public">dummy_afu::afu_dfh</innerclass>
+    <innerclass refid="uniondummy__afu_1_1mem__test__ctrl" prot="public">dummy_afu::mem_test_ctrl</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__ctrl" prot="public">dummy_afu::ddr_test_ctrl</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__stat" prot="public">dummy_afu::ddr_test_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank0__stat" prot="public">dummy_afu::ddr_test_bank0_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank1__stat" prot="public">dummy_afu::ddr_test_bank1_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank2__stat" prot="public">dummy_afu::ddr_test_bank2_stat</innerclass>
+    <innerclass refid="uniondummy__afu_1_1ddr__test__bank3__stat" prot="public">dummy_afu::ddr_test_bank3_stat</innerclass>
+    <innerclass refid="classdummy__afu_1_1dummy__afu" prot="public">dummy_afu::dummy_afu</innerclass>
+    <innerclass refid="classdummy__afu_1_1lpbk__test" prot="public">dummy_afu::lpbk_test</innerclass>
+    <innerclass refid="classdummy__afu_1_1mmio__test" prot="public">dummy_afu::mmio_test</innerclass>
+    <innerclass refid="structdummy__afu_1_1afu__dfh_8____unnamed65____" prot="public">dummy_afu::afu_dfh.__unnamed65__</innerclass>
+    <innerclass refid="structdummy__afu_1_1mem__test__ctrl_8____unnamed68____" prot="public">dummy_afu::mem_test_ctrl.__unnamed68__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__ctrl_8____unnamed71____" prot="public">dummy_afu::ddr_test_ctrl.__unnamed71__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__stat_8____unnamed74____" prot="public">dummy_afu::ddr_test_stat.__unnamed74__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank0__stat_8____unnamed77____" prot="public">dummy_afu::ddr_test_bank0_stat.__unnamed77__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank1__stat_8____unnamed80____" prot="public">dummy_afu::ddr_test_bank1_stat.__unnamed80__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank2__stat_8____unnamed83____" prot="public">dummy_afu::ddr_test_bank2_stat.__unnamed83__</innerclass>
+    <innerclass refid="structdummy__afu_1_1ddr__test__bank3__stat_8____unnamed86____" prot="public">dummy_afu::ddr_test_bank3_stat.__unnamed86__</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046b" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@62</name>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2e87f72819846d7a53092b360755c7cd" prot="public">
+          <name>AFU_DFH</name>
+          <initializer>= 0x0000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba7bc0113085a1537b87b9533c1d1b93e4" prot="public">
+          <name>AFU_ID_L</name>
+          <initializer>= 0x0008</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baa48ec3d788fa335ebc4bb4469bafc48c" prot="public">
+          <name>AFU_ID_H</name>
+          <initializer>= 0x0010</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba222f7920be0e34b7907643cef6889fd4" prot="public">
+          <name>NEXT_AFU</name>
+          <initializer>= 0x0018</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba1a9e79d25022f4af20b0fb5347f7a76e" prot="public">
+          <name>AFU_DFH_RSVD</name>
+          <initializer>= 0x0020</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" prot="public">
+          <name>SCRATCHPAD</name>
+          <initializer>= 0x0028</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba2dd1000f0770dcda833f518caaef2139" prot="public">
+          <name>MMIO_TEST_SCRATCHPAD</name>
+          <initializer>= 0x1000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba33b12307658c4d48d2e3e830f31c8d4a" prot="public">
+          <name>MEM_TEST_CTRL</name>
+          <initializer>= 0x2040</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bae4462a80036a5ac3aa3cada2418bc2a5" prot="public">
+          <name>MEM_TEST_STAT</name>
+          <initializer>= 0x2048</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba50907b523a57b88d331c2224e057f8dd" prot="public">
+          <name>MEM_TEST_SRC_ADDR</name>
+          <initializer>= 0x2050</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba23997995c982f0e6a26fea04efa07c37" prot="public">
+          <name>MEM_TEST_DST_ADDR</name>
+          <initializer>= 0x2058</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baf36a9e642b0ddac03c1f9938fb6789c3" prot="public">
+          <name>DDR_TEST_CTRL</name>
+          <initializer>= 0x3000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046baab48d50e6990ff1a2a76fe12bd189a51" prot="public">
+          <name>DDR_TEST_STAT</name>
+          <initializer>= 0x3008</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bada2d999413f409ffcf8f73006412f96f" prot="public">
+          <name>DDR_TEST_BANK0_STAT</name>
+          <initializer>= 0x3010</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba47ea5964b0401582a714a12a42998c83" prot="public">
+          <name>DDR_TEST_BANK1_STAT</name>
+          <initializer>= 0x3018</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046ba0edc832f3a1cb6b2be9e63b044a1570a" prot="public">
+          <name>DDR_TEST_BANK2_STAT</name>
+          <initializer>= 0x3020</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7b6c66db9078f216f384bcdc09ae8d5" prot="public">
+          <name>DDR_TEST_BANK3_STAT</name>
+          <initializer>= 0x3028</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="36" column="1" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="36" bodyend="54"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespacedummy__afu_1ac06b3900bd7a2d4ba2c3f19ea20f622d" prot="public" static="no">
+        <type><ref refid="classopae_1_1afu__test_1_1afu" kindref="compound">opae::afu_test::afu</ref></type>
+        <definition>using dummy_afu::test_afu = typedef opae::afu_test::afu</definition>
+        <argsstring></argsstring>
+        <name>test_afu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="180" column="1" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="namespacedummy__afu_1aa01df4dcd37386cbf0800129c6f3183c" prot="public" static="no">
+        <type><ref refid="classopae_1_1afu__test_1_1command" kindref="compound">opae::afu_test::command</ref></type>
+        <definition>using dummy_afu::test_command = typedef opae::afu_test::command</definition>
+        <argsstring></argsstring>
+        <name>test_command</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="181" column="1" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespacedummy__afu_1aef855a00ce0a89e5c9d10373084438ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>class T</type>
+          </param>
+        </templateparamlist>
+        <type>int</type>
+        <definition>int dummy_afu::check_stat</definition>
+        <argsstring>(std::shared_ptr&lt; spdlog::logger &gt; logger, const char *name, T stat)</argsstring>
+        <name>check_stat</name>
+        <param>
+          <type>std::shared_ptr&lt; spdlog::logger &gt;</type>
+          <declname>logger</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>stat</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/ddr.h" line="36" column="5" bodyfile="samples/dummy_afu/ddr.h" bodystart="36" bodyend="43"/>
+        <referencedby refid="classdummy__afu_1_1ddr__test_1a5207a71d34529d7bfac6871282566edb" compoundref="ddr_8h" startline="60" endline="103">dummy_afu::ddr_test::run</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacedummy__afu_1a2331454a35bd7d061543b78f7708db09" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void dummy_afu::timeit_wr</definition>
+        <argsstring>(std::shared_ptr&lt; spdlog::logger &gt; log, dummy_afu *afu, uint32_t count)</argsstring>
+        <name>timeit_wr</name>
+        <param>
+          <type>std::shared_ptr&lt; spdlog::logger &gt;</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type><ref refid="classdummy__afu_1_1dummy__afu" kindref="compound">dummy_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/mmio.h" line="33" column="13" bodyfile="samples/dummy_afu/mmio.h" bodystart="33" bodyend="45"/>
+        <references refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" compoundref="dummy__afu_8h" startline="42">SCRATCHPAD</references>
+      </memberdef>
+      <memberdef kind="function" id="namespacedummy__afu_1ab7da4ff6c8571efbc707ba26cfba6723" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void dummy_afu::timeit_rd</definition>
+        <argsstring>(std::shared_ptr&lt; spdlog::logger &gt; log, dummy_afu *afu, uint32_t count)</argsstring>
+        <name>timeit_rd</name>
+        <param>
+          <type>std::shared_ptr&lt; spdlog::logger &gt;</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type><ref refid="classdummy__afu_1_1dummy__afu" kindref="compound">dummy_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/mmio.h" line="48" column="13" bodyfile="samples/dummy_afu/mmio.h" bodystart="48" bodyend="60"/>
+        <references refid="namespacedummy__afu_1ae3ac4ffc32c20cde26b9d2090105046bac7cab4d551fa9a04a732ed2d48f121a0" compoundref="dummy__afu_8h" startline="42">SCRATCHPAD</references>
+      </memberdef>
+      <memberdef kind="function" id="namespacedummy__afu_1ab2db23ee00af6f322f726f9017f60fdf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void dummy_afu::write_verify</definition>
+        <argsstring>(dummy_afu *afu, uint32_t addr, T value)</argsstring>
+        <name>write_verify</name>
+        <param>
+          <type><ref refid="classdummy__afu_1_1dummy__afu" kindref="compound">dummy_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>T</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/mmio.h" line="64" column="13" bodyfile="samples/dummy_afu/mmio.h" bodystart="64" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacedummy__afu_1a8aa59ff4d5d11ffe262b3bcc1524046c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void dummy_afu::write_verify</definition>
+        <argsstring>(dummy_afu *afu, uint32_t addr, uint32_t i, uint64_t value)</argsstring>
+        <name>write_verify</name>
+        <param>
+          <type><ref refid="classdummy__afu_1_1dummy__afu" kindref="compound">dummy_afu</ref> *</type>
+          <declname>afu</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/mmio.h" line="79" column="13" bodyfile="samples/dummy_afu/mmio.h" bodystart="79" bodyend="91"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/dummy_afu/ddr.h" line="33" column="1"/>
+  </compounddef>
+</doxygen>

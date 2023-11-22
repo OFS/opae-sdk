@@ -1,0 +1,112 @@
+.TH "host_exerciser::he_ctl" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::he_ctl
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/cxl_host_exerciser\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBoffset\fP = HE_CTL }"
+.br
+.ti -1c
+.RI "enum { \fBoffset\fP = HE_CTL }"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBvalue\fP"
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint64_t \fBResetL\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBStart\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBForcedTestCmpl\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBbias_support\fP: 2"
+.br
+.ti -1c
+.RI "uint64_t \fBReserved\fP: 59"
+.br
+.ti -1c
+.RI "}; "
+.br
+.ti -1c
+.RI "uint32_t \fBvalue\fP"
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint32_t \fBResetL\fP: 1"
+.br
+.ti -1c
+.RI "uint32_t \fBStart\fP: 1"
+.br
+.ti -1c
+.RI "uint32_t \fBForcedTestCmpl\fP: 1"
+.br
+.ti -1c
+.RI "uint32_t \fBReserved\fP: 29"
+.br
+.ti -1c
+.RI "}; "
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 123 of file cxl_host_exerciser\&.h\&.
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 124 of file cxl_host_exerciser\&.h\&.
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 175 of file host_exerciser\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t host_exerciser::he_ctl::value"
+
+.PP
+Definition at line 125 of file cxl_host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::he_cmd::he_cmd(), host_exerciser::host_exerciser_cmd::host_exerciser_cmd(), host_exerciser::he_cache_cmd::he_forcetestcmpl(), host_exerciser::host_exerciser_cmd::he_forcetestcmpl(), host_exerciser::he_cmd::he_start_test(), host_exerciser::he_cache_cmd::run(), host_exerciser::he_cache_lpbk_cmd::run(), host_exerciser::host_exerciser_cmd::run(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "struct { \&.\&.\&. } "
+
+.SS "uint32_t host_exerciser::he_ctl::value"
+
+.PP
+Definition at line 178 of file host_exerciser\&.h\&.
+.SS "struct { \&.\&.\&. } "
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

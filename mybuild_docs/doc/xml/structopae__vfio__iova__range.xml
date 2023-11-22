@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae__vfio__iova__range" kind="struct" language="C++" prot="public">
+    <compoundname>opae_vfio_iova_range</compoundname>
+    <includes refid="vfio_8h" local="no">opae/vfio.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae__vfio__iova__range_1ae44d6d78fc59fec1829117f80f09d676" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t opae_vfio_iova_range::start</definition>
+        <argsstring></argsstring>
+        <name>start</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Start of this range of offsets. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="58" column="10" bodyfile="include/opae/vfio.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__iova__range_1a8e09837d655b7187d704d1dec69bd3e2" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t opae_vfio_iova_range::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>End of this range of offsets. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="59" column="10" bodyfile="include/opae/vfio.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae__vfio__iova__range_1acdadb8bd4497fd424a045de13f1c0570" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structopae__vfio__iova__range" kindref="compound">opae_vfio_iova_range</ref> *</type>
+        <definition>struct opae_vfio_iova_range* opae_vfio_iova_range::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to next in list. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/vfio.h" line="60" column="27" bodyfile="include/opae/vfio.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>IO Virtual Address Range</para>
+<para>A range of allocatable IOVA offsets. Used for mapping DMA buffers. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae_vfio_iova_range</label>
+        <link refid="structopae__vfio__iova__range"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/vfio.h" line="57" column="1" bodyfile="include/opae/vfio.h" bodystart="57" bodyend="61"/>
+    <listofallmembers>
+      <member refid="structopae__vfio__iova__range_1a8e09837d655b7187d704d1dec69bd3e2" prot="public" virt="non-virtual"><scope>opae_vfio_iova_range</scope><name>end</name></member>
+      <member refid="structopae__vfio__iova__range_1acdadb8bd4497fd424a045de13f1c0570" prot="public" virt="non-virtual"><scope>opae_vfio_iova_range</scope><name>next</name></member>
+      <member refid="structopae__vfio__iova__range_1ae44d6d78fc59fec1829117f80f09d676" prot="public" virt="non-virtual"><scope>opae_vfio_iova_range</scope><name>start</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

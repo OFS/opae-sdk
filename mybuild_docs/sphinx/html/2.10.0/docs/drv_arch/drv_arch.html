@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="fpgaconf" href="../fpga_tools/fpgaconf/fpgaconf.html" />
+    <link rel="prev" title="Plugin Developer’s Guide" href="../fpga_api/plug_guide/readme.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hardware-architecture">Hardware Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fpga-management-engine-fme">FPGA Management Engine (FME)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#port">Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator-function-unit-afu">Accelerator Function Unit (AFU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#partial-reconfiguration-pr">Partial Reconfiguration (PR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fpga-virtualization">FPGA Virtualization</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/docs/drv_arch/drv_arch.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="open-programmable-accelerator-engine-opae-linux-device-driver-architecture">
+<h1>Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture<a class="headerlink" href="#open-programmable-accelerator-engine-opae-linux-device-driver-architecture" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>The OPAE FPGA Linux Device Driver provides interfaces for user-space applications to
+configure, enumerate, open, and access FPGA accelerators on platforms equipped
+with Intel FPGA solutions. The OPAE FPGA driver also enables system-level management functions such
+as FPGA reconfiguration and virtualization.</p>
+<div class="section" id="hardware-architecture">
+<h2>Hardware Architecture<a class="headerlink" href="#hardware-architecture" title="Permalink to this headline">¶</a></h2>
+<p>The Linux Operating System treats the FPGA hardware as a PCIe* device. A predefined data structure,
+Device Feature List (DFL), allows for dynamic feature discovery in an Intel
+FPGA solution.</p>
+<p><img alt="FPGA PCIe Device" src="../../_images/FPGA_PCIe_Device.png" /></p>
+<p>The Linux Device Driver implements PCIe Single Root I/O Virtualization (SR-IOV) for the creation of
+Virtual Functions (VFs). The device driver can release individual accelerators
+for assignment to virtual machines (VMs).</p>
+<p><img alt="Virtualized FPGA PCIe Device" src="../../_images/FPGA_PCIe_Device_SRIOV.png" /></p>
+</div>
+<div class="section" id="fpga-management-engine-fme">
+<h2>FPGA Management Engine (FME)<a class="headerlink" href="#fpga-management-engine-fme" title="Permalink to this headline">¶</a></h2>
+<p>The FPGA Management Engine provides error reporting, reconfiguration, performance reporting, and other
+infrastructure functions. Each FPGA has one FME which is always accessed through the Physical
+Function (PF). The Intel Xeon® Processor with Integrated FPGA also performs power and thermal management.
+These functions are not available on the Intel Programmable Acceleration Card (PAC).</p>
+<p>User-space applications can acquire exclusive access to the FME using <code class="docutils literal notranslate"><span class="pre">open()</span></code>,
+and release it using <code class="docutils literal notranslate"><span class="pre">close()</span></code>. Device access may be managed by standard Linux
+interfaces and tools.</p>
+<p>.. Note::</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">    If an application terminates without freeing the FME or Port resources, Linux closes all</span>
+<span class="go">    file descriptors owned by the terminating process, freeing those resources.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="port">
+<h2>Port<a class="headerlink" href="#port" title="Permalink to this headline">¶</a></h2>
+<p>A Port represents the interface between two components:</p>
+<ul class="simple">
+<li><p>The FPGA Interface Manager (FIM) which is part of the static FPGA fabric</p></li>
+<li><p>The Accelerator Function Unit (AFU) which is the partially reconfigurable region</p></li>
+</ul>
+<p>The Port controls the communication from software to the AFU and makes features such as reset and debug available.</p>
+</div>
+<div class="section" id="accelerator-function-unit-afu">
+<h2>Accelerator Function Unit (AFU)<a class="headerlink" href="#accelerator-function-unit-afu" title="Permalink to this headline">¶</a></h2>
+<p>An AFU attaches to a Port. The AFU provides a 256 KB memory mapped I/O (MMIO) region for accelerator-specific control registers.</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">open()</span></code> on the Port device to acquire access to an AFU associated with the Port device.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">close()</span></code>on the Port device to release the AFU associated with the Port device.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">mmap()</span></code> on the Port device to map accelerator MMIO regions.</p></li>
+</ul>
+</div>
+<div class="section" id="partial-reconfiguration-pr">
+<h2>Partial Reconfiguration (PR)<a class="headerlink" href="#partial-reconfiguration-pr" title="Permalink to this headline">¶</a></h2>
+<p>Use PR to reconfigure an AFU from a bitstream file. Successful reconfiguration has the following requirement:</p>
+<ul class="simple">
+<li><p>You must generate the reconfiguration AFU for the exact FIM. The AFU and FIM are compatible if their interface IDs match.
+You can verify this match by comparing the interface ID in the bitstream header against the interface ID that is
+exported by the driver in sysfs.</p></li>
+</ul>
+<p>In all other cases PR fails and may cause system instability.</p>
+<p>.. note::</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">    Platforms that support 512-bit Partial Reconfiguration require</span>
+<span class="go">    binutils &gt;= version 2.25.</span>
+</pre></div>
+</div>
+<p>Close any software programs accessing the FPGA, including those running in a virtualized host before
+initiating PR. For virtualized environments, the recommended sequence is as
+follows:</p>
+<ol class="simple">
+<li><p>Unload the driver from the guest</p></li>
+<li><p>Release the VF from the guest</p></li>
+</ol>
+<p>.. note::</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">    NOTE: Releasing the VF from the guest while an application on the guest is</span>
+<span class="go">    still accessing its resources may lead to VM instabilities. We recommend</span>
+<span class="go">    closing all applications accessing the VF in the guest before releasing the</span>
+<span class="go">    VF.</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Disable SR-IOV</p></li>
+<li><p>Perform PR</p></li>
+<li><p>Enable SR-IOV</p></li>
+<li><p>Assign the VF to the guest</p></li>
+<li><p>Load the driver in the guest</p></li>
+</ol>
+</div>
+<div class="section" id="fpga-virtualization">
+<h2>FPGA Virtualization<a class="headerlink" href="#fpga-virtualization" title="Permalink to this headline">¶</a></h2>
+<p>To enable accelerator access from applications running on a VM, create a VF for
+the port using the following process:</p>
+<ol class="simple">
+<li><p>Release the Port from the PF using the associated ioctl on the FME device.</p></li>
+<li><p>Use the following command to enable SR-IOV and VFs. Each VF can own a single Port with an AFU. In the following command,
+N is the number of Port released from the PF.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">    echo N &gt; $PCI_DEVICE_PATH/sriov_numvfs</span>
+</pre></div>
+</div>
+<p>.. note::</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">    NOTE: The number, &#39;N&#39;, cannot be greater than the number of supported VFs.</span>
+<span class="go">    This can be read from $PCI_DEVICE_PATH/sriov_totalvfs.</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Pass the VFs through to VMs using hypervisor interfaces.</p></li>
+<li><p>Access the AFU on a VF from applications running on the VM using the same driver inside the VM.</p></li>
+</ol>
+<p>.. Note::</p>
+<p>``
+Creating VFs is only supported for port devices. Consequently, PR and other management functions are only available through
+the PF.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span><span class="c1"># Driver Organization ##</span>
+
+<span class="gp">#</span><span class="c1">## PCIe Module Device Driver ###</span>
+
+<span class="go">!## Driver Organization ##</span>
+
+<span class="gp">#</span><span class="c1">## PCIe Module Device Driver ###</span>
+
+<span class="go">![Driver Organization](Driver_Organization.png &quot;Driver Organization&quot;)</span>
+
+
+
+
+<span class="go">FPGA devices appear as a PCIe devices. Once enumeration detects a PCIe PF or VF, the Linux OS loads the FPGA PCIe</span>
+<span class="go">device driver. The device driver performs the following functions:</span>
+
+<span class="go">1. Walks through the Device Feature List in PCIe device base address register (BAR) memory to discover features</span>
+<span class="go">and their sub-features and creates necessary platform devices.</span>
+<span class="go">2. Enables SR-IOV.</span>
+<span class="go">3. Introduces the feature device infrastructure, which abstracts operations for sub-features and provides common functions</span>
+<span class="go">to feature device drivers.</span>
+
+<span class="gp">#</span><span class="c1">## PCIe Module Device Driver Functions ###</span>
+
+<span class="go">The PCIe Module Device Driver performs the following functions:</span>
+
+<span class="go">1. PCIe discovery, device enumeration, and feature discovery.</span>
+<span class="go">2. Creates sysfs directories for the device, FME, and Port.</span>
+<span class="go">3. Creates the platform driver instances, causing the Linux kernel to load their respective drivers.</span>
+
+<span class="gp">#</span><span class="c1">## FME Platform Module Device Driver ###</span>
+
+<span class="go">The FME Platform Module Device Driver loads automatically after the PCIe driver creates the</span>
+<span class="go">FME Platform Module. It provides the following features for FPGA management:</span>
+
+<span class="go">1. Power and thermal management, error reporting, performance reporting, and other infrastructure functions. You can access</span>
+<span class="go">these functions via sysfs interfaces the FME driver provides.</span>
+
+<span class="go">2. Partial Reconfiguration. During PR sub-feature initialization, the FME driver registers the FPGA Manager framework</span>
+<span class="go">to support PR. When the FME receives the relevant ioctl request from user-space, it invokes the common interface</span>
+<span class="go">function from the FPGA Manager to reconfigure the AFU using PR.</span>
+
+<span class="go">3. Port management for virtualization (releasing/assigning port device).</span>
+
+<span class="go">After a port device is released, you can use the PCIe driver SR-IOV interfaces to create/destroy VFs.</span>
+
+<span class="go">For more information, refer to &quot;FPGA Virtualization&quot;.</span>
+
+<span class="gp">#</span><span class="c1">## FME Platform Module Device Driver Functions ###</span>
+
+<span class="go">The FME Platform Module Device Driver performs the the following functions:</span>
+
+<span class="go">* Creates the FME character device node.</span>
+<span class="go">* Creates the FME sysfs files and implements the FME sysfs file accessors.</span>
+<span class="go">* Implements the FME private feature sub-drivers.</span>
+<span class="go">* FME private feature sub-drivers:</span>
+<span class="go">    * FME Header</span>
+<span class="go">    * Partial Reconfiguration</span>
+<span class="go">    * Global Error</span>
+<span class="go">    * Global Performance</span>
+
+<span class="gp">#</span><span class="c1">## Port Platform Module Device Driver ###</span>
+
+<span class="go">After the PCIe Module Device Driver creates the Port Platform Module device,</span>
+<span class="go">the FPGA Port and AFU driver are loaded.  This module provides an</span>
+<span class="go">interface for user-space applications to access the individual</span>
+<span class="go">accelerators, including basic reset control on the Port, AFU MMIO region</span>
+<span class="go">export, DMA buffer mapping service, and remote debug functions.</span>
+
+<span class="gp">#</span><span class="c1">## Port Platform Module Device Driver Functions ###</span>
+
+<span class="go">The Port Platform Module Device Driver performs the the following functions:</span>
+
+<span class="go">* Creates the Port character device node.</span>
+<span class="go">* Creates the Port sysfs files and implements the Port sysfs file accessors.</span>
+<span class="go">* Implements the following Port private feature sub-drivers.</span>
+<span class="go">    * Port Header</span>
+<span class="go">    * AFU</span>
+<span class="go">    * Port Error</span>
+<span class="go">    * Signal Tap</span>
+
+<span class="gp">#</span><span class="c1">## OPAE FPGA Driver Interface ###</span>
+<span class="go">The user-space interface consists of a sysfs hierarchy and ioctl requests. Most</span>
+<span class="go">kernel attributes can be accessed/modified via sysfs nodes in this hierarchy.</span>
+<span class="go">More complex I/O operations are controlled via ioctl requests. The OPAE API</span>
+<span class="go">implementation, libopae-c, has been designed to use this interface to</span>
+<span class="go">interact with the OPAE FPGA kernel drivers.</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../fpga_api/plug_guide/readme.html" class="btn btn-neutral float-left" title="Plugin Developer’s Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../fpga_tools/fpgaconf/fpgaconf.html" class="btn btn-neutral float-right" title="fpgaconf" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

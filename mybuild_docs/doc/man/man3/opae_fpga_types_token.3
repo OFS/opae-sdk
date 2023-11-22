@@ -1,0 +1,128 @@
+.TH "opae::fpga::types::token" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::fpga::types::token
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <opae/cxx/core/token\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::shared_ptr< \fBtoken\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fB~token\fP ()"
+.br
+.ti -1c
+.RI "\fBfpga_token\fP \fBc_type\fP () const"
+.br
+.ti -1c
+.RI "\fBoperator fpga_token\fP () const"
+.br
+.ti -1c
+.RI "\fBptr_t\fP \fBget_parent\fP () const"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static std::vector< \fBtoken::ptr_t\fP > \fBenumerate\fP (const std::vector< \fBproperties::ptr_t\fP > &props)"
+.br
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtoken\fP (\fBfpga_token\fP tok)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_token\fP \fBtoken_\fP"
+.br
+.in -1c
+.SS "Friends"
+
+.in +1c
+.ti -1c
+.RI "class \fBhandle\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Wraps the OPAE fpga_token primitive\&. token's are created from an enumeration operation that uses properties describing an accelerator resource as search criteria\&. 
+.PP
+Definition at line 44 of file token\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::shared_ptr<\fBtoken\fP> \fBopae::fpga::types::token::ptr_t\fP"
+
+.PP
+Definition at line 46 of file token\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::fpga::types::token::~token ()"
+
+.SS "opae::fpga::types::token::token (\fBfpga_token\fP tok)\fC [private]\fP"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "static std::vector<\fBtoken::ptr_t\fP> opae::fpga::types::token::enumerate (const std::vector< \fBproperties::ptr_t\fP > & props)\fC [static]\fP"
+Obtain a vector of token smart pointers for given search criteria\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIprops\fP The search criteria\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+A set of known tokens that match the search\&. 
+.RE
+.PP
+
+.PP
+Referenced by hssi_cmd::clock_freq_for()\&.
+.SS "\fBfpga_token\fP opae::fpga::types::token::c_type () const\fC [inline]\fP"
+Retrieve the underlying fpga_token primitive\&. 
+.PP
+Definition at line 60 of file token\&.h\&.
+.PP
+References token_\&.
+.SS "opae::fpga::types::token::operator \fBfpga_token\fP () const\fC [inline]\fP"
+Retrieve the underlying fpga_token primitive\&. 
+.PP
+Definition at line 64 of file token\&.h\&.
+.PP
+References token_\&.
+.SS "\fBptr_t\fP opae::fpga::types::token::get_parent () const"
+Retrieve the parent token, or an empty pointer if there is none\&. 
+.SH "Friends And Related Function Documentation"
+.PP 
+.SS "friend class \fBhandle\fP\fC [friend]\fP"
+
+.PP
+Definition at line 76 of file token\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "\fBfpga_token\fP opae::fpga::types::token::token_\fC [private]\fP"
+
+.PP
+Definition at line 74 of file token\&.h\&.
+.PP
+Referenced by c_type(), and operator fpga_token()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

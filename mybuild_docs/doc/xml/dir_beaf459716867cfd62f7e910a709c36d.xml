@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_beaf459716867cfd62f7e910a709c36d" kind="dir">
+    <compoundname>include/opae</compoundname>
+    <innerdir refid="dir_bfc0db7907d38c16912ea7097ac6d697">include/opae/cxx</innerdir>
+    <innerfile refid="access_8h">access.h</innerfile>
+    <innerfile refid="buffer_8h">buffer.h</innerfile>
+    <innerfile refid="enum_8h">enum.h</innerfile>
+    <innerfile refid="error_8h">error.h</innerfile>
+    <innerfile refid="event_8h">event.h</innerfile>
+    <innerfile refid="fpga_8h">fpga.h</innerfile>
+    <innerfile refid="hash__map_8h">hash_map.h</innerfile>
+    <innerfile refid="init_8h">init.h</innerfile>
+    <innerfile refid="log_8h">log.h</innerfile>
+    <innerfile refid="manage_8h">manage.h</innerfile>
+    <innerfile refid="mem__alloc_8h">mem_alloc.h</innerfile>
+    <innerfile refid="metrics_8h">metrics.h</innerfile>
+    <innerfile refid="include_2opae_2mmio_8h">mmio.h</innerfile>
+    <innerfile refid="properties_8h">properties.h</innerfile>
+    <innerfile refid="sysobject_8h">sysobject.h</innerfile>
+    <innerfile refid="types_8h">types.h</innerfile>
+    <innerfile refid="types__enum_8h">types_enum.h</innerfile>
+    <innerfile refid="uio_8h">uio.h</innerfile>
+    <innerfile refid="umsg_8h">umsg.h</innerfile>
+    <innerfile refid="userclk_8h">userclk.h</innerfile>
+    <innerfile refid="utils_8h">utils.h</innerfile>
+    <innerfile refid="version_8h">version.h</innerfile>
+    <innerfile refid="vfio_8h">vfio.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/opae/"/>
+  </compounddef>
+</doxygen>

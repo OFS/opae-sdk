@@ -1,0 +1,1258 @@
+\doxysection{include/opae/properties.h File Reference}
+\label{properties_8h}\index{include/opae/properties.h@{include/opae/properties.h}}
+
+
+Functions for examining and manipulating {\ttfamily fpga\+\_\+properties} objects.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a027ca0f8c45573c378179d7f57971128}{fpga\+Get\+Properties\+From\+Handle}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$prop)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$prop)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a56a1c04d0c8f8eb1785969934f31a41a}{fpga\+Update\+Properties}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a9ef3dc600c085ecf513b9e3f2867ffd6}{fpga\+Clear\+Properties}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_ac51c19bdd763a98e143a938c47963905}{fpga\+Clone\+Properties}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} src, \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$dst)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a6f83533f996cf6bd25274e0b7b9c3050}{fpga\+Destroy\+Properties}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$prop)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_aa3d6d131a85e9c7cff4844c0931c1591}{fpga\+Properties\+Get\+Parent}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} $\ast$parent)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_aa395756270c64e2d2e4e03ad37931f2d}{fpga\+Properties\+Set\+Parent}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} parent)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a5e4e034d981c29a65bbeafdd05d2fa87}{fpga\+Properties\+Get\+Object\+Type}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}} $\ast$objtype)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a3724caa06200e0d3f0b56611c379d75b}{fpga\+Properties\+Set\+Object\+Type}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}} objtype)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a5a086b105275b0506e6338e9797d0439}{fpga\+Properties\+Get\+Segment}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t $\ast$segment)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a2ff66f524bfbd8f84b0b657d92edb07f}{fpga\+Properties\+Set\+Segment}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t segment)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a29eda789a7322042dfa8d558d13205a1}{fpga\+Properties\+Get\+Bus}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t $\ast$bus)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a3a10650ea23b050090d1b2759c9ec8f7}{fpga\+Properties\+Set\+Bus}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t bus)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_abf2d527c4625bfd1558bb722c3c89380}{fpga\+Properties\+Get\+Device}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t $\ast$device)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a73ea87129bcea24df9aaabcc2bd40760}{fpga\+Properties\+Set\+Device}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t device)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a789a2548aaea9b2069b964f58a931bf6}{fpga\+Properties\+Get\+Function}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t $\ast$function)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a14045d2b80968dda5af4987b6246d17a}{fpga\+Properties\+Set\+Function}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t function)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a9978cb8bc354d2bbd644ed1a96395c8c}{fpga\+Properties\+Get\+Socket\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t $\ast$socket\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a51707174f2df674af9bc1171bde7f1ba}{fpga\+Properties\+Set\+Socket\+ID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint8\+\_\+t socket\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_ac3237ae88feff35ba0c285e27cac58a5}{fpga\+Properties\+Get\+Device\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t $\ast$device\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_acfac3eea769b7872c1d6d7102de708aa}{fpga\+Properties\+Set\+Device\+ID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t device\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_ad1a50fcb3a74c0acf89d2f4e75989085}{fpga\+Properties\+Get\+Num\+Slots}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t $\ast$num\+\_\+slots)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a2338b49011195241a3ba5ad16f85dde8}{fpga\+Properties\+Set\+Num\+Slots}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t num\+\_\+slots)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_aa387edbec93d9588d6338d11aace653f}{fpga\+Properties\+Get\+BBSID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t $\ast$bbs\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a456be39e014b2fb03b160ab010ddb189}{fpga\+Properties\+Set\+BBSID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t bbs\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a08186263b04a5193471469e9d70ae372}{fpga\+Properties\+Get\+BBSVersion}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}} $\ast$bbs\+\_\+version)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a9e3bfec10b26500718ae0afef146f06a}{fpga\+Properties\+Set\+BBSVersion}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}} version)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a03408aebf73915938507c529bba6aeb3}{fpga\+Properties\+Get\+Vendor\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t $\ast$vendor\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a1393cac49b4c34fa23e95367bc14d811}{fpga\+Properties\+Set\+Vendor\+ID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t vendor\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a8c00a2915132284aea5faa0d72dfd5e5}{fpga\+Properties\+Get\+Model}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, char $\ast$model)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_acd4fc992cbb34efe619e387f923c4c05}{fpga\+Properties\+Set\+Model}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, char $\ast$model)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_aeff04e09cc045f314695b4aac0e5516a}{fpga\+Properties\+Get\+Local\+Memory\+Size}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t $\ast$lms)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_af491fd7a2621aa66de5059168afe3792}{fpga\+Properties\+Set\+Local\+Memory\+Size}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t lms)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a9b80ec35fbe0498f332782ca5d8ec2ab}{fpga\+Properties\+Get\+Capabilities}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t $\ast$capabilities)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a45bad0a5baa2cb1f582af571d6ed3917}{fpga\+Properties\+Set\+Capabilities}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t capabilities)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a5728ceaf03173772069df0610b4646d7}{fpga\+Properties\+Get\+GUID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} $\ast$guid)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a71ad1e59994b2c8b04ea036a64515117}{fpga\+Properties\+Set\+GUID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} guid)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a7b70efbf6892e9daaf3700b21cc50f0c}{fpga\+Properties\+Get\+Num\+MMIO}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t $\ast$mmio\+\_\+spaces)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a1695e0bf61ee5188401bd230db022314}{fpga\+Properties\+Set\+Num\+MMIO}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t mmio\+\_\+spaces)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a33ee7ad6994f3df0a044d9052627f8c0}{fpga\+Properties\+Get\+Num\+Interrupts}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t $\ast$num\+\_\+interrupts)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_ace3b67e6acb69bef8d8d8b32dab7a044}{fpga\+Properties\+Set\+Num\+Interrupts}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t num\+\_\+interrupts)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a1e18fdf7c532bf564576b361874fccf3}{fpga\+Properties\+Get\+Accelerator\+State}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}} $\ast$state)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a1a3f5725be24b3fc10625dfd604ed86d}{fpga\+Properties\+Set\+Accelerator\+State}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}} state)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a409e32267db6f5040d881d5d533c36fb}{fpga\+Properties\+Get\+Object\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t $\ast$object\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a022ad3dc80ab2fba7e512c6c2215258a}{fpga\+Properties\+Set\+Object\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint64\+\_\+t object\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a6cfb80c2a4fe8fd7be1ac4ecd72985b5}{fpga\+Properties\+Get\+Num\+Errors}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t $\ast$num\+\_\+errors)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_ac8be299c378aff53410dda6081975038}{fpga\+Properties\+Set\+Num\+Errors}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint32\+\_\+t num\+\_\+errors)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a8fe0f0d91d844aeaced5b761c22940b0}{fpga\+Properties\+Get\+Interface}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}} $\ast$interface)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a29e51f74386de3ecedde125157b24057}{fpga\+Properties\+Set\+Interface}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, \mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}} interface)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a8e58481bfe2c97de9a4582d8acbbc356}{fpga\+Properties\+Get\+Subsystem\+Vendor\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t $\ast$subsystem\+\_\+vendor\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a26296be1fc4c0f53d37e84c1d7741963}{fpga\+Properties\+Set\+Subsystem\+Vendor\+ID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t subsystem\+\_\+vendor\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_ac5eb7e22334b5dff483a6542b12644c9}{fpga\+Properties\+Get\+Subsystem\+Device\+ID}} (const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t $\ast$subsystem\+\_\+device\+\_\+id)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{properties_8h_a66d64cd10bb9b834e389f6d4d618e556}{fpga\+Properties\+Set\+Subsystem\+Device\+ID}} (\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} prop, uint16\+\_\+t subsystem\+\_\+device\+\_\+id)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions for examining and manipulating {\ttfamily fpga\+\_\+properties} objects. 
+
+In OPAE, {\ttfamily fpga\+\_\+properties} objects are used both for obtaining information about resources and for selectively enumerating resources based on their properties. This file provides accessor functions (get/set) to allow reading and writing individual items of an {\ttfamily fpga\+\_\+properties} object. Generally, not all object types supported by OPAE carry all properties. If you call a property accessor method on a {\ttfamily fpga\+\_\+properties} object that does not support this particular property, it will return FPGA\+\_\+\+INVALID\+\_\+\+PARAM.\hypertarget{properties_8h_autotoc_md0}{}\doxysubsection{Accessor Return Values}\label{properties_8h_autotoc_md0}
+In addition to the return values specified in the documentation below, all accessor functions return FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if you pass NULL or invalid parameters (i.\+e. non-\/initialized properties objects), FPGA\+\_\+\+EXCEPTION if an internal exception occurred trying to access the properties object, FPGA\+\_\+\+NOT\+\_\+\+FOUND if the requested property is not part of the supplied properties object. 
+
+\doxysubsection{Function Documentation}
+\mbox{\label{properties_8h_a027ca0f8c45573c378179d7f57971128}} 
+\index{properties.h@{properties.h}!fpgaGetPropertiesFromHandle@{fpgaGetPropertiesFromHandle}}
+\index{fpgaGetPropertiesFromHandle@{fpgaGetPropertiesFromHandle}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetPropertiesFromHandle()}{fpgaGetPropertiesFromHandle()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Properties\+From\+Handle (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$}]{prop }\end{DoxyParamCaption})}
+
+Create a fpga\+\_\+properties object
+
+Initializes the memory pointed at by {\ttfamily prop} to represent a properties object, and populates it with the properties of the resource referred to by {\ttfamily handle}. Individual properties can then be queried using fpga\+Properties\+Get$\ast$() accessor functions.
+
+\begin{DoxyNote}{Note}
+\mbox{\hyperlink{properties_8h_a027ca0f8c45573c378179d7f57971128}{fpga\+Get\+Properties\+From\+Handle()}} will allocate memory for the created properties object returned in {\ttfamily prop}. It is the responsibility of the caller to free this memory after use by calling \mbox{\hyperlink{properties_8h_a6f83533f996cf6bd25274e0b7b9c3050}{fpga\+Destroy\+Properties()}}.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Open handle to get properties for. \\
+\hline
+\mbox{\texttt{ out}}  & {\em prop} & Pointer to a variable of type fpga\+\_\+properties \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NO\+\_\+\+MEMORY if no memory could be allocated to create the {\ttfamily fpga\+\_\+properties} object. FPGA\+\_\+\+EXCEPTION if an exception happend while initializing the {\ttfamily fpga\+\_\+properties} object. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a010d3b6839fc8763e66e4f953682a489}} 
+\index{properties.h@{properties.h}!fpgaGetProperties@{fpgaGetProperties}}
+\index{fpgaGetProperties@{fpgaGetProperties}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetProperties()}{fpgaGetProperties()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+Properties (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$}]{prop }\end{DoxyParamCaption})}
+
+Create a fpga\+\_\+properties object
+
+Initializes the memory pointed at by {\ttfamily prop} to represent a properties object, and populates it with the properties of the resource referred to by {\ttfamily token}. Individual properties can then be queried using fpga\+Properties\+Get$\ast$() accessor functions.
+
+If {\ttfamily token} is NULL, an \char`\"{}empty\char`\"{} properties object is created to be used as a filter for \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}}. All individual fields are set to {\ttfamily don}t care\`{}, which implies that the fpga\+\_\+properties object would match all FPGA resources if used for an \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}} query. The matching criteria can be further refined by using fpga\+Set$\ast$ functions on the properties object, or the object can be populated with the actual properties of a resource by using \mbox{\hyperlink{properties_8h_a56a1c04d0c8f8eb1785969934f31a41a}{fpga\+Update\+Properties()}}.
+
+\begin{DoxyNote}{Note}
+\mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}} will allocate memory for the created properties object returned in {\ttfamily prop}. It is the responsibility of the caller to free this memory after use by calling \mbox{\hyperlink{properties_8h_a6f83533f996cf6bd25274e0b7b9c3050}{fpga\+Destroy\+Properties()}}.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token to get properties for. Can be NULL, which will create an empty properties object to be used as a filter for \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}}. \\
+\hline
+\mbox{\texttt{ out}}  & {\em prop} & Pointer to a variable of type fpga\+\_\+properties \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+NO\+\_\+\+MEMORY if no memory could be allocated to create the {\ttfamily fpga\+\_\+properties} object. FPGA\+\_\+\+EXCEPTION if an exception happend while initializing the {\ttfamily fpga\+\_\+properties} object. 
+\end{DoxyReturn}
+
+
+Referenced by init\+\_\+metric\+\_\+group(), main(), parse\+\_\+args(), and probe\+\_\+for\+\_\+ase().
+
+\mbox{\label{properties_8h_a56a1c04d0c8f8eb1785969934f31a41a}} 
+\index{properties.h@{properties.h}!fpgaUpdateProperties@{fpgaUpdateProperties}}
+\index{fpgaUpdateProperties@{fpgaUpdateProperties}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaUpdateProperties()}{fpgaUpdateProperties()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Update\+Properties (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop }\end{DoxyParamCaption})}
+
+Update a fpga\+\_\+properties object
+
+Populates the properties object \textquotesingle{}prop\textquotesingle{} with properties of the resource referred to by \textquotesingle{}token\textquotesingle{}. Unlike \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}}, this call will not create a new properties object or allocate memory for it, but use a previously created properties object.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token to retrieve properties for \\
+\hline
+\mbox{\texttt{ in}}  & {\em prop} & fpga\+\_\+properties object to update \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if {\ttfamily token} or {\ttfamily prop} are not valid objects. FPGA\+\_\+\+NOT\+\_\+\+FOUND if the resource referred to by {\ttfamily token} was not found. FPGA\+\_\+\+NO\+\_\+\+DRIVER if not driver is loaded. FPGA\+\_\+\+EXCEPTION if an internal exception occured when trying to update {\ttfamily prop}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a9ef3dc600c085ecf513b9e3f2867ffd6}} 
+\index{properties.h@{properties.h}!fpgaClearProperties@{fpgaClearProperties}}
+\index{fpgaClearProperties@{fpgaClearProperties}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaClearProperties()}{fpgaClearProperties()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Clear\+Properties (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop }\end{DoxyParamCaption})}
+
+Clear a fpga\+\_\+properties object
+
+Sets all fields of the properties object pointed at by \textquotesingle{}prop\textquotesingle{} to \textquotesingle{}don\textquotesingle{}t care\textquotesingle{}, which implies that the fpga\+\_\+properties object would match all FPGA resources if used for an \mbox{\hyperlink{enum_8h_a277ba17f2377895855545bd82c1f901d}{fpga\+Enumerate()}} query. The matching criteria can be further refined by using fpga\+Set$\ast$ functions on the properties object.
+
+Instead of creating a new fpga\+\_\+properties object every time, this function can be used to re-\/use fpga\+\_\+properties objects from previous queries.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & fpga\+\_\+properties object to clear \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if {\ttfamily prop} is not a valid object. FPGA\+\_\+\+EXCEPTION if an $\ast$ internal exception occured when trying to access {\ttfamily prop}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_ac51c19bdd763a98e143a938c47963905}} 
+\index{properties.h@{properties.h}!fpgaCloneProperties@{fpgaCloneProperties}}
+\index{fpgaCloneProperties@{fpgaCloneProperties}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaCloneProperties()}{fpgaCloneProperties()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Clone\+Properties (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{src,  }\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$}]{dst }\end{DoxyParamCaption})}
+
+Clone a fpga\+\_\+properties object
+
+Creates a copy of an fpga\+\_\+properties object.
+
+\begin{DoxyNote}{Note}
+This call creates a new properties object and allocates memory for it. Both the \textquotesingle{}src\textquotesingle{} and the newly created \textquotesingle{}dst\textquotesingle{} objects will eventually need to be destroyed using \mbox{\hyperlink{properties_8h_a6f83533f996cf6bd25274e0b7b9c3050}{fpga\+Destroy\+Properties()}}.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em src} & fpga\+\_\+properties object to copy \\
+\hline
+\mbox{\texttt{ out}}  & {\em dst} & New fpga\+\_\+properties object cloned from \textquotesingle{}src\textquotesingle{} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if {\ttfamily src} is not a valid object, or if {\ttfamily dst} is NULL. FPGA\+\_\+\+NO\+\_\+\+MEMORY if there was not enough memory to allocate an {\ttfamily fpga\+\_\+properties} object for {\ttfamily dst}. FPGA\+\_\+\+EXCEPTION if an internal exception occurred either accessing {\ttfamily src} or updating {\ttfamily dst}. 
+\end{DoxyReturn}
+
+
+Referenced by find\+\_\+fpga().
+
+\mbox{\label{properties_8h_a6f83533f996cf6bd25274e0b7b9c3050}} 
+\index{properties.h@{properties.h}!fpgaDestroyProperties@{fpgaDestroyProperties}}
+\index{fpgaDestroyProperties@{fpgaDestroyProperties}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaDestroyProperties()}{fpgaDestroyProperties()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Destroy\+Properties (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}} $\ast$}]{prop }\end{DoxyParamCaption})}
+
+Destroy a fpga\+\_\+properties object
+
+Destroys an existing fpga\+\_\+properties object that the caller has previously created using \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}} or \mbox{\hyperlink{properties_8h_ac51c19bdd763a98e143a938c47963905}{fpga\+Clone\+Properties()}}.
+
+\begin{DoxyNote}{Note}
+\mbox{\hyperlink{properties_8h_a6f83533f996cf6bd25274e0b7b9c3050}{fpga\+Destroy\+Properties()}} requires the address of an fpga\+\_\+properties object, similar to \mbox{\hyperlink{properties_8h_a027ca0f8c45573c378179d7f57971128}{fpga\+Get\+Properties\+From\+Handle()}}, \mbox{\hyperlink{properties_8h_a010d3b6839fc8763e66e4f953682a489}{fpga\+Get\+Properties()}}, and \mbox{\hyperlink{properties_8h_ac51c19bdd763a98e143a938c47963905}{fpga\+Clone\+Properties()}}. Passing any other value results in undefined behavior.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em prop} & Pointer to the fpga\+\_\+properties object to destroy \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM is {\ttfamily prop} is not a valid object. FPGA\+\_\+\+EXCEPTION if an internal exception occurrred while trying to access {\ttfamily prop}. 
+\end{DoxyReturn}
+
+
+Referenced by find\+\_\+fpga(), fpga\+\_\+close(), init\+\_\+metric\+\_\+group(), main(), and probe\+\_\+for\+\_\+ase().
+
+\mbox{\label{properties_8h_aa3d6d131a85e9c7cff4844c0931c1591}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetParent@{fpgaPropertiesGetParent}}
+\index{fpgaPropertiesGetParent@{fpgaPropertiesGetParent}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetParent()}{fpgaPropertiesGetParent()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Parent (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} $\ast$}]{parent }\end{DoxyParamCaption})}
+
+Get the token of the parent object
+
+Returns the token of the parent of the queried resource in \textquotesingle{}$\ast$parent\textquotesingle{}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em parent} & Pointer to a token variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+NOT\+\_\+\+FOUND if resource does not have a parent (e.\+g. an FPGA\+\_\+\+DEVICE resource does not have parents). Also see \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_aa395756270c64e2d2e4e03ad37931f2d}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetParent@{fpgaPropertiesSetParent}}
+\index{fpgaPropertiesSetParent@{fpgaPropertiesSetParent}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetParent()}{fpgaPropertiesSetParent()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Parent (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{parent }\end{DoxyParamCaption})}
+
+Set the token of the parent object
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ out}}  & {\em parent} & Pointer to a token variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a5e4e034d981c29a65bbeafdd05d2fa87}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetObjectType@{fpgaPropertiesGetObjectType}}
+\index{fpgaPropertiesGetObjectType@{fpgaPropertiesGetObjectType}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetObjectType()}{fpgaPropertiesGetObjectType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Object\+Type (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}} $\ast$}]{objtype }\end{DoxyParamCaption})}
+
+Get the object type of a resource
+
+Returns the object type of the queried resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em objtype} & Pointer to an object type variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a3724caa06200e0d3f0b56611c379d75b}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetObjectType@{fpgaPropertiesSetObjectType}}
+\index{fpgaPropertiesSetObjectType@{fpgaPropertiesSetObjectType}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetObjectType()}{fpgaPropertiesSetObjectType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Object\+Type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types__enum_8h_a9b2ddb9e533441e79f19d45fa0a24934}{fpga\+\_\+objtype}}}]{objtype }\end{DoxyParamCaption})}
+
+Set the object type of a resource
+
+Sets the object type of the resource. $\ast$ Currently supported object types are FPGA\+\_\+\+DEVICE and FPGA\+\_\+\+ACCELERATOR.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ out}}  & {\em objtype} & Object type of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by find\+\_\+fpga(), fpga\+\_\+open(), main(), and probe\+\_\+for\+\_\+ase().
+
+\mbox{\label{properties_8h_a5a086b105275b0506e6338e9797d0439}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetSegment@{fpgaPropertiesGetSegment}}
+\index{fpgaPropertiesGetSegment@{fpgaPropertiesGetSegment}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetSegment()}{fpgaPropertiesGetSegment()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Segment (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t $\ast$}]{segment }\end{DoxyParamCaption})}
+
+Get the PCI segment number of a resource
+
+Returns the segment number of the queried resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em segment} & Pointer to a PCI segment variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a2ff66f524bfbd8f84b0b657d92edb07f}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetSegment@{fpgaPropertiesSetSegment}}
+\index{fpgaPropertiesSetSegment@{fpgaPropertiesSetSegment}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetSegment()}{fpgaPropertiesSetSegment()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Segment (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t}]{segment }\end{DoxyParamCaption})}
+
+Set the PCI segment number of a resource
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em segment} & PCI segment number of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a29eda789a7322042dfa8d558d13205a1}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetBus@{fpgaPropertiesGetBus}}
+\index{fpgaPropertiesGetBus@{fpgaPropertiesGetBus}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetBus()}{fpgaPropertiesGetBus()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Bus (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t $\ast$}]{bus }\end{DoxyParamCaption})}
+
+Get the PCI bus number of a resource
+
+Returns the bus number the queried resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em bus} & Pointer to a PCI bus variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by init\+\_\+metric\+\_\+group().
+
+\mbox{\label{properties_8h_a3a10650ea23b050090d1b2759c9ec8f7}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetBus@{fpgaPropertiesSetBus}}
+\index{fpgaPropertiesSetBus@{fpgaPropertiesSetBus}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetBus()}{fpgaPropertiesSetBus()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Bus (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t}]{bus }\end{DoxyParamCaption})}
+
+Set the PCI bus number of a resource
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em bus} & PCI bus number of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_abf2d527c4625bfd1558bb722c3c89380}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetDevice@{fpgaPropertiesGetDevice}}
+\index{fpgaPropertiesGetDevice@{fpgaPropertiesGetDevice}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetDevice()}{fpgaPropertiesGetDevice()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Device (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t $\ast$}]{device }\end{DoxyParamCaption})}
+
+Get the PCI device number of a resource
+
+Returns the device number the queried resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em device} & Pointer to a PCI device variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by init\+\_\+metric\+\_\+group().
+
+\mbox{\label{properties_8h_a73ea87129bcea24df9aaabcc2bd40760}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetDevice@{fpgaPropertiesSetDevice}}
+\index{fpgaPropertiesSetDevice@{fpgaPropertiesSetDevice}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetDevice()}{fpgaPropertiesSetDevice()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Device (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t}]{device }\end{DoxyParamCaption})}
+
+Set the PCI device number of a resource
+
+Enforces the limitation on the number of devices as specified in the PCI spec.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em device} & PCI device number of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a789a2548aaea9b2069b964f58a931bf6}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetFunction@{fpgaPropertiesGetFunction}}
+\index{fpgaPropertiesGetFunction@{fpgaPropertiesGetFunction}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetFunction()}{fpgaPropertiesGetFunction()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Function (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t $\ast$}]{function }\end{DoxyParamCaption})}
+
+Get the PCI function number of a resource
+
+Returns the function number the queried resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em function} & Pointer to PCI function variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by init\+\_\+metric\+\_\+group().
+
+\mbox{\label{properties_8h_a14045d2b80968dda5af4987b6246d17a}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetFunction@{fpgaPropertiesSetFunction}}
+\index{fpgaPropertiesSetFunction@{fpgaPropertiesSetFunction}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetFunction()}{fpgaPropertiesSetFunction()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Function (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t}]{function }\end{DoxyParamCaption})}
+
+Set the PCI function number of a resource
+
+Enforces the limitation on the number of functions as specified in the PCI spec.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em function} & PCI function number of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a9978cb8bc354d2bbd644ed1a96395c8c}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetSocketID@{fpgaPropertiesGetSocketID}}
+\index{fpgaPropertiesGetSocketID@{fpgaPropertiesGetSocketID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetSocketID()}{fpgaPropertiesGetSocketID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Socket\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t $\ast$}]{socket\+\_\+id }\end{DoxyParamCaption})}
+
+Get the socket id of a resource
+
+Returns the socket id of the queried resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em socket\+\_\+id} & Pointer to a socket id variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a51707174f2df674af9bc1171bde7f1ba}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetSocketID@{fpgaPropertiesSetSocketID}}
+\index{fpgaPropertiesSetSocketID@{fpgaPropertiesSetSocketID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetSocketID()}{fpgaPropertiesSetSocketID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Socket\+ID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint8\+\_\+t}]{socket\+\_\+id }\end{DoxyParamCaption})}
+
+Set the socket id of the resource
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em socket\+\_\+id} & Socket id of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_ac3237ae88feff35ba0c285e27cac58a5}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetDeviceID@{fpgaPropertiesGetDeviceID}}
+\index{fpgaPropertiesGetDeviceID@{fpgaPropertiesGetDeviceID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetDeviceID()}{fpgaPropertiesGetDeviceID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Device\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t $\ast$}]{device\+\_\+id }\end{DoxyParamCaption})}
+
+Get the device id of the resource
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em device\+\_\+id} & Pointer to a device id variable of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by probe\+\_\+for\+\_\+ase().
+
+\mbox{\label{properties_8h_acfac3eea769b7872c1d6d7102de708aa}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetDeviceID@{fpgaPropertiesSetDeviceID}}
+\index{fpgaPropertiesSetDeviceID@{fpgaPropertiesSetDeviceID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetDeviceID()}{fpgaPropertiesSetDeviceID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Device\+ID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t}]{device\+\_\+id }\end{DoxyParamCaption})}
+
+Set the device id of the resource
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em device\+\_\+id} & Device id of the resource \textquotesingle{}prop\textquotesingle{} is associated with \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_ad1a50fcb3a74c0acf89d2f4e75989085}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetNumSlots@{fpgaPropertiesGetNumSlots}}
+\index{fpgaPropertiesGetNumSlots@{fpgaPropertiesGetNumSlots}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetNumSlots()}{fpgaPropertiesGetNumSlots()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Num\+Slots (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t $\ast$}]{num\+\_\+slots }\end{DoxyParamCaption})}
+
+Get the number of slots of an FPGA resource property
+
+Returns the number of slots present in an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ out}}  & {\em num\+\_\+slots} & Pointer to number of slots variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a2338b49011195241a3ba5ad16f85dde8}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetNumSlots@{fpgaPropertiesSetNumSlots}}
+\index{fpgaPropertiesSetNumSlots@{fpgaPropertiesSetNumSlots}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetNumSlots()}{fpgaPropertiesSetNumSlots()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Num\+Slots (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t}]{num\+\_\+slots }\end{DoxyParamCaption})}
+
+Set the number of slots of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em num\+\_\+slots} & Number of slots of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_aa387edbec93d9588d6338d11aace653f}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetBBSID@{fpgaPropertiesGetBBSID}}
+\index{fpgaPropertiesGetBBSID@{fpgaPropertiesGetBBSID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetBBSID()}{fpgaPropertiesGetBBSID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+BBSID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t $\ast$}]{bbs\+\_\+id }\end{DoxyParamCaption})}
+
+Get the BBS ID of an FPGA resource property
+
+Returns the blue bitstream id of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ out}}  & {\em bbs\+\_\+id} & Pointer to a bbs id variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a456be39e014b2fb03b160ab010ddb189}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetBBSID@{fpgaPropertiesSetBBSID}}
+\index{fpgaPropertiesSetBBSID@{fpgaPropertiesSetBBSID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetBBSID()}{fpgaPropertiesSetBBSID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+BBSID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t}]{bbs\+\_\+id }\end{DoxyParamCaption})}
+
+Set the BBS ID of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em bbs\+\_\+id} & Blue bitstream id of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a08186263b04a5193471469e9d70ae372}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetBBSVersion@{fpgaPropertiesGetBBSVersion}}
+\index{fpgaPropertiesGetBBSVersion@{fpgaPropertiesGetBBSVersion}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetBBSVersion()}{fpgaPropertiesGetBBSVersion()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+BBSVersion (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}} $\ast$}]{bbs\+\_\+version }\end{DoxyParamCaption})}
+
+Get the BBS Version of an FPGA resource property
+
+Returns the blue bitstream version of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ out}}  & {\em bbs\+\_\+version} & Pointer to a bbs version variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a9e3bfec10b26500718ae0afef146f06a}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetBBSVersion@{fpgaPropertiesSetBBSVersion}}
+\index{fpgaPropertiesSetBBSVersion@{fpgaPropertiesSetBBSVersion}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetBBSVersion()}{fpgaPropertiesSetBBSVersion()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+BBSVersion (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}}}]{version }\end{DoxyParamCaption})}
+
+Set the BBS Version of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em version} & Blue bitstream version of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a03408aebf73915938507c529bba6aeb3}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetVendorID@{fpgaPropertiesGetVendorID}}
+\index{fpgaPropertiesGetVendorID@{fpgaPropertiesGetVendorID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetVendorID()}{fpgaPropertiesGetVendorID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Vendor\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t $\ast$}]{vendor\+\_\+id }\end{DoxyParamCaption})}
+
+Get the vendor id of an FPGA resource property
+
+Returns the vendor id of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ out}}  & {\em vendor\+\_\+id} & Pointer to a vendor id variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_a1393cac49b4c34fa23e95367bc14d811}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetVendorID@{fpgaPropertiesSetVendorID}}
+\index{fpgaPropertiesSetVendorID@{fpgaPropertiesSetVendorID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetVendorID()}{fpgaPropertiesSetVendorID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Vendor\+ID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t}]{vendor\+\_\+id }\end{DoxyParamCaption})}
+
+Set the vendor id of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em vendor\+\_\+id} & Vendor id of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_a8c00a2915132284aea5faa0d72dfd5e5}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetModel@{fpgaPropertiesGetModel}}
+\index{fpgaPropertiesGetModel@{fpgaPropertiesGetModel}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetModel()}{fpgaPropertiesGetModel()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Model (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{char $\ast$}]{model }\end{DoxyParamCaption})}
+
+Get the model of an FPGA resource property
+
+Returns the model of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em model} & Model of the FPGA resource (string of minimum FPGA\+\_\+\+MODEL\+\_\+\+LENGTH length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_acd4fc992cbb34efe619e387f923c4c05}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetModel@{fpgaPropertiesSetModel}}
+\index{fpgaPropertiesSetModel@{fpgaPropertiesSetModel}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetModel()}{fpgaPropertiesSetModel()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Model (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{char $\ast$}]{model }\end{DoxyParamCaption})}
+
+Set the model of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em model} & Model of the FPGA resource (string of maximum FPGA\+\_\+\+MODEL\+\_\+\+LENGTH length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_aeff04e09cc045f314695b4aac0e5516a}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetLocalMemorySize@{fpgaPropertiesGetLocalMemorySize}}
+\index{fpgaPropertiesGetLocalMemorySize@{fpgaPropertiesGetLocalMemorySize}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetLocalMemorySize()}{fpgaPropertiesGetLocalMemorySize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Local\+Memory\+Size (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t $\ast$}]{lms }\end{DoxyParamCaption})}
+
+Get the local memory size of an FPGA resource property
+
+Returns the local memory size of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ out}}  & {\em lms} & Pointer to a memory size variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_af491fd7a2621aa66de5059168afe3792}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetLocalMemorySize@{fpgaPropertiesSetLocalMemorySize}}
+\index{fpgaPropertiesSetLocalMemorySize@{fpgaPropertiesSetLocalMemorySize}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetLocalMemorySize()}{fpgaPropertiesSetLocalMemorySize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Local\+Memory\+Size (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t}]{lms }\end{DoxyParamCaption})}
+
+Set the local memory size of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em lms} & Local memory size of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_a9b80ec35fbe0498f332782ca5d8ec2ab}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetCapabilities@{fpgaPropertiesGetCapabilities}}
+\index{fpgaPropertiesGetCapabilities@{fpgaPropertiesGetCapabilities}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetCapabilities()}{fpgaPropertiesGetCapabilities()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Capabilities (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t $\ast$}]{capabilities }\end{DoxyParamCaption})}
+
+Get the capabilities FPGA resource property
+
+Returns the capabilities of an FPGA. Capabilities is a bitfield value
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ out}}  & {\em capabilities} & Pointer to a capabilities variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_a45bad0a5baa2cb1f582af571d6ed3917}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetCapabilities@{fpgaPropertiesSetCapabilities}}
+\index{fpgaPropertiesSetCapabilities@{fpgaPropertiesSetCapabilities}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetCapabilities()}{fpgaPropertiesSetCapabilities()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Capabilities (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t}]{capabilities }\end{DoxyParamCaption})}
+
+Set the capabilities of an FPGA resource property
+
+Capabilities is a bitfield value
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+DEVICE \\
+\hline
+\mbox{\texttt{ in}}  & {\em capabilities} & Capabilities of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+DEVICE. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This API is not currently supported. 
+\end{DoxyNote}
+\mbox{\label{properties_8h_a5728ceaf03173772069df0610b4646d7}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetGUID@{fpgaPropertiesGetGUID}}
+\index{fpgaPropertiesGetGUID@{fpgaPropertiesGetGUID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetGUID()}{fpgaPropertiesGetGUID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+GUID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}} $\ast$}]{guid }\end{DoxyParamCaption})}
+
+Get the GUID of a resource
+
+Returns the GUID of an FPGA or accelerator object.
+
+For an accelerator, the GUID uniquely identifies a specific accelerator context type, i.\+e. different accelerators will have different GUIDs. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e.\+g. to determine whether a given bitstream would be compatible.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em guid} & Pointer to a GUID of the slot variable \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by opae\+::fpga\+::types\+::guid\+\_\+t\+::update().
+
+\mbox{\label{properties_8h_a71ad1e59994b2c8b04ea036a64515117}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetGUID@{fpgaPropertiesSetGUID}}
+\index{fpgaPropertiesSetGUID@{fpgaPropertiesSetGUID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetGUID()}{fpgaPropertiesSetGUID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+GUID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\+\_\+guid}}}]{guid }\end{DoxyParamCaption})}
+
+Set the GUID of a resource
+
+Sets the GUID of an FPGA or accelerator object.
+
+For an accelerator, the GUID uniquely identifies a specific accelerator context type, i.\+e. different accelerators will have different GUIDs. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e.\+g. to determine whether a given bitstream would be compatible.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ out}}  & {\em guid} & Pointer to a GUID of the slot variable \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+
+
+Referenced by find\+\_\+fpga(), fpga\+\_\+open(), main(), opae\+::fpga\+::types\+::guid\+\_\+t\+::operator=(), and opae\+::fpga\+::types\+::guid\+\_\+t\+::parse().
+
+\mbox{\label{properties_8h_a7b70efbf6892e9daaf3700b21cc50f0c}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetNumMMIO@{fpgaPropertiesGetNumMMIO}}
+\index{fpgaPropertiesGetNumMMIO@{fpgaPropertiesGetNumMMIO}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetNumMMIO()}{fpgaPropertiesGetNumMMIO()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Num\+MMIO (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t $\ast$}]{mmio\+\_\+spaces }\end{DoxyParamCaption})}
+
+Get the number of mmio spaces
+
+Returns the number of mmio spaces of an AFU properties structure.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+ACCELERATOR \\
+\hline
+\mbox{\texttt{ out}}  & {\em mmio\+\_\+spaces} & Pointer to a variable for number of mmio spaces \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+ACCELERATOR. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a1695e0bf61ee5188401bd230db022314}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetNumMMIO@{fpgaPropertiesSetNumMMIO}}
+\index{fpgaPropertiesSetNumMMIO@{fpgaPropertiesSetNumMMIO}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetNumMMIO()}{fpgaPropertiesSetNumMMIO()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Num\+MMIO (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t}]{mmio\+\_\+spaces }\end{DoxyParamCaption})}
+
+Set the number of mmio spaces
+
+Sets the number of mmio spaces of an AFU properties structure.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+ACCELERATOR \\
+\hline
+\mbox{\texttt{ in}}  & {\em mmio\+\_\+spaces} & Number of MMIO spaces of the accelerator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+ACCELERATOR. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a33ee7ad6994f3df0a044d9052627f8c0}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetNumInterrupts@{fpgaPropertiesGetNumInterrupts}}
+\index{fpgaPropertiesGetNumInterrupts@{fpgaPropertiesGetNumInterrupts}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetNumInterrupts()}{fpgaPropertiesGetNumInterrupts()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Num\+Interrupts (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t $\ast$}]{num\+\_\+interrupts }\end{DoxyParamCaption})}
+
+Get the number of interrupts
+
+Returns the number of interrupts of an accelerator properties structure.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+ACCELERATOR \\
+\hline
+\mbox{\texttt{ out}}  & {\em num\+\_\+interrupts} & Pointer to a variable for number of interrupts \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+ACCELERATOR. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_ace3b67e6acb69bef8d8d8b32dab7a044}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetNumInterrupts@{fpgaPropertiesSetNumInterrupts}}
+\index{fpgaPropertiesSetNumInterrupts@{fpgaPropertiesSetNumInterrupts}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetNumInterrupts()}{fpgaPropertiesSetNumInterrupts()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Num\+Interrupts (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t}]{num\+\_\+interrupts }\end{DoxyParamCaption})}
+
+Set the number of interrupts
+
+Sets the number of interrupts of an accelerator properties structure.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+ACCELERATOR \\
+\hline
+\mbox{\texttt{ in}}  & {\em num\+\_\+interrupts} & Number of interrupts of the accelerator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+ACCELERATOR. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a1e18fdf7c532bf564576b361874fccf3}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetAcceleratorState@{fpgaPropertiesGetAcceleratorState}}
+\index{fpgaPropertiesGetAcceleratorState@{fpgaPropertiesGetAcceleratorState}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetAcceleratorState()}{fpgaPropertiesGetAcceleratorState()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Accelerator\+State (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}} $\ast$}]{state }\end{DoxyParamCaption})}
+
+Get the state of a accelerator resource property
+
+Returns the accelerator state of a accelerator.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query -\/ must be of type FPGA\+\_\+\+ACCELERATOR \\
+\hline
+\mbox{\texttt{ out}}  & {\em state} & Pointer to a accelerator state variable of the accelerator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+ACCELERATOR. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a1a3f5725be24b3fc10625dfd604ed86d}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetAcceleratorState@{fpgaPropertiesSetAcceleratorState}}
+\index{fpgaPropertiesSetAcceleratorState@{fpgaPropertiesSetAcceleratorState}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetAcceleratorState()}{fpgaPropertiesSetAcceleratorState()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Accelerator\+State (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types__enum_8h_a90d0d4dfde2d893585fb72ba51f0bfbe}{fpga\+\_\+accelerator\+\_\+state}}}]{state }\end{DoxyParamCaption})}
+
+Set the state of an accelerator resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify -\/ must be of type FPGA\+\_\+\+ACCELERATOR \\
+\hline
+\mbox{\texttt{ in}}  & {\em state} & accelerator state of the accelerator resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if object type is not FPGA\+\_\+\+ACCELERATOR. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a409e32267db6f5040d881d5d533c36fb}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetObjectID@{fpgaPropertiesGetObjectID}}
+\index{fpgaPropertiesGetObjectID@{fpgaPropertiesGetObjectID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetObjectID()}{fpgaPropertiesGetObjectID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Object\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t $\ast$}]{object\+\_\+id }\end{DoxyParamCaption})}
+
+Get the object ID of a resource
+
+Returns the object ID of a resource. The object ID is a 64 bit identifier that is unique within a single node or system. It represents a similar concept as the token, but can be used across processes (e.\+g. passed on the command line).
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em object\+\_\+id} & Pointer to a 64bit memory location to store the object ID in \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a022ad3dc80ab2fba7e512c6c2215258a}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetObjectID@{fpgaPropertiesSetObjectID}}
+\index{fpgaPropertiesSetObjectID@{fpgaPropertiesSetObjectID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetObjectID()}{fpgaPropertiesSetObjectID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Object\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint64\+\_\+t}]{object\+\_\+id }\end{DoxyParamCaption})}
+
+Set the object ID of a resource
+
+Sets the object ID of a resource. The object ID is a 64 bit identifier that is unique within a single node or system. It represents a similar concept as the token, but can be used across processes (e.\+g. passed on the command line).
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ in}}  & {\em object\+\_\+id} & A 64bit value to use as the object ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a6cfb80c2a4fe8fd7be1ac4ecd72985b5}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetNumErrors@{fpgaPropertiesGetNumErrors}}
+\index{fpgaPropertiesGetNumErrors@{fpgaPropertiesGetNumErrors}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetNumErrors()}{fpgaPropertiesGetNumErrors()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Num\+Errors (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t $\ast$}]{num\+\_\+errors }\end{DoxyParamCaption})}
+
+Get the number of errors that can be reported by a resource
+
+Returns the number of error registers understood by a resource.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em num\+\_\+errors} & Pointer to a 32 bit memory location to store the number of supported errors in \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_ac8be299c378aff53410dda6081975038}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetNumErrors@{fpgaPropertiesSetNumErrors}}
+\index{fpgaPropertiesSetNumErrors@{fpgaPropertiesSetNumErrors}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetNumErrors()}{fpgaPropertiesSetNumErrors()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Num\+Errors (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint32\+\_\+t}]{num\+\_\+errors }\end{DoxyParamCaption})}
+
+Set the number of error registers
+
+Set the number of error registers understood by a resource to enumerate.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ in}}  & {\em num\+\_\+errors} & Number of errors \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a8fe0f0d91d844aeaced5b761c22940b0}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetInterface@{fpgaPropertiesGetInterface}}
+\index{fpgaPropertiesGetInterface@{fpgaPropertiesGetInterface}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetInterface()}{fpgaPropertiesGetInterface()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Interface (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}} $\ast$}]{interface }\end{DoxyParamCaption})}
+
+Get the OPAE plugin interface implemented by a resource
+
+Returns the plugin interface enumerator.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em interface} & Pointer to an fpga\+\_\+interface location to store the interface in \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a29e51f74386de3ecedde125157b24057}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetInterface@{fpgaPropertiesSetInterface}}
+\index{fpgaPropertiesSetInterface@{fpgaPropertiesSetInterface}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetInterface()}{fpgaPropertiesSetInterface()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Interface (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{\mbox{\hyperlink{types__enum_8h_a9b433f944fba4b80dd796dec286412cb}{fpga\+\_\+interface}}}]{interface }\end{DoxyParamCaption})}
+
+Set the OPAE plugin interface implemented by a resource
+
+Set the plugin interface enumerator.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ in}}  & {\em interface} & The interface enumerator to set \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+See \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a8e58481bfe2c97de9a4582d8acbbc356}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetSubsystemVendorID@{fpgaPropertiesGetSubsystemVendorID}}
+\index{fpgaPropertiesGetSubsystemVendorID@{fpgaPropertiesGetSubsystemVendorID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetSubsystemVendorID()}{fpgaPropertiesGetSubsystemVendorID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Subsystem\+Vendor\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t $\ast$}]{subsystem\+\_\+vendor\+\_\+id }\end{DoxyParamCaption})}
+
+Get the subsystem vendor id of an FPGA resource property
+
+Returns the subsystem vendor id of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em subsystem\+\_\+vendor\+\_\+id} & Pointer to a vendor id variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a26296be1fc4c0f53d37e84c1d7741963}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetSubsystemVendorID@{fpgaPropertiesSetSubsystemVendorID}}
+\index{fpgaPropertiesSetSubsystemVendorID@{fpgaPropertiesSetSubsystemVendorID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetSubsystemVendorID()}{fpgaPropertiesSetSubsystemVendorID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Subsystem\+Vendor\+ID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t}]{subsystem\+\_\+vendor\+\_\+id }\end{DoxyParamCaption})}
+
+Set the subsystem vendor id of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em subsystem\+\_\+vendor\+\_\+id} & Subsystem Vendor id of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_ac5eb7e22334b5dff483a6542b12644c9}} 
+\index{properties.h@{properties.h}!fpgaPropertiesGetSubsystemDeviceID@{fpgaPropertiesGetSubsystemDeviceID}}
+\index{fpgaPropertiesGetSubsystemDeviceID@{fpgaPropertiesGetSubsystemDeviceID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesGetSubsystemDeviceID()}{fpgaPropertiesGetSubsystemDeviceID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Get\+Subsystem\+Device\+ID (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t $\ast$}]{subsystem\+\_\+device\+\_\+id }\end{DoxyParamCaption})}
+
+Get the subsystem device id of an FPGA resource property
+
+Returns the subsystem device id of an FPGA.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to query \\
+\hline
+\mbox{\texttt{ out}}  & {\em subsystem\+\_\+device\+\_\+id} & Pointer to a device id variable of the FPGA \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}
+\mbox{\label{properties_8h_a66d64cd10bb9b834e389f6d4d618e556}} 
+\index{properties.h@{properties.h}!fpgaPropertiesSetSubsystemDeviceID@{fpgaPropertiesSetSubsystemDeviceID}}
+\index{fpgaPropertiesSetSubsystemDeviceID@{fpgaPropertiesSetSubsystemDeviceID}!properties.h@{properties.h}}
+\doxysubsubsection{\texorpdfstring{fpgaPropertiesSetSubsystemDeviceID()}{fpgaPropertiesSetSubsystemDeviceID()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Properties\+Set\+Subsystem\+Device\+ID (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\+\_\+properties}}}]{prop,  }\item[{uint16\+\_\+t}]{subsystem\+\_\+device\+\_\+id }\end{DoxyParamCaption})}
+
+Set the subsystem device id of an FPGA resource property
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em prop} & Properties object to modify \\
+\hline
+\mbox{\texttt{ in}}  & {\em subsystem\+\_\+device\+\_\+id} & Subsystem Device id of the FPGA resource \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. See also \char`\"{}\+Accessor Return Values\char`\"{} in \href{\#properties-h}{\texttt{ properties.\+h}}. 
+\end{DoxyReturn}

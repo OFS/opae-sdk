@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hssi_config &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>hssi_config</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/hssi_config/readme.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="hssi-config">
+<h1>hssi_config<a class="headerlink" href="#hssi-config" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hssi_config</span></code> reads or writes HSSI registers on either on an Intel® FPGA using the
+FPGA Interface Manager (FIM) or on an HSSI retimer card attached to the board.
+<code class="docutils literal notranslate"><span class="pre">hssi_config</span></code> is only available for the Integrated FPGA Platform. You cannot run it
+on the PCIe accelerator card (PAC).</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hssi_config</span> <span class="pre">[--resource|-r</span> <span class="pre">&lt;sysfs</span> <span class="pre">resource&gt;]</span> <span class="pre">[--socket-id|s</span> <span class="pre">0|1]</span> <span class="pre">command</span> <span class="pre">[command</span> <span class="pre">options]</span></code></p>
+<p>Where command is one of the following:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>dump<span class="w"> </span><span class="o">[</span>outfile.csv<span class="o">]</span><span class="w"> </span><span class="o">[</span>--input-file<span class="w"> </span>inputfile.csv<span class="o">]</span>
+<span class="w">    </span>iread<span class="w"> </span>instance<span class="w"> </span><span class="o">(</span><span class="m">0</span>,1<span class="o">)</span><span class="w"> </span>device-addr<span class="w"> </span>byte-address<span class="w"> </span>byte-count
+<span class="w">    </span>iwrite<span class="w"> </span>instance<span class="w"> </span><span class="o">(</span><span class="m">0</span>,1<span class="o">)</span><span class="w"> </span>device-addr<span class="w"> </span>byte-address<span class="w"> </span>byte1<span class="w"> </span><span class="o">[</span>byte2<span class="w"> </span><span class="o">[</span>byte3...<span class="o">]]</span>
+<span class="w">    </span>load<span class="w"> </span><span class="o">[</span>inputfile.csv<span class="o">]</span><span class="w"> </span><span class="o">[</span>--c-header<span class="o">]</span>
+<span class="w">    </span><span class="nb">read</span><span class="w"> </span>lane<span class="o">(</span><span class="m">0</span>-15<span class="o">)</span><span class="w"> </span>reg-address
+<span class="w">    </span>rread<span class="w"> </span>device<span class="o">(</span>0x30,<span class="w"> </span>0x32,<span class="w"> </span>0x34,<span class="w"> </span>0x36<span class="o">)</span><span class="w"> </span>channel<span class="o">(</span><span class="m">0</span>-3<span class="o">)</span><span class="w"> </span>address
+<span class="w">    </span>rwrite<span class="w"> </span>device<span class="o">(</span>0x30,<span class="w"> </span>0x32,<span class="w"> </span>0x34,<span class="w"> </span>0x36<span class="o">)</span><span class="w"> </span>channel<span class="o">(</span><span class="m">0</span>-3<span class="o">)</span><span class="w"> </span>address<span class="w"> </span>value
+<span class="w">    </span><span class="nb">test</span><span class="w"> </span><span class="o">(</span>rd<span class="p">|</span>rw<span class="o">)</span><span class="w"> </span>inputfile.csv<span class="w"> </span><span class="o">[</span>--acktimes<span class="o">]</span><span class="w"> </span><span class="o">[</span>--repeat<span class="w"> </span>N<span class="o">]</span>
+<span class="w">    </span>write<span class="w"> </span>lane<span class="o">(</span><span class="m">0</span>-15<span class="o">)</span><span class="w"> </span>reg-address<span class="w"> </span>value
+</pre></div>
+</div>
+<p>The first argument is the command and any additional arguments are command arguments.
+The following options and commands are available:</p>
+<div class="section" id="options">
+<h3>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">[--resource|-r</span> <span class="pre">&lt;sysfs</span> <span class="pre">resource</span> <span class="pre">path&gt;</span></code></p>
+<p>The resource path in the sysfs pseudo-filesystem.
+Example:
+<code class="docutils literal notranslate"><span class="pre">/sys/devices/pci0000\:5e/0000\:5e\:00.0/resource0</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">[--socket-id</span> <span class="pre">0|1]</span></code></p>
+<p>The socket id of the target FPGA.
+Required on two-socket systems to differentiate between the two possible target FPGAs.</p>
+</div>
+<div class="section" id="commands">
+<h3>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">dump</span> <span class="pre">[outfile.csv]</span> <span class="pre">[--input-file</span> <span class="pre">inputfile.csv]</span></code></p>
+<p>Dump registers to stdout or to a file, if provided. <code class="docutils literal notranslate"><span class="pre">hssi_config</span></code> has a built-in set of registers to
+dump. The first argument is the path to a file to write. The command dumps to stdout if you do not
+specify a file name. Use the –input-file option to specify a different set of registers.</p>
+<p><code class="docutils literal notranslate"><span class="pre">load</span> <span class="pre">[inputfile.csv]</span> <span class="pre">[--c-header]</span></code></p>
+<p>Load a set of register values from either stdin or an input file, if provided. The first argument
+is the path to a file containing the registers to load. Loads from stdin if omitted.</p>
+<p>Use –c-header to generate a C header file with an array of 64-bit numbers to write to the
+<code class="docutils literal notranslate"><span class="pre">HSSI_CTRL</span></code> register. This header file can substitute for the input file.
+NOTE: You must perform the acknowledge routine after each write.</p>
+<p><code class="docutils literal notranslate"><span class="pre">read</span> <span class="pre">lane(0-15)</span> <span class="pre">reg-address</span></code></p>
+<p>Read from a single XCVR (transceiver) register.
+The first command argument is the XCVR lane. Use -1 to specify a read from all lanes.
+The second argument is the XCVR address (offset).</p>
+<p><code class="docutils literal notranslate"><span class="pre">write</span> <span class="pre">lane(0-15)</span> <span class="pre">reg-address</span> <span class="pre">value</span></code></p>
+<p>Write to a single XCVR register.
+The first argument is the XCVR lane.
+The second argument is the XCVR address(offset).
+The third argument is the value to write to the register.</p>
+<p><code class="docutils literal notranslate"><span class="pre">rread</span> <span class="pre">device(0x30,</span> <span class="pre">0x32,</span> <span class="pre">0x34,</span> <span class="pre">0x36)</span> <span class="pre">channel(0-3)</span> <span class="pre">address</span></code></p>
+<p>Read from a single retimer register.
+The first argument is the I2C device address.
+The second argument is the channel.
+The third argument is the register address (or I2C byte address).</p>
+<p><code class="docutils literal notranslate"><span class="pre">rwrite</span> <span class="pre">device(0x30,</span> <span class="pre">0x32,</span> <span class="pre">0x34,</span> <span class="pre">0x36)</span> <span class="pre">channel(0-3)</span> <span class="pre">address</span> <span class="pre">value</span></code></p>
+<p>Write to a single retimer register.
+The first argument is the I2C device address.
+The second argument is the channel.
+The third argument is the register address (or I2C byte address).
+The fourth argument is the value to write.</p>
+<p><code class="docutils literal notranslate"><span class="pre">iread</span> <span class="pre">instance</span> <span class="pre">(0,1)</span> <span class="pre">device-addr</span> <span class="pre">byte-address</span> <span class="pre">byte-count</span></code></p>
+<p>Read from a device on the I2C bus.
+The first argument is the I2C controller instance (0 or 1).
+The second argument is the device address to read from.
+The third argument is the byte address of the register to read from the device.
+The fourth argument is the number of bytes to read.</p>
+<p><code class="docutils literal notranslate"><span class="pre">iwrite</span> <span class="pre">instance</span> <span class="pre">(0,1)</span> <span class="pre">device-addr</span> <span class="pre">byte-address</span> <span class="pre">byte1</span> <span class="pre">[byte2</span> <span class="pre">[byte3...]]</span></code></p>
+<p>Write to a device on the I2C bus.
+The first argument is the I2C controller instance (0 or 1).
+The second argument is the device address to read from.
+The third argument is the byte address of the register to read from the device.
+All subsequent arguments are the bytes to write to the device.</p>
+<p><code class="docutils literal notranslate"><span class="pre">test</span> <span class="pre">(rd|rw)</span> <span class="pre">inputfile.csv</span> <span class="pre">[--acktimes]</span></code></p>
+<p>Perform built-in test for reading or writing XCVR registers.
+The first argument is the path to a file containing the registers to test.</p>
+</div>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">hssi_config</span></code> utility reads or writes hssi equalization parameters stored in either
+the transceiver (XCVR) registers or the registers of the retimer on the I2C bus. To access registers,
+the hssi controller writes to the <code class="docutils literal notranslate"><span class="pre">HSSI_CTRL</span></code> register and reads from the <code class="docutils literal notranslate"><span class="pre">HSSI_STAT</span></code>
+register in the FPGA Management Engine (FME). These two registers implement the HSSI AUX bus
+mailbox protocol to access devices on other buses. Because <code class="docutils literal notranslate"><span class="pre">hssi_config</span></code> maps the FME MMIO
+space directly, the FPGA driver is not required.</p>
+</div>
+<div class="section" id="locating-the-fme-device">
+<h2>Locating the FME Device<a class="headerlink" href="#locating-the-fme-device" title="Permalink to this headline">¶</a></h2>
+<p>The FME reads and writes the <code class="docutils literal notranslate"><span class="pre">HSSI_CTRL</span></code> and <code class="docutils literal notranslate"><span class="pre">HSSI_STAT</span></code> registers on the NIOS device.
+The FME maps the MMIO address space of the FME identified by its resource in the sysfs psuedo-filesystem
+in Linux operating systems. To identify resource paths, use the <code class="docutils literal notranslate"><span class="pre">lspci</span></code> utility to query for Intel
+devices with device id of bcc0.</p>
+<p>Example:</p>
+<p><code class="docutils literal notranslate"><span class="pre">lspci</span> <span class="pre">-d</span> <span class="pre">8086:bcc0</span></code></p>
+<p>This command should print out at least one line like the following example:</p>
+<p><code class="docutils literal notranslate"><span class="pre">5e:00.0</span> <span class="pre">Processing</span> <span class="pre">accelerators:</span> <span class="pre">Intel</span> <span class="pre">Corporation</span> <span class="pre">Device</span> <span class="pre">bcc0</span></code></p>
+<p>Use the first three numbers (bus:device.function) to locate the device resource
+in the sysfs filesystem:</p>
+<p><code class="docutils literal notranslate"><span class="pre">/sys/devices/pci0000\:&lt;bus&gt;/0000\:&lt;bus&gt;\:&lt;device&gt;.&lt;function&gt;/resource0</span></code></p>
+<p>For example, the example above with bus of 5e, device of 00 and function of 0 would
+use a resource path as follows:</p>
+<p><code class="docutils literal notranslate"><span class="pre">/sys/devices/pci0000\:5e/0000\:5e\:00.0/resource0</span></code></p>
+</div>
+<div class="section" id="csv-file-format">
+<h2>CSV File Format<a class="headerlink" href="#csv-file-format" title="Permalink to this headline">¶</a></h2>
+<p>Any CSV file parsed by <code class="docutils literal notranslate"><span class="pre">hssi_config</span></code> must meet have at least four columns. The following table provides
+the column specifications:</p>
+<p>| Column | Name                        | Description                                                                                  |
+|:——:|—————————–|———————————————————————————————-|
+| 1      | Register type.              | Can be either <code class="docutils literal notranslate"><span class="pre">FPGA_RX</span></code>, <code class="docutils literal notranslate"><span class="pre">FPGA_TX</span></code>, <code class="docutils literal notranslate"><span class="pre">RTMR_RX</span></code>, <code class="docutils literal notranslate"><span class="pre">RTMR_TX</span></code> (or their corresponding numeric values, 1-4).|
+| 2      | Lane or Channel             | 0-15 for XCVR lanes on FPGA, 0-3 for retimer channels. -1 to designate all lanes or channels.|
+| 3      | Device address (on I2C bus) | Only applies to retimer registers. 0 - 3, -1 to designate all devices.                        |
+| 4      | Register address (or offset)| Examples: 0x213, 0x100.                                                                      |
+| 5      | Register value to write     | Examples: 0x1, 1, 0. Applies only when loading or writing registers.                            |</p>
+</div>
+<div class="section" id="examples-of-commands">
+<h2>Examples of Commands<a class="headerlink" href="#examples-of-commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dumping-registers">
+<h3>Dumping Registers<a class="headerlink" href="#dumping-registers" title="Permalink to this headline">¶</a></h3>
+<p>Dump default register set to stdout:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">dump</span></code></p>
+<p>Dump default registers to a file, data.csv:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">dump</span> <span class="pre">data.csv</span></code></p>
+<p>Dump to an output file, data.csv, Registers specified in an input file, regspec.csv:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">dump</span> <span class="pre">data.csv</span> <span class="pre">--input-file</span> <span class="pre">regspec.csv</span></code></p>
+<div class="section" id="reading-single-registers">
+<h4>Reading Single Registers<a class="headerlink" href="#reading-single-registers" title="Permalink to this headline">¶</a></h4>
+<p>Read register from XCVR at 0x2e1 on lane 0:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">read</span> <span class="pre">0</span> <span class="pre">0x2e1</span></code></p>
+<p>Read register 0x109 from retimer on channel 0, device 0x30, channel 1:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">rread</span> <span class="pre">0</span> <span class="pre">0x30</span> <span class="pre">0x109</span></code></p>
+</div>
+</div>
+<div class="section" id="loading-registers">
+<h3>Loading Registers<a class="headerlink" href="#loading-registers" title="Permalink to this headline">¶</a></h3>
+<p>Load registers specified in an input file called data.csv:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">load</span> <span class="pre">data.csv</span></code></p>
+<p>Load registers specified from stdin:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">load</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">FPGA_RX</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mh">0x213</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">FPGA_RX</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mh">0x213</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">FPGA_RX</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mh">0x213</span><span class="p">,</span><span class="mi">0</span>
+<span class="o">&lt;</span><span class="n">CTRL</span><span class="o">-</span><span class="n">D</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="section" id="writing-single-registers">
+<h4>Writing Single Registers<a class="headerlink" href="#writing-single-registers" title="Permalink to this headline">¶</a></h4>
+<p>Write 1 to XCVR register at 0x2e1 on lane 0:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">write</span> <span class="pre">0</span> <span class="pre">0x2e1</span> <span class="pre">1</span></code></p>
+<p>Read register 0x109 from retimer on channel 0, device 0x30, channel 1:</p>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;hssi_config</span> <span class="pre">rread</span> <span class="pre">0</span> <span class="pre">0x30</span> <span class="pre">0x109</span></code></p>
+</div>
+</div>
+</div>
+<div class="section" id="testing-hssi-read-and-write">
+<h2>Testing HSSI Read and Write<a class="headerlink" href="#testing-hssi-read-and-write" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">&gt;</span>&#160; <span class="pre">test</span> <span class="pre">(rd|rw)</span> <span class="pre">register-file.csv</span> <span class="pre">[--acktimes]</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">rd|wr</span></code></p>
+<p>Specifies either a <code class="docutils literal notranslate"><span class="pre">rd</span></code> or <code class="docutils literal notranslate"><span class="pre">wr</span></code> of transceiver registers. For writes,
+every register in the file is read from and written to in the following sequence:</p>
+<ol class="simple">
+<li><p>Read the register, save the value</p></li>
+<li><p>Write 1 to the register</p></li>
+<li><p>Read the register, verify that the register value is 1</p></li>
+<li><p>Write 0 to the register</p></li>
+<li><p>Read the register, verify that the register value is 0</p></li>
+<li><p>Write the original value to the register</p></li>
+<li><p>Read the register, assert it is the original value</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">register=file.csv</span></code></p>
+<p>Specifies the path to a file containing the set of registers to test.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--acktimes</span> </code></p>
+<p>Specifies the time spent in the <code class="docutils literal notranslate"><span class="pre">ack</span></code> routine. When measured, a summary of ack times prints
+to stdout. This argument is optional.</p>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————- |————————————|———-|
+| 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | Corrected typos.  |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

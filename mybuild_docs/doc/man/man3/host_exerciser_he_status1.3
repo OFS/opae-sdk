@@ -1,0 +1,70 @@
+.TH "host_exerciser::he_status1" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::he_status1
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/host_exerciser/host_exerciser\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBoffset\fP = HE_STATUS1 }"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBvalue\fP"
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint64_t \fBnumPendWrites\fP: 16"
+.br
+.ti -1c
+.RI "uint64_t \fBnumPendReads\fP: 16"
+.br
+.ti -1c
+.RI "uint64_t \fBnumPendEmifWrites\fP: 16"
+.br
+.ti -1c
+.RI "uint64_t \fBnumPendEmifReads\fP: 16"
+.br
+.ti -1c
+.RI "}; "
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 258 of file host_exerciser\&.h\&.
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 259 of file host_exerciser\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t host_exerciser::he_status1::value"
+
+.PP
+Definition at line 262 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::host_exerciser_status()\&.
+.SS "struct { \&.\&.\&. } "
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

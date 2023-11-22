@@ -1,0 +1,320 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae_1_1fpga_1_1types_1_1guid__t" kind="struct" language="C++" prot="public">
+    <compoundname>opae::fpga::types::guid_t</compoundname>
+    <includes refid="pvalue_8h" local="no">opae/cxx/core/pvalue.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structopae_1_1fpga_1_1types_1_1guid__t_1a051b019dd8b18fb38f8cf7a8db3079bb" prot="private" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref> *</type>
+        <definition>fpga_properties* opae::fpga::types::guid_t::props_</definition>
+        <argsstring></argsstring>
+        <name>props_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="132" column="19" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="132" bodyend="-1"/>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1ab131fdece38cc112bd08244ede8a0f29" compoundref="pvalue_8h" startline="76" endline="84">operator=</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1a79ba0567868025a34ffebc3eb24ddd5d" compoundref="pvalue_8h" startline="96" endline="103">parse</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" compoundref="pvalue_8h" startline="51" endline="56">update</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool opae::fpga::types::guid_t::is_set_</definition>
+        <argsstring></argsstring>
+        <name>is_set_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="133" column="8" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="133" bodyend="-1"/>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1ac8ae3baf06110627da463eb0d3a345fe" compoundref="pvalue_8h" startline="129" endline="129">invalidate</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1a1ba6d75b0be7aa78ee1b31eb18c7bff3" compoundref="pvalue_8h" startline="125" endline="125">is_set</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1ab131fdece38cc112bd08244ede8a0f29" compoundref="pvalue_8h" startline="76" endline="84">operator=</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1a79ba0567868025a34ffebc3eb24ddd5d" compoundref="pvalue_8h" startline="96" endline="103">parse</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" compoundref="pvalue_8h" startline="51" endline="56">update</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" prot="private" static="no" mutable="no">
+        <type>std::array&lt; uint8_t, 16 &gt;</type>
+        <definition>std::array&lt;uint8_t, 16&gt; opae::fpga::types::guid_t::data_</definition>
+        <argsstring></argsstring>
+        <name>data_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="134" column="14" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="134" bodyend="-1"/>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1a8948f79cb21eb47782a7baf82ffa5941" compoundref="pvalue_8h" startline="68" endline="68">c_type</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1af0f419fee764acd2a2cda2cc764a72f5" compoundref="pvalue_8h" startline="61" endline="64">operator uint8_t *</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1ab131fdece38cc112bd08244ede8a0f29" compoundref="pvalue_8h" startline="76" endline="84">operator=</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1aef93c3b0b9502a01015897ab0ecaf44c" compoundref="pvalue_8h" startline="89" endline="91">operator==</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1a79ba0567868025a34ffebc3eb24ddd5d" compoundref="pvalue_8h" startline="96" endline="103">parse</referencedby>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" compoundref="pvalue_8h" startline="51" endline="56">update</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1ae0c5217a465cc42331c0c101c739ccc4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::guid_t::guid_t</definition>
+        <argsstring>(fpga_properties *p)</argsstring>
+        <name>guid_t</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Construct the <ref refid="structopae_1_1fpga_1_1types_1_1guid__t" kindref="compound">guid_t</ref> given its containing fpga_properties. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="47" column="3" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::guid_t::update</definition>
+        <argsstring>()</argsstring>
+        <name>update</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Update the local cached copy of the guid. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="51" column="8" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="51" bodyend="56"/>
+        <references refid="except_8h_1a0daeed5d9e795aa1e0cce4d5469cdc94" compoundref="except_8h" startline="334">ASSERT_FPGA_OK</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" compoundref="pvalue_8h" startline="134">data_</references>
+        <references refid="properties_8h_1a5728ceaf03173772069df0610b4646d7">fpgaPropertiesGetGUID</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" compoundref="pvalue_8h" startline="133">is_set_</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a051b019dd8b18fb38f8cf7a8db3079bb" compoundref="pvalue_8h" startline="132">props_</references>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1af0f419fee764acd2a2cda2cc764a72f5" compoundref="pvalue_8h" startline="61" endline="64">operator uint8_t *</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1af0f419fee764acd2a2cda2cc764a72f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::guid_t::operator uint8_t *</definition>
+        <argsstring>()</argsstring>
+        <name>operator uint8_t *</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Return a raw pointer to the guid. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>nullptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the guid could not be queried. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="61" column="3" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="61" bodyend="64"/>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" compoundref="pvalue_8h" startline="134">data_</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" compoundref="pvalue_8h" startline="51" endline="56">update</references>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1a8948f79cb21eb47782a7baf82ffa5941" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const uint8_t *</type>
+        <definition>const uint8_t* opae::fpga::types::guid_t::c_type</definition>
+        <argsstring>() const</argsstring>
+        <name>c_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Return a raw pointer to the guid. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="68" column="17" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="68" bodyend="68"/>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" compoundref="pvalue_8h" startline="134">data_</references>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1ab131fdece38cc112bd08244ede8a0f29" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structopae_1_1fpga_1_1types_1_1guid__t" kindref="compound">guid_t</ref> &amp;</type>
+        <definition>guid_t&amp; opae::fpga::types::guid_t::operator=</definition>
+        <argsstring>(fpga_guid g)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref></type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Assign from fpga_guid Sets the guid field of the associated properties object using the OPAE properties API. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The given fpga_guid. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a reference to this <ref refid="structopae_1_1fpga_1_1types_1_1guid__t" kindref="compound">guid_t</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="76" column="10" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="76" bodyend="84"/>
+        <references refid="except_8h_1a0daeed5d9e795aa1e0cce4d5469cdc94" compoundref="except_8h" startline="334">ASSERT_FPGA_OK</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" compoundref="pvalue_8h" startline="134">data_</references>
+        <references refid="properties_8h_1a71ad1e59994b2c8b04ea036a64515117">fpgaPropertiesSetGUID</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" compoundref="pvalue_8h" startline="133">is_set_</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a051b019dd8b18fb38f8cf7a8db3079bb" compoundref="pvalue_8h" startline="132">props_</references>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1aef93c3b0b9502a01015897ab0ecaf44c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool opae::fpga::types::guid_t::operator==</definition>
+        <argsstring>(const fpga_guid &amp;g)</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const <ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref> &amp;</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Compare contents with an fpga_guid. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>The</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>result of memcmp of the two objects. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="89" column="8" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="89" bodyend="91"/>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" compoundref="pvalue_8h" startline="134">data_</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a1ba6d75b0be7aa78ee1b31eb18c7bff3" compoundref="pvalue_8h" startline="125" endline="125">is_set</references>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1a79ba0567868025a34ffebc3eb24ddd5d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::guid_t::parse</definition>
+        <argsstring>(const char *str)</argsstring>
+        <name>parse</name>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert a string representation of a guid to binary. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The guid string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="96" column="8" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="96" bodyend="103"/>
+        <references refid="except_8h_1a0daeed5d9e795aa1e0cce4d5469cdc94" compoundref="except_8h" startline="334">ASSERT_FPGA_OK</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" compoundref="pvalue_8h" startline="134">data_</references>
+        <references refid="properties_8h_1a71ad1e59994b2c8b04ea036a64515117">fpgaPropertiesSetGUID</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" compoundref="pvalue_8h" startline="133">is_set_</references>
+        <references refid="except_8h_1a2abf016a3c51c9fcc40ac9468a897592" compoundref="except_8h" startline="69">OPAECXX_HERE</references>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1a051b019dd8b18fb38f8cf7a8db3079bb" compoundref="pvalue_8h" startline="132">props_</references>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1a1ba6d75b0be7aa78ee1b31eb18c7bff3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool opae::fpga::types::guid_t::is_set</definition>
+        <argsstring>() const</argsstring>
+        <name>is_set</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Tracks whether the cached local copy of the guid is valid. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="125" column="8" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="125" bodyend="125"/>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" compoundref="pvalue_8h" startline="133">is_set_</references>
+        <referencedby refid="structopae_1_1fpga_1_1types_1_1guid__t_1aef93c3b0b9502a01015897ab0ecaf44c" compoundref="pvalue_8h" startline="89" endline="91">operator==</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structopae_1_1fpga_1_1types_1_1guid__t_1ac8ae3baf06110627da463eb0d3a345fe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::guid_t::invalidate</definition>
+        <argsstring>()</argsstring>
+        <name>invalidate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Invalidate the cached local copy of the guid. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="129" column="8" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="129" bodyend="129"/>
+        <references refid="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" compoundref="pvalue_8h" startline="133">is_set_</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="structopae_1_1fpga_1_1types_1_1guid__t_1afdbcb10d3044f41a17a31718e14b32df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;ostr, const guid_t &amp;g)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>ostr</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structopae_1_1fpga_1_1types_1_1guid__t" kindref="compound">guid_t</ref> &amp;</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Send the string representation of the <ref refid="structopae_1_1fpga_1_1types_1_1guid__t" kindref="compound">guid_t</ref> to the given stream. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/pvalue.h" line="107" column="10" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="107" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Representation of the guid member of a properties object. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::guid_t</label>
+        <link refid="structopae_1_1fpga_1_1types_1_1guid__t"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/pvalue.h" line="44" column="1" bodyfile="include/opae/cxx/core/pvalue.h" bodystart="44" bodyend="135"/>
+    <listofallmembers>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1a8948f79cb21eb47782a7baf82ffa5941" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>c_type</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1a45f001856e7648ccdb9d58bcc1f6cbde" prot="private" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>data_</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1ae0c5217a465cc42331c0c101c739ccc4" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>guid_t</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1ac8ae3baf06110627da463eb0d3a345fe" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>invalidate</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1a1ba6d75b0be7aa78ee1b31eb18c7bff3" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>is_set</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1aaf1def223c6be127e63258486d8adc5a" prot="private" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>is_set_</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1af0f419fee764acd2a2cda2cc764a72f5" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>operator uint8_t *</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1afdbcb10d3044f41a17a31718e14b32df" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>operator&lt;&lt;</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1ab131fdece38cc112bd08244ede8a0f29" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>operator=</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1aef93c3b0b9502a01015897ab0ecaf44c" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>operator==</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1a79ba0567868025a34ffebc3eb24ddd5d" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>parse</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1a051b019dd8b18fb38f8cf7a8db3079bb" prot="private" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>props_</name></member>
+      <member refid="structopae_1_1fpga_1_1types_1_1guid__t_1abac031f524410f0ce6d58c115374a09f" prot="public" virt="non-virtual"><scope>opae::fpga::types::guid_t</scope><name>update</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

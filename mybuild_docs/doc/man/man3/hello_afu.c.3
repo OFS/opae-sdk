@@ -1,0 +1,215 @@
+.TH "samples/hello_afu/sw/hello_afu.c" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/hello_afu/sw/hello_afu.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <uuid/uuid\&.h>\fP
+.br
+\fC#include <opae/enum\&.h>\fP
+.br
+\fC#include <opae/access\&.h>\fP
+.br
+\fC#include <opae/mmio\&.h>\fP
+.br
+\fC#include <opae/properties\&.h>\fP
+.br
+\fC#include <opae/utils\&.h>\fP
+.br
+\fC#include 'afu_json_info\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBcache_line\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBUNUSED_PARAM\fP(x)   (void) x"
+.br
+.ti -1c
+.RI "#define \fBHELLO_AFU_ID\fP   \fBAFU_ACCEL_UUID\fP"
+.br
+.ti -1c
+.RI "#define \fBSCRATCH_REG\fP   0X80"
+.br
+.ti -1c
+.RI "#define \fBSCRATCH_VALUE\fP   0x0123456789ABCDEF"
+.br
+.ti -1c
+.RI "#define \fBSCRATCH_RESET\fP   0"
+.br
+.ti -1c
+.RI "#define \fBBYTE_OFFSET\fP   8"
+.br
+.ti -1c
+.RI "#define \fBAFU_DFH_REG\fP   0x0"
+.br
+.ti -1c
+.RI "#define \fBAFU_ID_LO\fP   0x8"
+.br
+.ti -1c
+.RI "#define \fBAFU_ID_HI\fP   0x10"
+.br
+.ti -1c
+.RI "#define \fBAFU_NEXT\fP   0x18"
+.br
+.ti -1c
+.RI "#define \fBAFU_RESERVED\fP   0x20"
+.br
+.ti -1c
+.RI "#define \fBON_ERR_GOTO\fP(res,  label,  desc)"
+.br
+.ti -1c
+.RI "#define \fBASSERT_GOTO\fP(condition,  label,  desc)"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBusleep\fP (unsigned)"
+.br
+.ti -1c
+.RI "void \fBprint_err\fP (const char *s, \fBfpga_result\fP res)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static int \fBs_error_count\fP = 0"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct cache_line"
+.PP 
+Definition at line 85 of file hello_afu\&.c\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint32_t \fIuint[16]\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define UNUSED_PARAM(x)   (void) x"
+
+.PP
+Definition at line 40 of file hello_afu\&.c\&.
+.SS "#define HELLO_AFU_ID   \fBAFU_ACCEL_UUID\fP"
+
+.PP
+Definition at line 44 of file hello_afu\&.c\&.
+.SS "#define SCRATCH_REG   0X80"
+
+.PP
+Definition at line 45 of file hello_afu\&.c\&.
+.SS "#define SCRATCH_VALUE   0x0123456789ABCDEF"
+
+.PP
+Definition at line 46 of file hello_afu\&.c\&.
+.SS "#define SCRATCH_RESET   0"
+
+.PP
+Definition at line 47 of file hello_afu\&.c\&.
+.SS "#define BYTE_OFFSET   8"
+
+.PP
+Definition at line 48 of file hello_afu\&.c\&.
+.SS "#define AFU_DFH_REG   0x0"
+
+.PP
+Definition at line 50 of file hello_afu\&.c\&.
+.SS "#define AFU_ID_LO   0x8"
+
+.PP
+Definition at line 51 of file hello_afu\&.c\&.
+.SS "#define AFU_ID_HI   0x10"
+
+.PP
+Definition at line 52 of file hello_afu\&.c\&.
+.SS "#define AFU_NEXT   0x18"
+
+.PP
+Definition at line 53 of file hello_afu\&.c\&.
+.SS "#define AFU_RESERVED   0x20"
+
+.PP
+Definition at line 54 of file hello_afu\&.c\&.
+.SS "#define ON_ERR_GOTO(res, label, desc)"
+\fBValue:\fP
+.PP
+.nf
+   do {                                       \
+      if ((res) != FPGA_OK) {            \
+         print_err((desc), (res));  \
+         s_error_count += 1; \
+         goto label;                \
+      }                                  \
+   } while (0)
+.fi
+.PP
+Definition at line 62 of file hello_afu\&.c\&.
+.SS "#define ASSERT_GOTO(condition, label, desc)"
+\fBValue:\fP
+.PP
+.nf
+  do {                                       \
+      if ((condition) == 0) {            \
+         fprintf(stderr, "Error %s\n", desc); \
+         s_error_count += 1; \
+         goto label;                \
+      }                                  \
+   } while (0)
+.fi
+.PP
+Definition at line 75 of file hello_afu\&.c\&.
+.SH "Function Documentation"
+.PP 
+.SS "int usleep (unsigned)"
+
+.PP
+Referenced by hssi_cmd::enable_eth_loopback(), fpga_start(), fpga_stop(), host_exerciser::he_cache_cmd::he_forcetestcmpl(), host_exerciser::host_exerciser_cmd::he_forcetestcmpl(), host_exerciser::he_cmd::he_wait_test_completion(), host_exerciser::host_exerciser_cmd::he_wait_test_completion(), main(), host_exerciser::host_exerciser_cmd::run(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "void print_err (const char * s, \fBfpga_result\fP res)"
+
+.PP
+Definition at line 89 of file hello_afu\&.c\&.
+.PP
+References fpgaErrStr()\&.
+.SS "int main (int argc, char * argv[])"
+
+.PP
+Definition at line 94 of file hello_afu\&.c\&.
+.PP
+References AFU_DFH_REG, AFU_ID_HI, AFU_ID_LO, AFU_NEXT, AFU_RESERVED, ASSERT_GOTO, FPGA_ACCELERATOR, FPGA_INVALID_PARAM, FPGA_OK, fpgaClose(), fpgaDestroyProperties(), fpgaDestroyToken(), fpgaEnumerate(), fpgaGetProperties(), fpgaMapMMIO(), fpgaOpen(), fpgaPropertiesSetGUID(), fpgaPropertiesSetObjectType(), fpgaReadMMIO64(), fpgaReset(), fpgaUnmapMMIO(), fpgaWriteMMIO64(), HELLO_AFU_ID, ON_ERR_GOTO, s_error_count, SCRATCH_REG, SCRATCH_RESET, SCRATCH_VALUE, and UNUSED_PARAM\&.
+.SH "Variable Documentation"
+.PP 
+.SS "int s_error_count = 0\fC [static]\fP"
+
+.PP
+Definition at line 56 of file hello_afu\&.c\&.
+.PP
+Referenced by main()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,100 @@
+.TH "include/opae/access.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/access.h \- Functions to acquire, release, and reset OPAE FPGA resources\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaOpen\fP (\fBfpga_token\fP token, \fBfpga_handle\fP *handle, int flags)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaClose\fP (\fBfpga_handle\fP handle)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaReset\fP (\fBfpga_handle\fP handle)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions to acquire, release, and reset OPAE FPGA resources\&. 
+
+
+.PP
+Definition in file \fBaccess\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaOpen (\fBfpga_token\fP token, \fBfpga_handle\fP * handle, int flags)"
+Open an FPGA object
+.PP
+Acquires ownership of the FPGA resource referred to by 'token'\&.
+.PP
+Most often this will be used to open an accelerator object to directly interact with an accelerator function, or to open an FPGA object to perform management functions\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Pointer to token identifying resource to acquire ownership of 
+.br
+\fIhandle\fP Pointer to preallocated memory to place a handle in\&. This handle will be used in subsequent API calls\&. 
+.br
+\fIflags\fP One of the following flags:
+.IP "\(bu" 2
+FPGA_OPEN_SHARED allows the resource to be opened multiple times (not supported in ASE) Shared resources (including buffers) are released when all associated handles have been closed (either explicitly with \fBfpgaClose()\fP or by process termination)\&. 
+.PP
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NOT_FOUND if the resource for 'token' could not be found\&. FPGA_INVALID_PARAM if 'token' does not refer to a resource that can be opened, or if either argument is NULL or invalid\&. FPGA_EXCEPTION if an internal exception occurred while creating the handle\&. FPGA_NO_DRIVER if the driver is not loaded\&. FPGA_BUSY if trying to open a resource that has already been opened in exclusive mode\&. FPGA_NO_ACCESS if the current process' privileges are not sufficient to open the resource\&. 
+.RE
+.PP
+
+.PP
+Referenced by fpga_open(), inject_ras_fatal_error(), and main()\&.
+.SS "\fBfpga_result\fP fpgaClose (\fBfpga_handle\fP handle)"
+Close a previously opened FPGA object
+.PP
+Relinquishes ownership of a previously \fBfpgaOpen()\fPed resource\&. This enables others to acquire ownership if the resource was opened exclusively\&. Also deallocates / unmaps MMIO and UMsg memory areas\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened FPGA object 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if handle does not refer to an acquired resource, or if handle is NULL\&. FPGA_EXCEPTION if an internal error occurred while accessing the handle\&. 
+.RE
+.PP
+
+.PP
+Referenced by fpga_close(), fpga_open(), inject_ras_fatal_error(), and main()\&.
+.SS "\fBfpga_result\fP fpgaReset (\fBfpga_handle\fP handle)"
+Reset an FPGA object
+.PP
+Performs an accelerator reset\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened FPGA object 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if handle does not refer to an acquired resource or to a resource that cannot be reset\&. FPGA_EXCEPTION if an internal error occurred while trying to access the handle or resetting the resource\&. 
+.RE
+.PP
+
+.PP
+Referenced by fpga_open(), and main()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

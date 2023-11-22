@@ -1,0 +1,626 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="hello__afu_8c" kind="file" language="C++">
+    <compoundname>hello_afu.c</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">string.h</includes>
+    <includes local="no">unistd.h</includes>
+    <includes local="no">uuid/uuid.h</includes>
+    <includes refid="enum_8h" local="no">opae/enum.h</includes>
+    <includes refid="access_8h" local="no">opae/access.h</includes>
+    <includes refid="include_2opae_2mmio_8h" local="no">opae/mmio.h</includes>
+    <includes refid="properties_8h" local="no">opae/properties.h</includes>
+    <includes refid="utils_8h" local="no">opae/utils.h</includes>
+    <includes refid="afu__json__info_8h" local="yes">afu_json_info.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="8">
+        <label>stdint.h</label>
+      </node>
+      <node id="15">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="5">
+        <label>uuid/uuid.h</label>
+      </node>
+      <node id="9">
+        <label>stddef.h</label>
+      </node>
+      <node id="16">
+        <label>afu_json_info.h</label>
+        <link refid="afu__json__info_8h"/>
+      </node>
+      <node id="3">
+        <label>string.h</label>
+      </node>
+      <node id="4">
+        <label>unistd.h</label>
+      </node>
+      <node id="14">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samples/hello_afu/sw/hello_afu.c</label>
+        <link refid="hello__afu_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structcache__line" prot="public">cache_line</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="hello__afu_8c_1a6c7ba74ad57863d1342878d2c703e660" prot="public" static="no">
+        <name>UNUSED_PARAM</name>
+        <param><defname>x</defname></param>
+        <initializer>(void) x</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="40" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a607f30325c09b7bf4c02666214c1840c" prot="public" static="no">
+        <name>HELLO_AFU_ID</name>
+        <initializer><ref refid="afu__json__info_8h_1a70bd922abe682ef5aad25f5338e84261" kindref="member">AFU_ACCEL_UUID</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="44" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" prot="public" static="no">
+        <name>SCRATCH_REG</name>
+        <initializer>0X80</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="45" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a7bbcd84554dc100a3af3c90866c517a6" prot="public" static="no">
+        <name>SCRATCH_VALUE</name>
+        <initializer>0x0123456789ABCDEF</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="46" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1af5dcd1ca8faac7e95459bbb3324b8b37" prot="public" static="no">
+        <name>SCRATCH_RESET</name>
+        <initializer>0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="47" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a978eddbb9cac48d7902de5c7a7603e4e" prot="public" static="no">
+        <name>BYTE_OFFSET</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="48" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a7e11a6bddfa9cc95fe37933f2faf8810" prot="public" static="no">
+        <name>AFU_DFH_REG</name>
+        <initializer>0x0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="50" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a5020d54a46140b0c7f167ea9f06224ff" prot="public" static="no">
+        <name>AFU_ID_LO</name>
+        <initializer>0x8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="51" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a9e32a9ba987300033ecd00f565643407" prot="public" static="no">
+        <name>AFU_ID_HI</name>
+        <initializer>0x10</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="52" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a45a6019e3d2dc27d7db71b00d6dd6089" prot="public" static="no">
+        <name>AFU_NEXT</name>
+        <initializer>0x18</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="53" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a475a2a2461469d50e8c5bd20d8b30408" prot="public" static="no">
+        <name>AFU_RESERVED</name>
+        <initializer>0x20</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="54" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" prot="public" static="no">
+        <name>ON_ERR_GOTO</name>
+        <param><defname>res</defname></param>
+        <param><defname>label</defname></param>
+        <param><defname>desc</defname></param>
+        <initializer>	do {                                       \
+		if ((res) != <ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>) {            \
+			<ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>((desc), (res));  \
+			<ref refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" kindref="member">s_error_count</ref> += 1; \
+			goto label;                \
+		}                                  \
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="62" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__afu_8c_1aff093d1ec7fa753b88889e1a94222d05" prot="public" static="no">
+        <name>ASSERT_GOTO</name>
+        <param><defname>condition</defname></param>
+        <param><defname>label</defname></param>
+        <param><defname>desc</defname></param>
+        <initializer>	do {                                       \
+		if ((condition) == 0) {            \
+			fprintf(stderr, &quot;Error %s\n&quot;, desc); \
+			<ref refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" kindref="member">s_error_count</ref> += 1; \
+			goto label;                \
+		}                                  \
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="75" column="9" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" prot="public" static="yes" mutable="no">
+        <type>int</type>
+        <definition>int s_error_count</definition>
+        <argsstring></argsstring>
+        <name>s_error_count</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="56" column="12" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="56" bodyend="-1"/>
+        <referencedby refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__afu_8c" startline="94" endline="221">main</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int usleep</definition>
+        <argsstring>(unsigned)</argsstring>
+        <name>usleep</name>
+        <param>
+          <type>unsigned</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="42" column="5" declfile="samples/hello_afu/sw/hello_afu.c" declline="42" declcolumn="5"/>
+        <referencedby refid="classhssi__cmd_1a49f44707a8d19094be36a91ffa570e79" compoundref="hssi__cmd_8h" startline="152" endline="161">hssi_cmd::enable_eth_loopback</referencedby>
+        <referencedby refid="n5010-test_8c_1aef1214e09ce39997c1133269fd0936e9" compoundref="n5010-test_8c" startline="288" endline="310">fpga_start</referencedby>
+        <referencedby refid="n5010-test_8c_1aad710973341f9f1301a817df6b1b8090" compoundref="n5010-test_8c" startline="312" endline="332">fpga_stop</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cache__cmd_1a060899ac85f7634bc4a83ec3b771234b" compoundref="cxl__he__cache__cmd_8h" startline="1143" endline="1156">host_exerciser::he_cache_cmd::he_forcetestcmpl</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a672161648b4f66883bc47ef0d6fe0b57" compoundref="host__exerciser__cmd_8h" startline="227" endline="241">host_exerciser::host_exerciser_cmd::he_forcetestcmpl</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6e8476a9963e59501717dee0e9cb8030" compoundref="cxl__he__cmd_8h" startline="228" endline="241">host_exerciser::he_cmd::he_wait_test_completion</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a23e2128ba0753d1b767983a6cf8f11d8" compoundref="host__exerciser__cmd_8h" startline="204" endline="225">host_exerciser::host_exerciser_cmd::he_wait_test_completion</referencedby>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1a83697b1ec3679aee9edec5b94bde79fa" compoundref="host__exerciser__cmd_8h" startline="730" endline="823">host_exerciser::host_exerciser_cmd::run</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser__cmd_1aa97f70a05e8316fa5b6039effbceb8d2" compoundref="host__exerciser__cmd_8h" startline="503" endline="597">host_exerciser::host_exerciser_cmd::run_single_test</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__afu_8c_1aa11f434898b86d619a5ceb6a5d7bf066" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void print_err</definition>
+        <argsstring>(const char *s, fpga_result res)</argsstring>
+        <name>print_err</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>res</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="89" column="6" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="89" bodyend="92"/>
+        <references refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32">fpgaErrStr</references>
+      </memberdef>
+      <memberdef kind="function" id="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>main</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="94" column="5" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="94" bodyend="221"/>
+        <references refid="hello__afu_8c_1a7e11a6bddfa9cc95fe37933f2faf8810" compoundref="hello__afu_8c" startline="50">AFU_DFH_REG</references>
+        <references refid="hello__afu_8c_1a9e32a9ba987300033ecd00f565643407" compoundref="hello__afu_8c" startline="52">AFU_ID_HI</references>
+        <references refid="hello__afu_8c_1a5020d54a46140b0c7f167ea9f06224ff" compoundref="hello__afu_8c" startline="51">AFU_ID_LO</references>
+        <references refid="hello__afu_8c_1a45a6019e3d2dc27d7db71b00d6dd6089" compoundref="hello__afu_8c" startline="53">AFU_NEXT</references>
+        <references refid="hello__afu_8c_1a475a2a2461469d50e8c5bd20d8b30408" compoundref="hello__afu_8c" startline="54">AFU_RESERVED</references>
+        <references refid="hello__afu_8c_1aff093d1ec7fa753b88889e1a94222d05" compoundref="hello__afu_8c" startline="75">ASSERT_GOTO</references>
+        <references refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7" compoundref="types__enum_8h" startline="114">FPGA_ACCELERATOR</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9" compoundref="types__enum_8h" startline="59">FPGA_INVALID_PARAM</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79">fpgaClose</references>
+        <references refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050">fpgaDestroyProperties</references>
+        <references refid="enum_8h_1a150a7a8f46e0d6df12cc329ff7030e21">fpgaDestroyToken</references>
+        <references refid="enum_8h_1a277ba17f2377895855545bd82c1f901d">fpgaEnumerate</references>
+        <references refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489">fpgaGetProperties</references>
+        <references refid="include_2opae_2mmio_8h_1a2903267d37ea5c64522b0addce74da5f">fpgaMapMMIO</references>
+        <references refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3">fpgaOpen</references>
+        <references refid="properties_8h_1a71ad1e59994b2c8b04ea036a64515117">fpgaPropertiesSetGUID</references>
+        <references refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b">fpgaPropertiesSetObjectType</references>
+        <references refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187">fpgaReadMMIO64</references>
+        <references refid="access_8h_1aa4addba9b864dbc614a1680dfc29dc59">fpgaReset</references>
+        <references refid="include_2opae_2mmio_8h_1a8c8db22506e1fbfd16440c660bfee28f">fpgaUnmapMMIO</references>
+        <references refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761">fpgaWriteMMIO64</references>
+        <references refid="hello__afu_8c_1a607f30325c09b7bf4c02666214c1840c" compoundref="hello__afu_8c" startline="44">HELLO_AFU_ID</references>
+        <references refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" compoundref="hello__afu_8c" startline="62">ON_ERR_GOTO</references>
+        <references refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" compoundref="hello__afu_8c" startline="56">s_error_count</references>
+        <references refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" compoundref="hello__afu_8c" startline="45">SCRATCH_REG</references>
+        <references refid="hello__afu_8c_1af5dcd1ca8faac7e95459bbb3324b8b37" compoundref="hello__afu_8c" startline="47">SCRATCH_RESET</references>
+        <references refid="hello__afu_8c_1a7bbcd84554dc100a3af3c90866c517a6" compoundref="hello__afu_8c" startline="46">SCRATCH_VALUE</references>
+        <references refid="hello__afu_8c_1a6c7ba74ad57863d1342878d2c703e660" compoundref="hello__afu_8c" startline="40">UNUSED_PARAM</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2014-2018,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMEdesc.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;uuid/uuid.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="enum_8h" kindref="compound">opae/enum.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="access_8h" kindref="compound">opae/access.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="include_2opae_2mmio_8h" kindref="compound">opae/mmio.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="properties_8h" kindref="compound">opae/properties.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="utils_8h" kindref="compound">opae/utils.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="comment">//<sp/>State<sp/>from<sp/>the<sp/>AFU&apos;s<sp/>JSON<sp/>file,<sp/>extracted<sp/>using<sp/>OPAE&apos;s<sp/>afu_json_mgr<sp/>script</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="afu__json__info_8h" kindref="compound">afu_json_info.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="hello__afu_8c_1a6c7ba74ad57863d1342878d2c703e660" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>UNUSED_PARAM(x)<sp/>(void)<sp/>x</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9" kindref="member">usleep</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="hello__afu_8c_1a607f30325c09b7bf4c02666214c1840c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>HELLO_AFU_ID<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>AFU_ACCEL_UUID<sp/><sp/></highlight><highlight class="comment">//<sp/>Defined<sp/>in<sp/>afu_json_info.h</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SCRATCH_REG<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0X80</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="hello__afu_8c_1a7bbcd84554dc100a3af3c90866c517a6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SCRATCH_VALUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x0123456789ABCDEF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="hello__afu_8c_1af5dcd1ca8faac7e95459bbb3324b8b37" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SCRATCH_RESET<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="hello__afu_8c_1a978eddbb9cac48d7902de5c7a7603e4e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BYTE_OFFSET<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>8</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="hello__afu_8c_1a7e11a6bddfa9cc95fe37933f2faf8810" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_DFH_REG<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="hello__afu_8c_1a5020d54a46140b0c7f167ea9f06224ff" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_ID_LO<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x8</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="hello__afu_8c_1a9e32a9ba987300033ecd00f565643407" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_ID_HI<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x10</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="hello__afu_8c_1a45a6019e3d2dc27d7db71b00d6dd6089" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_NEXT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x18</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="hello__afu_8c_1a475a2a2461469d50e8c5bd20d8b30408" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>AFU_RESERVED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x20</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" kindref="member">s_error_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="59"><highlight class="comment"><sp/>*<sp/>macro<sp/>to<sp/>check<sp/>return<sp/>codes,<sp/>print<sp/>error<sp/>message,<sp/>and<sp/>goto<sp/>cleanup<sp/>label</highlight></codeline>
+<codeline lineno="60"><highlight class="comment"><sp/>*<sp/>NOTE:<sp/>this<sp/>changes<sp/>the<sp/>program<sp/>flow<sp/>(uses<sp/>goto)!</highlight></codeline>
+<codeline lineno="61"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ON_ERR_GOTO(res,<sp/>label,<sp/>desc)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((res)<sp/>!=<sp/>FPGA_OK)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print_err((desc),<sp/>(res));<sp/><sp/>\</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s_error_count<sp/>+=<sp/>1;<sp/>\</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>goto<sp/>label;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="72"><highlight class="comment"><sp/>*<sp/>macro<sp/>to<sp/>check<sp/>return<sp/>codes,<sp/>print<sp/>error<sp/>message,<sp/>and<sp/>goto<sp/>cleanup<sp/>label</highlight></codeline>
+<codeline lineno="73"><highlight class="comment"><sp/>*<sp/>NOTE:<sp/>this<sp/>changes<sp/>the<sp/>program<sp/>flow<sp/>(uses<sp/>goto)!</highlight></codeline>
+<codeline lineno="74"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="hello__afu_8c_1aff093d1ec7fa753b88889e1a94222d05" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ASSERT_GOTO(condition,<sp/>label,<sp/>desc)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((condition)<sp/>==<sp/>0)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;Error<sp/>%s\n&quot;</highlight><highlight class="normal">,<sp/>desc);<sp/>\</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s_error_count<sp/>+=<sp/>1;<sp/>\</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>goto<sp/>label;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Type<sp/>definitions<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="structcache__line" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86" refid="structcache__line_1a3f28028a2861bc1cb7e3d07fa84bb4a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/>uint[16];</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}<sp/><ref refid="structcache__line" kindref="compound">cache_line</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="hello__afu_8c_1aa11f434898b86d619a5ceb6a5d7bf066" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="hello__afu_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>%s:<sp/>%s\n&quot;</highlight><highlight class="normal">,<sp/>s,<sp/><ref refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32" kindref="member">fpgaErrStr</ref>(res));</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="hello__afu_8c_1a0ddf1224851353fc92bfbff6f499fa97" kindref="member">main</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[])</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a6c7ba74ad57863d1342878d2c703e660" kindref="member">UNUSED_PARAM</ref>(argc);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a6c7ba74ad57863d1342878d2c703e660" kindref="member">UNUSED_PARAM</ref>(argv);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/><sp/><sp/><sp/>filter<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>afc_token;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>afc_handle;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>guid;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_matches;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uuid_parse(<ref refid="hello__afu_8c_1a607f30325c09b7bf4c02666214c1840c" kindref="member">HELLO_AFU_ID</ref>,<sp/>guid)<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>parsing<sp/>guid<sp/>&apos;%s&apos;\n&quot;</highlight><highlight class="normal">,<sp/><ref refid="hello__afu_8c_1a607f30325c09b7bf4c02666214c1840c" kindref="member">HELLO_AFU_ID</ref>);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_exit;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Look<sp/>for<sp/>AFC<sp/>with<sp/>MY_AFC_ID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties</ref>(NULL,<sp/>&amp;filter);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_exit,<sp/></highlight><highlight class="stringliteral">&quot;creating<sp/>properties<sp/>object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b" kindref="member">fpgaPropertiesSetObjectType</ref>(filter,<sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7" kindref="member">FPGA_ACCELERATOR</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy_prop,<sp/></highlight><highlight class="stringliteral">&quot;setting<sp/>object<sp/>type&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a71ad1e59994b2c8b04ea036a64515117" kindref="member">fpgaPropertiesSetGUID</ref>(filter,<sp/>guid);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy_prop,<sp/></highlight><highlight class="stringliteral">&quot;setting<sp/>GUID&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>TODO:<sp/>Add<sp/>selection<sp/>via<sp/>BDF<sp/>/<sp/>device<sp/>ID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate</ref>(&amp;filter,<sp/>1,<sp/>&amp;afc_token,<sp/>1,<sp/>&amp;num_matches);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy_prop,<sp/></highlight><highlight class="stringliteral">&quot;enumerating<sp/>AFCs&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(num_matches<sp/>&lt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;AFC<sp/>not<sp/>found.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>(&amp;filter);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da72e05d22cb414d8a35945301b79302f9" kindref="member">FPGA_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Open<sp/>AFC<sp/>and<sp/>map<sp/>MMIO<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen</ref>(afc_token,<sp/>&amp;afc_handle,<sp/>0);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy_tok,<sp/></highlight><highlight class="stringliteral">&quot;opening<sp/>AFC&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a2903267d37ea5c64522b0addce74da5f" kindref="member">fpgaMapMMIO</ref>(afc_handle,<sp/>0,<sp/>NULL);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;mapping<sp/>MMIO<sp/>space&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Running<sp/>Test\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Reset<sp/>AFC<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="access_8h_1aa4addba9b864dbc614a1680dfc29dc59" kindref="member">fpgaReset</ref>(afc_handle);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;resetting<sp/>AFC&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Access<sp/>mandatory<sp/>AFU<sp/>registers</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/>data<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1a7e11a6bddfa9cc95fe37933f2faf8810" kindref="member">AFU_DFH_REG</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;AFU<sp/>DFH<sp/>REG<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/>data);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1a5020d54a46140b0c7f167ea9f06224ff" kindref="member">AFU_ID_LO</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;AFU<sp/>ID<sp/>LO<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/>data);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1a9e32a9ba987300033ecd00f565643407" kindref="member">AFU_ID_HI</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;AFU<sp/>ID<sp/>HI<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/>data);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1a45a6019e3d2dc27d7db71b00d6dd6089" kindref="member">AFU_NEXT</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;AFU<sp/>NEXT<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/>data);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1a475a2a2461469d50e8c5bd20d8b30408" kindref="member">AFU_RESERVED</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;AFU<sp/>RESERVED<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/>data);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Access<sp/>AFU<sp/>user<sp/>scratch-pad<sp/>register</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Reading<sp/>Scratch<sp/>Register<sp/>(Byte<sp/>Offset=%08x)<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/>data);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;MMIO<sp/>Write<sp/>to<sp/>Scratch<sp/>Register<sp/>(Byte<sp/>Offset=%08x)<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/><ref refid="hello__afu_8c_1a7bbcd84554dc100a3af3c90866c517a6" kindref="member">SCRATCH_VALUE</ref>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" kindref="member">fpgaWriteMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/><ref refid="hello__afu_8c_1a7bbcd84554dc100a3af3c90866c517a6" kindref="member">SCRATCH_VALUE</ref>);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;writing<sp/>to<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Reading<sp/>Scratch<sp/>Register<sp/>(Byte<sp/>Offset=%08x)<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/>data);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1aff093d1ec7fa753b88889e1a94222d05" kindref="member">ASSERT_GOTO</ref>(data<sp/>==<sp/><ref refid="hello__afu_8c_1a7bbcd84554dc100a3af3c90866c517a6" kindref="member">SCRATCH_VALUE</ref>,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;MMIO<sp/>mismatched<sp/>expected<sp/>result&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>Scratch<sp/>Register<sp/>to<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Setting<sp/>Scratch<sp/>Register<sp/>(Byte<sp/>Offset=%08x)<sp/>=<sp/>%08x\n&quot;</highlight><highlight class="normal">,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/><ref refid="hello__afu_8c_1af5dcd1ca8faac7e95459bbb3324b8b37" kindref="member">SCRATCH_RESET</ref>);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a6df7f745d9b9d47582714fe8e2d1a761" kindref="member">fpgaWriteMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/><ref refid="hello__afu_8c_1af5dcd1ca8faac7e95459bbb3324b8b37" kindref="member">SCRATCH_RESET</ref>);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;writing<sp/>to<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a011ba900710ddf70c13ca089c4742187" kindref="member">fpgaReadMMIO64</ref>(afc_handle,<sp/>0,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/>&amp;data);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;reading<sp/>from<sp/>MMIO&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Reading<sp/>Scratch<sp/>Register<sp/>(Byte<sp/>Offset=%08x)<sp/>=<sp/>%08lx\n&quot;</highlight><highlight class="normal">,<sp/><ref refid="hello__afu_8c_1aa214bb53cfaaf6b164ece6df54f30347" kindref="member">SCRATCH_REG</ref>,<sp/>data);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1aff093d1ec7fa753b88889e1a94222d05" kindref="member">ASSERT_GOTO</ref>(data<sp/>==<sp/><ref refid="hello__afu_8c_1af5dcd1ca8faac7e95459bbb3324b8b37" kindref="member">SCRATCH_RESET</ref>,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;MMIO<sp/>mismatched<sp/>expected<sp/>result&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Done<sp/>Running<sp/>Test\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unmap<sp/>MMIO<sp/>space<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="include_2opae_2mmio_8h_1a8c8db22506e1fbfd16440c660bfee28f" kindref="member">fpgaUnmapMMIO</ref>(afc_handle,<sp/>0);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;unmapping<sp/>MMIO<sp/>space&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Release<sp/>accelerator<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">out_close:</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79" kindref="member">fpgaClose</ref>(afc_handle);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy_tok,<sp/></highlight><highlight class="stringliteral">&quot;closing<sp/>AFC&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Destroy<sp/>token<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">out_destroy_tok:</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>USE_ASE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="enum_8h_1a150a7a8f46e0d6df12cc329ff7030e21" kindref="member">fpgaDestroyToken</ref>(&amp;afc_token);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy_prop,<sp/></highlight><highlight class="stringliteral">&quot;destroying<sp/>token&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Destroy<sp/>properties<sp/>object<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal">out_destroy_prop:</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>(&amp;filter);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__afu_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_exit,<sp/></highlight><highlight class="stringliteral">&quot;destroying<sp/>properties<sp/>object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">out_exit:</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<ref refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" kindref="member">s_error_count</ref><sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Test<sp/>FAILED!\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="hello__afu_8c_1a6b8635735dd6b01cbc0524ca3d299d88" kindref="member">s_error_count</ref>;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="samples/hello_afu/sw/hello_afu.c"/>
+  </compounddef>
+</doxygen>

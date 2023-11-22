@@ -1,0 +1,733 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "QUICK_START" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+quick_start \- OPAE Quick Start Guide
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OVERVIEW
+.sp
+The OPAE C library is a lightweight user\-space library that provides
+an abstraction for FPGA resources in a compute environment. Built on top of the
+OPAE Intel® FPGA driver stack that supports Intel® FPGA platforms, the library
+abstracts away hardware\-specific and OS\-specific details and exposes the
+underlying FPGA resources as a set of features accessible from within
+software programs running on the host.
+.sp
+These features include the acceleration logic preconfigured on the
+device, as well as functions to manage and reconfigure the
+device. Hence, the library can enable user applications to
+transparently and seamlessly leverage FPGA\-based acceleration.
+.sp
+In this document, we will explore the initial steps on how to set up
+the required libraries and utilities to use the FPGA devices.
+.sp
+If you do not have access to an Intel® Xeon® processor with integrated
+FPGA, or a programmable FPGA acceleration card for Intel® Xeon®
+processors, you will not be able to run the examples below. However, you can
+still make use of the AFU simulation environment (ASE) to develop and test
+accelerator RTL with OPAE applications.
+.sp
+The source for the OPAE SDK Linux device drivers is available at the
+\fI\%OPAE Linux DFL drivers repository\fP\&.
+.SH BUILD THE OPAE LINUX DEVICE DRIVERS FROM THE SOURCE
+.sp
+For building the OPAE kernel and kernel driver, the kernel development environment is required. So before you build the kernel, you must install the required packages. Run the following commands (we are using Fedora 32 as an example):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo yum install gcc gcc\-c++ make kernel\-headers kernel\-devel elfutils\-libelf\-devel ncurses\-devel openssl\-devel bison flex
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Download the OPAE upstream kernel tree from GitHub:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+git clone https://github.com/OPAE/linux\-dfl.git \-b fpga\-upstream\-dev\-5.8.0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Configure the kernel:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+cd linux\-dfl
+cp /boot/config\-\(gauname \-r\(ga .config
+cat configs/n3000_d5005_defconfig >> .config 
+echo \(aqCONFIG_LOCALVERSION="\-dfl"\(aq >> .config
+echo \(aqCONFIG_LOCALVERSION_AUTO=y\(aq >> .config
+make olddefconfig
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Compile and install the new kernel:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+make \-j
+sudo make modules_install
+sudo make install
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+After the installation finishes, reboot your system.
+Log back into the system, and confirm the correct version for the kernel:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ uname \-a
+Linux localhost.localdomain 5.8.0\-rc1\-dfl\-g73e16386cda0 #6 SMP Wed Aug 19 08:38:32 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH BUILDING AND INSTALLING THE OPAE SDK FROM THE SOURCE
+.sp
+Download the OPAE SDK source package:
+.INDENT 0.0
+.IP \(bu 2
+Go to the section corresponding to the desired release on
+\fI\%GitHub\fP:
+.IP \(bu 2
+Click the \fBSource code (tar.gz)\fP link under the section’s \fBAssets\fP\&.
+.IP \(bu 2
+On the command line, go through the following steps to install it:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Unpack
+tar xfvz opae\-sdk\-<release>.tar.gz
+# Configure
+cd opae\-sdk\-<release>
+mkdir build
+cd build
+# The default installation prefix is \(ga/usr/local\(ga;
+# You have the option to configure for a different location
+cmake [\-DCMAKE_INSTALL_PREFIX=<prefix>] ..
+# Compile
+make
+# Install: you need system administration privileges (\(gasudo\(ga)
+# if you have elected to install in the default location
+[sudo] make install
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+The remainder of this guide assumes you installed into \fB/usr/local\fP\&.
+.SH CONFIGURING THE FPGA (LOADING AN FPGA AFU)
+.sp
+The \fBfpgaconf\fP tool exercises the AFU reconfiguration
+functionality. It shows how to read a bitstream from a disk file,
+check its validity and compatibility, and then injects it into FPGA to
+be configured as a new AFU, which can then be discovered and used by
+user applications.
+.sp
+For this step, you require a valid green bitstream (GBS) file. To
+reconfigure the FPGA slot, you can issue the following command as system
+administrator:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo fpgaconf \-b 0x5e <filename>.gbs
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The \fB\-b\fP option to \fBfpgaconf\fP indicates the \fItarget bus number\fP of the
+FPGA slot to be reconfigured. Alternatively, you can also specify the
+\fItarget socket number\fP of the FPGA using the \fB\-s\fP option.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ sudo fpgaconf \-\-help
+Usage:
+        fpgaconf [\-hvn] [\-b <bus>] [\-d <device>] [\-f <function>] [\-s <socket>] <gbs>
+
+                \-h,\-\-help           Print this help
+                \-v,\-\-verbose        Increase verbosity
+                \-n,\-\-dry\-run        Don\(aqt actually perform actions
+                \-b,\-\-bus            Set target bus number
+                \-d,\-\-device         Set target device number
+                \-f,\-\-function       Set target function number
+                \-s,\-\-socket         Set target socket number
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The sample application on the Building a Sample Application
+section requires loading of an AFU called "Native Loopback
+Adapter" (NLB) on the FPGA. Please refer to the NLB documentation
+for the location of the NLB\(aqs green bitstream. You also can verify
+if the NLB green bitstream has already been loaded into the FPGA
+slot by typing the following command and checking the output
+matches the following:
+
+\(ga\(ga\(gabash
+$ cat /sys/class/fpga_region/region0/dfl\-port.0/afu_id
+d8424dc4a4a3c413f89e433683f9040b
+\(ga\(ga\(ga
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The fpgaconf tool is not available for the Intel PAC N3000. The NLB is
+already included in the AFU.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH BUILDING A SAMPLE APPLICATION
+.sp
+The library source includes code samples. Use these samples to learn
+how to call functions in the library. Build and run these samples as
+quick sanity checks to determine if your installation and environment
+are set up properly.
+.sp
+In this guide, we will build \fBhello_fpga.c\fP\&. This is the “Hello
+World!” example of using the library.  This code searches for a
+predefined and known AFU called “Native Loopback Adapter” on the
+FPGA. If found, it acquires ownership and then interacts with the AFU
+by sending it a 2MB message and waiting for the message to be echoed
+back. This code exercises all major components of the API except for
+AFU reconfiguration: AFU search, enumeration, access, MMIO, and memory
+management.
+.sp
+You can also find the source for \fBhello_fpga\fP in the \fBsamples\fP directory of the
+OPAE SDK repository on GitHub.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+    int main(int argc, char *argv[])
+    {
+        fpga_properties    filter = NULL;
+        fpga_token         afu_token;
+        fpga_handle        afu_handle;
+        fpga_guid          guid;
+        uint32_t           num_matches;
+
+        volatile uint64_t *dsm_ptr    = NULL;
+        volatile uint64_t *status_ptr = NULL;
+        volatile uint64_t *input_ptr  = NULL;
+        volatile uint64_t *output_ptr = NULL;
+
+        uint64_t        dsm_wsid;
+        uint64_t        input_wsid;
+        uint64_t        output_wsid;
+        fpga_result     res = FPGA_OK;
+
+        if (uuid_parse(NLB0_AFUID, guid) < 0) {
+            fprintf(stderr, "Error parsing guid \(aq%s\(aq\en", NLB0_AFUID);
+            goto out_exit;
+        }
+
+        /* Look for accelerator by its "afu_id" */
+        res = fpgaGetProperties(NULL, &filter);
+        ON_ERR_GOTO(res, out_exit, "creating properties object");
+
+        res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
+        ON_ERR_GOTO(res, out_destroy_prop, "setting object type");
+
+        res = fpgaPropertiesSetGuid(filter, guid);
+        ON_ERR_GOTO(res, out_destroy_prop, "setting GUID");
+
+        /* TODO: Add selection via BDF / device ID */
+
+        res = fpgaEnumerate(&filter, 1, &afu_token, 1, &num_matches);
+        ON_ERR_GOTO(res, out_destroy_prop, "enumerating accelerators");
+
+        if (num_matches < 1) {
+            fprintf(stderr, "accelerator not found.\en");
+            res = fpgaDestroyProperties(&filter);
+            return FPGA_INVALID_PARAM;
+        }
+
+        /* Open accelerator and map MMIO */
+        res = fpgaOpen(afu_token, &afu_handle, 0);
+        ON_ERR_GOTO(res, out_destroy_tok, "opening accelerator");
+
+        res = fpgaMapMMIO(afu_handle, 0, NULL);
+        ON_ERR_GOTO(res, out_close, "mapping MMIO space");
+
+        /* Allocate buffers */
+        res = fpgaPrepareBuffer(afu_handle, LPBK1_DSM_SIZE,
+                    (void **)&dsm_ptr, &dsm_wsid, 0);
+        ON_ERR_GOTO(res, out_close, "allocating DSM buffer");
+
+        res = fpgaPrepareBuffer(afu_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
+                   (void **)&input_ptr, &input_wsid, 0);
+        ON_ERR_GOTO(res, out_free_dsm, "allocating input buffer");
+
+        res = fpgaPrepareBuffer(afu_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
+                   (void **)&output_ptr, &output_wsid, 0);
+        ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
+
+        printf("Running Test\en");
+
+        /* Initialize buffers */
+        memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
+        memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
+        memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+
+        cache_line *cl_ptr = (cache_line *)input_ptr;
+        for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+            cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
+        }
+
+        /* Reset accelerator */
+        res = fpgaReset(afu_handle);
+        ON_ERR_GOTO(res, out_free_output, "resetting accelerator");
+
+        /* Program DMA addresses */
+        uint64_t iova;
+        res = fpgaGetIOAddress(afu_handle, dsm_wsid, &iova);
+        ON_ERR_GOTO(res, out_free_output, "getting DSM IOVA");
+
+        res = fpgaWriteMMIO64(afu_handle, 0, CSR_AFU_DSM_BASEL, iova);
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_AFU_DSM_BASEL");
+
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 0);
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 1);
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+        res = fpgaGetIOAddress(afu_handle, input_wsid, &iova);
+        ON_ERR_GOTO(res, out_free_output, "getting input IOVA");
+        res = fpgaWriteMMIO64(afu_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_SRC_ADDR");
+
+        res = fpgaGetIOAddress(afu_handle, output_wsid, &iova);
+        ON_ERR_GOTO(res, out_free_output, "getting output IOVA");
+        res = fpgaWriteMMIO64(afu_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_DST_ADDR");
+
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_NUM_LINES");
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CFG, 0x42000);
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+        status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/8;
+
+        /* Start the test */
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 3);
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+        /* Wait for test completion */
+        while (0 == ((*status_ptr) & 0x1)) {
+            usleep(100);
+        }
+
+        /* Stop the device */
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 7);
+        ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+        /* Check output buffer contents */
+        for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE; i++) {
+            if (((uint8_t*)output_ptr)[i] != ((uint8_t*)input_ptr)[i]) {
+                fprintf(stderr, "Output does NOT match input "
+                    "at offset %i!\en", i);
+                break;
+            }
+        }
+
+        printf("Done Running Test\en");
+
+        /* Release buffers */
+    out_free_output:
+        res = fpgaReleaseBuffer(afu_handle, output_wsid);
+        ON_ERR_GOTO(res, out_free_input, "releasing output buffer");
+    out_free_input:
+        res = fpgaReleaseBuffer(afu_handle, input_wsid);
+        ON_ERR_GOTO(res, out_free_dsm, "releasing input buffer");
+    out_free_dsm:
+        res = fpgaReleaseBuffer(afu_handle, dsm_wsid);
+        ON_ERR_GOTO(res, out_unmap, "releasing DSM buffer");
+
+        /* Unmap MMIO space */
+    out_unmap:
+        res = fpgaUnmapMMIO(afu_handle, 0);
+        ON_ERR_GOTO(res, out_close, "unmapping MMIO space");
+
+        /* Release accelerator */
+    out_close:
+        res = fpgaClose(afu_handle);
+        ON_ERR_GOTO(res, out_destroy_tok, "closing accelerator");
+
+        /* Destroy token */
+    out_destroy_tok:
+        res = fpgaDestroyToken(&afu_token);
+        ON_ERR_GOTO(res, out_destroy_prop, "destroying token");
+
+        /* Destroy properties object */
+    out_destroy_prop:
+        res = fpgaDestroyProperties(&filter);
+        ON_ERR_GOTO(res, out_exit, "destroying properties object");
+
+    out_exit:
+        return res;
+
+    }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Linking with the OPAE library is straightforward.  Code using this library
+should include the header file \fBfpga.h\fP\&. Taking the GCC compiler on
+Linux as an example, the minimalist compile and link line should look
+like:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+gcc \-std=c99 hello_fpga.c \-I/usr/local/include \-L/usr/local/lib \-lopae\-c \-luuid \-ljson\-c \-lpthread \-o hello_fpga
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The API uses some features from the C99 language standard. The
+\(ga\-std=c99\(ga switch is required if the compiler does not support C99 by
+default.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Third\-party library dependency: The library internally uses
+\(galibuuid\(ga and \(galibjson\-c\(ga. But they are not distributed as part of the
+library. Make sure you have these libraries properly installed.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The layout of AFU is different between the N3000 card and Rush Creek/Darby Creek.
+In the N3000 card, the NLB and DMA are contained in the AFU, so we need to do
+enumeration again in AFU to discover the NLB.
+To run the hello_fpga application on the N3000 card, it should use the \(ga\-c\(ga
+option to support the N3000 card:
+
+\(ga\(ga\(gabash
+$ sudo ./hello_fpga \-c
+Running Test
+Running on bus 0x08.
+AFU NLB0 found @ 28000
+Done Running Test
+\(ga\(ga\(ga
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+To run the \fBhello_fpga\fP application; just issue:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ sudo ./hello_fpga
+Running Test
+Done
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SETUP IOFS RELEASE1 BITSTREAM ON FPGA PCIE CARD
+.sp
+Program IOFS Release1 bitstream on the FPGA D5005 or N6000 cards and reboot the system.
+.sp
+Run this command:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ lspci | grep acc
+3b:00.0 Processing accelerators: Intel Corporation Device af00 (rev 01)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Number of virtual functions supported by bitstream:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ cat /sys/bus/pci/devices/0000:3b:00.0/sriov_totalvfs 
+output: 3
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Enable FPGA virtual functions:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo sh \-c "echo 3 > /sys/bus/pci/devices/0000:3b:00.0/sriov_numvfs"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+List of FPGA PF and VF’s:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Physical Functions (PFs):
+  3b:00.0 Processing accelerators: Intel Corporation Device af00 (rev 01)
+
+Virtual Functions (VFs).
+  3b:00.1 Processing accelerators: Intel Corporation Device af01 (rev 01)
+  3b:00.2 Processing accelerators: Intel Corporation Device af01 (rev 01)
+  3b:00.3 Processing accelerators: Intel Corporation Device af01 (rev 01)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Bind vfio\-pcie driver to FPGA virtual functions:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo opaevfio  \-i 0000:3b:00.1 \-u userid \-g groupid
+sudo opaevfio  \-i 0000:3b:00.2 \-u userid \-g groupid
+sudo opaevfio  \-i 0000:3b:00.3 \-u userid \-g groupid
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+List of fpga accelerators:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ fpgainfo port
+
+  //****** PORT ******//
+  Object Id                        : 0x600D000000000000
+  PCIe s:b:d.f                     : 0000:3b:00.3
+  Device Id                        : 0xAF00
+  Socket Id                        : 0xFF
+  Accelerator Id                   : 43425ee6\-92b2\-4742\-b03a\-bd8d4a533812
+  Accelerator GUID                 : 43425ee6\-92b2\-4742\-b03a\-bd8d4a533812
+  //****** PORT ******//
+  Object Id                        : 0x400D000000000000
+  PCIe s:b:d.f                     : 0000:3b:00.2
+  Device Id                        : 0xAF00
+  Socket Id                        : 0xFF
+  Accelerator Id                   : 8568AB4E\-6bA5\-4616\-BB65\-2A578330A8EB
+  Accelerator GUID                 : 8568AB4E\-6bA5\-4616\-BB65\-2A578330A8EB
+  //****** PORT ******//
+  Object Id                        : 0x200D000000000000
+  PCIe s:b:d.f                     : 0000:3b:00.1
+  Device Id                        : 0xAF00
+  Socket Id                        : 0xFF
+  Accelerator Id                   : 56e203e9\-864f\-49a7\-b94b\-12284c31e02b
+  Accelerator GUID                 : 56e203e9\-864f\-49a7\-b94b\-12284c31e02b
+
+FPGA VF1/3b:00.1/Host Exerciser Loopback Accelerator GUID: 56E203E9\-864F\-49A7\-B94B\-12284C31E02B
+FPGA VF2/3b:00.2/Host Exerciser Memory Accelerator GUID: 8568AB4E\-6bA5\-4616\-BB65\-2A578330A8EB
+FPGA VF3/3b:00.3/Host Exerciser HSSI Accelerator GUID: 43425ee6\-92b2\-4742\-b03a\-bd8d4a533812
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Unbind pcie\-vfio dirver to FPGA virtual functions:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo opaevfio  \-r 0000:3b:00.1
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Host Exerciser Loopback (HE\-LBK) AFU can move data between host memory and FPGA:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ host_exerciser lpbk
+  
+  [lpbk] [info] starting test run, count of 1
+  Input Config:0
+  Allocate SRC Buffer
+  Allocate DST Buffer
+  Allocate DSM Buffer
+  Start Test
+  Test Completed
+  Host Exerciser swtest msg:0
+  Host Exerciser numReads:32
+  Host Exerciser numWrites:32
+  Host Exerciser numPendReads:0
+  Host Exerciser numPendWrites:0
+  [lpbk] [info] Test lpbk(1): PASS
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  In order to successfully run hello\e_fpga, the user needs to configure
+  system hugepage to reserve 2M\-hugepages.
+  For example, the command below reserves 20 2M\-hugepages:
+
+  \(ga\(ga\(gabash
+  echo 20 | sudo tee /sys/kernel/mm/hugepages/hugepages\-2048kB/nr_hugepages
+  \(ga\(ga\(ga
+
+  For x86_64 architecture CPU, user can use the following command to find out available huge page sizes:
+
+  \(ga\(ga\(gabash
+  $ grep pse /proc/cpuinfo | uniq
+  flags : ... pse ...
+  \(ga\(ga\(ga
+
+  If this command returns a non\-empty string, 2MB pages are supported:
+
+  \(ga\(ga\(gabash
+  $ grep pse /proc/cpuinfo | uniq
+  flags : ... pdpe1gb ...
+  \(ga\(ga\(ga
+
+  If this commands returns a non\-empty string, 1GB pages are supported.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The default configuration for many Linux distributions currently sets a
+relatively low limit for pinned memory allocations per process 
+(RLIMIT_MEMLOCK, often set to a default of 64kiB).
+
+To run an OPAE application that attempts to share more memory than specified
+by this limit between software and an accelerator, you can either:
+
+* Run the application as root, or
+* Increase the limit for locked memory via \(gaulimit\(ga:
+
+\(ga\(ga\(gabash
+ulimit \-l unlimited
+\(ga\(ga\(ga
+
+See the Installation Guide for how to permanently adjust the memlock limit.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

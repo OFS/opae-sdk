@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hssi &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="opaevfio" href="../opaevfio/opaevfio.html" />
+    <link rel="prev" title="userclk" href="../userclk/userclk.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">hssi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">EXAMPLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>hssi</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/hssi/hssi.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="hssi">
+<h1>hssi<a class="headerlink" href="#hssi" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hssi</span> <span class="pre">COMMON_OPTIONS</span> <span class="pre">MODE</span> <span class="pre">MODE_OPTIONS</span></code></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">hssi</span></code> application provides a means of interacting with the 10G and
+with the 100G HE-HSSI AFUs. In both 10G and 100G operating modes, the application
+initializes the AFU and completes the desired transfer as described by the mode-
+specific options.</p>
+<p>COMMON_OPTIONS - application options common to both 10G and 100G modes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Display</span><span class="w"> </span><span class="n">common</span><span class="w"> </span><span class="n">command</span><span class="o">-</span><span class="n">line</span><span class="w"> </span><span class="n">help</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">exit</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--pci-address</span> <span class="pre">ADDR</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">PCIe</span><span class="w"> </span><span class="n">address</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">desired</span><span class="w"> </span><span class="n">accelerator</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">ssss</span><span class="o">:</span><span class="n">bb</span><span class="o">:</span><span class="n">dd</span><span class="p">.</span><span class="n">f</span><span class="w"> </span><span class="n">format</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--shared</span> <span class="pre">on|off</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Whether</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">open</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">accelerator</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">shared</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">off</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--timeout</span> <span class="pre">VALUE</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">application</span><span class="w"> </span><span class="n">timeout</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">milliseconds</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">timeout</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">60000</span><span class="w"> </span><span class="n">msec</span><span class="p">.</span>
+</pre></div>
+</div>
+<p>MODE - select AFU. Valid values are hssi_10g and hssi_100g.</p>
+<p>MODE_OPTIONS [hssi_10g] - application options specific to the 10G AFU.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Display</span><span class="w"> </span><span class="mi">10</span><span class="n">G</span><span class="w"> </span><span class="n">AFU</span><span class="w"> </span><span class="n">specific</span><span class="w"> </span><span class="n">command</span><span class="o">-</span><span class="n">line</span><span class="w"> </span><span class="n">help</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">exit</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--port</span> <span class="pre">PORT</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Select</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">QSFP</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="mi">0</span><span class="mf">-7.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="mf">0.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--eth-loopback</span> <span class="pre">on|off</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Whether</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enable</span><span class="w"> </span><span class="n">loopback</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ethernet</span><span class="w"> </span><span class="n">interface</span><span class="p">.</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">are</span>
+<span class="n">on</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">off</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">on</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--num-packets</span> <span class="pre">PACKETS</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">packets</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">transfer</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">packet</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--random-length</span> <span class="pre">fixed|random</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">packet</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="n">randomization</span><span class="p">.</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">fixed</span><span class="w"> </span><span class="n">and</span>
+<span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">fixed</span><span class="w"> </span><span class="p">(</span><span class="n">no</span><span class="w"> </span><span class="n">randomization</span><span class="p">).</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--random-payload</span> <span class="pre">incremental|random</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">payload</span><span class="w"> </span><span class="n">randomization</span><span class="p">.</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">incremental</span><span class="w"> </span><span class="n">and</span>
+<span class="n">random</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">incremental</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--packet-length</span> <span class="pre">LENGTH</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">packet</span><span class="w"> </span><span class="n">length</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">64</span><span class="w"> </span><span class="n">bytes</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--src-addr</span> <span class="pre">ADDR</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="n">MAC</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">11</span><span class="o">:</span><span class="mi">22</span><span class="o">:</span><span class="mi">33</span><span class="o">:</span><span class="mi">44</span><span class="o">:</span><span class="mi">55</span><span class="o">:</span><span class="mf">66.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--dest-addr</span> <span class="pre">ADDR</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="n">MAC</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">77</span><span class="o">:</span><span class="mi">88</span><span class="o">:</span><span class="mi">99</span><span class="o">:</span><span class="n">aa</span><span class="o">:</span><span class="n">bb</span><span class="o">:</span><span class="n">cc</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--rnd-seed0</span> <span class="pre">SEED0</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">prbs</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="p">[</span><span class="mi">31</span><span class="o">:</span><span class="mi">0</span><span class="p">].</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">1592590336.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--rnd-seed1</span> <span class="pre">SEED1</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">prbs</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="p">[</span><span class="mi">47</span><span class="o">:</span><span class="mi">32</span><span class="p">].</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">1592590337.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--rnd-seed2</span> <span class="pre">SEED2</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">prbs</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="p">[</span><span class="mi">91</span><span class="o">:</span><span class="mi">64</span><span class="p">].</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mf">155373.</span>
+</pre></div>
+</div>
+<p>MODE_OPTIONS [hssi_100g] - application options specific to the 100G AFU.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--port</span> <span class="pre">PORT</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Select</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">QSFP</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">range</span><span class="w"> </span><span class="mi">0</span><span class="mf">-7.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="mf">0.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--eth-loopback</span> <span class="pre">on|off</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Whether</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">enable</span><span class="w"> </span><span class="n">loopback</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ethernet</span><span class="w"> </span><span class="n">interface</span><span class="p">.</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">are</span>
+<span class="n">on</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">off</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">on</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--num-packets</span> <span class="pre">PACKETS</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">packets</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">transfer</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">packet</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--gap</span> <span class="pre">random|none</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Inter</span><span class="o">-</span><span class="n">packet</span><span class="w"> </span><span class="n">gap</span><span class="p">.</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">none</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">none</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--pattern</span> <span class="pre">random|fixed|increment</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Pattern</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="n">fixed</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">increment</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span>
+<span class="n">is</span><span class="w"> </span><span class="n">random</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--src-addr</span> <span class="pre">ADDR</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="n">MAC</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">11</span><span class="o">:</span><span class="mi">22</span><span class="o">:</span><span class="mi">33</span><span class="o">:</span><span class="mi">44</span><span class="o">:</span><span class="mi">55</span><span class="o">:</span><span class="mf">66.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--dest-addr</span> <span class="pre">ADDR</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="n">MAC</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="mi">77</span><span class="o">:</span><span class="mi">88</span><span class="o">:</span><span class="mi">99</span><span class="o">:</span><span class="n">aa</span><span class="o">:</span><span class="n">bb</span><span class="o">:</span><span class="n">cc</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--start-size</span> <span class="pre">SIZE</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">packet</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">packet</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">--</span><span class="n">pattern</span><span class="w"> </span><span class="n">increment</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end-size</span> <span class="pre">SIZE</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">packet</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">bytes</span><span class="p">.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--end-select</span> <span class="pre">pkt_num|gen_idle</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Specify</span><span class="w"> </span><span class="n">packet</span><span class="w"> </span><span class="n">generation</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">mode</span><span class="p">.</span>
+</pre></div>
+</div>
+<p>MODE_OPTIONS [pkt_filt_10g] - application options specific to the Packet Filter 10G AFU.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--dfl-dev</span> <span class="pre">DFL_DEV</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Packet</span><span class="w"> </span><span class="n">Filter</span><span class="w"> </span><span class="n">DFL</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">eg</span><span class="w"> </span><span class="o">--</span><span class="n">dfl</span><span class="o">-</span><span class="n">dev</span><span class="w"> </span><span class="n">dfl_dev</span><span class="mf">.0</span>
+</pre></div>
+</div>
+<p>MODE_OPTIONS [pkt_filt_100g] - application options specific to the Packet Filter 100G AFU.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--dfl-dev</span> <span class="pre">DFL_DEV</span></code></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Packet</span><span class="w"> </span><span class="n">Filter</span><span class="w"> </span><span class="n">DFL</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">eg</span><span class="w"> </span><span class="o">--</span><span class="n">dfl</span><span class="o">-</span><span class="n">dev</span><span class="w"> </span><span class="n">dfl_dev</span><span class="mf">.1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">hssi</span> <span class="pre">-h</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">hssi</span> <span class="pre">hssi_10g</span> <span class="pre">-h</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">hssi</span> <span class="pre">--pci-address=0000:3b:00.0</span> <span class="pre">hssi_10g</span> <span class="pre">--eth-loopback=on</span> <span class="pre">--num-packets=500</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">hssi</span> <span class="pre">--pci-address=0000:3b:00.0</span> <span class="pre">hssi_100g</span> <span class="pre">--pattern=increment</span></code></p>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>Document Version | Intel Acceleration Stack Version | Changes
+—————–|———————————-|——–
+2021.01.08 | IOFS EA | Initial release.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../userclk/userclk.html" class="btn btn-neutral float-left" title="userclk" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../opaevfio/opaevfio.html" class="btn btn-neutral float-right" title="opaevfio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

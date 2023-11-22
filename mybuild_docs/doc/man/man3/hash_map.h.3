@@ -1,0 +1,235 @@
+.TH "include/opae/hash_map.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/hash_map.h \- A general-purpose hybrid array/list hash map implementation\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdint\&.h>\fP
+.br
+\fC#include <stdbool\&.h>\fP
+.br
+\fC#include <opae/types_enum\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBopae_hash_map_item\fP"
+.br
+.ti -1c
+.RI "struct \fBopae_hash_map\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBopae_hash_map_flags\fP { \fBOPAE_HASH_MAP_UNIQUE_KEYSPACE\fP = (1u << 0) }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBopae_hash_map_init\fP (\fBopae_hash_map\fP *hm, uint32_t num_buckets, uint32_t hash_seed, int flags, uint32_t(*key_hash)(uint32_t num_buckets, uint32_t hash_seed, void *key), int(*key_compare)(void *keya, void *keyb), void(*key_cleanup)(void *key, void *context), void(*value_cleanup)(void *value, void *context))"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBopae_hash_map_add\fP (\fBopae_hash_map\fP *hm, void *key, void *value)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBopae_hash_map_find\fP (\fBopae_hash_map\fP *hm, void *key, void **value)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBopae_hash_map_remove\fP (\fBopae_hash_map\fP *hm, void *key)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBopae_hash_map_destroy\fP (\fBopae_hash_map\fP *hm)"
+.br
+.ti -1c
+.RI "bool \fBopae_hash_map_is_empty\fP (\fBopae_hash_map\fP *hm)"
+.br
+.ti -1c
+.RI "uint32_t \fBopae_u64_key_hash\fP (uint32_t num_buckets, uint32_t hash_seed, void *key)"
+.br
+.ti -1c
+.RI "int \fBopae_u64_key_compare\fP (void *keya, void *keyb)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+A general-purpose hybrid array/list hash map implementation\&. 
+
+Presents a generic interface for mapping key objects to value objects\&. Both keys and values may be arbitrary data structures\&. The user supplies the means by which the hash of values is generated and by which the keys are compared to each other\&. 
+.PP
+Definition in file \fBhash_map\&.h\fP\&.
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct opae_hash_map_item"
+.PP 
+List link item\&.
+.PP
+This structure provides the association between key and value\&. When the supplied hash function for keys A and B returns the same bucket index, both A and B can co-exist on the same list rooted at the bucket index\&. 
+.PP
+Definition at line 70 of file hash_map\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+void * \fIkey\fP 
+.br
+.PP
+void * \fIvalue\fP 
+.br
+.PP
+struct _opae_hash_map_item * \fInext\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBopae_hash_map_flags\fP"
+Flags used to initialize a hash map\&.
+.PP
+OPAE_HASH_MAP_UNIQUE_KEYSPACE says that the user provides a guarantee that the key space is truly unique\&. In other words, when the provided hash function for keys A and B returns the same bucket index, the key comparison function when comparing A and B will never return a result saying that the keys are equal in value\&. This is helpful in situations where the key space is guaranteed to produce unique values, for example a memory allocator\&. When the key space is guaranteed to be unique, \fBopae_hash_map_add()\fP can implement a small performance improvement\&. 
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIOPAE_HASH_MAP_UNIQUE_KEYSPACE \fP\fP
+.PP
+Definition at line 58 of file hash_map\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP opae_hash_map_init (\fBopae_hash_map\fP * hm, uint32_t num_buckets, uint32_t hash_seed, int flags, uint32_t(*)(uint32_t num_buckets, uint32_t hash_seed, void *key) key_hash, int(*)(void *keya, void *keyb) key_compare, void(*)(void *key, void *context) key_cleanup, void(*)(void *value, void *context) value_cleanup)"
+Initialize a hash map
+.PP
+Populates the hash map data structure and allocates the buckets array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhm\fP A pointer to the storage for the hash map object\&. 
+.br
+\fInum_buckets\fP The desired size of the buckets array\&. Each array entry may be empty (NULL), or may contain a list of \fBopae_hash_map_item\fP structures for which the given key_hash function returned the same key hash value\&. 
+.br
+\fIhash_seed\fP A seed value used during key hash computation\&. This value will be the hash_seed parameter to the key hash function\&. 
+.br
+\fIflags\fP Initialization flags\&. See opae_hash_map_flags\&. 
+.br
+\fIkey_hash\fP A pointer to a function that produces the hash value, given the number of buckets, the hash seed, and the key\&. Valid values are between 0 and num_buckets - 1, inclusively\&. 
+.br
+\fIkey_compare\fP A pointer to a function that compares two keys\&. The return value is similar to that of strcmp(), where a negative value means that keya < keyb, 0 means that keya == keyb, and a positive values means that keya > keyb\&. 
+.br
+\fIkey_cleanup\fP A pointer to a function that is called when a key is being removed from the map\&. This function is optional and may be NULL\&. When supplied, the function is responsible for freeing any resources allocated when the key was created\&. 
+.br
+\fIvalue_cleanup\fP A pointer to a function that is called when a value is being removed from the map\&. This function is optional and may be NULL\&. When supplied, the function is responsible for freeing any resources allocated when the value was created\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the required parameters are NULL, or FPGA_NO_MEMORY if the bucket array could not be allocated\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP opae_hash_map_add (\fBopae_hash_map\fP * hm, void * key, void * value)"
+Map a key to a value
+.PP
+Inserts a mapping from key to value in the given hash map object\&. Subsequent calls to \fBopae_hash_map_find()\fP that are given the key will retrieve the value\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhm\fP A pointer to the storage for the hash map object\&. 
+.br
+\fIkey\fP The hash map key\&. 
+.br
+\fIvalue\fP The hash map value\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if hm is NULL, FPGA_NO_MEMORY if malloc() fails when allocating the list item, or FPGA_INVALID_PARAM if the key hash produced by key_hash is out of bounds\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP opae_hash_map_find (\fBopae_hash_map\fP * hm, void * key, void ** value)"
+Retrieve the value for a given key
+.PP
+Given a key that was previously passed to \fBopae_hash_map_add()\fP, retrieve its associated value\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhm\fP A pointer to the storage for the hash map object\&. 
+.br
+\fIkey\fP The hash map key\&. 
+.br
+\fIvalue\fP A pointer to receive the hash map value\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if hm is NULL or if the key hash produced by key_hash is out of bounds, or FPGA_NOT_FOUND if the given key was not found in the hash map\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP opae_hash_map_remove (\fBopae_hash_map\fP * hm, void * key)"
+Remove a key/value association
+.PP
+Given a key that was previously passed to \fBopae_hash_map_add()\fP, remove the key and its associated value, calling the cleanup functions as needed\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhm\fP A pointer to the storage for the hash map object\&. 
+.br
+\fIkey\fP The hash map key\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM when hm is NULL or when the key hash produced by key_hash is out of bounds, or FPGA_NOT_FOUND if the key is not found in the hash map\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP opae_hash_map_destroy (\fBopae_hash_map\fP * hm)"
+Tear down a hash map
+.PP
+Given a hash map that was previously initialized by \fBopae_hash_map_init()\fP, destroy the hash map, releasing all keys, values, and the bucket array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIhm\fP A pointer to the storage for the hash map object\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success or FPGA_INVALID_PARAM is hm is NULL\&. 
+.RE
+.PP
+
+.SS "bool opae_hash_map_is_empty (\fBopae_hash_map\fP * hm)"
+Determine whether a hash map is empty
+.PP
+\fBParameters\fP
+.RS 4
+\fIhm\fP A pointer to the storage for the hash map object\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+true if there are no key/value mappings present, false otherwise\&. 
+.RE
+.PP
+
+.SS "uint32_t opae_u64_key_hash (uint32_t num_buckets, uint32_t hash_seed, void * key)"
+Convenience hash function for arbitrary pointers/64-bit values\&.
+.PP
+Simply converts the key to a uint64_t and then performs the modulus operation with the configured num_buckets\&. hash_seed is unused\&. 
+.SS "int opae_u64_key_compare (void * keya, void * keyb)"
+Convenience key comparison function for 64-bit values\&.
+.PP
+Simply converts the key pointers to uint64_t's and performs unsigned integer comparison\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

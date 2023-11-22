@@ -1,0 +1,110 @@
+.TH "hssi_200g_400g_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+hssi_200g_400g_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/hssi/hssi_200g_400g_cmd\&.h>\fP
+.PP
+Inherits \fBhssi_cmd\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhssi_200g_400g_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "std::ostream & \fBprint_registers\fP (std::ostream &os, \fBhssi_afu\fP *hafu) const"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBnum_packets_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 95 of file hssi_200g_400g_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "hssi_200g_400g_cmd::hssi_200g_400g_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 97 of file hssi_200g_400g_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* hssi_200g_400g_cmd::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 99 of file hssi_200g_400g_cmd\&.h\&.
+.SS "virtual const char* hssi_200g_400g_cmd::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 101 of file hssi_200g_400g_cmd\&.h\&.
+.SS "virtual void hssi_200g_400g_cmd::add_options (CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 105 of file hssi_200g_400g_cmd\&.h\&.
+.PP
+References app, and num_packets_\&.
+.SS "virtual int hssi_200g_400g_cmd::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 111 of file hssi_200g_400g_cmd\&.h\&.
+.PP
+References app, CSR_AFU_400G_TG_EN, CSR_HW_PC_CTRL, CSR_HW_TEST_LOOP_CNT, CSR_HW_TEST_ROM_ADDR, CSR_STAT_TIMESTAMP_TG_END_LSB, CSR_STAT_TIMESTAMP_TG_END_MSB, CSR_STAT_TIMESTAMP_TG_START_LSB, CSR_STAT_TIMESTAMP_TG_START_MSB, CSR_STAT_TX_SOP_CNT_LSB, CSR_STAT_TX_SOP_CNT_MSB, opae::afu_test::afu::error, hssi_afu::mbox_read(), hssi_afu::mbox_write(), num_packets_, print_registers(), opae::afu_test::afu::read64(), opae::afu_test::command::running(), opae::afu_test::afu::success, TRAFFIC_CTRL_PORT_SEL, USER_CLKFREQ_N6001, and opae::afu_test::afu::write64()\&.
+.SS "virtual const char* hssi_200g_400g_cmd::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 265 of file hssi_200g_400g_cmd\&.h\&.
+.SS "std::ostream& hssi_200g_400g_cmd::print_registers (std::ostream & os, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 274 of file hssi_200g_400g_cmd\&.h\&.
+.PP
+References AFU_SCRATCHPAD, CSR_AFU_400G_TG_EN, CSR_HW_PC_CTRL, CSR_HW_TEST_LOOP_CNT, CSR_HW_TEST_ROM_ADDR, CSR_STAT_RX_EOP_CNT_LSB, CSR_STAT_RX_EOP_CNT_MSB, CSR_STAT_RX_ERR_CNT_LSB, CSR_STAT_RX_ERR_CNT_MSB, CSR_STAT_RX_SOP_CNT_LSB, CSR_STAT_RX_SOP_CNT_MSB, CSR_STAT_TIMESTAMP_TG_END_LSB, CSR_STAT_TIMESTAMP_TG_END_MSB, CSR_STAT_TIMESTAMP_TG_START_LSB, CSR_STAT_TIMESTAMP_TG_START_MSB, CSR_STAT_TX_EOP_CNT_LSB, CSR_STAT_TX_EOP_CNT_MSB, CSR_STAT_TX_ERR_CNT_LSB, CSR_STAT_TX_ERR_CNT_MSB, CSR_STAT_TX_SOP_CNT_LSB, CSR_STAT_TX_SOP_CNT_MSB, ETH_AFU_DFH, ETH_AFU_ID_H, ETH_AFU_ID_L, hssi_cmd::int_to_hex(), hssi_afu::mbox_read(), opae::afu_test::afu::read64(), TRAFFIC_CTRL_CMD, TRAFFIC_CTRL_DATA, and TRAFFIC_CTRL_PORT_SEL\&.
+.PP
+Referenced by run()\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t hssi_200g_400g_cmd::num_packets_\fC [protected]\fP"
+
+.PP
+Definition at line 373 of file hssi_200g_400g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

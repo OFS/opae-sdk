@@ -1,0 +1,349 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classcxl__mem__tg_1_1cxl__mem__tg" kind="class" language="C++" prot="public">
+    <compoundname>cxl_mem_tg::cxl_mem_tg</compoundname>
+    <basecompoundref refid="classopae_1_1afu__test_1_1afu" prot="public" virt="non-virtual">opae::afu_test::afu</basecompoundref>
+    <includes refid="cxl__mem__tg_8h" local="no">/root/samples/cxl_mem_tg/cxl_mem_tg.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1acae142eced8d47e700e622befe91ce04" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cxl_mem_tg::cxl_mem_tg::count_</definition>
+        <argsstring></argsstring>
+        <name>count_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="251" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="251" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1a4908bbf8b834edcbe31492711d74f7d7" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cxl_mem_tg::cxl_mem_tg::mem_ch_</definition>
+        <argsstring></argsstring>
+        <name>mem_ch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="252" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="252" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1a8ea17c5df9494ad27e1e95f31d489858" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::cxl_mem_tg::loop_</definition>
+        <argsstring></argsstring>
+        <name>loop_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="253" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="253" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1aba0cb59c437869963df1d5e222f73805" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::cxl_mem_tg::wcnt_</definition>
+        <argsstring></argsstring>
+        <name>wcnt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="254" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="254" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1ae57b9fd56466bebb5321490005803215" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::cxl_mem_tg::rcnt_</definition>
+        <argsstring></argsstring>
+        <name>rcnt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="255" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="255" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1ae9800086ad36084c5641526bc5940a0f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::cxl_mem_tg::bcnt_</definition>
+        <argsstring></argsstring>
+        <name>bcnt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="256" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="256" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1aba649e8e87f688e8e66332f3d94f6698" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cxl_mem_tg::cxl_mem_tg::stride_</definition>
+        <argsstring></argsstring>
+        <name>stride_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="257" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="257" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1ad0796f52001b9197d16889609d44c034" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cxl_mem_tg::cxl_mem_tg::pattern_</definition>
+        <argsstring></argsstring>
+        <name>pattern_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="258" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1afd50553bb554f47c1fc061195891f448" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::cxl_mem_tg::mem_speed_</definition>
+        <argsstring></argsstring>
+        <name>mem_speed_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="259" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="259" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1ad7709a24252d85accf090db72df0b970" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cxl_mem_tg::cxl_mem_tg::status_</definition>
+        <argsstring></argsstring>
+        <name>status_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="260" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="260" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1a7d7ceebe3ce1b800de536ac8c12e4d76" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t cxl_mem_tg::cxl_mem_tg::tg_offset_</definition>
+        <argsstring></argsstring>
+        <name>tg_offset_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="261" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="261" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcxl__mem__tg_1_1cxl__mem__tg_1a1196abdb029343d2812802aa01e4ada9" prot="public" static="no" mutable="no">
+        <type>std::map&lt; uint32_t, uint32_t &gt;</type>
+        <definition>std::map&lt;uint32_t, uint32_t&gt; cxl_mem_tg::cxl_mem_tg::limits_</definition>
+        <argsstring></argsstring>
+        <name>limits_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="263" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="263" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classcxl__mem__tg_1_1cxl__mem__tg_1a296cb2e6e2cb7e04c3795c4d1cb87217" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>cxl_mem_tg::cxl_mem_tg::cxl_mem_tg</definition>
+        <argsstring>(const char *afu_id=AFU_ID)</argsstring>
+        <name>cxl_mem_tg</name>
+        <param>
+          <type>const char *</type>
+          <declname>afu_id</declname>
+          <defval><ref refid="namespacecxl__mem__tg_1a7187f3c940e7b0bede33c18321170c26" kindref="member">AFU_ID</ref></defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="187" column="3" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="187" bodyend="226"/>
+        <references refid="namespacecxl__mem__tg_1a4adbfbc2d17a8a0c2a818f243385336a" compoundref="cxl__mem__tg_8h" startline="67">cxl_mem_tg::tg_pattern</references>
+      </memberdef>
+      <memberdef kind="function" id="classcxl__mem__tg_1_1cxl__mem__tg_1ab2e71f7f0b48b5e59b4240c180cb9447" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int cxl_mem_tg::cxl_mem_tg::run</definition>
+        <argsstring>(CLI::App *app, test_command::ptr_t test) override</argsstring>
+        <name>run</name>
+        <reimplements refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d">run</reimplements>
+        <param>
+          <type>CLI::App *</type>
+          <declname>app</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1afu__test_1_1command_1a11a258a1fa5a99a5be9bb34a87c48f41" kindref="member">test_command::ptr_t</ref></type>
+          <declname>test</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="228" column="15" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="228" bodyend="248"/>
+        <references refid="hssi_8cpp_1a7ccd62f1083f322e0d1dfaa9c23ecb88" compoundref="hssi_8cpp" startline="34">app</references>
+        <references refid="classopae_1_1afu__test_1_1afu_1a2b3d816eac276d4ec1aaa6e9a632b32d" compoundref="he__cache__test_8h" startline="477" endline="498">opae::afu_test::afu::run</references>
+      </memberdef>
+      <memberdef kind="function" id="classcxl__mem__tg_1_1cxl__mem__tg_1ae1aef01e746ba0f0327ca5be1544b28f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t cxl_mem_tg::cxl_mem_tg::get_offset</definition>
+        <argsstring>(uint32_t base, uint32_t i) const</argsstring>
+        <name>get_offset</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="265" column="12" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="265" bodyend="272"/>
+      </memberdef>
+      <memberdef kind="function" id="classcxl__mem__tg_1_1cxl__mem__tg_1a7b6b2438e7e91612a2fe3be286efad82" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+        <definition>token::ptr_t cxl_mem_tg::cxl_mem_tg::get_token</definition>
+        <argsstring>()</argsstring>
+        <name>get_token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="274" column="16" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="274" bodyend="274"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>cxl_mem_tg::cxl_mem_tg</label>
+        <link refid="classcxl__mem__tg_1_1cxl__mem__tg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>cxl_mem_tg::cxl_mem_tg</label>
+        <link refid="classcxl__mem__tg_1_1cxl__mem__tg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>test_afu</label>
+        <link refid="classopae_1_1afu__test_1_1afu"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_mem_tg/cxl_mem_tg.h" line="185" column="1" bodyfile="samples/cxl_mem_tg/cxl_mem_tg.h" bodystart="185" bodyend="275"/>
+    <listofallmembers>
+      <member refid="classopae_1_1afu__test_1_1afu_1a845e58d643b7c868c6dc84277dc88a81" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>afu</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1af29e9be9b338fcda6a5d02a0431bf522" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>afu_id_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aeae0c9059bf0455e5d238a168f776a16" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>allocate_cache_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ae9f15c76d68e94b445c2c1c21f727d1a" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>allocate_cache_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ac2756579ad42be859b696a1880a703a2" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>allocate_cache_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a39e0e1342cd3c8d2e630be07ca787453" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>allocate_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1abe62e0407c33466b7d6bf5005276fdc3" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>app_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae9800086ad36084c5641526bc5940a0f" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>bcnt_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad3e39bbb116a49dce6c1043755ebf2df" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>cli</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4461ef32b1ec7b4bd81614a6491cb23e" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>command_fn</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a3a7e209b3faad4cfd9472cc19d6685f7" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>commands_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1acae142eced8d47e700e622befe91ce04" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>count_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a2db800c668b606885c4f4c405f8da4bc" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>current_command</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a62081683d3d299f6a71540923eca6291" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>current_command_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1a296cb2e6e2cb7e04c3795c4d1cb87217" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>cxl_mem_tg</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a36d7214cdf09708a4eba033e21447434" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>dev_path_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a868b16ab618cfdbd8f8bd403b2ba2af7" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>dsm_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4784e4f7a10529f0f107c7f241b89767" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>dsm_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24ab553cc480865cc051b212c1cd0150238" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>error</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a8b98ec99513ca15fc4c00d45ccd64fa5" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>exception</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>exit_codes</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a99dd66842fa780a0ceb7dda617c4e38b" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>fd_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adacf6b9b42c1b28c391d8cc4d93023ca" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>find_dev_feature</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adfd7bee969d9fb698179177cb0109fa8" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>free_cache_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1adadb65558a3a54ba88e96b872d43b30d" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>free_cache_read_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a4f75d9580bec86a37adc9829e038bcf4" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>free_cache_write</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a94ab4cd7eb2f5abf7f9c076c9cd3b2e4" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>free_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aadd011881d4bf921671c9a426262e61e" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>get_dsm</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae1aef01e746ba0f0327ca5be1544b28f" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>get_offset</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a1ec221419c8668d8b14e1b7e6c056b98" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>get_read</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ac03cc5d56c562425a9bcbbe1c2edf7c0" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>get_read_write</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1a7b6b2438e7e91612a2fe3be286efad82" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>get_token</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1abff0d8566f3e4bfe138f44eadab9b16f" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>get_write</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1a1196abdb029343d2812802aa01e4ada9" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>limits_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a410d46e06fe9a836ec107a08cf8576a0" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>log_level_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1af3999e552b0f5d709ded4693bbeb4d87" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>logger_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1a8ea17c5df9494ad27e1e95f31d489858" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>loop_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1acacf9a109b0c623a7cee83acae4582cf" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>main</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad08ddd74d13e31d4aacf22c87b81fc6e" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>map_mmio</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1a4908bbf8b834edcbe31492711d74f7d7" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>mem_ch_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1afd50553bb554f47c1fc061195891f448" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>mem_speed_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a9b40ebeb9a922bed3bdb079e6285b4e2" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>mmio_base_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1acb52665e466bb54609b5ac81d4dfd282" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>mmio_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aee6c870bd4c573cd06893f815232a1dc" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>name_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a0a753cba76e13abc6b16f98745712372" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>no_access</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a5b5cf74a6eb73cf60867b2f81a810624" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>not_found</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24a04ee7cb880c09f91baf6c572a753154d" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>not_run</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a7af4fff79b88676402bff5f5274b941d" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>open_handle</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1ad0796f52001b9197d16889609d44c034" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>pattern_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ae9b4f7f4daba866467f04e9c64d660ee" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>pci_addr_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1ae57b9fd56466bebb5321490005803215" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>rcnt_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad55f0e9505cb20d242e7c53005d2f462" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>rd_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a5fd0b4fdfb3009117ff4a9f79cf84743" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>rd_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a6a13abfbef7c0e17b35bf8dc11c06f00" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>rd_wr_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1afd43e84a2d933b6141298f89eae7d22e" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>rd_wr_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aec158ebde0d3442da9a1bf4979e73a0d" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>read32</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a148377c272b94f4e884683bcbcdaf289" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>read64</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a66b79e6a2f6e58f8379823f0d675a139" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>register_command</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a127d8571f7052515afc1d400c0981604" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>reset_dsm</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a607ed076daacf92b1482fba24edacd6e" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>rinfo_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1ab2e71f7f0b48b5e59b4240c180cb9447" prot="public" virt="virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>run</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1ad7709a24252d85accf090db72df0b970" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>status_</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1aba649e8e87f688e8e66332f3d94f6698" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>stride_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ad7127e1c68a3a17b2eb1dce5e840ad24acbd7e559c7a281178598e73f9df0934f" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>success</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1a7d7ceebe3ce1b800de536ac8c12e4d76" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>tg_offset_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a75f121f0ea96c60091ca1223f5b29004" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>timeout_msec_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1aba7d799aad72ececb2b9eb68c8919353" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>unmap_mmio</name></member>
+      <member refid="classcxl__mem__tg_1_1cxl__mem__tg_1aba0cb59c437869963df1d5e222f73805" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>wcnt_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a39bda33296e1b0fb5a486c349d098c77" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>wr_buf_len_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1ab6736eb6d461e288c0f7846c741bb511" prot="protected" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>wr_buffer_</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a85040c8bd1b3b3aeb0878cff74c4ca92" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>write32</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a81608240a2e29efbe8a6e60aee74ed60" prot="public" virt="non-virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>write64</name></member>
+      <member refid="classopae_1_1afu__test_1_1afu_1a9f5b3668c254e92f8f2506916f97a232" prot="public" virt="virtual"><scope>cxl_mem_tg::cxl_mem_tg</scope><name>~afu</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

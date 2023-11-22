@@ -1,0 +1,347 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="uio_8h" kind="file" language="C++">
+    <compoundname>uio.h</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="hssi__cmd_8h" local="no">samples/hssi/hssi_cmd.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="1">
+        <label>include/opae/uio.h</label>
+        <link refid="uio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="7">
+        <label>samples/hssi/hssi_pkt_filt_10g_cmd.h</label>
+        <link refid="hssi__pkt__filt__10g__cmd_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>samples/hssi/hssi_100g_cmd.h</label>
+        <link refid="hssi__100g__cmd_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>samples/hssi/hssi_10g_cmd.h</label>
+        <link refid="hssi__10g__cmd_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>samples/hssi/hssi.cpp</label>
+        <link refid="hssi_8cpp"/>
+      </node>
+      <node id="2">
+        <label>samples/hssi/hssi_cmd.h</label>
+        <link refid="hssi__cmd_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/uio.h</label>
+        <link refid="uio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>samples/hssi/hssi_pkt_filt_100g_cmd.h</label>
+        <link refid="hssi__pkt__filt__100g__cmd_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>samples/hssi/hssi_200g_400g_cmd.h</label>
+        <link refid="hssi__200g__400g__cmd_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structopae__uio__device__region" prot="public">opae_uio_device_region</innerclass>
+    <innerclass refid="structopae__uio" prot="public">opae_uio</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="uio_8h_1afad8f59a5be8c5d177a755bf4e56de2f" prot="public" static="no">
+        <name>OPAE_UIO_PATH_MAX</name>
+        <initializer>256</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="46" column="9" bodyfile="include/opae/uio.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="uio_8h_1af144910b738993ba8e6eb739b79c5a16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_uio_open</definition>
+        <argsstring>(struct opae_uio *u, const char *dfl_device)</argsstring>
+        <name>opae_uio_open</name>
+        <param>
+          <type>struct <ref refid="structopae__uio" kindref="compound">opae_uio</ref> *</type>
+          <declname>u</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>dfl_device</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Open and populate a UIO device</para>
+<para>Opens the Device Feature List device corresponding to the device name given in dfl_device, eg &quot;dfl_dev.10&quot;. The device must be bound to the dfl-uio-pdev driver prior to opening it. The data structures corresponding to the MMIO regions are initialized.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">u</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Storage for the device. May be stack-resident. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">dfl_device</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The name of the desired DFL device. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error. Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".sh"><codeline><highlight class="normal">$<sp/>sudo<sp/>opaeuio<sp/>-i<sp/>-u<sp/>lab<sp/>-g<sp/>lab<sp/>dfl_dev.10</highlight></codeline>
+</programlisting></para>
+<para>Example <programlisting filename=".c"><codeline><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>u;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="uio_8h_1af144910b738993ba8e6eb739b79c5a16" kindref="member">opae_uio_open</ref>(&amp;u,<sp/></highlight><highlight class="stringliteral">&quot;dfl_dev.10&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="105" column="5" declfile="include/opae/uio.h" declline="105" declcolumn="5"/>
+        <referencedby refid="classhssi__cmd_1a0cfec35cb1e5910bd54f2ad9122fe6f9" compoundref="hssi__cmd_8h" startline="88" endline="119">hssi_cmd::set_pkt_filt_dest</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="uio_8h_1af8f4b24fd2828b3477ab657b6f4c4006" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae_uio_region_get</definition>
+        <argsstring>(struct opae_uio *u, uint32_t index, uint8_t **ptr, size_t *size)</argsstring>
+        <name>opae_uio_region_get</name>
+        <param>
+          <type>struct <ref refid="structopae__uio" kindref="compound">opae_uio</ref> *</type>
+          <declname>u</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t **</type>
+          <declname>ptr</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Query device MMIO region</para>
+<para>Retrieves info describing the MMIO region with the given region index. The device structure u must have been previously opened by a call to opae_uio_open.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">u</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The open OPAE UIO device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The zero-based index of the desired MMIO region. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the virtual address for the region. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive the size of the MMIO region. Pass NULL to ignore. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Non-zero on error (including index out-of-range). Zero on success.</para>
+</simplesect>
+Example <programlisting filename=".c"><codeline><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>u;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>*virt<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="uio_8h_1af144910b738993ba8e6eb739b79c5a16" kindref="member">opae_uio_open</ref>(&amp;u,<sp/></highlight><highlight class="stringliteral">&quot;dfl_dev.10&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="uio_8h_1af8f4b24fd2828b3477ab657b6f4c4006" kindref="member">opae_uio_region_get</ref>(&amp;u,<sp/>0,<sp/>&amp;virt,<sp/>&amp;size);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="137" column="5" declfile="include/opae/uio.h" declline="137" declcolumn="5"/>
+        <referencedby refid="classhssi__cmd_1a0cfec35cb1e5910bd54f2ad9122fe6f9" compoundref="hssi__cmd_8h" startline="88" endline="119">hssi_cmd::set_pkt_filt_dest</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="uio_8h_1a0aacf36585d4d608e5b6ae8b74806aa9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae_uio_close</definition>
+        <argsstring>(struct opae_uio *u)</argsstring>
+        <name>opae_uio_close</name>
+        <param>
+          <type>struct <ref refid="structopae__uio" kindref="compound">opae_uio</ref> *</type>
+          <declname>u</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Release and close a UIO device</para>
+<para>The given device pointer must have been previously initialized by opae_uio_open. Releases all data structures.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">u</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Storage for the device info. May be stack-resident.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+Example <programlisting filename=".c"><codeline><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>u;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="uio_8h_1af144910b738993ba8e6eb739b79c5a16" kindref="member">opae_uio_open</ref>(&amp;u,<sp/></highlight><highlight class="stringliteral">&quot;dfl_dev.10&quot;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>handle<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>interact<sp/>with<sp/>the<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>...</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>free<sp/>the<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="uio_8h_1a0aacf36585d4d608e5b6ae8b74806aa9" kindref="member">opae_uio_close</ref>(&amp;u);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting></para>
+<para>Example <programlisting filename=".sh"><codeline><highlight class="normal">$<sp/>sudo<sp/>opaeuio<sp/>-r<sp/>dfl_dev.10</highlight></codeline>
+</programlisting> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/uio.h" line="169" column="6" declfile="include/opae/uio.h" declline="169" declcolumn="6"/>
+        <referencedby refid="classhssi__cmd_1a0cfec35cb1e5910bd54f2ad9122fe6f9" compoundref="hssi__cmd_8h" startline="88" endline="119">hssi_cmd::set_pkt_filt_dest</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>APIs to manage a PCIe device via UIO. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Presents a simple interface for interacting with a DFL device that is bound to its UIO driver. See <ulink url="https://kernel.org/doc/html/v4.14/driver-api/uio-howto.html">https://kernel.org/doc/html/v4.14/driver-api/uio-howto.html</ulink> for a description of UIO.</para>
+<para>Provides APIs for opening/closing the device and for querying info about the MMIO regions of the device. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2020,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__OPAE_UIO_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__OPAE_UIO_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="uio_8h_1afad8f59a5be8c5d177a755bf4e56de2f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPAE_UIO_PATH_MAX<sp/>256</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="structopae__uio__device__region" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio__device__region" kindref="compound">opae_uio_device_region</ref><sp/>{</highlight></codeline>
+<codeline lineno="54" refid="structopae__uio__device__region_1a20fd192f4d257ba3e4b8622af81a1916" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structopae__uio__device__region_1a20fd192f4d257ba3e4b8622af81a1916" kindref="member">region_index</ref>;</highlight></codeline>
+<codeline lineno="55" refid="structopae__uio__device__region_1a5bf9d879f514ef0c88dde0ec5676082d" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structopae__uio__device__region_1a5bf9d879f514ef0c88dde0ec5676082d" kindref="member">region_ptr</ref>;</highlight></codeline>
+<codeline lineno="56" refid="structopae__uio__device__region_1aa8c1dc455663807cd6178945a917692e" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structopae__uio__device__region_1aa8c1dc455663807cd6178945a917692e" kindref="member">region_page_offset</ref>;</highlight></codeline>
+<codeline lineno="57" refid="structopae__uio__device__region_1aadf0885c5e3af4a91110e1b207b092bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structopae__uio__device__region_1aadf0885c5e3af4a91110e1b207b092bd" kindref="member">region_size</ref>;</highlight></codeline>
+<codeline lineno="58" refid="structopae__uio__device__region_1ade4d30e7975d0d995bcc4056fc340bc5" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio__device__region" kindref="compound">opae_uio_device_region</ref><sp/>*<ref refid="structopae__uio__device__region_1ade4d30e7975d0d995bcc4056fc340bc5" kindref="member">next</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structopae__uio" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>{</highlight></codeline>
+<codeline lineno="69" refid="structopae__uio_1a956d6cbe927983ba6447e934e4b465e5" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structopae__uio_1a956d6cbe927983ba6447e934e4b465e5" kindref="member">device_path</ref>[<ref refid="uio_8h_1afad8f59a5be8c5d177a755bf4e56de2f" kindref="member">OPAE_UIO_PATH_MAX</ref>];</highlight></codeline>
+<codeline lineno="70" refid="structopae__uio_1a824941d1debb8fd8edf502f828b7d9a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structopae__uio_1a824941d1debb8fd8edf502f828b7d9a6" kindref="member">device_fd</ref>;</highlight></codeline>
+<codeline lineno="71" refid="structopae__uio_1a7b891a77bc896a02c7a0aaa0ee008468" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopae__uio__device__region" kindref="compound">opae_uio_device_region</ref><sp/>*<ref refid="structopae__uio_1a7b891a77bc896a02c7a0aaa0ee008468" kindref="member">regions</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="uio_8h_1af144910b738993ba8e6eb739b79c5a16" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="uio_8h_1af144910b738993ba8e6eb739b79c5a16" kindref="member">opae_uio_open</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>*u,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dfl_device);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="uio_8h_1af8f4b24fd2828b3477ab657b6f4c4006" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="uio_8h_1af8f4b24fd2828b3477ab657b6f4c4006" kindref="member">opae_uio_region_get</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>*u,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>**ptr,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="uio_8h_1a0aacf36585d4d608e5b6ae8b74806aa9" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="uio_8h_1a0aacf36585d4d608e5b6ae8b74806aa9" kindref="member">opae_uio_close</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopae__uio" kindref="compound">opae_uio</ref><sp/>*u);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>extern<sp/>&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__OPAE_UIO_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/uio.h"/>
+  </compounddef>
+</doxygen>

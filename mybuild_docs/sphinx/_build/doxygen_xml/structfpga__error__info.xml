@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structfpga__error__info" kind="struct" language="C++" prot="public">
+    <compoundname>fpga_error_info</compoundname>
+    <includes refid="types_8h" local="no">opae/types.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfpga__error__info_1a63e0ccbeddbe44792e1c1f7375243751" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char fpga_error_info::name[64]</definition>
+        <argsstring>[64]</argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="170" column="6" bodyfile="include/opae/types.h" bodystart="170" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1error_1a30ead52bd6a86f4a3cc7045e9dce0c20" compoundref="errors_8h" startline="66" endline="66">opae::fpga::types::error::name</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structfpga__error__info_1a8f3a6c3707e10f13a55662a081494e69" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool fpga_error_info::can_clear</definition>
+        <argsstring></argsstring>
+        <name>can_clear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>name of the error </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="171" column="6" bodyfile="include/opae/types.h" bodystart="171" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1error_1a7adabe502dd600e493263d684359e7ac" compoundref="errors_8h" startline="73" endline="73">opae::fpga::types::error::can_clear</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>fpga_error_info</label>
+        <link refid="structfpga__error__info"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/types.h" line="169" column="1" bodyfile="include/opae/types.h" bodystart="169" bodyend="172"/>
+    <listofallmembers>
+      <member refid="structfpga__error__info_1a8f3a6c3707e10f13a55662a081494e69" prot="public" virt="non-virtual"><scope>fpga_error_info</scope><name>can_clear</name></member>
+      <member refid="structfpga__error__info_1a63e0ccbeddbe44792e1c1f7375243751" prot="public" virt="non-virtual"><scope>fpga_error_info</scope><name>name</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

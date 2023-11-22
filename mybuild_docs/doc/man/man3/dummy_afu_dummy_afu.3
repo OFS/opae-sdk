@@ -1,0 +1,172 @@
+.TH "dummy_afu::dummy_afu" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+dummy_afu::dummy_afu
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/dummy_afu/dummy_afu\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::afu\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBdummy_afu\fP (const char *afu_id='91c2a3a1\-4a23\-4e21\-a7cd\-2b36dbf2ed73')"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (CLI::App *\fBapp\fP, \fBtest_command::ptr_t\fP test) override"
+.br
+.ti -1c
+.RI "template<typename T > T \fBread\fP (uint32_t offset) const"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite\fP (uint32_t offset, T value) const"
+.br
+.ti -1c
+.RI "template<typename T > T \fBread\fP (uint32_t offset, uint32_t i) const"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite\fP (uint32_t offset, uint32_t i, T value) const"
+.br
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBallocate\fP (size_t size)"
+.br
+.ti -1c
+.RI "void \fBfill\fP (\fBshared_buffer::ptr_t\fP buffer)"
+.br
+.ti -1c
+.RI "void \fBfill\fP (\fBshared_buffer::ptr_t\fP buffer, uint32_t value)"
+.br
+.ti -1c
+.RI "\fBevent::ptr_t\fP \fBregister_interrupt\fP ()"
+.br
+.ti -1c
+.RI "void \fBinterrupt_wait\fP (\fBevent::ptr_t\fP \fBevent\fP, int timeout=\-1)"
+.br
+.ti -1c
+.RI "void \fBcompare\fP (\fBshared_buffer::ptr_t\fP b1, \fBshared_buffer::ptr_t\fP b2, uint32_t count=0)"
+.br
+.ti -1c
+.RI "template<class T > T \fBread_register\fP ()"
+.br
+.ti -1c
+.RI "template<class T > volatile T * \fBregister_ptr\fP (uint32_t offset)"
+.br
+.ti -1c
+.RI "template<class T > void \fBwrite_register\fP (uint32_t offset, T *reg)"
+.br
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBget_offset\fP (uint32_t base, uint32_t i) const"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBcount_\fP"
+.br
+.ti -1c
+.RI "std::map< uint32_t, uint32_t > \fBlimits_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 183 of file dummy_afu\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "dummy_afu::dummy_afu::dummy_afu (const char * afu_id = \fC'91c2a3a1\-4a23\-4e21\-a7cd\-2b36dbf2ed73'\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 185 of file dummy_afu\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual int dummy_afu::dummy_afu::run (CLI::App * app, \fBtest_command::ptr_t\fP test)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::afu\fP\&.
+.PP
+Definition at line 192 of file dummy_afu\&.h\&.
+.PP
+References app, and opae::afu_test::afu::run()\&.
+.SS "template<typename T > T dummy_afu::dummy_afu::read (uint32_t offset) const\fC [inline]\fP"
+
+.PP
+Definition at line 220 of file dummy_afu\&.h\&.
+.SS "template<typename T > void dummy_afu::dummy_afu::write (uint32_t offset, T value) const\fC [inline]\fP"
+
+.PP
+Definition at line 225 of file dummy_afu\&.h\&.
+.SS "template<typename T > T dummy_afu::dummy_afu::read (uint32_t offset, uint32_t i) const\fC [inline]\fP"
+
+.PP
+Definition at line 230 of file dummy_afu\&.h\&.
+.SS "template<typename T > void dummy_afu::dummy_afu::write (uint32_t offset, uint32_t i, T value) const\fC [inline]\fP"
+
+.PP
+Definition at line 235 of file dummy_afu\&.h\&.
+.SS "\fBshared_buffer::ptr_t\fP dummy_afu::dummy_afu::allocate (size_t size)\fC [inline]\fP"
+
+.PP
+Definition at line 239 of file dummy_afu\&.h\&.
+.PP
+References opae::fpga::types::shared_buffer::allocate()\&.
+.SS "void dummy_afu::dummy_afu::fill (\fBshared_buffer::ptr_t\fP buffer)\fC [inline]\fP"
+
+.PP
+Definition at line 244 of file dummy_afu\&.h\&.
+.SS "void dummy_afu::dummy_afu::fill (\fBshared_buffer::ptr_t\fP buffer, uint32_t value)\fC [inline]\fP"
+
+.PP
+Definition at line 256 of file dummy_afu\&.h\&.
+.SS "\fBevent::ptr_t\fP dummy_afu::dummy_afu::register_interrupt ()\fC [inline]\fP"
+
+.PP
+Definition at line 261 of file dummy_afu\&.h\&.
+.PP
+References FPGA_EVENT_INTERRUPT, and opae::fpga::types::event::register_event()\&.
+.SS "void dummy_afu::dummy_afu::interrupt_wait (\fBevent::ptr_t\fP event, int timeout = \fC\-1\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 267 of file dummy_afu\&.h\&.
+.SS "void dummy_afu::dummy_afu::compare (\fBshared_buffer::ptr_t\fP b1, \fBshared_buffer::ptr_t\fP b2, uint32_t count = \fC0\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 280 of file dummy_afu\&.h\&.
+.SS "template<class T > T dummy_afu::dummy_afu::read_register ()\fC [inline]\fP"
+
+.PP
+Definition at line 290 of file dummy_afu\&.h\&.
+.SS "template<class T > volatile T* dummy_afu::dummy_afu::register_ptr (uint32_t offset)\fC [inline]\fP"
+
+.PP
+Definition at line 296 of file dummy_afu\&.h\&.
+.SS "template<class T > void dummy_afu::dummy_afu::write_register (uint32_t offset, T * reg)\fC [inline]\fP"
+
+.PP
+Definition at line 302 of file dummy_afu\&.h\&.
+.SS "uint32_t dummy_afu::dummy_afu::get_offset (uint32_t base, uint32_t i) const\fC [inline]\fP, \fC [private]\fP"
+
+.PP
+Definition at line 311 of file dummy_afu\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t dummy_afu::dummy_afu::count_\fC [private]\fP"
+
+.PP
+Definition at line 308 of file dummy_afu\&.h\&.
+.SS "std::map<uint32_t, uint32_t> dummy_afu::dummy_afu::limits_\fC [private]\fP"
+
+.PP
+Definition at line 309 of file dummy_afu\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

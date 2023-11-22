@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structmem__link" kind="struct" language="C++" prot="public">
+    <compoundname>mem_link</compoundname>
+    <includes refid="mem__alloc_8h" local="no">opae/mem_alloc.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmem__link_1a4c968ceba2b3fd177cf209d5157b9cb6" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t mem_link::address</definition>
+        <argsstring></argsstring>
+        <name>address</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mem_alloc.h" line="44" column="10" bodyfile="include/opae/mem_alloc.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmem__link_1ac99991a999b487d1a7afa70c3f9aadcf" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t mem_link::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mem_alloc.h" line="45" column="10" bodyfile="include/opae/mem_alloc.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmem__link_1a1225e65e5841948cc0b81c533cfeaab7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmem__link" kindref="compound">mem_link</ref> *</type>
+        <definition>struct mem_link* mem_link::prev</definition>
+        <argsstring></argsstring>
+        <name>prev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mem_alloc.h" line="46" column="15" bodyfile="include/opae/mem_alloc.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmem__link_1a0b90e6b837df3dd0afab6221a87963cc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmem__link" kindref="compound">mem_link</ref> *</type>
+        <definition>struct mem_link* mem_link::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/mem_alloc.h" line="47" column="15" bodyfile="include/opae/mem_alloc.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides an API for allocating/freeing a logical address space. There is no interaction with any OS memory allocation infrastructure, whether malloc, mmap, etc. The &quot;address ranges&quot; tracked by this allocator are arbitrary 64-bit integers. The allocator simply provides the bookeeping logic that ensures that a unique address with the appropriate size is returned for each allocation request, and that an allocation can be freed, ie released back to the available pool of logical address space for future allocations. The memory backing the allocator&apos;s internal data structures is managed by malloc()/free(). </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>mem_link</label>
+        <link refid="structmem__link"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+next</edgelabel>
+          <edgelabel>+prev</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/mem_alloc.h" line="43" column="1" bodyfile="include/opae/mem_alloc.h" bodystart="43" bodyend="48"/>
+    <listofallmembers>
+      <member refid="structmem__link_1a4c968ceba2b3fd177cf209d5157b9cb6" prot="public" virt="non-virtual"><scope>mem_link</scope><name>address</name></member>
+      <member refid="structmem__link_1a0b90e6b837df3dd0afab6221a87963cc" prot="public" virt="non-virtual"><scope>mem_link</scope><name>next</name></member>
+      <member refid="structmem__link_1a1225e65e5841948cc0b81c533cfeaab7" prot="public" virt="non-virtual"><scope>mem_link</scope><name>prev</name></member>
+      <member refid="structmem__link_1ac99991a999b487d1a7afa70c3f9aadcf" prot="public" virt="non-virtual"><scope>mem_link</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

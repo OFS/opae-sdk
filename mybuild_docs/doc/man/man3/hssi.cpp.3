@@ -1,0 +1,67 @@
+.TH "samples/hssi/hssi.cpp" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/hssi/hssi.cpp
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <csignal>\fP
+.br
+\fC#include 'hssi_afu\&.h'\fP
+.br
+\fC#include 'hssi_10g_cmd\&.h'\fP
+.br
+\fC#include 'hssi_100g_cmd\&.h'\fP
+.br
+\fC#include 'hssi_200g_400g_cmd\&.h'\fP
+.br
+\fC#include 'hssi_pkt_filt_10g_cmd\&.h'\fP
+.br
+\fC#include 'hssi_pkt_filt_100g_cmd\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBsig_handler\fP (int signum)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBhssi_afu\fP \fBapp\fP"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void sig_handler (int signum)"
+
+.PP
+Definition at line 36 of file hssi\&.cpp\&.
+.PP
+References app, and opae::afu_test::afu::current_command()\&.
+.PP
+Referenced by main()\&.
+.SS "int main (int argc, char * argv[])"
+
+.PP
+Definition at line 54 of file hssi\&.cpp\&.
+.PP
+References app, opae::afu_test::afu::main(), opae::afu_test::afu::register_command(), and sig_handler()\&.
+.SH "Variable Documentation"
+.PP 
+.SS "\fBhssi_afu\fP app"
+
+.PP
+Definition at line 34 of file hssi\&.cpp\&.
+.PP
+Referenced by opae::afu_test::command::add_options(), dummy_afu::mmio_test::add_options(), host_exerciser::he_cache_cmd::add_options(), host_exerciser::he_cache_lpbk_cmd::add_options(), hssi_100g_cmd::add_options(), hssi_10g_cmd::add_options(), hssi_200g_400g_cmd::add_options(), hssi_pkt_filt_100g_cmd::add_options(), hssi_pkt_filt_10g_cmd::add_options(), main(), opae::afu_test::afu::main(), opae::afu_test::afu::run(), host_exerciser::host_exerciser::run(), cxl_mem_tg::cxl_mem_tg::run(), dummy_afu::dummy_afu::run(), mem_tg::mem_tg::run(), host_exerciser::he_cache_cmd::run(), host_exerciser::he_cache_lpbk_cmd::run(), dummy_afu::ddr_test::run(), dummy_afu::lpbk_test::run(), dummy_afu::mmio_test::run(), host_exerciser::host_exerciser_cmd::run(), cxl_mem_tg::cxl_tg_test::run(), hssi_100g_cmd::run(), hssi_10g_cmd::run(), hssi_200g_400g_cmd::run(), hssi_pkt_filt_100g_cmd::run(), hssi_pkt_filt_10g_cmd::run(), mem_tg::tg_test::run(), dummy_afu::mmio_test::run_perf(), and sig_handler()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

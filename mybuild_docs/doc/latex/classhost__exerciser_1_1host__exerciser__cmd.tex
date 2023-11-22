@@ -1,0 +1,711 @@
+\doxysection{host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd Class Reference}
+\label{classhost__exerciser_1_1host__exerciser__cmd}\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+
+
+{\ttfamily \#include $<$/root/samples/host\+\_\+exerciser/host\+\_\+exerciser\+\_\+cmd.\+h$>$}
+
+Inheritance diagram for host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classhost__exerciser_1_1host__exerciser__cmd}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a39b41493c2a243ad8e9eed18b6d61d1a}{host\+\_\+exerciser\+\_\+cmd}} ()
+\item 
+virtual \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a53dc085be65fff680e433ee29793ab51}{$\sim$host\+\_\+exerciser\+\_\+cmd}} ()
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_ac8ae82a49783ce23453d196c0dfe137b}{host\+\_\+exerciser\+\_\+status}} ()
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a93731bfcf8563a4f664e61dd0eccda4c}{host\+\_\+exerciser\+\_\+errors}} ()
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a571f127ba35f9348482090610f26a3fa}{host\+\_\+exerciser\+\_\+swtestmsg}} ()
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_aede1dc5b8f51b0a9119abb2cab54dd30}{cacheline\+\_\+aligned\+\_\+addr}} (uint64\+\_\+t num)
+\item 
+double \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a69151663bf338cf126429e7cdd555432}{he\+\_\+num\+\_\+xfers\+\_\+to\+\_\+bw}} (uint64\+\_\+t num\+\_\+lines, uint64\+\_\+t num\+\_\+ticks)
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a9999c693487dffaa84bcdf13401c80e9}{dsm\+\_\+num\+\_\+ticks}} (const volatile \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{he\+\_\+dsm\+\_\+status}} $\ast$dsm\+\_\+status)
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a533fb9839b1d008fff8a3ef65e13ab2e}{dsm\+\_\+num\+\_\+reads}} (const volatile \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{he\+\_\+dsm\+\_\+status}} $\ast$dsm\+\_\+status)
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a92d3684fd6d98c706ff5708f3d22b18c}{dsm\+\_\+num\+\_\+writes}} (const volatile \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{he\+\_\+dsm\+\_\+status}} $\ast$dsm\+\_\+status)
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a9b75ff69ffc1f2078b5e9fb5c3f74830}{he\+\_\+perf\+\_\+counters}} ()
+\item 
+bool \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a324b2ebdd099b3e8ed6e12281fa95628}{he\+\_\+interrupt}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}} ev)
+\item 
+bool \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a23e2128ba0753d1b767983a6cf8f11d8}{he\+\_\+wait\+\_\+test\+\_\+completion}} ()
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a672161648b4f66883bc47ef0d6fe0b57}{he\+\_\+forcetestcmpl}} ()
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a9bf1efb0f48fe335643cf4e7d77dadd7}{he\+\_\+init\+\_\+src\+\_\+buffer}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} buffer)
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a3f45f83a1b1baf50f08787d25b866d33}{he\+\_\+dump\+\_\+buffer}} (\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} buffer, const char $\ast$msg)
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a1d77b83392d4cb0e0f21677ce73fffdd}{he\+\_\+compare\+\_\+buffer}} ()
+\item 
+bool \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a81766a7d2da59b6e66a89981f4f7f5c7}{he\+\_\+continuousmode}} ()
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a91adae5c2765cd1a16dec63e5e26e893}{set\+\_\+cfg\+\_\+reqlen}} (\mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{hostexe\+\_\+req\+\_\+len}} req\+\_\+len)
+\item 
+void \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a7e74e36eaff5db9b33291fbe4748dee1}{set\+\_\+cfg\+\_\+reqlen}} (uint32\+\_\+t req\+\_\+len)
+\item 
+\mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{hostexe\+\_\+req\+\_\+len}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a2653d2dbc6852f4a87f2b4584df6f736}{get\+\_\+cfg\+\_\+reqlen}} ()
+\item 
+int \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_aa52560a3df999e96661079da1f1e4262}{parse\+\_\+input\+\_\+options}} ()
+\item 
+int \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_aa97f70a05e8316fa5b6039effbceb8d2}{run\+\_\+single\+\_\+test}} ()
+\item 
+int \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_ae6e828551852c834e830f9bfeb13bbd5}{run\+\_\+all\+\_\+tests}} ()
+\item 
+virtual int \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a83697b1ec3679aee9edec5b94bde79fa}{run}} (\mbox{\hyperlink{namespacehost__exerciser_a3396b0a2f5f048347375ed7968bf936f}{test\+\_\+afu}} $\ast$afu, CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}})
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{unionhost__exerciser_1_1he__cfg}{he\+\_\+cfg}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_abe17e7a5912b89f2cccffc7b2c119cb0}{he\+\_\+lpbk\+\_\+cfg\+\_\+}}
+\item 
+\mbox{\hyperlink{unionhost__exerciser_1_1he__ctl}{he\+\_\+ctl}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a995fa8ea50dfc6b59a80784a20e56866}{he\+\_\+lpbk\+\_\+ctl\+\_\+}}
+\item 
+\mbox{\hyperlink{classhost__exerciser_1_1host__exerciser}{host\+\_\+exerciser}} $\ast$ \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a427ab13cdfdbe49b60b4f3c225899d44}{host\+\_\+exe\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_adecb328ddf1fd375c17afb03f02d401b}{source\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_ac88ce251d60f9496d039fa8125920b50}{destination\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a15060baa3ae0403a90156b7d7eefdad1}{dsm\+\_\+}}
+\item 
+\mbox{\hyperlink{unionhost__exerciser_1_1he__interrupt0}{he\+\_\+interrupt0}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a5f81b3e1ce55057b7d1e49fe2a9133a9}{he\+\_\+interrupt\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_ad32d7e0c503d15815bc66c01bf4c2b22}{token\+\_\+}}
+\item 
+\mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{hostexe\+\_\+req\+\_\+len}} \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a414be1769450fa74ee0e622159f7ebfb}{he\+\_\+lpbk\+\_\+max\+\_\+reqlen\+\_\+}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a78dab209d059322d173d77caff13bd16}{he\+\_\+lpbk\+\_\+api\+\_\+ver\+\_\+}}
+\item 
+bool \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a709bbfaba5a6a52fd2b05a5caf5a3415}{he\+\_\+lpbk\+\_\+atomics\+\_\+supported\+\_\+}}
+\item 
+bool \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser__cmd_a37e774e7e6d25187d0801e5f77ecec1c}{is\+\_\+ase\+\_\+sim\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 51 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a39b41493c2a243ad8e9eed18b6d61d1a}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!host\_exerciser\_cmd@{host\_exerciser\_cmd}}
+\index{host\_exerciser\_cmd@{host\_exerciser\_cmd}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{host\_exerciser\_cmd()}{host\_exerciser\_cmd()}}
+{\footnotesize\ttfamily host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+cmd (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 54 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References he\+\_\+lpbk\+\_\+api\+\_\+ver\+\_\+, he\+\_\+lpbk\+\_\+atomics\+\_\+supported\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, he\+\_\+lpbk\+\_\+ctl\+\_\+, he\+\_\+lpbk\+\_\+max\+\_\+reqlen\+\_\+, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+8, is\+\_\+ase\+\_\+sim\+\_\+, host\+\_\+exerciser\+::he\+\_\+ctl\+::value, and host\+\_\+exerciser\+::he\+\_\+cfg\+::value.
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a53dc085be65fff680e433ee29793ab51}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!````~host\_exerciser\_cmd@{$\sim$host\_exerciser\_cmd}}
+\index{````~host\_exerciser\_cmd@{$\sim$host\_exerciser\_cmd}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{$\sim$host\_exerciser\_cmd()}{~host\_exerciser\_cmd()}}
+{\footnotesize\ttfamily virtual host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::$\sim$host\+\_\+exerciser\+\_\+cmd (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Definition at line 63 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_ac8ae82a49783ce23453d196c0dfe137b}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!host\_exerciser\_status@{host\_exerciser\_status}}
+\index{host\_exerciser\_status@{host\_exerciser\_status}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{host\_exerciser\_status()}{host\_exerciser\_status()}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+status (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 65 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+HE\+\_\+\+STATUS0, host\+\_\+exerciser\+::\+HE\+\_\+\+STATUS1, host\+\_\+exe\+\_\+, opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+, opae\+::afu\+\_\+test\+::afu\+::read64(), host\+\_\+exerciser\+::he\+\_\+status0\+::value, and host\+\_\+exerciser\+::he\+\_\+status1\+::value.
+
+
+
+Referenced by he\+\_\+perf\+\_\+counters(), and he\+\_\+wait\+\_\+test\+\_\+completion().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a93731bfcf8563a4f664e61dd0eccda4c}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!host\_exerciser\_errors@{host\_exerciser\_errors}}
+\index{host\_exerciser\_errors@{host\_exerciser\_errors}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{host\_exerciser\_errors()}{host\_exerciser\_errors()}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+errors (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 91 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+HE\+\_\+\+ERROR, host\+\_\+exe\+\_\+, opae\+::afu\+\_\+test\+::afu\+::read64(), and host\+\_\+exerciser\+::he\+\_\+error\+::value.
+
+
+
+Referenced by he\+\_\+interrupt(), and he\+\_\+wait\+\_\+test\+\_\+completion().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a571f127ba35f9348482090610f26a3fa}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!host\_exerciser\_swtestmsg@{host\_exerciser\_swtestmsg}}
+\index{host\_exerciser\_swtestmsg@{host\_exerciser\_swtestmsg}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{host\_exerciser\_swtestmsg()}{host\_exerciser\_swtestmsg()}}
+{\footnotesize\ttfamily uint64\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exerciser\+\_\+swtestmsg (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 104 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+HE\+\_\+\+SWTEST\+\_\+\+MSG, host\+\_\+exe\+\_\+, and opae\+::afu\+\_\+test\+::afu\+::read64().
+
+
+
+Referenced by he\+\_\+compare\+\_\+buffer().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_aede1dc5b8f51b0a9119abb2cab54dd30}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!cacheline\_aligned\_addr@{cacheline\_aligned\_addr}}
+\index{cacheline\_aligned\_addr@{cacheline\_aligned\_addr}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{cacheline\_aligned\_addr()}{cacheline\_aligned\_addr()}}
+{\footnotesize\ttfamily uint64\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::cacheline\+\_\+aligned\+\_\+addr (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{num }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 119 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+LOG2\+\_\+\+CL.
+
+
+
+Referenced by run().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a69151663bf338cf126429e7cdd555432}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_num\_xfers\_to\_bw@{he\_num\_xfers\_to\_bw}}
+\index{he\_num\_xfers\_to\_bw@{he\_num\_xfers\_to\_bw}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_num\_xfers\_to\_bw()}{he\_num\_xfers\_to\_bw()}}
+{\footnotesize\ttfamily double host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+num\+\_\+xfers\+\_\+to\+\_\+bw (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{num\+\_\+lines,  }\item[{uint64\+\_\+t}]{num\+\_\+ticks }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 124 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+clock\+\_\+mhz\+\_\+, and host\+\_\+exe\+\_\+.
+
+
+
+Referenced by he\+\_\+perf\+\_\+counters(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a9999c693487dffaa84bcdf13401c80e9}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!dsm\_num\_ticks@{dsm\_num\_ticks}}
+\index{dsm\_num\_ticks@{dsm\_num\_ticks}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{dsm\_num\_ticks()}{dsm\_num\_ticks()}}
+{\footnotesize\ttfamily uint64\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::dsm\+\_\+num\+\_\+ticks (\begin{DoxyParamCaption}\item[{const volatile \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{he\+\_\+dsm\+\_\+status}} $\ast$}]{dsm\+\_\+status }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 129 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status\+::num\+\_\+ticks.
+
+
+
+Referenced by he\+\_\+perf\+\_\+counters(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a533fb9839b1d008fff8a3ef65e13ab2e}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!dsm\_num\_reads@{dsm\_num\_reads}}
+\index{dsm\_num\_reads@{dsm\_num\_reads}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{dsm\_num\_reads()}{dsm\_num\_reads()}}
+{\footnotesize\ttfamily uint64\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::dsm\+\_\+num\+\_\+reads (\begin{DoxyParamCaption}\item[{const volatile \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{he\+\_\+dsm\+\_\+status}} $\ast$}]{dsm\+\_\+status }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 135 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status\+::num\+\_\+reads\+\_\+h, and host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status\+::num\+\_\+reads\+\_\+l.
+
+
+
+Referenced by he\+\_\+perf\+\_\+counters(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a92d3684fd6d98c706ff5708f3d22b18c}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!dsm\_num\_writes@{dsm\_num\_writes}}
+\index{dsm\_num\_writes@{dsm\_num\_writes}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{dsm\_num\_writes()}{dsm\_num\_writes()}}
+{\footnotesize\ttfamily uint64\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::dsm\+\_\+num\+\_\+writes (\begin{DoxyParamCaption}\item[{const volatile \mbox{\hyperlink{namespacehost__exerciser_structhost__exerciser_1_1he__dsm__status}{he\+\_\+dsm\+\_\+status}} $\ast$}]{dsm\+\_\+status }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 141 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status\+::num\+\_\+writes\+\_\+h, and host\+\_\+exerciser\+::he\+\_\+dsm\+\_\+status\+::num\+\_\+writes\+\_\+l.
+
+
+
+Referenced by he\+\_\+perf\+\_\+counters(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a9b75ff69ffc1f2078b5e9fb5c3f74830}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_perf\_counters@{he\_perf\_counters}}
+\index{he\_perf\_counters@{he\_perf\_counters}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_perf\_counters()}{he\_perf\_counters()}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+perf\+\_\+counters (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 146 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+CL, dsm\+\_\+, dsm\+\_\+num\+\_\+reads(), dsm\+\_\+num\+\_\+ticks(), dsm\+\_\+num\+\_\+writes(), host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+continuousmode\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, he\+\_\+num\+\_\+xfers\+\_\+to\+\_\+bw(), host\+\_\+exe\+\_\+, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+READ, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+WRITE, host\+\_\+exerciser\+\_\+status(), opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+, and host\+\_\+exerciser\+::\+LPBK1\+\_\+\+BUFFER\+\_\+\+SIZE.
+
+
+
+Referenced by he\+\_\+continuousmode(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a324b2ebdd099b3e8ed6e12281fa95628}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_interrupt@{he\_interrupt}}
+\index{he\_interrupt@{he\_interrupt}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_interrupt()}{he\_interrupt()}}
+{\footnotesize\ttfamily bool host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+interrupt (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1event_a018f8b02575a7ed99cc013463f319e03}{event\+::ptr\+\_\+t}}}]{ev }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 189 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::host\+\_\+exerciser\+::compare(), destination\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, host\+\_\+exe\+\_\+, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+LPBK1, host\+\_\+exerciser\+\_\+errors(), host\+\_\+exerciser\+::host\+\_\+exerciser\+::interrupt\+\_\+wait(), and source\+\_\+.
+
+
+
+Referenced by run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a23e2128ba0753d1b767983a6cf8f11d8}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_wait\_test\_completion@{he\_wait\_test\_completion}}
+\index{he\_wait\_test\_completion@{he\_wait\_test\_completion}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_wait\_test\_completion()}{he\_wait\_test\_completion()}}
+{\footnotesize\ttfamily bool host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+wait\+\_\+test\+\_\+completion (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 204 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References dsm\+\_\+, host\+\_\+exerciser\+::\+HELPBK\+\_\+\+TEST\+\_\+\+SLEEP\+\_\+\+INVL, host\+\_\+exerciser\+::\+HELPBK\+\_\+\+TEST\+\_\+\+TIMEOUT, host\+\_\+exerciser\+\_\+errors(), host\+\_\+exerciser\+\_\+status(), is\+\_\+ase\+\_\+sim\+\_\+, and usleep().
+
+
+
+Referenced by he\+\_\+forcetestcmpl(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a672161648b4f66883bc47ef0d6fe0b57}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_forcetestcmpl@{he\_forcetestcmpl}}
+\index{he\_forcetestcmpl@{he\_forcetestcmpl}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_forcetestcmpl()}{he\_forcetestcmpl()}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+forcetestcmpl (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 227 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+HE\+\_\+\+CTL, he\+\_\+lpbk\+\_\+ctl\+\_\+, he\+\_\+wait\+\_\+test\+\_\+completion(), host\+\_\+exe\+\_\+, usleep(), host\+\_\+exerciser\+::he\+\_\+ctl\+::value, and opae\+::afu\+\_\+test\+::afu\+::write32().
+
+
+
+Referenced by he\+\_\+continuousmode().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a9bf1efb0f48fe335643cf4e7d77dadd7}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_init\_src\_buffer@{he\_init\_src\_buffer}}
+\index{he\_init\_src\_buffer@{he\_init\_src\_buffer}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_init\_src\_buffer()}{he\_init\_src\_buffer()}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+init\+\_\+src\+\_\+buffer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}}}]{buffer }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 243 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+CL, host\+\_\+exerciser\+::host\+\_\+exerciser\+::fill(), he\+\_\+lpbk\+\_\+cfg\+\_\+, host\+\_\+exe\+\_\+, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+CAS\+\_\+4, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+CAS\+\_\+8, and host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+OFF.
+
+
+
+Referenced by run(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a3f45f83a1b1baf50f08787d25b866d33}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_dump\_buffer@{he\_dump\_buffer}}
+\index{he\_dump\_buffer@{he\_dump\_buffer}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_dump\_buffer()}{he\_dump\_buffer()}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+dump\+\_\+buffer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}}}]{buffer,  }\item[{const char $\ast$}]{msg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 273 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+CL.
+
+
+
+Referenced by run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a1d77b83392d4cb0e0f21677ce73fffdd}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_compare\_buffer@{he\_compare\_buffer}}
+\index{he\_compare\_buffer@{he\_compare\_buffer}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_compare\_buffer()}{he\_compare\_buffer()}}
+{\footnotesize\ttfamily uint64\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+compare\+\_\+buffer (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 295 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References host\+\_\+exerciser\+::\+CL, destination\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+LPBK1, host\+\_\+exerciser\+\_\+swtestmsg(), host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+OFF, and source\+\_\+.
+
+
+
+Referenced by run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a81766a7d2da59b6e66a89981f4f7f5c7}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_continuousmode@{he\_continuousmode}}
+\index{he\_continuousmode@{he\_continuousmode}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_continuousmode()}{he\_continuousmode()}}
+{\footnotesize\ttfamily bool host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+continuousmode (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 376 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References g\+\_\+he\+\_\+exit, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+continuousmode\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+contmodetime\+\_\+, he\+\_\+forcetestcmpl(), he\+\_\+perf\+\_\+counters(), host\+\_\+exe\+\_\+, and opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+.
+
+
+
+Referenced by run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a91adae5c2765cd1a16dec63e5e26e893}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!set\_cfg\_reqlen@{set\_cfg\_reqlen}}
+\index{set\_cfg\_reqlen@{set\_cfg\_reqlen}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{set\_cfg\_reqlen()}{set\_cfg\_reqlen()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::set\+\_\+cfg\+\_\+reqlen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{hostexe\+\_\+req\+\_\+len}}}]{req\+\_\+len }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 396 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References he\+\_\+lpbk\+\_\+cfg\+\_\+.
+
+
+
+Referenced by parse\+\_\+input\+\_\+options(), run\+\_\+all\+\_\+tests(), and set\+\_\+cfg\+\_\+reqlen().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a7e74e36eaff5db9b33291fbe4748dee1}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!set\_cfg\_reqlen@{set\_cfg\_reqlen}}
+\index{set\_cfg\_reqlen@{set\_cfg\_reqlen}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{set\_cfg\_reqlen()}{set\_cfg\_reqlen()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::set\+\_\+cfg\+\_\+reqlen (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{req\+\_\+len }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 404 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References set\+\_\+cfg\+\_\+reqlen().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a2653d2dbc6852f4a87f2b4584df6f736}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!get\_cfg\_reqlen@{get\_cfg\_reqlen}}
+\index{get\_cfg\_reqlen@{get\_cfg\_reqlen}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{get\_cfg\_reqlen()}{get\_cfg\_reqlen()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{hostexe\+\_\+req\+\_\+len}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::get\+\_\+cfg\+\_\+reqlen (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 409 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References he\+\_\+lpbk\+\_\+cfg\+\_\+.
+
+
+
+Referenced by parse\+\_\+input\+\_\+options().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_aa52560a3df999e96661079da1f1e4262}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!parse\_input\_options@{parse\_input\_options}}
+\index{parse\_input\_options@{parse\_input\_options}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{parse\_input\_options()}{parse\_input\_options()}}
+{\footnotesize\ttfamily int host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::parse\+\_\+input\+\_\+options (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 415 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References opae\+::fpga\+::types\+::properties\+::get(), get\+\_\+cfg\+\_\+reqlen(), host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+continuousmode\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+contmodetime\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+delay\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+interleave\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+interrupt\+\_\+, he\+\_\+lpbk\+\_\+api\+\_\+ver\+\_\+, he\+\_\+lpbk\+\_\+atomics\+\_\+supported\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, he\+\_\+lpbk\+\_\+max\+\_\+reqlen\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+modes\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+req\+\_\+atomic\+\_\+func\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+req\+\_\+cls\+\_\+len\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+req\+\_\+encoding\+\_\+, host\+\_\+exe\+\_\+, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+LPBK1, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+TRPUT, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+OFF, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+1, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ENCODING\+\_\+\+DEFAULT, is\+\_\+ase\+\_\+sim\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::option\+\_\+passed(), set\+\_\+cfg\+\_\+reqlen(), and token\+\_\+.
+
+
+
+Referenced by run().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_aa97f70a05e8316fa5b6039effbceb8d2}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!run\_single\_test@{run\_single\_test}}
+\index{run\_single\_test@{run\_single\_test}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{run\_single\_test()}{run\_single\_test()}}
+{\footnotesize\ttfamily int host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run\+\_\+single\+\_\+test (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 503 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References destination\+\_\+, dsm\+\_\+, host\+\_\+exerciser\+::\+HE\+\_\+\+CFG, he\+\_\+compare\+\_\+buffer(), he\+\_\+continuousmode(), host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+continuousmode\+\_\+, host\+\_\+exerciser\+::\+HE\+\_\+\+CTL, he\+\_\+dump\+\_\+buffer(), he\+\_\+interrupt(), host\+\_\+exerciser\+::\+HE\+\_\+\+INTERRUPT0, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+interrupt\+\_\+, he\+\_\+interrupt\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, he\+\_\+lpbk\+\_\+ctl\+\_\+, he\+\_\+perf\+\_\+counters(), he\+\_\+wait\+\_\+test\+\_\+completion(), host\+\_\+exe\+\_\+, opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+, host\+\_\+exerciser\+::\+LPBK1\+\_\+\+DSM\+\_\+\+SIZE, host\+\_\+exerciser\+::host\+\_\+exerciser\+::register\+\_\+interrupt(), source\+\_\+, usleep(), host\+\_\+exerciser\+::he\+\_\+ctl\+::value, host\+\_\+exerciser\+::he\+\_\+cfg\+::value, host\+\_\+exerciser\+::he\+\_\+interrupt0\+::value, opae\+::afu\+\_\+test\+::afu\+::write32(), and opae\+::afu\+\_\+test\+::afu\+::write64().
+
+
+
+Referenced by run(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_ae6e828551852c834e830f9bfeb13bbd5}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!run\_all\_tests@{run\_all\_tests}}
+\index{run\_all\_tests@{run\_all\_tests}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{run\_all\_tests()}{run\_all\_tests()}}
+{\footnotesize\ttfamily int host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run\+\_\+all\+\_\+tests (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 600 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References destination\+\_\+, dsm\+\_\+, dsm\+\_\+num\+\_\+reads(), dsm\+\_\+num\+\_\+ticks(), dsm\+\_\+num\+\_\+writes(), host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+continuousmode\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+contmodetime\+\_\+, he\+\_\+init\+\_\+src\+\_\+buffer(), he\+\_\+lpbk\+\_\+atomics\+\_\+supported\+\_\+, he\+\_\+lpbk\+\_\+cfg\+\_\+, he\+\_\+lpbk\+\_\+max\+\_\+reqlen\+\_\+, he\+\_\+num\+\_\+xfers\+\_\+to\+\_\+bw(), host\+\_\+exerciser\+::he\+\_\+req\+\_\+atomic\+\_\+func, host\+\_\+exerciser\+::he\+\_\+req\+\_\+cls\+\_\+len, host\+\_\+exe\+\_\+, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+LPBK1, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+READ, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+TRPUT, host\+\_\+exerciser\+::\+HOST\+\_\+\+EXEMODE\+\_\+\+WRITE, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+CAS\+\_\+8, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+FADD\+\_\+4, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+ATOMIC\+\_\+\+OFF, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+1, host\+\_\+exerciser\+::\+LPBK1\+\_\+\+BUFFER\+\_\+\+SIZE, run\+\_\+single\+\_\+test(), set\+\_\+cfg\+\_\+reqlen(), and source\+\_\+.
+
+
+
+Referenced by run().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a83697b1ec3679aee9edec5b94bde79fa}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!run@{run}}
+\index{run@{run}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacehost__exerciser_a3396b0a2f5f048347375ed7968bf936f}{test\+\_\+afu}} $\ast$}]{afu,  }\item[{CLI\+::\+App $\ast$}]{app }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a18fe26fd1da4bec29da4fbfbeb172bbd}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 730 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+References app, cacheline\+\_\+aligned\+\_\+addr(), host\+\_\+exerciser\+::\+CL, destination\+\_\+, dsm\+\_\+, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+clock\+\_\+mhz\+\_\+, host\+\_\+exerciser\+::\+HE\+\_\+\+CTL, host\+\_\+exerciser\+::\+HE\+\_\+\+DSM\+\_\+\+BASEH, host\+\_\+exerciser\+::\+HE\+\_\+\+DSM\+\_\+\+BASEL, host\+\_\+exerciser\+::\+HE\+\_\+\+DST\+\_\+\+ADDR, host\+\_\+exerciser\+::\+HE\+\_\+\+INFO0, he\+\_\+init\+\_\+src\+\_\+buffer(), he\+\_\+lpbk\+\_\+api\+\_\+ver\+\_\+, he\+\_\+lpbk\+\_\+atomics\+\_\+supported\+\_\+, he\+\_\+lpbk\+\_\+ctl\+\_\+, he\+\_\+lpbk\+\_\+max\+\_\+reqlen\+\_\+, host\+\_\+exerciser\+::\+HE\+\_\+\+NUM\+\_\+\+LINES, host\+\_\+exerciser\+::\+HE\+\_\+\+SRC\+\_\+\+ADDR, host\+\_\+exerciser\+::host\+\_\+exerciser\+::he\+\_\+test\+\_\+all\+\_\+, host\+\_\+exe\+\_\+, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+16, host\+\_\+exerciser\+::\+HOSTEXE\+\_\+\+CLS\+\_\+8, opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+, host\+\_\+exerciser\+::\+LPBK1\+\_\+\+BUFFER\+\_\+\+ALLOCATION\+\_\+\+SIZE, host\+\_\+exerciser\+::\+LPBK1\+\_\+\+BUFFER\+\_\+\+SIZE, host\+\_\+exerciser\+::\+LPBK1\+\_\+\+DSM\+\_\+\+SIZE, parse\+\_\+input\+\_\+options(), opae\+::afu\+\_\+test\+::afu\+::read64(), run\+\_\+all\+\_\+tests(), run\+\_\+single\+\_\+test(), source\+\_\+, token\+\_\+, usleep(), and host\+\_\+exerciser\+::he\+\_\+ctl\+::value.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_abe17e7a5912b89f2cccffc7b2c119cb0}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_lpbk\_cfg\_@{he\_lpbk\_cfg\_}}
+\index{he\_lpbk\_cfg\_@{he\_lpbk\_cfg\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_lpbk\_cfg\_}{he\_lpbk\_cfg\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{unionhost__exerciser_1_1he__cfg}{he\+\_\+cfg}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+lpbk\+\_\+cfg\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 826 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+\_\+cmd(), get\+\_\+cfg\+\_\+reqlen(), he\+\_\+compare\+\_\+buffer(), he\+\_\+init\+\_\+src\+\_\+buffer(), he\+\_\+interrupt(), he\+\_\+perf\+\_\+counters(), parse\+\_\+input\+\_\+options(), run\+\_\+all\+\_\+tests(), run\+\_\+single\+\_\+test(), and set\+\_\+cfg\+\_\+reqlen().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a995fa8ea50dfc6b59a80784a20e56866}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_lpbk\_ctl\_@{he\_lpbk\_ctl\_}}
+\index{he\_lpbk\_ctl\_@{he\_lpbk\_ctl\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_lpbk\_ctl\_}{he\_lpbk\_ctl\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{unionhost__exerciser_1_1he__ctl}{he\+\_\+ctl}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+lpbk\+\_\+ctl\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 827 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+\_\+cmd(), he\+\_\+forcetestcmpl(), run(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a427ab13cdfdbe49b60b4f3c225899d44}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!host\_exe\_@{host\_exe\_}}
+\index{host\_exe\_@{host\_exe\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{host\_exe\_}{host\_exe\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classhost__exerciser_1_1host__exerciser}{host\+\_\+exerciser}}$\ast$ host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::host\+\_\+exe\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 828 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by he\+\_\+continuousmode(), he\+\_\+forcetestcmpl(), he\+\_\+init\+\_\+src\+\_\+buffer(), he\+\_\+interrupt(), he\+\_\+num\+\_\+xfers\+\_\+to\+\_\+bw(), he\+\_\+perf\+\_\+counters(), host\+\_\+exerciser\+\_\+errors(), host\+\_\+exerciser\+\_\+status(), host\+\_\+exerciser\+\_\+swtestmsg(), parse\+\_\+input\+\_\+options(), run(), run\+\_\+all\+\_\+tests(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_adecb328ddf1fd375c17afb03f02d401b}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!source\_@{source\_}}
+\index{source\_@{source\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{source\_}{source\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::source\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 829 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by he\+\_\+compare\+\_\+buffer(), he\+\_\+interrupt(), run(), run\+\_\+all\+\_\+tests(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_ac88ce251d60f9496d039fa8125920b50}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!destination\_@{destination\_}}
+\index{destination\_@{destination\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{destination\_}{destination\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::destination\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 830 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by he\+\_\+compare\+\_\+buffer(), he\+\_\+interrupt(), run(), run\+\_\+all\+\_\+tests(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a15060baa3ae0403a90156b7d7eefdad1}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!dsm\_@{dsm\_}}
+\index{dsm\_@{dsm\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{dsm\_}{dsm\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1shared__buffer_aa90c1193c9d6c97f256f7482529d2afe}{shared\+\_\+buffer\+::ptr\+\_\+t}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::dsm\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 831 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by he\+\_\+perf\+\_\+counters(), he\+\_\+wait\+\_\+test\+\_\+completion(), run(), run\+\_\+all\+\_\+tests(), and run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a5f81b3e1ce55057b7d1e49fe2a9133a9}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_interrupt\_@{he\_interrupt\_}}
+\index{he\_interrupt\_@{he\_interrupt\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_interrupt\_}{he\_interrupt\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{unionhost__exerciser_1_1he__interrupt0}{he\+\_\+interrupt0}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+interrupt\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 832 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by run\+\_\+single\+\_\+test().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_ad32d7e0c503d15815bc66c01bf4c2b22}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!token\_@{token\_}}
+\index{token\_@{token\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{token\_}{token\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::token\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 833 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by parse\+\_\+input\+\_\+options(), and run().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a414be1769450fa74ee0e622159f7ebfb}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_lpbk\_max\_reqlen\_@{he\_lpbk\_max\_reqlen\_}}
+\index{he\_lpbk\_max\_reqlen\_@{he\_lpbk\_max\_reqlen\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_lpbk\_max\_reqlen\_}{he\_lpbk\_max\_reqlen\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacehost__exerciser_ab6410838913a9fb5e26f2d0291cc3fa0}{hostexe\+\_\+req\+\_\+len}} host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+lpbk\+\_\+max\+\_\+reqlen\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 834 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+\_\+cmd(), parse\+\_\+input\+\_\+options(), run(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a78dab209d059322d173d77caff13bd16}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_lpbk\_api\_ver\_@{he\_lpbk\_api\_ver\_}}
+\index{he\_lpbk\_api\_ver\_@{he\_lpbk\_api\_ver\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_lpbk\_api\_ver\_}{he\_lpbk\_api\_ver\_}}
+{\footnotesize\ttfamily uint8\+\_\+t host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+lpbk\+\_\+api\+\_\+ver\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 835 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+\_\+cmd(), parse\+\_\+input\+\_\+options(), and run().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a709bbfaba5a6a52fd2b05a5caf5a3415}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!he\_lpbk\_atomics\_supported\_@{he\_lpbk\_atomics\_supported\_}}
+\index{he\_lpbk\_atomics\_supported\_@{he\_lpbk\_atomics\_supported\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{he\_lpbk\_atomics\_supported\_}{he\_lpbk\_atomics\_supported\_}}
+{\footnotesize\ttfamily bool host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+lpbk\+\_\+atomics\+\_\+supported\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 836 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+\_\+cmd(), parse\+\_\+input\+\_\+options(), run(), and run\+\_\+all\+\_\+tests().
+
+\mbox{\label{classhost__exerciser_1_1host__exerciser__cmd_a37e774e7e6d25187d0801e5f77ecec1c}} 
+\index{host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}!is\_ase\_sim\_@{is\_ase\_sim\_}}
+\index{is\_ase\_sim\_@{is\_ase\_sim\_}!host\_exerciser::host\_exerciser\_cmd@{host\_exerciser::host\_exerciser\_cmd}}
+\doxysubsubsection{\texorpdfstring{is\_ase\_sim\_}{is\_ase\_sim\_}}
+{\footnotesize\ttfamily bool host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::is\+\_\+ase\+\_\+sim\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 837 of file host\+\_\+exerciser\+\_\+cmd.\+h.
+
+
+
+Referenced by host\+\_\+exerciser\+\_\+cmd(), he\+\_\+wait\+\_\+test\+\_\+completion(), and parse\+\_\+input\+\_\+options().
+

@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structDFH" kind="struct" language="C++" prot="public">
+    <compoundname>DFH</compoundname>
+    <includes refid="hssi__100g__cmd_8h" local="no">/root/samples/hssi/hssi_100g_cmd.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structDFH_1ab8cbb7b347272b44c1da71d510e6cd5b" prot="public" static="no" mutable="no">
+        <type>union DFH::@131</type>
+        <definition>union DFH::@131 DFH::@132</definition>
+        <argsstring></argsstring>
+        <name>@132</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="179" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>DFH</label>
+        <link refid="structDFH"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_100g_cmd.h" line="166" column="3" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="166" bodyend="180"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

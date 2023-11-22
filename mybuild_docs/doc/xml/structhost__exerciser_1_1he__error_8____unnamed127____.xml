@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__error_8____unnamed127____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_error.__unnamed127__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__error_8____unnamed127_____1acb5e100e5a9a3e7f6d1fd97512215282" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>error</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="279" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__error_8____unnamed127_____1a38a176f40705de57c4d586ede54e11d7" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Rsvd</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="280" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_error.__unnamed127__</label>
+        <link refid="structhost__exerciser_1_1he__error_8____unnamed127____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="278" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="278" bodyend="281"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__error_8____unnamed127_____1acb5e100e5a9a3e7f6d1fd97512215282" prot="public" virt="non-virtual"><scope>host_exerciser::he_error.__unnamed127__</scope><name>error</name></member>
+      <member refid="structhost__exerciser_1_1he__error_8____unnamed127_____1a38a176f40705de57c4d586ede54e11d7" prot="public" virt="non-virtual"><scope>host_exerciser::he_error.__unnamed127__</scope><name>Rsvd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

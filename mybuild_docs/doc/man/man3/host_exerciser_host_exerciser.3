@@ -1,0 +1,318 @@
+.TH "host_exerciser::host_exerciser" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::host_exerciser
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/cxl_host_exerciser\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::afu\fP, and \fBopae::afu_test::afu\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhost_exerciser\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (CLI::App *\fBapp\fP, \fBtest_command::ptr_t\fP test) override"
+.br
+.ti -1c
+.RI "bool \fBoption_passed\fP (std::string option_str)"
+.br
+.ti -1c
+.RI "\fBhost_exerciser\fP ()"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (CLI::App *\fBapp\fP, \fBtest_command::ptr_t\fP test) override"
+.br
+.ti -1c
+.RI "template<typename T > T \fBread\fP (uint32_t offset) const"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite\fP (uint32_t offset, T value) const"
+.br
+.ti -1c
+.RI "template<typename T > T \fBread\fP (uint32_t offset, uint32_t i) const"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite\fP (uint32_t offset, uint32_t i, T value) const"
+.br
+.ti -1c
+.RI "\fBshared_buffer::ptr_t\fP \fBallocate\fP (size_t size)"
+.br
+.ti -1c
+.RI "void \fBfill\fP (\fBshared_buffer::ptr_t\fP buffer)"
+.br
+.ti -1c
+.RI "void \fBfill\fP (\fBshared_buffer::ptr_t\fP buffer, uint32_t value)"
+.br
+.ti -1c
+.RI "\fBevent::ptr_t\fP \fBregister_interrupt\fP (uint32_t vector)"
+.br
+.ti -1c
+.RI "void \fBinterrupt_wait\fP (\fBevent::ptr_t\fP \fBevent\fP, int timeout=\-1)"
+.br
+.ti -1c
+.RI "void \fBcompare\fP (\fBshared_buffer::ptr_t\fP b1, \fBshared_buffer::ptr_t\fP b2, uint32_t count=0)"
+.br
+.ti -1c
+.RI "template<class T > T \fBread_register\fP ()"
+.br
+.ti -1c
+.RI "template<class T > volatile T * \fBregister_ptr\fP (uint32_t offset)"
+.br
+.ti -1c
+.RI "template<class T > void \fBwrite_register\fP (uint32_t offset, T *reg)"
+.br
+.ti -1c
+.RI "uint32_t \fBget_offset\fP (uint32_t base, uint32_t i) const"
+.br
+.ti -1c
+.RI "\fBtoken::ptr_t\fP \fBget_token\fP ()"
+.br
+.ti -1c
+.RI "bool \fBoption_passed\fP (std::string option_str)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint32_t \fBcount_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_modes_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_req_cls_len_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_req_atomic_func_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_req_encoding_\fP"
+.br
+.ti -1c
+.RI "bool \fBhe_delay_\fP"
+.br
+.ti -1c
+.RI "bool \fBhe_continuousmode_\fP"
+.br
+.ti -1c
+.RI "bool \fBhe_test_all_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_interleave_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_interrupt_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_contmodetime_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhe_clock_mhz_\fP"
+.br
+.ti -1c
+.RI "std::map< uint32_t, uint32_t > \fBlimits_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 393 of file cxl_host_exerciser\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "host_exerciser::host_exerciser::host_exerciser ()\fC [inline]\fP"
+
+.PP
+Definition at line 395 of file cxl_host_exerciser\&.h\&.
+.SS "host_exerciser::host_exerciser::host_exerciser ()\fC [inline]\fP"
+
+.PP
+Definition at line 377 of file host_exerciser\&.h\&.
+.PP
+References host_exerciser::he_modes, host_exerciser::he_req_atomic_func, host_exerciser::he_req_cls_len, host_exerciser::he_req_encoding, and host_exerciser::interleave_help\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual int host_exerciser::host_exerciser::run (CLI::App * app, \fBtest_command::ptr_t\fP test)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::afu\fP\&.
+.PP
+Definition at line 398 of file cxl_host_exerciser\&.h\&.
+.PP
+References app, and opae::afu_test::afu::run()\&.
+.SS "bool host_exerciser::host_exerciser::option_passed (std::string option_str)\fC [inline]\fP"
+
+.PP
+Definition at line 434 of file cxl_host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "virtual int host_exerciser::host_exerciser::run (CLI::App * app, \fBtest_command::ptr_t\fP test)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::afu\fP\&.
+.PP
+Definition at line 424 of file host_exerciser\&.h\&.
+.PP
+References app, and opae::afu_test::afu::run()\&.
+.SS "template<typename T > T host_exerciser::host_exerciser::read (uint32_t offset) const\fC [inline]\fP"
+
+.PP
+Definition at line 458 of file host_exerciser\&.h\&.
+.SS "template<typename T > void host_exerciser::host_exerciser::write (uint32_t offset, T value) const\fC [inline]\fP"
+
+.PP
+Definition at line 463 of file host_exerciser\&.h\&.
+.SS "template<typename T > T host_exerciser::host_exerciser::read (uint32_t offset, uint32_t i) const\fC [inline]\fP"
+
+.PP
+Definition at line 468 of file host_exerciser\&.h\&.
+.SS "template<typename T > void host_exerciser::host_exerciser::write (uint32_t offset, uint32_t i, T value) const\fC [inline]\fP"
+
+.PP
+Definition at line 473 of file host_exerciser\&.h\&.
+.SS "\fBshared_buffer::ptr_t\fP host_exerciser::host_exerciser::allocate (size_t size)\fC [inline]\fP"
+
+.PP
+Definition at line 477 of file host_exerciser\&.h\&.
+.PP
+References opae::fpga::types::shared_buffer::allocate()\&.
+.SS "void host_exerciser::host_exerciser::fill (\fBshared_buffer::ptr_t\fP buffer)\fC [inline]\fP"
+
+.PP
+Definition at line 482 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_init_src_buffer()\&.
+.SS "void host_exerciser::host_exerciser::fill (\fBshared_buffer::ptr_t\fP buffer, uint32_t value)\fC [inline]\fP"
+
+.PP
+Definition at line 494 of file host_exerciser\&.h\&.
+.SS "\fBevent::ptr_t\fP host_exerciser::host_exerciser::register_interrupt (uint32_t vector)\fC [inline]\fP"
+
+.PP
+Definition at line 499 of file host_exerciser\&.h\&.
+.PP
+References FPGA_EVENT_INTERRUPT, and opae::fpga::types::event::register_event()\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "void host_exerciser::host_exerciser::interrupt_wait (\fBevent::ptr_t\fP event, int timeout = \fC\-1\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 505 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_interrupt()\&.
+.SS "void host_exerciser::host_exerciser::compare (\fBshared_buffer::ptr_t\fP b1, \fBshared_buffer::ptr_t\fP b2, uint32_t count = \fC0\fP)\fC [inline]\fP"
+
+.PP
+Definition at line 518 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_interrupt()\&.
+.SS "template<class T > T host_exerciser::host_exerciser::read_register ()\fC [inline]\fP"
+
+.PP
+Definition at line 527 of file host_exerciser\&.h\&.
+.SS "template<class T > volatile T* host_exerciser::host_exerciser::register_ptr (uint32_t offset)\fC [inline]\fP"
+
+.PP
+Definition at line 533 of file host_exerciser\&.h\&.
+.SS "template<class T > void host_exerciser::host_exerciser::write_register (uint32_t offset, T * reg)\fC [inline]\fP"
+
+.PP
+Definition at line 539 of file host_exerciser\&.h\&.
+.SS "uint32_t host_exerciser::host_exerciser::get_offset (uint32_t base, uint32_t i) const\fC [inline]\fP"
+
+.PP
+Definition at line 560 of file host_exerciser\&.h\&.
+.SS "\fBtoken::ptr_t\fP host_exerciser::host_exerciser::get_token ()\fC [inline]\fP"
+
+.PP
+Definition at line 570 of file host_exerciser\&.h\&.
+.SS "bool host_exerciser::host_exerciser::option_passed (std::string option_str)\fC [inline]\fP"
+
+.PP
+Definition at line 575 of file host_exerciser\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint32_t host_exerciser::host_exerciser::count_"
+
+.PP
+Definition at line 432 of file cxl_host_exerciser\&.h\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_modes_"
+
+.PP
+Definition at line 546 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_req_cls_len_"
+
+.PP
+Definition at line 547 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_req_atomic_func_"
+
+.PP
+Definition at line 548 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_req_encoding_"
+
+.PP
+Definition at line 549 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "bool host_exerciser::host_exerciser::he_delay_"
+
+.PP
+Definition at line 550 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "bool host_exerciser::host_exerciser::he_continuousmode_"
+
+.PP
+Definition at line 551 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_continuousmode(), host_exerciser::host_exerciser_cmd::he_perf_counters(), host_exerciser::host_exerciser_cmd::parse_input_options(), host_exerciser::host_exerciser_cmd::run_all_tests(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "bool host_exerciser::host_exerciser::he_test_all_"
+
+.PP
+Definition at line 552 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::run()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_interleave_"
+
+.PP
+Definition at line 553 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_interrupt_"
+
+.PP
+Definition at line 554 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::parse_input_options(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_contmodetime_"
+
+.PP
+Definition at line 555 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_continuousmode(), host_exerciser::host_exerciser_cmd::parse_input_options(), and host_exerciser::host_exerciser_cmd::run_all_tests()\&.
+.SS "uint32_t host_exerciser::host_exerciser::he_clock_mhz_"
+
+.PP
+Definition at line 556 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::he_num_xfers_to_bw(), and host_exerciser::host_exerciser_cmd::run()\&.
+.SS "std::map<uint32_t, uint32_t> host_exerciser::host_exerciser::limits_"
+
+.PP
+Definition at line 558 of file host_exerciser\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,78 @@
+.TH "include/opae/userclk.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/userclk.h \- Functions for setting and get afu user clock\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaSetUserClock\fP (\fBfpga_handle\fP handle, uint64_t high_clk, uint64_t low_clk, int flags)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetUserClock\fP (\fBfpga_handle\fP handle, uint64_t *high_clk, uint64_t *low_clk, int flags)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions for setting and get afu user clock\&. 
+
+
+.PP
+Definition in file \fBuserclk\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaSetUserClock (\fBfpga_handle\fP handle, uint64_t high_clk, uint64_t low_clk, int flags)"
+set afu user clock high and low 
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened accelerator resource\&. 
+.br
+\fIhigh_clk\fP AFU High user clock frequency in MHz\&. 
+.br
+\fIlow_clk\fP AFU Low user clock frequency in MHz\&. 
+.br
+\fIflags\fP Flags Reserved\&.
+.RE
+.PP
+\&.*
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if invalid parameters were provided, or if the parameter combination is not valid\&. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetUserClock (\fBfpga_handle\fP handle, uint64_t * high_clk, uint64_t * low_clk, int flags)"
+Get afu user clock high and low 
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle to previously opened accelerator resource\&. 
+.br
+\fIhigh_clk\fP AFU High user clock frequency in MHz\&. 
+.br
+\fIlow_clk\fP AFU Low user clock frequency in MHz\&. 
+.br
+\fIflags\fP Flags Reserved\&.
+.RE
+.PP
+\&.*
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if invalid parameters were provided, or if the parameter combination is not valid\&. FPGA_EXCEPTION if an internal exception occurred while trying to access the handle\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,54 @@
+.TH "samples/dummy_afu/ddr.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/dummy_afu/ddr.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <chrono>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include 'afu_test\&.h'\fP
+.br
+\fC#include 'dummy_afu\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBdummy_afu::ddr_test\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBdummy_afu\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBtest_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<class T > int \fBdummy_afu::check_stat\fP (std::shared_ptr< spdlog::logger > logger, const char *name, T stat)"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "using \fBtest_afu\fP =  \fBopae::afu_test::afu\fP"
+
+.PP
+Definition at line 32 of file ddr\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

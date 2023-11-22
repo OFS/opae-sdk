@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtoken__group" kind="struct" language="C++" prot="public">
+    <compoundname>token_group</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+        <definition>fpga_token token_group::token</definition>
+        <argsstring></argsstring>
+        <name>token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="96" column="12" bodyfile="samples/object_api/object_api.c" bodystart="96" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" compoundref="object__api_8c" startline="141" endline="150">add_clock</referencedby>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structtoken__group_1acf0c62f0bafada1b09873fae376f9c83" prot="public" static="no" mutable="no">
+        <type><ref refid="structmetric__group" kindref="compound">metric_group</ref> *</type>
+        <definition>metric_group* token_group::groups</definition>
+        <argsstring></argsstring>
+        <name>groups</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="97" column="14" bodyfile="samples/object_api/object_api.c" bodystart="97" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t token_group::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="98" column="8" bodyfile="samples/object_api/object_api.c" bodystart="98" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" prot="public" static="no" mutable="no">
+        <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+        <definition>fpga_object token_group::clock</definition>
+        <argsstring></argsstring>
+        <name>clock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="99" column="13" bodyfile="samples/object_api/object_api.c" bodystart="99" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" compoundref="object__api_8c" startline="141" endline="150">add_clock</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>named_object</label>
+        <link refid="structnamed__object"/>
+      </node>
+      <node id="1">
+        <label>token_group</label>
+        <link refid="structtoken__group"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+groups</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>metric_group</label>
+        <link refid="structmetric__group"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+objects</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="samples/object_api/object_api.c" line="95" column="1" bodyfile="samples/object_api/object_api.c" bodystart="95" bodyend="100"/>
+    <listofallmembers>
+      <member refid="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" prot="public" virt="non-virtual"><scope>token_group</scope><name>clock</name></member>
+      <member refid="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" prot="public" virt="non-virtual"><scope>token_group</scope><name>count</name></member>
+      <member refid="structtoken__group_1acf0c62f0bafada1b09873fae376f9c83" prot="public" virt="non-virtual"><scope>token_group</scope><name>groups</name></member>
+      <member refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" prot="public" virt="non-virtual"><scope>token_group</scope><name>token</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

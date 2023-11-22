@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__status1_8____unnamed124____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_status1.__unnamed124__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__status1_8____unnamed124_____1af07abd81c5902d8c4f69ede7d940050e" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>numPendWrites</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="264" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__status1_8____unnamed124_____1a14ace46a4d47d176dd2b4aaab1eba30a" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>numPendReads</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="265" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__status1_8____unnamed124_____1a0f084f1c8d6947d1b2f17b4be231269f" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>numPendEmifWrites</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="266" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__status1_8____unnamed124_____1a674275ab90fe378ec580306c9ea1e01d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>numPendEmifReads</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="267" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_status1.__unnamed124__</label>
+        <link refid="structhost__exerciser_1_1he__status1_8____unnamed124____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="263" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="263" bodyend="268"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__status1_8____unnamed124_____1a674275ab90fe378ec580306c9ea1e01d" prot="public" virt="non-virtual"><scope>host_exerciser::he_status1.__unnamed124__</scope><name>numPendEmifReads</name></member>
+      <member refid="structhost__exerciser_1_1he__status1_8____unnamed124_____1a0f084f1c8d6947d1b2f17b4be231269f" prot="public" virt="non-virtual"><scope>host_exerciser::he_status1.__unnamed124__</scope><name>numPendEmifWrites</name></member>
+      <member refid="structhost__exerciser_1_1he__status1_8____unnamed124_____1a14ace46a4d47d176dd2b4aaab1eba30a" prot="public" virt="non-virtual"><scope>host_exerciser::he_status1.__unnamed124__</scope><name>numPendReads</name></member>
+      <member refid="structhost__exerciser_1_1he__status1_8____unnamed124_____1af07abd81c5902d8c4f69ede7d940050e" prot="public" virt="non-virtual"><scope>host_exerciser::he_status1.__unnamed124__</scope><name>numPendWrites</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

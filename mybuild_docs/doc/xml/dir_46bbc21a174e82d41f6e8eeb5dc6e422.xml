@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_46bbc21a174e82d41f6e8eeb5dc6e422" kind="dir">
+    <compoundname>samples/dummy_afu</compoundname>
+    <innerfile refid="ddr_8h">ddr.h</innerfile>
+    <innerfile refid="dummy__afu_8cpp">dummy_afu.cpp</innerfile>
+    <innerfile refid="dummy__afu_8h">dummy_afu.h</innerfile>
+    <innerfile refid="lpbk_8h">lpbk.h</innerfile>
+    <innerfile refid="samples_2dummy__afu_2mmio_8h">mmio.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/dummy_afu/"/>
+  </compounddef>
+</doxygen>

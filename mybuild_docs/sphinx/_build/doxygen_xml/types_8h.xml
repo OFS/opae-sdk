@@ -1,0 +1,800 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="types_8h" kind="file" language="C++">
+    <compoundname>types.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="types__enum_8h" local="no">opae/types_enum.h</includes>
+    <includedby refid="access_8h" local="no">include/opae/access.h</includedby>
+    <includedby refid="buffer_8h" local="no">include/opae/buffer.h</includedby>
+    <includedby refid="handle_8h" local="no">include/opae/cxx/core/handle.h</includedby>
+    <includedby refid="cxx_2core_2sysobject_8h" local="no">include/opae/cxx/core/sysobject.h</includedby>
+    <includedby refid="token_8h" local="no">include/opae/cxx/core/token.h</includedby>
+    <includedby refid="cxx_2core_2version_8h" local="no">include/opae/cxx/core/version.h</includedby>
+    <includedby refid="enum_8h" local="no">include/opae/enum.h</includedby>
+    <includedby refid="error_8h" local="no">include/opae/error.h</includedby>
+    <includedby refid="event_8h" local="no">include/opae/event.h</includedby>
+    <includedby refid="fpga_8h" local="no">include/opae/fpga.h</includedby>
+    <includedby refid="log_8h" local="no">include/opae/log.h</includedby>
+    <includedby refid="manage_8h" local="no">include/opae/manage.h</includedby>
+    <includedby refid="metrics_8h" local="no">include/opae/metrics.h</includedby>
+    <includedby refid="include_2opae_2mmio_8h" local="no">include/opae/mmio.h</includedby>
+    <includedby refid="properties_8h" local="no">include/opae/properties.h</includedby>
+    <includedby refid="sysobject_8h" local="no">include/opae/sysobject.h</includedby>
+    <includedby refid="umsg_8h" local="no">include/opae/umsg.h</includedby>
+    <includedby refid="userclk_8h" local="no">include/opae/userclk.h</includedby>
+    <includedby refid="utils_8h" local="no">include/opae/utils.h</includedby>
+    <includedby refid="version_8h" local="no">include/opae/version.h</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+      <node id="5">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="1">
+        <label>include/opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_lpbk_cmd.h</label>
+        <link refid="cxl__he__cache__lpbk__cmd_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>include/opae/cxx/core/handle.h</label>
+        <link refid="handle_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>samples/host_exerciser/host_exerciser.cpp</label>
+        <link refid="host__exerciser_8cpp"/>
+      </node>
+      <node id="42">
+        <label>include/opae/error.h</label>
+        <link refid="error_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>samples/mem_tg/mem_tg.h</label>
+        <link refid="mem__tg_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>samples/dummy_afu/dummy_afu.cpp</label>
+        <link refid="dummy__afu_8cpp"/>
+      </node>
+      <node id="18">
+        <label>samples/dummy_afu/mmio.h</label>
+        <link refid="samples_2dummy__afu_2mmio_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.h</label>
+        <link refid="cxl__mem__tg_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>samples/hello_fpga/hello_fpga.c</label>
+        <link refid="hello__fpga_8c"/>
+      </node>
+      <node id="6">
+        <label>samples/cxl_host_exerciser/he_cache_test.h</label>
+        <link refid="he__cache__test_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.h</label>
+        <link refid="cxl__host__exerciser_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>include/opae/userclk.h</label>
+        <link refid="userclk_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+      </node>
+      <node id="55">
+        <label>include/opae/version.h</label>
+        <link refid="version_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>include/opae/cxx/core/shared_buffer.h</label>
+        <link refid="shared__buffer_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>samples/host_exerciser/host_exerciser.h</label>
+        <link refid="host__exerciser_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>include/opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>samples/cxl_host_exerciser/cxl_host_exerciser.cpp</label>
+        <link refid="cxl__host__exerciser_8cpp"/>
+      </node>
+      <node id="17">
+        <label>samples/dummy_afu/lpbk.h</label>
+        <link refid="lpbk_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>include/opae/cxx/core/version.h</label>
+        <link refid="cxx_2core_2version_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>samples/n5010-test/n5010-test.c</label>
+        <link refid="n5010-test_8c"/>
+      </node>
+      <node id="45">
+        <label>include/opae/manage.h</label>
+        <link refid="manage_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>include/opae/metrics.h</label>
+        <link refid="metrics_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>include/opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>include/opae/sysobject.h</label>
+        <link refid="sysobject_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>samples/host_exerciser/host_exerciser_mem.h</label>
+        <link refid="host__exerciser__mem_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>include/opae/cxx/core/sysobject.h</label>
+        <link refid="cxx_2core_2sysobject_8h"/>
+      </node>
+      <node id="5">
+        <label>include/opae/cxx/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>samples/dummy_afu/dummy_afu.h</label>
+        <link refid="dummy__afu_8h"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+      </node>
+      <node id="28">
+        <label>samples/cxl_mem_tg/cxl_tg_test.h</label>
+        <link refid="cxl__tg__test_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>include/opae/cxx/core/properties.h</label>
+        <link refid="cxx_2core_2properties_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>include/opae/event.h</label>
+        <link refid="event_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>samples/mem_tg/tg_test.h</label>
+        <link refid="tg__test_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>samples/host_exerciser/host_exerciser_cmd.h</label>
+        <link refid="host__exerciser__cmd_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>include/opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>include/opae/cxx/core/token.h</label>
+        <link refid="token_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>include/opae/cxx/core/errors.h</label>
+        <link refid="errors_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>include/opae/umsg.h</label>
+        <link refid="umsg_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>include/opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>samples/cxl_mem_tg/cxl_mem_tg.cpp</label>
+        <link refid="cxl__mem__tg_8cpp"/>
+      </node>
+      <node id="30">
+        <label>samples/mem_tg/mem_tg.cpp</label>
+        <link refid="mem__tg_8cpp"/>
+      </node>
+      <node id="41">
+        <label>include/opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>include/opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>samples/cxl_host_exerciser/cxl_he_cmd.h</label>
+        <link refid="cxl__he__cmd_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>samples/dummy_afu/ddr.h</label>
+        <link refid="ddr_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>include/opae/cxx/core/events.h</label>
+        <link refid="events_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>include/opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>samples/hello_afu/sw/hello_afu.c</label>
+        <link refid="hello__afu_8c"/>
+      </node>
+      <node id="35">
+        <label>samples/n5010-ctl/n5010-ctl.c</label>
+        <link refid="n5010-ctl_8c"/>
+      </node>
+      <node id="7">
+        <label>samples/cxl_host_exerciser/cxl_he_cache_cmd.h</label>
+        <link refid="cxl__he__cache__cmd_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>include/opae/log.h</label>
+        <link refid="log_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>include/opae/cxx/core/pvalue.h</label>
+        <link refid="pvalue_8h"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>samples/host_exerciser/host_exerciser_lpbk.h</label>
+        <link refid="host__exerciser__lpbk_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structfpga__version" prot="public">fpga_version</innerclass>
+    <innerclass refid="structfpga__error__info" prot="public">fpga_error_info</innerclass>
+    <innerclass refid="unionmetric__value" prot="public">metric_value</innerclass>
+    <innerclass refid="structfpga__metric__info" prot="public">fpga_metric_info</innerclass>
+    <innerclass refid="structfpga__metric" prot="public">fpga_metric</innerclass>
+    <innerclass refid="structthreshold" prot="public">threshold</innerclass>
+    <innerclass refid="structmetric__threshold" prot="public">metric_threshold</innerclass>
+    <innerclass refid="structfpga__token__header" prot="public">fpga_token_header</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="types_8h_1a6af563bebf37e9c908aa7fe8470efa8f" prot="public" static="no">
+        <name>FPGA_ERROR_NAME_MAX</name>
+        <initializer>64</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Information about an error register</para>
+<para>This data structure captures information about an error register exposed by an accelerator resource. The error API provides functions to retrieve these information structures from a particular resource. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="168" column="9" bodyfile="include/opae/types.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" prot="public" static="no">
+        <name>FPGA_METRIC_STR_SIZE</name>
+        <initializer>256</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>FPGA Metric string size </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="195" column="9" bodyfile="include/opae/types.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="types_8h_1a8a497e598ca0addd676b0c4719011b47" prot="public" static="no">
+        <name>fpga_is_parent_child</name>
+        <param><defname>__parent_hdr</defname></param>
+        <param><defname>__child_hdr</defname></param>
+        <initializer>(((__parent_hdr)-&gt;objtype == <ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" kindref="member">FPGA_DEVICE</ref>) &amp;&amp; \
+ ((__child_hdr)-&gt;objtype == <ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a5c3973a253ffaabddd0a083f05abebc7" kindref="member">FPGA_ACCELERATOR</ref>) &amp;&amp; \
+ ((__parent_hdr)-&gt;segment == (__child_hdr)-&gt;segment) &amp;&amp; \
+ ((__parent_hdr)-&gt;bus == (__child_hdr)-&gt;bus) &amp;&amp; \
+ ((__parent_hdr)-&gt;device == (__child_hdr)-&gt;device))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine token parent/child relationship</para>
+<para>Given pointers to two <ref refid="structfpga__token__header" kindref="compound">fpga_token_header</ref> structs, determine whether the first is the parent of the second. A parent will have objtype == FPGA_DEVICE. A child will have objtype == FPGA_ACCELERATOR. The PCIe address of the two headers will match in all but the function fields. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="288" column="9" bodyfile="include/opae/types.h" bodystart="288" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="types_8h_1ab868bdeab946a8059abe7e9c114aee56" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* fpga_properties</definition>
+        <argsstring></argsstring>
+        <name>fpga_properties</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Object for expressing FPGA resource properties</para>
+<para><computeroutput>fpga_properties</computeroutput> objects encapsulate all enumerable information about an FPGA resources. They can be used for two purposes: selective enumeration (discovery) and querying information about existing resources.</para>
+<para>For selective enumeration, usually an empty <computeroutput>fpga_properties</computeroutput> object is created (using <ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref>) and then populated with the desired criteria for enumeration. An array of <computeroutput>fpga_properties</computeroutput> can then be passed to <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref>, which will return a list of <computeroutput>fpga_token</computeroutput> objects matching these criteria.</para>
+<para>For querying properties of existing FPGA resources, <ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref> can also take an <computeroutput>fpga_token</computeroutput> and will return an <computeroutput>fpga_properties</computeroutput> object populated with information about the resource referenced by that token.</para>
+<para>After use, <computeroutput>fpga_properties</computeroutput> objects should be destroyed using fpga_destroyProperties() to free backing memory used by the <computeroutput>fpga_properties</computeroutput> object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="92" column="14" bodyfile="include/opae/types.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="types_8h_1a252f538a10fb51d0988ed52946516d9e" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* fpga_token</definition>
+        <argsstring></argsstring>
+        <name>fpga_token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Token for referencing FPGA resources</para>
+<para>An <computeroutput>fpga_token</computeroutput> serves as a reference to a specific FPGA resource present in the system. Holding an <computeroutput>fpga_token</computeroutput> does not constitute ownership of the FPGA resource - it merely allows the user to query further information about a resource, or to use <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref> to acquire ownership.</para>
+<para><computeroutput>fpga_token</computeroutput>s are usually returned by <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref> or <ref refid="properties_8h_1aa3d6d131a85e9c7cff4844c0931c1591" kindref="member">fpgaPropertiesGetParent()</ref>, and used by <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref> to acquire ownership and yield a handle to the resource. Some API calls also take <computeroutput>fpga_token</computeroutput>s as arguments if they don&apos;t require ownership of the resource in question. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="107" column="14" bodyfile="include/opae/types.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="types_8h_1a4ad40f31195233b629bcde187b0556d5" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* fpga_handle</definition>
+        <argsstring></argsstring>
+        <name>fpga_handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Handle to an FPGA resource</para>
+<para>A valid <computeroutput>fpga_handle</computeroutput> object, as populated by <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref>, denotes ownership of an FPGA resource. Note that ownership can be exclusive or shared, depending on the flags used in <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref>. Ownership can be released by calling <ref refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79" kindref="member">fpgaClose()</ref>, which will render the underlying handle invalid.</para>
+<para>Many OPAE C API functions require a valid token (which is synonymous with ownership of the resource). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="120" column="14" bodyfile="include/opae/types.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="types_8h_1af0b6683499be79fab39ac41db02e7abf" prot="public" static="no">
+        <type>uint8_t</type>
+        <definition>typedef uint8_t fpga_guid[16]</definition>
+        <argsstring>[16]</argsstring>
+        <name>fpga_guid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Globally unique identifier (GUID)</para>
+<para>GUIDs are used widely within OPAE for helping identify FPGA resources. For example, every FPGA resource has a <computeroutput>guid</computeroutput> property, which can be (and in the case of FPGA_ACCELERATOR resource primarily is) used for enumerating a resource of a specific type.</para>
+<para><computeroutput>fpga_guid</computeroutput> is compatible with libuuid&apos;s uuid_t, so users can use libuuid functions like uuid_parse() to create and work with GUIDs. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="133" column="17" bodyfile="include/opae/types.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* fpga_event_handle</definition>
+        <argsstring></argsstring>
+        <name>fpga_event_handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Handle to an event object</para>
+<para>OPAE provides an interface to asynchronous events that can be generated by different FPGA resources. The event API provides functions to register for these events; associated with every event a process has registered for is an <computeroutput>fpga_event_handle</computeroutput>, which encapsulates the OS-specific data structure for event objects.</para>
+<para>After use, <computeroutput>fpga_event_handle</computeroutput> objects should be destroyed using <ref refid="event_8h_1ab8e748d1c491717d677a96c23dee987b" kindref="member">fpgaDestroyEventHandle()</ref> to free backing memory used by the <computeroutput>fpga_event_handle</computeroutput> object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="160" column="14" bodyfile="include/opae/types.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* fpga_object</definition>
+        <argsstring></argsstring>
+        <name>fpga_object</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Object pertaining to an FPGA resource as identified by a unique name</para>
+<para>An <computeroutput>fpga_object</computeroutput> represents either a device attribute or a container of attributes. Similar to filesystems, a &apos;/&apos; may be used to seperate objects in an object hierarchy. Once on object is acquired, it may be used to read or write data in a resource attribute or to query sub-objects if the object is a container object. The data in an object is buffered and will be kept around until the object is destroyed. Additionally, the data in an attribute can by synchronized from the owning resource using the FPGA_OBJECT_SYNC flag during read operations. The name identifying the object is unique with respect to the resource that owns it. A parent resource may be identified by an <computeroutput>fpga_token</computeroutput> object, by an <computeroutput>fpga_handle</computeroutput> object, or another <computeroutput>fpga_object</computeroutput> object. If a handle object is used when opening the object, then the object is opened with read-write access. Otherwise, the object is read-only. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/types.h" line="189" column="14" bodyfile="include/opae/types.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Type definitions for FPGA API. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>OPAE uses the three opaque types fpga_properties, fpga_token, and fpga_handle to create a hierarchy of objects that can be used to enumerate, reference, acquire, and query FPGA resources. This object model is designed to be extensible to account for different FPGA architectures and platforms.</para>
+<sect2 id="types_8h_1autotoc_md1">
+<title>Initialization</title>
+<para>OPAEs management of the opaque types <computeroutput>fpga_properties</computeroutput>, <computeroutput>fpga_token</computeroutput>, and <computeroutput>fpga_handle</computeroutput> relies on the proper initialization of variables of these types. In other words, before doing anything with a variable of one of these opaque types, you need to first initialize them.</para>
+<para>The respective functions that initialize opaque types are:</para>
+<para><itemizedlist>
+<listitem><para><ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref> and <ref refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" kindref="member">fpgaCloneProperties()</ref> for <computeroutput>fpga_properties</computeroutput></para>
+</listitem><listitem><para><ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref> and <ref refid="enum_8h_1a43a84795de460e8288070b672ef90a59" kindref="member">fpgaCloneToken()</ref> for <computeroutput>fpga_token</computeroutput></para>
+</listitem><listitem><para><ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref> for <computeroutput>fpga_handle</computeroutput></para>
+</listitem></itemizedlist>
+</para>
+<para>This should intuitively make sense - <ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties()</ref> creates <computeroutput>fpga_properties</computeroutput> objects, <ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate()</ref> creates <computeroutput>fpga_token</computeroutput> objects, <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref> creates <computeroutput>fpga_handle</computeroutput> objects, and <ref refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" kindref="member">fpgaCloneProperties()</ref> and <ref refid="enum_8h_1a43a84795de460e8288070b672ef90a59" kindref="member">fpgaCloneToken()</ref> clone (create) <computeroutput>fpga_properties</computeroutput> and <computeroutput>fpga_token</computeroutput> objects, respectively.</para>
+<para>Since these opaque types are interpreted as pointers (they are typedef&apos;d to a <computeroutput>void *</computeroutput>), passing an uninitialized opaque type into any function except the respective initailzation function will result in undefined behaviour, because OPAE will try to follow an invalid pointer. Undefined behaviour in this case may include an unexpected error code, or an application crash. </para>
+</sect2>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2018-2022,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__FPGA_TYPES_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__FPGA_TYPES_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="types__enum_8h" kindref="compound">opae/types_enum.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref>[16];</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="structfpga__version" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="143" refid="structfpga__version_1ad7129ea29f56980bf4031b860102565f" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/><ref refid="structfpga__version_1ad7129ea29f56980bf4031b860102565f" kindref="member">major</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="144" refid="structfpga__version_1a0f3eb4a91ba70d0a60f56174c685b762" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/><ref refid="structfpga__version_1a0f3eb4a91ba70d0a60f56174c685b762" kindref="member">minor</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="145" refid="structfpga__version_1a3c5b1d07c0628aa9b6f3bd086ed0d962" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint16_t<sp/><ref refid="structfpga__version_1a3c5b1d07c0628aa9b6f3bd086ed0d962" kindref="member">patch</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}<sp/><ref refid="structfpga__version" kindref="compound">fpga_version</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160" refid="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" kindref="member">fpga_event_handle</ref>;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="types_8h_1a6af563bebf37e9c908aa7fe8470efa8f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FPGA_ERROR_NAME_MAX<sp/>64</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="structfpga__error__info" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfpga__error__info" kindref="compound">fpga_error_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="170" refid="structfpga__error__info_1a63e0ccbeddbe44792e1c1f7375243751" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structfpga__error__info_1a63e0ccbeddbe44792e1c1f7375243751" kindref="member">name</ref>[<ref refid="types_8h_1a6af563bebf37e9c908aa7fe8470efa8f" kindref="member">FPGA_ERROR_NAME_MAX</ref>];<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="171" refid="structfpga__error__info_1a8f3a6c3707e10f13a55662a081494e69" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structfpga__error__info_1a8f3a6c3707e10f13a55662a081494e69" kindref="member">can_clear</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="172"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref>;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195" refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FPGA_METRIC_STR_SIZE<sp/><sp/><sp/>256</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200" refid="unionmetric__value" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="201" refid="unionmetric__value_1a3157831ae4c4f8ecda1f61bdaea2ef13" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><sp/><sp/><ref refid="unionmetric__value_1a3157831ae4c4f8ecda1f61bdaea2ef13" kindref="member">ivalue</ref>;<sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>integer<sp/>value</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202" refid="unionmetric__value_1a40409d5d9e5b9f16e3270bed34404871" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="unionmetric__value_1a40409d5d9e5b9f16e3270bed34404871" kindref="member">dvalue</ref>;<sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>double<sp/>value</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203" refid="unionmetric__value_1a171100c87da379700719f03ccac03092" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="unionmetric__value_1a171100c87da379700719f03ccac03092" kindref="member">fvalue</ref>;<sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>float<sp/>value</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204" refid="unionmetric__value_1aee6957b949306871afb1d006b066409f" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="unionmetric__value_1aee6957b949306871afb1d006b066409f" kindref="member">bvalue</ref>;<sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>bool<sp/>value</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal">}<sp/><ref refid="unionmetric__value" kindref="compound">metric_value</ref>;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212" refid="structfpga__metric__info" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfpga__metric__info" kindref="compound">fpga_metric_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="213" refid="structfpga__metric__info_1adfdb0c64c6e3d00d35f9c8996cf36463" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structfpga__metric__info_1adfdb0c64c6e3d00d35f9c8996cf36463" kindref="member">metric_num</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>index<sp/>num</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214" refid="structfpga__metric__info_1af2e751ebec0b9526a73a59a29461a64a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref><sp/><ref refid="structfpga__metric__info_1af2e751ebec0b9526a73a59a29461a64a" kindref="member">metric_guid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>guid</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215" refid="structfpga__metric__info_1a38d4fbdc2acde2f19711c9733db6e24c" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structfpga__metric__info_1a38d4fbdc2acde2f19711c9733db6e24c" kindref="member">qualifier_name</ref>[<ref refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" kindref="member">FPGA_METRIC_STR_SIZE</ref>];<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>full<sp/>name</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216" refid="structfpga__metric__info_1aa3930b74a55578cf4f030f9ae284b848" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structfpga__metric__info_1aa3930b74a55578cf4f030f9ae284b848" kindref="member">group_name</ref>[<ref refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" kindref="member">FPGA_METRIC_STR_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>group<sp/>name</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217" refid="structfpga__metric__info_1a3d336a0f9766b5c8e6a00069c2cc13e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structfpga__metric__info_1a3d336a0f9766b5c8e6a00069c2cc13e0" kindref="member">metric_name</ref>[<ref refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" kindref="member">FPGA_METRIC_STR_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>name</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218" refid="structfpga__metric__info_1a3aef82b39037b6e4646f811fea4f93e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structfpga__metric__info_1a537b1236822cc923a44ed0440dc8500a" kindref="member">metric_units</ref>[<ref refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" kindref="member">FPGA_METRIC_STR_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>units</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1ab10f51ceeb88998e5d0389cbd3d55bcc" kindref="member">fpga_metric_datatype</ref><sp/><ref refid="structfpga__metric__info_1a3aef82b39037b6e4646f811fea4f93e4" kindref="member">metric_datatype</ref>;<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>data<sp/>type</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a04334291d3fe08ee2385f534629f3094" kindref="member">fpga_metric_type</ref><sp/><ref refid="structfpga__metric__info_1a0f1ee188177b88a3ade06b635c45743b" kindref="member">metric_type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>group<sp/>type</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">}<sp/><ref refid="structfpga__metric__info" kindref="compound">fpga_metric_info</ref>;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227" refid="structfpga__metric" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfpga__metric" kindref="compound">fpga_metric</ref><sp/>{</highlight></codeline>
+<codeline lineno="228" refid="structfpga__metric_1a05d5221efe860841a350b4c81c26f8d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structfpga__metric_1a05d5221efe860841a350b4c81c26f8d2" kindref="member">metric_num</ref>;<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>index<sp/>num</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229" refid="structfpga__metric_1a0e64950f7e2c90ca97009d564cca1d04" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="unionmetric__value" kindref="compound">metric_value</ref><sp/><ref refid="structfpga__metric_1a0e64950f7e2c90ca97009d564cca1d04" kindref="member">value</ref>;<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>value</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="structfpga__metric_1a43c9f922234a08609b8c586ec948e6b1" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structfpga__metric_1a43c9f922234a08609b8c586ec948e6b1" kindref="member">isvalid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>value<sp/>is<sp/>valid</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal">}<sp/><ref refid="structfpga__metric" kindref="compound">fpga_metric</ref>;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238" refid="structthreshold" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structthreshold" kindref="compound">threshold</ref><sp/>{</highlight></codeline>
+<codeline lineno="239" refid="structthreshold_1a3b1e319947fc05dfb36ded4fb08940b3" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structthreshold_1a3b1e319947fc05dfb36ded4fb08940b3" kindref="member">threshold_name</ref>[<ref refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" kindref="member">FPGA_METRIC_STR_SIZE</ref>];<sp/></highlight><highlight class="comment">//<sp/>Threshold<sp/>name</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240" refid="structthreshold_1a65fef448c835c04ba240e1fed004192e" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><ref refid="structthreshold_1a65fef448c835c04ba240e1fed004192e" kindref="member">is_valid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Threshold<sp/>is<sp/>valid</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241" refid="structthreshold_1a1af0ffe5e1a7dd82234952db9ab1bc40" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structthreshold_1a1af0ffe5e1a7dd82234952db9ab1bc40" kindref="member">value</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Threshold<sp/>value</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">}<sp/><ref refid="structthreshold" kindref="compound">threshold</ref>;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244" refid="structmetric__threshold" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmetric__threshold" kindref="compound">metric_threshold</ref><sp/>{</highlight></codeline>
+<codeline lineno="245" refid="structmetric__threshold_1a63c4387d2ad646feb31c6f3dac3fb987" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structmetric__threshold_1a63c4387d2ad646feb31c6f3dac3fb987" kindref="member">metric_name</ref>[<ref refid="types_8h_1a38d47f983b7adaa90dda28ef60de86ca" kindref="member">FPGA_METRIC_STR_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Metric<sp/>Threshold<sp/>name</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246" refid="structmetric__threshold_1abf891f1ebf3009188f833562401c01c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1abf891f1ebf3009188f833562401c01c7" kindref="member">upper_nr_threshold</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Upper<sp/>Non-Recoverable<sp/>Threshold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247" refid="structmetric__threshold_1ab4343b83ae47a10bfdeb223297d761f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1ab4343b83ae47a10bfdeb223297d761f9" kindref="member">upper_c_threshold</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Upper<sp/>Critical<sp/>Threshold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248" refid="structmetric__threshold_1a2bc47facaf3ef988f041e2401a9ca38b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1a2bc47facaf3ef988f041e2401a9ca38b" kindref="member">upper_nc_threshold</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Upper<sp/>Non-Critical<sp/>Threshold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249" refid="structmetric__threshold_1a731aa786b82861be91dba21a71b8a729" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1a731aa786b82861be91dba21a71b8a729" kindref="member">lower_nr_threshold</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Lower<sp/>Non-Recoverable<sp/>Threshold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250" refid="structmetric__threshold_1a7e56a0642bbea2cdd5c688e56bd622d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1a7e56a0642bbea2cdd5c688e56bd622d7" kindref="member">lower_c_threshold</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Lower<sp/>Critical<sp/>Threshold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251" refid="structmetric__threshold_1a023d220c713f20476c51c164b59d0a7b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1a023d220c713f20476c51c164b59d0a7b" kindref="member">lower_nc_threshold</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Lower<sp/>Non-Critical<sp/>Threshold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252" refid="structmetric__threshold_1ae212230698181daf72fbbfe71a0fb1e5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structthreshold" kindref="compound">threshold</ref><sp/><ref refid="structmetric__threshold_1ae212230698181daf72fbbfe71a0fb1e5" kindref="member">hysteresis</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Hysteresis</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal">}<sp/><ref refid="structmetric__threshold" kindref="compound">metric_threshold</ref>;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264" refid="structfpga__token__header" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">_fpga_token_header<sp/>{</highlight></codeline>
+<codeline lineno="265" refid="structfpga__token__header_1a2f1ca035b23b1d256c0897c87088e3e9" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structfpga__token__header_1a2f1ca035b23b1d256c0897c87088e3e9" kindref="member">magic</ref>;</highlight></codeline>
+<codeline lineno="266" refid="structfpga__token__header_1a9d6a110f9565c98f6af128b544ccd9d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint16_t<sp/><ref refid="structfpga__token__header_1a9d6a110f9565c98f6af128b544ccd9d7" kindref="member">vendor_id</ref>;</highlight></codeline>
+<codeline lineno="267" refid="structfpga__token__header_1adbd582f365bccde67633a77ee997b82f" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint16_t<sp/><ref refid="structfpga__token__header_1adbd582f365bccde67633a77ee997b82f" kindref="member">device_id</ref>;</highlight></codeline>
+<codeline lineno="268" refid="structfpga__token__header_1a9d99b916146fb609bf7266ee5facea92" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint16_t<sp/><ref refid="structfpga__token__header_1a9d99b916146fb609bf7266ee5facea92" kindref="member">segment</ref>;</highlight></codeline>
+<codeline lineno="269" refid="structfpga__token__header_1a0e5a70d6ef42a26544d85ea50340fb36" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/><ref refid="structfpga__token__header_1a0e5a70d6ef42a26544d85ea50340fb36" kindref="member">bus</ref>;</highlight></codeline>
+<codeline lineno="270" refid="structfpga__token__header_1a44e4a70a27892c61fd9dc0ef8899ce87" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/><ref refid="structfpga__token__header_1a44e4a70a27892c61fd9dc0ef8899ce87" kindref="member">device</ref>;</highlight></codeline>
+<codeline lineno="271" refid="structfpga__token__header_1ae517a83a32a886df54165c583cc5aa0a" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/></highlight><highlight class="keyword">function</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="272" refid="structfpga__token__header_1aa51f72f309bb8d31b997592b802db331" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b433f944fba4b80dd796dec286412cb" kindref="member">fpga_interface</ref><sp/><ref refid="structfpga__token__header_1aa51f72f309bb8d31b997592b802db331" kindref="member">interface</ref>;</highlight></codeline>
+<codeline lineno="273" refid="structfpga__token__header_1aedd4a4c842c5c40092041dc02ea059b2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934" kindref="member">fpga_objtype</ref><sp/><ref refid="structfpga__token__header_1aedd4a4c842c5c40092041dc02ea059b2" kindref="member">objtype</ref>;</highlight></codeline>
+<codeline lineno="274" refid="structfpga__token__header_1ada99f326ab6582aa3a209ef6b9bd4003" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structfpga__token__header_1ada99f326ab6582aa3a209ef6b9bd4003" kindref="member">object_id</ref>;</highlight></codeline>
+<codeline lineno="275" refid="structfpga__token__header_1ae24e0a1d32b1f940e7ffb96a34c31345" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1af0b6683499be79fab39ac41db02e7abf" kindref="member">fpga_guid</ref><sp/><ref refid="structfpga__token__header_1ae24e0a1d32b1f940e7ffb96a34c31345" kindref="member">guid</ref>;</highlight></codeline>
+<codeline lineno="276" refid="structfpga__token__header_1aeaca575d589325a187b9abea66a4192a" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint16_t<sp/><ref refid="structfpga__token__header_1aeaca575d589325a187b9abea66a4192a" kindref="member">subsystem_vendor_id</ref>;</highlight></codeline>
+<codeline lineno="277" refid="structfpga__token__header_1a2710b5d055ec2e27b627e27dfa84007f" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint16_t<sp/><ref refid="structfpga__token__header_1a2710b5d055ec2e27b627e27dfa84007f" kindref="member">subsystem_device_id</ref>;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal">}<sp/><ref refid="structfpga__token__header" kindref="compound">fpga_token_header</ref>;</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288" refid="types_8h_1a8a497e598ca0addd676b0c4719011b47" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fpga_is_parent_child(__parent_hdr,<sp/>__child_hdr)<sp/>\</highlight></codeline>
+<codeline lineno="289"><highlight class="preprocessor">(((__parent_hdr)-&gt;objtype<sp/>==<sp/>FPGA_DEVICE)<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="290"><highlight class="preprocessor"><sp/>((__child_hdr)-&gt;objtype<sp/>==<sp/>FPGA_ACCELERATOR)<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="291"><highlight class="preprocessor"><sp/>((__parent_hdr)-&gt;segment<sp/>==<sp/>(__child_hdr)-&gt;segment)<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="292"><highlight class="preprocessor"><sp/>((__parent_hdr)-&gt;bus<sp/>==<sp/>(__child_hdr)-&gt;bus)<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="293"><highlight class="preprocessor"><sp/>((__parent_hdr)-&gt;device<sp/>==<sp/>(__child_hdr)-&gt;device))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>__FPGA_TYPES_H__</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/opae/types.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,733 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1handle" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::handle</compoundname>
+    <includes refid="handle_8h" local="no">opae/cxx/core/handle.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1handle" kindref="compound">handle</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;handle&gt; opae::fpga::types::handle::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="47" column="27" bodyfile="include/opae/cxx/core/handle.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1handle_1a8ff3920d72109b9be18195550a4ade6c" prot="private" static="no" mutable="no">
+        <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+        <definition>fpga_handle opae::fpga::types::handle::handle_</definition>
+        <argsstring></argsstring>
+        <name>handle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="199" column="15" bodyfile="include/opae/cxx/core/handle.h" bodystart="199" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1handle_1af2581332aaa1b9e0d915e85be86bd8bd" compoundref="handle_8h" startline="56" endline="56">c_type</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1handle_1a4c5a8da253bca8153e4049b3b41073dc" compoundref="handle_8h" startline="60" endline="60">operator fpga_handle</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1handle_1a3f062ef9354f3dedfd2951e1c6722093" prot="private" static="no" mutable="no">
+        <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+        <definition>fpga_token opae::fpga::types::handle::token_</definition>
+        <argsstring></argsstring>
+        <name>token_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="200" column="14" bodyfile="include/opae/cxx/core/handle.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1handle_1aeb907ff1d5395de8b2e7183f52a91a96" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t opae::fpga::types::handle::pasid_</definition>
+        <argsstring></argsstring>
+        <name>pasid_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="201" column="12" bodyfile="include/opae/cxx/core/handle.h" bodystart="201" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a3e1f8ea9be017afa8aec56b463bd431d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::handle::handle</definition>
+        <argsstring>(const handle &amp;)=delete</argsstring>
+        <name>handle</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1handle" kindref="compound">handle</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="49" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a80ced96b872b76d5ee29be562e2fe442" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle" kindref="compound">handle</ref> &amp;</type>
+        <definition>handle&amp; opae::fpga::types::handle::operator=</definition>
+        <argsstring>(const handle &amp;)=delete</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1handle" kindref="compound">handle</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="50" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1abceb3d49e1d506aafe5ba6139cdf5d76" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual opae::fpga::types::handle::~handle</definition>
+        <argsstring>()</argsstring>
+        <name>~handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="52" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1af2581332aaa1b9e0d915e85be86bd8bd" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+        <definition>fpga_handle opae::fpga::types::handle::c_type</definition>
+        <argsstring>() const</argsstring>
+        <name>c_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the underlying OPAE handle. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="56" column="15" bodyfile="include/opae/cxx/core/handle.h" bodystart="56" bodyend="56"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1handle_1a8ff3920d72109b9be18195550a4ade6c" compoundref="handle_8h" startline="199">handle_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a4c5a8da253bca8153e4049b3b41073dc" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::handle::operator fpga_handle</definition>
+        <argsstring>() const</argsstring>
+        <name>operator fpga_handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the underlying OPAE handle. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="60" column="3" bodyfile="include/opae/cxx/core/handle.h" bodystart="60" bodyend="60"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1handle_1a8ff3920d72109b9be18195550a4ade6c" compoundref="handle_8h" startline="199">handle_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1aa9681f30803220ff3731e8346f1ec50c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::handle::reconfigure</definition>
+        <argsstring>(uint32_t slot, const uint8_t *bitstream, size_t size, int flags)</argsstring>
+        <name>reconfigure</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>slot</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>bitstream</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Load a bitstream into an FPGA slot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The slot number to program </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bitstream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The bitstream binary data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The size of the bitstream </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flags that control behavior of reconfiguration. Value of 0 indicates no flags. FPGA_RECONF_FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="classopae_1_1fpga_1_1types_1_1invalid__param" kindref="compound">invalid_param</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the handle is not an FPGA device handle or if the other parameters are not valid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>exception</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if an internal error is encountered. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>busy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the accelerator for the given slot is in use. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="classopae_1_1fpga_1_1types_1_1reconf__error" kindref="compound">reconf_error</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if errors are reported by the driver (CRC or protocol errors). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="81" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1aec8ba1c8e34ba72d15cf0cb55aad5682" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t opae::fpga::types::handle::read_csr32</definition>
+        <argsstring>(uint64_t offset, uint32_t csr_space=0) const</argsstring>
+        <name>read_csr32</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>csr_space</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Read 32 bits from a CSR belonging to a resource associated with a handle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The register offset </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">csr_space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The CSR space to read from. Default is 0.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The 32-bit value read from the CSR </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="93" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1ae943bcd838bba6589c1148e4921b052e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::handle::write_csr32</definition>
+        <argsstring>(uint64_t offset, uint32_t value, uint32_t csr_space=0)</argsstring>
+        <name>write_csr32</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>csr_space</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Write 32 bit to a CSR belonging to a resource associated with a handle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The register offset. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The 32-bit value to write to the register. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">csr_space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The CSR space to read from. Default is 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="104" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a22d74175e9b8989ca6df82d2d03a86f8" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::handle::read_csr64</definition>
+        <argsstring>(uint64_t offset, uint32_t csr_space=0) const</argsstring>
+        <name>read_csr64</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>csr_space</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Read 64 bits from a CSR belonging to a resource associated with a handle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The register offset </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">csr_space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The CSR space to read from. Default is 0.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The 64-bit value read from the CSR </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="115" column="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a5d47d9c51ebccd91fcc97b137cdfc4a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::handle::write_csr64</definition>
+        <argsstring>(uint64_t offset, uint64_t value, uint32_t csr_space=0)</argsstring>
+        <name>write_csr64</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>csr_space</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Write 64 bits to a CSR belonging to a resource associated with a handle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The register offset. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The 64-bit value to write to the register. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">csr_space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The CSR space to read from. Default is 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a8f56dc33d92a7dfcbe9afe29afc96656" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::handle::write_csr512</definition>
+        <argsstring>(uint64_t offset, const void *value, uint32_t csr_space=0)</argsstring>
+        <name>write_csr512</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>csr_space</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Write 512 bits to a CSR belonging to a resource associated with a handle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The register offset. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the 512-bit value to write to the register. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">csr_space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The CSR space to read from. Default is 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="137" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1ae8fd2777f41adc8ed370153e5cefe2ab" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>uint8_t* opae::fpga::types::handle::mmio_ptr</definition>
+        <argsstring>(uint64_t offset, uint32_t csr_space=0) const</argsstring>
+        <name>mmio_ptr</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>csr_space</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve a pointer to the MMIO region. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The byte offset to add to MMIO base. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">csr_space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The desired CSR space. Default is 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>MMIO base + offset </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="144" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a84150dd292ec5d7d964cc5d46767f6a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>virtual void opae::fpga::types::handle::reset</definition>
+        <argsstring>()</argsstring>
+        <name>reset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset the accelerator identified by this handle </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="172" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a479044bb60b23c1626aa9d40d8a9c337" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result opae::fpga::types::handle::close</definition>
+        <argsstring>()</argsstring>
+        <name>close</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Close an accelerator resource (if opened)</para>
+<para><simplesect kind="return"><para>fpga_result indication the result of closing the handle or FPGA_EXCEPTION if handle is not opened</para>
+</simplesect>
+<simplesect kind="note"><para>This is available for explicitly closing a handle. The destructor for handle will call close. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="182" column="15"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a0f4fd7f1aa67d46d548e9df2d31fc965" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+        <definition>token::ptr_t opae::fpga::types::handle::get_token</definition>
+        <argsstring>() const</argsstring>
+        <name>get_token</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the token corresponding to this handle object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="187" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1abbb11abca903c9a8395191c80cbbac46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t opae::fpga::types::handle::bind_sva</definition>
+        <argsstring>()</argsstring>
+        <name>bind_sva</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Bind IOMMU shared virtual addressing</para>
+<para><simplesect kind="return"><para>the non-zero process address space ID on success or zero on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="194" column="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a90fe7bbbdd9bb0c1e02d2cb4449da42c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+        <definition>static handle::ptr_t opae::fpga::types::handle::open</definition>
+        <argsstring>(fpga_token token, int flags)</argsstring>
+        <name>open</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Open an accelerator resource, given a raw fpga_token</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A token describing the accelerator resource to be allocated.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The flags parameter to <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>pointer to the mmio base + offset for the given csr space </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="157" column="24"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1a8aa65702ffc38aa93d141f9cbd3c1cf0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+        <definition>static handle::ptr_t opae::fpga::types::handle::open</definition>
+        <argsstring>(token::ptr_t token, int flags)</argsstring>
+        <name>open</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1token_1adbc72f7f89d7accf08719ffeb4a11fe3" kindref="member">token::ptr_t</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Open an accelerator resource, given a token object</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A token object describing the accelerator resource to be allocated.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The flags parameter to <ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen()</ref>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>shared ptr to a handle object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="168" column="24"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1handle_1ac9d2ff15b3db9080aa32a48ae24a9a93" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::handle::handle</definition>
+        <argsstring>(fpga_handle h)</argsstring>
+        <name>handle</name>
+        <param>
+          <type><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref></type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/handle.h" line="197" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>An allocated accelerator resource</para>
+<para>Represents an accelerator resource that has been allocated by OPAE. Depending on the type of resource, its register space may be read/written using a handle object. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::handle</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1handle"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/handle.h" line="45" column="1" bodyfile="include/opae/cxx/core/handle.h" bodystart="45" bodyend="202"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1abbb11abca903c9a8395191c80cbbac46" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>bind_sva</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1af2581332aaa1b9e0d915e85be86bd8bd" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>c_type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a479044bb60b23c1626aa9d40d8a9c337" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>close</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a0f4fd7f1aa67d46d548e9df2d31fc965" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>get_token</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a3e1f8ea9be017afa8aec56b463bd431d" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>handle</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1ac9d2ff15b3db9080aa32a48ae24a9a93" prot="private" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>handle</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a8ff3920d72109b9be18195550a4ade6c" prot="private" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>handle_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1ae8fd2777f41adc8ed370153e5cefe2ab" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>mmio_ptr</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a90fe7bbbdd9bb0c1e02d2cb4449da42c" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>open</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a8aa65702ffc38aa93d141f9cbd3c1cf0" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>open</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a4c5a8da253bca8153e4049b3b41073dc" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>operator fpga_handle</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a80ced96b872b76d5ee29be562e2fe442" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>operator=</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1aeb907ff1d5395de8b2e7183f52a91a96" prot="private" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>pasid_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1aec8ba1c8e34ba72d15cf0cb55aad5682" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>read_csr32</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a22d74175e9b8989ca6df82d2d03a86f8" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>read_csr64</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1aa9681f30803220ff3731e8346f1ec50c" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>reconfigure</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a84150dd292ec5d7d964cc5d46767f6a1" prot="public" virt="virtual"><scope>opae::fpga::types::handle</scope><name>reset</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a3f062ef9354f3dedfd2951e1c6722093" prot="private" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>token_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1ae943bcd838bba6589c1148e4921b052e" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>write_csr32</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a8f56dc33d92a7dfcbe9afe29afc96656" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>write_csr512</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1a5d47d9c51ebccd91fcc97b137cdfc4a0" prot="public" virt="non-virtual"><scope>opae::fpga::types::handle</scope><name>write_csr64</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1handle_1abceb3d49e1d506aafe5ba6139cdf5d76" prot="public" virt="virtual"><scope>opae::fpga::types::handle</scope><name>~handle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

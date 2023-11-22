@@ -1,0 +1,826 @@
+\doxysection{include/opae/vfio.h File Reference}
+\label{vfio_8h}\index{include/opae/vfio.h@{include/opae/vfio.h}}
+
+
+APIs to manage a PCIe device via vfio-\/pci.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$pthread.\+h$>$}\newline
+{\ttfamily \#include $<$linux/vfio.\+h$>$}\newline
+{\ttfamily \#include $<$opae/mem\+\_\+alloc.\+h$>$}\newline
+{\ttfamily \#include $<$opae/hash\+\_\+map.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__iova__range}{opae\+\_\+vfio\+\_\+iova\+\_\+range}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__group}{opae\+\_\+vfio\+\_\+group}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__sparse__info}{opae\+\_\+vfio\+\_\+sparse\+\_\+info}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device__region}{opae\+\_\+vfio\+\_\+device\+\_\+region}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device__irq}{opae\+\_\+vfio\+\_\+device\+\_\+irq}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device}{opae\+\_\+vfio\+\_\+device}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__buffer}{opae\+\_\+vfio\+\_\+buffer}}
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{vfio_8h_adea46291b4fdd1878def41704f8acb5c}{opae\+\_\+vfio\+\_\+buffer\+\_\+flags}} \{ \mbox{\hyperlink{vfio_8h_adea46291b4fdd1878def41704f8acb5ca0ff03bd0152afe6ff864e32e78af2702}{OPAE\+\_\+\+VFIO\+\_\+\+BUF\+\_\+\+PREALLOCATED}} = 1
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{vfio_8h_a3d3ccbf4a24acbe8f3fc4d973ab46b1a}{opae\+\_\+vfio\+\_\+open}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, const char $\ast$pciaddr)
+\item 
+int \mbox{\hyperlink{vfio_8h_a8d6d1f473a26bc0fbe83e6894b8fb607}{opae\+\_\+vfio\+\_\+secure\+\_\+open}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, const char $\ast$pciaddr, const char $\ast$token)
+\item 
+int \mbox{\hyperlink{vfio_8h_afc30450c9b7ebc22709557cac5ab9181}{opae\+\_\+vfio\+\_\+region\+\_\+get}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint32\+\_\+t index, uint8\+\_\+t $\ast$$\ast$ptr, size\+\_\+t $\ast$size)
+\item 
+int \mbox{\hyperlink{vfio_8h_a63c468f18994a45604b372c31a1e26cf}{opae\+\_\+vfio\+\_\+buffer\+\_\+allocate}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, size\+\_\+t $\ast$size, uint8\+\_\+t $\ast$$\ast$buf, uint64\+\_\+t $\ast$iova)
+\item 
+int \mbox{\hyperlink{vfio_8h_a782b8c30e14075d1c69af9c8e2998578}{opae\+\_\+vfio\+\_\+buffer\+\_\+allocate\+\_\+ex}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, size\+\_\+t $\ast$size, uint8\+\_\+t $\ast$$\ast$buf, uint64\+\_\+t $\ast$iova, int flags)
+\item 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__buffer}{opae\+\_\+vfio\+\_\+buffer}} $\ast$ \mbox{\hyperlink{vfio_8h_a30f0a317cbcfd12e6918dd11ec4c95f3}{opae\+\_\+vfio\+\_\+buffer\+\_\+info}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint8\+\_\+t $\ast$vaddr)
+\item 
+int \mbox{\hyperlink{vfio_8h_ae2a60d829698d793ab9a4ad351d2596d}{opae\+\_\+vfio\+\_\+buffer\+\_\+free}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint8\+\_\+t $\ast$buf)
+\item 
+int \mbox{\hyperlink{vfio_8h_a8fbe20ee37934b7a6bcebdd648a37191}{opae\+\_\+vfio\+\_\+irq\+\_\+enable}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint32\+\_\+t index, uint32\+\_\+t subindex, int event\+\_\+fd)
+\item 
+int \mbox{\hyperlink{vfio_8h_a97498e4d858a172906abfded4bce5199}{opae\+\_\+vfio\+\_\+irq\+\_\+unmask}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint32\+\_\+t index, uint32\+\_\+t subindex)
+\item 
+int \mbox{\hyperlink{vfio_8h_a94ee809a7040b9bec0a694ca65b0f3f7}{opae\+\_\+vfio\+\_\+irq\+\_\+mask}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint32\+\_\+t index, uint32\+\_\+t subindex)
+\item 
+int \mbox{\hyperlink{vfio_8h_abcce6f91ff59553d5893c4d3632cb87c}{opae\+\_\+vfio\+\_\+irq\+\_\+disable}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v, uint32\+\_\+t index, uint32\+\_\+t subindex)
+\item 
+void \mbox{\hyperlink{vfio_8h_a70fd22e64704c8f0090adb810d51fa83}{opae\+\_\+vfio\+\_\+close}} (struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$v)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+APIs to manage a PCIe device via vfio-\/pci. 
+
+Presents a simple interface for interacting with a PCIe device that is bound to the vfio-\/pci driver. See \href{https://kernel.org/doc/Documentation/vfio.txt}{\texttt{ https\+://kernel.\+org/doc/\+Documentation/vfio.\+txt}} for a description of vfio-\/pci.
+
+Provides APIs for opening/closing the device, querying info about the MMIO regions of the device, and allocating/mapping and freeing/unmapping DMA buffers. 
+
+\doxysubsection{Data Structure Documentation}
+\index{opae\_vfio\_iova\_range@{opae\_vfio\_iova\_range}}\label{structopae__vfio__iova__range}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+iova\+\_\+range}
+IO Virtual Address Range
+
+A range of allocatable IOVA offsets. Used for mapping DMA buffers. 
+
+Definition at line 57 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_ae44d6d78fc59fec1829117f80f09d676}} 
+uint64\_t&
+start&
+Start of this range of offsets. \\
+\hline
+
+\mbox{\label{vfio_8h_a8e09837d655b7187d704d1dec69bd3e2}} 
+uint64\_t&
+end&
+End of this range of offsets. \\
+\hline
+
+\mbox{\label{vfio_8h_acdadb8bd4497fd424a045de13f1c0570}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__iova__range}{opae\_vfio\_iova\_range}} $\ast$&
+next&
+Pointer to next in list. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio\_group@{opae\_vfio\_group}}\label{structopae__vfio__group}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+group}
+VFIO group
+
+Each device managed by vfio-\/pci belongs to a VFIO group rooted at /dev/vfio/N, where N is the group number. 
+
+Definition at line 69 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_aa7f7d7923d85bdb630b0b1ec49be5f92}} 
+char $\ast$&
+group\_device&
+Full path to the group device. \\
+\hline
+
+\mbox{\label{vfio_8h_a51d7ad18b5d27f7713877bc9e7f31c92}} 
+int&
+group\_fd&
+File descriptor for the group device. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio\_sparse\_info@{opae\_vfio\_sparse\_info}}\label{structopae__vfio__sparse__info}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+sparse\+\_\+info}
+MMIO sparse-\/mappable region info
+
+Describes a range of sparse-\/mappable MMIO, for MMIO ranges that have non-\/contiguous addresses. 
+
+Definition at line 80 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_a0f2a85a947a552ace76e299bd66dc91d}} 
+uint32\_t&
+index&
+Region index, from 0. \\
+\hline
+
+\mbox{\label{vfio_8h_afc2d2ce14bb3aeaba49efa5e8a063dfb}} 
+uint32\_t&
+offset&
+Offset of sparse region. \\
+\hline
+
+\mbox{\label{vfio_8h_adefec9a427d225b75b9b272710174df8}} 
+uint32\_t&
+size&
+Size of sparse region. \\
+\hline
+
+\mbox{\label{vfio_8h_a68ad8ff776b8b47536d8f515eadffaa4}} 
+uint8\_t $\ast$&
+ptr&
+Virtual address of sparse region. \\
+\hline
+
+\mbox{\label{vfio_8h_a6557e0f64b5cb7f9e89218aaa535d583}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__sparse__info}{opae\_vfio\_sparse\_info}} $\ast$&
+next&
+Pointer to next in list. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio\_device\_region@{opae\_vfio\_device\_region}}\label{structopae__vfio__device__region}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+device\+\_\+region}
+MMIO region info
+
+Describes a range of mappable MMIO. 
+
+Definition at line 93 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_a276412974a0b0ffb91ac3200149761b0}} 
+uint32\_t&
+region\_index&
+Region index, from 0. \\
+\hline
+
+\mbox{\label{vfio_8h_a37bbecd990a16e1d985bece6d8395e86}} 
+uint8\_t $\ast$&
+region\_ptr&
+Virtual address of region. \\
+\hline
+
+\mbox{\label{vfio_8h_add69a93ef216ab2ed1a053f506605f8e}} 
+size\_t&
+region\_size&
+Size of region. \\
+\hline
+
+\mbox{\label{vfio_8h_a52a91a9da49e5a61dbb5e8f511733aba}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__sparse__info}{opae\_vfio\_sparse\_info}} $\ast$&
+region\_sparse&
+For sparse regions. \\
+\hline
+
+\mbox{\label{vfio_8h_ad58eb4a337da7515de0acca200a2463c}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device__region}{opae\_vfio\_device\_region}} $\ast$&
+next&
+Pointer to next in list. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio\_device\_irq@{opae\_vfio\_device\_irq}}\label{structopae__vfio__device__irq}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+device\+\_\+irq}
+Interrupt info
+
+Describes an interrupt capability. 
+
+Definition at line 106 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_a8a7ea1141298b55129019cc8e1672bb9}} 
+uint32\_t&
+flags&
+Flags. See struct vfio\+\_\+irq\+\_\+info. \\
+\hline
+
+\mbox{\label{vfio_8h_ae80f357cdeaa6c6e20031cedcaad5712}} 
+uint32\_t&
+index&
+The IRQ index. \\
+\hline
+
+\mbox{\label{vfio_8h_ae8531b9a37c51672f1e8693a8473cad2}} 
+uint32\_t&
+count&
+Number of IRQs at this index. \\
+\hline
+
+\mbox{\label{vfio_8h_a066566f8808335166498fbce4d8a5211}} 
+int32\_t $\ast$&
+event\_fds&
+Event file descriptors. \\
+\hline
+
+\mbox{\label{vfio_8h_a59f2bf38b7882ff09232e83ba7dea984}} 
+int32\_t $\ast$&
+masks&
+IRQ masks. \\
+\hline
+
+\mbox{\label{vfio_8h_a80db0fd825bd3d7b73c4a70b86be60b5}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device__irq}{opae\_vfio\_device\_irq}} $\ast$&
+next&
+Pointer to next in list. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio\_device@{opae\_vfio\_device}}\label{structopae__vfio__device}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+device}
+VFIO device
+
+Each VFIO device has a file descriptor that is used to query information about the device MMIO regions and config space. 
+
+Definition at line 121 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_a5567cac847af54d1b68cd11de6d9071a}} 
+int&
+device\_fd&
+Device file descriptor. \\
+\hline
+
+\mbox{\label{vfio_8h_a484988f748aa324957a2046bc2590e10}} 
+uint64\_t&
+device\_config\_offset&
+Offset of PCIe config space. \\
+\hline
+
+\mbox{\label{vfio_8h_ad9ca3ae45cd69d3eec04297820c98db4}} 
+uint32\_t&
+device\_num\_regions&
+Total MMIO region count. \\
+\hline
+
+\mbox{\label{vfio_8h_ab45bac066081e611b23ff38c90ab6f26}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device__region}{opae\_vfio\_device\_region}} $\ast$&
+regions&
+Region list pointer. \\
+\hline
+
+\mbox{\label{vfio_8h_ad4fc938dbf2c96ea60222912b4ed72ca}} 
+uint32\_t&
+device\_num\_irqs&
+IRQ index count. \\
+\hline
+
+\mbox{\label{vfio_8h_a491523e147d7ae93d48b49d713bdce7c}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device__irq}{opae\_vfio\_device\_irq}} $\ast$&
+irqs&
+IRQ list pointer. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio\_buffer@{opae\_vfio\_buffer}}\label{structopae__vfio__buffer}
+\doxysubsubsection{struct opae\+\_\+vfio\+\_\+buffer}
+System DMA buffer
+
+Describes a system memory address space that is capable of DMA. 
+
+Definition at line 135 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_a10c301384270143e76d93675740d2a05}} 
+uint8\_t $\ast$&
+buffer\_ptr&
+Buffer virtual address. \\
+\hline
+
+\mbox{\label{vfio_8h_a52535a9a9d8c7a129fb313d14a96dc47}} 
+size\_t&
+buffer\_size&
+Buffer size. \\
+\hline
+
+\mbox{\label{vfio_8h_a4bccc7115924108b58c421955a6b9775}} 
+uint64\_t&
+buffer\_iova&
+Buffer IOVA address. \\
+\hline
+
+\mbox{\label{vfio_8h_a9e334d32ec820b06a9d263bc158da2ed}} 
+int&
+flags&
+See opae\+\_\+vfio\+\_\+buffer\+\_\+flags. \\
+\hline
+
+\end{DoxyFields}
+\index{opae\_vfio@{opae\_vfio}}\label{structopae__vfio}
+\doxysubsubsection{struct opae\+\_\+vfio}
+OPAE VFIO device abstraction
+
+This structure is used to interact with the OPAE VFIO API. It tracks data related to the VFIO container, group, and device. A mutex is provided for thread safety. 
+
+Definition at line 149 of file vfio.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{vfio_8h_ad9ef4790801de907acfa18409dedfaab}} 
+pthread\_mutex\_t&
+lock&
+For thread safety. \\
+\hline
+
+\mbox{\label{vfio_8h_a7ca65a6a199f57795216b4af7e152b7e}} 
+char $\ast$&
+cont\_device&
+\char`\"{}/dev/vfio/vfio\char`\"{} \\
+\hline
+
+\mbox{\label{vfio_8h_a12cbdd053863723e3b51564dab3b1de5}} 
+char $\ast$&
+cont\_pciaddr&
+PCIe address, eg 0000\+:00\+:00.\+0 \\
+\hline
+
+\mbox{\label{vfio_8h_a7cdb7430f296c4c469dc54f075014245}} 
+int&
+cont\_fd&
+Container file descriptor. \\
+\hline
+
+\mbox{\label{vfio_8h_a65cb87d5caf739177f1627f369704ea4}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__iova__range}{opae\_vfio\_iova\_range}} $\ast$&
+cont\_ranges&
+List of IOVA ranges. \\
+\hline
+
+\mbox{\label{vfio_8h_a27de65bf440333362258d9da72fb93d7}} 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\_alloc}}&
+iova\_alloc&
+Allocator for IOVA space. \\
+\hline
+
+\mbox{\label{vfio_8h_a5aa9019a215689bb45c6de05425489e0}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__group}{opae\_vfio\_group}}&
+group&
+The VFIO device group. \\
+\hline
+
+\mbox{\label{vfio_8h_a0321bdb1c77dad0ad3f57d32d5f00de6}} 
+struct \mbox{\hyperlink{vfio_8h_structopae__vfio__device}{opae\_vfio\_device}}&
+device&
+The VFIO device. \\
+\hline
+
+\mbox{\label{vfio_8h_a421b8a46f5c5bca0d663f415f567dc19}} 
+\mbox{\hyperlink{structopae__hash__map}{opae\_hash\_map}}&
+cont\_buffers&
+Map of allocated DMA buffers. \\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{vfio_8h_adea46291b4fdd1878def41704f8acb5c}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_buffer\_flags@{opae\_vfio\_buffer\_flags}}
+\index{opae\_vfio\_buffer\_flags@{opae\_vfio\_buffer\_flags}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_buffer\_flags}{opae\_vfio\_buffer\_flags}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{vfio_8h_adea46291b4fdd1878def41704f8acb5c}{opae\+\_\+vfio\+\_\+buffer\+\_\+flags}}}
+
+Flags for \mbox{\hyperlink{vfio_8h_a782b8c30e14075d1c69af9c8e2998578}{opae\+\_\+vfio\+\_\+buffer\+\_\+allocate\+\_\+ex()}}. \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPAE\_VFIO\_BUF\_PREALLOCATED@{OPAE\_VFIO\_BUF\_PREALLOCATED}!vfio.h@{vfio.h}}\index{vfio.h@{vfio.h}!OPAE\_VFIO\_BUF\_PREALLOCATED@{OPAE\_VFIO\_BUF\_PREALLOCATED}}}\mbox{\label{vfio_8h_adea46291b4fdd1878def41704f8acb5ca0ff03bd0152afe6ff864e32e78af2702}} 
+OPAE\+\_\+\+VFIO\+\_\+\+BUF\+\_\+\+PREALLOCATED&Use existing buffer \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 340 of file vfio.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{vfio_8h_a3d3ccbf4a24acbe8f3fc4d973ab46b1a}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_open@{opae\_vfio\_open}}
+\index{opae\_vfio\_open@{opae\_vfio\_open}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_open()}{opae\_vfio\_open()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+open (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{const char $\ast$}]{pciaddr }\end{DoxyParamCaption})}
+
+Open and populate a VFIO device
+
+Opens the PCIe device corresponding to the address given in pciaddr. The device must be bound to the vfio-\/pci driver prior to opening it. The data structures corresponding to IOVA space, MMIO regions, and DMA buffers are initialized.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em v} & Storage for the device info. May be stack-\/resident. \\
+\hline
+\mbox{\texttt{ in}}  & {\em pciaddr} & The PCIe address of the requested device. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ sudo opaevfio -\/i 0000:00:00.0 -\/u user -\/g group}
+
+\end{DoxyCode}
+
+
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{opae\_vfio v;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_open(\&v, \textcolor{stringliteral}{"{}0000:00:00.0"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{vfio_8h_a8d6d1f473a26bc0fbe83e6894b8fb607}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_secure\_open@{opae\_vfio\_secure\_open}}
+\index{opae\_vfio\_secure\_open@{opae\_vfio\_secure\_open}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_secure\_open()}{opae\_vfio\_secure\_open()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+secure\+\_\+open (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{const char $\ast$}]{pciaddr,  }\item[{const char $\ast$}]{token }\end{DoxyParamCaption})}
+
+Open and populate a VFIO device
+
+Opens the PCIe device corresponding to the address given in pciaddr, using the VF token (GUID) given in token. The device must be bound to the vfio-\/pci driver prior to opening it. The data structures corresponding to IOVA space, MMIO regions, and DMA buffers are initialized.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em v} & Storage for the device info. May be stack-\/resident. \\
+\hline
+\mbox{\texttt{ in}}  & {\em pciaddr} & The PCIe address of the requested device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em token} & The GUID representing the VF token. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ sudo opaevfio -\/i 0000:00:00.0 -\/u user -\/g group}
+
+\end{DoxyCode}
+
+
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{opae\_vfio v;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_secure\_open(\&v, \textcolor{stringliteral}{"{}0000:00:00.0"{}},}
+\DoxyCodeLine{                          \textcolor{stringliteral}{"{}00f5ad6b-\/2edd-\/422e-\/9d1e-\/34124c686fec"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{vfio_8h_afc30450c9b7ebc22709557cac5ab9181}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_region\_get@{opae\_vfio\_region\_get}}
+\index{opae\_vfio\_region\_get@{opae\_vfio\_region\_get}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_region\_get()}{opae\_vfio\_region\_get()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+region\+\_\+get (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint32\+\_\+t}]{index,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{ptr,  }\item[{size\+\_\+t $\ast$}]{size }\end{DoxyParamCaption})}
+
+Query device MMIO region
+
+Retrieves info describing the MMIO region with the given region index. The device structure v must have been previously opened by a call to opae\+\_\+vfio\+\_\+open.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em index} & The zero-\/based index of the desired MMIO region. \\
+\hline
+\mbox{\texttt{ out}}  & {\em ptr} & Optional pointer to receive the virtual address for the region. Pass NULL to ignore. \\
+\hline
+\mbox{\texttt{ out}}  & {\em size} & Optional pointer to receive the size of the MMIO region. Pass NULL to ignore. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error (including index out-\/of-\/range). Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{opae\_vfio v;}
+\DoxyCodeLine{}
+\DoxyCodeLine{uint8\_t *fme\_virt = NULL;}
+\DoxyCodeLine{uint8\_t *port\_virt = NULL;}
+\DoxyCodeLine{\textcolor{keywordtype}{size\_t} fme\_size = 0;}
+\DoxyCodeLine{\textcolor{keywordtype}{size\_t} port\_size = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_open(\&v, \textcolor{stringliteral}{"{}0000:00:00.0"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  opae\_vfio\_region\_get(\&v, 0, \&fme\_virt, \&fme\_size);}
+\DoxyCodeLine{  opae\_vfio\_region\_get(\&v, 2, \&port\_virt, \&port\_size);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{vfio_8h_a63c468f18994a45604b372c31a1e26cf}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_buffer\_allocate@{opae\_vfio\_buffer\_allocate}}
+\index{opae\_vfio\_buffer\_allocate@{opae\_vfio\_buffer\_allocate}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_buffer\_allocate()}{opae\_vfio\_buffer\_allocate()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+buffer\+\_\+allocate (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{size\+\_\+t $\ast$}]{size,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{buf,  }\item[{uint64\+\_\+t $\ast$}]{iova }\end{DoxyParamCaption})}
+
+Allocate and map system buffer
+
+Allocate, map, and retrieve info for a system buffer capable of DMA. Saves an entry in the v-\/$>$cont\+\_\+buffers list. If the buffer is not explicitly freed by opae\+\_\+vfio\+\_\+buffer\+\_\+free, it will be freed during opae\+\_\+vfio\+\_\+close.
+
+mmap is used for the allocation. If the size is greater than 2MB, then the allocation request is fulfilled by a 1GB huge page. Else, if the size is greater than 4096, then the request is fulfilled by a 2MB huge page. Else, the request is fulfilled by the non-\/huge page pool.
+
+\begin{DoxyNote}{Note}
+Allocations from the huge page pool require that huge pages be configured on the system. Huge pages may be configured on the kernel boot command prompt. Example default\+\_\+hugepagesz=1G hugepagesz=1G hugepages=2 hugepagesz=2M hugepages=8
+
+Huge pages may also be configured at runtime. Example sudo sh -\/c \textquotesingle{}echo 8 $>$ /sys/kernel/mm/hugepages/hugepages-\/2048k\+B/nr\+\_\+hugepages\textquotesingle{} sudo sh -\/c \textquotesingle{}echo 2 $>$ /sys/kernel/mm/hugepages/hugepages-\/1048576k\+B/nr\+\_\+hugepages\textquotesingle{}
+
+Be sure that the IOMMU is also enabled using the follow kernel boot command\+: intel\+\_\+iommu=on
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em size} & A pointer to the requested size. The size may be rounded to the next page size prior to return from the function. \\
+\hline
+\mbox{\texttt{ out}}  & {\em buf} & Optional pointer to receive the virtual address for the buffer. Pass NULL to ignore. \\
+\hline
+\mbox{\texttt{ out}}  & {\em iova} & Optional pointer to receive the IOVA address for the buffer. Pass NULL to ignore. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{opae\_vfio v;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordtype}{size\_t} sz;}
+\DoxyCodeLine{uint8\_t *buf\_2m\_virt = NULL;}
+\DoxyCodeLine{uint8\_t *buf\_1g\_virt = NULL;}
+\DoxyCodeLine{uint64\_t buf\_2m\_iova = 0;}
+\DoxyCodeLine{uint64\_t buf\_1g\_iova = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_open(\&v, \textcolor{stringliteral}{"{}0000:00:00.0"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  sz = 2 * 1024 * 1024;}
+\DoxyCodeLine{  \textcolor{keywordflow}{if} (opae\_vfio\_buffer\_allocate(\&v,}
+\DoxyCodeLine{                                \&sz,}
+\DoxyCodeLine{                                \&buf\_2m\_virt,}
+\DoxyCodeLine{                                \&buf\_2m\_iova)) \{}
+\DoxyCodeLine{    \textcolor{comment}{// handle allocation error}}
+\DoxyCodeLine{  \}}
+\DoxyCodeLine{}
+\DoxyCodeLine{  sz = 1024 * 1024 * 1024;}
+\DoxyCodeLine{  \textcolor{keywordflow}{if} (opae\_vfio\_buffer\_allocate(\&v,}
+\DoxyCodeLine{                                \&sz,}
+\DoxyCodeLine{                                \&buf\_1g\_virt,}
+\DoxyCodeLine{                                \&buf\_1g\_iova)) \{}
+\DoxyCodeLine{    \textcolor{comment}{// handle allocation error}}
+\DoxyCodeLine{  \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{vfio_8h_a782b8c30e14075d1c69af9c8e2998578}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_buffer\_allocate\_ex@{opae\_vfio\_buffer\_allocate\_ex}}
+\index{opae\_vfio\_buffer\_allocate\_ex@{opae\_vfio\_buffer\_allocate\_ex}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_buffer\_allocate\_ex()}{opae\_vfio\_buffer\_allocate\_ex()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+buffer\+\_\+allocate\+\_\+ex (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{size\+\_\+t $\ast$}]{size,  }\item[{uint8\+\_\+t $\ast$$\ast$}]{buf,  }\item[{uint64\+\_\+t $\ast$}]{iova,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+Allocate and map system buffer (extended w/ flags)
+
+Allocate, map, and retrieve info for a system buffer capable of DMA. Saves an entry in the v-\/$>$cont\+\_\+buffers list. If the buffer is not explicitly freed by opae\+\_\+vfio\+\_\+buffer\+\_\+free, it will be freed during opae\+\_\+vfio\+\_\+close, unless OPAE\+\_\+\+VFIO\+\_\+\+BUF\+\_\+\+PREALLOCATED is used in which case the buffer is not freed by this library.
+
+When not using OPAE\+\_\+\+VFIO\+\_\+\+BUF\+\_\+\+PREALLOCATED, mmap is used for the allocation. If the size is greater than 2MB, then the allocation request is fulfilled by a 1GB huge page. Else, if the size is greater than 4096, then the request is fulfilled by a 2MB huge page. Else, the request is fulfilled by the non-\/huge page pool.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em size} & A pointer to the requested size. The size may be rounded to the next page size prior to return from the function. \\
+\hline
+\mbox{\texttt{ out}}  & {\em buf} & Optional pointer to receive the virtual address for the buffer/input buffer pointer when using OPAE\+\_\+\+VFIO\+\_\+\+BUF\+\_\+\+PREALLOCATED. Pass NULL to ignore. \\
+\hline
+\mbox{\texttt{ out}}  & {\em iova} & Optional pointer to receive the IOVA address for the buffer. Pass NULL to ignore. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{opae\_vfio v;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordtype}{size\_t} sz = MY\_BUF\_SIZE;}
+\DoxyCodeLine{uint8\_t *prealloc\_virt = NULL;}
+\DoxyCodeLine{uint64\_t iova = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{prealloc\_virt = allocate\_my\_buffer(sz);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_open(\&v, \textcolor{stringliteral}{"{}0000:00:00.0"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  \textcolor{keywordflow}{if} (opae\_vfio\_buffer\_allocate\_ex(\&v,}
+\DoxyCodeLine{                                   \&sz,}
+\DoxyCodeLine{                                   \&prealloc\_virt,}
+\DoxyCodeLine{                                   \&iova,}
+\DoxyCodeLine{                                   OPAE\_VFIO\_BUF\_PREALLOCATED)) \{}
+\DoxyCodeLine{    \textcolor{comment}{// handle allocation error}}
+\DoxyCodeLine{  \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{vfio_8h_a30f0a317cbcfd12e6918dd11ec4c95f3}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_buffer\_info@{opae\_vfio\_buffer\_info}}
+\index{opae\_vfio\_buffer\_info@{opae\_vfio\_buffer\_info}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_buffer\_info()}{opae\_vfio\_buffer\_info()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{vfio_8h_structopae__vfio__buffer}{opae\+\_\+vfio\+\_\+buffer}}$\ast$ opae\+\_\+vfio\+\_\+buffer\+\_\+info (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint8\+\_\+t $\ast$}]{vaddr }\end{DoxyParamCaption})}
+
+Extract the internal data structure pointer for the given vaddr
+
+The virtual address vaddr must correspond to a buffer previously allocated by \mbox{\hyperlink{vfio_8h_a63c468f18994a45604b372c31a1e26cf}{opae\+\_\+vfio\+\_\+buffer\+\_\+allocate()}} or \mbox{\hyperlink{vfio_8h_a782b8c30e14075d1c69af9c8e2998578}{opae\+\_\+vfio\+\_\+buffer\+\_\+allocate\+\_\+ex()}}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em vaddr} & The user virtual address of the desired buffer info struct. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+NULL on lookup error. 
+\end{DoxyReturn}
+\mbox{\label{vfio_8h_ae2a60d829698d793ab9a4ad351d2596d}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_buffer\_free@{opae\_vfio\_buffer\_free}}
+\index{opae\_vfio\_buffer\_free@{opae\_vfio\_buffer\_free}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_buffer\_free()}{opae\_vfio\_buffer\_free()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+buffer\+\_\+free (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint8\+\_\+t $\ast$}]{buf }\end{DoxyParamCaption})}
+
+Unmap and free a system buffer
+
+The buffer corresponding to buf must have been created by a previous call to opae\+\_\+vfio\+\_\+buffer\+\_\+allocate.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em buf} & The virtual address corresponding to the buffer to be freed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordtype}{size\_t} sz;}
+\DoxyCodeLine{uint8\_t *buf\_2m\_virt = NULL;}
+\DoxyCodeLine{uint64\_t buf\_2m\_iova = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{sz = 2 * 1024 * 1024;}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_buffer\_allocate(\&v,}
+\DoxyCodeLine{                              \&sz,}
+\DoxyCodeLine{                              \&buf\_2m\_virt,}
+\DoxyCodeLine{                              \&buf\_2m\_iova)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle allocation error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  \textcolor{comment}{// use the buffer}}
+\DoxyCodeLine{}
+\DoxyCodeLine{  \textcolor{keywordflow}{if} (opae\_vfio\_buffer\_free(\&v, buf\_2m\_virt)) \{}
+\DoxyCodeLine{    \textcolor{comment}{// handle free error}}
+\DoxyCodeLine{  \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{vfio_8h_a8fbe20ee37934b7a6bcebdd648a37191}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_irq\_enable@{opae\_vfio\_irq\_enable}}
+\index{opae\_vfio\_irq\_enable@{opae\_vfio\_irq\_enable}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_irq\_enable()}{opae\_vfio\_irq\_enable()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+irq\+\_\+enable (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint32\+\_\+t}]{index,  }\item[{uint32\+\_\+t}]{subindex,  }\item[{int}]{event\+\_\+fd }\end{DoxyParamCaption})}
+
+Enable an IRQ
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em index} & The IRQ category. For MSI-\/X, use VFIO\+\_\+\+PCI\+\_\+\+MSIX\+\_\+\+IRQ\+\_\+\+INDEX. \\
+\hline
+\mbox{\texttt{ in}}  & {\em subindex} & The IRQ to enable. \\
+\hline
+\mbox{\texttt{ in}}  & {\em event\+\_\+fd} & The file descriptor, created by eventfd(). Interrupts will result in this event\+\_\+fd being signaled. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success. 
+\end{DoxyReturn}
+\mbox{\label{vfio_8h_a97498e4d858a172906abfded4bce5199}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_irq\_unmask@{opae\_vfio\_irq\_unmask}}
+\index{opae\_vfio\_irq\_unmask@{opae\_vfio\_irq\_unmask}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_irq\_unmask()}{opae\_vfio\_irq\_unmask()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+irq\+\_\+unmask (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint32\+\_\+t}]{index,  }\item[{uint32\+\_\+t}]{subindex }\end{DoxyParamCaption})}
+
+Unmask an IRQ
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em index} & The IRQ category. For MSI-\/X, use VFIO\+\_\+\+PCI\+\_\+\+MSIX\+\_\+\+IRQ\+\_\+\+INDEX. \\
+\hline
+\mbox{\texttt{ in}}  & {\em subindex} & The IRQ to unmask. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success. 
+\end{DoxyReturn}
+\mbox{\label{vfio_8h_a94ee809a7040b9bec0a694ca65b0f3f7}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_irq\_mask@{opae\_vfio\_irq\_mask}}
+\index{opae\_vfio\_irq\_mask@{opae\_vfio\_irq\_mask}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_irq\_mask()}{opae\_vfio\_irq\_mask()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+irq\+\_\+mask (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint32\+\_\+t}]{index,  }\item[{uint32\+\_\+t}]{subindex }\end{DoxyParamCaption})}
+
+Mask an IRQ
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em index} & The IRQ category. For MSI-\/X, use VFIO\+\_\+\+PCI\+\_\+\+MSIX\+\_\+\+IRQ\+\_\+\+INDEX. \\
+\hline
+\mbox{\texttt{ in}}  & {\em subindex} & The IRQ to mask. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success. 
+\end{DoxyReturn}
+\mbox{\label{vfio_8h_abcce6f91ff59553d5893c4d3632cb87c}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_irq\_disable@{opae\_vfio\_irq\_disable}}
+\index{opae\_vfio\_irq\_disable@{opae\_vfio\_irq\_disable}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_irq\_disable()}{opae\_vfio\_irq\_disable()}}
+{\footnotesize\ttfamily int opae\+\_\+vfio\+\_\+irq\+\_\+disable (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v,  }\item[{uint32\+\_\+t}]{index,  }\item[{uint32\+\_\+t}]{subindex }\end{DoxyParamCaption})}
+
+Disable an IRQ
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em v} & The open OPAE VFIO device. \\
+\hline
+\mbox{\texttt{ in}}  & {\em index} & The IRQ category. For MSI-\/X, use VFIO\+\_\+\+PCI\+\_\+\+MSIX\+\_\+\+IRQ\+\_\+\+INDEX. \\
+\hline
+\mbox{\texttt{ in}}  & {\em subindex} & The IRQ to disable. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success. 
+\end{DoxyReturn}
+\mbox{\label{vfio_8h_a70fd22e64704c8f0090adb810d51fa83}} 
+\index{vfio.h@{vfio.h}!opae\_vfio\_close@{opae\_vfio\_close}}
+\index{opae\_vfio\_close@{opae\_vfio\_close}!vfio.h@{vfio.h}}
+\doxysubsubsection{\texorpdfstring{opae\_vfio\_close()}{opae\_vfio\_close()}}
+{\footnotesize\ttfamily void opae\+\_\+vfio\+\_\+close (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{vfio_8h_structopae__vfio}{opae\+\_\+vfio}} $\ast$}]{v }\end{DoxyParamCaption})}
+
+Release and close a VFIO device
+
+The given device pointer must have been previously initialized by opae\+\_\+vfio\+\_\+open. Releases all data structures, including any DMA buffer allocations that have not be explicitly freed by opae\+\_\+vfio\+\_\+buffer\+\_\+free.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em v} & Storage for the device info. May be stack-\/resident.\\
+\hline
+\end{DoxyParams}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{opae\_vfio v;}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (opae\_vfio\_open(\&v, \textcolor{stringliteral}{"{}0000:00:00.0"{}})) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{  \textcolor{comment}{// interact with the device}}
+\DoxyCodeLine{  ...}
+\DoxyCodeLine{  \textcolor{comment}{// free the device}}
+\DoxyCodeLine{  opae\_vfio\_close(\&v);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ sudo opaevfio -\/r 0000:00:00.0}
+
+\end{DoxyCode}
+ 

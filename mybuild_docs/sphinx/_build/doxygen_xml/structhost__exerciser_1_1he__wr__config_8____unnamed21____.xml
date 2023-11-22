@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__wr__config_8____unnamed21____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_wr_config.__unnamed21__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a39bbf8f3a91bd2bf34e1b019eb8e3757" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>write_traffic_enable</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="170" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1abbcd533076ac57dfb4faccad32a40a47" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>continuous_mode_enable</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="171" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a4e3ab1b93dfa6fc41ce1a432f784830b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>waitfor_completion</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="172" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a82595b3061136abd20a8680b652b9c92" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>preread_sync_enable</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="173" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a8ce194270c81e5cd9e4636552c6b435d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>postread_sync_enable</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="174" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a622b5dd94df8d38fdb95dcb7f0684354" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>data_pattern</name>
+        <bitfield> 2</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="175" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a3109ca2a59c024a637d163975a027d12" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>cl_evict_enable</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="176" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a882c467d02aec1bcbdb94b1a18d9b210" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>opcode</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="177" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a99130608aa1134c70e232717498cd4ae" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>line_repeat_count</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="178" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a7f005c3fa691e77c52d3297cc2699072" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>reserved</name>
+        <bitfield> 44</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="179" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_wr_config.__unnamed21__</label>
+        <link refid="structhost__exerciser_1_1he__wr__config_8____unnamed21____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="169" column="3" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="169" bodyend="180"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a3109ca2a59c024a637d163975a027d12" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>cl_evict_enable</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1abbcd533076ac57dfb4faccad32a40a47" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>continuous_mode_enable</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a622b5dd94df8d38fdb95dcb7f0684354" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>data_pattern</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a99130608aa1134c70e232717498cd4ae" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>line_repeat_count</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a882c467d02aec1bcbdb94b1a18d9b210" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>opcode</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a8ce194270c81e5cd9e4636552c6b435d" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>postread_sync_enable</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a82595b3061136abd20a8680b652b9c92" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>preread_sync_enable</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a7f005c3fa691e77c52d3297cc2699072" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>reserved</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a4e3ab1b93dfa6fc41ce1a432f784830b" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>waitfor_completion</name></member>
+      <member refid="structhost__exerciser_1_1he__wr__config_8____unnamed21_____1a39bbf8f3a91bd2bf34e1b019eb8e3757" prot="public" virt="non-virtual"><scope>host_exerciser::he_wr_config.__unnamed21__</scope><name>write_traffic_enable</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

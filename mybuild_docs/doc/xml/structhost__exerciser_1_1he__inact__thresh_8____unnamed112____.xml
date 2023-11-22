@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__inact__thresh_8____unnamed112____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_inact_thresh.__unnamed112__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__inact__thresh_8____unnamed112_____1a650faa473558269b0c481ed10514e92c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>InactivtyThreshold</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="218" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_inact_thresh.__unnamed112__</label>
+        <link refid="structhost__exerciser_1_1he__inact__thresh_8____unnamed112____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="217" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="217" bodyend="219"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__inact__thresh_8____unnamed112_____1a650faa473558269b0c481ed10514e92c" prot="public" virt="non-virtual"><scope>host_exerciser::he_inact_thresh.__unnamed112__</scope><name>InactivtyThreshold</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

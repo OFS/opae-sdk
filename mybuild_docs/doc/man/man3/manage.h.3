@@ -1,0 +1,143 @@
+.TH "include/opae/manage.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/manage.h \- Functions for managing FPGA configurations\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaAssignPortToInterface\fP (\fBfpga_handle\fP fpga, uint32_t interface_num, uint32_t slot_num, int flags)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaAssignToInterface\fP (\fBfpga_handle\fP fpga, \fBfpga_token\fP accelerator, uint32_t host_interface, int flags)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaReleaseFromInterface\fP (\fBfpga_handle\fP fpga, \fBfpga_token\fP accelerator)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaReconfigureSlot\fP (\fBfpga_handle\fP fpga, uint32_t slot, const uint8_t *bitstream, size_t bitstream_len, int flags)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions for managing FPGA configurations\&. 
+
+FPGA accelerators can be reprogrammed at run time by providing new partial bitstreams ('green bitstreams')\&. This file defines API functions for programming green bitstreams as well as for assigning accelerators to host interfaces for more complex deployment setups, such as virtualized systems\&. 
+.PP
+Definition in file \fBmanage\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaAssignPortToInterface (\fBfpga_handle\fP fpga, uint32_t interface_num, uint32_t slot_num, int flags)"
+Assign Port to a host interface\&.
+.PP
+This function assign Port to a host interface for subsequent use\&. Only Port that have been assigned to a host interface can be opened by \fBfpgaOpen()\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIfpga\fP Handle to an FPGA object previously opened that both the host interface and the slot belong to 
+.br
+\fIinterface_num\fP Host interface number 
+.br
+\fIslot_num\fP Slot number 
+.br
+\fIflags\fP Flags (to be defined) 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success FPGA_INVALID_PARAM if input parameter combination is not valid\&. FPGA_EXCEPTION if an exception occcurred accessing the \fCfpga\fP handle\&. FPGA_NOT_SUPPORTED if driver does not support assignment\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaAssignToInterface (\fBfpga_handle\fP fpga, \fBfpga_token\fP accelerator, uint32_t host_interface, int flags)"
+Assign an accelerator to a host interface
+.PP
+This function assigns an accelerator to a host interface for subsequent use\&. Only accelerators that have been assigned to a host interface can be opened by \fBfpgaOpen()\fP\&.
+.PP
+\fBNote\fP
+.RS 4
+This function is currently not supported\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIfpga\fP Handle to an FPGA object previously opened that both the host interface and the accelerator belong to 
+.br
+\fIaccelerator\fP accelerator to assign 
+.br
+\fIhost_interface\fP Host interface to assign accelerator to 
+.br
+\fIflags\fP Flags (to be defined) 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaReleaseFromInterface (\fBfpga_handle\fP fpga, \fBfpga_token\fP accelerator)"
+Unassign a previously assigned accelerator
+.PP
+This function removes the assignment of an accelerator to an host interface (e\&.g\&. to be later assigned to a different host interface)\&. As a consequence, the accelerator referred to by token 'accelerator' will be reset during the course of this function\&.
+.PP
+\fBNote\fP
+.RS 4
+This function is currently not supported\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIfpga\fP Handle to an FPGA object previously opened that both the host interface and the accelerator belong to 
+.br
+\fIaccelerator\fP accelerator to unassign/release 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaReconfigureSlot (\fBfpga_handle\fP fpga, uint32_t slot, const uint8_t * bitstream, size_t bitstream_len, int flags)"
+Reconfigure a slot
+.PP
+Sends a green bitstream file to an FPGA to reconfigure a specific slot\&. This call, if successful, will overwrite the currently programmed AFU in that slot with the AFU in the provided bitstream\&.
+.PP
+As part of the reconfiguration flow, all accelerators associated with this slot will be unassigned and reset\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIfpga\fP Handle to an FPGA object previously opened 
+.br
+\fIslot\fP Token identifying the slot to reconfigure 
+.br
+\fIbitstream\fP Pointer to memory holding the bitstream 
+.br
+\fIbitstream_len\fP Length of the bitstream in bytes 
+.br
+\fIflags\fP Flags that control behavior of reconfiguration\&. Value of 0 indicates no flags\&. FPGA_RECONF_FORCE indicates that the bitstream is programmed into the slot without checking if the resource is currently in use\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if the provided parameters are not valid\&. FPGA_EXCEPTION if an internal error occurred accessing the handle or while sending the bitstream data to the driver\&. FPGA_BUSY if the accelerator for the given slot is in use\&. FPGA_RECONF_ERROR on errors reported by the driver (such as CRC or protocol errors)\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+By default, fpgaReconfigureSlot will not allow reconfiguring a slot with an accelerator in use\&. Add the flag FPGA_RECONF_FORCE to force reconfiguration without checking for accelerators in use\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

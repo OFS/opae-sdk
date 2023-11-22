@@ -1,0 +1,596 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "FPGA_PYTHON_API" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+fpga_python_api \- OPAE Python API
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.sp
+The reference documentation for the OPAE Python API and is grouped into the
+following sections:
+.INDENT 0.0
+.IP \(bu 2
+\fI\%Module Types, Methods, and Constants\fP
+.IP \(bu 2
+\fI\%Fundamental Types\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%Properties\fP
+.IP \(bu 2
+\fI\%Token\fP
+.IP \(bu 2
+\fI\%Handle\fP
+.IP \(bu 2
+\fI\%Event\fP
+.IP \(bu 2
+\fI\%Shared Buffer\fP
+.IP \(bu 2
+\fI\%Error\fP
+.IP \(bu 2
+\fI\%SysObject\fP
+.UNINDENT
+.UNINDENT
+.SH MODULE TYPES, METHODS, AND CONSTANTS
+.INDENT 0.0
+.TP
+.B opae.fpga.allocate_shared_buffer(arg0:  \fI\%opae.fpga._opae.handle\fP, arg1:  int) -> opae::fpga::types::shared_buffer
+shared_buffer factory method \- allocate a shared buffer object.
+Args:
+.INDENT 7.0
+.INDENT 3.5
+handle: An accelerator handle object that identifies an open accelerator
+obect to share the buffer with.
+len: The length in bytes of the requested buffer.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B opae.fpga.enumerate(*args, **kwargs)
+Overloaded function.
+.INDENT 7.0
+.IP 1. 3
+enumerate(arg0: List[opae.fpga._opae.properties]) \-> List[opae::fpga::types::token]
+.INDENT 3.0
+.INDENT 3.5
+Get a list of tokens for the given search criteria.
+.sp
+Args:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.TP
+.B props(list): A list of properties objects that define the search criteria.
+All OPAE properties in each properties object make up one filter.
+All properties objects are combined in a union.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.IP 2. 3
+enumerate(
+.nf
+**
+.fi
+kwargs) \-> List[opae::fpga::types::token]
+.INDENT 3.0
+.INDENT 3.5
+Get a list of tokens from zero or one filters as defined by kwargs.
+If kwargs is empty, then no filter is used.
+If kwargs is not empty, then one properties object is created using the kwargs.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B opae.fpga.errors(arg0:  \fI\%opae.fpga._opae.token\fP) -> List[\fI\%opae.fpga._opae.error\fP]
+Get a list of error objects in an FPGA resource.
+Each error object represents an error register contained in the resource.
+.INDENT 7.0
+.TP
+.B Args:
+tok(token): Token representing an FPGA resource.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B opae.fpga.open(tok:  \fI\%opae.fpga._opae.token\fP, flags:  int  =  0) -> opae::fpga::types::handle
+Create a new handle object from a token.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B opae.fpga.register_event(handle:  \fI\%opae.fpga._opae.handle\fP, event_type:  opae.fpga._opae.fpga_event_type, flags:  int  =  0) -> opae::fpga::types::event
+Factory method used to create events registered to a particular event type.
+.INDENT 7.0
+.TP
+.B Args:
+handle: A handle to an OPAE resource.
+type(fpga_event_type): The event type to register for. Valid event types are:
+.INDENT 7.0
+.INDENT 3.5
+EVENT_ERROR, EVENT_INTERRUPT, EVENT_POWER_THERMAL
+.UNINDENT
+.UNINDENT
+.sp
+flags: Event registration flags that control registration behavior.
+.UNINDENT
+.UNINDENT
+.SH FUNDAMENTAL TYPES
+.SS Properties
+.INDENT 0.0
+.TP
+.B class  opae.fpga.properties
+properties class is a container class for OPAE resource properties.
+.INDENT 7.0
+.TP
+.B __init__(*args, **kwargs)
+Overloaded function.
+.INDENT 7.0
+.IP 1. 3
+__init__(self: opae.fpga._opae.properties, 
+.nf
+**
+.fi
+kwargs) \-> None
+.INDENT 3.0
+.INDENT 3.5
+Create a new properties object. If kwargs is not included then the
+properties object is created with no property values set.
+If one of the kwargs keys is an OPAE property name then the kwargs
+value is used to initialize the corresponding value in the
+properties object.
+.sp
+Kwargs:
+.INDENT 0.0
+.INDENT 3.5
+parent (token): Token object representing parent resource.
+.sp
+guid (str): GUID (as a string) of the resource.
+.sp
+type (fpga_objtype): The object type \- DEVICE or ACCELERATOR.
+.sp
+segment (uint16_t) : The PCIe segment (or domain) number.
+.sp
+bus (uint8_t) : The PCIe bus number.
+.sp
+device (uint8_t) : The PCIe device number.
+.sp
+function (uint8_t) : The PCIe function number.
+.sp
+socket_id (uint8_t): The socket ID encoded in the FIM.
+.sp
+num_slots (uint32_t): Number of slots available in the FPGA.
+.sp
+num_errors (uint32_t): Number of error registers in the resource.
+.sp
+bbs_id (uint64_t): The BBS ID encoded in the FIM.
+.sp
+bbs_version (tuple): The version of the BBS.
+.sp
+vendor_id (uint16_t): The vendor ID in PCI config space.
+.sp
+device_id (uint16_t): The device ID in PCI config space.
+.sp
+subsystem_vendor_id (uint16_t): The subsystem vendor ID in PCI config space.
+.sp
+subsystem_device_id (uint16_t): The subsystem device ID in PCI config space.
+.sp
+model (str): The model of the FPGA.
+.sp
+local_memory_size (uint64_t): The size (in bytes) of the FPGA local memory.
+.sp
+num_mmio (uint32_t): The number of mmio spaces.
+.sp
+num_interrupts (uint32_t): The number of interrupts supported by an accelerator.
+.sp
+accelerator_state (fpga_accelerator_state): The state of the accelerator \- ASSIGNED or UNASSIGNED.
+.sp
+object_id (uint64_t): The 64\-bit number unique within a single node or system.
+.sp
+interface (fpga_interface): The interface type \- IFC_DFL, IFC_VFIO, IFC_SIM_DFL, IFC_SIM_VFIO, or IFC_UIO.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.IP 2. 3
+__init__(self: opae.fpga._opae.properties, arg0: opae::fpga::types::token) \-> None
+.INDENT 3.0
+.INDENT 3.5
+Get properties from a token object.
+Args:
+.INDENT 0.0
+.INDENT 3.5
+tok (token): The token to read properties from.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.IP 3. 3
+__init__(self: opae.fpga._opae.properties, arg0: opae::fpga::types::handle) \-> None
+.INDENT 3.0
+.INDENT 3.5
+Get properties from a handle object.
+Args:
+.INDENT 0.0
+.INDENT 3.5
+h (handle): The handle to read properties from.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  accelerator_state
+Get or set the state of an accelerator.
+The accelerator state is of type fpga_accelerator_state.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  bbs_id
+Get or set the BBS ID property of a resource.
+The resource must be of type DEVICE
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  bbs_version
+Get or set the BBS version property of a resource.
+The resource must be of type DEVICE
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  bus
+Get or set the PCIe bus property of a resource.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  capabilities
+Get or set the capabilities property of a resource.
+This is taken directly from the capabilities CSR in the FIM.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  device
+Get or set the PCIe device property of a resource.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  function
+Get or set the PCIe function property of a resource.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  model
+Get or set the model property of a resource.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  num_interrupts
+Get or set the number of interrupt vectors supported by a resource.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  num_mmio
+Get or set the number of mmio spaces in a resource.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  num_slots
+Get or set the number of slots property of a resource.
+The resource must be of type DEVICE
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  object_id
+Get or set the Object ID  property of a resource. The object id is
+a 64\-bit identifier that is unique within a single node or system.
+I represents a similar concept as the token but can be serialized
+for use across processes
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  parent
+Get or set the token representing a parent object of a resource.
+The resource must be of type ACCELERATOR
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  socket_id
+Get or set the Socket ID  property of a resource. The socket id is
+encoded in of the FIM CSRs
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  vendor_id
+Get or set the vendor ID  property of a resource.
+The vendor ID is part of the PCI ID and is assigned by the
+PCI SIG consortium.
+.UNINDENT
+.UNINDENT
+.SS Token
+.INDENT 0.0
+.TP
+.B class  opae.fpga.token
+Token for referencing an OPAE resource.
+.sp
+A token object serves as a reference so a specific resource in the system.
+Holding a token does not constitute ownership of an OPAE resource.
+It is used to query information about a resource,
+or to acquire ownership by calling fpga.open module method.
+.INDENT 7.0
+.TP
+.B find(self: opae.fpga._opae.token, name: str, flags: int = <fpga_sysobject_flags.SYSOBJECT_GLOB: 2>) -> opae::fpga::types::sysobject
+Find a sysobject instance from a valid token object.
+Args:
+.INDENT 7.0
+.INDENT 3.5
+flags: Flags that control behavior of finding sub\-objects.
+SYSOBJECT_GLOB is used to indicate that wildcard patterns (*) are allowed.
+SYSOBJECT_RECURSE_ONE is used to indicate that the find routine should recurse one level.
+SYSOBJECT_RECURSE_ALL is used to indicate that the find routine should recurse to all children.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Handle
+.INDENT 0.0
+.TP
+.B class  opae.fpga.handle
+.INDENT 7.0
+.TP
+.B __enter__(self:  \fI\%opae.fpga._opae.handle\fP) -> \fI\%opae.fpga._opae.handle\fP
+Context manager protocol enter function.
+Simply returns the handle object.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B __exit__(self:  \fI\%opae.fpga._opae.handle\fP, *args) -> None
+Context manager protocol exit function.
+Closes the resource identified by this handle and currently does nothing with the exit arguments.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B close(self:  \fI\%opae.fpga._opae.handle\fP) -> opae.fpga._opae.fpga_result
+“Close an accelerator associated with handle.”
+.UNINDENT
+.INDENT 7.0
+.TP
+.B read_csr32(self:  \fI\%opae.fpga._opae.handle\fP, offset:  int, csr_space:  int  =  0) -> int
+Read 32 bits from a CSR belonging to a resource associated with a handle.
+Args:
+.INDENT 7.0
+.INDENT 3.5
+offset: The register offset.
+csr_space: The CSR space to read from. Default is 0.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B read_csr64(self:  \fI\%opae.fpga._opae.handle\fP, offset:  int, csr_space:  int  =  0) -> int
+Read 64 bits from a CSR belonging to a resource associated with a handle.
+Args:
+.INDENT 7.0
+.INDENT 3.5
+offset: The register offset.
+csr_space: The CSR space to read from. Default is 0.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B reset(self:  \fI\%opae.fpga._opae.handle\fP) -> None
+Reset the accelerator associated with this handle.
+The accelerator must be opened.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B write_csr32(self:  \fI\%opae.fpga._opae.handle\fP, offset:  int, value:  int, csr_space:  int  =  0) -> None
+Write 32 bits to a CSR belonging to a resource associated with a handle.
+Args:
+.INDENT 7.0
+.INDENT 3.5
+offset: The register offset.
+value: The 32\-bit value to write to the register.
+csr_space: The CSR space to write from. Default is 0.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B write_csr64(self:  \fI\%opae.fpga._opae.handle\fP, offset:  int, value:  int, csr_space:  int  =  0) -> None
+Write 64 bits to a CSR belonging to a resource associated with a handle.
+Args:
+.INDENT 7.0
+.INDENT 3.5
+offset: The register offset.
+value: The 64\-bit value to write to the register.
+csr_space: The CSR space to write from. Default is 0.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Event
+.INDENT 0.0
+.TP
+.B class  opae.fpga.event
+event object are used to register for OPAE events.
+Currently, the event types are:
+.INDENT 7.0
+.INDENT 3.5
+EVENT_ERROR
+EVENT_INTERRUPT
+EVENT_POWER_THERMAL
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B os_object(self:  \fI\%opae.fpga._opae.event\fP) -> int
+Get an OS specific object from the event which can be used to subscribe for
+events. On Linux, the object corresponds to a file descriptor that can be
+used with select/poll/epoll calls.
+.UNINDENT
+.UNINDENT
+.SS Shared Buffer
+.INDENT 0.0
+.TP
+.B class  opae.fpga.shared_buffer
+shared_buffer represents a system memory buffer that can be shared with the accelerator.
+It implements the Python buffer protocol and can be converted to a native bytearray object.
+.INDENT 7.0
+.TP
+.B compare(self:  \fI\%opae.fpga._opae.shared_buffer\fP, arg0:  \fI\%opae.fpga._opae.shared_buffer\fP, arg1:  int) -> int
+Compare this shared_buffer (the first len bytes)  object with another one.
+Returns 0 if the two buffers (up to len) are equal.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B fill(self:  \fI\%opae.fpga._opae.shared_buffer\fP, arg0:  int) -> None
+Fill the buffer with a given value.
+.INDENT 7.0
+.TP
+.B Args:
+value: The value to use when filling the buffer.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B io_address(self:  \fI\%opae.fpga._opae.shared_buffer\fP) -> int
+Get the address of the buffer suitable for programming into the
+accelerator device.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B size(self:  \fI\%opae.fpga._opae.shared_buffer\fP) -> int
+Get the length of the buffer in bytes.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B wsid(self:  \fI\%opae.fpga._opae.shared_buffer\fP) -> int
+Get the underlying buffer’s workspace ID.
+.UNINDENT
+.UNINDENT
+.SS Error
+.INDENT 0.0
+.TP
+.B class  opae.fpga.error
+error object is used to represent an error register in an FPGA resource.
+It holds two read\-only properties, \fIname\fP and \fIcan_clear\fP and it can also
+be used to read the raw register value from its corresponding error register.
+.INDENT 7.0
+.TP
+.B property  can_clear
+Indicates if the error register can be cleared \- read\-only property
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  name
+Error register name \- read\-only property
+.UNINDENT
+.INDENT 7.0
+.TP
+.B read_value(self:  \fI\%opae.fpga._opae.error\fP) -> int
+Read the raw value from the error register.
+.UNINDENT
+.UNINDENT
+.SS SysObject
+.INDENT 0.0
+.TP
+.B class  opae.fpga.sysobject
+Wraps the OPAE fpga_object primitive as a Python object.
+.INDENT 7.0
+.TP
+.B __getattr__(self:  \fI\%opae.fpga._opae.sysobject\fP, arg0:  str) -> \fI\%opae.fpga._opae.sysobject\fP
+Get a sysobject instance from a valid sysobject.
+The parent sysobject must be a container type object.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B __getitem__(*args, **kwargs)
+Overloaded function.
+.INDENT 7.0
+.IP 1. 3
+__getitem__(self: opae.fpga._opae.sysobject, arg0: str) \-> opae.fpga._opae.sysobject
+.INDENT 3.0
+.INDENT 3.5
+Get a sysobject instance from a valid sysobject.
+The parent sysobject must be a container type object.
+.UNINDENT
+.UNINDENT
+.IP 2. 3
+__getitem__(self: opae.fpga._opae.sysobject, arg0: int) \-> object
+.INDENT 3.0
+.INDENT 3.5
+Get a byte from the sysobject at a given index.
+Raises \fIRuntimeError\fP if the sysobject instance is a container type.
+.UNINDENT
+.UNINDENT
+.IP 3. 3
+__getitem__(self: opae.fpga._opae.sysobject, arg0: slice) \-> str
+.INDENT 3.0
+.INDENT 3.5
+Get a slice of bytes from the sysobject at a given offset.
+Raises \fIRuntimeError\fP if the sysobject instance is a container type.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B bytes(self:  \fI\%opae.fpga._opae.sysobject\fP) -> str
+Get bytes from the sysobject.
+Raises \fIRuntimeError\fP if the sysobject instance is a container type.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B find(self:  \fI\%opae.fpga._opae.sysobject\fP, name:  str, flags:  int  =  0) -> \fI\%opae.fpga._opae.sysobject\fP
+Find a sysobject instance from a valid sysobject.
+The parent sysobject must be a container type object.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B read64(self:  \fI\%opae.fpga._opae.sysobject\fP) -> int
+.UNINDENT
+.INDENT 7.0
+.TP
+.B size(self:  \fI\%opae.fpga._opae.sysobject\fP) -> int
+.UNINDENT
+.INDENT 7.0
+.TP
+.B write64(self:  \fI\%opae.fpga._opae.sysobject\fP, arg0:  int, arg1:  int) -> None
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

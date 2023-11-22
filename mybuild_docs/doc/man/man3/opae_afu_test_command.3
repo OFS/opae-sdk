@@ -1,0 +1,145 @@
+.TH "opae::afu_test::command" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+opae::afu_test::command
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/cxl_host_exerciser/he_cache_test\&.h>\fP
+.PP
+Inherited by \fBcxl_mem_tg::cxl_tg_test\fP, \fBdummy_afu::ddr_test\fP, \fBdummy_afu::lpbk_test\fP, \fBdummy_afu::mmio_test\fP, \fBhost_exerciser::he_cmd\fP, \fBhost_exerciser::host_exerciser_cmd\fP, \fBhssi_cmd\fP, and \fBmem_tg::tg_test\fP\&.
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "typedef std::shared_ptr< \fBcommand\fP > \fBptr_t\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBcommand\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~command\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const =0"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const =0"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBafu\fP *\fBafu\fP, CLI::App *\fBapp\fP)=0"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP)"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBfeatureid\fP () const =0"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBguidl\fP () const =0"
+.br
+.ti -1c
+.RI "virtual uint64_t \fBguidh\fP () const =0"
+.br
+.ti -1c
+.RI "bool \fBrunning\fP () const"
+.br
+.ti -1c
+.RI "void \fBstop\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "std::atomic< bool > \fBrunning_\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 231 of file he_cache_test\&.h\&.
+.SH "Member Typedef Documentation"
+.PP 
+.SS "typedef std::shared_ptr<\fBcommand\fP> \fBopae::afu_test::command::ptr_t\fP"
+
+.PP
+Definition at line 233 of file he_cache_test\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "opae::afu_test::command::command ()\fC [inline]\fP"
+
+.PP
+Definition at line 234 of file he_cache_test\&.h\&.
+.SS "virtual opae::afu_test::command::~command ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 235 of file he_cache_test\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* opae::afu_test::command::name () const\fC [pure virtual]\fP"
+
+.PP
+Implemented in \fBmem_tg::tg_test\fP, \fBhssi_pkt_filt_10g_cmd\fP, \fBhssi_pkt_filt_100g_cmd\fP, \fBhssi_200g_400g_cmd\fP, \fBhssi_10g_cmd\fP, \fBhssi_100g_cmd\fP, \fBhost_exerciser::host_exerciser_mem\fP, \fBhost_exerciser::host_exerciser_lpbk\fP, \fBcxl_mem_tg::cxl_tg_test\fP, \fBhost_exerciser::he_cache_lpbk_cmd\fP, \fBhost_exerciser::he_cache_cmd\fP, \fBdummy_afu::mmio_test\fP, \fBdummy_afu::lpbk_test\fP, and \fBdummy_afu::ddr_test\fP\&.
+.SS "virtual const char* opae::afu_test::command::description () const\fC [pure virtual]\fP"
+
+.PP
+Implemented in \fBmem_tg::tg_test\fP, \fBhssi_pkt_filt_10g_cmd\fP, \fBhssi_pkt_filt_100g_cmd\fP, \fBhssi_200g_400g_cmd\fP, \fBhssi_10g_cmd\fP, \fBhssi_100g_cmd\fP, \fBhost_exerciser::host_exerciser_mem\fP, \fBhost_exerciser::host_exerciser_lpbk\fP, \fBcxl_mem_tg::cxl_tg_test\fP, \fBhost_exerciser::he_cache_lpbk_cmd\fP, \fBhost_exerciser::he_cache_cmd\fP, \fBdummy_afu::mmio_test\fP, \fBdummy_afu::lpbk_test\fP, and \fBdummy_afu::ddr_test\fP\&.
+.SS "virtual int opae::afu_test::command::run (\fBafu\fP * afu, CLI::App * app)\fC [pure virtual]\fP"
+
+.PP
+Implemented in \fBmem_tg::tg_test\fP, \fBhssi_pkt_filt_10g_cmd\fP, \fBhssi_pkt_filt_100g_cmd\fP, \fBhssi_200g_400g_cmd\fP, \fBhssi_10g_cmd\fP, \fBhssi_100g_cmd\fP, \fBcxl_mem_tg::cxl_tg_test\fP, \fBhost_exerciser::host_exerciser_cmd\fP, \fBdummy_afu::mmio_test\fP, \fBdummy_afu::lpbk_test\fP, \fBdummy_afu::ddr_test\fP, \fBhost_exerciser::he_cache_lpbk_cmd\fP, and \fBhost_exerciser::he_cache_cmd\fP\&.
+.SS "virtual void opae::afu_test::command::add_options (CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented in \fBhssi_pkt_filt_10g_cmd\fP, \fBhssi_pkt_filt_100g_cmd\fP, \fBhssi_200g_400g_cmd\fP, \fBhssi_10g_cmd\fP, \fBhssi_100g_cmd\fP, \fBhost_exerciser::he_cache_lpbk_cmd\fP, \fBhost_exerciser::he_cache_cmd\fP, and \fBdummy_afu::mmio_test\fP\&.
+.PP
+Definition at line 239 of file he_cache_test\&.h\&.
+.PP
+References app\&.
+.SS "virtual const char* opae::afu_test::command::afu_id () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented in \fBmem_tg::tg_test\fP, \fBhssi_200g_400g_cmd\fP, \fBhssi_10g_cmd\fP, \fBhssi_100g_cmd\fP, \fBhost_exerciser::host_exerciser_mem\fP, \fBhost_exerciser::host_exerciser_lpbk\fP, \fBcxl_mem_tg::cxl_tg_test\fP, \fBhost_exerciser::he_cache_lpbk_cmd\fP, and \fBhost_exerciser::he_cache_cmd\fP\&.
+.PP
+Definition at line 240 of file he_cache_test\&.h\&.
+.SS "virtual uint64_t opae::afu_test::command::featureid () const\fC [pure virtual]\fP"
+
+.PP
+Implemented in \fBhost_exerciser::he_cache_lpbk_cmd\fP, and \fBhost_exerciser::he_cache_cmd\fP\&.
+.SS "virtual uint64_t opae::afu_test::command::guidl () const\fC [pure virtual]\fP"
+
+.PP
+Implemented in \fBhost_exerciser::he_cache_lpbk_cmd\fP, and \fBhost_exerciser::he_cache_cmd\fP\&.
+.SS "virtual uint64_t opae::afu_test::command::guidh () const\fC [pure virtual]\fP"
+
+.PP
+Implemented in \fBhost_exerciser::he_cache_lpbk_cmd\fP, and \fBhost_exerciser::he_cache_cmd\fP\&.
+.SS "bool opae::afu_test::command::running () const\fC [inline]\fP"
+
+.PP
+Definition at line 246 of file he_cache_test\&.h\&.
+.PP
+Referenced by hssi_100g_cmd::run(), hssi_10g_cmd::run(), and hssi_200g_400g_cmd::run()\&.
+.SS "void opae::afu_test::command::stop ()\fC [inline]\fP"
+
+.PP
+Definition at line 247 of file he_cache_test\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "std::atomic<bool> opae::afu_test::command::running_\fC [private]\fP"
+
+.PP
+Definition at line 250 of file he_cache_test\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

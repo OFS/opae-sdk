@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structdummy__afu_1_1afu__dfh_8____unnamed65____" kind="struct" language="C++" prot="public">
+    <compoundname>dummy_afu::afu_dfh.__unnamed65__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structdummy__afu_1_1afu__dfh_8____unnamed65_____1a10415075d26efaba20559f95374c3ba5" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>FeatureID</name>
+        <bitfield> 12</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="65" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1afu__dfh_8____unnamed65_____1a20ca4b072df0e27f10cd26da1364b28b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>FeatureRev</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="66" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1afu__dfh_8____unnamed65_____1abe762b71ccf0b32e81dd414b0dd31a9d" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>NextDfhByteOffset</name>
+        <bitfield> 24</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="67" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1afu__dfh_8____unnamed65_____1aecd284e164bdc984d109aea9e86e695c" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>EOL</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="68" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1afu__dfh_8____unnamed65_____1aa66247353afee3549cf74e5ca33030be" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>Reserved41</name>
+        <bitfield> 19</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="69" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structdummy__afu_1_1afu__dfh_8____unnamed65_____1ad3abdac08cd922b2c2e5fe50b23ae5b2" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>FeatureType</name>
+        <bitfield> 4</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/dummy_afu/dummy_afu.h" line="70" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>dummy_afu::afu_dfh.__unnamed65__</label>
+        <link refid="structdummy__afu_1_1afu__dfh_8____unnamed65____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/dummy_afu/dummy_afu.h" line="64" column="3" bodyfile="samples/dummy_afu/dummy_afu.h" bodystart="64" bodyend="71"/>
+    <listofallmembers>
+      <member refid="structdummy__afu_1_1afu__dfh_8____unnamed65_____1aecd284e164bdc984d109aea9e86e695c" prot="public" virt="non-virtual"><scope>dummy_afu::afu_dfh.__unnamed65__</scope><name>EOL</name></member>
+      <member refid="structdummy__afu_1_1afu__dfh_8____unnamed65_____1a10415075d26efaba20559f95374c3ba5" prot="public" virt="non-virtual"><scope>dummy_afu::afu_dfh.__unnamed65__</scope><name>FeatureID</name></member>
+      <member refid="structdummy__afu_1_1afu__dfh_8____unnamed65_____1a20ca4b072df0e27f10cd26da1364b28b" prot="public" virt="non-virtual"><scope>dummy_afu::afu_dfh.__unnamed65__</scope><name>FeatureRev</name></member>
+      <member refid="structdummy__afu_1_1afu__dfh_8____unnamed65_____1ad3abdac08cd922b2c2e5fe50b23ae5b2" prot="public" virt="non-virtual"><scope>dummy_afu::afu_dfh.__unnamed65__</scope><name>FeatureType</name></member>
+      <member refid="structdummy__afu_1_1afu__dfh_8____unnamed65_____1abe762b71ccf0b32e81dd414b0dd31a9d" prot="public" virt="non-virtual"><scope>dummy_afu::afu_dfh.__unnamed65__</scope><name>NextDfhByteOffset</name></member>
+      <member refid="structdummy__afu_1_1afu__dfh_8____unnamed65_____1aa66247353afee3549cf74e5ca33030be" prot="public" virt="non-virtual"><scope>dummy_afu::afu_dfh.__unnamed65__</scope><name>Reserved41</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

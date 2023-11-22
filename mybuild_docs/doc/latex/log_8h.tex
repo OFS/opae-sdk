@@ -1,0 +1,150 @@
+\doxysection{include/opae/log.h File Reference}
+\label{log_8h}\index{include/opae/log.h@{include/opae/log.h}}
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{log_8h_a42617cfd690fdcad76942009fb503b2f}{\+\_\+\+\_\+\+SHORT\+\_\+\+FILE\+\_\+\+\_\+}}
+\item 
+\#define \mbox{\hyperlink{log_8h_a95b5a4d29214bb4fe7c189dd285b5f2f}{OPAE\+\_\+\+MSG}}(format, ...)
+\item 
+\#define \mbox{\hyperlink{log_8h_a4c65a535e2f271bf6563675181de244c}{OPAE\+\_\+\+ERR}}(format, ...)
+\item 
+\#define \mbox{\hyperlink{log_8h_ae876bc51560016369ad918326c0ae98b}{OPAE\+\_\+\+DBG}}(format, ...)~\{ \}
+\item 
+\#define \mbox{\hyperlink{log_8h_ade66bd6de2fa0408da71936d8945695b}{OPAE\+\_\+\+DEFAULT\+\_\+\+LOGLEVEL}}~\mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140a952b12fed7c3961af4b59295d239f085}{OPAE\+\_\+\+LOG\+\_\+\+ERROR}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140}{opae\+\_\+loglevel}} \{ \mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140a952b12fed7c3961af4b59295d239f085}{OPAE\+\_\+\+LOG\+\_\+\+ERROR}} = 0
+, \mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140a3a3d401b3f2271629ac784e073cec6ca}{OPAE\+\_\+\+LOG\+\_\+\+MESSAGE}}
+, \mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140aea6bac5e767d7f06f069a351258ce42d}{OPAE\+\_\+\+LOG\+\_\+\+DEBUG}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{log_8h_aa5576c3d699afd77372b9443c7bf1bab}{opae\+\_\+print}} (int loglevel, const char $\ast$fmt,...)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{log_8h_a42617cfd690fdcad76942009fb503b2f}} 
+\index{log.h@{log.h}!\_\_SHORT\_FILE\_\_@{\_\_SHORT\_FILE\_\_}}
+\index{\_\_SHORT\_FILE\_\_@{\_\_SHORT\_FILE\_\_}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{\_\_SHORT\_FILE\_\_}{\_\_SHORT\_FILE\_\_}}
+{\footnotesize\ttfamily \#define \+\_\+\+\_\+\+SHORT\+\_\+\+FILE\+\_\+\+\_\+}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   (\{                                                     \(\backslash\)}
+\DoxyCodeLine{   const \textcolor{keywordtype}{char} *file = \_\_FILE\_\_;                           \(\backslash\)}
+\DoxyCodeLine{   const \textcolor{keywordtype}{char} *p = file;                                  \(\backslash\)}
+\DoxyCodeLine{   while (*p)                                             \(\backslash\)}
+\DoxyCodeLine{      ++p;                                           \(\backslash\)}
+\DoxyCodeLine{   while ((p > file) \&\& (\textcolor{charliteral}{'/'} != *p) \&\& (\textcolor{charliteral}{'\(\backslash\)\(\backslash\)'} != *p))      \(\backslash\)}
+\DoxyCodeLine{      -\/-\/p;                                           \(\backslash\)}
+\DoxyCodeLine{   if (p > file)                                          \(\backslash\)}
+\DoxyCodeLine{      ++p;                                           \(\backslash\)}
+\DoxyCodeLine{   p;                                                     \(\backslash\)}
+\DoxyCodeLine{   \})}
+
+\end{DoxyCode}
+
+
+Definition at line 43 of file log.\+h.
+
+\mbox{\label{log_8h_a95b5a4d29214bb4fe7c189dd285b5f2f}} 
+\index{log.h@{log.h}!OPAE\_MSG@{OPAE\_MSG}}
+\index{OPAE\_MSG@{OPAE\_MSG}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{OPAE\_MSG}{OPAE\_MSG}}
+{\footnotesize\ttfamily \#define OPAE\+\_\+\+MSG(\begin{DoxyParamCaption}\item[{}]{format,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   opae\_print(OPAE\_LOG\_MESSAGE, \textcolor{stringliteral}{"{}\%s:\%u:\%s() : "{}} format \textcolor{stringliteral}{"{}\(\backslash\)n"{}}, \(\backslash\)}
+\DoxyCodeLine{   \_\_SHORT\_FILE\_\_, \_\_LINE\_\_, \_\_func\_\_, \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line 59 of file log.\+h.
+
+\mbox{\label{log_8h_a4c65a535e2f271bf6563675181de244c}} 
+\index{log.h@{log.h}!OPAE\_ERR@{OPAE\_ERR}}
+\index{OPAE\_ERR@{OPAE\_ERR}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{OPAE\_ERR}{OPAE\_ERR}}
+{\footnotesize\ttfamily \#define OPAE\+\_\+\+ERR(\begin{DoxyParamCaption}\item[{}]{format,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   opae\_print(OPAE\_LOG\_ERROR,                                \(\backslash\)}
+\DoxyCodeLine{   \textcolor{stringliteral}{"{}\%s:\%u:\%s() **ERROR** : "{}} format \textcolor{stringliteral}{"{}\(\backslash\)n"{}},                    \(\backslash\)}
+\DoxyCodeLine{   \_\_SHORT\_FILE\_\_, \_\_LINE\_\_, \_\_func\_\_, \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line 66 of file log.\+h.
+
+\mbox{\label{log_8h_ae876bc51560016369ad918326c0ae98b}} 
+\index{log.h@{log.h}!OPAE\_DBG@{OPAE\_DBG}}
+\index{OPAE\_DBG@{OPAE\_DBG}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{OPAE\_DBG}{OPAE\_DBG}}
+{\footnotesize\ttfamily \#define OPAE\+\_\+\+DBG(\begin{DoxyParamCaption}\item[{}]{format,  }\item[{}]{... }\end{DoxyParamCaption})~\{ \}}
+
+
+
+Definition at line 80 of file log.\+h.
+
+\mbox{\label{log_8h_ade66bd6de2fa0408da71936d8945695b}} 
+\index{log.h@{log.h}!OPAE\_DEFAULT\_LOGLEVEL@{OPAE\_DEFAULT\_LOGLEVEL}}
+\index{OPAE\_DEFAULT\_LOGLEVEL@{OPAE\_DEFAULT\_LOGLEVEL}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{OPAE\_DEFAULT\_LOGLEVEL}{OPAE\_DEFAULT\_LOGLEVEL}}
+{\footnotesize\ttfamily \#define OPAE\+\_\+\+DEFAULT\+\_\+\+LOGLEVEL~\mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140a952b12fed7c3961af4b59295d239f085}{OPAE\+\_\+\+LOG\+\_\+\+ERROR}}}
+
+
+
+Definition at line 93 of file log.\+h.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\label{log_8h_a1446ee33d55fcd970394399676673140}} 
+\index{log.h@{log.h}!opae\_loglevel@{opae\_loglevel}}
+\index{opae\_loglevel@{opae\_loglevel}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{opae\_loglevel}{opae\_loglevel}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{log_8h_a1446ee33d55fcd970394399676673140}{opae\+\_\+loglevel}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPAE\_LOG\_ERROR@{OPAE\_LOG\_ERROR}!log.h@{log.h}}\index{log.h@{log.h}!OPAE\_LOG\_ERROR@{OPAE\_LOG\_ERROR}}}\mbox{\label{log_8h_a1446ee33d55fcd970394399676673140a952b12fed7c3961af4b59295d239f085}} 
+OPAE\+\_\+\+LOG\+\_\+\+ERROR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPAE\_LOG\_MESSAGE@{OPAE\_LOG\_MESSAGE}!log.h@{log.h}}\index{log.h@{log.h}!OPAE\_LOG\_MESSAGE@{OPAE\_LOG\_MESSAGE}}}\mbox{\label{log_8h_a1446ee33d55fcd970394399676673140a3a3d401b3f2271629ac784e073cec6ca}} 
+OPAE\+\_\+\+LOG\+\_\+\+MESSAGE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPAE\_LOG\_DEBUG@{OPAE\_LOG\_DEBUG}!log.h@{log.h}}\index{log.h@{log.h}!OPAE\_LOG\_DEBUG@{OPAE\_LOG\_DEBUG}}}\mbox{\label{log_8h_a1446ee33d55fcd970394399676673140aea6bac5e767d7f06f069a351258ce42d}} 
+OPAE\+\_\+\+LOG\+\_\+\+DEBUG&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line 87 of file log.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{log_8h_aa5576c3d699afd77372b9443c7bf1bab}} 
+\index{log.h@{log.h}!opae\_print@{opae\_print}}
+\index{opae\_print@{opae\_print}!log.h@{log.h}}
+\doxysubsubsection{\texorpdfstring{opae\_print()}{opae\_print()}}
+{\footnotesize\ttfamily void opae\+\_\+print (\begin{DoxyParamCaption}\item[{int}]{loglevel,  }\item[{const char $\ast$}]{fmt,  }\item[{}]{... }\end{DoxyParamCaption})}
+

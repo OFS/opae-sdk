@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structras__inject__error_8____unnamed88_____8____unnamed90____" kind="struct" language="C++" prot="public">
+    <compoundname>ras_inject_error.__unnamed88__.__unnamed90__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structras__inject__error_8____unnamed88_____8____unnamed90_____1a2a0e5bc9b5c01998865d21cfc6acdd8b" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>catastrophicr_error</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="81" column="11"/>
+      </memberdef>
+      <memberdef kind="variable" id="structras__inject__error_8____unnamed88_____8____unnamed90_____1a248d7cd65b618004dbd5f44e96b8cd61" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>fatal_error</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="83" column="11"/>
+      </memberdef>
+      <memberdef kind="variable" id="structras__inject__error_8____unnamed88_____8____unnamed90_____1a8da0039b80fc69ebb6f5f263320816ed" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>nonfatal_error</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="85" column="11"/>
+      </memberdef>
+      <memberdef kind="variable" id="structras__inject__error_8____unnamed88_____8____unnamed90_____1aa799822e734135bf270e704b72c08764" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>rsvd</name>
+        <bitfield> 61</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="87" column="11"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>ras_inject_error.__unnamed88__.__unnamed90__</label>
+        <link refid="structras__inject__error_8____unnamed88_____8____unnamed90____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hello_events/hello_events.c" line="79" column="1" bodyfile="samples/hello_events/hello_events.c" bodystart="79" bodyend="88"/>
+    <listofallmembers>
+      <member refid="structras__inject__error_8____unnamed88_____8____unnamed90_____1a2a0e5bc9b5c01998865d21cfc6acdd8b" prot="public" virt="non-virtual"><scope>ras_inject_error.__unnamed88__.__unnamed90__</scope><name>catastrophicr_error</name></member>
+      <member refid="structras__inject__error_8____unnamed88_____8____unnamed90_____1a248d7cd65b618004dbd5f44e96b8cd61" prot="public" virt="non-virtual"><scope>ras_inject_error.__unnamed88__.__unnamed90__</scope><name>fatal_error</name></member>
+      <member refid="structras__inject__error_8____unnamed88_____8____unnamed90_____1a8da0039b80fc69ebb6f5f263320816ed" prot="public" virt="non-virtual"><scope>ras_inject_error.__unnamed88__.__unnamed90__</scope><name>nonfatal_error</name></member>
+      <member refid="structras__inject__error_8____unnamed88_____8____unnamed90_____1aa799822e734135bf270e704b72c08764" prot="public" virt="non-virtual"><scope>ras_inject_error.__unnamed88__.__unnamed90__</scope><name>rsvd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

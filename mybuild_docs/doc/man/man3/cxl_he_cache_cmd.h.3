@@ -1,0 +1,87 @@
+.TH "samples/cxl_host_exerciser/cxl_he_cache_cmd.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+samples/cxl_host_exerciser/cxl_he_cache_cmd.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'cxl_he_cmd\&.h'\fP
+.br
+\fC#include 'cxl_host_exerciser\&.h'\fP
+.br
+\fC#include 'he_cache_test\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBhost_exerciser::he_cache_cmd\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBhost_exerciser\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBUNUSED_PARAM\fP(x)   ((void)x)"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBhe_sig_handler\fP (int)"
+.br
+.ti -1c
+.RI "void \fBhost_exerciser::he_cache_thread\fP (uint8_t *buf_ptr, uint64_t len)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "volatile bool \fBg_he_exit\fP = false"
+.br
+.ti -1c
+.RI "static volatile bool \fBg_stop_thread\fP = false"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define UNUSED_PARAM(x)   ((void)x)"
+
+.PP
+Definition at line 32 of file cxl_he_cache_cmd\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "void he_sig_handler (int)"
+
+.PP
+Definition at line 39 of file cxl_he_cache_cmd\&.h\&.
+.PP
+References g_he_exit, and g_stop_thread\&.
+.SH "Variable Documentation"
+.PP 
+.SS "volatile bool g_he_exit = false"
+
+.PP
+Definition at line 35 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by host_exerciser::he_cache_cmd::he_continuousmode(), and he_sig_handler()\&.
+.SS "volatile bool g_stop_thread = false\fC [static]\fP"
+
+.PP
+Definition at line 36 of file cxl_he_cache_cmd\&.h\&.
+.PP
+Referenced by host_exerciser::he_cache_thread(), host_exerciser::he_cache_cmd::he_run_host_rd_cache_hit_test(), host_exerciser::he_cache_cmd::he_run_host_wr_cache_hit_test(), and he_sig_handler()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

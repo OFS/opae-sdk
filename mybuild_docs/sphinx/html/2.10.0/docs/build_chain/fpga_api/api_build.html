@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building OPAE SDK Artifacts &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="OPAE C API Reference" href="../../fpga_api/fpga_api.html" />
+    <link rel="prev" title="OPAE Python Bindings" href="../../pyopae/README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Building OPAE SDK Artifacts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#steps">Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_tools/ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Building OPAE SDK Artifacts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/build_chain/fpga_api/api_build.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="building-opae-sdk-artifacts">
+<h1>Building OPAE SDK Artifacts<a class="headerlink" href="#building-opae-sdk-artifacts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><p>Fetch the OPAE SDK source tree</p></li>
+<li><p>Configure the OPAE SDK CMake project</p></li>
+<li><p>Build OPAE SDK targets</p></li>
+</ol>
+<p>The example below lists commands that can be used to fetch and build OPAE SDK.</p>
+<div class="highlight-{.bash} notranslate"><div class="highlight"><pre><span></span># fetch the source
+git clone https://github.com/OPAE/opae-sdk.git
+cd opae-sdk
+# configure CMake
+cmake ..
+# build
+make
+
+</pre></div>
+</div>
+<p>For a list of targets that can be built, type <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">help</span></code> from the build
+directory.</p>
+<p>CMake options that may be set during the configuration include the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">|----------------------------|-----------------------|-------------------------------------|---------------------------------------|----------------|</span>
+<span class="o">|</span><span class="w"> </span><span class="n">cmake</span><span class="w"> </span><span class="n">flag</span><span class="w">                 </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">Mandatory</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Purpose</span><span class="w">                             </span><span class="o">|</span><span class="w"> </span><span class="n">Valid</span><span class="w"> </span><span class="n">values</span><span class="w">                          </span><span class="o">|</span><span class="w"> </span><span class="n">Default</span><span class="w"> </span><span class="n">value</span><span class="w">  </span><span class="o">|</span>
+<span class="o">|----------------------------|-----------------------|-------------------------------------|---------------------------------------|----------------|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DCMAKE_BUILD_TYPE</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">compiler</span><span class="w"> </span><span class="n">flags</span><span class="w">                  </span><span class="o">|</span><span class="w"> </span><span class="n">Debug</span><span class="o">/</span><span class="n">Release</span><span class="o">/</span><span class="n">Coverage</span><span class="o">/</span><span class="n">RelWithDebInfo</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">RelWithDebInfo</span><span class="w"> </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_BUILD_LEGACY</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">opae</span><span class="o">-</span><span class="n">legacy</span><span class="p">.</span><span class="n">git</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_BUILD_SPHINX_DOC</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">documentation</span><span class="w"> </span><span class="n">build</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_BUILD_TESTS</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">building</span><span class="w"> </span><span class="n">unit</span><span class="w"> </span><span class="n">tests</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_INSTALL_RPATH</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">rpath</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">install</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_BUILD_LIBOPAE_CXX</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">OPAE</span><span class="w"> </span><span class="n">C</span><span class="o">++</span><span class="w"> </span><span class="n">bindings</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="w">             </span><span class="o">|</span><span class="w"> </span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_WITH_PYBIND11</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">pybind11</span><span class="w"> </span><span class="n">binaries</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="w">             </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_BUILD_PYTHON_DIST</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">Python</span><span class="w"> </span><span class="n">Distribution</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_ENABLE_MOCK</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">mocks</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">unit</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+<span class="o">|</span><span class="w"> </span><span class="o">-</span><span class="n">DOPAE_BUILD_SIM</span><span class="w">           </span><span class="o">|</span><span class="w"> </span><span class="n">Optional</span><span class="w">              </span><span class="o">|</span><span class="w"> </span><span class="n">Enable</span><span class="o">/</span><span class="n">disable</span><span class="w"> </span><span class="n">opae</span><span class="o">-</span><span class="n">sim</span><span class="p">.</span><span class="n">git</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="n">ON</span><span class="o">/</span><span class="n">OFF</span><span class="w">                                </span><span class="o">|</span><span class="w"> </span><span class="n">OFF</span><span class="w">            </span><span class="o">|</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../pyopae/README.html" class="btn btn-neutral float-left" title="OPAE Python Bindings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../fpga_api/fpga_api.html" class="btn btn-neutral float-right" title="OPAE C API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+\doxysection{include/opae/version.h File Reference}
+\label{version_8h}\index{include/opae/version.h@{include/opae/version.h}}
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{version_8h_a32aa7a5e5d7cfcc9e1058c2d74718140}{FPGA\+\_\+\+VERSION\+\_\+\+STR\+\_\+\+MAX}}~10
+\item 
+\#define \mbox{\hyperlink{version_8h_a76b0f7badf1367c51275cd1cadc16146}{FPGA\+\_\+\+BUILD\+\_\+\+STR\+\_\+\+MAX}}~41
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{version_8h_a1af8e881dda1b5f823336fe984665519}{fpga\+Get\+OPAECVersion}} (\mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}} $\ast$version)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{version_8h_aade1f86d5d30658a7ccddaa54db74ab8}{fpga\+Get\+OPAECVersion\+String}} (char $\ast$version\+\_\+str, size\+\_\+t len)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{version_8h_a4291b6b91fc85bff7d342109ac0e05ab}{fpga\+Get\+OPAECBuild\+String}} (char $\ast$build\+\_\+str, size\+\_\+t len)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{version_8h_a32aa7a5e5d7cfcc9e1058c2d74718140}} 
+\index{version.h@{version.h}!FPGA\_VERSION\_STR\_MAX@{FPGA\_VERSION\_STR\_MAX}}
+\index{FPGA\_VERSION\_STR\_MAX@{FPGA\_VERSION\_STR\_MAX}!version.h@{version.h}}
+\doxysubsubsection{\texorpdfstring{FPGA\_VERSION\_STR\_MAX}{FPGA\_VERSION\_STR\_MAX}}
+{\footnotesize\ttfamily \#define FPGA\+\_\+\+VERSION\+\_\+\+STR\+\_\+\+MAX~10}
+
+
+
+Definition at line 60 of file version.\+h.
+
+\mbox{\label{version_8h_a76b0f7badf1367c51275cd1cadc16146}} 
+\index{version.h@{version.h}!FPGA\_BUILD\_STR\_MAX@{FPGA\_BUILD\_STR\_MAX}}
+\index{FPGA\_BUILD\_STR\_MAX@{FPGA\_BUILD\_STR\_MAX}!version.h@{version.h}}
+\doxysubsubsection{\texorpdfstring{FPGA\_BUILD\_STR\_MAX}{FPGA\_BUILD\_STR\_MAX}}
+{\footnotesize\ttfamily \#define FPGA\+\_\+\+BUILD\+\_\+\+STR\+\_\+\+MAX~41}
+
+
+
+Definition at line 73 of file version.\+h.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{version_8h_a1af8e881dda1b5f823336fe984665519}} 
+\index{version.h@{version.h}!fpgaGetOPAECVersion@{fpgaGetOPAECVersion}}
+\index{fpgaGetOPAECVersion@{fpgaGetOPAECVersion}!version.h@{version.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetOPAECVersion()}{fpgaGetOPAECVersion()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+OPAECVersion (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_structfpga__version}{fpga\+\_\+version}} $\ast$}]{version }\end{DoxyParamCaption})}
+
+Get version information about the OPAE library
+
+Retrieve major version, minor version, and revision information about the OPAE library.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em version} & FPGA version \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the output parameters is NULL, FPGA\+\_\+\+OK otherwise. 
+\end{DoxyReturn}
+\mbox{\label{version_8h_aade1f86d5d30658a7ccddaa54db74ab8}} 
+\index{version.h@{version.h}!fpgaGetOPAECVersionString@{fpgaGetOPAECVersionString}}
+\index{fpgaGetOPAECVersionString@{fpgaGetOPAECVersionString}!version.h@{version.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetOPAECVersionString()}{fpgaGetOPAECVersionString()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+OPAECVersion\+String (\begin{DoxyParamCaption}\item[{char $\ast$}]{version\+\_\+str,  }\item[{size\+\_\+t}]{len }\end{DoxyParamCaption})}
+
+Get version information about the OPAE library as a string
+
+Retrieve major version, minor version, and revision information about the OPAE library, encoded in a human-\/readable string (e.\+g. \char`\"{}1.\+0.\+0\char`\"{}).
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em version\+\_\+str} & String to copy version information into \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & Length of {\ttfamily version\+\_\+str} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if {\ttfamily version\+\_\+str} is NULL, FPGA\+\_\+\+EXCEPTION if the version string cannot be copied into {\ttfamily version\+\_\+str}, FPGA\+\_\+\+OK otherwise. 
+\end{DoxyReturn}
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{version_8h_a4291b6b91fc85bff7d342109ac0e05ab}} 
+\index{version.h@{version.h}!fpgaGetOPAECBuildString@{fpgaGetOPAECBuildString}}
+\index{fpgaGetOPAECBuildString@{fpgaGetOPAECBuildString}!version.h@{version.h}}
+\doxysubsubsection{\texorpdfstring{fpgaGetOPAECBuildString()}{fpgaGetOPAECBuildString()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Get\+OPAECBuild\+String (\begin{DoxyParamCaption}\item[{char $\ast$}]{build\+\_\+str,  }\item[{size\+\_\+t}]{len }\end{DoxyParamCaption})}
+
+Get build information about the OPAE library as a string
+
+Retrieve the build identifier of the OPAE library.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em build\+\_\+str} & String to copy build information into \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & Length of {\ttfamily build\+\_\+str} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+INVALID\+\_\+\+PARAM if {\ttfamily build\+\_\+str} is NULL, FPGA\+\_\+\+EXCEPTION if the version string cannot be copied into {\ttfamily build\+\_\+str}, FPGA\+\_\+\+OK otherwise. 
+\end{DoxyReturn}
+
+
+Referenced by parse\+\_\+args().
+

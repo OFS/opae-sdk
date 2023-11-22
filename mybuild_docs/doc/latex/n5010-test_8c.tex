@@ -1,0 +1,770 @@
+\doxysection{samples/n5010-\/test/n5010-\/test.c File Reference}
+\label{n5010-test_8c}\index{samples/n5010-\/test/n5010-\/test.c@{samples/n5010-\/test/n5010-\/test.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$error.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$getopt.\+h$>$}\newline
+{\ttfamily \#include $<$opae/fpga.\+h$>$}\newline
+{\ttfamily \#include $<$uuid/uuid.\+h$>$}\newline
+{\ttfamily \#include $<$endian.\+h$>$}\newline
+{\ttfamily \#include $<$argsfilter.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}}
+\item 
+struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a64d2514266ba20fce840e5648ef89199}{DFH\+\_\+\+EOL}}(h)~((h $>$$>$ 40) \& 1)
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aa14c35cd3b1b02bd5b753c3d19c05308}{DFH\+\_\+\+NEXT}}(h)~((h $>$$>$ 16) \& 0xffffff)
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aca731dc493c4ea43958cb0435cdaa571}{DFH\+\_\+\+TYPE}}(h)~((h $>$$>$ 60) \& 0xf)
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a57df7e6b18c59c759284e4129b591829}{DFH\+\_\+\+TYPE\+\_\+\+AFU}}~1
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a11fa2de5d944e400aca76489981f2bf5}{DDR\+\_\+\+TEST\+\_\+\+MODE0\+\_\+\+CTRL}}~0x3000
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aafd7639b4452467ade798bbbb6495328}{DDR\+\_\+\+TEST\+\_\+\+MODE0\+\_\+\+STAT}}~0x3008
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aa797184b69f2027cb914153bef518e6f}{DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+CTRL}}~0x3000
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a6ad2ae5dc714ef052ac3c0615ff9d52d}{DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+STAT}}~0x3008
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_af2a7dd16fe742a0cab2a0b44054299f6}{DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+BANK\+\_\+\+STAT}}(x)~(0x3010 + 8 $\ast$ x)
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_af6d4323e2c3b5bb514a847b9f3fd535e}{HBM\+\_\+\+TEST\+\_\+\+PASS}}~0x4000
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a0cecb64eaade5d14e674207e514755b0}{HBM\+\_\+\+TEST\+\_\+\+FAIL}}~0x4008
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_ad1c397afa5c85b9a28f073353ca9032c}{HBM\+\_\+\+TEST\+\_\+\+TIMEOUT}}~0x4010
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a2bf1b6f3be700790eed5fda6e84fa81e}{HBM\+\_\+\+TEST\+\_\+\+CTRL}}~0x4018
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aee1428f73247ddf1841483bbd9f3928c}{QDR\+\_\+\+TEST\+\_\+\+STAT}}~0x5000
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}}~0xff
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a99cad47c77096e0eca94240aac7fc258}{QDR\+\_\+\+TEST\+\_\+\+TIMEOUT}}(h)~((h $>$$>$ 16) \& \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}})
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a59145ff07c3dfaf8ab18785b5e3efc9a}{QDR\+\_\+\+TEST\+\_\+\+FAIL}}(h)~((h $>$$>$  8) \& \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}})
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a52603e510127491e9adcc19710c72ff8}{QDR\+\_\+\+TEST\+\_\+\+PASS}}(h)~((h $>$$>$  0) \& \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}})
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a8dbe1ba9e62a18d9a588f473458978ce}{QDR\+\_\+\+TEST\+\_\+\+CTRL}}~0x5008
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a000ba0c3445077186d306cac29ab41e9}{ESRAM\+\_\+\+TEST\+\_\+\+STAT}}~0x6000
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}}~0xffff
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aaacce65608c404b4aedc54f5afc8cd6a}{ESRAM\+\_\+\+TEST\+\_\+\+TIMEOUT}}(h)~((h $>$$>$ 32) \& \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}})
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aec1f8e4c78da3130142597eb059a5c5d}{ESRAM\+\_\+\+TEST\+\_\+\+FAIL}}(h)~((h $>$$>$ 16) \& \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}})
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_ad2ef5ce635ab16f9c52bfb43c72ba959}{ESRAM\+\_\+\+TEST\+\_\+\+PASS}}(h)~((h $>$$>$  0) \& \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}})
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_aba15ac25260eb5c478e49ea9bbc93c8f}{ESRAM\+\_\+\+TEST\+\_\+\+CTRL}}~0x6008
+\item 
+\#define \mbox{\hyperlink{n5010-test_8c_a31e69e55e98d6aa055fb6a352bb0feef}{MAX\+\_\+\+POLLS}}~10
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a66f9a1b5d37745c9587641613bf50cd5}{fpga\+\_\+test\+\_\+ddr\+\_\+directed}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a4a327a70c05938aa6ecda3e2e9225663}{fpga\+\_\+test\+\_\+ddr\+\_\+prbs}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_ae92a916f3955b96edf4ef7ab5a667114}{fpga\+\_\+test\+\_\+hbm}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_ae1108fb5be774c3a02c79b22d9e4e8a4}{fpga\+\_\+test\+\_\+esram}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a7d4ba0af37d28b2281e697ff461b8cbb}{fpga\+\_\+test\+\_\+qdr}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a8b18501a62f680f0b60aeaf03b0feaaf}{fpga\+\_\+open}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static void \mbox{\hyperlink{n5010-test_8c_ab3d638b8387fa4ec22627ec8a6b53e62}{fpga\+\_\+close}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a2e79fe0581ec5864faa636b5fe0e03a4}{fpga\+\_\+base}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+static void \mbox{\hyperlink{n5010-test_8c_af1edf9b723cd625e1655f1f12eb21efa}{fpga\+\_\+dump}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint64\+\_\+t offset, size\+\_\+t count)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a2d826077756d3ecead9f30e5d6eada51}{fpga\+\_\+banks}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint64\+\_\+t offset, uint64\+\_\+t $\ast$num\+\_\+banks)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_aef1214e09ce39997c1133269fd0936e9}{fpga\+\_\+start}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint64\+\_\+t offset, uint64\+\_\+t num\+\_\+banks)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_aad710973341f9f1301a817df6b1b8090}{fpga\+\_\+stop}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint64\+\_\+t offset)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_a2973f7fa537bc9d89cbda5fdf88682e6}{fpga\+\_\+wait}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, uint64\+\_\+t offset, uint64\+\_\+t init, uint64\+\_\+t result)
+\item 
+static void \mbox{\hyperlink{n5010-test_8c_a9bd4308d463193b0188339cb5495a58f}{print\+\_\+usage}} (FILE $\ast$f)
+\item 
+static bool \mbox{\hyperlink{n5010-test_8c_a443cc7c174314015bd7fe2613c4d8245}{parse\+\_\+mode}} (struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}}, const char $\ast$mode)
+\item 
+static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{n5010-test_8c_ab750b2af83dc6cbb0aa2d9a9d1b25079}{parse\+\_\+args}} (int argc, char $\ast$$\ast$argv, struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$\mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}})
+\item 
+int \mbox{\hyperlink{n5010-test_8c_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (int argc, char $\ast$$\ast$argv)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const struct \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}} \mbox{\hyperlink{n5010-test_8c_a0583be682de6cecd33c5d44955e5ee66}{n5010\+\_\+test}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{n5010@{n5010}}\label{structn5010}
+\doxysubsubsection{struct n5010}
+
+
+Definition at line 76 of file n5010-\/ctl.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{n5010-test_8c_afcfc923993a0c3d7ed0919eae0ab8c7d}} 
+\mbox{\hyperlink{types_8h_ab868bdeab946a8059abe7e9c114aee56}{fpga\_properties}}&
+filter&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_a0cd89aec173afe291731dbf496a15e89}} 
+\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\_token}}&
+token&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_a2a3c98ab8a1308a684bbb24cc837bbce}} 
+\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\_handle}}&
+handle&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ae7ae9573b72d429d0b60811d6f6d0256}} 
+\mbox{\hyperlink{types_8h_af0b6683499be79fab39ac41db02e7abf}{fpga\_guid}}&
+guid&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_abc1821c363984324ab8a00dca071a2a6}} 
+uint64\_t&
+base&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ab54ff35470c946192ab662a1602e8da8}} 
+const struct \mbox{\hyperlink{structn5010__test}{n5010\_test}} $\ast$&
+test&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_a67f77d17592900684681c485ed981f3d}} 
+uint64\_t&
+port&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ae68e58f88c71441c72ecb477b69f8523}} 
+bool&
+debug&
+\\
+\hline
+
+\mbox{\label{n5010-test_8c_ad0222c8836fd4aeb7a6da6d56d3176d6}} 
+uint&
+open\_mode&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{n5010-test_8c_a64d2514266ba20fce840e5648ef89199}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DFH\_EOL@{DFH\_EOL}}
+\index{DFH\_EOL@{DFH\_EOL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_EOL}{DFH\_EOL}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+EOL(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 40) \& 1)}
+
+
+
+Definition at line 43 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aa14c35cd3b1b02bd5b753c3d19c05308}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DFH\_NEXT@{DFH\_NEXT}}
+\index{DFH\_NEXT@{DFH\_NEXT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_NEXT}{DFH\_NEXT}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+NEXT(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 16) \& 0xffffff)}
+
+
+
+Definition at line 44 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aca731dc493c4ea43958cb0435cdaa571}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DFH\_TYPE@{DFH\_TYPE}}
+\index{DFH\_TYPE@{DFH\_TYPE}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_TYPE}{DFH\_TYPE}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+TYPE(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 60) \& 0xf)}
+
+
+
+Definition at line 45 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a57df7e6b18c59c759284e4129b591829}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DFH\_TYPE\_AFU@{DFH\_TYPE\_AFU}}
+\index{DFH\_TYPE\_AFU@{DFH\_TYPE\_AFU}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DFH\_TYPE\_AFU}{DFH\_TYPE\_AFU}}
+{\footnotesize\ttfamily \#define DFH\+\_\+\+TYPE\+\_\+\+AFU~1}
+
+
+
+Definition at line 46 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a11fa2de5d944e400aca76489981f2bf5}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DDR\_TEST\_MODE0\_CTRL@{DDR\_TEST\_MODE0\_CTRL}}
+\index{DDR\_TEST\_MODE0\_CTRL@{DDR\_TEST\_MODE0\_CTRL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DDR\_TEST\_MODE0\_CTRL}{DDR\_TEST\_MODE0\_CTRL}}
+{\footnotesize\ttfamily \#define DDR\+\_\+\+TEST\+\_\+\+MODE0\+\_\+\+CTRL~0x3000}
+
+
+
+Definition at line 48 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aafd7639b4452467ade798bbbb6495328}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DDR\_TEST\_MODE0\_STAT@{DDR\_TEST\_MODE0\_STAT}}
+\index{DDR\_TEST\_MODE0\_STAT@{DDR\_TEST\_MODE0\_STAT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DDR\_TEST\_MODE0\_STAT}{DDR\_TEST\_MODE0\_STAT}}
+{\footnotesize\ttfamily \#define DDR\+\_\+\+TEST\+\_\+\+MODE0\+\_\+\+STAT~0x3008}
+
+
+
+Definition at line 49 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aa797184b69f2027cb914153bef518e6f}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DDR\_TEST\_MODE1\_CTRL@{DDR\_TEST\_MODE1\_CTRL}}
+\index{DDR\_TEST\_MODE1\_CTRL@{DDR\_TEST\_MODE1\_CTRL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DDR\_TEST\_MODE1\_CTRL}{DDR\_TEST\_MODE1\_CTRL}}
+{\footnotesize\ttfamily \#define DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+CTRL~0x3000}
+
+
+
+Definition at line 51 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a6ad2ae5dc714ef052ac3c0615ff9d52d}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DDR\_TEST\_MODE1\_STAT@{DDR\_TEST\_MODE1\_STAT}}
+\index{DDR\_TEST\_MODE1\_STAT@{DDR\_TEST\_MODE1\_STAT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DDR\_TEST\_MODE1\_STAT}{DDR\_TEST\_MODE1\_STAT}}
+{\footnotesize\ttfamily \#define DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+STAT~0x3008}
+
+
+
+Definition at line 52 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_af2a7dd16fe742a0cab2a0b44054299f6}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!DDR\_TEST\_MODE1\_BANK\_STAT@{DDR\_TEST\_MODE1\_BANK\_STAT}}
+\index{DDR\_TEST\_MODE1\_BANK\_STAT@{DDR\_TEST\_MODE1\_BANK\_STAT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{DDR\_TEST\_MODE1\_BANK\_STAT}{DDR\_TEST\_MODE1\_BANK\_STAT}}
+{\footnotesize\ttfamily \#define DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+BANK\+\_\+\+STAT(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~(0x3010 + 8 $\ast$ x)}
+
+
+
+Definition at line 53 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_af6d4323e2c3b5bb514a847b9f3fd535e}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!HBM\_TEST\_PASS@{HBM\_TEST\_PASS}}
+\index{HBM\_TEST\_PASS@{HBM\_TEST\_PASS}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{HBM\_TEST\_PASS}{HBM\_TEST\_PASS}}
+{\footnotesize\ttfamily \#define HBM\+\_\+\+TEST\+\_\+\+PASS~0x4000}
+
+
+
+Definition at line 55 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a0cecb64eaade5d14e674207e514755b0}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!HBM\_TEST\_FAIL@{HBM\_TEST\_FAIL}}
+\index{HBM\_TEST\_FAIL@{HBM\_TEST\_FAIL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{HBM\_TEST\_FAIL}{HBM\_TEST\_FAIL}}
+{\footnotesize\ttfamily \#define HBM\+\_\+\+TEST\+\_\+\+FAIL~0x4008}
+
+
+
+Definition at line 56 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_ad1c397afa5c85b9a28f073353ca9032c}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!HBM\_TEST\_TIMEOUT@{HBM\_TEST\_TIMEOUT}}
+\index{HBM\_TEST\_TIMEOUT@{HBM\_TEST\_TIMEOUT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{HBM\_TEST\_TIMEOUT}{HBM\_TEST\_TIMEOUT}}
+{\footnotesize\ttfamily \#define HBM\+\_\+\+TEST\+\_\+\+TIMEOUT~0x4010}
+
+
+
+Definition at line 57 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a2bf1b6f3be700790eed5fda6e84fa81e}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!HBM\_TEST\_CTRL@{HBM\_TEST\_CTRL}}
+\index{HBM\_TEST\_CTRL@{HBM\_TEST\_CTRL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{HBM\_TEST\_CTRL}{HBM\_TEST\_CTRL}}
+{\footnotesize\ttfamily \#define HBM\+\_\+\+TEST\+\_\+\+CTRL~0x4018}
+
+
+
+Definition at line 58 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aee1428f73247ddf1841483bbd9f3928c}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!QDR\_TEST\_STAT@{QDR\_TEST\_STAT}}
+\index{QDR\_TEST\_STAT@{QDR\_TEST\_STAT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{QDR\_TEST\_STAT}{QDR\_TEST\_STAT}}
+{\footnotesize\ttfamily \#define QDR\+\_\+\+TEST\+\_\+\+STAT~0x5000}
+
+
+
+Definition at line 60 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!QDR\_FM@{QDR\_FM}}
+\index{QDR\_FM@{QDR\_FM}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{QDR\_FM}{QDR\_FM}}
+{\footnotesize\ttfamily \#define QDR\+\_\+\+FM~0xff}
+
+
+
+Definition at line 61 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a99cad47c77096e0eca94240aac7fc258}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!QDR\_TEST\_TIMEOUT@{QDR\_TEST\_TIMEOUT}}
+\index{QDR\_TEST\_TIMEOUT@{QDR\_TEST\_TIMEOUT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{QDR\_TEST\_TIMEOUT}{QDR\_TEST\_TIMEOUT}}
+{\footnotesize\ttfamily \#define QDR\+\_\+\+TEST\+\_\+\+TIMEOUT(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 16) \& \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}})}
+
+
+
+Definition at line 62 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a59145ff07c3dfaf8ab18785b5e3efc9a}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!QDR\_TEST\_FAIL@{QDR\_TEST\_FAIL}}
+\index{QDR\_TEST\_FAIL@{QDR\_TEST\_FAIL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{QDR\_TEST\_FAIL}{QDR\_TEST\_FAIL}}
+{\footnotesize\ttfamily \#define QDR\+\_\+\+TEST\+\_\+\+FAIL(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$  8) \& \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}})}
+
+
+
+Definition at line 63 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a52603e510127491e9adcc19710c72ff8}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!QDR\_TEST\_PASS@{QDR\_TEST\_PASS}}
+\index{QDR\_TEST\_PASS@{QDR\_TEST\_PASS}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{QDR\_TEST\_PASS}{QDR\_TEST\_PASS}}
+{\footnotesize\ttfamily \#define QDR\+\_\+\+TEST\+\_\+\+PASS(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$  0) \& \mbox{\hyperlink{n5010-test_8c_acd20fcd6bd92565b6e0c8667b24815ea}{QDR\+\_\+\+FM}})}
+
+
+
+Definition at line 64 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a8dbe1ba9e62a18d9a588f473458978ce}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!QDR\_TEST\_CTRL@{QDR\_TEST\_CTRL}}
+\index{QDR\_TEST\_CTRL@{QDR\_TEST\_CTRL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{QDR\_TEST\_CTRL}{QDR\_TEST\_CTRL}}
+{\footnotesize\ttfamily \#define QDR\+\_\+\+TEST\+\_\+\+CTRL~0x5008}
+
+
+
+Definition at line 66 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a000ba0c3445077186d306cac29ab41e9}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!ESRAM\_TEST\_STAT@{ESRAM\_TEST\_STAT}}
+\index{ESRAM\_TEST\_STAT@{ESRAM\_TEST\_STAT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{ESRAM\_TEST\_STAT}{ESRAM\_TEST\_STAT}}
+{\footnotesize\ttfamily \#define ESRAM\+\_\+\+TEST\+\_\+\+STAT~0x6000}
+
+
+
+Definition at line 68 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!ESRAM\_FM@{ESRAM\_FM}}
+\index{ESRAM\_FM@{ESRAM\_FM}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{ESRAM\_FM}{ESRAM\_FM}}
+{\footnotesize\ttfamily \#define ESRAM\+\_\+\+FM~0xffff}
+
+
+
+Definition at line 69 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aaacce65608c404b4aedc54f5afc8cd6a}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!ESRAM\_TEST\_TIMEOUT@{ESRAM\_TEST\_TIMEOUT}}
+\index{ESRAM\_TEST\_TIMEOUT@{ESRAM\_TEST\_TIMEOUT}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{ESRAM\_TEST\_TIMEOUT}{ESRAM\_TEST\_TIMEOUT}}
+{\footnotesize\ttfamily \#define ESRAM\+\_\+\+TEST\+\_\+\+TIMEOUT(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 32) \& \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}})}
+
+
+
+Definition at line 70 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aec1f8e4c78da3130142597eb059a5c5d}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!ESRAM\_TEST\_FAIL@{ESRAM\_TEST\_FAIL}}
+\index{ESRAM\_TEST\_FAIL@{ESRAM\_TEST\_FAIL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{ESRAM\_TEST\_FAIL}{ESRAM\_TEST\_FAIL}}
+{\footnotesize\ttfamily \#define ESRAM\+\_\+\+TEST\+\_\+\+FAIL(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$ 16) \& \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}})}
+
+
+
+Definition at line 71 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_ad2ef5ce635ab16f9c52bfb43c72ba959}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!ESRAM\_TEST\_PASS@{ESRAM\_TEST\_PASS}}
+\index{ESRAM\_TEST\_PASS@{ESRAM\_TEST\_PASS}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{ESRAM\_TEST\_PASS}{ESRAM\_TEST\_PASS}}
+{\footnotesize\ttfamily \#define ESRAM\+\_\+\+TEST\+\_\+\+PASS(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~((h $>$$>$  0) \& \mbox{\hyperlink{n5010-test_8c_a2b060f9438390e34799ed496075b28f0}{ESRAM\+\_\+\+FM}})}
+
+
+
+Definition at line 72 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_aba15ac25260eb5c478e49ea9bbc93c8f}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!ESRAM\_TEST\_CTRL@{ESRAM\_TEST\_CTRL}}
+\index{ESRAM\_TEST\_CTRL@{ESRAM\_TEST\_CTRL}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{ESRAM\_TEST\_CTRL}{ESRAM\_TEST\_CTRL}}
+{\footnotesize\ttfamily \#define ESRAM\+\_\+\+TEST\+\_\+\+CTRL~0x6008}
+
+
+
+Definition at line 74 of file n5010-\/test.\+c.
+
+\mbox{\label{n5010-test_8c_a31e69e55e98d6aa055fb6a352bb0feef}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!MAX\_POLLS@{MAX\_POLLS}}
+\index{MAX\_POLLS@{MAX\_POLLS}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_POLLS}{MAX\_POLLS}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+POLLS~10}
+
+
+
+Definition at line 76 of file n5010-\/test.\+c.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{n5010-test_8c_a66f9a1b5d37745c9587641613bf50cd5}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_test\_ddr\_directed@{fpga\_test\_ddr\_directed}}
+\index{fpga\_test\_ddr\_directed@{fpga\_test\_ddr\_directed}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_test\_ddr\_directed()}{fpga\_test\_ddr\_directed()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+test\+\_\+ddr\+\_\+directed (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 415 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, DDR\+\_\+\+TEST\+\_\+\+MODE0\+\_\+\+CTRL, DDR\+\_\+\+TEST\+\_\+\+MODE0\+\_\+\+STAT, fpga\+\_\+banks(), fpga\+\_\+dump(), FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+\_\+start(), fpga\+\_\+stop(), fpga\+\_\+wait(), fpga\+Err\+Str(), fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+\mbox{\label{n5010-test_8c_a4a327a70c05938aa6ecda3e2e9225663}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_test\_ddr\_prbs@{fpga\_test\_ddr\_prbs}}
+\index{fpga\_test\_ddr\_prbs@{fpga\_test\_ddr\_prbs}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_test\_ddr\_prbs()}{fpga\_test\_ddr\_prbs()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+test\+\_\+ddr\+\_\+prbs (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 365 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+BANK\+\_\+\+STAT, DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+CTRL, DDR\+\_\+\+TEST\+\_\+\+MODE1\+\_\+\+STAT, fpga\+\_\+banks(), fpga\+\_\+dump(), FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+\_\+start(), fpga\+\_\+stop(), fpga\+\_\+wait(), fpga\+Err\+Str(), fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+\mbox{\label{n5010-test_8c_ae92a916f3955b96edf4ef7ab5a667114}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_test\_hbm@{fpga\_test\_hbm}}
+\index{fpga\_test\_hbm@{fpga\_test\_hbm}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_test\_hbm()}{fpga\_test\_hbm()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+test\+\_\+hbm (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 626 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, n5010\+::debug, FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+\_\+start(), fpga\+Err\+Str(), fpga\+Read\+MMIO64(), n5010\+::handle, HBM\+\_\+\+TEST\+\_\+\+CTRL, HBM\+\_\+\+TEST\+\_\+\+FAIL, HBM\+\_\+\+TEST\+\_\+\+PASS, and HBM\+\_\+\+TEST\+\_\+\+TIMEOUT.
+
+\mbox{\label{n5010-test_8c_ae1108fb5be774c3a02c79b22d9e4e8a4}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_test\_esram@{fpga\_test\_esram}}
+\index{fpga\_test\_esram@{fpga\_test\_esram}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_test\_esram()}{fpga\_test\_esram()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+test\+\_\+esram (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 476 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, n5010\+::debug, ESRAM\+\_\+\+FM, ESRAM\+\_\+\+TEST\+\_\+\+CTRL, ESRAM\+\_\+\+TEST\+\_\+\+FAIL, ESRAM\+\_\+\+TEST\+\_\+\+PASS, ESRAM\+\_\+\+TEST\+\_\+\+STAT, ESRAM\+\_\+\+TEST\+\_\+\+TIMEOUT, FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Read\+MMIO64(), fpga\+Write\+MMIO64(), n5010\+::handle, and MAX\+\_\+\+POLLS.
+
+\mbox{\label{n5010-test_8c_a7d4ba0af37d28b2281e697ff461b8cbb}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_test\_qdr@{fpga\_test\_qdr}}
+\index{fpga\_test\_qdr@{fpga\_test\_qdr}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_test\_qdr()}{fpga\_test\_qdr()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+test\+\_\+qdr (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 551 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, n5010\+::debug, FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Read\+MMIO64(), fpga\+Write\+MMIO64(), n5010\+::handle, MAX\+\_\+\+POLLS, QDR\+\_\+\+FM, QDR\+\_\+\+TEST\+\_\+\+CTRL, QDR\+\_\+\+TEST\+\_\+\+FAIL, QDR\+\_\+\+TEST\+\_\+\+PASS, QDR\+\_\+\+TEST\+\_\+\+STAT, and QDR\+\_\+\+TEST\+\_\+\+TIMEOUT.
+
+\mbox{\label{n5010-test_8c_a8b18501a62f680f0b60aeaf03b0feaaf}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_open@{fpga\_open}}
+\index{fpga\_open@{fpga\_open}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_open()}{fpga\_open()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+open (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 125 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::filter, FPGA\+\_\+\+ACCELERATOR, FPGA\+\_\+\+NOT\+\_\+\+FOUND, FPGA\+\_\+\+OK, fpga\+Enumerate(), fpga\+Err\+Str(), fpga\+Map\+MMIO(), fpga\+Open(), fpga\+Properties\+Set\+GUID(), fpga\+Properties\+Set\+Object\+Type(), fpga\+Reset(), n5010\+::guid, n5010\+::handle, n5010\+::open\+\_\+mode, and n5010\+::token.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-test_8c_ab3d638b8387fa4ec22627ec8a6b53e62}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_close@{fpga\_close}}
+\index{fpga\_close@{fpga\_close}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_close()}{fpga\_close()}}
+{\footnotesize\ttfamily static void fpga\+\_\+close (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 175 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::filter, FPGA\+\_\+\+OK, fpga\+Close(), fpga\+Destroy\+Properties(), fpga\+Destroy\+Token(), fpga\+Err\+Str(), fpga\+Unmap\+MMIO(), n5010\+::handle, and n5010\+::token.
+
+
+
+Referenced by main(), and parse\+\_\+args().
+
+\mbox{\label{n5010-test_8c_a2e79fe0581ec5864faa636b5fe0e03a4}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_base@{fpga\_base}}
+\index{fpga\_base@{fpga\_base}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_base()}{fpga\_base()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+base (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 202 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, DFH\+\_\+\+EOL, DFH\+\_\+\+NEXT, DFH\+\_\+\+TYPE, DFH\+\_\+\+TYPE\+\_\+\+AFU, FPGA\+\_\+\+NOT\+\_\+\+FOUND, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Read\+MMIO64(), n5010\+::guid, and n5010\+::handle.
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-test_8c_af1edf9b723cd625e1655f1f12eb21efa}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_dump@{fpga\_dump}}
+\index{fpga\_dump@{fpga\_dump}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_dump()}{fpga\_dump()}}
+{\footnotesize\ttfamily static void fpga\+\_\+dump (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint64\+\_\+t}]{offset,  }\item[{size\+\_\+t}]{count }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 258 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, n5010\+::debug, fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+
+
+Referenced by fpga\+\_\+start(), fpga\+\_\+stop(), fpga\+\_\+test\+\_\+ddr\+\_\+directed(), fpga\+\_\+test\+\_\+ddr\+\_\+prbs(), and main().
+
+\mbox{\label{n5010-test_8c_a2d826077756d3ecead9f30e5d6eada51}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_banks@{fpga\_banks}}
+\index{fpga\_banks@{fpga\_banks}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_banks()}{fpga\_banks()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+banks (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint64\+\_\+t}]{offset,  }\item[{uint64\+\_\+t $\ast$}]{num\+\_\+banks }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 274 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+
+
+Referenced by fpga\+\_\+test\+\_\+ddr\+\_\+directed(), and fpga\+\_\+test\+\_\+ddr\+\_\+prbs().
+
+\mbox{\label{n5010-test_8c_aef1214e09ce39997c1133269fd0936e9}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_start@{fpga\_start}}
+\index{fpga\_start@{fpga\_start}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_start()}{fpga\_start()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+start (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint64\+\_\+t}]{offset,  }\item[{uint64\+\_\+t}]{num\+\_\+banks }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 288 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, fpga\+\_\+dump(), FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Write\+MMIO64(), n5010\+::handle, and usleep().
+
+
+
+Referenced by fpga\+\_\+test\+\_\+ddr\+\_\+directed(), fpga\+\_\+test\+\_\+ddr\+\_\+prbs(), and fpga\+\_\+test\+\_\+hbm().
+
+\mbox{\label{n5010-test_8c_aad710973341f9f1301a817df6b1b8090}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_stop@{fpga\_stop}}
+\index{fpga\_stop@{fpga\_stop}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_stop()}{fpga\_stop()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+stop (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint64\+\_\+t}]{offset }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 312 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, fpga\+\_\+dump(), FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Write\+MMIO64(), n5010\+::handle, and usleep().
+
+
+
+Referenced by fpga\+\_\+test\+\_\+ddr\+\_\+directed(), and fpga\+\_\+test\+\_\+ddr\+\_\+prbs().
+
+\mbox{\label{n5010-test_8c_a2973f7fa537bc9d89cbda5fdf88682e6}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!fpga\_wait@{fpga\_wait}}
+\index{fpga\_wait@{fpga\_wait}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{fpga\_wait()}{fpga\_wait()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+\_\+wait (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{uint64\+\_\+t}]{offset,  }\item[{uint64\+\_\+t}]{init,  }\item[{uint64\+\_\+t}]{result }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 334 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::base, n5010\+::debug, FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, fpga\+Err\+Str(), fpga\+Read\+MMIO64(), and n5010\+::handle.
+
+
+
+Referenced by fpga\+\_\+test\+\_\+ddr\+\_\+directed(), and fpga\+\_\+test\+\_\+ddr\+\_\+prbs().
+
+\mbox{\label{n5010-test_8c_a9bd4308d463193b0188339cb5495a58f}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!print\_usage@{print\_usage}}
+\index{print\_usage@{print\_usage}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{print\_usage()}{print\_usage()}}
+{\footnotesize\ttfamily static void print\+\_\+usage (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 692 of file n5010-\/test.\+c.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{n5010-test_8c_a443cc7c174314015bd7fe2613c4d8245}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!parse\_mode@{parse\_mode}}
+\index{parse\_mode@{parse\_mode}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{parse\_mode()}{parse\_mode()}}
+{\footnotesize\ttfamily static bool parse\+\_\+mode (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 713 of file n5010-\/test.\+c.
+
+
+
+References n5010\+\_\+test, n5010\+\_\+test\+::name, and n5010\+::test.
+
+
+
+Referenced by parse\+\_\+args().
+
+\mbox{\label{n5010-test_8c_ab750b2af83dc6cbb0aa2d9a9d1b25079}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!parse\_args@{parse\_args}}
+\index{parse\_args@{parse\_args}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{parse\_args()}{parse\_args()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} parse\+\_\+args (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv,  }\item[{struct \mbox{\hyperlink{n5010-test_8c_structn5010}{n5010}} $\ast$}]{n5010 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 736 of file n5010-\/test.\+c.
+
+
+
+References n5010\+::debug, n5010\+::filter, fpga\+\_\+close(), FPGA\+\_\+\+EXCEPTION, FPGA\+\_\+\+OK, FPGA\+\_\+\+OPEN\+\_\+\+SHARED, fpga\+Err\+Str(), fpga\+Get\+Properties(), n5010\+::guid, n5010\+::open\+\_\+mode, options, parse\+\_\+mode(), and print\+\_\+usage().
+
+
+
+Referenced by main().
+
+\mbox{\label{n5010-test_8c_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!main@{main}}
+\index{main@{main}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Definition at line 807 of file n5010-\/test.\+c.
+
+
+
+References fpga\+\_\+base(), fpga\+\_\+close(), fpga\+\_\+dump(), FPGA\+\_\+\+OK, fpga\+\_\+open(), n5010\+\_\+test\+::func, parse\+\_\+args(), and n5010\+::test.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{n5010-test_8c_a0583be682de6cecd33c5d44955e5ee66}} 
+\index{n5010-\/test.c@{n5010-\/test.c}!n5010\_test@{n5010\_test}}
+\index{n5010\_test@{n5010\_test}!n5010-\/test.c@{n5010-\/test.c}}
+\doxysubsubsection{\texorpdfstring{n5010\_test}{n5010\_test}}
+{\footnotesize\ttfamily const struct \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}} \mbox{\hyperlink{structn5010__test}{n5010\+\_\+test}}\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}hbm"{}},}
+\DoxyCodeLine{      .func = fpga\_test\_hbm,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}ddr-\/directed"{}},}
+\DoxyCodeLine{      .func = fpga\_test\_ddr\_directed,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}ddr-\/prbs"{}},}
+\DoxyCodeLine{      .func = fpga\_test\_ddr\_prbs,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}esram"{}},}
+\DoxyCodeLine{      .func = fpga\_test\_esram,}
+\DoxyCodeLine{   \},}
+\DoxyCodeLine{   \{}
+\DoxyCodeLine{      .name = \textcolor{stringliteral}{"{}qdr"{}},}
+\DoxyCodeLine{      .func = fpga\_test\_qdr,}
+\DoxyCodeLine{   \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Definition at line 100 of file n5010-\/test.\+c.
+
+
+
+Referenced by parse\+\_\+mode().
+

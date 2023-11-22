@@ -1,0 +1,302 @@
+\doxysection{include/opae/sysobject.h File Reference}
+\label{sysobject_8h}\index{include/opae/sysobject.h@{include/opae/sysobject.h}}
+
+
+Functions to read/write from system objects. On Linux systems with the OPAE kernel driver, this is used to access sysfs nodes created by the driver.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_aabea869646f2a612efc878e35d25c352}{fpga\+Token\+Get\+Object}} (\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}} token, const char $\ast$name, \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$object, int flags)
+\begin{DoxyCompactList}\small\item\em Create an {\ttfamily fpga\+\_\+object} data structures. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register or a container. This object is read-\/only. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a80ccae112e76764fe9aa258b06a2672e}{fpga\+Handle\+Get\+Object}} (\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}} handle, const char $\ast$name, \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$object, int flags)
+\begin{DoxyCompactList}\small\item\em Create an {\ttfamily fpga\+\_\+object} data structure from a handle. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register, or container. This object has read/write access.. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a9854745736c2bd3dc41fbbb3de873ccd}{fpga\+Object\+Get\+Object}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} parent, const char $\ast$name, \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$object, int flags)
+\begin{DoxyCompactList}\small\item\em Create an {\ttfamily fpga\+\_\+object} data structure from a parent object. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-\/write access to the object data. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a9f166aaada5bae7a80472c3a016f01d1}{fpga\+Object\+Get\+Object\+At}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} parent, size\+\_\+t idx, \mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$object)
+\begin{DoxyCompactList}\small\item\em Create an {\ttfamily fpga\+\_\+object} data structure from a parent object using a given index. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-\/write access to the object data. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a77103f7bd53c12b56e47922aea36dbf0}{fpga\+Object\+Get\+Type}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} obj, enum \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}{fpga\+\_\+sysobject\+\_\+type}} $\ast$type)
+\begin{DoxyCompactList}\small\item\em Get the sysobject type (container or attribute) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a5829c9ba73a939da7faa71e7dca442b3}{fpga\+Destroy\+Object}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$obj)
+\begin{DoxyCompactList}\small\item\em Free memory used for the fpga\+\_\+object data structure. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a29a136634ad8f8b741ae00a52bca5dd4}{fpga\+Object\+Get\+Size}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} obj, uint32\+\_\+t $\ast$value, int flags)
+\begin{DoxyCompactList}\small\item\em Retrieve the size of the object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a7ccef34c42dbddc7cd534aa598767d08}{fpga\+Object\+Read}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} obj, uint8\+\_\+t $\ast$buffer, size\+\_\+t offset, size\+\_\+t len, int flags)
+\begin{DoxyCompactList}\small\item\em Read bytes from an FPGA object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a03de9a8f3a530abc6918c5c6682d92cc}{fpga\+Object\+Read64}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} obj, uint64\+\_\+t $\ast$value, int flags)
+\begin{DoxyCompactList}\small\item\em Read a 64-\/bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{sysobject_8h_a6dbc79fd4660f2fc576e8b7eb64d27fd}{fpga\+Object\+Write64}} (\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} obj, uint64\+\_\+t value, int flags)
+\begin{DoxyCompactList}\small\item\em Write 64-\/bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Functions to read/write from system objects. On Linux systems with the OPAE kernel driver, this is used to access sysfs nodes created by the driver. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{sysobject_8h_aabea869646f2a612efc878e35d25c352}} 
+\index{sysobject.h@{sysobject.h}!fpgaTokenGetObject@{fpgaTokenGetObject}}
+\index{fpgaTokenGetObject@{fpgaTokenGetObject}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaTokenGetObject()}{fpgaTokenGetObject()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Token\+Get\+Object (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a252f538a10fb51d0988ed52946516d9e}{fpga\+\_\+token}}}]{token,  }\item[{const char $\ast$}]{name,  }\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$}]{object,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Create an {\ttfamily fpga\+\_\+object} data structures. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register or a container. This object is read-\/only. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em token} & Token identifying a resource (accelerator or device) \\
+\hline
+\mbox{\texttt{ in}}  & {\em name} & A key identifying an object belonging to a resource. \\
+\hline
+\mbox{\texttt{ out}}  & {\em object} & Pointer to memory to store the object in \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Control behavior of object identification and creation. FPGA\+\_\+\+OBJECT\+\_\+\+GLOB is used to indicate that the name should be treated as a globbing expression. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL indicates that subobjects be created for all objects below the current object identified by name.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid. FPGA\+\_\+\+NOT\+\_\+\+FOUND if an object cannot be found with the given key. FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED if this function is not supported by the current implementation of this API.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Names that begin with \textquotesingle{}.\textquotesingle{} or \textquotesingle{}/\textquotesingle{} or contain \textquotesingle{}..\textquotesingle{} are not allowed and result in FPGA\+\_\+\+INVALID\+\_\+\+PARAM being returned 
+\end{DoxyNote}
+
+
+Referenced by add\+\_\+clock(), and init\+\_\+metric\+\_\+group().
+
+\mbox{\label{sysobject_8h_a80ccae112e76764fe9aa258b06a2672e}} 
+\index{sysobject.h@{sysobject.h}!fpgaHandleGetObject@{fpgaHandleGetObject}}
+\index{fpgaHandleGetObject@{fpgaHandleGetObject}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaHandleGetObject()}{fpgaHandleGetObject()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Handle\+Get\+Object (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_a4ad40f31195233b629bcde187b0556d5}{fpga\+\_\+handle}}}]{handle,  }\item[{const char $\ast$}]{name,  }\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$}]{object,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Create an {\ttfamily fpga\+\_\+object} data structure from a handle. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register, or container. This object has read/write access.. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em handle} & Handle identifying a resource (accelerator or device) \\
+\hline
+\mbox{\texttt{ in}}  & {\em name} & A key identifying an object belonging to a resource. \\
+\hline
+\mbox{\texttt{ out}}  & {\em object} & Pointer to memory to store the object in \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Control behavior of object identification and creation FPGA\+\_\+\+OBJECT\+\_\+\+GLOB is used to indicate that the name should be treated as a globbing expression. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL indicates that subobjects be created for all objects below the current object identified by name.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid. FPGA\+\_\+\+NOT\+\_\+\+FOUND if an object cannot be found with the given key. FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED if this function is not supported by the current implementation of this API.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Names that begin with \textquotesingle{}.\textquotesingle{} or \textquotesingle{}/\textquotesingle{} or contain \textquotesingle{}..\textquotesingle{} are not allowed and result in FPGA\+\_\+\+INVALID\+\_\+\+PARAM being returned 
+\end{DoxyNote}
+
+
+Referenced by inject\+\_\+ras\+\_\+fatal\+\_\+error().
+
+\mbox{\label{sysobject_8h_a9854745736c2bd3dc41fbbb3de873ccd}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectGetObject@{fpgaObjectGetObject}}
+\index{fpgaObjectGetObject@{fpgaObjectGetObject}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectGetObject()}{fpgaObjectGetObject()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Get\+Object (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{parent,  }\item[{const char $\ast$}]{name,  }\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$}]{object,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Create an {\ttfamily fpga\+\_\+object} data structure from a parent object. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-\/write access to the object data. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em parent} & A parent container {\ttfamily fpga\+\_\+object}. \\
+\hline
+\mbox{\texttt{ in}}  & {\em name} & A key identifying a sub-\/object of the parent container. \\
+\hline
+\mbox{\texttt{ out}}  & {\em object} & Pointer to memory to store the object in. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Control behavior of object identification and creation. FPGA\+\_\+\+OBJECT\+\_\+\+GLOB is used to indicate that the name should be treated as a globbing expression. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ONE indicates that subobjects be created for objects one level down from the object identified by name. FPGA\+\_\+\+OBJECT\+\_\+\+RECURSE\+\_\+\+ALL indicates that subobjects be created for all objects below the current object identified by name.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid -\/ this includes a parent object that is not a container object. FPGA\+\_\+\+NOT\+\_\+\+FOUND if an object cannot be found with the given key. FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED if this function is not supported by the current implementation of this API.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Names that begin with \textquotesingle{}.\textquotesingle{} or \textquotesingle{}/\textquotesingle{} or contain \textquotesingle{}..\textquotesingle{} are not allowed and result in FPGA\+\_\+\+INVALID\+\_\+\+PARAM being returned 
+\end{DoxyNote}
+
+
+Referenced by add\+\_\+counter().
+
+\mbox{\label{sysobject_8h_a9f166aaada5bae7a80472c3a016f01d1}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectGetObjectAt@{fpgaObjectGetObjectAt}}
+\index{fpgaObjectGetObjectAt@{fpgaObjectGetObjectAt}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectGetObjectAt()}{fpgaObjectGetObjectAt()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Get\+Object\+At (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{parent,  }\item[{size\+\_\+t}]{idx,  }\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$}]{object }\end{DoxyParamCaption})}
+
+
+
+Create an {\ttfamily fpga\+\_\+object} data structure from a parent object using a given index. An {\ttfamily fpga\+\_\+object} is a handle to an FPGA resource which can be an attribute, register, or container. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-\/write access to the object data. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em parent} & A parent container \textquotesingle{}fpga\+\_\+object\textquotesingle{} \\
+\hline
+\mbox{\texttt{ in}}  & {\em idx} & A positive index less than the size reported by the parent. \\
+\hline
+\mbox{\texttt{ out}}  & {\em object} & Pointer to memory to store the object in.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid -\/ this includes a parent object that is not a container object. FPGA\+\_\+\+NOT\+\_\+\+FOUND if an object cannot be found with the given key. FPGA\+\_\+\+NOT\+\_\+\+SUPPORTED if this function is not supported by the current implementation of this API. 
+\end{DoxyReturn}
+\mbox{\label{sysobject_8h_a77103f7bd53c12b56e47922aea36dbf0}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectGetType@{fpgaObjectGetType}}
+\index{fpgaObjectGetType@{fpgaObjectGetType}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectGetType()}{fpgaObjectGetType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Get\+Type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{obj,  }\item[{enum \mbox{\hyperlink{types__enum_8h_a3ac77596a20038a5e0691ec8bb6c6299}{fpga\+\_\+sysobject\+\_\+type}} $\ast$}]{type }\end{DoxyParamCaption})}
+
+
+
+Get the sysobject type (container or attribute) 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em obj} & An fpga\+\_\+object instance \\
+\hline
+\mbox{\texttt{ out}}  & {\em type} & The type of object (FPGA\+\_\+\+OBJECT\+\_\+\+CONTAINER or FPGA\+\_\+\+OBJECT\+\_\+\+ATTRIBUTE)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters are null or invalid 
+\end{DoxyReturn}
+\mbox{\label{sysobject_8h_a5829c9ba73a939da7faa71e7dca442b3}} 
+\index{sysobject.h@{sysobject.h}!fpgaDestroyObject@{fpgaDestroyObject}}
+\index{fpgaDestroyObject@{fpgaDestroyObject}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaDestroyObject()}{fpgaDestroyObject()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Destroy\+Object (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}} $\ast$}]{obj }\end{DoxyParamCaption})}
+
+
+
+Free memory used for the fpga\+\_\+object data structure. 
+
+\begin{DoxyNote}{Note}
+\mbox{\hyperlink{sysobject_8h_a5829c9ba73a939da7faa71e7dca442b3}{fpga\+Destroy\+Object()}} requires the address of an fpga\+\_\+object as created by \mbox{\hyperlink{sysobject_8h_aabea869646f2a612efc878e35d25c352}{fpga\+Token\+Get\+Object()}}, \mbox{\hyperlink{sysobject_8h_a80ccae112e76764fe9aa258b06a2672e}{fpga\+Handle\+Get\+Object()}}, or \mbox{\hyperlink{sysobject_8h_a9854745736c2bd3dc41fbbb3de873ccd}{fpga\+Object\+Get\+Object()}}. Passing any other value results in undefind behavior.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em obj} & Pointer to the fpga\+\_\+object instance to destroy\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if the object is NULL, FPGA\+\_\+\+EXCEPTION if an internal error is encountered. 
+\end{DoxyReturn}
+
+
+Referenced by add\+\_\+clock(), add\+\_\+counter(), inject\+\_\+ras\+\_\+fatal\+\_\+error(), and main().
+
+\mbox{\label{sysobject_8h_a29a136634ad8f8b741ae00a52bca5dd4}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectGetSize@{fpgaObjectGetSize}}
+\index{fpgaObjectGetSize@{fpgaObjectGetSize}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectGetSize()}{fpgaObjectGetSize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Get\+Size (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{obj,  }\item[{uint32\+\_\+t $\ast$}]{value,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Retrieve the size of the object. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em obj} & An fpga\+\_\+object instance. \\
+\hline
+\mbox{\texttt{ out}}  & {\em value} & Pointer to variable to store size in. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how the object is read If FPGA\+\_\+\+OBJECT\+\_\+\+SYNC is used then object will update its buffered copy before retrieving the size.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success. FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of supplied parameters is invalid. FPGA\+\_\+\+EXCEPTION if error occurred. 
+\end{DoxyReturn}
+\mbox{\label{sysobject_8h_a7ccef34c42dbddc7cd534aa598767d08}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectRead@{fpgaObjectRead}}
+\index{fpgaObjectRead@{fpgaObjectRead}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectRead()}{fpgaObjectRead()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Read (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{obj,  }\item[{uint8\+\_\+t $\ast$}]{buffer,  }\item[{size\+\_\+t}]{offset,  }\item[{size\+\_\+t}]{len,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Read bytes from an FPGA object. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em obj} & An fpga\+\_\+object instance. \\
+\hline
+\mbox{\texttt{ out}}  & {\em buffer} & Pointer to a buffer to read bytes into. \\
+\hline
+\mbox{\texttt{ in}}  & {\em offset} & Byte offset relative to objects internal buffer where to begin reading bytes from. \\
+\hline
+\mbox{\texttt{ in}}  & {\em len} & The length, in bytes, to read from the object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how object is read If FPGA\+\_\+\+OBJECT\+\_\+\+SYNC is used then object will update its buffered copy before retrieving the data.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid 
+\end{DoxyReturn}
+\mbox{\label{sysobject_8h_a03de9a8f3a530abc6918c5c6682d92cc}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectRead64@{fpgaObjectRead64}}
+\index{fpgaObjectRead64@{fpgaObjectRead64}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectRead64()}{fpgaObjectRead64()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Read64 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{obj,  }\item[{uint64\+\_\+t $\ast$}]{value,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Read a 64-\/bit value from an FPGA object. The value is assumed to be in string format and will be parsed. See flags below for changing that behavior. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em obj} & An fpga\+\_\+object instance \\
+\hline
+\mbox{\texttt{ out}}  & {\em value} & Pointer to a 64-\/bit variable to store the value in \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how the object is read If FPGA\+\_\+\+OBJECT\+\_\+\+SYNC is used then object will update its buffered copy before retrieving the data. If FPGA\+\_\+\+OBJECT\+\_\+\+RAW is used, then the data will be read as raw bytes into the uint64\+\_\+t pointer variable.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid 
+\end{DoxyReturn}
+
+
+Referenced by print\+\_\+counters().
+
+\mbox{\label{sysobject_8h_a6dbc79fd4660f2fc576e8b7eb64d27fd}} 
+\index{sysobject.h@{sysobject.h}!fpgaObjectWrite64@{fpgaObjectWrite64}}
+\index{fpgaObjectWrite64@{fpgaObjectWrite64}!sysobject.h@{sysobject.h}}
+\doxysubsubsection{\texorpdfstring{fpgaObjectWrite64()}{fpgaObjectWrite64()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Object\+Write64 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types_8h_ab0d91e42f9f3db11e2d095d3c0f728b2}{fpga\+\_\+object}}}]{obj,  }\item[{uint64\+\_\+t}]{value,  }\item[{int}]{flags }\end{DoxyParamCaption})}
+
+
+
+Write 64-\/bit value to an FPGA object. The value will be converted to string before writing. See flags below for changing that behavior. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em obj} & An fpga\+\_\+object instance. \\
+\hline
+\mbox{\texttt{ in}}  & {\em value} & The value to write to the object \\
+\hline
+\mbox{\texttt{ in}}  & {\em flags} & Flags that control how the object is written If FPGA\+\_\+\+OBJECT\+\_\+\+RAW is used, then the value will be written as raw bytes.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+FPGA\+\_\+\+OK on success, FPGA\+\_\+\+INVALID\+\_\+\+PARAM if any of the supplied parameters is invalid
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The object must have been created using a handle to a resource. 
+\end{DoxyNote}
+
+
+Referenced by inject\+\_\+ras\+\_\+fatal\+\_\+error().
+

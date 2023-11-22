@@ -1,0 +1,229 @@
+\doxysection{include/opae/mem\+\_\+alloc.h File Reference}
+\label{mem__alloc_8h}\index{include/opae/mem\_alloc.h@{include/opae/mem\_alloc.h}}
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__link}{mem\+\_\+link}}
+\item 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{mem__alloc_8h_ac37e826046364bcbc938be357d088dda}{mem\+\_\+alloc\+\_\+init}} (struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$m)
+\item 
+void \mbox{\hyperlink{mem__alloc_8h_af51e1559cd8eb3aa3cc0c433fcfcaa71}{mem\+\_\+alloc\+\_\+destroy}} (struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$m)
+\item 
+int \mbox{\hyperlink{mem__alloc_8h_affae27295ea2cd566c06dba6fb34835f}{mem\+\_\+alloc\+\_\+add\+\_\+free}} (struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$m, uint64\+\_\+t address, uint64\+\_\+t size)
+\item 
+int \mbox{\hyperlink{mem__alloc_8h_afdb4e638fb73f1199f739bdd4cad9b16}{mem\+\_\+alloc\+\_\+get}} (struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$m, uint64\+\_\+t $\ast$address, uint64\+\_\+t size)
+\item 
+int \mbox{\hyperlink{mem__alloc_8h_a7f633432ea4eea5c671b37645a7270a4}{mem\+\_\+alloc\+\_\+put}} (struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$m, uint64\+\_\+t address)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{mem\_link@{mem\_link}}\label{structmem__link}
+\doxysubsubsection{struct mem\+\_\+link}
+Provides an API for allocating/freeing a logical address space. There is no interaction with any OS memory allocation infrastructure, whether malloc, mmap, etc. The \char`\"{}address ranges\char`\"{} tracked by this allocator are arbitrary 64-\/bit integers. The allocator simply provides the bookeeping logic that ensures that a unique address with the appropriate size is returned for each allocation request, and that an allocation can be freed, ie released back to the available pool of logical address space for future allocations. The memory backing the allocator\textquotesingle{}s internal data structures is managed by malloc()/free(). 
+
+Definition at line 43 of file mem\+\_\+alloc.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{mem__alloc_8h_a4c968ceba2b3fd177cf209d5157b9cb6}} 
+uint64\_t&
+address&
+\\
+\hline
+
+\mbox{\label{mem__alloc_8h_ac99991a999b487d1a7afa70c3f9aadcf}} 
+uint64\_t&
+size&
+\\
+\hline
+
+\mbox{\label{mem__alloc_8h_a1225e65e5841948cc0b81c533cfeaab7}} 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__link}{mem\_link}} $\ast$&
+prev&
+\\
+\hline
+
+\mbox{\label{mem__alloc_8h_a0b90e6b837df3dd0afab6221a87963cc}} 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__link}{mem\_link}} $\ast$&
+next&
+\\
+\hline
+
+\end{DoxyFields}
+\index{mem\_alloc@{mem\_alloc}}\label{structmem__alloc}
+\doxysubsubsection{struct mem\+\_\+alloc}
+
+
+Definition at line 50 of file mem\+\_\+alloc.\+h.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{mem__alloc_8h_a5921b4ec4ba3b8fa0087a5211802f995}} 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__link}{mem\_link}}&
+free&
+\\
+\hline
+
+\mbox{\label{mem__alloc_8h_af373018dfb1f354faf143b9fb04a3ca4}} 
+struct \mbox{\hyperlink{mem__alloc_8h_structmem__link}{mem\_link}}&
+allocated&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{mem__alloc_8h_ac37e826046364bcbc938be357d088dda}} 
+\index{mem\_alloc.h@{mem\_alloc.h}!mem\_alloc\_init@{mem\_alloc\_init}}
+\index{mem\_alloc\_init@{mem\_alloc\_init}!mem\_alloc.h@{mem\_alloc.h}}
+\doxysubsubsection{\texorpdfstring{mem\_alloc\_init()}{mem\_alloc\_init()}}
+{\footnotesize\ttfamily void mem\+\_\+alloc\+\_\+init (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$}]{m }\end{DoxyParamCaption})}
+
+Initialize a memory allocator object
+
+After the call, the allocator is initialized but \char`\"{}empty\char`\"{}. To add allocatable memory regions, further initialize the allocator with \mbox{\hyperlink{mem__alloc_8h_affae27295ea2cd566c06dba6fb34835f}{mem\+\_\+alloc\+\_\+add\+\_\+free()}}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ out}}  & {\em m} & The address of the memory allocator to initialize. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{mem__alloc_8h_af51e1559cd8eb3aa3cc0c433fcfcaa71}} 
+\index{mem\_alloc.h@{mem\_alloc.h}!mem\_alloc\_destroy@{mem\_alloc\_destroy}}
+\index{mem\_alloc\_destroy@{mem\_alloc\_destroy}!mem\_alloc.h@{mem\_alloc.h}}
+\doxysubsubsection{\texorpdfstring{mem\_alloc\_destroy()}{mem\_alloc\_destroy()}}
+{\footnotesize\ttfamily void mem\+\_\+alloc\+\_\+destroy (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$}]{m }\end{DoxyParamCaption})}
+
+Destroy a memory allocator object
+
+Frees all of the allocator\textquotesingle{}s internal resources.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em m} & The address of the memory allocator to destroy. \\
+\hline
+\end{DoxyParams}
+\mbox{\label{mem__alloc_8h_affae27295ea2cd566c06dba6fb34835f}} 
+\index{mem\_alloc.h@{mem\_alloc.h}!mem\_alloc\_add\_free@{mem\_alloc\_add\_free}}
+\index{mem\_alloc\_add\_free@{mem\_alloc\_add\_free}!mem\_alloc.h@{mem\_alloc.h}}
+\doxysubsubsection{\texorpdfstring{mem\_alloc\_add\_free()}{mem\_alloc\_add\_free()}}
+{\footnotesize\ttfamily int mem\+\_\+alloc\+\_\+add\+\_\+free (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$}]{m,  }\item[{uint64\+\_\+t}]{address,  }\item[{uint64\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+Add a memory region to an allocator.
+
+The memory region is added to the allocatable space and is immediately ready for allocation.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em m} & The memory allocator object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em address} & The beginning address of the memory region. \\
+\hline
+\mbox{\texttt{ in}}  & {\em size} & The size of the memory region. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct }mem\_alloc m;}
+\DoxyCodeLine{}
+\DoxyCodeLine{mem\_alloc\_init(\&m);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (mem\_alloc\_add\_free(\&m, 0x4000, 4096)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{mem__alloc_8h_afdb4e638fb73f1199f739bdd4cad9b16}} 
+\index{mem\_alloc.h@{mem\_alloc.h}!mem\_alloc\_get@{mem\_alloc\_get}}
+\index{mem\_alloc\_get@{mem\_alloc\_get}!mem\_alloc.h@{mem\_alloc.h}}
+\doxysubsubsection{\texorpdfstring{mem\_alloc\_get()}{mem\_alloc\_get()}}
+{\footnotesize\ttfamily int mem\+\_\+alloc\+\_\+get (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$}]{m,  }\item[{uint64\+\_\+t $\ast$}]{address,  }\item[{uint64\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+Allocate memory
+
+Retrieve an available memory address for a free block that is at least size bytes.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em m} & The memory allocator object. \\
+\hline
+\mbox{\texttt{ out}}  & {\em address} & The retrieved address for the allocation. \\
+\hline
+\mbox{\texttt{ in}}  & {\em size} & The request size in bytes. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct }mem\_alloc m;}
+\DoxyCodeLine{uint64\_t addr = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{mem\_alloc\_init(\&m);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (mem\_alloc\_add\_free(\&m, 0x4000, 4096)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{...}
+\DoxyCodeLine{}
+\DoxyCodeLine{if (mem\_alloc\_get(\&m, \&addr, 4096)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle allocation error}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ \mbox{\label{mem__alloc_8h_a7f633432ea4eea5c671b37645a7270a4}} 
+\index{mem\_alloc.h@{mem\_alloc.h}!mem\_alloc\_put@{mem\_alloc\_put}}
+\index{mem\_alloc\_put@{mem\_alloc\_put}!mem\_alloc.h@{mem\_alloc.h}}
+\doxysubsubsection{\texorpdfstring{mem\_alloc\_put()}{mem\_alloc\_put()}}
+{\footnotesize\ttfamily int mem\+\_\+alloc\+\_\+put (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{mem__alloc_8h_structmem__alloc}{mem\+\_\+alloc}} $\ast$}]{m,  }\item[{uint64\+\_\+t}]{address }\end{DoxyParamCaption})}
+
+Free memory
+
+Release a previously-\/allocated memory block.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em m} & The memory allocator object. \\
+\hline
+\mbox{\texttt{ in}}  & {\em address} & The address to free. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero on error. Zero on success.
+\end{DoxyReturn}
+Example 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct }mem\_alloc m;}
+\DoxyCodeLine{uint64\_t addr = 0;}
+\DoxyCodeLine{}
+\DoxyCodeLine{mem\_alloc\_init(\&m);}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordflow}{if} (mem\_alloc\_add\_free(\&m, 0x4000, 4096)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle error}}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{...}
+\DoxyCodeLine{}
+\DoxyCodeLine{if (mem\_alloc\_get(\&m, \&addr, 4096)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle allocation error}}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{...}
+\DoxyCodeLine{}
+\DoxyCodeLine{if (mem\_alloc\_put(\&m, addr)) \{}
+\DoxyCodeLine{  \textcolor{comment}{// handle free error}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ 

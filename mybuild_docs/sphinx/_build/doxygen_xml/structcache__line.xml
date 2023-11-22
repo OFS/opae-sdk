@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structcache__line" kind="struct" language="C++" prot="public">
+    <compoundname>cache_line</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcache__line_1a3f28028a2861bc1cb7e3d07fa84bb4a2" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cache_line::uint</definition>
+        <argsstring>[16]</argsstring>
+        <name>uint</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_afu/sw/hello_afu.c" line="86" column="10" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="86" bodyend="-1"/>
+        <referencedby refid="hello__fpga_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__fpga_8c" startline="314" endline="544">main</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>cache_line</label>
+        <link refid="structcache__line"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hello_afu/sw/hello_afu.c" line="85" column="1" bodyfile="samples/hello_afu/sw/hello_afu.c" bodystart="85" bodyend="87"/>
+    <listofallmembers>
+      <member refid="structcache__line_1a3f28028a2861bc1cb7e3d07fa84bb4a2" prot="public" virt="non-virtual"><scope>cache_line</scope><name>uint</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

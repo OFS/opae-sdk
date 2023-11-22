@@ -1,0 +1,121 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "PAC_HSSI_CONFIG" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+pac_hssi_config \- Access Ethernet transceivers for designs
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+# pac_hssi_config #
+.sp
+## SYNOPSIS ##
+
+.nf
+\(ga\(ga
+.fi
+
+.nf
+\(ga
+.fi
+console
+pac_hssi_config.py [\-h] subcommand [subarg] [bdf]
+.sp
+The \fBpac_hssi_config.py\fP tool exercises the Ethernet 10 Gbps (10GbE) and 40GbE transceivers for designs using the
+Intel® Programmable Acceleration Card (PAC) with Intel Arria® 10 GX FPGA. This tool does not support the
+Intel Xeon® Processor with Integrated FPGA.
+.sp
+[image: PAC Ethernet Block Diagram]
+[image]
+
+.sp
+The two required arguments to the \fBpac_hssi_config.py\fP tool specify the subcommand and bus, device, and function (BDF)
+for the PCIe device under test. You must provide the BDF parameter for systems with more than one PCIe card.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you do not provide the BDF when required, the command prints a list of valid BDFs for the system. You can also
+determine the BDF using the \fBlspci\fP command.
+.UNINDENT
+.UNINDENT
+.sp
+For usage help, type the following at a command prompt:
+.sp
+\fBpac_hssi_config.py [\-h|\-\-help]\fP
+.sp
+To configure the network ports, send data, and read statistics, use the following form of the \fBpac_hssi_config.py\fP script:
+.sp
+\fBpac_hssi_config.py subcommand [subarg] [bdf]\fP
+.sp
+Only a subset of subcommand arguments support \fBsubarg\fP\&.
+.SH TABLE 1. GENERAL SUBCOMMANDS
+.sp
+| Subcommand | Subarg | Description |
+|————|:——–:| ————|
+| \fBstat\fP     | N/A      | Prints high speed serial interface (HSSI) controller statistics. |
+| \fBeeprom\fP   | N/A      | Reads the 128\-bit unique board ID, MAC address, and board\-specific IDs from EEPROM. |
+.SH TABLE 2. 10/40 GBE TRAFFIC GENERATION SUBCOMMANDS
+.sp
+| Subcommand | Subarg | Description |
+|————|:——–:| ————|
+| \fBe10init\fP and \fBe40init\fP     | N/A | Initializes HSSI PHY to 10GbE or 40GbE mode.  Clears statistics and enable internal HSSI transceiver loopback. |
+| \fBe10loop\fP and \fBe40loop\fP   | On/Off | Turns on or off internal HSSI transceiver loopback. |
+| \fBe10reset\fP and \fBe40reset\fP | On/Off | Asserts or deasserts AFU reset.  Clears packet statistics and disables internal HSSI transceiver loopback. |
+| \fBe10send\fP and \fBe40send\fP | N/A      | Sends 1,000,000 1500\-byte packets. For 10GbE sends packets on all four ports. 40GbE has a single port. |
+| \fBe10stat\fP and \fBe40stat\fP | N/A      | Prints packet statistics. |
+| \fBe10statclr\fP and \fBe40statclr\fP | N/A | Clears packet statistics.  Use this command after switching loopback modes to clear any transient statistics accumulated during the mode switch. |
+.sp
+The transceiver equalization \fBeqwrite\fP and \fBeqread\fP subcommands write and read transceiver equalization settings.
+These subcommands require you to specify the transceiver channel, the equalization setting, and the value (for writes).
+Use the following form for the \fBeqwrite\fP command:
+.sp
+\fBpac_hssi_config.py eqwrite [transceiver channel number] [equalization setting] [equalization value] [bdf]\fP
+.sp
+Use the following form for the \fBeqread\fPcommand:
+.sp
+\fBpac_hssi_config.py eqread [transceiver channel number] [equalization setting] [bdf]\fP
+.SH TABLE 3. TRANSCEIVER EQUALIZATION SUBCOMMANDS
+.sp
+| Subcommand | Channel Number  | Equalization Setting | Value |
+|————|:——–:| ————|————– |
+| \fBeqwrite\fP |  0\-3 | 0 = Continuous time\-linear equalization (CTLE)  1 = Variable gain amplifier (VGA)  2 = DCGAIN  3 = Pre\-emphasis first post\-tap  4 = Pre\-emphasis second post\-tap  5 = Pre\-emphasis first pre\-tap  6 = Pre\-emphasis second pre\-tap  7 = Differential output voltage (VOD) | Specifies the value for the specified equalization setting. |
+| \fBeqread\fP | 0\-3 |  0 = Continuous time\-linear equalization (CTLE)  1 = Variable gain amplifier (VGA)  2 = DCGAIN  3 = Pre\-emphasis first post\-tap  4 = Pre\-emphasis second post\-tap  5 = Pre\-emphasis first pre\-tap  6 = Pre\-emphasis second pre\-tap  7 = Differential output voltage (VOD) | N/A |
+.sp
+For more information about reconfiguring transceiver analog parameter settings In Arria® 10 devices, refer to “Changing PMA Analog
+Parameters” in the
+\fI\%Intel® Arria® 10 Transceiver PHY User Guide\fP\&.
+.sp
+| Date | Intel Acceleration Stack Version | Changes Made |
+|:——|—————————\-|:————–|
+|2018.05.21| DCP 1.1 Beta (works with Quartus Prime Pro 17.1.1) | Added the following subcommands to the \fBpac_hssi_config.py\fP tool:  \fBeeprom\fP  \fBeqwrite\fP  \fBeqread\fP  Added links to related information.  Fixed typos. |
+|2018.04.13| DCP 1.1 Alpha (works with Quartus Prime Pro 17.1.1) |   Initial release. |
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

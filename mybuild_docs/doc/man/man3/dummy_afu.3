@@ -1,0 +1,363 @@
+.TH "dummy_afu" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+dummy_afu
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBddr_test\fP"
+.br
+.ti -1c
+.RI "union \fBafu_dfh\fP"
+.br
+.ti -1c
+.RI "union \fBmem_test_ctrl\fP"
+.br
+.ti -1c
+.RI "union \fBddr_test_ctrl\fP"
+.br
+.ti -1c
+.RI "union \fBddr_test_stat\fP"
+.br
+.ti -1c
+.RI "union \fBddr_test_bank0_stat\fP"
+.br
+.ti -1c
+.RI "union \fBddr_test_bank1_stat\fP"
+.br
+.ti -1c
+.RI "union \fBddr_test_bank2_stat\fP"
+.br
+.ti -1c
+.RI "union \fBddr_test_bank3_stat\fP"
+.br
+.ti -1c
+.RI "class \fBdummy_afu\fP"
+.br
+.ti -1c
+.RI "class \fBlpbk_test\fP"
+.br
+.ti -1c
+.RI "class \fBmmio_test\fP"
+.br
+.ti -1c
+.RI "struct \fBafu_dfh\&.__unnamed65__\fP"
+.br
+.ti -1c
+.RI "struct \fBmem_test_ctrl\&.__unnamed68__\fP"
+.br
+.ti -1c
+.RI "struct \fBddr_test_ctrl\&.__unnamed71__\fP"
+.br
+.ti -1c
+.RI "struct \fBddr_test_stat\&.__unnamed74__\fP"
+.br
+.ti -1c
+.RI "struct \fBddr_test_bank0_stat\&.__unnamed77__\fP"
+.br
+.ti -1c
+.RI "struct \fBddr_test_bank1_stat\&.__unnamed80__\fP"
+.br
+.ti -1c
+.RI "struct \fBddr_test_bank2_stat\&.__unnamed83__\fP"
+.br
+.ti -1c
+.RI "struct \fBddr_test_bank3_stat\&.__unnamed86__\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "using \fBtest_afu\fP = \fBopae::afu_test::afu\fP"
+.br
+.ti -1c
+.RI "using \fBtest_command\fP = \fBopae::afu_test::command\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBAFU_DFH\fP = 0x0000, \fBAFU_ID_L\fP = 0x0008, \fBAFU_ID_H\fP = 0x0010, \fBNEXT_AFU\fP = 0x0018, \fBAFU_DFH_RSVD\fP = 0x0020, \fBSCRATCHPAD\fP = 0x0028, \fBMMIO_TEST_SCRATCHPAD\fP = 0x1000, \fBMEM_TEST_CTRL\fP = 0x2040, \fBMEM_TEST_STAT\fP = 0x2048, \fBMEM_TEST_SRC_ADDR\fP = 0x2050, \fBMEM_TEST_DST_ADDR\fP = 0x2058, \fBDDR_TEST_CTRL\fP = 0x3000, \fBDDR_TEST_STAT\fP = 0x3008, \fBDDR_TEST_BANK0_STAT\fP = 0x3010, \fBDDR_TEST_BANK1_STAT\fP = 0x3018, \fBDDR_TEST_BANK2_STAT\fP = 0x3020, \fBDDR_TEST_BANK3_STAT\fP = 0x3028 }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<class T > int \fBcheck_stat\fP (std::shared_ptr< spdlog::logger > logger, const char *name, T stat)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBtimeit_wr\fP (std::shared_ptr< spdlog::logger > log, \fBdummy_afu\fP *afu, uint32_t count)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBtimeit_rd\fP (std::shared_ptr< spdlog::logger > log, \fBdummy_afu\fP *afu, uint32_t count)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite_verify\fP (\fBdummy_afu\fP *afu, uint32_t addr, T value)"
+.br
+.ti -1c
+.RI "template<typename T > void \fBwrite_verify\fP (\fBdummy_afu\fP *afu, uint32_t addr, uint32_t i, uint64_t value)"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct dummy_afu::afu_dfh\&.__unnamed65__"
+.PP 
+Definition at line 64 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIFeatureID: 12\fP 
+.br
+.PP
+uint64_t \fIFeatureRev: 4\fP 
+.br
+.PP
+uint64_t \fINextDfhByteOffset: 24\fP 
+.br
+.PP
+uint64_t \fIEOL: 1\fP 
+.br
+.PP
+uint64_t \fIReserved41: 19\fP 
+.br
+.PP
+uint64_t \fIFeatureType: 4\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::mem_test_ctrl\&.__unnamed68__"
+.PP 
+Definition at line 81 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIStartTest: 1\fP 
+.br
+.PP
+uint64_t \fIReserved1: 63\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::ddr_test_ctrl\&.__unnamed71__"
+.PP 
+Definition at line 94 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIDDRBank0StartTest: 1\fP 
+.br
+.PP
+uint64_t \fIDDRBank1StartTest: 1\fP 
+.br
+.PP
+uint64_t \fIDDRBank2StartTest: 1\fP 
+.br
+.PP
+uint64_t \fIDDRBank3StartTest: 1\fP 
+.br
+.PP
+uint64_t \fIReserved4: 60\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::ddr_test_stat\&.__unnamed74__"
+.PP 
+Definition at line 110 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fINumDDRBank: 8\fP 
+.br
+.PP
+uint64_t \fIReserved8: 56\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::ddr_test_bank0_stat\&.__unnamed77__"
+.PP 
+Definition at line 123 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fITrafficGenTestPass: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestFail: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestTimeout: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenFSMState: 4\fP 
+.br
+.PP
+uint64_t \fIReserved4: 57\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::ddr_test_bank1_stat\&.__unnamed80__"
+.PP 
+Definition at line 139 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fITrafficGenTestPass: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestFail: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestTimeout: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenFSMState: 4\fP 
+.br
+.PP
+uint64_t \fIReserved4: 57\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::ddr_test_bank2_stat\&.__unnamed83__"
+.PP 
+Definition at line 155 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fITrafficGenTestPass: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestFail: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestTimeout: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenFSMState: 4\fP 
+.br
+.PP
+uint64_t \fIReserved4: 57\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct dummy_afu::ddr_test_bank3_stat\&.__unnamed86__"
+.PP 
+Definition at line 171 of file dummy_afu\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fITrafficGenTestPass: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestFail: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenTestTimeout: 1\fP 
+.br
+.PP
+uint64_t \fITrafficGenFSMState: 4\fP 
+.br
+.PP
+uint64_t \fIReserved4: 57\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Typedef Documentation"
+.PP 
+.SS "using \fBdummy_afu::test_afu\fP = typedef \fBopae::afu_test::afu\fP"
+
+.PP
+Definition at line 180 of file dummy_afu\&.h\&.
+.SS "using \fBdummy_afu::test_command\fP = typedef \fBopae::afu_test::command\fP"
+
+.PP
+Definition at line 181 of file dummy_afu\&.h\&.
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIAFU_DFH \fP\fP
+.TP
+\fB\fIAFU_ID_L \fP\fP
+.TP
+\fB\fIAFU_ID_H \fP\fP
+.TP
+\fB\fINEXT_AFU \fP\fP
+.TP
+\fB\fIAFU_DFH_RSVD \fP\fP
+.TP
+\fB\fISCRATCHPAD \fP\fP
+.TP
+\fB\fIMMIO_TEST_SCRATCHPAD \fP\fP
+.TP
+\fB\fIMEM_TEST_CTRL \fP\fP
+.TP
+\fB\fIMEM_TEST_STAT \fP\fP
+.TP
+\fB\fIMEM_TEST_SRC_ADDR \fP\fP
+.TP
+\fB\fIMEM_TEST_DST_ADDR \fP\fP
+.TP
+\fB\fIDDR_TEST_CTRL \fP\fP
+.TP
+\fB\fIDDR_TEST_STAT \fP\fP
+.TP
+\fB\fIDDR_TEST_BANK0_STAT \fP\fP
+.TP
+\fB\fIDDR_TEST_BANK1_STAT \fP\fP
+.TP
+\fB\fIDDR_TEST_BANK2_STAT \fP\fP
+.TP
+\fB\fIDDR_TEST_BANK3_STAT \fP\fP
+.PP
+Definition at line 36 of file dummy_afu\&.h\&.
+.SH "Function Documentation"
+.PP 
+.SS "template<class T > int dummy_afu::check_stat (std::shared_ptr< spdlog::logger > logger, const char * name, T stat)"
+
+.PP
+Definition at line 36 of file ddr\&.h\&.
+.PP
+Referenced by dummy_afu::ddr_test::run()\&.
+.SS "template<typename T > void dummy_afu::timeit_wr (std::shared_ptr< spdlog::logger > log, \fBdummy_afu\fP * afu, uint32_t count)\fC [inline]\fP"
+
+.PP
+Definition at line 33 of file mmio\&.h\&.
+.PP
+References SCRATCHPAD\&.
+.SS "template<typename T > void dummy_afu::timeit_rd (std::shared_ptr< spdlog::logger > log, \fBdummy_afu\fP * afu, uint32_t count)\fC [inline]\fP"
+
+.PP
+Definition at line 48 of file mmio\&.h\&.
+.PP
+References SCRATCHPAD\&.
+.SS "template<typename T > void dummy_afu::write_verify (\fBdummy_afu\fP * afu, uint32_t addr, T value)\fC [inline]\fP"
+
+.PP
+Definition at line 64 of file mmio\&.h\&.
+.SS "template<typename T > void dummy_afu::write_verify (\fBdummy_afu\fP * afu, uint32_t addr, uint32_t i, uint64_t value)\fC [inline]\fP"
+
+.PP
+Definition at line 79 of file mmio\&.h\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

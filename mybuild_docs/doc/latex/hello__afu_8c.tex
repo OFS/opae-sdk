@@ -1,0 +1,290 @@
+\doxysection{samples/hello\+\_\+afu/sw/hello\+\_\+afu.c File Reference}
+\label{hello__afu_8c}\index{samples/hello\_afu/sw/hello\_afu.c@{samples/hello\_afu/sw/hello\_afu.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$uuid/uuid.\+h$>$}\newline
+{\ttfamily \#include $<$opae/enum.\+h$>$}\newline
+{\ttfamily \#include $<$opae/access.\+h$>$}\newline
+{\ttfamily \#include $<$opae/mmio.\+h$>$}\newline
+{\ttfamily \#include $<$opae/properties.\+h$>$}\newline
+{\ttfamily \#include $<$opae/utils.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}afu\+\_\+json\+\_\+info.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{hello__fpga_8c_structcache__line}{cache\+\_\+line}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a6c7ba74ad57863d1342878d2c703e660}{UNUSED\+\_\+\+PARAM}}(x)~(void) x
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a607f30325c09b7bf4c02666214c1840c}{HELLO\+\_\+\+AFU\+\_\+\+ID}}~\mbox{\hyperlink{afu__json__info_8h_a70bd922abe682ef5aad25f5338e84261}{AFU\+\_\+\+ACCEL\+\_\+\+UUID}}
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_aa214bb53cfaaf6b164ece6df54f30347}{SCRATCH\+\_\+\+REG}}~0\+X80
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a7bbcd84554dc100a3af3c90866c517a6}{SCRATCH\+\_\+\+VALUE}}~0x0123456789\+ABCDEF
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_af5dcd1ca8faac7e95459bbb3324b8b37}{SCRATCH\+\_\+\+RESET}}~0
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a978eddbb9cac48d7902de5c7a7603e4e}{BYTE\+\_\+\+OFFSET}}~8
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a7e11a6bddfa9cc95fe37933f2faf8810}{AFU\+\_\+\+DFH\+\_\+\+REG}}~0x0
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a5020d54a46140b0c7f167ea9f06224ff}{AFU\+\_\+\+ID\+\_\+\+LO}}~0x8
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a9e32a9ba987300033ecd00f565643407}{AFU\+\_\+\+ID\+\_\+\+HI}}~0x10
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a45a6019e3d2dc27d7db71b00d6dd6089}{AFU\+\_\+\+NEXT}}~0x18
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a475a2a2461469d50e8c5bd20d8b30408}{AFU\+\_\+\+RESERVED}}~0x20
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_a7635d12a96b25dd1760b4bc44130eed9}{ON\+\_\+\+ERR\+\_\+\+GOTO}}(res,  label,  desc)
+\item 
+\#define \mbox{\hyperlink{hello__afu_8c_aff093d1ec7fa753b88889e1a94222d05}{ASSERT\+\_\+\+GOTO}}(condition,  label,  desc)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{hello__afu_8c_a300ec1c0f7befcbb990985d36d56d8c9}{usleep}} (unsigned)
+\item 
+void \mbox{\hyperlink{hello__afu_8c_aa11f434898b86d619a5ceb6a5d7bf066}{print\+\_\+err}} (const char $\ast$s, \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} res)
+\item 
+int \mbox{\hyperlink{hello__afu_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{hello__afu_8c_a6b8635735dd6b01cbc0524ca3d299d88}{s\+\_\+error\+\_\+count}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Data Structure Documentation}
+\index{cache\_line@{cache\_line}}\label{structcache__line}
+\doxysubsubsection{struct cache\+\_\+line}
+
+
+Definition at line 85 of file hello\+\_\+afu.\+c.
+
+\begin{DoxyFields}{Data Fields}
+\mbox{\label{hello__fpga_8c_a3f28028a2861bc1cb7e3d07fa84bb4a2}} 
+uint32\_t&
+uint\mbox{[}16\mbox{]}&
+\\
+\hline
+
+\end{DoxyFields}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\label{hello__afu_8c_a6c7ba74ad57863d1342878d2c703e660}} 
+\index{hello\_afu.c@{hello\_afu.c}!UNUSED\_PARAM@{UNUSED\_PARAM}}
+\index{UNUSED\_PARAM@{UNUSED\_PARAM}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{UNUSED\_PARAM}{UNUSED\_PARAM}}
+{\footnotesize\ttfamily \#define UNUSED\+\_\+\+PARAM(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~(void) x}
+
+
+
+Definition at line 40 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a607f30325c09b7bf4c02666214c1840c}} 
+\index{hello\_afu.c@{hello\_afu.c}!HELLO\_AFU\_ID@{HELLO\_AFU\_ID}}
+\index{HELLO\_AFU\_ID@{HELLO\_AFU\_ID}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{HELLO\_AFU\_ID}{HELLO\_AFU\_ID}}
+{\footnotesize\ttfamily \#define HELLO\+\_\+\+AFU\+\_\+\+ID~\mbox{\hyperlink{afu__json__info_8h_a70bd922abe682ef5aad25f5338e84261}{AFU\+\_\+\+ACCEL\+\_\+\+UUID}}}
+
+
+
+Definition at line 44 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_aa214bb53cfaaf6b164ece6df54f30347}} 
+\index{hello\_afu.c@{hello\_afu.c}!SCRATCH\_REG@{SCRATCH\_REG}}
+\index{SCRATCH\_REG@{SCRATCH\_REG}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{SCRATCH\_REG}{SCRATCH\_REG}}
+{\footnotesize\ttfamily \#define SCRATCH\+\_\+\+REG~0\+X80}
+
+
+
+Definition at line 45 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a7bbcd84554dc100a3af3c90866c517a6}} 
+\index{hello\_afu.c@{hello\_afu.c}!SCRATCH\_VALUE@{SCRATCH\_VALUE}}
+\index{SCRATCH\_VALUE@{SCRATCH\_VALUE}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{SCRATCH\_VALUE}{SCRATCH\_VALUE}}
+{\footnotesize\ttfamily \#define SCRATCH\+\_\+\+VALUE~0x0123456789\+ABCDEF}
+
+
+
+Definition at line 46 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_af5dcd1ca8faac7e95459bbb3324b8b37}} 
+\index{hello\_afu.c@{hello\_afu.c}!SCRATCH\_RESET@{SCRATCH\_RESET}}
+\index{SCRATCH\_RESET@{SCRATCH\_RESET}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{SCRATCH\_RESET}{SCRATCH\_RESET}}
+{\footnotesize\ttfamily \#define SCRATCH\+\_\+\+RESET~0}
+
+
+
+Definition at line 47 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a978eddbb9cac48d7902de5c7a7603e4e}} 
+\index{hello\_afu.c@{hello\_afu.c}!BYTE\_OFFSET@{BYTE\_OFFSET}}
+\index{BYTE\_OFFSET@{BYTE\_OFFSET}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{BYTE\_OFFSET}{BYTE\_OFFSET}}
+{\footnotesize\ttfamily \#define BYTE\+\_\+\+OFFSET~8}
+
+
+
+Definition at line 48 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a7e11a6bddfa9cc95fe37933f2faf8810}} 
+\index{hello\_afu.c@{hello\_afu.c}!AFU\_DFH\_REG@{AFU\_DFH\_REG}}
+\index{AFU\_DFH\_REG@{AFU\_DFH\_REG}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{AFU\_DFH\_REG}{AFU\_DFH\_REG}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+DFH\+\_\+\+REG~0x0}
+
+
+
+Definition at line 50 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a5020d54a46140b0c7f167ea9f06224ff}} 
+\index{hello\_afu.c@{hello\_afu.c}!AFU\_ID\_LO@{AFU\_ID\_LO}}
+\index{AFU\_ID\_LO@{AFU\_ID\_LO}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{AFU\_ID\_LO}{AFU\_ID\_LO}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+ID\+\_\+\+LO~0x8}
+
+
+
+Definition at line 51 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a9e32a9ba987300033ecd00f565643407}} 
+\index{hello\_afu.c@{hello\_afu.c}!AFU\_ID\_HI@{AFU\_ID\_HI}}
+\index{AFU\_ID\_HI@{AFU\_ID\_HI}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{AFU\_ID\_HI}{AFU\_ID\_HI}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+ID\+\_\+\+HI~0x10}
+
+
+
+Definition at line 52 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a45a6019e3d2dc27d7db71b00d6dd6089}} 
+\index{hello\_afu.c@{hello\_afu.c}!AFU\_NEXT@{AFU\_NEXT}}
+\index{AFU\_NEXT@{AFU\_NEXT}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{AFU\_NEXT}{AFU\_NEXT}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+NEXT~0x18}
+
+
+
+Definition at line 53 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a475a2a2461469d50e8c5bd20d8b30408}} 
+\index{hello\_afu.c@{hello\_afu.c}!AFU\_RESERVED@{AFU\_RESERVED}}
+\index{AFU\_RESERVED@{AFU\_RESERVED}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{AFU\_RESERVED}{AFU\_RESERVED}}
+{\footnotesize\ttfamily \#define AFU\+\_\+\+RESERVED~0x20}
+
+
+
+Definition at line 54 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_a7635d12a96b25dd1760b4bc44130eed9}} 
+\index{hello\_afu.c@{hello\_afu.c}!ON\_ERR\_GOTO@{ON\_ERR\_GOTO}}
+\index{ON\_ERR\_GOTO@{ON\_ERR\_GOTO}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{ON\_ERR\_GOTO}{ON\_ERR\_GOTO}}
+{\footnotesize\ttfamily \#define ON\+\_\+\+ERR\+\_\+\+GOTO(\begin{DoxyParamCaption}\item[{}]{res,  }\item[{}]{label,  }\item[{}]{desc }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   \textcolor{keywordflow}{do} \{                                       \(\backslash\)}
+\DoxyCodeLine{      if ((res) != FPGA\_OK) \{            \(\backslash\)}
+\DoxyCodeLine{         print\_err((desc), (res));  \(\backslash\)}
+\DoxyCodeLine{         s\_error\_count += 1; \(\backslash\)}
+\DoxyCodeLine{         goto label;                \(\backslash\)}
+\DoxyCodeLine{      \}                                  \(\backslash\)}
+\DoxyCodeLine{   \} \textcolor{keywordflow}{while} (0)}
+
+\end{DoxyCode}
+
+
+Definition at line 62 of file hello\+\_\+afu.\+c.
+
+\mbox{\label{hello__afu_8c_aff093d1ec7fa753b88889e1a94222d05}} 
+\index{hello\_afu.c@{hello\_afu.c}!ASSERT\_GOTO@{ASSERT\_GOTO}}
+\index{ASSERT\_GOTO@{ASSERT\_GOTO}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{ASSERT\_GOTO}{ASSERT\_GOTO}}
+{\footnotesize\ttfamily \#define ASSERT\+\_\+\+GOTO(\begin{DoxyParamCaption}\item[{}]{condition,  }\item[{}]{label,  }\item[{}]{desc }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{   \textcolor{keywordflow}{do} \{                                       \(\backslash\)}
+\DoxyCodeLine{      if ((condition) == 0) \{            \(\backslash\)}
+\DoxyCodeLine{         fprintf(stderr, \textcolor{stringliteral}{"{}Error \%s\(\backslash\)n"{}}, desc); \(\backslash\)}
+\DoxyCodeLine{         s\_error\_count += 1; \(\backslash\)}
+\DoxyCodeLine{         goto label;                \(\backslash\)}
+\DoxyCodeLine{      \}                                  \(\backslash\)}
+\DoxyCodeLine{   \} \textcolor{keywordflow}{while} (0)}
+
+\end{DoxyCode}
+
+
+Definition at line 75 of file hello\+\_\+afu.\+c.
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{hello__afu_8c_a300ec1c0f7befcbb990985d36d56d8c9}} 
+\index{hello\_afu.c@{hello\_afu.c}!usleep@{usleep}}
+\index{usleep@{usleep}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{usleep()}{usleep()}}
+{\footnotesize\ttfamily int usleep (\begin{DoxyParamCaption}\item[{unsigned}]{ }\end{DoxyParamCaption})}
+
+
+
+Referenced by hssi\+\_\+cmd\+::enable\+\_\+eth\+\_\+loopback(), fpga\+\_\+start(), fpga\+\_\+stop(), host\+\_\+exerciser\+::he\+\_\+cache\+\_\+cmd\+::he\+\_\+forcetestcmpl(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+forcetestcmpl(), host\+\_\+exerciser\+::he\+\_\+cmd\+::he\+\_\+wait\+\_\+test\+\_\+completion(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::he\+\_\+wait\+\_\+test\+\_\+completion(), main(), host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run(), and host\+\_\+exerciser\+::host\+\_\+exerciser\+\_\+cmd\+::run\+\_\+single\+\_\+test().
+
+\mbox{\label{hello__afu_8c_aa11f434898b86d619a5ceb6a5d7bf066}} 
+\index{hello\_afu.c@{hello\_afu.c}!print\_err@{print\_err}}
+\index{print\_err@{print\_err}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{print\_err()}{print\_err()}}
+{\footnotesize\ttfamily void print\+\_\+err (\begin{DoxyParamCaption}\item[{const char $\ast$}]{s,  }\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{res }\end{DoxyParamCaption})}
+
+
+
+Definition at line 89 of file hello\+\_\+afu.\+c.
+
+
+
+References fpga\+Err\+Str().
+
+\mbox{\label{hello__afu_8c_a0ddf1224851353fc92bfbff6f499fa97}} 
+\index{hello\_afu.c@{hello\_afu.c}!main@{main}}
+\index{main@{main}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Definition at line 94 of file hello\+\_\+afu.\+c.
+
+
+
+References AFU\+\_\+\+DFH\+\_\+\+REG, AFU\+\_\+\+ID\+\_\+\+HI, AFU\+\_\+\+ID\+\_\+\+LO, AFU\+\_\+\+NEXT, AFU\+\_\+\+RESERVED, ASSERT\+\_\+\+GOTO, FPGA\+\_\+\+ACCELERATOR, FPGA\+\_\+\+INVALID\+\_\+\+PARAM, FPGA\+\_\+\+OK, fpga\+Close(), fpga\+Destroy\+Properties(), fpga\+Destroy\+Token(), fpga\+Enumerate(), fpga\+Get\+Properties(), fpga\+Map\+MMIO(), fpga\+Open(), fpga\+Properties\+Set\+GUID(), fpga\+Properties\+Set\+Object\+Type(), fpga\+Read\+MMIO64(), fpga\+Reset(), fpga\+Unmap\+MMIO(), fpga\+Write\+MMIO64(), HELLO\+\_\+\+AFU\+\_\+\+ID, ON\+\_\+\+ERR\+\_\+\+GOTO, s\+\_\+error\+\_\+count, SCRATCH\+\_\+\+REG, SCRATCH\+\_\+\+RESET, SCRATCH\+\_\+\+VALUE, and UNUSED\+\_\+\+PARAM.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\label{hello__afu_8c_a6b8635735dd6b01cbc0524ca3d299d88}} 
+\index{hello\_afu.c@{hello\_afu.c}!s\_error\_count@{s\_error\_count}}
+\index{s\_error\_count@{s\_error\_count}!hello\_afu.c@{hello\_afu.c}}
+\doxysubsubsection{\texorpdfstring{s\_error\_count}{s\_error\_count}}
+{\footnotesize\ttfamily int s\+\_\+error\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line 56 of file hello\+\_\+afu.\+c.
+
+
+
+Referenced by main().
+

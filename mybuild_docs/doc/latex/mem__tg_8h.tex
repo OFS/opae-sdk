@@ -1,0 +1,139 @@
+\doxysection{samples/mem\+\_\+tg/mem\+\_\+tg.h File Reference}
+\label{mem__tg_8h}\index{samples/mem\_tg/mem\_tg.h@{samples/mem\_tg/mem\_tg.h}}
+{\ttfamily \#include $<$opae/cxx/core/token.\+h$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include \char`\"{}afu\+\_\+test.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg\+::mem\+\_\+tg}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+ \mbox{\hyperlink{namespacemem__tg}{mem\+\_\+tg}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{namespacemem__tg_ac9891bc8aab5db05ddbcfba187ba231a}{mem\+\_\+tg\+::test\+\_\+afu}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1afu}{opae\+::afu\+\_\+test\+::afu}}
+\item 
+using \mbox{\hyperlink{namespacemem__tg_a0a6fc2d03143e8204e8243a38addcee7}{mem\+\_\+tg\+::test\+\_\+command}} = \mbox{\hyperlink{classopae_1_1afu__test_1_1command}{opae\+::afu\+\_\+test\+::command}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacemem__tg_a5d9d9825a394d5cd74f8fe5396624a77a6e2000299654529dae8c4c4af161e49c}{mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+ACTIVE}} = 0x1
+, \mbox{\hyperlink{namespacemem__tg_a5d9d9825a394d5cd74f8fe5396624a77a39b57be20840498a98f4cd174e292a4b}{mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+TIMEOUT}} = 0x2
+, \mbox{\hyperlink{namespacemem__tg_a5d9d9825a394d5cd74f8fe5396624a77a3964c55dcdc68e90d56bf757b65b1d8a}{mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+ERROR}} = 0x4
+, \mbox{\hyperlink{namespacemem__tg_a5d9d9825a394d5cd74f8fe5396624a77afbb80104f01fcbf03960c1b685d33aa3}{mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+PASS}} = 0x8
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a5d9d9825a394d5cd74f8fe5396624a77a12b728ef588392d79acd492c13e5df0d}{mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+RESPONSE\+\_\+\+TIMEOUT}} = 0x10
+ \}
+\item 
+enum \{ \mbox{\hyperlink{namespacemem__tg_af666da5e7c0a6dcca811edb68ea7cfbaa8b6510cf448bb867772dc2ec2aa9f8f1}{mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+RAND}} = 0
+, \mbox{\hyperlink{namespacemem__tg_af666da5e7c0a6dcca811edb68ea7cfbaa0282e80a72d9f469c95c722f5ac1c423}{mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+SEQ}} = 1
+, \mbox{\hyperlink{namespacemem__tg_af666da5e7c0a6dcca811edb68ea7cfbaa569b807ecd9597d27fbd18025e926146}{mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+RAND\+\_\+\+SEQ}} = 2
+, \mbox{\hyperlink{namespacemem__tg_af666da5e7c0a6dcca811edb68ea7cfbaaaa9f845f52633dddf601fb2a012a5d06}{mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+ONE\+\_\+\+HOT}} = 3
+ \}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacemem__tg_aa375902ebcc3c4d140be55be6817fd36afa04848192643b5020f9cbed0307c292}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+FIXED}} = 0
+, \mbox{\hyperlink{namespacemem__tg_aa375902ebcc3c4d140be55be6817fd36a22c5a9122b9ee1237a486ee9793c7380}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+PRBS7}} = 1
+, \mbox{\hyperlink{namespacemem__tg_aa375902ebcc3c4d140be55be6817fd36a5fcae71881d710056306ecbd59d1f353}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+PRBS15}} = 2
+, \mbox{\hyperlink{namespacemem__tg_aa375902ebcc3c4d140be55be6817fd36adb1e0653890ac8340af449158f0ae62e}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+PRBS31}} = 3
+, \newline
+\mbox{\hyperlink{namespacemem__tg_aa375902ebcc3c4d140be55be6817fd36a582126acece0943286941192f1c5e00e}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+ROTATING}} = 4
+ \}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54a0fcea165efcbc477fd0a5f9f05bad92d}{mem\+\_\+tg\+::\+AFU\+\_\+\+DFH}} = 0x0000
+, \mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54a70d3478f33ac42261cce33ae92a58440}{mem\+\_\+tg\+::\+AFU\+\_\+\+ID\+\_\+L}} = 0x0008
+, \mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54aa752f89b2cc2fb5ecfb034a3aadc2e3c}{mem\+\_\+tg\+::\+AFU\+\_\+\+ID\+\_\+H}} = 0x0010
+, \mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54ac123d30b0268ad1c521e9e98feed74b2}{mem\+\_\+tg\+::\+NEXT\+\_\+\+AFU}} = 0x0018
+, \newline
+\mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54a376cf9f030a0b65a10226edf162499eb}{mem\+\_\+tg\+::\+AFU\+\_\+\+DFH\+\_\+\+RSVD}} = 0x0020
+, \mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54a4c62d78ea8b14f6f8fb749088d81c6b5}{mem\+\_\+tg\+::\+SCRATCHPAD}} = 0x0028
+, \mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54a71c07e22c468e2fac16fc82de00ae213}{mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CTRL}} = 0x0030
+, \mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54ab2e545ddbd0f4ff871aa8c2b227c56ed}{mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+STAT}} = 0x0038
+, \newline
+\mbox{\hyperlink{namespacemem__tg_ac0cdbbdcef2cc707d348513b5579eb54a92a59d89dfb05439439512e623f02212}{mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CLOCKS}} = 0x0050
+ \}
+\item 
+enum \{ \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa04aae5e4774f4ba73394e884387749c5}{mem\+\_\+tg\+::\+TG\+\_\+\+VERSION}} = 0x000
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa36e5f2f8a7ce70509baad0fc29c7217d}{mem\+\_\+tg\+::\+TG\+\_\+\+START}} = 0x004
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faab7410bb101bc061d4ae261d012f9fcb4}{mem\+\_\+tg\+::\+TG\+\_\+\+LOOP\+\_\+\+COUNT}} = 0x008
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa712daf68ed5d46d6cba0a0033eb45a59}{mem\+\_\+tg\+::\+TG\+\_\+\+WRITE\+\_\+\+COUNT}} = 0x00C
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faaf91e5aaa66fc608c1afc2cf0a2a20f49}{mem\+\_\+tg\+::\+TG\+\_\+\+READ\+\_\+\+COUNT}} = 0x010
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa4cd1c35dc2ff3d288cd1cfc60777941e}{mem\+\_\+tg\+::\+TG\+\_\+\+WRITE\+\_\+\+REPEAT\+\_\+\+COUNT}} = 0x014
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faaf7d1449e46dfd3fa0fd874fb9f44c2b9}{mem\+\_\+tg\+::\+TG\+\_\+\+READ\+\_\+\+REPEAT\+\_\+\+COUNT}} = 0x018
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faad9acb4dff9aaa1df270472237301ed7a}{mem\+\_\+tg\+::\+TG\+\_\+\+BURST\+\_\+\+LENGTH}} = 0x01C
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa8fb799f1eb48b8410df89647e8122194}{mem\+\_\+tg\+::\+TG\+\_\+\+CLEAR}} = 0x020
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa0e952a276e6151f1d59e03f7f43f5c37}{mem\+\_\+tg\+::\+TG\+\_\+\+RW\+\_\+\+GEN\+\_\+\+IDLE\+\_\+\+COUNT}} = 0x038
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa22b7465ca8a636c2a167ec4edc46ec4e}{mem\+\_\+tg\+::\+TG\+\_\+\+RW\+\_\+\+GEN\+\_\+\+LOOP\+\_\+\+IDLE\+\_\+\+COUNT}} = 0x03C
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa78901634d9ccae75648d724f9af99a51}{mem\+\_\+tg\+::\+TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+WR\+\_\+L}} = 0x040
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa684f05ecb4378c337d13ec3f8fee2fc8}{mem\+\_\+tg\+::\+TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+WR\+\_\+H}} = 0x044
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faaa1ae8be038850228674d43f5bf0a756f}{mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+WR}} = 0x048
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa6907903904e0653d73a30bdf29a27ed2}{mem\+\_\+tg\+::\+TG\+\_\+\+RAND\+\_\+\+SEQ\+\_\+\+ADDRS\+\_\+\+WR}} = 0x04C
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa0f7198530578f4c0eec41f4c3f05a3be}{mem\+\_\+tg\+::\+TG\+\_\+\+RETURN\+\_\+\+TO\+\_\+\+START\+\_\+\+ADDR}} = 0x050
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa8963a3103bffd3412a2340d14d93b21d}{mem\+\_\+tg\+::\+TG\+\_\+\+SEQ\+\_\+\+ADDR\+\_\+\+INCR}} = 0x074
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faaf68f3e5878b9fa4c7223312f75cf4a54}{mem\+\_\+tg\+::\+TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+RD\+\_\+L}} = 0x078
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa8719a1d0099392f7568b960a34f23ca9}{mem\+\_\+tg\+::\+TG\+\_\+\+SEQ\+\_\+\+START\+\_\+\+ADDR\+\_\+\+RD\+\_\+H}} = 0x07C
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa0d0b4dc47ddd3f5315c986c4297c65cf}{mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+RD}} = 0x080
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa9eed28651432b26b6e893537dad1c8f0}{mem\+\_\+tg\+::\+TG\+\_\+\+RAND\+\_\+\+SEQ\+\_\+\+ADDRS\+\_\+\+RD}} = 0x084
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faaa3ebbf541ffa826713743898a9b87fca}{mem\+\_\+tg\+::\+TG\+\_\+\+PASS}} = 0x088
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa77004e9dec4a1b60919402a1099c9b9b}{mem\+\_\+tg\+::\+TG\+\_\+\+FAIL}} = 0x08C
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa21b985a60da2e963c039573cf8ce4292}{mem\+\_\+tg\+::\+TG\+\_\+\+FAIL\+\_\+\+COUNT\+\_\+L}} = 0x090
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa3f9757573c68c6984a904badea0ddac3}{mem\+\_\+tg\+::\+TG\+\_\+\+FAIL\+\_\+\+COUNT\+\_\+H}} = 0x094
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa3aa084a514969080b97217bd35465356}{mem\+\_\+tg\+::\+TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+L}} = 0x098
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faabeb38326d70d8fa51fa47bf2771e5443}{mem\+\_\+tg\+::\+TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+H}} = 0x09C
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa8a1320c318666ad7219be02ffb547ff2}{mem\+\_\+tg\+::\+TG\+\_\+\+TOTAL\+\_\+\+READ\+\_\+\+COUNT\+\_\+L}} = 0x0\+A0
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faafddea5c425e65e7c09f31f3717ff89a7}{mem\+\_\+tg\+::\+TG\+\_\+\+TOTAL\+\_\+\+READ\+\_\+\+COUNT\+\_\+H}} = 0x0\+A4
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa83044d71ca0917991b76ef043f7683b5}{mem\+\_\+tg\+::\+TG\+\_\+\+TEST\+\_\+\+COMPLETE}} = 0x0\+A8
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa83be95f292fd349ce0d8de1679bcfc40}{mem\+\_\+tg\+::\+TG\+\_\+\+INVERT\+\_\+\+BYTEEN}} = 0x0\+AC
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa3e5d4c298071e1d27a597c6f0e2e2873}{mem\+\_\+tg\+::\+TG\+\_\+\+RESTART\+\_\+\+DEFAULT\+\_\+\+TRAFFIC}} = 0x0\+B0
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa04a628e98d370b2e44979a1cb0d934b7}{mem\+\_\+tg\+::\+TG\+\_\+\+USER\+\_\+\+WORM\+\_\+\+EN}} = 0x0\+B4
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa6fc1ee1598e27892c1b190338a727d4a}{mem\+\_\+tg\+::\+TG\+\_\+\+TEST\+\_\+\+BYTEEN}} = 0x0\+B8
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa26be34da618bd9ff6af7e5085468c683}{mem\+\_\+tg\+::\+TG\+\_\+\+TIMEOUT}} = 0x0\+BC
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa3abebe209bc7ba6e3993bc9950881722}{mem\+\_\+tg\+::\+TG\+\_\+\+NUM\+\_\+\+DATA\+\_\+\+GEN}} = 0x0\+C4
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa066ea4e9f56bdf1df417becadb27a4af}{mem\+\_\+tg\+::\+TG\+\_\+\+NUM\+\_\+\+BYTEEN\+\_\+\+GEN}} = 0x0\+C8
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faaee7adf738b7b7831a13aa4a40687bd68}{mem\+\_\+tg\+::\+TG\+\_\+\+RDATA\+\_\+\+WIDTH}} = 0x0\+DC
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faabbb606f7914787cb5c521f428fb72562}{mem\+\_\+tg\+::\+TG\+\_\+\+ERROR\+\_\+\+REPORT}} = 0x0\+EC
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa4afe73ab23f12ae3ab710f533707438f}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+RATE\+\_\+\+WIDTH\+\_\+\+RATIO}} = 0x0\+F0
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faabba43d1a9d25c20bf14088aa3c92b72d}{mem\+\_\+tg\+::\+TG\+\_\+\+PNF}} = 0x100
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa99701a288d09c6214525e1cc65a64ba0}{mem\+\_\+tg\+::\+TG\+\_\+\+FAIL\+\_\+\+EXPECTED\+\_\+\+DATA}} = 0x200
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa5b509ef9f39fcdbdaa760abce6c05cf1}{mem\+\_\+tg\+::\+TG\+\_\+\+FAIL\+\_\+\+READ\+\_\+\+DATA}} = 0x300
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa3ff28b39ca90987ee5328faf55f7cc73}{mem\+\_\+tg\+::\+TG\+\_\+\+DATA\+\_\+\+SEED}} = 0x400
+, \newline
+\mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa91c7cb5a3402c47f6435ddaa99a35d1b}{mem\+\_\+tg\+::\+TG\+\_\+\+BYTEEN\+\_\+\+SEED}} = 0x200
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faa4206df51ef621a3c26c4b32d28bdd748}{mem\+\_\+tg\+::\+TG\+\_\+\+PPPG\+\_\+\+SEL}} = 0x\+C00
+, \mbox{\hyperlink{namespacemem__tg_a2bc8acdef632ab5e18ed7bc7fb93e0faab2e2b4a6cb66d31dc888869bb2a42afe}{mem\+\_\+tg\+::\+TG\+\_\+\+BYTEEN\+\_\+\+SEL}} = 0x\+E80
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \mbox{\hyperlink{namespacemem__tg_af02ccce98e14a5901318de5305ff2792}{mem\+\_\+tg\+::\+AFU\+\_\+\+ID}} = \char`\"{}4DADEA34-\/2C78-\/48CB-\/A3\+DC-\/5B831\+F5\+CECBB\char`\"{}
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacemem__tg_ab99947d9ae3914d454524af4289c4f75}{mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+TEST\+\_\+\+TIMEOUT}} = 30000
+\item 
+static const uint64\+\_\+t \mbox{\hyperlink{namespacemem__tg_aa14a41e302dcb5763a1dfa2af93083cb}{mem\+\_\+tg\+::\+TEST\+\_\+\+SLEEP\+\_\+\+INVL}} = 100
+\item 
+const std\+::map$<$ std\+::string, uint32\+\_\+t $>$ \mbox{\hyperlink{namespacemem__tg_aa321b366aefc06c5924ed83f3fac4109}{mem\+\_\+tg\+::tg\+\_\+pattern}}
+\item 
+const int \mbox{\hyperlink{namespacemem__tg_a943a6cf589a5fd0b37a523b5df6513e6}{mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET}} = 0x1000
+\end{DoxyCompactItemize}

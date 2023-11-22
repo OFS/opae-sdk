@@ -1,0 +1,1219 @@
+.TH "include/opae/properties.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/properties.h \- Functions for examining and manipulating \fCfpga_properties\fP objects\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetPropertiesFromHandle\fP (\fBfpga_handle\fP handle, \fBfpga_properties\fP *prop)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaGetProperties\fP (\fBfpga_token\fP token, \fBfpga_properties\fP *prop)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaUpdateProperties\fP (\fBfpga_token\fP token, \fBfpga_properties\fP prop)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaClearProperties\fP (\fBfpga_properties\fP prop)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaCloneProperties\fP (\fBfpga_properties\fP src, \fBfpga_properties\fP *dst)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaDestroyProperties\fP (\fBfpga_properties\fP *prop)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetParent\fP (const \fBfpga_properties\fP prop, \fBfpga_token\fP *parent)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetParent\fP (\fBfpga_properties\fP prop, \fBfpga_token\fP parent)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetObjectType\fP (const \fBfpga_properties\fP prop, \fBfpga_objtype\fP *objtype)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetObjectType\fP (\fBfpga_properties\fP prop, \fBfpga_objtype\fP objtype)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetSegment\fP (const \fBfpga_properties\fP prop, uint16_t *segment)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetSegment\fP (\fBfpga_properties\fP prop, uint16_t segment)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetBus\fP (const \fBfpga_properties\fP prop, uint8_t *bus)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetBus\fP (\fBfpga_properties\fP prop, uint8_t bus)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetDevice\fP (const \fBfpga_properties\fP prop, uint8_t *device)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetDevice\fP (\fBfpga_properties\fP prop, uint8_t device)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetFunction\fP (const \fBfpga_properties\fP prop, uint8_t *function)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetFunction\fP (\fBfpga_properties\fP prop, uint8_t function)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetSocketID\fP (const \fBfpga_properties\fP prop, uint8_t *socket_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetSocketID\fP (\fBfpga_properties\fP prop, uint8_t socket_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetDeviceID\fP (const \fBfpga_properties\fP prop, uint16_t *device_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetDeviceID\fP (\fBfpga_properties\fP prop, uint16_t device_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetNumSlots\fP (const \fBfpga_properties\fP prop, uint32_t *num_slots)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetNumSlots\fP (\fBfpga_properties\fP prop, uint32_t num_slots)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetBBSID\fP (const \fBfpga_properties\fP prop, uint64_t *bbs_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetBBSID\fP (\fBfpga_properties\fP prop, uint64_t bbs_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetBBSVersion\fP (const \fBfpga_properties\fP prop, \fBfpga_version\fP *bbs_version)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetBBSVersion\fP (\fBfpga_properties\fP prop, \fBfpga_version\fP version)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetVendorID\fP (const \fBfpga_properties\fP prop, uint16_t *vendor_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetVendorID\fP (\fBfpga_properties\fP prop, uint16_t vendor_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetModel\fP (const \fBfpga_properties\fP prop, char *model)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetModel\fP (\fBfpga_properties\fP prop, char *model)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetLocalMemorySize\fP (const \fBfpga_properties\fP prop, uint64_t *lms)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetLocalMemorySize\fP (\fBfpga_properties\fP prop, uint64_t lms)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetCapabilities\fP (const \fBfpga_properties\fP prop, uint64_t *capabilities)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetCapabilities\fP (\fBfpga_properties\fP prop, uint64_t capabilities)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetGUID\fP (const \fBfpga_properties\fP prop, \fBfpga_guid\fP *guid)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetGUID\fP (\fBfpga_properties\fP prop, \fBfpga_guid\fP guid)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetNumMMIO\fP (const \fBfpga_properties\fP prop, uint32_t *mmio_spaces)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetNumMMIO\fP (\fBfpga_properties\fP prop, uint32_t mmio_spaces)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetNumInterrupts\fP (const \fBfpga_properties\fP prop, uint32_t *num_interrupts)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetNumInterrupts\fP (\fBfpga_properties\fP prop, uint32_t num_interrupts)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetAcceleratorState\fP (const \fBfpga_properties\fP prop, \fBfpga_accelerator_state\fP *state)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetAcceleratorState\fP (\fBfpga_properties\fP prop, \fBfpga_accelerator_state\fP state)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetObjectID\fP (const \fBfpga_properties\fP prop, uint64_t *object_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetObjectID\fP (const \fBfpga_properties\fP prop, uint64_t object_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetNumErrors\fP (const \fBfpga_properties\fP prop, uint32_t *num_errors)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetNumErrors\fP (const \fBfpga_properties\fP prop, uint32_t num_errors)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetInterface\fP (const \fBfpga_properties\fP prop, \fBfpga_interface\fP *interface)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetInterface\fP (const \fBfpga_properties\fP prop, \fBfpga_interface\fP interface)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetSubsystemVendorID\fP (const \fBfpga_properties\fP prop, uint16_t *subsystem_vendor_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetSubsystemVendorID\fP (\fBfpga_properties\fP prop, uint16_t subsystem_vendor_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesGetSubsystemDeviceID\fP (const \fBfpga_properties\fP prop, uint16_t *subsystem_device_id)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaPropertiesSetSubsystemDeviceID\fP (\fBfpga_properties\fP prop, uint16_t subsystem_device_id)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions for examining and manipulating \fCfpga_properties\fP objects\&. 
+
+In OPAE, \fCfpga_properties\fP objects are used both for obtaining information about resources and for selectively enumerating resources based on their properties\&. This file provides accessor functions (get/set) to allow reading and writing individual items of an \fCfpga_properties\fP object\&. Generally, not all object types supported by OPAE carry all properties\&. If you call a property accessor method on a \fCfpga_properties\fP object that does not support this particular property, it will return FPGA_INVALID_PARAM\&.
+.SH "Accessor Return Values"
+.PP
+In addition to the return values specified in the documentation below, all accessor functions return FPGA_OK on success, FPGA_INVALID_PARAM if you pass NULL or invalid parameters (i\&.e\&. non-initialized properties objects), FPGA_EXCEPTION if an internal exception occurred trying to access the properties object, FPGA_NOT_FOUND if the requested property is not part of the supplied properties object\&. 
+.PP
+Definition in file \fBproperties\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaGetPropertiesFromHandle (\fBfpga_handle\fP handle, \fBfpga_properties\fP * prop)"
+Create a fpga_properties object
+.PP
+Initializes the memory pointed at by \fCprop\fP to represent a properties object, and populates it with the properties of the resource referred to by \fChandle\fP\&. Individual properties can then be queried using fpgaPropertiesGet*() accessor functions\&.
+.PP
+\fBNote\fP
+.RS 4
+\fBfpgaGetPropertiesFromHandle()\fP will allocate memory for the created properties object returned in \fCprop\fP\&. It is the responsibility of the caller to free this memory after use by calling \fBfpgaDestroyProperties()\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Open handle to get properties for\&. 
+.br
+\fIprop\fP Pointer to a variable of type fpga_properties 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NO_MEMORY if no memory could be allocated to create the \fCfpga_properties\fP object\&. FPGA_EXCEPTION if an exception happend while initializing the \fCfpga_properties\fP object\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaGetProperties (\fBfpga_token\fP token, \fBfpga_properties\fP * prop)"
+Create a fpga_properties object
+.PP
+Initializes the memory pointed at by \fCprop\fP to represent a properties object, and populates it with the properties of the resource referred to by \fCtoken\fP\&. Individual properties can then be queried using fpgaPropertiesGet*() accessor functions\&.
+.PP
+If \fCtoken\fP is NULL, an 'empty' properties object is created to be used as a filter for \fBfpgaEnumerate()\fP\&. All individual fields are set to \fCdon\fPt care`, which implies that the fpga_properties object would match all FPGA resources if used for an \fBfpgaEnumerate()\fP query\&. The matching criteria can be further refined by using fpgaSet* functions on the properties object, or the object can be populated with the actual properties of a resource by using \fBfpgaUpdateProperties()\fP\&.
+.PP
+\fBNote\fP
+.RS 4
+\fBfpgaGetProperties()\fP will allocate memory for the created properties object returned in \fCprop\fP\&. It is the responsibility of the caller to free this memory after use by calling \fBfpgaDestroyProperties()\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token to get properties for\&. Can be NULL, which will create an empty properties object to be used as a filter for \fBfpgaEnumerate()\fP\&. 
+.br
+\fIprop\fP Pointer to a variable of type fpga_properties 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_NO_MEMORY if no memory could be allocated to create the \fCfpga_properties\fP object\&. FPGA_EXCEPTION if an exception happend while initializing the \fCfpga_properties\fP object\&. 
+.RE
+.PP
+
+.PP
+Referenced by init_metric_group(), main(), parse_args(), and probe_for_ase()\&.
+.SS "\fBfpga_result\fP fpgaUpdateProperties (\fBfpga_token\fP token, \fBfpga_properties\fP prop)"
+Update a fpga_properties object
+.PP
+Populates the properties object 'prop' with properties of the resource referred to by 'token'\&. Unlike \fBfpgaGetProperties()\fP, this call will not create a new properties object or allocate memory for it, but use a previously created properties object\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token to retrieve properties for 
+.br
+\fIprop\fP fpga_properties object to update 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if \fCtoken\fP or \fCprop\fP are not valid objects\&. FPGA_NOT_FOUND if the resource referred to by \fCtoken\fP was not found\&. FPGA_NO_DRIVER if not driver is loaded\&. FPGA_EXCEPTION if an internal exception occured when trying to update \fCprop\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaClearProperties (\fBfpga_properties\fP prop)"
+Clear a fpga_properties object
+.PP
+Sets all fields of the properties object pointed at by 'prop' to 'don't care', which implies that the fpga_properties object would match all FPGA resources if used for an \fBfpgaEnumerate()\fP query\&. The matching criteria can be further refined by using fpgaSet* functions on the properties object\&.
+.PP
+Instead of creating a new fpga_properties object every time, this function can be used to re-use fpga_properties objects from previous queries\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP fpga_properties object to clear 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if \fCprop\fP is not a valid object\&. FPGA_EXCEPTION if an * internal exception occured when trying to access \fCprop\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaCloneProperties (\fBfpga_properties\fP src, \fBfpga_properties\fP * dst)"
+Clone a fpga_properties object
+.PP
+Creates a copy of an fpga_properties object\&.
+.PP
+\fBNote\fP
+.RS 4
+This call creates a new properties object and allocates memory for it\&. Both the 'src' and the newly created 'dst' objects will eventually need to be destroyed using \fBfpgaDestroyProperties()\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIsrc\fP fpga_properties object to copy 
+.br
+\fIdst\fP New fpga_properties object cloned from 'src' 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if \fCsrc\fP is not a valid object, or if \fCdst\fP is NULL\&. FPGA_NO_MEMORY if there was not enough memory to allocate an \fCfpga_properties\fP object for \fCdst\fP\&. FPGA_EXCEPTION if an internal exception occurred either accessing \fCsrc\fP or updating \fCdst\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by find_fpga()\&.
+.SS "\fBfpga_result\fP fpgaDestroyProperties (\fBfpga_properties\fP * prop)"
+Destroy a fpga_properties object
+.PP
+Destroys an existing fpga_properties object that the caller has previously created using \fBfpgaGetProperties()\fP or \fBfpgaCloneProperties()\fP\&.
+.PP
+\fBNote\fP
+.RS 4
+\fBfpgaDestroyProperties()\fP requires the address of an fpga_properties object, similar to \fBfpgaGetPropertiesFromHandle()\fP, \fBfpgaGetProperties()\fP, and \fBfpgaCloneProperties()\fP\&. Passing any other value results in undefined behavior\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Pointer to the fpga_properties object to destroy 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM is \fCprop\fP is not a valid object\&. FPGA_EXCEPTION if an internal exception occurrred while trying to access \fCprop\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by find_fpga(), fpga_close(), init_metric_group(), main(), and probe_for_ase()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesGetParent (const \fBfpga_properties\fP prop, \fBfpga_token\fP * parent)"
+Get the token of the parent object
+.PP
+Returns the token of the parent of the queried resource in '*parent'\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIparent\fP Pointer to a token variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_NOT_FOUND if resource does not have a parent (e\&.g\&. an FPGA_DEVICE resource does not have parents)\&. Also see 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetParent (\fBfpga_properties\fP prop, \fBfpga_token\fP parent)"
+Set the token of the parent object
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIparent\fP Pointer to a token variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetObjectType (const \fBfpga_properties\fP prop, \fBfpga_objtype\fP * objtype)"
+Get the object type of a resource
+.PP
+Returns the object type of the queried resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIobjtype\fP Pointer to an object type variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetObjectType (\fBfpga_properties\fP prop, \fBfpga_objtype\fP objtype)"
+Set the object type of a resource
+.PP
+Sets the object type of the resource\&. * Currently supported object types are FPGA_DEVICE and FPGA_ACCELERATOR\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIobjtype\fP Object type of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by find_fpga(), fpga_open(), main(), and probe_for_ase()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesGetSegment (const \fBfpga_properties\fP prop, uint16_t * segment)"
+Get the PCI segment number of a resource
+.PP
+Returns the segment number of the queried resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIsegment\fP Pointer to a PCI segment variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetSegment (\fBfpga_properties\fP prop, uint16_t segment)"
+Set the PCI segment number of a resource
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIsegment\fP PCI segment number of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetBus (const \fBfpga_properties\fP prop, uint8_t * bus)"
+Get the PCI bus number of a resource
+.PP
+Returns the bus number the queried resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIbus\fP Pointer to a PCI bus variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by init_metric_group()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesSetBus (\fBfpga_properties\fP prop, uint8_t bus)"
+Set the PCI bus number of a resource
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIbus\fP PCI bus number of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetDevice (const \fBfpga_properties\fP prop, uint8_t * device)"
+Get the PCI device number of a resource
+.PP
+Returns the device number the queried resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIdevice\fP Pointer to a PCI device variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by init_metric_group()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesSetDevice (\fBfpga_properties\fP prop, uint8_t device)"
+Set the PCI device number of a resource
+.PP
+Enforces the limitation on the number of devices as specified in the PCI spec\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIdevice\fP PCI device number of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetFunction (const \fBfpga_properties\fP prop, uint8_t * function)"
+Get the PCI function number of a resource
+.PP
+Returns the function number the queried resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIfunction\fP Pointer to PCI function variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by init_metric_group()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesSetFunction (\fBfpga_properties\fP prop, uint8_t function)"
+Set the PCI function number of a resource
+.PP
+Enforces the limitation on the number of functions as specified in the PCI spec\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIfunction\fP PCI function number of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetSocketID (const \fBfpga_properties\fP prop, uint8_t * socket_id)"
+Get the socket id of a resource
+.PP
+Returns the socket id of the queried resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIsocket_id\fP Pointer to a socket id variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetSocketID (\fBfpga_properties\fP prop, uint8_t socket_id)"
+Set the socket id of the resource
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIsocket_id\fP Socket id of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetDeviceID (const \fBfpga_properties\fP prop, uint16_t * device_id)"
+Get the device id of the resource
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIdevice_id\fP Pointer to a device id variable of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by probe_for_ase()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesSetDeviceID (\fBfpga_properties\fP prop, uint16_t device_id)"
+Set the device id of the resource
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIdevice_id\fP Device id of the resource 'prop' is associated with 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetNumSlots (const \fBfpga_properties\fP prop, uint32_t * num_slots)"
+Get the number of slots of an FPGA resource property
+.PP
+Returns the number of slots present in an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fInum_slots\fP Pointer to number of slots variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetNumSlots (\fBfpga_properties\fP prop, uint32_t num_slots)"
+Set the number of slots of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fInum_slots\fP Number of slots of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetBBSID (const \fBfpga_properties\fP prop, uint64_t * bbs_id)"
+Get the BBS ID of an FPGA resource property
+.PP
+Returns the blue bitstream id of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fIbbs_id\fP Pointer to a bbs id variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetBBSID (\fBfpga_properties\fP prop, uint64_t bbs_id)"
+Set the BBS ID of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fIbbs_id\fP Blue bitstream id of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetBBSVersion (const \fBfpga_properties\fP prop, \fBfpga_version\fP * bbs_version)"
+Get the BBS Version of an FPGA resource property
+.PP
+Returns the blue bitstream version of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fIbbs_version\fP Pointer to a bbs version variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetBBSVersion (\fBfpga_properties\fP prop, \fBfpga_version\fP version)"
+Set the BBS Version of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fIversion\fP Blue bitstream version of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetVendorID (const \fBfpga_properties\fP prop, uint16_t * vendor_id)"
+Get the vendor id of an FPGA resource property
+.PP
+Returns the vendor id of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fIvendor_id\fP Pointer to a vendor id variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetVendorID (\fBfpga_properties\fP prop, uint16_t vendor_id)"
+Set the vendor id of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fIvendor_id\fP Vendor id of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetModel (const \fBfpga_properties\fP prop, char * model)"
+Get the model of an FPGA resource property
+.PP
+Returns the model of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fImodel\fP Model of the FPGA resource (string of minimum FPGA_MODEL_LENGTH length 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetModel (\fBfpga_properties\fP prop, char * model)"
+Set the model of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fImodel\fP Model of the FPGA resource (string of maximum FPGA_MODEL_LENGTH length 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetLocalMemorySize (const \fBfpga_properties\fP prop, uint64_t * lms)"
+Get the local memory size of an FPGA resource property
+.PP
+Returns the local memory size of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fIlms\fP Pointer to a memory size variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetLocalMemorySize (\fBfpga_properties\fP prop, uint64_t lms)"
+Set the local memory size of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fIlms\fP Local memory size of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetCapabilities (const \fBfpga_properties\fP prop, uint64_t * capabilities)"
+Get the capabilities FPGA resource property
+.PP
+Returns the capabilities of an FPGA\&. Capabilities is a bitfield value
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_DEVICE 
+.br
+\fIcapabilities\fP Pointer to a capabilities variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetCapabilities (\fBfpga_properties\fP prop, uint64_t capabilities)"
+Set the capabilities of an FPGA resource property
+.PP
+Capabilities is a bitfield value
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_DEVICE 
+.br
+\fIcapabilities\fP Capabilities of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_DEVICE\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+This API is not currently supported\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetGUID (const \fBfpga_properties\fP prop, \fBfpga_guid\fP * guid)"
+Get the GUID of a resource
+.PP
+Returns the GUID of an FPGA or accelerator object\&.
+.PP
+For an accelerator, the GUID uniquely identifies a specific accelerator context type, i\&.e\&. different accelerators will have different GUIDs\&. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e\&.g\&. to determine whether a given bitstream would be compatible\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIguid\fP Pointer to a GUID of the slot variable 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by opae::fpga::types::guid_t::update()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesSetGUID (\fBfpga_properties\fP prop, \fBfpga_guid\fP guid)"
+Set the GUID of a resource
+.PP
+Sets the GUID of an FPGA or accelerator object\&.
+.PP
+For an accelerator, the GUID uniquely identifies a specific accelerator context type, i\&.e\&. different accelerators will have different GUIDs\&. For an FPGA, the GUID is used to identify a certain instance of an FPGA, e\&.g\&. to determine whether a given bitstream would be compatible\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIguid\fP Pointer to a GUID of the slot variable 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.PP
+Referenced by find_fpga(), fpga_open(), main(), opae::fpga::types::guid_t::operator=(), and opae::fpga::types::guid_t::parse()\&.
+.SS "\fBfpga_result\fP fpgaPropertiesGetNumMMIO (const \fBfpga_properties\fP prop, uint32_t * mmio_spaces)"
+Get the number of mmio spaces
+.PP
+Returns the number of mmio spaces of an AFU properties structure\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_ACCELERATOR 
+.br
+\fImmio_spaces\fP Pointer to a variable for number of mmio spaces 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetNumMMIO (\fBfpga_properties\fP prop, uint32_t mmio_spaces)"
+Set the number of mmio spaces
+.PP
+Sets the number of mmio spaces of an AFU properties structure\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_ACCELERATOR 
+.br
+\fImmio_spaces\fP Number of MMIO spaces of the accelerator 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetNumInterrupts (const \fBfpga_properties\fP prop, uint32_t * num_interrupts)"
+Get the number of interrupts
+.PP
+Returns the number of interrupts of an accelerator properties structure\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_ACCELERATOR 
+.br
+\fInum_interrupts\fP Pointer to a variable for number of interrupts 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetNumInterrupts (\fBfpga_properties\fP prop, uint32_t num_interrupts)"
+Set the number of interrupts
+.PP
+Sets the number of interrupts of an accelerator properties structure\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_ACCELERATOR 
+.br
+\fInum_interrupts\fP Number of interrupts of the accelerator 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetAcceleratorState (const \fBfpga_properties\fP prop, \fBfpga_accelerator_state\fP * state)"
+Get the state of a accelerator resource property
+.PP
+Returns the accelerator state of a accelerator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query - must be of type FPGA_ACCELERATOR 
+.br
+\fIstate\fP Pointer to a accelerator state variable of the accelerator 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetAcceleratorState (\fBfpga_properties\fP prop, \fBfpga_accelerator_state\fP state)"
+Set the state of an accelerator resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify - must be of type FPGA_ACCELERATOR 
+.br
+\fIstate\fP accelerator state of the accelerator resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_INVALID_PARAM if object type is not FPGA_ACCELERATOR\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetObjectID (const \fBfpga_properties\fP prop, uint64_t * object_id)"
+Get the object ID of a resource
+.PP
+Returns the object ID of a resource\&. The object ID is a 64 bit identifier that is unique within a single node or system\&. It represents a similar concept as the token, but can be used across processes (e\&.g\&. passed on the command line)\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIobject_id\fP Pointer to a 64bit memory location to store the object ID in 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetObjectID (const \fBfpga_properties\fP prop, uint64_t object_id)"
+Set the object ID of a resource
+.PP
+Sets the object ID of a resource\&. The object ID is a 64 bit identifier that is unique within a single node or system\&. It represents a similar concept as the token, but can be used across processes (e\&.g\&. passed on the command line)\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIobject_id\fP A 64bit value to use as the object ID 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetNumErrors (const \fBfpga_properties\fP prop, uint32_t * num_errors)"
+Get the number of errors that can be reported by a resource
+.PP
+Returns the number of error registers understood by a resource\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fInum_errors\fP Pointer to a 32 bit memory location to store the number of supported errors in 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetNumErrors (const \fBfpga_properties\fP prop, uint32_t num_errors)"
+Set the number of error registers
+.PP
+Set the number of error registers understood by a resource to enumerate\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fInum_errors\fP Number of errors 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetInterface (const \fBfpga_properties\fP prop, \fBfpga_interface\fP * interface)"
+Get the OPAE plugin interface implemented by a resource
+.PP
+Returns the plugin interface enumerator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIinterface\fP Pointer to an fpga_interface location to store the interface in 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetInterface (const \fBfpga_properties\fP prop, \fBfpga_interface\fP interface)"
+Set the OPAE plugin interface implemented by a resource
+.PP
+Set the plugin interface enumerator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIinterface\fP The interface enumerator to set 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+See 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetSubsystemVendorID (const \fBfpga_properties\fP prop, uint16_t * subsystem_vendor_id)"
+Get the subsystem vendor id of an FPGA resource property
+.PP
+Returns the subsystem vendor id of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIsubsystem_vendor_id\fP Pointer to a vendor id variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetSubsystemVendorID (\fBfpga_properties\fP prop, uint16_t subsystem_vendor_id)"
+Set the subsystem vendor id of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIsubsystem_vendor_id\fP Subsystem Vendor id of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesGetSubsystemDeviceID (const \fBfpga_properties\fP prop, uint16_t * subsystem_device_id)"
+Get the subsystem device id of an FPGA resource property
+.PP
+Returns the subsystem device id of an FPGA\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to query 
+.br
+\fIsubsystem_device_id\fP Pointer to a device id variable of the FPGA 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaPropertiesSetSubsystemDeviceID (\fBfpga_properties\fP prop, uint16_t subsystem_device_id)"
+Set the subsystem device id of an FPGA resource property
+.PP
+\fBParameters\fP
+.RS 4
+\fIprop\fP Properties object to modify 
+.br
+\fIsubsystem_device_id\fP Subsystem Device id of the FPGA resource 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. See also 'Accessor Return Values' in \fCproperties\&.h\fP\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

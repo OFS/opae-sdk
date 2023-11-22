@@ -1,0 +1,411 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "HSSI" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+hssi \- High Speed Serial Interface
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH SYNOPSIS
+.sp
+\fBhssi COMMON_OPTIONS MODE MODE_OPTIONS\fP
+.SH DESCRIPTION
+.sp
+The \fBhssi\fP application provides a means of interacting with the 10G and
+with the 100G HE\-HSSI AFUs. In both 10G and 100G operating modes, the application
+initializes the AFU and completes the desired transfer as described by the mode\-
+specific options.
+.sp
+COMMON_OPTIONS \- application options common to both 10G and 100G modes.
+.sp
+\fB\-h, \-\-help\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Display common command\-line help and exit.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-p, \-\-pci\-address ADDR\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The PCIe address of the desired accelerator in ssss:bb:dd.f format.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-s, \-\-shared on|off\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Whether to open the accelerator in shared mode. The default is off.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-t, \-\-timeout VALUE\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The application timeout value in milliseconds. The default timeout is 60000 msec.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+MODE \- select AFU. Valid values are hssi_10g and hssi_100g.
+.sp
+MODE_OPTIONS [hssi_10g] \- application options specific to the 10G AFU.
+.sp
+\fB\-h, \-\-help\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Display 10G AFU specific command\-line help and exit.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-port PORT\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Select the QSFP port in the range 0\-7. The default is port 0.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-eth\-loopback on|off\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Whether to enable loopback on the ethernet interface. Valid values are
+on and off. The default is on.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-num\-packets PACKETS\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The number of packets to transfer. The default is 1 packet.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-random\-length fixed|random\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify packet length randomization. Valid values are fixed and
+random. The default is fixed (no randomization).
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-random\-payload incremental|random\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify payload randomization. Valid values are incremental and
+random. The default is incremental.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-packet\-length LENGTH\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify packet length. The default is 64 bytes.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-src\-addr ADDR\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the source MAC address. The default value is 11:22:33:44:55:66.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-dest\-addr ADDR\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the destination MAC address. The default value is 77:88:99:aa:bb:cc.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-rnd\-seed0 SEED0\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the prbs generator bits [31:0]. The default is 1592590336.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-rnd\-seed1 SEED1\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the prbs generator bits [47:32]. The default is 1592590337.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-rnd\-seed2 SEED2\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the prbs generator bits [91:64]. The default is 155373.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+MODE_OPTIONS [hssi_100g] \- application options specific to the 100G AFU.
+.sp
+\fB\-\-port PORT\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Select the QSFP port in the range 0\-7. The default is port 0.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-eth\-loopback on|off\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Whether to enable loopback on the ethernet interface. Valid values are
+on and off. The default is on.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-num\-packets PACKETS\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+The number of packets to transfer. The default is 1 packet.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-gap random|none\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Inter\-packet gap. Valid values are random and none. The default is none.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-pattern random|fixed|increment\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Pattern mode. Valid values are random, fixed, or increment. The default
+is random.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-src\-addr ADDR\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the source MAC address. The default value is 11:22:33:44:55:66.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-dest\-addr ADDR\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the destination MAC address. The default value is 77:88:99:aa:bb:cc.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-start\-size SIZE\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the packet size in bytes, or the first packet size for \-\-pattern increment.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-end\-size SIZE\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify the end packet size in bytes.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-end\-select pkt_num|gen_idle\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Specify packet generation end mode.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+MODE_OPTIONS [pkt_filt_10g] \- application options specific to the Packet Filter 10G AFU.
+.sp
+\fB\-\-dfl\-dev DFL_DEV\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Packet Filter DFL device, eg \-\-dfl\-dev dfl_dev.0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+MODE_OPTIONS [pkt_filt_100g] \- application options specific to the Packet Filter 100G AFU.
+.sp
+\fB\-\-dfl\-dev DFL_DEV\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Packet Filter DFL device, eg \-\-dfl\-dev dfl_dev.1
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH EXAMPLES
+.sp
+\fBhssi \-h\fP
+\fBhssi hssi_10g \-h\fP
+\fBsudo hssi \-\-pci\-address=0000:3b:00.0 hssi_10g \-\-eth\-loopback=on \-\-num\-packets=500\fP
+\fBsudo hssi \-\-pci\-address=0000:3b:00.0 hssi_100g \-\-pattern=increment\fP
+.SH REVISION HISTORY
+.sp
+Document Version | Intel Acceleration Stack Version | Changes
+—————–|———————————\-|——–
+2021.01.08 | IOFS EA | Initial release.
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

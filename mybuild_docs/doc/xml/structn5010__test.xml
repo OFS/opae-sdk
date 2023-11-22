@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structn5010__test" kind="struct" language="C++" prot="public">
+    <compoundname>n5010_test</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structn5010__test_1a5700b8f7e0f3b2bccfb8d4ad4328a1a5" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char * n5010_test::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="72" column="12" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="72" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1a443cc7c174314015bd7fe2613c4d8245" compoundref="n5010-ctl_8c" startline="362" endline="383">parse_mode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structn5010__test_1a475cef5da0662cd3a96b1e0bcbdc67c8" prot="public" static="no" mutable="no">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref>(*</type>
+        <definition>fpga_result(* n5010_test::func)(struct n5010 *n5010)</definition>
+        <argsstring>)(struct n5010 *n5010)</argsstring>
+        <name>func</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/n5010-ctl/n5010-ctl.c" line="73" column="1" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="73" bodyend="-1"/>
+        <referencedby refid="n5010-ctl_8c_1a3c04138a5bfe5d72780bb7e82a18e627" compoundref="n5010-ctl_8c" startline="440" endline="494">main</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>n5010_test</label>
+        <link refid="structn5010__test"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/n5010-ctl/n5010-ctl.c" line="71" column="1" bodyfile="samples/n5010-ctl/n5010-ctl.c" bodystart="71" bodyend="74"/>
+    <listofallmembers>
+      <member refid="structn5010__test_1a475cef5da0662cd3a96b1e0bcbdc67c8" prot="public" virt="non-virtual"><scope>n5010_test</scope><name>func</name></member>
+      <member refid="structn5010__test_1a5700b8f7e0f3b2bccfb8d4ad4328a1a5" prot="public" virt="non-virtual"><scope>n5010_test</scope><name>name</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

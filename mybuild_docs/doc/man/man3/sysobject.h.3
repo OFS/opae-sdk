@@ -1,0 +1,309 @@
+.TH "include/opae/sysobject.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/sysobject.h \- Functions to read/write from system objects\&. On Linux systems with the OPAE kernel driver, this is used to access sysfs nodes created by the driver\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaTokenGetObject\fP (\fBfpga_token\fP token, const char *name, \fBfpga_object\fP *object, int flags)"
+.br
+.RI "Create an \fCfpga_object\fP data structures\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register or a container\&. This object is read-only\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaHandleGetObject\fP (\fBfpga_handle\fP handle, const char *name, \fBfpga_object\fP *object, int flags)"
+.br
+.RI "Create an \fCfpga_object\fP data structure from a handle\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container\&. This object has read/write access\&.\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectGetObject\fP (\fBfpga_object\fP parent, const char *name, \fBfpga_object\fP *object, int flags)"
+.br
+.RI "Create an \fCfpga_object\fP data structure from a parent object\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container\&. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-write access to the object data\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectGetObjectAt\fP (\fBfpga_object\fP parent, size_t idx, \fBfpga_object\fP *object)"
+.br
+.RI "Create an \fCfpga_object\fP data structure from a parent object using a given index\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container\&. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-write access to the object data\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectGetType\fP (\fBfpga_object\fP obj, enum \fBfpga_sysobject_type\fP *type)"
+.br
+.RI "Get the sysobject type (container or attribute) "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaDestroyObject\fP (\fBfpga_object\fP *obj)"
+.br
+.RI "Free memory used for the fpga_object data structure\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectGetSize\fP (\fBfpga_object\fP obj, uint32_t *value, int flags)"
+.br
+.RI "Retrieve the size of the object\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectRead\fP (\fBfpga_object\fP obj, uint8_t *buffer, size_t offset, size_t len, int flags)"
+.br
+.RI "Read bytes from an FPGA object\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectRead64\fP (\fBfpga_object\fP obj, uint64_t *value, int flags)"
+.br
+.RI "Read a 64-bit value from an FPGA object\&. The value is assumed to be in string format and will be parsed\&. See flags below for changing that behavior\&. "
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaObjectWrite64\fP (\fBfpga_object\fP obj, uint64_t value, int flags)"
+.br
+.RI "Write 64-bit value to an FPGA object\&. The value will be converted to string before writing\&. See flags below for changing that behavior\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+Functions to read/write from system objects\&. On Linux systems with the OPAE kernel driver, this is used to access sysfs nodes created by the driver\&. 
+
+
+.PP
+Definition in file \fBsysobject\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaTokenGetObject (\fBfpga_token\fP token, const char * name, \fBfpga_object\fP * object, int flags)"
+
+.PP
+Create an \fCfpga_object\fP data structures\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register or a container\&. This object is read-only\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fItoken\fP Token identifying a resource (accelerator or device) 
+.br
+\fIname\fP A key identifying an object belonging to a resource\&. 
+.br
+\fIobject\fP Pointer to memory to store the object in 
+.br
+\fIflags\fP Control behavior of object identification and creation\&. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression\&. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name\&. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid\&. FPGA_NOT_FOUND if an object cannot be found with the given key\&. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+Names that begin with '\&.' or '/' or contain '\&.\&.' are not allowed and result in FPGA_INVALID_PARAM being returned 
+.RE
+.PP
+
+.PP
+Referenced by add_clock(), and init_metric_group()\&.
+.SS "\fBfpga_result\fP fpgaHandleGetObject (\fBfpga_handle\fP handle, const char * name, \fBfpga_object\fP * object, int flags)"
+
+.PP
+Create an \fCfpga_object\fP data structure from a handle\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container\&. This object has read/write access\&.\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIhandle\fP Handle identifying a resource (accelerator or device) 
+.br
+\fIname\fP A key identifying an object belonging to a resource\&. 
+.br
+\fIobject\fP Pointer to memory to store the object in 
+.br
+\fIflags\fP Control behavior of object identification and creation FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression\&. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name\&. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid\&. FPGA_NOT_FOUND if an object cannot be found with the given key\&. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+Names that begin with '\&.' or '/' or contain '\&.\&.' are not allowed and result in FPGA_INVALID_PARAM being returned 
+.RE
+.PP
+
+.PP
+Referenced by inject_ras_fatal_error()\&.
+.SS "\fBfpga_result\fP fpgaObjectGetObject (\fBfpga_object\fP parent, const char * name, \fBfpga_object\fP * object, int flags)"
+
+.PP
+Create an \fCfpga_object\fP data structure from a parent object\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container\&. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-write access to the object data\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIparent\fP A parent container \fCfpga_object\fP\&. 
+.br
+\fIname\fP A key identifying a sub-object of the parent container\&. 
+.br
+\fIobject\fP Pointer to memory to store the object in\&. 
+.br
+\fIflags\fP Control behavior of object identification and creation\&. FPGA_OBJECT_GLOB is used to indicate that the name should be treated as a globbing expression\&. FPGA_OBJECT_RECURSE_ONE indicates that subobjects be created for objects one level down from the object identified by name\&. FPGA_OBJECT_RECURSE_ALL indicates that subobjects be created for all objects below the current object identified by name\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid - this includes a parent object that is not a container object\&. FPGA_NOT_FOUND if an object cannot be found with the given key\&. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API\&.
+.RE
+.PP
+\fBNote\fP
+.RS 4
+Names that begin with '\&.' or '/' or contain '\&.\&.' are not allowed and result in FPGA_INVALID_PARAM being returned 
+.RE
+.PP
+
+.PP
+Referenced by add_counter()\&.
+.SS "\fBfpga_result\fP fpgaObjectGetObjectAt (\fBfpga_object\fP parent, size_t idx, \fBfpga_object\fP * object)"
+
+.PP
+Create an \fCfpga_object\fP data structure from a parent object using a given index\&. An \fCfpga_object\fP is a handle to an FPGA resource which can be an attribute, register, or container\&. If the parent object was created with a handle, then the new object will inherit the handle allowing it to have read-write access to the object data\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIparent\fP A parent container 'fpga_object' 
+.br
+\fIidx\fP A positive index less than the size reported by the parent\&. 
+.br
+\fIobject\fP Pointer to memory to store the object in\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of the supplied parameters is invalid - this includes a parent object that is not a container object\&. FPGA_NOT_FOUND if an object cannot be found with the given key\&. FPGA_NOT_SUPPORTED if this function is not supported by the current implementation of this API\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaObjectGetType (\fBfpga_object\fP obj, enum \fBfpga_sysobject_type\fP * type)"
+
+.PP
+Get the sysobject type (container or attribute) 
+.PP
+\fBParameters\fP
+.RS 4
+\fIobj\fP An fpga_object instance 
+.br
+\fItype\fP The type of object (FPGA_OBJECT_CONTAINER or FPGA_OBJECT_ATTRIBUTE)
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters are null or invalid 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaDestroyObject (\fBfpga_object\fP * obj)"
+
+.PP
+Free memory used for the fpga_object data structure\&. 
+.PP
+\fBNote\fP
+.RS 4
+\fBfpgaDestroyObject()\fP requires the address of an fpga_object as created by \fBfpgaTokenGetObject()\fP, \fBfpgaHandleGetObject()\fP, or \fBfpgaObjectGetObject()\fP\&. Passing any other value results in undefind behavior\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIobj\fP Pointer to the fpga_object instance to destroy
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if the object is NULL, FPGA_EXCEPTION if an internal error is encountered\&. 
+.RE
+.PP
+
+.PP
+Referenced by add_clock(), add_counter(), inject_ras_fatal_error(), and main()\&.
+.SS "\fBfpga_result\fP fpgaObjectGetSize (\fBfpga_object\fP obj, uint32_t * value, int flags)"
+
+.PP
+Retrieve the size of the object\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIobj\fP An fpga_object instance\&. 
+.br
+\fIvalue\fP Pointer to variable to store size in\&. 
+.br
+\fIflags\fP Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the size\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success\&. FPGA_INVALID_PARAM if any of supplied parameters is invalid\&. FPGA_EXCEPTION if error occurred\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaObjectRead (\fBfpga_object\fP obj, uint8_t * buffer, size_t offset, size_t len, int flags)"
+
+.PP
+Read bytes from an FPGA object\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIobj\fP An fpga_object instance\&. 
+.br
+\fIbuffer\fP Pointer to a buffer to read bytes into\&. 
+.br
+\fIoffset\fP Byte offset relative to objects internal buffer where to begin reading bytes from\&. 
+.br
+\fIlen\fP The length, in bytes, to read from the object\&. 
+.br
+\fIflags\fP Flags that control how object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaObjectRead64 (\fBfpga_object\fP obj, uint64_t * value, int flags)"
+
+.PP
+Read a 64-bit value from an FPGA object\&. The value is assumed to be in string format and will be parsed\&. See flags below for changing that behavior\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIobj\fP An fpga_object instance 
+.br
+\fIvalue\fP Pointer to a 64-bit variable to store the value in 
+.br
+\fIflags\fP Flags that control how the object is read If FPGA_OBJECT_SYNC is used then object will update its buffered copy before retrieving the data\&. If FPGA_OBJECT_RAW is used, then the data will be read as raw bytes into the uint64_t pointer variable\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid 
+.RE
+.PP
+
+.PP
+Referenced by print_counters()\&.
+.SS "\fBfpga_result\fP fpgaObjectWrite64 (\fBfpga_object\fP obj, uint64_t value, int flags)"
+
+.PP
+Write 64-bit value to an FPGA object\&. The value will be converted to string before writing\&. See flags below for changing that behavior\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIobj\fP An fpga_object instance\&. 
+.br
+\fIvalue\fP The value to write to the object 
+.br
+\fIflags\fP Flags that control how the object is written If FPGA_OBJECT_RAW is used, then the value will be written as raw bytes\&.
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied parameters is invalid
+.RE
+.PP
+\fBNote\fP
+.RS 4
+The object must have been created using a handle to a resource\&. 
+.RE
+.PP
+
+.PP
+Referenced by inject_ras_fatal_error()\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

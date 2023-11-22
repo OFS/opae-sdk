@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__cache__dsm__status" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_cache_dsm_status</compoundname>
+    <includes refid="cxl__host__exerciser_8h" local="no">/root/samples/cxl_host_exerciser/cxl_host_exerciser.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a613c2340545dd8507a39bd4701f9b9aa" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::test_completed</definition>
+        <argsstring></argsstring>
+        <name>test_completed</name>
+        <bitfield> 1</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="267" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="267" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1ac46685a232de0ff1b1ecf41fda598876" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::dsm_number</definition>
+        <argsstring></argsstring>
+        <name>dsm_number</name>
+        <bitfield> 15</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="268" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="268" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a361367b2e4575d2d790c02aacba4db28" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::res1</definition>
+        <argsstring></argsstring>
+        <name>res1</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="269" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="269" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a382ed250702e46303829e108f37b2f12" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::err_vector</definition>
+        <argsstring></argsstring>
+        <name>err_vector</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="270" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="270" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t host_exerciser::he_cache_dsm_status::num_ticks</definition>
+        <argsstring></argsstring>
+        <name>num_ticks</name>
+        <bitfield> 64</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="271" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="271" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a38150a59d4a41dfb181c3bc3661460fa" compoundref="cxl__he__cmd_8h" startline="329" endline="340">host_exerciser::he_cmd::get_ticks</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" compoundref="cxl__he__cmd_8h" startline="304" endline="327">host_exerciser::he_cmd::he_get_perf</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::num_reads</definition>
+        <argsstring></argsstring>
+        <name>num_reads</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="272" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="272" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" compoundref="cxl__he__cmd_8h" startline="304" endline="327">host_exerciser::he_cmd::he_get_perf</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1aee8983e796569d69015613801d020f69" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::num_writes</definition>
+        <argsstring></argsstring>
+        <name>num_writes</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="273" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="273" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a467b5cdf6d89ca2c88b23aae59c0929e" compoundref="cxl__he__cmd_8h" startline="304" endline="327">host_exerciser::he_cmd::he_get_perf</referencedby>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a5de12b551cbd91ed53ae54e3ec4c2b2c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::penalty_start</definition>
+        <argsstring></argsstring>
+        <name>penalty_start</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="274" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="274" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a540a4a1063b04c34477558aef1c56f9d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::penalty_end</definition>
+        <argsstring></argsstring>
+        <name>penalty_end</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="275" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="275" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a97a983911d1619ad65e8a4e719230c75" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::actual_data</definition>
+        <argsstring></argsstring>
+        <name>actual_data</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="276" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="276" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a60d0cf65b8c39bdc9bbd174a1e03397a" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::expected_data</definition>
+        <argsstring></argsstring>
+        <name>expected_data</name>
+        <bitfield> 32</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="277" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="277" bodyend="-1"/>
+        <referencedby refid="classhost__exerciser_1_1he__cmd_1a6f837cc328c98339fb5d550c8d7b1c4a" compoundref="cxl__he__cmd_8h" startline="60" endline="100">host_exerciser::he_cmd::he_perf_counters</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__cache__dsm__status_1a98230ce8d0fbd9b2482af58b344f9786" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t host_exerciser::he_cache_dsm_status::res5[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>res5</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="278" column="12" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="278" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_cache_dsm_status</label>
+        <link refid="structhost__exerciser_1_1he__cache__dsm__status"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/cxl_host_exerciser.h" line="266" column="1" bodyfile="samples/cxl_host_exerciser/cxl_host_exerciser.h" bodystart="266" bodyend="279"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a97a983911d1619ad65e8a4e719230c75" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>actual_data</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1ac46685a232de0ff1b1ecf41fda598876" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>dsm_number</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a382ed250702e46303829e108f37b2f12" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>err_vector</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a60d0cf65b8c39bdc9bbd174a1e03397a" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>expected_data</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a7732502f9d03744f1f4c6470b17d4ad2" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>num_reads</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1ab6eb6410d312b7ed6a73e941dca54001" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>num_ticks</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1aee8983e796569d69015613801d020f69" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>num_writes</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a540a4a1063b04c34477558aef1c56f9d" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>penalty_end</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a5de12b551cbd91ed53ae54e3ec4c2b2c" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>penalty_start</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a361367b2e4575d2d790c02aacba4db28" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>res1</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a98230ce8d0fbd9b2482af58b344f9786" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>res5</name></member>
+      <member refid="structhost__exerciser_1_1he__cache__dsm__status_1a613c2340545dd8507a39bd4701f9b9aa" prot="public" virt="non-virtual"><scope>host_exerciser::he_cache_dsm_status</scope><name>test_completed</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

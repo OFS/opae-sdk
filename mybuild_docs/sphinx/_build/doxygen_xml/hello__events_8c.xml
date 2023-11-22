@@ -1,0 +1,852 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="hello__events_8c" kind="file" language="C++">
+    <compoundname>hello_events.c</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">string.h</includes>
+    <includes local="no">unistd.h</includes>
+    <includes local="no">getopt.h</includes>
+    <includes local="no">poll.h</includes>
+    <includes local="no">errno.h</includes>
+    <includes local="no">sys/stat.h</includes>
+    <includes local="no">pthread.h</includes>
+    <includes refid="fpga_8h" local="no">opae/fpga.h</includes>
+    <includes local="no">argsfilter.h</includes>
+    <includes local="yes">mock/opae_std.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>sys/stat.h</label>
+      </node>
+      <node id="16">
+        <label>stdbool.h</label>
+      </node>
+      <node id="28">
+        <label>opae/error.h</label>
+        <link refid="error_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>stdint.h</label>
+      </node>
+      <node id="3">
+        <label>stdlib.h</label>
+      </node>
+      <node id="31">
+        <label>opae/userclk.h</label>
+        <link refid="userclk_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>errno.h</label>
+      </node>
+      <node id="7">
+        <label>poll.h</label>
+      </node>
+      <node id="29">
+        <label>opae/version.h</label>
+        <link refid="version_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="15">
+        <label>stddef.h</label>
+      </node>
+      <node id="23">
+        <label>opae/manage.h</label>
+        <link refid="manage_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>opae/metrics.h</label>
+        <link refid="metrics_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>opae/sysobject.h</label>
+        <link refid="sysobject_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>mock/opae_std.h</label>
+      </node>
+      <node id="10">
+        <label>pthread.h</label>
+      </node>
+      <node id="4">
+        <label>string.h</label>
+      </node>
+      <node id="1">
+        <label>samples/hello_events/hello_events.c</label>
+        <link refid="hello__events_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>unistd.h</label>
+      </node>
+      <node id="22">
+        <label>opae/event.h</label>
+        <link refid="event_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>opae/umsg.h</label>
+        <link refid="umsg_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>getopt.h</label>
+      </node>
+      <node id="19">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>argsfilter.h</label>
+      </node>
+      <node id="18">
+        <label>opae/init.h</label>
+        <link refid="init_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdio.h</label>
+      </node>
+      <node id="12">
+        <label>opae/log.h</label>
+        <link refid="log_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structras__inject__error" prot="public">ras_inject_error</innerclass>
+    <innerclass refid="unionras__inject__error_8____unnamed88____" prot="public">ras_inject_error.__unnamed88__</innerclass>
+    <innerclass refid="structras__inject__error_8____unnamed88_____8____unnamed90____" prot="public">ras_inject_error.__unnamed88__.__unnamed90__</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="hello__events_8c_1aeed061055cfe359757fdacf8a96a0a81" prot="public" static="no">
+        <name>FME_SYSFS_INJECT_ERROR</name>
+        <initializer>&quot;errors/inject_errors&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="60" column="9" bodyfile="samples/hello_events/hello_events.c" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" prot="public" static="no">
+        <name>ON_ERR_GOTO</name>
+        <param><defname>res</defname></param>
+        <param><defname>label</defname></param>
+        <param><defname>desc</defname></param>
+        <initializer>	do {                                       \
+		if ((res) != <ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>) {            \
+			<ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>((desc), (res));  \
+			goto label;                \
+		}                                  \
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="62" column="9" bodyfile="samples/hello_events/hello_events.c" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="hello__events_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" prot="public" static="no">
+        <name>GETOPT_STRING</name>
+        <initializer>&quot;hv&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="164" column="9" bodyfile="samples/hello_events/hello_events.c" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="hello__events_8c_1a300ec1c0f7befcbb990985d36d56d8c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int usleep</definition>
+        <argsstring>(unsigned)</argsstring>
+        <name>usleep</name>
+        <param>
+          <type>unsigned</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="58" column="5" declfile="samples/hello_events/hello_events.c" declline="58" declcolumn="5"/>
+        <referencedby refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" compoundref="hello__events_8c" startline="127" endline="145">error_thread</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void print_err</definition>
+        <argsstring>(const char *s, fpga_result res)</argsstring>
+        <name>print_err</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>res</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="70" column="6" bodyfile="samples/hello_events/hello_events.c" bodystart="70" bodyend="73"/>
+        <references refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32">fpgaErrStr</references>
+        <referencedby refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" compoundref="hello__events_8c" startline="127" endline="145">error_thread</referencedby>
+        <referencedby refid="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__events_8c" startline="228" endline="345">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result inject_ras_fatal_error</definition>
+        <argsstring>(fpga_token fme_token, uint8_t err)</argsstring>
+        <name>inject_ras_fatal_error</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>fme_token</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>err</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="92" column="13" bodyfile="samples/hello_events/hello_events.c" bodystart="92" bodyend="125"/>
+        <references refid="hello__events_8c_1aeed061055cfe359757fdacf8a96a0a81" compoundref="hello__events_8c" startline="60">FME_SYSFS_INJECT_ERROR</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" compoundref="types__enum_8h" startline="158">FPGA_OPEN_SHARED</references>
+        <references refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79">fpgaClose</references>
+        <references refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3">fpgaDestroyObject</references>
+        <references refid="sysobject_8h_1a80ccae112e76764fe9aa258b06a2672e">fpgaHandleGetObject</references>
+        <references refid="sysobject_8h_1a6dbc79fd4660f2fc576e8b7eb64d27fd">fpgaObjectWrite64</references>
+        <references refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3">fpgaOpen</references>
+        <references refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" compoundref="hello__events_8c" startline="62">ON_ERR_GOTO</references>
+        <references refid="log_8h_1a4c65a535e2f271bf6563675181de244c" compoundref="log_8h" startline="66">OPAE_ERR</references>
+        <referencedby refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" compoundref="hello__events_8c" startline="127" endline="145">error_thread</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* error_thread</definition>
+        <argsstring>(void *arg)</argsstring>
+        <name>error_thread</name>
+        <param>
+          <type>void *</type>
+          <declname>arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="127" column="6" bodyfile="samples/hello_events/hello_events.c" bodystart="127" bodyend="145"/>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" compoundref="hello__events_8c" startline="92" endline="125">inject_ras_fatal_error</references>
+        <references refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" compoundref="hello__events_8c" startline="70" endline="73">print_err</references>
+        <references refid="hello__events_8c_1a300ec1c0f7befcbb990985d36d56d8c9">usleep</references>
+        <referencedby refid="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__events_8c" startline="228" endline="345">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1a0bed8474bd33a912769360766f6b10d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void help</definition>
+        <argsstring>(void)</argsstring>
+        <name>help</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="147" column="6" bodyfile="samples/hello_events/hello_events.c" bodystart="147" bodyend="159"/>
+        <referencedby refid="hello__events_8c_1a3a1b6f72679286eae6f9eec936cc5533" compoundref="hello__events_8c" startline="165" endline="202">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1a3a1b6f72679286eae6f9eec936cc5533" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result parse_args</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>parse_args</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="165" column="13" bodyfile="samples/hello_events/hello_events.c" bodystart="165" bodyend="202"/>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" compoundref="types__enum_8h" startline="61">FPGA_EXCEPTION</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="hello__events_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" compoundref="hello__events_8c" startline="164">GETOPT_STRING</references>
+        <references refid="hello__events_8c_1a0bed8474bd33a912769360766f6b10d4" compoundref="hello__events_8c" startline="147" endline="159">help</references>
+        <referencedby refid="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__events_8c" startline="228" endline="345">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result find_fpga</definition>
+        <argsstring>(fpga_properties device_filter, fpga_token *fpga, uint32_t *num_matches)</argsstring>
+        <name>find_fpga</name>
+        <param>
+          <type><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref></type>
+          <declname>device_filter</declname>
+        </param>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref> *</type>
+          <declname>fpga</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>num_matches</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="204" column="13" bodyfile="samples/hello_events/hello_events.c" bodystart="204" bodyend="226"/>
+        <references refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" compoundref="types__enum_8h" startline="109">FPGA_DEVICE</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="properties_8h_1ac51c19bdd763a98e143a938c47963905">fpgaCloneProperties</references>
+        <references refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050">fpgaDestroyProperties</references>
+        <references refid="enum_8h_1a277ba17f2377895855545bd82c1f901d">fpgaEnumerate</references>
+        <references refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b">fpgaPropertiesSetObjectType</references>
+        <references refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" compoundref="hello__events_8c" startline="62">ON_ERR_GOTO</references>
+        <referencedby refid="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="hello__events_8c" startline="228" endline="345">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>main</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hello_events/hello_events.c" line="228" column="5" bodyfile="samples/hello_events/hello_events.c" bodystart="228" bodyend="345"/>
+        <references refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" compoundref="hello__events_8c" startline="127" endline="145">error_thread</references>
+        <references refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" compoundref="hello__events_8c" startline="204" endline="226">find_fpga</references>
+        <references refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800" compoundref="types__enum_8h" startline="80">FPGA_EVENT_ERROR</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" compoundref="types__enum_8h" startline="61">FPGA_EXCEPTION</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c" compoundref="types__enum_8h" startline="62">FPGA_NOT_FOUND</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" compoundref="types__enum_8h" startline="158">FPGA_OPEN_SHARED</references>
+        <references refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79">fpgaClose</references>
+        <references refid="event_8h_1a54fb1847300ff886b4ad857716075083">fpgaCreateEventHandle</references>
+        <references refid="event_8h_1ab8e748d1c491717d677a96c23dee987b">fpgaDestroyEventHandle</references>
+        <references refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050">fpgaDestroyProperties</references>
+        <references refid="enum_8h_1a150a7a8f46e0d6df12cc329ff7030e21">fpgaDestroyToken</references>
+        <references refid="event_8h_1a9c38c9cf434a896e7cf02a7df8dc5c2e">fpgaGetOSObjectFromEventHandle</references>
+        <references refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489">fpgaGetProperties</references>
+        <references refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3">fpgaOpen</references>
+        <references refid="event_8h_1acee9793072cfe2d18a9603339cf5e8a7">fpgaRegisterEvent</references>
+        <references refid="event_8h_1aa9f920468d8ff05e7411c925a176f5cb">fpgaUnregisterEvent</references>
+        <references refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" compoundref="hello__events_8c" startline="62">ON_ERR_GOTO</references>
+        <references refid="hello__events_8c_1a3a1b6f72679286eae6f9eec936cc5533" compoundref="hello__events_8c" startline="165" endline="202">parse_args</references>
+        <references refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" compoundref="hello__events_8c" startline="70" endline="73">print_err</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A code sample of using OPAE event API. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This sample starts two processes. One process injects an artificial fatal error to sysfs; while the other tries to asynchronously capture and handle the event. This sample code exercises all major functions of the event API, including creating and destroying event handles, register and unregister events, polling on event file descriptor, and getting the OS object associated with an event. For a full discussion of OPAE event API, refer to <ref refid="event_8h" kindref="compound">event.h</ref>. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2017-2021,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>HAVE_CONFIG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;config.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>HAVE_CONFIG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;getopt.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;poll.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;errno.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/stat.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;pthread.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="fpga_8h" kindref="compound">opae/fpga.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;argsfilter.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;mock/opae_std.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="hello__events_8c_1a300ec1c0f7befcbb990985d36d56d8c9" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="hello__events_8c_1a300ec1c0f7befcbb990985d36d56d8c9" kindref="member">usleep</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="hello__events_8c_1aeed061055cfe359757fdacf8a96a0a81" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FME_SYSFS_INJECT_ERROR<sp/>&quot;errors/inject_errors&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ON_ERR_GOTO(res,<sp/>label,<sp/>desc)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((res)<sp/>!=<sp/>FPGA_OK)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print_err((desc),<sp/>(res));<sp/><sp/>\</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>goto<sp/>label;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>%s:<sp/>%s\n&quot;</highlight><highlight class="normal">,<sp/>s,<sp/><ref refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32" kindref="member">fpgaErrStr</ref>(res));</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">//<sp/>RAS<sp/>Error<sp/>Inject<sp/>CSR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="structras__inject__error" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structras__inject__error" kindref="compound">ras_inject_error</ref><sp/>{</highlight></codeline>
+<codeline lineno="77" refid="unionras__inject__error_8____unnamed88____" refkind="compound"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>csr;</highlight></codeline>
+<codeline lineno="79" refid="structras__inject__error_8____unnamed88_____8____unnamed90____" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Catastrophic<sp/><sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><sp/>catastrophicr_error<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fatal<sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><sp/>fatal_error<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Non-fatal<sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><sp/>nonfatal_error<sp/>:<sp/>1;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Reserved<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><sp/>rsvd<sp/>:<sp/>61;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" kindref="member">inject_ras_fatal_error</ref>(<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>fme_token,<sp/>uint8_t<sp/>err)</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res2<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fme_handle<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structras__inject__error" kindref="compound">ras_inject_error</ref><sp/>inj_error<sp/><sp/>=<sp/>{<sp/>{0}<sp/>};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>inj_err_object;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen</ref>(fme_token,<sp/>&amp;fme_handle,<sp/><ref refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" kindref="member">FPGA_OPEN_SHARED</ref>);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res1<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="log_8h_1a4c65a535e2f271bf6563675181de244c" kindref="member">OPAE_ERR</ref>(</highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>open<sp/>FPGA&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res1;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="sysobject_8h_1a80ccae112e76764fe9aa258b06a2672e" kindref="member">fpgaHandleGetObject</ref>(fme_handle,<sp/><ref refid="hello__events_8c_1aeed061055cfe359757fdacf8a96a0a81" kindref="member">FME_SYSFS_INJECT_ERROR</ref>,<sp/>&amp;inj_err_object,<sp/>0);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>get<sp/>Handle<sp/>Object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Inject<sp/>fatal<sp/>error</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/>inj_error.fatal_error<sp/>=<sp/>err;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="sysobject_8h_1a6dbc79fd4660f2fc576e8b7eb64d27fd" kindref="member">fpgaObjectWrite64</ref>(inj_err_object,<sp/>inj_error.csr,<sp/>0);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_destroy_obj,<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>Read<sp/>Object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">out_destroy_obj:</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/>res2<sp/>=<sp/><ref refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" kindref="member">fpgaDestroyObject</ref>(&amp;inj_err_object);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res2,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>Destroy<sp/>Object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">out_close:</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/>res2<sp/>=<sp/><ref refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79" kindref="member">fpgaClose</ref>(fme_handle);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res2<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="log_8h_1a4c65a535e2f271bf6563675181de244c" kindref="member">OPAE_ERR</ref>(</highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>close<sp/>FPGA&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res1<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref><sp/>?<sp/>res1<sp/>:<sp/>res2;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127" refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" kindref="member">error_thread</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*arg)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>token<sp/>=<sp/>(<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref>)<sp/>arg;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a300ec1c0f7befcbb990985d36d56d8c9" kindref="member">usleep</ref>(5000000);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;injecting<sp/>error\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" kindref="member">inject_ras_fatal_error</ref>(token,<sp/>1);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;setting<sp/>inject<sp/>error<sp/>register&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a300ec1c0f7befcbb990985d36d56d8c9" kindref="member">usleep</ref>(5000000);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;clearing<sp/>error\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="hello__events_8c_1a21ab990ba21e75dd40821f08f21c9111" kindref="member">inject_ras_fatal_error</ref>(token,<sp/>0);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;clearing<sp/>inject<sp/>error<sp/>register&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="hello__events_8c_1a0bed8474bd33a912769360766f6b10d4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="hello__events_8c_1a0bed8474bd33a912769360766f6b10d4" kindref="member">help</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;hello_events\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;OPAE<sp/>Events<sp/>API<sp/>sample\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Usage:\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/>hello_events<sp/>[-hv]<sp/>[-S<sp/>&lt;segment&gt;]<sp/>[-B<sp/>&lt;bus&gt;]<sp/>[-D<sp/>&lt;device&gt;]<sp/>[-F<sp/>&lt;function&gt;]<sp/>[PCI_ADDR]\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-h,--help<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Print<sp/>this<sp/>help\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-v,--version<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Print<sp/>version<sp/>info<sp/>and<sp/>exit\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="162"><highlight class="comment"><sp/>*<sp/>Parse<sp/>command<sp/>line<sp/>arguments</highlight></codeline>
+<codeline lineno="163"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="hello__events_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GETOPT_STRING<sp/>&quot;hv&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165" refid="hello__events_8c_1a3a1b6f72679286eae6f9eec936cc5533" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hello__events_8c_1a3a1b6f72679286eae6f9eec936cc5533" kindref="member">parse_args</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[])</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">option<sp/>longopts[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;help&quot;</highlight><highlight class="normal">,<sp/><sp/><sp/><sp/>no_argument,<sp/>NULL,<sp/></highlight><highlight class="charliteral">&apos;h&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;version&quot;</highlight><highlight class="normal">,<sp/>no_argument,<sp/>NULL,<sp/></highlight><highlight class="charliteral">&apos;v&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>NULL,<sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/>0<sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>getopt_ret;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>option_index;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(-1<sp/>!=<sp/>(getopt_ret<sp/>=<sp/>getopt_long(argc,<sp/>argv,<sp/><ref refid="hello__events_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" kindref="member">GETOPT_STRING</ref>,<sp/>longopts,<sp/>&amp;option_index)))<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*tmp_optarg<sp/>=<sp/>optarg;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>checks<sp/>to<sp/>see<sp/>if<sp/>optarg<sp/>is<sp/>null<sp/>and<sp/>if<sp/>not<sp/>goes<sp/>to<sp/>value<sp/>of<sp/>optarg<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((optarg)<sp/>&amp;&amp;<sp/>(</highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal"><sp/>==<sp/>*tmp_optarg))<sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++tmp_optarg;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(getopt_ret)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;h&apos;</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>help<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__events_8c_1a0bed8474bd33a912769360766f6b10d4" kindref="member">help</ref>();</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;v&apos;</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>version<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;hello_events<sp/>%s<sp/>%s%s\n&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPAE_VERSION,</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPAE_GIT_COMMIT_HASH,</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPAE_GIT_SRC_TREE_DIRTY<sp/>?<sp/></highlight><highlight class="stringliteral">&quot;*&quot;</highlight><highlight class="normal">:</highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>invalid<sp/>option<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Invalid<sp/>cmdline<sp/>options\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204" refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" kindref="member">find_fpga</ref>(<ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>device_filter,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>*<ref refid="namespaceopae_1_1fpga_1_1types" kindref="compound">fpga</ref>,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*num_matches)</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>filter<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>dres<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1ac51c19bdd763a98e143a938c47963905" kindref="member">fpgaCloneProperties</ref>(device_filter,<sp/>&amp;filter);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out,<sp/></highlight><highlight class="stringliteral">&quot;cloning<sp/>properties<sp/>object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b" kindref="member">fpgaPropertiesSetObjectType</ref>(filter,<sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" kindref="member">FPGA_DEVICE</ref>);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy,<sp/></highlight><highlight class="stringliteral">&quot;setting<sp/>interface<sp/>ID&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate</ref>(&amp;filter,<sp/>1,<sp/><ref refid="namespaceopae_1_1fpga_1_1types" kindref="compound">fpga</ref>,<sp/>1,<sp/>num_matches);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_destroy,<sp/></highlight><highlight class="stringliteral">&quot;enumerating<sp/>FPGAs&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">out_destroy:</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/>dres<sp/>=<sp/><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>(&amp;filter);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(dres,<sp/>out,<sp/></highlight><highlight class="stringliteral">&quot;destroying<sp/>properties<sp/>object&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal">out:</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>?<sp/>dres<sp/>:<sp/>res;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="hello__events_8c_1a0ddf1224851353fc92bfbff6f499fa97" kindref="member">main</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[])</highlight></codeline>
+<codeline lineno="229"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fpga_device_token<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a4ad40f31195233b629bcde187b0556d5" kindref="member">fpga_handle</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fpga_device_handle<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_matches<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res2<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1acccb4e3dd49efd2b0999b14bf05d5aad" kindref="member">fpga_event_handle</ref><sp/><sp/>eh;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">pollfd<sp/><sp/><sp/><sp/><sp/><sp/>pfd;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>timeout<sp/>=<sp/>10000;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>poll_ret<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/>ssize_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bytes_read<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/>pthread_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>errthr;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/><sp/><sp/><sp/>device_filter<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties</ref>(NULL,<sp/>&amp;device_filter);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res1)<sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;failed<sp/>to<sp/>alloc<sp/>properties&quot;</highlight><highlight class="normal">,<sp/>res1);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res1;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opae_set_properties_from_args(device_filter,</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;res1,</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;argc,</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>argv))<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;failed<sp/>arg<sp/>parse&quot;</highlight><highlight class="normal">,<sp/>res1);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_exit;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res1)<sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__events_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;failed<sp/>to<sp/>set<sp/>properties&quot;</highlight><highlight class="normal">,<sp/>res1);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_exit;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="hello__events_8c_1a3a1b6f72679286eae6f9eec936cc5533" kindref="member">parse_args</ref>(argc,<sp/>argv);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)res1<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_exit;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_exit,<sp/></highlight><highlight class="stringliteral">&quot;parsing<sp/>arguments&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="hello__events_8c_1a4ea1297aa11758c9d70172b2ee05b950" kindref="member">find_fpga</ref>(device_filter,<sp/>&amp;fpga_device_token,<sp/>&amp;num_matches);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_exit,<sp/></highlight><highlight class="stringliteral">&quot;finding<sp/>FPGA<sp/>accelerator&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(num_matches<sp/>&lt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;No<sp/>matches<sp/>for<sp/>address<sp/>provided.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da7aee5958cf7f46e9d80c4ee50d42d86c" kindref="member">FPGA_NOT_FOUND</ref>;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_exit;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(num_matches<sp/>&gt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Found<sp/>more<sp/>than<sp/>one<sp/>suitable<sp/>slot.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="access_8h_1addde6b2bafcd6632a2c0b595c6bc0ef3" kindref="member">fpgaOpen</ref>(fpga_device_token,<sp/>&amp;fpga_device_handle,<sp/><ref refid="types__enum_8h_1a3a32599a1213352a3217f6e068651fc6a7eb08309368b559a0ecaf8193053a94c" kindref="member">FPGA_OPEN_SHARED</ref>);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_destroy_tok,<sp/></highlight><highlight class="stringliteral">&quot;opening<sp/>accelerator&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="event_8h_1a54fb1847300ff886b4ad857716075083" kindref="member">fpgaCreateEventHandle</ref>(&amp;eh);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;creating<sp/>event<sp/>handle&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="event_8h_1acee9793072cfe2d18a9603339cf5e8a7" kindref="member">fpgaRegisterEvent</ref>(fpga_device_handle,<sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800" kindref="member">FPGA_EVENT_ERROR</ref>,<sp/>eh,<sp/>0);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_destroy_eh,<sp/></highlight><highlight class="stringliteral">&quot;registering<sp/>an<sp/>FME<sp/>event&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Waiting<sp/>for<sp/>interrupts<sp/>now...\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/>pthread_create(&amp;errthr,<sp/>NULL,<sp/><ref refid="hello__events_8c_1a23584cf041247d3b877d3fa37b6d1ca7" kindref="member">error_thread</ref>,<sp/>fpga_device_token);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res)<sp/>{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Failed<sp/>to<sp/>create<sp/>error_thread.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_destroy_eh;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="event_8h_1a9c38c9cf434a896e7cf02a7df8dc5c2e" kindref="member">fpgaGetOSObjectFromEventHandle</ref>(eh,<sp/>&amp;pfd.fd);</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_join,<sp/></highlight><highlight class="stringliteral">&quot;getting<sp/>file<sp/>descriptor&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/>pfd.events<sp/>=<sp/>POLLIN;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/>poll_ret<sp/>=<sp/>poll(&amp;pfd,<sp/>1,<sp/>timeout);</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(poll_ret<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Poll<sp/>error<sp/>errno<sp/>=<sp/>%s\n&quot;</highlight><highlight class="normal">,<sp/>strerror(errno));</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_join;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(poll_ret<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Poll<sp/>timeout<sp/>occurred\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_join;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;FME<sp/>Interrupt<sp/>occurred\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bytes_read<sp/>=<sp/>opae_read(pfd.fd,<sp/>&amp;count,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(count));</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bytes_read<sp/>&lt;=<sp/>0)</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;WARNING:<sp/>error<sp/>reading<sp/>from<sp/>poll<sp/>fd:<sp/>%s\n&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bytes_read<sp/>&lt;<sp/>0<sp/>?<sp/>strerror(errno)<sp/>:<sp/></highlight><highlight class="stringliteral">&quot;zero<sp/>bytes<sp/>read&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/>res1<sp/>=<sp/><ref refid="event_8h_1aa9f920468d8ff05e7411c925a176f5cb" kindref="member">fpgaUnregisterEvent</ref>(fpga_device_handle,<sp/><ref refid="types__enum_8h_1a6eccf38d4643d14fbc51f34e03131fa6ae06578392a4b6edada24bb375b05d800" kindref="member">FPGA_EVENT_ERROR</ref>,<sp/>eh);</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res1,<sp/>out_join,<sp/></highlight><highlight class="stringliteral">&quot;unregistering<sp/>an<sp/>FME<sp/>event&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Successfully<sp/>tested<sp/>Register/Unregister<sp/>for<sp/>FME<sp/>events!\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal">out_join:</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/>pthread_join(errthr,<sp/>NULL);</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal">out_destroy_eh:</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/>res2<sp/>=<sp/><ref refid="event_8h_1ab8e748d1c491717d677a96c23dee987b" kindref="member">fpgaDestroyEventHandle</ref>(&amp;eh);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res2,<sp/>out_close,<sp/></highlight><highlight class="stringliteral">&quot;deleting<sp/>event<sp/>handle&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal">out_close:</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/>res2<sp/>=<sp/><ref refid="access_8h_1ac83789ebb65dc6b2adeae3d7e7fa3e79" kindref="member">fpgaClose</ref>(fpga_device_handle);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res2,<sp/>out_destroy_tok,<sp/></highlight><highlight class="stringliteral">&quot;closing<sp/>accelerator&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal">out_destroy_tok:</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/>res2<sp/>=<sp/><ref refid="enum_8h_1a150a7a8f46e0d6df12cc329ff7030e21" kindref="member">fpgaDestroyToken</ref>(&amp;fpga_device_token);</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><ref refid="hello__events_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res2,<sp/>out_exit,<sp/></highlight><highlight class="stringliteral">&quot;destroying<sp/>token&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal">out_exit:</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>(&amp;device_filter);</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res1<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref><sp/>?<sp/>res1<sp/>:<sp/>res2;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="samples/hello_events/hello_events.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opae.io &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="host_exerciser" href="../host_exerciser/host_exerciser.html" />
+    <link rel="prev" title="pci_device" href="../pci_device/pci_device.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packager/packager.html">packager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">opae.io</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-mode">COMMAND LINE MODE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-mode">INTERACTIVE MODE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#built-in-functions">BUILT-IN FUNCTIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#built-in-objects">BUILT-IN OBJECTS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#revision-history">Revision History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>opae.io</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/opae.io/opae.io.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="opae-io">
+<h1>opae.io<a class="headerlink" href="#opae-io" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">ls</span> <span class="pre">[-v,--viddid</span> <span class="pre">VID:DID]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">init</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR</span> <span class="pre">USER[:GROUP]]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">release</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">walk</span> <span class="pre">OFFSET</span> <span class="pre">[-u,--show-uuid]</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">peek</span> <span class="pre">OFFSET</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">poke</span> <span class="pre">OFFSET</span> <span class="pre">VALUE</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">SCRIPT</span> <span class="pre">ARG1</span> <span class="pre">ARG2</span> <span class="pre">...</span> <span class="pre">ARGN</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span></code></p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span></code> is an interactive Python environment packaged on top of
+<code class="docutils literal notranslate"><span class="pre">libopaevfio.so</span></code>, which provides user space access to PCIe devices
+via the vfio-pci driver. The main feature of opae.io is its built-in
+Python command interpreter, along with some Python bindings that provide
+a means to access Configuration and Status Registers (CSRs) that reside
+on the PCIe device.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span></code> has two operating modes: command line mode and interactive
+mode.</p>
+</div>
+<div class="section" id="command-line-mode">
+<h2>COMMAND LINE MODE<a class="headerlink" href="#command-line-mode" title="Permalink to this headline">¶</a></h2>
+<p>To view the accelerator devices that are present on the system, <code class="docutils literal notranslate"><span class="pre">opae.io</span></code>
+provides the <code class="docutils literal notranslate"><span class="pre">ls</span></code> command option.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">ls</span> <span class="pre">[-v,--viddid</span> <span class="pre">VID:DID]</span></code></p>
+<p>Each accelerator device is listed along with the PCIe address, the
+PCIe vendor/device ID, a brief description of the device, and the
+driver to which the device is currently bound.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span></code> provide an option to initialize a PCIe device for use with
+the vfio-pci driver. In order for the device CSRs to be accessed from
+user space, the device must first be bound to the vfio-pci driver. This
+is the job of the <code class="docutils literal notranslate"><span class="pre">init</span></code> command option.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">init</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR</span> <span class="pre">USER:[GROUP]]</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> command unbinds the specified device from its current
+driver and binds it to vfio-pci. This creates a new vfio group under
+/dev/vfio. This group path is then used by the <code class="docutils literal notranslate"><span class="pre">libopaevfio.so</span></code>
+library to interact with the device.</p>
+<p>To release the PCIe device from vfio-pci and return it to use with its
+previous driver, the <code class="docutils literal notranslate"><span class="pre">release</span></code> command option is used.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">release</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">release</span></code> command option reverses the actions of the last
+<code class="docutils literal notranslate"><span class="pre">init</span></code> command, releasing the device from vfio-pci and binding
+it to the driver which was bound at the time the <code class="docutils literal notranslate"><span class="pre">init</span></code> command
+was issued.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">walk</span></code> command option traverses and displays the Device
+Feature List of the given region.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">walk</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">[OFFSET]</span> <span class="pre">[-u,--show-uuid]</span></code></p>
+<p>The various fields of each Device Feature Header are displayed. The
+<code class="docutils literal notranslate"><span class="pre">--show-uuid</span></code> option additionally displays the GUID for each feature.
+OFFSET can be used to specify the beginning of the DFL in the MMIO
+region.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">peek</span></code> command option reads and displays a CSR value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">peek</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">OFFSET</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">poke</span></code> command option writes a given value to a CSR.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">poke</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">OFFSET</span> <span class="pre">VALUE</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span></code> can also execute Python scripts from the command line.
+These Python scripts may contain calls to the device built-in
+functions that are available during an interactive session. Refer
+to the description of interactive mode for details.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span> <span class="pre">myscript.py</span> <span class="pre">a</span> <span class="pre">b</span> <span class="pre">c</span></code></p>
+<p>In order to enter the interactive mode of <code class="docutils literal notranslate"><span class="pre">opae.io</span></code>, simply
+invoke it and optionally pass the desired device address and
+MMIO region options.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span> <span class="pre">[-d</span> <span class="pre">PCI_ADDR]</span> <span class="pre">[-r</span> <span class="pre">REGION]</span></code></p>
+</div>
+<div class="section" id="interactive-mode">
+<h2>INTERACTIVE MODE<a class="headerlink" href="#interactive-mode" title="Permalink to this headline">¶</a></h2>
+<p>Upon entering interactive mode, <code class="docutils literal notranslate"><span class="pre">opae.io</span></code> begins a Python
+interpreter session and displays the command prompt shown below:</p>
+<p>0000:3f:00.0[0]&gt;&gt;</p>
+<p>The first portion of the prompt shows the address of the active
+PCIe device, here 0000:3f:00.0. The part in square brackets shows
+the active MMIO region, here [0].</p>
+<p>The interpreter waits for a valid Python command, then attempts
+to execute the given command in the usual way. The only
+differences between the traditional Python command intepreter and
+<code class="docutils literal notranslate"><span class="pre">opae.io</span></code> are that opae.io provides 1) the notion of an active
+PCIe device and MMIO region and 2) several built-in functions and
+objects that allow manipulating the active device and MMIO region.</p>
+<div class="section" id="built-in-functions">
+<h3>BUILT-IN FUNCTIONS<a class="headerlink" href="#built-in-functions" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">opae.io</span></code> built-in functions assume an active device and
+MMIO region. Attempting to use the built-in functions without first
+opening a device and region will result in errors.</p>
+<p><code class="docutils literal notranslate"><span class="pre">peek(OFFSET)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">peek</span></code> built-in function reads and displays a CSR value from
+the active device and region, at the offset supplied by its argument.</p>
+<p>0000:3f:00.0[0]&gt;&gt; peek(0x28)<br>
+0xdeadbeef</p>
+<p><code class="docutils literal notranslate"><span class="pre">poke(OFFSET,</span> <span class="pre">VALUE)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">poke</span></code> built-in function writes the given VALUE to the current
+MMIO region at the given OFFSET.</p>
+<p>0000:3f:00.0[0]&gt;&gt; poke(0x28, 0xdeadbeef)</p>
+<p><code class="docutils literal notranslate"><span class="pre">read_csr(OFFSET)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">read_csr</span></code> built-in function returns the value of the CSR at
+the active MMIO region and the given OFFSET.</p>
+<p>0000:3f:00.0[0]&gt;&gt; print(‘0x{:0x}’.format(read_csr(0x28)))<br>
+0xdeadbeef</p>
+<p><code class="docutils literal notranslate"><span class="pre">write_csr(OFFSET,</span> <span class="pre">VALUE)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">write_csr</span></code> built-in function writes the given VALUE to
+the current MMIO region at the given OFFSET.</p>
+<p>0000:3f:00.0[0]&gt;&gt; write_csr(0x28, 0xdeadbeef)</p>
+<p><code class="docutils literal notranslate"><span class="pre">device(PCI_ADDR)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">device</span></code> built-in function allows changing the active
+PCIe device.</p>
+<p>0000:3f:00.0[0]&gt;&gt; device(‘0000:2b:00.0’)<br>
+0000:2b:00.0&gt;&gt;</p>
+<p><code class="docutils literal notranslate"><span class="pre">region(REGION)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">region</span></code> built-in function allows changing the active
+MMIO region.</p>
+<p>0000:2b:00.0&gt;&gt; region(0)<br>
+0000:2b:00.0[0]&gt;&gt;</p>
+<p><code class="docutils literal notranslate"><span class="pre">allocate_buffer(SIZE)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">allocate_buffer</span></code> built-in function creates and returns
+a DMA buffer object. The underlying buffer will be SIZE bytes
+in length.</p>
+<p>0000:2b:00.0[0]&gt;&gt; b1 = allocate_buffer(4096)<br>
+0000:2b:00.0[0]&gt;&gt; print(b1.size, ‘0x{:0x}’.format(b1.address), b1.io_address)<br>
+4096 0x7f9361c66000 0</p>
+<p><code class="docutils literal notranslate"><span class="pre">version()</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">version</span></code> built-in function returns a tuple containing
+the four components used to identify the opae.io version:</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(version())<br>
+(‘opae.io’, 0, 2, 0)</p>
+</div>
+<div class="section" id="built-in-objects">
+<h3>BUILT-IN OBJECTS<a class="headerlink" href="#built-in-objects" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">opae.io</span></code> interactive mode provides two global objects
+corresponding to the current device and that device’s current
+MMIO region. These objects are referred to by global variables
+<code class="docutils literal notranslate"><span class="pre">the_device</span></code> and <code class="docutils literal notranslate"><span class="pre">the_region</span></code>, respectively.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">device</span></code> class:</p>
+<p>the_device.descriptor() : method that returns the integer file
+descriptor of the <code class="docutils literal notranslate"><span class="pre">VFIO</span> <span class="pre">container</span></code>.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_device.descriptor())<br>
+5</p>
+<p>the_device.<strong>repr</strong>() : method that is invoked when a <code class="docutils literal notranslate"><span class="pre">device</span></code>
+object is printed.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_device)<br>
+0000:2b:00.0</p>
+<p>the_device.allocate(SIZE) : method that allocates and returns a
+<code class="docutils literal notranslate"><span class="pre">system_buffer</span></code> object. The buffer will be mapped into the
+DMA space of <code class="docutils literal notranslate"><span class="pre">the_device</span></code>.</p>
+<p>0000:2b:00.0[0]&gt;&gt; b1 = the_device.allocate(4096)</p>
+<p>the_device.pci_address() : read-only property that returns the
+PCIe address of <code class="docutils literal notranslate"><span class="pre">the_device</span></code>.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_device.pci_address)<br>
+0000:2b:00.0</p>
+<p>the_device.num_regions : read-only property that returns the
+number of MMIO regions in <code class="docutils literal notranslate"><span class="pre">the_device</span></code>.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_device.num_regions)<br>
+2</p>
+<p>the_device.regions : read-only property that returns a list
+of the active MMIO regions of <code class="docutils literal notranslate"><span class="pre">the_device</span></code>:</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_device.regions)<br>
+[0, 2]</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">region</span></code> class:</p>
+<p>the_region.write32(OFFSET, VALUE) : method that writes a
+32-bit VALUE to the CSR at OFFSET.</p>
+<p>the_region.read32(OFFSET) : method that returns a 32-bit
+CSR at the given OFFSET.</p>
+<p>0000:2b:00.0[0]&gt;&gt; the_region.write32(0x28, 0xdeadbeef)<br>
+0000:2b:00.0[0]&gt;&gt; print(‘0x{:0x}’.format(the_region.read32(0x28)))<br>
+0xdeadbeef</p>
+<p>the_region.write64(OFFSET, VALUE): method that writes a
+64-bit VALUE to the CSR at OFFSET.</p>
+<p>the_region.read64(OFFSET): method that returns a 64-bit
+CSR at the given OFFSET.</p>
+<p>0000:2b:00.0[0]&gt;&gt; the_region.write64(0x28, 0xbaddecaf)<br>
+0000:2b:00.0[0]&gt;&gt; print(‘0x{:0x}’.format(the_region.read64(0x28)))<br>
+0xbaddecaf</p>
+<p>the_region.index(): method that returns the MMIO index
+of <code class="docutils literal notranslate"><span class="pre">the_region</span></code>.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_region.index())<br>
+0</p>
+<p>the_region.<strong>repr</strong>(): method that is invoked when a <code class="docutils literal notranslate"><span class="pre">region</span></code>
+object is printed.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(the_region)<br>
+0</p>
+<p>the_region.<strong>len</strong>(): method that is invoked to determine the
+MMIO region size.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(len(the_region))<br>
+524288</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">allocate_buffer()</span></code> built-in function and the
+<code class="docutils literal notranslate"><span class="pre">device.allocate()</span></code> method return objects of type <code class="docutils literal notranslate"><span class="pre">system_buffer</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">system_buffer</span></code> class is as follows:</p>
+<p><code class="docutils literal notranslate"><span class="pre">buf.size</span></code>: read-only property that gives the buffer size.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(b1.size)<br>
+4096</p>
+<p><code class="docutils literal notranslate"><span class="pre">buf.address</span></code>: read-only property that gives the buffer’s
+user mode virtual address.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(‘0x{:0x}’.format(b1.address))<br>
+0x7f2c15d8200</p>
+<p><code class="docutils literal notranslate"><span class="pre">buf.io_address</span></code>: read-only property that gives the buffer’s
+IO address.</p>
+<p>0000:2b:00.0[0]&gt;&gt; print(‘0x{:0x}’.format(b1.io_address))<br>
+0x0</p>
+<p><code class="docutils literal notranslate"><span class="pre">buf.__getitem__</span></code> and <code class="docutils literal notranslate"><span class="pre">buf.__setitem__</span></code>: indexing get/set
+of 64-bit data item.</p>
+<p>0000:2b:00.0[0]&gt;&gt; b1[0] = 0xdecafbad<br>
+0000:2b:00.0[0]&gt;&gt; print(‘0x{:0x}’.format(b1[0]))<br>
+0xdecafbad</p>
+<p><code class="docutils literal notranslate"><span class="pre">buf.read8(OFFSET)</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">buf.read16(OFFSET)</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">buf.read32(OFFSET)</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">buf.read64(OFFSET)</span></code> : methods that read the given size
+data item from the given buffer OFFSET.</p>
+<p><code class="docutils literal notranslate"><span class="pre">buf.fill8(VALUE)</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">buf.fill16(VALUE)</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">buf.fill32(VALUE)</span></code><br>
+<code class="docutils literal notranslate"><span class="pre">buf.fill64(VALUE)</span></code> : methods that fill the buffer with
+the given VALUE, using the given size.</p>
+<p><code class="docutils literal notranslate"><span class="pre">b1.compare(b2)</span></code>: method that compares buffers.
+The method returns the index of the first byte that miscompares,
+or the length of b1.</p>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p>Document Version | Intel Acceleration Stack Version | Changes
+—————–|———————————-|——–
+2021.01.25 | IOFS EA | Initial release.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../pci_device/pci_device.html" class="btn btn-neutral float-left" title="pci_device" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../host_exerciser/host_exerciser.html" class="btn btn-neutral float-right" title="host_exerciser" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

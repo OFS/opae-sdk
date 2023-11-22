@@ -1,0 +1,295 @@
+\doxysection{mem\+\_\+tg\+::tg\+\_\+test Class Reference}
+\label{classmem__tg_1_1tg__test}\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+
+
+{\ttfamily \#include $<$/root/samples/mem\+\_\+tg/tg\+\_\+test.\+h$>$}
+
+Inheritance diagram for mem\+\_\+tg\+::tg\+\_\+test\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmem__tg_1_1tg__test}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classmem__tg_1_1tg__test_abc01f94c6c8099d637420bdf98e1195a}{tg\+\_\+test}} ()
+\item 
+virtual \mbox{\hyperlink{classmem__tg_1_1tg__test_a3a14f5221622cd3cc598ed1518536645}{$\sim$tg\+\_\+test}} ()
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classmem__tg_1_1tg__test_ae2be4babdc05e96ad0fd49044206ae07}{name}} () const override
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classmem__tg_1_1tg__test_a76d61f9943cf4224affb583f06eb1ef4}{description}} () const override
+\item 
+virtual const char $\ast$ \mbox{\hyperlink{classmem__tg_1_1tg__test_a8ae23413206e40e0aec6f51db2a03173}{afu\+\_\+id}} () const override
+\item 
+double \mbox{\hyperlink{classmem__tg_1_1tg__test_a20aca3e96e317412ade0812dbb9e3d2d}{bw\+\_\+calc}} (uint64\+\_\+t xfer\+\_\+bytes, uint64\+\_\+t num\+\_\+ticks)
+\item 
+void \mbox{\hyperlink{classmem__tg_1_1tg__test_a56b732f00be2546a98773de00c97f87a}{tg\+\_\+perf}} (\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$\mbox{\hyperlink{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}{tg\+\_\+exe\+\_\+}})
+\item 
+bool \mbox{\hyperlink{classmem__tg_1_1tg__test_a60c04995edf8449efbb5d76d76bd5871}{tg\+\_\+wait\+\_\+test\+\_\+completion}} (\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$\mbox{\hyperlink{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}{tg\+\_\+exe\+\_\+}})
+\item 
+int \mbox{\hyperlink{classmem__tg_1_1tg__test_aa9a2ef74bb44575e90abd161773337ee}{config\+\_\+input\+\_\+options}} (\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$\mbox{\hyperlink{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}{tg\+\_\+exe\+\_\+}})
+\item 
+int \mbox{\hyperlink{classmem__tg_1_1tg__test_aa4a52fa4a7e268e6911172f12611816d}{run\+\_\+mem\+\_\+test}} (\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$\mbox{\hyperlink{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}{tg\+\_\+exe\+\_\+}})
+\item 
+int \mbox{\hyperlink{classmem__tg_1_1tg__test_a97d534705750d044486b471664f019df}{run\+\_\+thread\+\_\+single\+\_\+channel}} (\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$\mbox{\hyperlink{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}{tg\+\_\+exe\+\_\+}})
+\item 
+virtual int \mbox{\hyperlink{classmem__tg_1_1tg__test_a25caf2aba2c64d4c528724e836dd5ff1}{run}} (\mbox{\hyperlink{namespacemem__tg_ac9891bc8aab5db05ddbcfba187ba231a}{test\+\_\+afu}} $\ast$afu, CLI\+::\+App $\ast$\mbox{\hyperlink{hssi_8cpp_a7ccd62f1083f322e0d1dfaa9c23ecb88}{app}}) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{classmem__tg_1_1tg__test_a49c1d34f23394b8d3f417941c3dae13e}{tg\+\_\+offset\+\_\+}}
+\item 
+\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$ \mbox{\hyperlink{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}{tg\+\_\+exe\+\_\+}}
+\item 
+\mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} \mbox{\hyperlink{classmem__tg_1_1tg__test_a19e277d2e24c74242d4be7c3d9b39689}{token\+\_\+}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line 52 of file tg\+\_\+test.\+h.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\label{classmem__tg_1_1tg__test_abc01f94c6c8099d637420bdf98e1195a}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!tg\_test@{tg\_test}}
+\index{tg\_test@{tg\_test}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{tg\_test()}{tg\_test()}}
+{\footnotesize\ttfamily mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+test (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 55 of file tg\+\_\+test.\+h.
+
+\mbox{\label{classmem__tg_1_1tg__test_a3a14f5221622cd3cc598ed1518536645}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!````~tg\_test@{$\sim$tg\_test}}
+\index{````~tg\_test@{$\sim$tg\_test}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{$\sim$tg\_test()}{~tg\_test()}}
+{\footnotesize\ttfamily virtual mem\+\_\+tg\+::tg\+\_\+test\+::$\sim$tg\+\_\+test (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Definition at line 60 of file tg\+\_\+test.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classmem__tg_1_1tg__test_ae2be4babdc05e96ad0fd49044206ae07}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!name@{name}}
+\index{name@{name}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{name()}{name()}}
+{\footnotesize\ttfamily virtual const char$\ast$ mem\+\_\+tg\+::tg\+\_\+test\+::name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a2892a3d443d007a55cbfe9ec93835052}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 62 of file tg\+\_\+test.\+h.
+
+\mbox{\label{classmem__tg_1_1tg__test_a76d61f9943cf4224affb583f06eb1ef4}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!description@{description}}
+\index{description@{description}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{description()}{description()}}
+{\footnotesize\ttfamily virtual const char$\ast$ mem\+\_\+tg\+::tg\+\_\+test\+::description (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a064a25924cdd32c14f4a68694f924d5e}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 67 of file tg\+\_\+test.\+h.
+
+\mbox{\label{classmem__tg_1_1tg__test_a8ae23413206e40e0aec6f51db2a03173}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!afu\_id@{afu\_id}}
+\index{afu\_id@{afu\_id}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{afu\_id()}{afu\_id()}}
+{\footnotesize\ttfamily virtual const char$\ast$ mem\+\_\+tg\+::tg\+\_\+test\+::afu\+\_\+id (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a51d5c7afb132598121e20be5b0eab5fb}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 72 of file tg\+\_\+test.\+h.
+
+
+
+References mem\+\_\+tg\+::\+AFU\+\_\+\+ID.
+
+\mbox{\label{classmem__tg_1_1tg__test_a20aca3e96e317412ade0812dbb9e3d2d}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!bw\_calc@{bw\_calc}}
+\index{bw\_calc@{bw\_calc}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{bw\_calc()}{bw\_calc()}}
+{\footnotesize\ttfamily double mem\+\_\+tg\+::tg\+\_\+test\+::bw\+\_\+calc (\begin{DoxyParamCaption}\item[{uint64\+\_\+t}]{xfer\+\_\+bytes,  }\item[{uint64\+\_\+t}]{num\+\_\+ticks }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 78 of file tg\+\_\+test.\+h.
+
+
+
+References mem\+\_\+tg\+::mem\+\_\+tg\+::mem\+\_\+speed\+\_\+, and tg\+\_\+exe\+\_\+.
+
+
+
+Referenced by tg\+\_\+perf().
+
+\mbox{\label{classmem__tg_1_1tg__test_a56b732f00be2546a98773de00c97f87a}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!tg\_perf@{tg\_perf}}
+\index{tg\_perf@{tg\_perf}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{tg\_perf()}{tg\_perf()}}
+{\footnotesize\ttfamily void mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+perf (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$}]{tg\+\_\+exe\+\_\+ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 83 of file tg\+\_\+test.\+h.
+
+
+
+References mem\+\_\+tg\+::mem\+\_\+tg\+::bcnt\+\_\+, bw\+\_\+calc(), mem\+\_\+tg\+::mem\+\_\+tg\+::loop\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::mem\+\_\+ch\+\_\+, mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CLOCKS, mem\+\_\+tg\+::mem\+\_\+tg\+::rcnt\+\_\+, opae\+::afu\+\_\+test\+::afu\+::read64(), mem\+\_\+tg\+::mem\+\_\+tg\+::status\+\_\+, tg\+\_\+exe\+\_\+, mem\+\_\+tg\+::\+TG\+\_\+\+FAIL\+\_\+\+EXPECTED\+\_\+\+DATA, mem\+\_\+tg\+::\+TG\+\_\+\+FAIL\+\_\+\+READ\+\_\+\+DATA, mem\+\_\+tg\+::\+TG\+\_\+\+FIRST\+\_\+\+FAIL\+\_\+\+ADDR\+\_\+L, mem\+\_\+tg\+::mem\+\_\+tg\+::tg\+\_\+offset\+\_\+, mem\+\_\+tg\+::tg\+\_\+print\+\_\+mutex, mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+ERROR, mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+TIMEOUT, and mem\+\_\+tg\+::mem\+\_\+tg\+::wcnt\+\_\+.
+
+
+
+Referenced by run\+\_\+mem\+\_\+test().
+
+\mbox{\label{classmem__tg_1_1tg__test_a60c04995edf8449efbb5d76d76bd5871}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!tg\_wait\_test\_completion@{tg\_wait\_test\_completion}}
+\index{tg\_wait\_test\_completion@{tg\_wait\_test\_completion}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{tg\_wait\_test\_completion()}{tg\_wait\_test\_completion()}}
+{\footnotesize\ttfamily bool mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+wait\+\_\+test\+\_\+completion (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$}]{tg\+\_\+exe\+\_\+ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 124 of file tg\+\_\+test.\+h.
+
+
+
+References mem\+\_\+tg\+::mem\+\_\+tg\+::bcnt\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::loop\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::mem\+\_\+ch\+\_\+, mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+STAT, mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+TEST\+\_\+\+TIMEOUT, opae\+::afu\+\_\+test\+::afu\+::read64(), mem\+\_\+tg\+::mem\+\_\+tg\+::status\+\_\+, tg\+\_\+exe\+\_\+, mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+ACTIVE, mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+ERROR, and mem\+\_\+tg\+::\+TG\+\_\+\+STATUS\+\_\+\+TIMEOUT.
+
+
+
+Referenced by run\+\_\+mem\+\_\+test().
+
+\mbox{\label{classmem__tg_1_1tg__test_aa9a2ef74bb44575e90abd161773337ee}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!config\_input\_options@{config\_input\_options}}
+\index{config\_input\_options@{config\_input\_options}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{config\_input\_options()}{config\_input\_options()}}
+{\footnotesize\ttfamily int mem\+\_\+tg\+::tg\+\_\+test\+::config\+\_\+input\+\_\+options (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$}]{tg\+\_\+exe\+\_\+ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 155 of file tg\+\_\+test.\+h.
+
+
+
+References mem\+\_\+tg\+::\+AFU\+\_\+\+DFH, mem\+\_\+tg\+::mem\+\_\+tg\+::bcnt\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::loop\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::mem\+\_\+ch\+\_\+, mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CFG\+\_\+\+OFFSET, mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CTRL, mem\+\_\+tg\+::mem\+\_\+tg\+::pattern\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::rcnt\+\_\+, opae\+::afu\+\_\+test\+::afu\+::read64(), mem\+\_\+tg\+::mem\+\_\+tg\+::stride\+\_\+, mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+RD, mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+MODE\+\_\+\+WR, mem\+\_\+tg\+::\+TG\+\_\+\+ADDR\+\_\+\+SEQ, mem\+\_\+tg\+::\+TG\+\_\+\+BURST\+\_\+\+LENGTH, tg\+\_\+exe\+\_\+, mem\+\_\+tg\+::\+TG\+\_\+\+LOOP\+\_\+\+COUNT, mem\+\_\+tg\+::mem\+\_\+tg\+::tg\+\_\+offset\+\_\+, mem\+\_\+tg\+::\+TG\+\_\+\+PPPG\+\_\+\+SEL, mem\+\_\+tg\+::\+TG\+\_\+\+READ\+\_\+\+COUNT, mem\+\_\+tg\+::\+TG\+\_\+\+SEQ\+\_\+\+ADDR\+\_\+\+INCR, mem\+\_\+tg\+::\+TG\+\_\+\+WRITE\+\_\+\+COUNT, mem\+\_\+tg\+::mem\+\_\+tg\+::wcnt\+\_\+, and opae\+::afu\+\_\+test\+::afu\+::write32().
+
+
+
+Referenced by run\+\_\+thread\+\_\+single\+\_\+channel().
+
+\mbox{\label{classmem__tg_1_1tg__test_aa4a52fa4a7e268e6911172f12611816d}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!run\_mem\_test@{run\_mem\_test}}
+\index{run\_mem\_test@{run\_mem\_test}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{run\_mem\_test()}{run\_mem\_test()}}
+{\footnotesize\ttfamily int mem\+\_\+tg\+::tg\+\_\+test\+::run\+\_\+mem\+\_\+test (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$}]{tg\+\_\+exe\+\_\+ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 181 of file tg\+\_\+test.\+h.
+
+
+
+References opae\+::afu\+\_\+test\+::afu\+::logger\+\_\+, mem\+\_\+tg\+::tg\+\_\+cv, tg\+\_\+exe\+\_\+, mem\+\_\+tg\+::tg\+\_\+num\+\_\+threads, mem\+\_\+tg\+::mem\+\_\+tg\+::tg\+\_\+offset\+\_\+, tg\+\_\+perf(), mem\+\_\+tg\+::\+TG\+\_\+\+START, mem\+\_\+tg\+::tg\+\_\+start\+\_\+write\+\_\+mutex, tg\+\_\+wait\+\_\+test\+\_\+completion(), mem\+\_\+tg\+::tg\+\_\+waiting\+\_\+threads\+\_\+counter, and opae\+::afu\+\_\+test\+::afu\+::write32().
+
+
+
+Referenced by run\+\_\+thread\+\_\+single\+\_\+channel().
+
+\mbox{\label{classmem__tg_1_1tg__test_a97d534705750d044486b471664f019df}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!run\_thread\_single\_channel@{run\_thread\_single\_channel}}
+\index{run\_thread\_single\_channel@{run\_thread\_single\_channel}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{run\_thread\_single\_channel()}{run\_thread\_single\_channel()}}
+{\footnotesize\ttfamily int mem\+\_\+tg\+::tg\+\_\+test\+::run\+\_\+thread\+\_\+single\+\_\+channel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}} $\ast$}]{tg\+\_\+exe\+\_\+ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line 209 of file tg\+\_\+test.\+h.
+
+
+
+References config\+\_\+input\+\_\+options(), run\+\_\+mem\+\_\+test(), and tg\+\_\+exe\+\_\+.
+
+
+
+Referenced by run().
+
+\mbox{\label{classmem__tg_1_1tg__test_a25caf2aba2c64d4c528724e836dd5ff1}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!run@{run}}
+\index{run@{run}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily virtual int mem\+\_\+tg\+::tg\+\_\+test\+::run (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacemem__tg_ac9891bc8aab5db05ddbcfba187ba231a}{test\+\_\+afu}} $\ast$}]{afu,  }\item[{CLI\+::\+App $\ast$}]{app }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classopae_1_1afu__test_1_1command_a18fe26fd1da4bec29da4fbfbeb172bbd}{opae\+::afu\+\_\+test\+::command}}.
+
+
+
+Definition at line 218 of file tg\+\_\+test.\+h.
+
+
+
+References app, mem\+\_\+tg\+::mem\+\_\+tg\+::duplicate(), mem\+\_\+tg\+::mem\+\_\+tg\+::mem\+\_\+ch\+\_\+, mem\+\_\+tg\+::mem\+\_\+tg\+::mem\+\_\+speed\+\_\+, mem\+\_\+tg\+::\+MEM\+\_\+\+TG\+\_\+\+CTRL, opae\+::afu\+\_\+test\+::afu\+::read64(), run\+\_\+thread\+\_\+single\+\_\+channel(), tg\+\_\+exe\+\_\+, mem\+\_\+tg\+::tg\+\_\+num\+\_\+threads, mem\+\_\+tg\+::tg\+\_\+waiting\+\_\+threads\+\_\+counter, and token\+\_\+.
+
+
+
+\doxysubsection{Field Documentation}
+\mbox{\label{classmem__tg_1_1tg__test_a49c1d34f23394b8d3f417941c3dae13e}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!tg\_offset\_@{tg\_offset\_}}
+\index{tg\_offset\_@{tg\_offset\_}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{tg\_offset\_}{tg\_offset\_}}
+{\footnotesize\ttfamily uint64\+\_\+t mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+offset\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 312 of file tg\+\_\+test.\+h.
+
+\mbox{\label{classmem__tg_1_1tg__test_af9a56c0724544be2cfeee914e300b264}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!tg\_exe\_@{tg\_exe\_}}
+\index{tg\_exe\_@{tg\_exe\_}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{tg\_exe\_}{tg\_exe\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classmem__tg_1_1mem__tg}{mem\+\_\+tg}}$\ast$ mem\+\_\+tg\+::tg\+\_\+test\+::tg\+\_\+exe\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 313 of file tg\+\_\+test.\+h.
+
+
+
+Referenced by bw\+\_\+calc(), config\+\_\+input\+\_\+options(), run(), run\+\_\+mem\+\_\+test(), run\+\_\+thread\+\_\+single\+\_\+channel(), tg\+\_\+perf(), and tg\+\_\+wait\+\_\+test\+\_\+completion().
+
+\mbox{\label{classmem__tg_1_1tg__test_a19e277d2e24c74242d4be7c3d9b39689}} 
+\index{mem\_tg::tg\_test@{mem\_tg::tg\_test}!token\_@{token\_}}
+\index{token\_@{token\_}!mem\_tg::tg\_test@{mem\_tg::tg\_test}}
+\doxysubsubsection{\texorpdfstring{token\_}{token\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classopae_1_1fpga_1_1types_1_1token_adbc72f7f89d7accf08719ffeb4a11fe3}{token\+::ptr\+\_\+t}} mem\+\_\+tg\+::tg\+\_\+test\+::token\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 314 of file tg\+\_\+test.\+h.
+
+
+
+Referenced by run().
+

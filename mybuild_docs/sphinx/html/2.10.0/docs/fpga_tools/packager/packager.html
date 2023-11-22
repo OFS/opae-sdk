@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packager &mdash; OPAE</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="userclk" href="../userclk/userclk.html" />
+    <link rel="prev" title="mmlink" href="../mmlink/mmlink.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OPAE
+          </a>
+              <div class="version">
+                2.10.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">OPAE User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/quick_start/readme.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install_guide/installation_guide.html">OPAE Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/prog_guide/readme.html">OPAE C API Programming Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyopae/README.html">OPAE Python Bindings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../build_chain/fpga_api/api_build.html">Building OPAE SDK Artifacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_api.html">OPAE C API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_cxx_api.html">OPAE C++ Core API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/fpga_python_api.html">OPAE Python API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fpga_api/plug_guide/readme.html">Plugin Developer’s Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE Linux Kernel Drivers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../drv_arch/drv_arch.html">Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OPAE FPGA Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../fpgaconf/fpgaconf.html">fpgaconf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgad/fpgad.html">fpgad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgadiag/README.html">fpgadiag</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgainfo/fpgainfo.html">fpgainfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fpgasupdate/fpgasupdate.html">fpgasupdate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmlink/mmlink.html">mmlink</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">packager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#packager-command-syntax">Packager Command Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator-description-file">Accelerator Description File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../userclk/userclk.html">userclk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi/hssi.html">hssi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opaevfio/opaevfio.html">opaevfio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pci_device/pci_device.html">pci_device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opae.io/opae.io.html">opae.io</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host_exerciser/host_exerciser.html">host_exerciser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssistats.html">HSSI ethernet statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssimac.html">HSSI ethernet mac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hssi_ethernet/hssiloopback.html">HSSI ethernet loopback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsu/rsu.html">rsu</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mem_tg/mem_tg.html">mem_tg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vabtool/vabtool.html">vabtool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ofs.uio/ofs.uio.html">ofs.uio</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OPAE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>packager</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/docs/fpga_tools/packager/packager.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="packager">
+<h1>packager<a class="headerlink" href="#packager" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">packager</span> <span class="pre">&lt;cmd&gt;</span> <span class="pre">[arguments]</span></code></p>
+</div>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The packager provides tools that Accelerator Functional Unit (AFU) developers use to create Accelerator Function (AF)
+files. The AF file is the programming file for an AFU on Intel® FPGA platforms. The packager tool concatenates
+the metadata from the JSON file to a raw binary file <code class="docutils literal notranslate"><span class="pre">(.rbf)</span></code> that the Intel Quartus® Prime software generates.</p>
+<p>The packager’s only function is to create an AF file. Refer to <a class="reference external" href="#packager-command-syntax">Packager Command Syntax</a> for more information
+about invoking the packager. The packager depends on a JSON file to describe AFU metadata. Refer to
+<a class="reference external" href="#accelerator-description-file">Accelerator Description File</a> for more information about the JSON file.</p>
+<p><strong>The packager requires Python 2.7.1 and Python 2.7.3. The tool indicates if it is being called with a compatible
+of Python.</strong></p>
+</div>
+<div class="section" id="packager-command-syntax">
+<h2>Packager Command Syntax<a class="headerlink" href="#packager-command-syntax" title="Permalink to this headline">¶</a></h2>
+<p>The packager is a command line tool with the following syntax:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">packager</span> <span class="pre">&lt;cmd&gt;</span> <span class="pre">[arguments]</span></code></p>
+<p>The following table describes the <code class="docutils literal notranslate"><span class="pre">&lt;CMD&gt;</span></code> arguments:</p>
+<p>| Command | Arguments       | Description |
+|———| —————-| ————|
+| <code class="docutils literal notranslate"><span class="pre">create-gbs</span></code>  | <code class="docutils literal notranslate"><span class="pre">--rbf=&lt;RBF_PATH&gt;</span></code> <br><code class="docutils literal notranslate"><span class="pre">--afu=&lt;AFU_JSON_PATH&gt;</span></code> <br><code class="docutils literal notranslate"><span class="pre">--gbs=&lt;GBS_PATH&gt;</span></code> <br><code class="docutils literal notranslate"><span class="pre">--set-value=&lt;key&gt;.&lt;value&gt;</span></code>| Creates the AF file. The engineering name for this file is the green bit stream, abbreviated gbs. The <code class="docutils literal notranslate"><span class="pre">--rbf</span></code> and <code class="docutils literal notranslate"><span class="pre">--afu</span></code>   arguments are required.  <code class="docutils literal notranslate"><span class="pre">&lt;RBF_PATH&gt;</span></code> is the path to the RBF file for the AFU. The Quartus® Prime software generates this RBF by compiling the AFU design. <code class="docutils literal notranslate"><span class="pre">&lt;AFU_JSON_PATH&gt;</span></code> is the path to the Accelerator Description file. This is a JSON file that describes the metadata that <code class="docutils literal notranslate"><span class="pre">create-gbs</span></code> appends to the RBF. <code class="docutils literal notranslate"><span class="pre">&lt;GBS_PATH&gt;</span></code> is the path to the RBF file for the FPGA Interface Manager (FIM) that contains the FPGA interface unit and other interfaces. If you do not specify the <code class="docutils literal notranslate"><span class="pre">--gbs</span></code>, the command defaults to <code class="docutils literal notranslate"><span class="pre">&lt;rbf_name&gt;.gbs</span></code>. You can use the optional <code class="docutils literal notranslate"><span class="pre">--set-value=&lt;key&gt;.&lt;value&gt;</span></code> argument to set values for JSON metadata. To set more than one JSON value, list a series of <code class="docutils literal notranslate"><span class="pre">&lt;key&gt;.&lt;value&gt;</span></code>  pairs.|
+|<code class="docutils literal notranslate"><span class="pre">modify-gbs</span></code> | <code class="docutils literal notranslate"><span class="pre">--gbs=&lt;gbs_PATH&gt;</span></code>| Modifies the AF file. The <code class="docutils literal notranslate"><span class="pre">--input-gbs</span></code>argument is required. If you do not provide the <code class="docutils literal notranslate"><span class="pre">--output-gbs</span></code> argument, <code class="docutils literal notranslate"><span class="pre">modify-gbs</span></code> overwrites the <code class="docutils literal notranslate"><span class="pre">--input-gbs</span></code> file. Use the <code class="docutils literal notranslate"><span class="pre">--set-value=&lt;key&gt;.&lt;value&gt;</span></code> argument to set values for JSON metadata. To set more than one JSON value, list a series of <code class="docutils literal notranslate"><span class="pre">&lt;key&gt;.&lt;value&gt;</span></code>  pairs.|
+|<code class="docutils literal notranslate"><span class="pre">gbs-info</span></code> | <code class="docutils literal notranslate"><span class="pre">--input-gbs=&lt;gbs_PATH&gt;</span></code>| Prints information about the AF file. The <code class="docutils literal notranslate"><span class="pre">--input-gbs</span></code> argument is required.|
+|<code class="docutils literal notranslate"><span class="pre">get-rbf</span></code> | <code class="docutils literal notranslate"><span class="pre">--gbs=&lt;GBS_PATH&gt;</span></code> <br><code class="docutils literal notranslate"><span class="pre">--rbf=&lt;RBF_PATH&gt;</span></code>| Creates the RBF by extracting it from the AF file. The <code class="docutils literal notranslate"><span class="pre">--gbs</span></code>argument is required. If you do not specify the <code class="docutils literal notranslate"><span class="pre">--rbf</span></code> argument, the command defaults to <code class="docutils literal notranslate"><span class="pre">&lt;gbs_name.rbf</span></code> . |
+| None, or any <code class="docutils literal notranslate"><span class="pre">&lt;CMD&gt;</span></code>  | <code class="docutils literal notranslate"><span class="pre">--help</span></code> | Summarizes the <code class="docutils literal notranslate"><span class="pre">&lt;CMD&gt;</span></code> options. Typing <code class="docutils literal notranslate"><span class="pre">packager</span> <span class="pre">--help</span></code> gives a list of <code class="docutils literal notranslate"><span class="pre">&lt;CMD&gt;</span></code> values. Typing <code class="docutils literal notranslate"><span class="pre">packager</span> <span class="pre">&lt;CMD&gt;</span> <span class="pre">--help</span></code> provides detailed help for <code class="docutils literal notranslate"><span class="pre">&lt;CMD&gt;</span></code> |</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>To generate an AF file, run:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">packager</span> <span class="pre">create-gbs</span> <span class="pre">--rbf=&lt;RBF_PATH&gt;</span> <span class="pre">--afu=&lt;AFU_JSON_PATH&gt;</span> <span class="pre">--gbs=&lt;GBS_PATH&gt;</span></code></p>
+<p><strong>TIP</strong>: JSON files are very particular about syntax such as trailing commas. If you are getting errors, use <code class="docutils literal notranslate"><span class="pre">jsonlint.com</span></code> to
+validate that your JSON is formatted correctly.</p>
+<p>To modify metadata in an existing AF, run the following command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">packager</span> <span class="pre">modify-gbs</span> <span class="pre">--input-gbs=&lt;PATH_TO_GBS_TO_BE_MODIFIED&gt;</span> <span class="pre">--outputgbs=&lt;NAME_FOR_NEW_GBS&gt;</span> <span class="pre">--set-value</span> <span class="pre">&lt;key&gt;:&lt;value&gt;</span></code></p>
+<p>You can pass in a number of <key>:<value> pairs with –set-value to update values in an AF.</p>
+<p>To print the metadata of an existing AF:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">packager</span> <span class="pre">get-info</span> <span class="pre">--gbs=&lt;GBS_PATH&gt;</span></code></p>
+<p>To extract the RBF from the AF:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">packager</span> <span class="pre">get-rbf</span> <span class="pre">--gbs=&lt;GBS_PATH&gt;</span> <span class="pre">--rbf=&lt;NAME_FOR_RBF&gt;</span></code></p>
+</div>
+<div class="section" id="accelerator-description-file">
+<h2>Accelerator Description File<a class="headerlink" href="#accelerator-description-file" title="Permalink to this headline">¶</a></h2>
+<p>The Accelerator Description File is a JSON file that describes the metadata associated with an AFU.
+The Open Progammable Accelerator Engine (OPAE) uses this metadata during reconfiguration. Here is an example file:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="s">&quot;version&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">   </span><span class="s">&quot;platform-name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;DCP&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="s">&quot;afu-image&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;magic-no&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">488605312</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;interface-uuid&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;01234567-89AB-CDEF-0123-456789ABCDEF&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;power&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;accelerator-clusters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">         </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;dma_test_afu&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="s">&quot;total-contexts&quot;</span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">   </span>
+<span class="w">         </span><span class="s">&quot;accelerator-type-uuid&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;331DB30C-9885-41EA-9081-F88B8F655CAA&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span><span class="w">  </span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The packager stores these parameter values in the resultant AF. After reprogramming the AFU using partial reconfiguration (PR), the
+software driver reconfigures the PLLs by writing the clock-frequency-high and clock-frequency-low values (if present) over the
+PCIe® and CCI interfaces.</p>
+<p>.. note::</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">The</span><span class="w"> </span><span class="n">JSON</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">architecture</span><span class="w"> </span><span class="n">evolves</span><span class="p">.</span><span class="w"> </span><span class="n">Any</span><span class="w"> </span><span class="n">changes</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">trigger</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">update</span>
+<span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="n">number</span><span class="p">.</span><span class="w">  </span>
+</pre></div>
+</div>
+<p>CATEGORY | NAME | TYPE | DESCRIPTION | MANDATORY
+———|——|——|————-|:———-:|
+Per-AFU  | version | Integer | Version of the metadata format. | Yes
+Per-AFU  | magic-no (to be deprecated)| Integer | Magic no. Associated with the FPGA Interface Manager. | No
+Per-AFU  | platform-name | String | Name of the platform for which the metadata is intended. The field value is “DCP” for Intel  Acceleration Stack for FPGAs. | No
+Per-AFU  | interface-uuid | UUID | Interface id associated with the FPGA Interface Manager. | Yes
+Per-AFU  | power | Integer | Accelerator Function power consumption, in watts. Set to 0 for Intel Acceleration Stack for FPGAs platforms. | Yes
+Per-AFU  | clock-frequency-low | Float | Clock frequency for 1st PLL (Clock network)1 in MHz. | No
+Per-AFU  | clock-frequency-high | Float | Clock frequency for 2nd PLL (0 if absent) in MHz. | No
+Per-AFC Cluster | total-contexts | Integer | Number of AFCs in this cluster. Always be 1 in current architectures. | Yes
+Per-AFC Cluster | afc-type-uuid |  UUID | AFC type = AFU ID in current architectures. | Yes
+Per-AFC Cluster | name | string | AFC name = AFU name in current architectures. | Yes</p>
+<p>| Date | Intel Acceleration Stack Version | Changes Made |
+|:——|—————————-|:————–|
+|2018.05.21| DCP 1.1 Beta (works with Quartus Prime Pro 17.1.1) |  Fixed typos. |</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mmlink/mmlink.html" class="btn btn-neutral float-left" title="mmlink" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../userclk/userclk.html" class="btn btn-neutral float-right" title="userclk" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

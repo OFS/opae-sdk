@@ -1,0 +1,73 @@
+.TH "dummy_afu::ddr_test" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+dummy_afu::ddr_test
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/dummy_afu/ddr\&.h>\fP
+.PP
+Inherits \fBopae::afu_test::command\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBddr_test\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~ddr_test\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP)"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 45 of file ddr\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "dummy_afu::ddr_test::ddr_test ()\fC [inline]\fP"
+
+.PP
+Definition at line 48 of file ddr\&.h\&.
+.SS "virtual dummy_afu::ddr_test::~ddr_test ()\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Definition at line 49 of file ddr\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* dummy_afu::ddr_test::name () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 50 of file ddr\&.h\&.
+.PP
+Referenced by run()\&.
+.SS "virtual const char* dummy_afu::ddr_test::description () const\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 55 of file ddr\&.h\&.
+.SS "virtual int dummy_afu::ddr_test::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 60 of file ddr\&.h\&.
+.PP
+References app, dummy_afu::check_stat(), dummy_afu::DDR_TEST_CTRL, name(), dummy_afu::ddr_test_bank0_stat::offset, dummy_afu::ddr_test_bank1_stat::offset, dummy_afu::ddr_test_bank2_stat::offset, and dummy_afu::ddr_test_bank3_stat::offset\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

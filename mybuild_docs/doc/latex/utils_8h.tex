@@ -1,0 +1,44 @@
+\doxysection{include/opae/utils.h File Reference}
+\label{utils_8h}\index{include/opae/utils.h@{include/opae/utils.h}}
+
+
+Utility functions and macros for the FPGA API.  
+
+
+{\ttfamily \#include $<$opae/types.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \mbox{\hyperlink{utils_8h_a2a3fc0d8baf294d2da980ba544368b32}{fpga\+Err\+Str}} (\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} e)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Utility functions and macros for the FPGA API. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{utils_8h_a2a3fc0d8baf294d2da980ba544368b32}} 
+\index{utils.h@{utils.h}!fpgaErrStr@{fpgaErrStr}}
+\index{fpgaErrStr@{fpgaErrStr}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{fpgaErrStr()}{fpgaErrStr()}}
+{\footnotesize\ttfamily const char$\ast$ fpga\+Err\+Str (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}}}]{e }\end{DoxyParamCaption})}
+
+Return human-\/readable error message
+
+Returns a pointer to a human-\/readable error message corresponding to the provided fpga\+\_\+error error code.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em e} & Error code (as returned by another FPGA API function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pointer to a descriptive error message string 
+\end{DoxyReturn}
+
+
+Referenced by fpga\+\_\+banks(), fpga\+\_\+base(), fpga\+\_\+close(), fpga\+\_\+open(), fpga\+\_\+set\+\_\+switch(), fpga\+\_\+start(), fpga\+\_\+stop(), fpga\+\_\+test\+\_\+ddr\+\_\+directed(), fpga\+\_\+test\+\_\+ddr\+\_\+prbs(), fpga\+\_\+test\+\_\+esram(), fpga\+\_\+test\+\_\+hbm(), fpga\+\_\+test\+\_\+qdr(), fpga\+\_\+wait(), main(), parse\+\_\+args(), and print\+\_\+err().
+

@@ -1,0 +1,557 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classopae_1_1fpga_1_1types_1_1shared__buffer" kind="class" language="C++" prot="public">
+    <compoundname>opae::fpga::types::shared_buffer</compoundname>
+    <includes refid="shared__buffer_8h" local="no">opae/cxx/core/shared_buffer.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" prot="public" static="no">
+        <type>std::size_t</type>
+        <definition>typedef std::size_t opae::fpga::types::shared_buffer::size_t</definition>
+        <argsstring></argsstring>
+        <name>size_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="52" column="23" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt;shared_buffer&gt; opae::fpga::types::shared_buffer::ptr_t</definition>
+        <argsstring></argsstring>
+        <name>ptr_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="53" column="27" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a9e5f35cda6592f57fb45494a6ea7b416" prot="protected" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+        <definition>handle::ptr_t opae::fpga::types::shared_buffer::handle_</definition>
+        <argsstring></argsstring>
+        <name>handle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="168" column="17" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="168" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1acf517c2237550557c7b5f6e16c9b74b9" compoundref="shared__buffer_8h" startline="109" endline="109">owner</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1ace6962636a4abb52615ba899b5a1f0be" prot="protected" static="no" mutable="no">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+        <definition>size_t opae::fpga::types::shared_buffer::len_</definition>
+        <argsstring></argsstring>
+        <name>len_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="169" column="10" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="169" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1abc03852d5a07e5a5f30bf9086b35950b" compoundref="shared__buffer_8h" startline="138" endline="147">read</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a615559ac054e924fc9cf853ea625fb47" compoundref="shared__buffer_8h" startline="113" endline="113">size</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a49c8d0b03a0e47c8b58f84301ac34559" compoundref="shared__buffer_8h" startline="154" endline="162">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa8265521240b457d2a80814e1e6b8b20" prot="protected" static="no" mutable="no">
+        <type>uint8_t *</type>
+        <definition>uint8_t* opae::fpga::types::shared_buffer::virt_</definition>
+        <argsstring></argsstring>
+        <name>virt_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="170" column="11" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="170" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ade3a3102e5162ba8bb793342bdbf58f2" compoundref="shared__buffer_8h" startline="104" endline="104">c_type</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1abc03852d5a07e5a5f30bf9086b35950b" compoundref="shared__buffer_8h" startline="138" endline="147">read</referencedby>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a49c8d0b03a0e47c8b58f84301ac34559" compoundref="shared__buffer_8h" startline="154" endline="162">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1aedeb7bdc69160d09413a93ab2710ef57" prot="protected" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::shared_buffer::wsid_</definition>
+        <argsstring></argsstring>
+        <name>wsid_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="171" column="12" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="171" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ae927b9d7e242873e6df1c831ed35f291" compoundref="shared__buffer_8h" startline="117" endline="117">wsid</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1ad8d6169b66456e78a22a4575e5f50535" prot="protected" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::shared_buffer::io_address_</definition>
+        <argsstring></argsstring>
+        <name>io_address_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="172" column="12" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="172" bodyend="-1"/>
+        <referencedby refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1acbdabbc8d4ef32caa9c231a73c5a2761" compoundref="shared__buffer_8h" startline="122" endline="122">io_address</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a94af424818d524cb897b1bc6a13ba5f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::shared_buffer::shared_buffer</definition>
+        <argsstring>(const shared_buffer &amp;)=delete</argsstring>
+        <name>shared_buffer</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="55" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a0ec4bb470ad2b48722a14fcdce1db2f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> &amp;</type>
+        <definition>shared_buffer&amp; opae::fpga::types::shared_buffer::operator=</definition>
+        <argsstring>(const shared_buffer &amp;)=delete</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="56" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a0dda51993e7c2ad5ed8f2759cdb002a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual opae::fpga::types::shared_buffer::~shared_buffer</definition>
+        <argsstring>()</argsstring>
+        <name>~shared_buffer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="60" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1aeffe4f3dcd9bec506e322ece0e54dff7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::shared_buffer::release</definition>
+        <argsstring>()</argsstring>
+        <name>release</name>
+        <briefdescription>
+<para>Disassociate the <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> object from the resource used to create it. If the buffer was allocated using the allocate function then the buffer is freed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="88" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1ade3a3102e5162ba8bb793342bdbf58f2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>volatile uint8_t* opae::fpga::types::shared_buffer::c_type</definition>
+        <argsstring>() const</argsstring>
+        <name>c_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the virtual address of the buffer base.</para>
+<para><simplesect kind="note"><para>Instances of a shared buffer can only be created using either &apos;allocate&apos; or &apos;attach&apos; static factory function. Because these functions return a shared pointer (std::shared_ptr) to the instance, references to an instance are counted automatically by design of the shared_ptr class. Calling &apos;<ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ade3a3102e5162ba8bb793342bdbf58f2" kindref="member">c_type()</ref>&apos; function is provided to get access to the raw data but isn&apos;t used in tracking its reference count. Assigning this to a variable should be done in limited scopes as this variable can be defined in an outer scope and may outlive the <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> object. Once the reference count in the shared_ptr reaches zero, the <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> object will be released and deallocated, turning any variables assigned from a call to &apos;<ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ade3a3102e5162ba8bb793342bdbf58f2" kindref="member">c_type()</ref>&apos; into dangling pointers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="104" column="20" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="104" bodyend="104"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa8265521240b457d2a80814e1e6b8b20" compoundref="shared__buffer_8h" startline="170">virt_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1acf517c2237550557c7b5f6e16c9b74b9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+        <definition>handle::ptr_t opae::fpga::types::shared_buffer::owner</definition>
+        <argsstring>() const</argsstring>
+        <name>owner</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the handle smart pointer associated with this buffer. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="109" column="17" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="109" bodyend="109"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a9e5f35cda6592f57fb45494a6ea7b416" compoundref="shared__buffer_8h" startline="168">handle_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a615559ac054e924fc9cf853ea625fb47" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+        <definition>size_t opae::fpga::types::shared_buffer::size</definition>
+        <argsstring>() const</argsstring>
+        <name>size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the length of the buffer in bytes. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="113" column="10" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="113" bodyend="113"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ace6962636a4abb52615ba899b5a1f0be" compoundref="shared__buffer_8h" startline="169">len_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1ae927b9d7e242873e6df1c831ed35f291" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::shared_buffer::wsid</definition>
+        <argsstring>() const</argsstring>
+        <name>wsid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the underlying buffer&apos;s workspace id. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="117" column="12" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="117" bodyend="117"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aedeb7bdc69160d09413a93ab2710ef57" compoundref="shared__buffer_8h" startline="171">wsid_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1acbdabbc8d4ef32caa9c231a73c5a2761" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t opae::fpga::types::shared_buffer::io_address</definition>
+        <argsstring>() const</argsstring>
+        <name>io_address</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the address of the buffer suitable for programming into the accelerator device. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="122" column="12" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="122" bodyend="122"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ad8d6169b66456e78a22a4575e5f50535" compoundref="shared__buffer_8h" startline="172">io_address_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a0df9843bfb38be926cfbc564e2e21f3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opae::fpga::types::shared_buffer::fill</definition>
+        <argsstring>(int c)</argsstring>
+        <name>fill</name>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Write c to each byte location in the buffer. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="126" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a2eddbc4e93b5afb0822b08ac905e4980" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opae::fpga::types::shared_buffer::compare</definition>
+        <argsstring>(ptr_t other, size_t len) const</argsstring>
+        <name>compare</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">ptr_t</ref></type>
+          <declname>other</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Compare this <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> (the first len bytes) to that held in other, using memcmp(). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="131" column="7"/>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1abc03852d5a07e5a5f30bf9086b35950b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T opae::fpga::types::shared_buffer::read</definition>
+        <argsstring>(size_t offset) const</argsstring>
+        <name>read</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Read a T-sized block of memory at the given location. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The byte offset from the start of the buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A T from buffer base + offset. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="138" column="5" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="138" bodyend="147"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ace6962636a4abb52615ba899b5a1f0be" compoundref="shared__buffer_8h" startline="169">len_</references>
+        <references refid="except_8h_1a2abf016a3c51c9fcc40ac9468a897592" compoundref="except_8h" startline="69">OPAECXX_HERE</references>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa8265521240b457d2a80814e1e6b8b20" compoundref="shared__buffer_8h" startline="170">virt_</references>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a49c8d0b03a0e47c8b58f84301ac34559" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void opae::fpga::types::shared_buffer::write</definition>
+        <argsstring>(const T &amp;value, size_t offset)</argsstring>
+        <name>write</name>
+        <param>
+          <type>const T &amp;</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Write a T-sized block of memory to the given location. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The byte offset from the start of the buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="154" column="8" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="154" bodyend="162"/>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ace6962636a4abb52615ba899b5a1f0be" compoundref="shared__buffer_8h" startline="169">len_</references>
+        <references refid="except_8h_1a2abf016a3c51c9fcc40ac9468a897592" compoundref="except_8h" startline="69">OPAECXX_HERE</references>
+        <references refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa8265521240b457d2a80814e1e6b8b20" compoundref="shared__buffer_8h" startline="170">virt_</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1a5a3761aa33084d9a4038e457903e189b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref></type>
+        <definition>static shared_buffer::ptr_t opae::fpga::types::shared_buffer::allocate</definition>
+        <argsstring>(handle::ptr_t handle, size_t len, bool read_only=false)</argsstring>
+        <name>allocate</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>read_only</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> factory method - allocate a <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The handle used to allocate the buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length in bytes of the requested buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A valid <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> smart pointer on success, or an empty smart pointer on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="68" column="31"/>
+        <referencedby refid="classdummy__afu_1_1dummy__afu_1a45941fbe75bbfbe64e1ad425576c51c8" compoundref="dummy__afu_8h" startline="239" endline="242">dummy_afu::dummy_afu::allocate</referencedby>
+        <referencedby refid="classhost__exerciser_1_1host__exerciser_1a38badb3eee6257a99c81f0a1ba0d85ea" compoundref="host__exerciser_8h" startline="477" endline="480">host_exerciser::host_exerciser::allocate</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1aaf0b68c33a84e081652f203443aad788" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" kindref="member">shared_buffer::ptr_t</ref></type>
+        <definition>static shared_buffer::ptr_t opae::fpga::types::shared_buffer::attach</definition>
+        <argsstring>(handle::ptr_t handle, uint8_t *base, size_t len, bool read_only=false)</argsstring>
+        <name>attach</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>read_only</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Attach a pre-allocated buffer to a <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> object.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The handle used to attach the buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">base</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The base of the pre-allocated memory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The size of the pre-allocated memory, which must be a multiple of the page size. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A valid <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> smart pointer on success, or an empty smart pointer on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="80" column="31"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classopae_1_1fpga_1_1types_1_1shared__buffer_1af3459a34de90e2dc37b608925d82acdf" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>opae::fpga::types::shared_buffer::shared_buffer</definition>
+        <argsstring>(handle::ptr_t handle, size_t len, uint8_t *virt, uint64_t wsid, uint64_t io_address)</argsstring>
+        <name>shared_buffer</name>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1handle_1a89607a8f09e983ac77b3ba6b37c4f14e" kindref="member">handle::ptr_t</ref></type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" kindref="member">size_t</ref></type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>virt</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>wsid</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>io_address</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/opae/cxx/core/shared_buffer.h" line="165" column="3"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Host/AFU shared memory blocks</para>
+<para><ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> abstracts a memory block that may be shared between the host cpu and an accelerator. The block may be allocated by the <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> class itself (see allocate), or it may be allocated elsewhere and then attached to a <ref refid="classopae_1_1fpga_1_1types_1_1shared__buffer" kindref="compound">shared_buffer</ref> object via attach. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::fpga::types::shared_buffer</label>
+        <link refid="classopae_1_1fpga_1_1types_1_1shared__buffer"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/opae/cxx/core/shared_buffer.h" line="50" column="1" bodyfile="include/opae/cxx/core/shared_buffer.h" bodystart="50" bodyend="173"/>
+    <listofallmembers>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a5a3761aa33084d9a4038e457903e189b" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>allocate</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aaf0b68c33a84e081652f203443aad788" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>attach</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ade3a3102e5162ba8bb793342bdbf58f2" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>c_type</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a2eddbc4e93b5afb0822b08ac905e4980" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>compare</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a0df9843bfb38be926cfbc564e2e21f3d" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>fill</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a9e5f35cda6592f57fb45494a6ea7b416" prot="protected" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>handle_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1acbdabbc8d4ef32caa9c231a73c5a2761" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>io_address</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ad8d6169b66456e78a22a4575e5f50535" prot="protected" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>io_address_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ace6962636a4abb52615ba899b5a1f0be" prot="protected" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>len_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a0ec4bb470ad2b48722a14fcdce1db2f8" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>operator=</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1acf517c2237550557c7b5f6e16c9b74b9" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>owner</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa90c1193c9d6c97f256f7482529d2afe" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>ptr_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1abc03852d5a07e5a5f30bf9086b35950b" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>read</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aeffe4f3dcd9bec506e322ece0e54dff7" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>release</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a94af424818d524cb897b1bc6a13ba5f7" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>shared_buffer</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1af3459a34de90e2dc37b608925d82acdf" prot="protected" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>shared_buffer</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a615559ac054e924fc9cf853ea625fb47" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>size</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a958fbecd1d6456b8e8950daffb7aa3ae" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>size_t</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aa8265521240b457d2a80814e1e6b8b20" prot="protected" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>virt_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a49c8d0b03a0e47c8b58f84301ac34559" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>write</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1ae927b9d7e242873e6df1c831ed35f291" prot="public" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>wsid</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1aedeb7bdc69160d09413a93ab2710ef57" prot="protected" virt="non-virtual"><scope>opae::fpga::types::shared_buffer</scope><name>wsid_</name></member>
+      <member refid="classopae_1_1fpga_1_1types_1_1shared__buffer_1a0dda51993e7c2ad5ed8f2759cdb002a5" prot="public" virt="virtual"><scope>opae::fpga::types::shared_buffer</scope><name>~shared_buffer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

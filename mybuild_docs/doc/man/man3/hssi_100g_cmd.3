@@ -1,0 +1,424 @@
+.TH "hssi_100g_cmd" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+hssi_100g_cmd
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/hssi/hssi_100g_cmd\&.h>\fP
+.PP
+Inherits \fBhssi_cmd\fP\&.
+.PP
+Inherited by \fBhssi_pkt_filt_100g_cmd\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBhssi_100g_cmd\fP ()"
+.br
+.ti -1c
+.RI "virtual const char * \fBname\fP () const override"
+.br
+.ti -1c
+.RI "virtual const char * \fBdescription\fP () const override"
+.br
+.ti -1c
+.RI "virtual void \fBadd_options\fP (CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "uint64_t \fBtimestamp_in_seconds\fP (uint64_t x) const"
+.br
+.ti -1c
+.RI "uint64_t \fBtotal_per_second\fP (uint64_t y, uint64_t z) const"
+.br
+.ti -1c
+.RI "uint64_t \fBdata_64\fP (uint32_t lowerbytes, uint32_t higherbytes) const"
+.br
+.ti -1c
+.RI "void \fBread_performance\fP (\fBperf_data\fP *perf, \fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "void \fBcalc_performance\fP (\fBperf_data\fP *old_perf, \fBperf_data\fP *new_perf, \fBperf_data\fP *perf, uint64_t size) const"
+.br
+.ti -1c
+.RI "uint8_t \fBstall_enable\fP (\fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "uint8_t \fBstall_disable\fP (\fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "void \fBwrite_ctrl_config\fP (\fBhssi_afu\fP *hafu, \fBctrl_config\fP config_data) const"
+.br
+.ti -1c
+.RI "void \fBwrite_csr_addr\fP (\fBhssi_afu\fP *hafu, uint64_t bin_src_addr, uint64_t bin_dest_addr) const"
+.br
+.ti -1c
+.RI "std::ostream & \fBprint_monitor_headers\fP (std::ostream &os, uint32_t max_timer) const"
+.br
+.ti -1c
+.RI "std::ostream & \fBprint_monitor_data\fP (std::ostream &os, \fBperf_data\fP *data, int port, uint32_t timer) const"
+.br
+.ti -1c
+.RI "void \fBselect_port\fP (int port, \fBctrl_config\fP config_data, \fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "void \fBcapture_perf\fP (\fBperf_data\fP *old_perf_data, \fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "std::ostream & \fBrun_monitor\fP (std::ostream &os, \fBperf_data\fP *old_perf_data, int port, \fBhssi_afu\fP *hafu, uint32_t timer)"
+.br
+.ti -1c
+.RI "char \fBget_user_input\fP (char key) const"
+.br
+.ti -1c
+.RI "void \fBquit_monitor\fP (uint8_t size, std::string move, \fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "void \fBreset_monitor\fP (std::vector< int > \fBport_\fP, std::string move, \fBctrl_config\fP config_data, \fBhssi_afu\fP *hafu) const"
+.br
+.ti -1c
+.RI "void \fBmove_cursor\fP (uint8_t size, std::string move) const"
+.br
+.ti -1c
+.RI "virtual int \fBrun\fP (\fBtest_afu\fP *afu, CLI::App *\fBapp\fP) override"
+.br
+.ti -1c
+.RI "virtual const char * \fBafu_id\fP () const override"
+.br
+.ti -1c
+.RI "std::ostream & \fBprint_registers\fP (std::ostream &os, \fBhssi_afu\fP *hafu) const"
+.br
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "std::vector< int > \fBport_\fP"
+.br
+.ti -1c
+.RI "std::string \fBeth_loopback_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBnum_packets_\fP"
+.br
+.ti -1c
+.RI "std::string \fBgap_\fP"
+.br
+.ti -1c
+.RI "std::string \fBpattern_\fP"
+.br
+.ti -1c
+.RI "std::string \fBsrc_addr_\fP"
+.br
+.ti -1c
+.RI "std::string \fBdest_addr_\fP"
+.br
+.ti -1c
+.RI "std::string \fBeth_ifc_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBstart_size_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBend_size_\fP"
+.br
+.ti -1c
+.RI "std::string \fBend_select_\fP"
+.br
+.ti -1c
+.RI "std::string \fBcontinuous_\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBcontmonitor_\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+Definition at line 70 of file hssi_100g_cmd\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "hssi_100g_cmd::hssi_100g_cmd ()\fC [inline]\fP"
+
+.PP
+Definition at line 73 of file hssi_100g_cmd\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual const char* hssi_100g_cmd::name () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_100g_cmd\fP\&.
+.PP
+Definition at line 89 of file hssi_100g_cmd\&.h\&.
+.SS "virtual const char* hssi_100g_cmd::description () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_100g_cmd\fP\&.
+.PP
+Definition at line 94 of file hssi_100g_cmd\&.h\&.
+.SS "virtual void hssi_100g_cmd::add_options (CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_100g_cmd\fP\&.
+.PP
+Definition at line 99 of file hssi_100g_cmd\&.h\&.
+.PP
+References app, continuous_, contmonitor_, dest_addr_, end_select_, end_size_, eth_ifc_, eth_loopback_, gap_, num_packets_, pattern_, port_, src_addr_, and start_size_\&.
+.PP
+Referenced by hssi_pkt_filt_100g_cmd::add_options()\&.
+.SS "uint64_t hssi_100g_cmd::timestamp_in_seconds (uint64_t x) const\fC [inline]\fP"
+
+.PP
+Definition at line 154 of file hssi_100g_cmd\&.h\&.
+.PP
+References CONV_SEC\&.
+.PP
+Referenced by total_per_second()\&.
+.SS "uint64_t hssi_100g_cmd::total_per_second (uint64_t y, uint64_t z) const\fC [inline]\fP"
+
+.PP
+Definition at line 159 of file hssi_100g_cmd\&.h\&.
+.PP
+References timestamp_in_seconds()\&.
+.PP
+Referenced by calc_performance()\&.
+.SS "uint64_t hssi_100g_cmd::data_64 (uint32_t lowerbytes, uint32_t higherbytes) const\fC [inline]\fP"
+
+.PP
+Definition at line 196 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_SHIFT\&.
+.PP
+Referenced by read_performance()\&.
+.SS "void hssi_100g_cmd::read_performance (\fBperf_data\fP * perf, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 201 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_RX_END_TIMESTAMP_HI, CSR_RX_END_TIMESTAMP_LO, CSR_STATS_RX_CNT_HI, CSR_STATS_RX_CNT_LO, CSR_STATS_RX_GD_CNT_HI, CSR_STATS_RX_GD_CNT_LO, CSR_STATS_TX_CNT_HI, CSR_STATS_TX_CNT_LO, data_64(), hssi_afu::mbox_read(), perf_data::rx_count, perf_data::rx_good_packet_count, perf_data::rx_pkt_sec, and perf_data::tx_count\&.
+.PP
+Referenced by capture_perf()\&.
+.SS "void hssi_100g_cmd::calc_performance (\fBperf_data\fP * old_perf, \fBperf_data\fP * new_perf, \fBperf_data\fP * perf, uint64_t size) const\fC [inline]\fP"
+
+.PP
+Definition at line 209 of file hssi_100g_cmd\&.h\&.
+.PP
+References perf_data::bw, perf_data::rx_count, perf_data::rx_good_packet_count, perf_data::rx_pkt_sec, total_per_second(), and perf_data::tx_count\&.
+.PP
+Referenced by run_monitor()\&.
+.SS "uint8_t hssi_100g_cmd::stall_enable (\fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 218 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_STATS_CTRL, hssi_afu::mbox_read(), and hssi_afu::mbox_write()\&.
+.PP
+Referenced by capture_perf()\&.
+.SS "uint8_t hssi_100g_cmd::stall_disable (\fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 227 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_STATS_CTRL, hssi_afu::mbox_read(), and hssi_afu::mbox_write()\&.
+.PP
+Referenced by capture_perf()\&.
+.SS "void hssi_100g_cmd::write_ctrl_config (\fBhssi_afu\fP * hafu, \fBctrl_config\fP config_data) const\fC [inline]\fP"
+
+.PP
+Definition at line 236 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_CTRL0, CSR_CTRL1, CSR_PKT_SIZE, ctrl_config::ctrl0_data, ctrl_config::ctrl1_data, hssi_afu::mbox_write(), and ctrl_config::pkt_size_data\&.
+.PP
+Referenced by select_port()\&.
+.SS "void hssi_100g_cmd::write_csr_addr (\fBhssi_afu\fP * hafu, uint64_t bin_src_addr, uint64_t bin_dest_addr) const\fC [inline]\fP"
+
+.PP
+Definition at line 243 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_DST_ADDR_HI, CSR_DST_ADDR_LO, CSR_SRC_ADDR_HI, CSR_SRC_ADDR_LO, and hssi_afu::mbox_write()\&.
+.PP
+Referenced by select_port()\&.
+.SS "std::ostream& hssi_100g_cmd::print_monitor_headers (std::ostream & os, uint32_t max_timer) const\fC [inline]\fP"
+
+.PP
+Definition at line 252 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by run()\&.
+.SS "std::ostream& hssi_100g_cmd::print_monitor_data (std::ostream & os, \fBperf_data\fP * data, int port, uint32_t timer) const\fC [inline]\fP"
+
+.PP
+Definition at line 274 of file hssi_100g_cmd\&.h\&.
+.PP
+References perf_data::bw, perf_data::rx_count, perf_data::rx_good_packet_count, perf_data::rx_pkt_sec, and perf_data::tx_count\&.
+.PP
+Referenced by run_monitor()\&.
+.SS "void hssi_100g_cmd::select_port (int port, \fBctrl_config\fP config_data, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 291 of file hssi_100g_cmd\&.h\&.
+.PP
+References dest_addr_, hssi_cmd::mac_bits_for(), src_addr_, TRAFFIC_CTRL_PORT_SEL, opae::afu_test::afu::write64(), write_csr_addr(), and write_ctrl_config()\&.
+.PP
+Referenced by reset_monitor(), and run()\&.
+.SS "void hssi_100g_cmd::capture_perf (\fBperf_data\fP * old_perf_data, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 299 of file hssi_100g_cmd\&.h\&.
+.PP
+References read_performance(), stall_disable(), and stall_enable()\&.
+.PP
+Referenced by run(), and run_monitor()\&.
+.SS "std::ostream& hssi_100g_cmd::run_monitor (std::ostream & os, \fBperf_data\fP * old_perf_data, int port, \fBhssi_afu\fP * hafu, uint32_t timer)\fC [inline]\fP"
+
+.PP
+Definition at line 309 of file hssi_100g_cmd\&.h\&.
+.PP
+References calc_performance(), capture_perf(), print_monitor_data(), and start_size_\&.
+.PP
+Referenced by run()\&.
+.SS "char hssi_100g_cmd::get_user_input (char key) const\fC [inline]\fP"
+
+.PP
+Definition at line 325 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by run()\&.
+.SS "void hssi_100g_cmd::quit_monitor (uint8_t size, std::string move, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 337 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_CTRL0, CSR_STATS_CTRL, DATA_CNF_PKT_NUM, hssi_afu::mbox_write(), move_cursor(), and ZERO\&.
+.PP
+Referenced by run()\&.
+.SS "void hssi_100g_cmd::reset_monitor (std::vector< int > port_, std::string move, \fBctrl_config\fP config_data, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 345 of file hssi_100g_cmd\&.h\&.
+.PP
+References CSR_STATS_CTRL, hssi_afu::mbox_write(), move_cursor(), ONE, port_, select_port(), and ZERO\&.
+.PP
+Referenced by run()\&.
+.SS "void hssi_100g_cmd::move_cursor (uint8_t size, std::string move) const\fC [inline]\fP"
+
+.PP
+Definition at line 358 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by quit_monitor(), reset_monitor(), and run()\&.
+.SS "virtual int hssi_100g_cmd::run (\fBtest_afu\fP * afu, CLI::App * app)\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Implements \fBopae::afu_test::command\fP\&.
+.PP
+Reimplemented in \fBhssi_pkt_filt_100g_cmd\fP\&.
+.PP
+Definition at line 368 of file hssi_100g_cmd\&.h\&.
+.PP
+References app, capture_perf(), continuous_, contmonitor_, CSR_CTRL0, CSR_CTRL1, CSR_DST_ADDR_HI, CSR_DST_ADDR_LO, CSR_PKT_SIZE, CSR_SRC_ADDR_HI, CSR_SRC_ADDR_LO, CSR_TX_COUNT, ctrl_config::ctrl0_data, ctrl_config::ctrl1_data, CURSOR_DOWN, CURSOR_UP, DATA_CNF_CONTINUOUS_MODE, DATA_CNF_FIXED_MODE, dest_addr_, hssi_cmd::enable_eth_loopback(), end_select_, end_size_, opae::afu_test::afu::error, ETH_AFU_DFH, eth_ifc_, eth_loopback_, hssi_afu::ethernet_interface(), gap_, get_user_input(), INVALID_MAC, hssi_cmd::mac_bits_for(), MAX_PORT, hssi_afu::mbox_read(), hssi_afu::mbox_write(), move_cursor(), num_packets_, pattern_, ctrl_config::pkt_size_data, port_, print_monitor_headers(), print_registers(), quit_monitor(), opae::afu_test::afu::read64(), reset_monitor(), run_monitor(), opae::afu_test::command::running(), select_port(), hssi_cmd::show_eth_stats(), src_addr_, start_size_, STOP_BITS, opae::afu_test::afu::success, TRAFFIC_CTRL_PORT_SEL, and opae::afu_test::afu::write64()\&.
+.PP
+Referenced by hssi_pkt_filt_100g_cmd::run()\&.
+.SS "virtual const char* hssi_100g_cmd::afu_id () const\fC [inline]\fP, \fC [override]\fP, \fC [virtual]\fP"
+
+.PP
+Reimplemented from \fBopae::afu_test::command\fP\&.
+.PP
+Definition at line 580 of file hssi_100g_cmd\&.h\&.
+.SS "std::ostream& hssi_100g_cmd::print_registers (std::ostream & os, \fBhssi_afu\fP * hafu) const\fC [inline]\fP"
+
+.PP
+Definition at line 585 of file hssi_100g_cmd\&.h\&.
+.PP
+References AFU_SCRATCHPAD, CSR_BLOCK_ID, CSR_CTRL0, CSR_CTRL1, CSR_DST_ADDR_HI, CSR_DST_ADDR_LO, CSR_MLB_RST, CSR_PKT_SIZE, CSR_RX_COUNT, CSR_SCRATCH, CSR_SRC_ADDR_HI, CSR_SRC_ADDR_LO, CSR_TX_COUNT, ETH_AFU_DFH, ETH_AFU_ID_H, ETH_AFU_ID_L, hssi_cmd::int_to_hex(), hssi_afu::mbox_read(), opae::afu_test::afu::read64(), TRAFFIC_CTRL_CMD, TRAFFIC_CTRL_DATA, and TRAFFIC_CTRL_PORT_SEL\&.
+.PP
+Referenced by run()\&.
+.SH "Field Documentation"
+.PP 
+.SS "std::vector<int> hssi_100g_cmd::port_\fC [protected]\fP"
+
+.PP
+Definition at line 633 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), reset_monitor(), and run()\&.
+.SS "std::string hssi_100g_cmd::eth_loopback_\fC [protected]\fP"
+
+.PP
+Definition at line 634 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_100g_cmd::num_packets_\fC [protected]\fP"
+
+.PP
+Definition at line 635 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_100g_cmd::gap_\fC [protected]\fP"
+
+.PP
+Definition at line 636 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_100g_cmd::pattern_\fC [protected]\fP"
+
+.PP
+Definition at line 637 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_100g_cmd::src_addr_\fC [protected]\fP"
+
+.PP
+Definition at line 638 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), run(), and select_port()\&.
+.SS "std::string hssi_100g_cmd::dest_addr_\fC [protected]\fP"
+
+.PP
+Definition at line 639 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), run(), hssi_pkt_filt_100g_cmd::run(), and select_port()\&.
+.SS "std::string hssi_100g_cmd::eth_ifc_\fC [protected]\fP"
+
+.PP
+Definition at line 640 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_100g_cmd::start_size_\fC [protected]\fP"
+
+.PP
+Definition at line 641 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), run(), and run_monitor()\&.
+.SS "uint32_t hssi_100g_cmd::end_size_\fC [protected]\fP"
+
+.PP
+Definition at line 642 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_100g_cmd::end_select_\fC [protected]\fP"
+
+.PP
+Definition at line 643 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "std::string hssi_100g_cmd::continuous_\fC [protected]\fP"
+
+.PP
+Definition at line 644 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+.SS "uint32_t hssi_100g_cmd::contmonitor_\fC [protected]\fP"
+
+.PP
+Definition at line 645 of file hssi_100g_cmd\&.h\&.
+.PP
+Referenced by add_options(), and run()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

@@ -1,0 +1,59 @@
+.TH "include/opae/init.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/init.h \- Initialization routine\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <opae/types_enum\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaInitialize\fP (const char *config_file)"
+.br
+.ti -1c
+.RI "\fBfpga_result\fP \fBfpgaFinalize\fP (void)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Initialization routine\&. 
+
+
+.PP
+Definition in file \fBinit\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "\fBfpga_result\fP fpgaInitialize (const char * config_file)"
+Initialize the OPAE library\&.
+.PP
+Initialize OPAE using the given configuration file path, or perform default initialization if config_file is NULL\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIconfig_file\fP Path to OPAE configuration file\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Whether OPAE initialized successfully\&. 
+.RE
+.PP
+
+.SS "\fBfpga_result\fP fpgaFinalize (void)"
+Finalize the OPAE library\&.
+.PP
+\fBReturns\fP
+.RS 4
+Whether OPAE finalized successfully\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

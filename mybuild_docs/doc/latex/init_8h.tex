@@ -1,0 +1,52 @@
+\doxysection{include/opae/init.h File Reference}
+\label{init_8h}\index{include/opae/init.h@{include/opae/init.h}}
+
+
+Initialization routine.  
+
+
+{\ttfamily \#include $<$opae/types\+\_\+enum.\+h$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{init_8h_a095c12e79f0fa4ce99512280a1df4aa6}{fpga\+Initialize}} (const char $\ast$config\+\_\+file)
+\item 
+\mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} \mbox{\hyperlink{init_8h_a89e0739f47b2c9b3c9459912adee9cfa}{fpga\+Finalize}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Initialization routine. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{init_8h_a095c12e79f0fa4ce99512280a1df4aa6}} 
+\index{init.h@{init.h}!fpgaInitialize@{fpgaInitialize}}
+\index{fpgaInitialize@{fpgaInitialize}!init.h@{init.h}}
+\doxysubsubsection{\texorpdfstring{fpgaInitialize()}{fpgaInitialize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Initialize (\begin{DoxyParamCaption}\item[{const char $\ast$}]{config\+\_\+file }\end{DoxyParamCaption})}
+
+Initialize the OPAE library.
+
+Initialize OPAE using the given configuration file path, or perform default initialization if config\+\_\+file is NULL.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em config\+\_\+file} & Path to OPAE configuration file. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether OPAE initialized successfully. 
+\end{DoxyReturn}
+\mbox{\label{init_8h_a89e0739f47b2c9b3c9459912adee9cfa}} 
+\index{init.h@{init.h}!fpgaFinalize@{fpgaFinalize}}
+\index{fpgaFinalize@{fpgaFinalize}!init.h@{init.h}}
+\doxysubsubsection{\texorpdfstring{fpgaFinalize()}{fpgaFinalize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{types__enum_8h_a27aaa9bd2d94c9b53602b1a7af49fc6d}{fpga\+\_\+result}} fpga\+Finalize (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Finalize the OPAE library.
+
+\begin{DoxyReturn}{Returns}
+Whether OPAE finalized successfully. 
+\end{DoxyReturn}

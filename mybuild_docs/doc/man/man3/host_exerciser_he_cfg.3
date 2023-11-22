@@ -1,0 +1,97 @@
+.TH "host_exerciser::he_cfg" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+host_exerciser::he_cfg
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include </root/samples/host_exerciser/host_exerciser\&.h>\fP
+.SS "Public Types"
+
+.in +1c
+.ti -1c
+.RI "enum { \fBoffset\fP = HE_CFG }"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "uint64_t \fBvalue\fP"
+.br
+.ti -1c
+.RI "struct {"
+.br
+.ti -1c
+.RI "uint64_t \fBDelayEn\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBContinuous\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBTestMode\fP: 3"
+.br
+.ti -1c
+.RI "uint64_t \fBReqLen\fP: 2"
+.br
+.ti -1c
+.RI "uint64_t \fBAtomicFunc\fP: 5"
+.br
+.ti -1c
+.RI "uint64_t \fBEncoding\fP: 2"
+.br
+.ti -1c
+.RI "uint64_t \fBRsvd_19_14\fP: 6"
+.br
+.ti -1c
+.RI "uint64_t \fBTputInterleave\fP: 3"
+.br
+.ti -1c
+.RI "uint64_t \fBTestCfg\fP: 5"
+.br
+.ti -1c
+.RI "uint64_t \fBIntrOnErr\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBIntrTestMode\fP: 1"
+.br
+.ti -1c
+.RI "uint64_t \fBReqLen_High\fP: 2"
+.br
+.ti -1c
+.RI "uint64_t \fBRsvd_63_32\fP: 32"
+.br
+.ti -1c
+.RI "}; "
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 189 of file host_exerciser\&.h\&.
+.SH "Member Enumeration Documentation"
+.PP 
+.SS "anonymous enum"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIoffset \fP\fP
+.PP
+Definition at line 190 of file host_exerciser\&.h\&.
+.SH "Field Documentation"
+.PP 
+.SS "uint64_t host_exerciser::he_cfg::value"
+
+.PP
+Definition at line 193 of file host_exerciser\&.h\&.
+.PP
+Referenced by host_exerciser::host_exerciser_cmd::host_exerciser_cmd(), and host_exerciser::host_exerciser_cmd::run_single_test()\&.
+.SS "struct { \&.\&.\&. } "
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

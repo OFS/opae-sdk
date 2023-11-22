@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structperf__data" kind="struct" language="C++" prot="public">
+    <compoundname>perf_data</compoundname>
+    <includes refid="hssi__100g__cmd_8h" local="no">/root/samples/hssi/hssi_100g_cmd.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structperf__data_1ae1747e09f4ee6b78caedd6cce2360fc5" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>volatile uint64_t perf_data::tx_count</definition>
+        <argsstring></argsstring>
+        <name>tx_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="189" column="23" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="189" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">hssi_100g_cmd::calc_performance</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" compoundref="hssi__100g__cmd_8h" startline="274" endline="289">hssi_100g_cmd::print_monitor_data</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">hssi_100g_cmd::read_performance</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structperf__data_1ac09d03c4186246c23aa04fba521b42e2" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>volatile uint64_t perf_data::rx_count</definition>
+        <argsstring></argsstring>
+        <name>rx_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="190" column="23" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="190" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">hssi_100g_cmd::calc_performance</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" compoundref="hssi__100g__cmd_8h" startline="274" endline="289">hssi_100g_cmd::print_monitor_data</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">hssi_100g_cmd::read_performance</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structperf__data_1a8c213a812b7613bee56cc02835ccb94a" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>volatile uint64_t perf_data::rx_good_packet_count</definition>
+        <argsstring></argsstring>
+        <name>rx_good_packet_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="191" column="23" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="191" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">hssi_100g_cmd::calc_performance</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" compoundref="hssi__100g__cmd_8h" startline="274" endline="289">hssi_100g_cmd::print_monitor_data</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">hssi_100g_cmd::read_performance</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structperf__data_1a91811766745d11dc2a2f2c1b1a7dae22" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>volatile uint64_t perf_data::rx_pkt_sec</definition>
+        <argsstring></argsstring>
+        <name>rx_pkt_sec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="192" column="23" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="192" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">hssi_100g_cmd::calc_performance</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" compoundref="hssi__100g__cmd_8h" startline="274" endline="289">hssi_100g_cmd::print_monitor_data</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1ad86c7d2fe50e9f4a08090a06f4e9e81c" compoundref="hssi__100g__cmd_8h" startline="201" endline="207">hssi_100g_cmd::read_performance</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structperf__data_1a4f9cb54703a3140df3e88d4b7600e107" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t perf_data::bw</definition>
+        <argsstring></argsstring>
+        <name>bw</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/hssi/hssi_100g_cmd.h" line="193" column="14" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="193" bodyend="-1"/>
+        <referencedby refid="classhssi__100g__cmd_1a77bb0634f9901672e02df84aa5a43d25" compoundref="hssi__100g__cmd_8h" startline="209" endline="216">hssi_100g_cmd::calc_performance</referencedby>
+        <referencedby refid="classhssi__100g__cmd_1a5d3d2ed202b316571178094d2ccc0c85" compoundref="hssi__100g__cmd_8h" startline="274" endline="289">hssi_100g_cmd::print_monitor_data</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>perf_data</label>
+        <link refid="structperf__data"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/hssi/hssi_100g_cmd.h" line="188" column="3" bodyfile="samples/hssi/hssi_100g_cmd.h" bodystart="188" bodyend="194"/>
+    <listofallmembers>
+      <member refid="structperf__data_1a4f9cb54703a3140df3e88d4b7600e107" prot="public" virt="non-virtual"><scope>perf_data</scope><name>bw</name></member>
+      <member refid="structperf__data_1ac09d03c4186246c23aa04fba521b42e2" prot="public" virt="non-virtual"><scope>perf_data</scope><name>rx_count</name></member>
+      <member refid="structperf__data_1a8c213a812b7613bee56cc02835ccb94a" prot="public" virt="non-virtual"><scope>perf_data</scope><name>rx_good_packet_count</name></member>
+      <member refid="structperf__data_1a91811766745d11dc2a2f2c1b1a7dae22" prot="public" virt="non-virtual"><scope>perf_data</scope><name>rx_pkt_sec</name></member>
+      <member refid="structperf__data_1ae1747e09f4ee6b78caedd6cce2360fc5" prot="public" virt="non-virtual"><scope>perf_data</scope><name>tx_count</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

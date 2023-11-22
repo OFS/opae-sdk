@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structopae_1_1afu__test_1_1pcie__address_8fields" kind="struct" language="C++" prot="public">
+    <compoundname>opae::afu_test::pcie_address.fields</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structopae_1_1afu__test_1_1pcie__address_8fields_1ac1c425268e68385d1ab5074c17a94f14" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>function</name>
+        <bitfield> 3</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="188" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae_1_1afu__test_1_1pcie__address_8fields_1a913f9c49dcb544e2087cee284f4a00b7" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>device</name>
+        <bitfield> 5</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="189" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae_1_1afu__test_1_1pcie__address_8fields_1ad20f83ee6933aa1ea047fe5cbd9c1fd5" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>bus</name>
+        <bitfield> 8</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="190" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structopae_1_1afu__test_1_1pcie__address_8fields_1aad5f82e879a9c5d6b5b442eb37e50551" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>domain</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/cxl_host_exerciser/he_cache_test.h" line="191" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>opae::afu_test::pcie_address.fields</label>
+        <link refid="structopae_1_1afu__test_1_1pcie__address_8fields"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/cxl_host_exerciser/he_cache_test.h" line="187" column="3" bodyfile="samples/cxl_host_exerciser/he_cache_test.h" bodystart="187" bodyend="192"/>
+    <listofallmembers>
+      <member refid="structopae_1_1afu__test_1_1pcie__address_8fields_1ad20f83ee6933aa1ea047fe5cbd9c1fd5" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address.fields</scope><name>bus</name></member>
+      <member refid="structopae_1_1afu__test_1_1pcie__address_8fields_1a913f9c49dcb544e2087cee284f4a00b7" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address.fields</scope><name>device</name></member>
+      <member refid="structopae_1_1afu__test_1_1pcie__address_8fields_1aad5f82e879a9c5d6b5b442eb37e50551" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address.fields</scope><name>domain</name></member>
+      <member refid="structopae_1_1afu__test_1_1pcie__address_8fields_1ac1c425268e68385d1ab5074c17a94f14" prot="public" virt="non-virtual"><scope>opae::afu_test::pcie_address.fields</scope><name>function</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

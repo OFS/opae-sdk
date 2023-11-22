@@ -1,0 +1,996 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="object__api_8c" kind="file" language="C++">
+    <compoundname>object_api.c</compoundname>
+    <includes refid="fpga_8h" local="no">opae/fpga.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">unistd.h</includes>
+    <includes local="no">getopt.h</includes>
+    <includes local="no">string.h</includes>
+    <includes local="no">argsfilter.h</includes>
+    <includes local="yes">mock/opae_std.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="23">
+        <label>opae/error.h</label>
+        <link refid="error_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="5">
+        <label>stdlib.h</label>
+      </node>
+      <node id="26">
+        <label>opae/userclk.h</label>
+        <link refid="userclk_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>samples/object_api/object_api.c</label>
+        <link refid="object__api_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>errno.h</label>
+      </node>
+      <node id="24">
+        <label>opae/version.h</label>
+        <link refid="version_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>opae/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>opae/types_enum.h</label>
+        <link refid="types__enum_8h"/>
+      </node>
+      <node id="9">
+        <label>stddef.h</label>
+      </node>
+      <node id="17">
+        <label>opae/manage.h</label>
+        <link refid="manage_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>opae/metrics.h</label>
+        <link refid="metrics_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>opae/buffer.h</label>
+        <link refid="buffer_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>opae/sysobject.h</label>
+        <link refid="sysobject_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>mock/opae_std.h</label>
+      </node>
+      <node id="6">
+        <label>string.h</label>
+      </node>
+      <node id="28">
+        <label>unistd.h</label>
+      </node>
+      <node id="16">
+        <label>opae/event.h</label>
+        <link refid="event_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>opae/properties.h</label>
+        <link refid="properties_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>opae/umsg.h</label>
+        <link refid="umsg_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>opae/fpga.h</label>
+        <link refid="fpga_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>opae/enum.h</label>
+        <link refid="enum_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>opae/types.h</label>
+        <link refid="types_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>getopt.h</label>
+      </node>
+      <node id="13">
+        <label>opae/access.h</label>
+        <link refid="access_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>opae/mmio.h</label>
+        <link refid="include_2opae_2mmio_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>argsfilter.h</label>
+      </node>
+      <node id="12">
+        <label>opae/init.h</label>
+        <link refid="init_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>stdio.h</label>
+      </node>
+      <node id="3">
+        <label>opae/log.h</label>
+        <link refid="log_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structnamed__object" prot="public">named_object</innerclass>
+    <innerclass refid="structmetric__group" prot="public">metric_group</innerclass>
+    <innerclass refid="structtoken__group" prot="public">token_group</innerclass>
+    <innerclass refid="structconfig" prot="public">config</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="object__api_8c_1a7635d12a96b25dd1760b4bc44130eed9" prot="public" static="no">
+        <name>ON_ERR_GOTO</name>
+        <param><defname>res</defname></param>
+        <param><defname>label</defname></param>
+        <param><defname>desc</defname></param>
+        <initializer>	do {                                                                   \
+		if ((res) != <ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>) {                                        \
+			<ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>((desc), (res));                              \
+			goto label;                                            \
+		}                                                              \
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="49" column="9" bodyfile="samples/object_api/object_api.c" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="object__api_8c_1a14d6fc1e8245723fc29c53beaaa5d7fa" prot="public" static="no">
+        <name>MAX_CLEANUP</name>
+        <initializer>100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="59" column="9" bodyfile="samples/object_api/object_api.c" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" prot="public" static="no">
+        <name>ADD_TO_CLEANUP</name>
+        <param><defname>func</defname></param>
+        <param><defname>p</defname></param>
+        <initializer>do {									\
+	if (<ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref> &lt; <ref refid="object__api_8c_1a14d6fc1e8245723fc29c53beaaa5d7fa" kindref="member">MAX_CLEANUP</ref>) {                               \
+		<ref refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" kindref="member">cleanup</ref>[<ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref>].fn = (<ref refid="object__api_8c_1a7ce0fba66c1863e475010b6ef14d66d1" kindref="member">destroy_f</ref>)func;             \
+		<ref refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" kindref="member">cleanup</ref>[<ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref>++].param = p;                      \
+	}								\
+} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="67" column="9" bodyfile="samples/object_api/object_api.c" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="object__api_8c_1a09886d6ba96e67553bf3c49ed8ade975" prot="public" static="no">
+        <name>MAX_TOKENS</name>
+        <initializer>4</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="75" column="9" bodyfile="samples/object_api/object_api.c" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="object__api_8c_1ac6a7bbe65decea8da048b4d5b2b58f46" prot="public" static="no">
+        <name>MAX_GROUP_OBJECTS</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="76" column="9" bodyfile="samples/object_api/object_api.c" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="object__api_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" prot="public" static="no">
+        <name>GETOPT_STRING</name>
+        <initializer>&quot;hv&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="217" column="9" bodyfile="samples/object_api/object_api.c" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="object__api_8c_1aa29fc676ed569b67c95f0ba51150b387" prot="public" static="no">
+        <name>USEC_TO_SEC</name>
+        <initializer>1000000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="258" column="9" bodyfile="samples/object_api/object_api.c" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="object__api_8c_1a7ce0fba66c1863e475010b6ef14d66d1" prot="public" static="no">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref>(*</type>
+        <definition>typedef fpga_result(* destroy_f) (void *p)</definition>
+        <argsstring>)(void *p)</argsstring>
+        <name>destroy_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="58" column="9" bodyfile="samples/object_api/object_api.c" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" prot="public" static="no" mutable="no">
+        <type>struct @140</type>
+        <definition>struct @140 cleanup[ 100 ]</definition>
+        <argsstring>[100]</argsstring>
+        <name>cleanup</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="63" column="16"/>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" prot="public" static="no" mutable="no">
+        <type>STATIC int</type>
+        <definition>STATIC int cleanup_size</definition>
+        <argsstring></argsstring>
+        <name>cleanup_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="65" column="12" bodyfile="samples/object_api/object_api.c" bodystart="65" bodyend="-1"/>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="object__api_8c_1ab61f552ece35d302b110b6c2e154226f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structconfig" kindref="compound">config</ref></type>
+        <definition>struct config options</definition>
+        <argsstring></argsstring>
+        <name>options</name>
+        <initializer>= { 1.0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="104" column="10"/>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+        <referencedby refid="n5010-ctl_8c_1adde1c5cf0a410d13f51b29238589fd42" compoundref="n5010-ctl_8c" startline="385" endline="438">parse_args</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void print_err</definition>
+        <argsstring>(const char *s, fpga_result res)</argsstring>
+        <name>print_err</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+          <declname>res</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="44" column="6" bodyfile="samples/object_api/object_api.c" bodystart="44" bodyend="47"/>
+        <references refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32">fpgaErrStr</references>
+        <referencedby refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</referencedby>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+        <referencedby refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structmetric__group" kindref="compound">metric_group</ref> *</type>
+        <definition>metric_group* init_metric_group</definition>
+        <argsstring>(fpga_token token, const char *name, metric_group *group)</argsstring>
+        <name>init_metric_group</name>
+        <param>
+          <type><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref></type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="structmetric__group" kindref="compound">metric_group</ref> *</type>
+          <declname>group</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="106" column="14" bodyfile="samples/object_api/object_api.c" bodystart="106" bodyend="138"/>
+        <references refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" compoundref="object__api_8c" startline="88">metric_group::bus</references>
+        <references refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" compoundref="object__api_8c" startline="92">metric_group::count</references>
+        <references refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" compoundref="object__api_8c" startline="89">metric_group::device</references>
+        <references refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" compoundref="types__enum_8h" startline="175">FPGA_OBJECT_GLOB</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050">fpgaDestroyProperties</references>
+        <references refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489">fpgaGetProperties</references>
+        <references refid="properties_8h_1a29eda789a7322042dfa8d558d13205a1">fpgaPropertiesGetBus</references>
+        <references refid="properties_8h_1abf2d527c4625bfd1558bb722c3c89380">fpgaPropertiesGetDevice</references>
+        <references refid="properties_8h_1a789a2548aaea9b2069b964f58a931bf6">fpgaPropertiesGetFunction</references>
+        <references refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352">fpgaTokenGetObject</references>
+        <references refid="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" compoundref="object__api_8c" startline="90">metric_group::function</references>
+        <references refid="structmetric__group_1a3aa3cf1268d2ae7783b4b295096be14f" compoundref="object__api_8c" startline="85">metric_group::name</references>
+        <references refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" compoundref="object__api_8c" startline="87">metric_group::object</references>
+        <references refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" compoundref="object__api_8c" startline="44" endline="47">print_err</references>
+        <references refid="structmetric__group_1ac8f8f854299ecb50f1de8960918bf99b" compoundref="object__api_8c" startline="86">metric_group::token</references>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result add_clock</definition>
+        <argsstring>(token_group *t_group)</argsstring>
+        <name>add_clock</name>
+        <param>
+          <type><ref refid="structtoken__group" kindref="compound">token_group</ref> *</type>
+          <declname>t_group</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="141" column="13" bodyfile="samples/object_api/object_api.c" bodystart="141" bodyend="150"/>
+        <references refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" compoundref="object__api_8c" startline="67">ADD_TO_CLEANUP</references>
+        <references refid="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" compoundref="object__api_8c" startline="99">token_group::clock</references>
+        <references refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" compoundref="types__enum_8h" startline="175">FPGA_OBJECT_GLOB</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3">fpgaDestroyObject</references>
+        <references refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352">fpgaTokenGetObject</references>
+        <references refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" compoundref="object__api_8c" startline="96">token_group::token</references>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result add_counter</definition>
+        <argsstring>(metric_group *group, const char *name)</argsstring>
+        <name>add_counter</name>
+        <param>
+          <type><ref refid="structmetric__group" kindref="compound">metric_group</ref> *</type>
+          <declname>group</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="152" column="13" bodyfile="samples/object_api/object_api.c" bodystart="152" bodyend="169"/>
+        <references refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" compoundref="object__api_8c" startline="67">ADD_TO_CLEANUP</references>
+        <references refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" compoundref="object__api_8c" startline="92">metric_group::count</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" compoundref="types__enum_8h" startline="61">FPGA_EXCEPTION</references>
+        <references refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" compoundref="types__enum_8h" startline="175">FPGA_OBJECT_GLOB</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3">fpgaDestroyObject</references>
+        <references refid="sysobject_8h_1a9854745736c2bd3dc41fbbb3de873ccd">fpgaObjectGetObject</references>
+        <references refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" compoundref="object__api_8c" startline="78">named_object::name</references>
+        <references refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" compoundref="object__api_8c" startline="79">named_object::object</references>
+        <references refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" compoundref="object__api_8c" startline="87">metric_group::object</references>
+        <references refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" compoundref="object__api_8c" startline="91">metric_group::objects</references>
+        <references refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" compoundref="object__api_8c" startline="80">named_object::value</references>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void print_counters</definition>
+        <argsstring>(fpga_object clock, metric_group *group)</argsstring>
+        <name>print_counters</name>
+        <param>
+          <type><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref></type>
+          <declname>clock</declname>
+        </param>
+        <param>
+          <type><ref refid="structmetric__group" kindref="compound">metric_group</ref> *</type>
+          <declname>group</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="171" column="6" bodyfile="samples/object_api/object_api.c" bodystart="171" bodyend="201"/>
+        <references refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" compoundref="object__api_8c" startline="88">metric_group::bus</references>
+        <references refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" compoundref="object__api_8c" startline="92">metric_group::count</references>
+        <references refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" compoundref="object__api_8c" startline="81">named_object::delta</references>
+        <references refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" compoundref="object__api_8c" startline="89">metric_group::device</references>
+        <references refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231" compoundref="types__enum_8h" startline="174">FPGA_OBJECT_SYNC</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="sysobject_8h_1a03de9a8f3a530abc6918c5c6682d92cc">fpgaObjectRead64</references>
+        <references refid="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" compoundref="object__api_8c" startline="90">metric_group::function</references>
+        <references refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" compoundref="object__api_8c" startline="78">named_object::name</references>
+        <references refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" compoundref="object__api_8c" startline="79">named_object::object</references>
+        <references refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" compoundref="object__api_8c" startline="91">metric_group::objects</references>
+        <references refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" compoundref="object__api_8c" startline="44" endline="47">print_err</references>
+        <references refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" compoundref="object__api_8c" startline="80">named_object::value</references>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1a0bed8474bd33a912769360766f6b10d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void help</definition>
+        <argsstring>(void)</argsstring>
+        <name>help</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="203" column="6" bodyfile="samples/object_api/object_api.c" bodystart="203" bodyend="215"/>
+        <referencedby refid="object__api_8c_1a3a1b6f72679286eae6f9eec936cc5533" compoundref="object__api_8c" startline="218" endline="256">parse_args</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1a3a1b6f72679286eae6f9eec936cc5533" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref></type>
+        <definition>fpga_result parse_args</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>parse_args</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="218" column="13" bodyfile="samples/object_api/object_api.c" bodystart="218" bodyend="256"/>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" compoundref="types__enum_8h" startline="61">FPGA_EXCEPTION</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="object__api_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" compoundref="object__api_8c" startline="217">GETOPT_STRING</references>
+        <references refid="object__api_8c_1a0bed8474bd33a912769360766f6b10d4" compoundref="object__api_8c" startline="203" endline="215">help</references>
+        <referencedby refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" compoundref="object__api_8c" startline="260" endline="353">main</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>main</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/object_api/object_api.c" line="260" column="5" bodyfile="samples/object_api/object_api.c" bodystart="260" bodyend="353"/>
+        <references refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" compoundref="object__api_8c" startline="141" endline="150">add_clock</references>
+        <references refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" compoundref="object__api_8c" startline="152" endline="169">add_counter</references>
+        <references refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" compoundref="object__api_8c" startline="67">ADD_TO_CLEANUP</references>
+        <references refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679">cleanup</references>
+        <references refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" compoundref="object__api_8c" startline="65">cleanup_size</references>
+        <references refid="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" compoundref="object__api_8c" startline="98">token_group::count</references>
+        <references refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" compoundref="types__enum_8h" startline="109">FPGA_DEVICE</references>
+        <references refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" compoundref="types__enum_8h" startline="58">FPGA_OK</references>
+        <references refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3">fpgaDestroyObject</references>
+        <references refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050">fpgaDestroyProperties</references>
+        <references refid="enum_8h_1a150a7a8f46e0d6df12cc329ff7030e21">fpgaDestroyToken</references>
+        <references refid="enum_8h_1a277ba17f2377895855545bd82c1f901d">fpgaEnumerate</references>
+        <references refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489">fpgaGetProperties</references>
+        <references refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b">fpgaPropertiesSetObjectType</references>
+        <references refid="structtoken__group_1acf0c62f0bafada1b09873fae376f9c83" compoundref="object__api_8c" startline="97">token_group::groups</references>
+        <references refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" compoundref="object__api_8c" startline="106" endline="138">init_metric_group</references>
+        <references refid="structconfig_1a026c31834bf67496b4a0af04d40e2adb" compoundref="object__api_8c" startline="103">config::interval_sec</references>
+        <references refid="object__api_8c_1a09886d6ba96e67553bf3c49ed8ade975" compoundref="object__api_8c" startline="75">MAX_TOKENS</references>
+        <references refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" compoundref="object__api_8c" startline="87">metric_group::object</references>
+        <references refid="object__api_8c_1a7635d12a96b25dd1760b4bc44130eed9" compoundref="object__api_8c" startline="49">ON_ERR_GOTO</references>
+        <references refid="object__api_8c_1ab61f552ece35d302b110b6c2e154226f">options</references>
+        <references refid="object__api_8c_1a3a1b6f72679286eae6f9eec936cc5533" compoundref="object__api_8c" startline="218" endline="256">parse_args</references>
+        <references refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" compoundref="object__api_8c" startline="171" endline="201">print_counters</references>
+        <references refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" compoundref="object__api_8c" startline="44" endline="47">print_err</references>
+        <references refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" compoundref="object__api_8c" startline="96">token_group::token</references>
+        <references refid="object__api_8c_1aa29fc676ed569b67c95f0ba51150b387" compoundref="object__api_8c" startline="258">USEC_TO_SEC</references>
+        <references refid="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9">usleep</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A code sample illustrates the basic usage of the OPAE C Object API. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">//<sp/>Copyright(c)<sp/>2017-2022,<sp/>Intel<sp/>Corporation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Redistribution<sp/><sp/>and<sp/><sp/>use<sp/><sp/>in<sp/>source<sp/><sp/>and<sp/><sp/>binary<sp/><sp/>forms,<sp/><sp/>with<sp/><sp/>or<sp/><sp/>without</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">//<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions<sp/>are<sp/>met:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>of<sp/><sp/>source<sp/>code<sp/><sp/>must<sp/>retain<sp/>the<sp/><sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright<sp/>notice,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the<sp/>documentation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>*<sp/>Neither<sp/>the<sp/>name<sp/><sp/>of<sp/>Intel<sp/>Corporation<sp/><sp/>nor<sp/>the<sp/>names<sp/>of<sp/>its<sp/>contributors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>may<sp/>be<sp/>used<sp/>to<sp/><sp/>endorse<sp/>or<sp/>promote<sp/><sp/>products<sp/>derived<sp/><sp/>from<sp/>this<sp/><sp/>software</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/>without<sp/>specific<sp/>prior<sp/>written<sp/>permission.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>COPYRIGHT<sp/>HOLDERS<sp/>AND<sp/>CONTRIBUTORS<sp/>&quot;AS<sp/>IS&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>AND<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/><sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/><sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/><sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/><sp/>SHALL<sp/>THE<sp/>COPYRIGHT<sp/>OWNER<sp/><sp/>OR<sp/>CONTRIBUTORS<sp/>BE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//<sp/>LIABLE<sp/><sp/>FOR<sp/><sp/>ANY<sp/><sp/>DIRECT,<sp/><sp/>INDIRECT,<sp/><sp/>INCIDENTAL,<sp/><sp/>SPECIAL,<sp/><sp/>EXEMPLARY,<sp/><sp/>OR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONSEQUENTIAL<sp/><sp/>DAMAGES<sp/><sp/>(INCLUDING,<sp/><sp/>BUT<sp/><sp/>NOT<sp/>LIMITED<sp/><sp/>TO,<sp/><sp/>PROCUREMENT<sp/><sp/>OF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/><sp/>LOSS<sp/>OF<sp/>USE,<sp/><sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/><sp/>OR<sp/>BUSINESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">//<sp/>INTERRUPTION)<sp/><sp/>HOWEVER<sp/>CAUSED<sp/><sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/><sp/>OF<sp/>LIABILITY,<sp/><sp/>WHETHER<sp/>IN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CONTRACT,<sp/><sp/>STRICT<sp/>LIABILITY,<sp/><sp/>OR<sp/>TORT<sp/><sp/>(INCLUDING<sp/>NEGLIGENCE<sp/><sp/>OR<sp/>OTHERWISE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/><sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">//<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>HAVE_CONFIG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;config.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>HAVE_CONFIG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="fpga_8h" kindref="compound">opae/fpga.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;getopt.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;argsfilter.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;mock/opae_std.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>%s:<sp/>%s\n&quot;</highlight><highlight class="normal">,<sp/>s,<sp/><ref refid="utils_8h_1a2a3fc0d8baf294d2da980ba544368b32" kindref="member">fpgaErrStr</ref>(res));</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="object__api_8c_1a7635d12a96b25dd1760b4bc44130eed9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ON_ERR_GOTO(res,<sp/>label,<sp/>desc)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>((res)<sp/>!=<sp/>FPGA_OK)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print_err((desc),<sp/>(res));<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>goto<sp/>label;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="object__api_8c_1a7ce0fba66c1863e475010b6ef14d66d1" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>(*<ref refid="object__api_8c_1a7ce0fba66c1863e475010b6ef14d66d1" kindref="member">destroy_f</ref>)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*p);</highlight></codeline>
+<codeline lineno="59" refid="object__api_8c_1a14d6fc1e8245723fc29c53beaaa5d7fa" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAX_CLEANUP<sp/>100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><ref refid="object__api_8c_1a7ce0fba66c1863e475010b6ef14d66d1" kindref="member">destroy_f</ref><sp/>fn;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*param;</highlight></codeline>
+<codeline lineno="63" refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" refkind="member"><highlight class="normal">}<sp/><ref refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" kindref="member">cleanup</ref>[<ref refid="object__api_8c_1a14d6fc1e8245723fc29c53beaaa5d7fa" kindref="member">MAX_CLEANUP</ref>];</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" refkind="member"><highlight class="normal">STATIC<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ADD_TO_CLEANUP(func,<sp/>p)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor">do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"><sp/><sp/><sp/>if<sp/>(cleanup_size<sp/>&lt;<sp/>MAX_CLEANUP)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>cleanup[cleanup_size].fn<sp/>=<sp/>(destroy_f)func;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>cleanup[cleanup_size++].param<sp/>=<sp/>p;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor">}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="object__api_8c_1a09886d6ba96e67553bf3c49ed8ade975" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAX_TOKENS<sp/>4</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="object__api_8c_1ac6a7bbe65decea8da048b4d5b2b58f46" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAX_GROUP_OBJECTS<sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="structnamed__object" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78" refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" kindref="member">name</ref>;</highlight></codeline>
+<codeline lineno="79" refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/><ref refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" kindref="member">object</ref>;</highlight></codeline>
+<codeline lineno="80" refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="81" refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/><ref refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" kindref="member">delta</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}<sp/><ref refid="structnamed__object" kindref="compound">named_object</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structmetric__group" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85" refid="structmetric__group_1a3aa3cf1268d2ae7783b4b295096be14f" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structmetric__group_1a3aa3cf1268d2ae7783b4b295096be14f" kindref="member">name</ref>;</highlight></codeline>
+<codeline lineno="86" refid="structmetric__group_1ac8f8f854299ecb50f1de8960918bf99b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/><ref refid="structmetric__group_1ac8f8f854299ecb50f1de8960918bf99b" kindref="member">token</ref>;</highlight></codeline>
+<codeline lineno="87" refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/><ref refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" kindref="member">object</ref>;</highlight></codeline>
+<codeline lineno="88" refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/><ref refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" kindref="member">bus</ref>;</highlight></codeline>
+<codeline lineno="89" refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/><ref refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" kindref="member">device</ref>;</highlight></codeline>
+<codeline lineno="90" refid="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" refkind="member"><highlight class="normal"><sp/><sp/><sp/>uint8_t<sp/></highlight><highlight class="keyword">function</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91" refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structnamed__object" kindref="compound">named_object</ref><sp/>objects[<ref refid="object__api_8c_1ac6a7bbe65decea8da048b4d5b2b58f46" kindref="member">MAX_GROUP_OBJECTS</ref>];</highlight></codeline>
+<codeline lineno="92" refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}<sp/><ref refid="structmetric__group" kindref="compound">metric_group</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="structtoken__group" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96" refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/><ref refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" kindref="member">token</ref>;</highlight></codeline>
+<codeline lineno="97" refid="structtoken__group_1acf0c62f0bafada1b09873fae376f9c83" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="structmetric__group" kindref="compound">metric_group</ref><sp/>*<ref refid="structtoken__group_1acf0c62f0bafada1b09873fae376f9c83" kindref="member">groups</ref>;</highlight></codeline>
+<codeline lineno="98" refid="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="99" refid="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/><ref refid="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" kindref="member">clock</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}<sp/><ref refid="structtoken__group" kindref="compound">token_group</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfig" kindref="compound">config</ref><sp/>{</highlight></codeline>
+<codeline lineno="103" refid="structconfig_1a026c31834bf67496b4a0af04d40e2adb" refkind="member"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="structconfig_1a026c31834bf67496b4a0af04d40e2adb" kindref="member">interval_sec</ref>;</highlight></codeline>
+<codeline lineno="104" refid="object__api_8c_1ab61f552ece35d302b110b6c2e154226f" refkind="member"><highlight class="normal">}<sp/><ref refid="object__api_8c_1ab61f552ece35d302b110b6c2e154226f" kindref="member">options</ref><sp/>=<sp/>{<sp/>1.0<sp/>};</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" refkind="member"><highlight class="normal"><ref refid="structmetric__group" kindref="compound">metric_group</ref><sp/>*<ref refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" kindref="member">init_metric_group</ref>(<ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>token,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structmetric__group" kindref="compound">metric_group</ref><sp/>*group)</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>props;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1ac8f8f854299ecb50f1de8960918bf99b" kindref="member">token</ref><sp/>=<sp/>token;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1a3aa3cf1268d2ae7783b4b295096be14f" kindref="member">name</ref><sp/>=<sp/>name;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" kindref="member">count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties</ref>(token,<sp/>&amp;props)<sp/>==<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a29eda789a7322042dfa8d558d13205a1" kindref="member">fpgaPropertiesGetBus</ref>(props,<sp/>&amp;group-&gt;<ref refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" kindref="member">bus</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;error<sp/>reading<sp/>bus&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1abf2d527c4625bfd1558bb722c3c89380" kindref="member">fpgaPropertiesGetDevice</ref>(props,<sp/>&amp;group-&gt;<ref refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" kindref="member">device</ref>);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;error<sp/>reading<sp/>device&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a789a2548aaea9b2069b964f58a931bf6" kindref="member">fpgaPropertiesGetFunction</ref>(props,<sp/>&amp;group-&gt;<ref refid="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" kindref="member">function</ref>);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;error<sp/>reading<sp/>function&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>(&amp;props);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352" kindref="member">fpgaTokenGetObject</ref>(token,<sp/>name,<sp/>&amp;group-&gt;<ref refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" kindref="member">object</ref>,<sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" kindref="member">FPGA_OBJECT_GLOB</ref>)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>==<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>group;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" kindref="member">add_clock</ref>(<ref refid="structtoken__group" kindref="compound">token_group</ref><sp/>*t_group)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res<sp/>=<sp/><ref refid="sysobject_8h_1aabea869646f2a612efc878e35d25c352" kindref="member">fpgaTokenGetObject</ref>(t_group-&gt;<ref refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" kindref="member">token</ref>,<sp/></highlight><highlight class="stringliteral">&quot;*perf/clock&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;t_group-&gt;<ref refid="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" kindref="member">clock</ref>,<sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" kindref="member">FPGA_OBJECT_GLOB</ref>);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" kindref="member">ADD_TO_CLEANUP</ref>(<ref refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" kindref="member">fpgaDestroyObject</ref>,<sp/>&amp;t_group-&gt;<ref refid="structtoken__group_1ad1a9c073ec875ad3619da1436c9beccd" kindref="member">clock</ref>);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152" refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" kindref="member">add_counter</ref>(<ref refid="structmetric__group" kindref="compound">metric_group</ref><sp/>*group,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>group-&gt;<ref refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="sysobject_8h_1a9854745736c2bd3dc41fbbb3de873ccd" kindref="member">fpgaObjectGetObject</ref>(group-&gt;<ref refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" kindref="member">object</ref>,<sp/>name,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[count].<ref refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" kindref="member">object</ref>,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afbaa8bfa7ba531a8b610b44f9364201e425" kindref="member">FPGA_OBJECT_GLOB</ref>);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[count].<ref refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" kindref="member">value</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[count].<ref refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" kindref="member">name</ref><sp/>=<sp/>name;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" kindref="member">count</ref>++;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" kindref="member">ADD_TO_CLEANUP</ref>(<ref refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" kindref="member">fpgaDestroyObject</ref>,<sp/>&amp;group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[count].<ref refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" kindref="member">object</ref>);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[count].<ref refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" kindref="member">object</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171" refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" kindref="member">print_counters</ref>(<ref refid="types_8h_1ab0d91e42f9f3db11e2d095d3c0f728b2" kindref="member">fpga_object</ref><sp/>clock,<sp/><ref refid="structmetric__group" kindref="compound">metric_group</ref><sp/>*group)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>group-&gt;<ref refid="structmetric__group_1abb44d12920d2d9d1041b00254973ebe2" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/>uint64_t<sp/>value<sp/>=<sp/>0,<sp/>clock_value<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res<sp/>=<sp/><ref refid="sysobject_8h_1a03de9a8f3a530abc6918c5c6682d92cc" kindref="member">fpgaObjectRead64</ref>(clock,<sp/>&amp;clock_value,<sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231" kindref="member">FPGA_OBJECT_SYNC</ref>);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;Error<sp/>reading<sp/>clock&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="sysobject_8h_1a03de9a8f3a530abc6918c5c6682d92cc" kindref="member">fpgaObjectRead64</ref>(group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1aa4757f48068a9b3df2147f150705570e" kindref="member">object</ref>,<sp/>&amp;value,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="types__enum_8h_1a9cacfdee4baf5ca62998913596412afba2d41c9cc1db0d054ac8a8e1afb707231" kindref="member">FPGA_OBJECT_SYNC</ref>);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" kindref="member">delta</ref><sp/>=</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>-<sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1a84bcb0c225f1d4836f67933b4bba3021" kindref="member">value</ref><sp/>=<sp/>value;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;error<sp/>reading<sp/>counter&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;device:<sp/>%02x:%02x.%1d<sp/>clock<sp/>%lu:<sp/>\n\t&quot;</highlight><highlight class="normal">,<sp/>group-&gt;<ref refid="structmetric__group_1a1cb9ac5fa1b24cd6cb7cc9d32d0b6ab1" kindref="member">bus</ref>,</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1a3645114207ff895c276f6d36cbe485ea" kindref="member">device</ref>,<sp/>group-&gt;<ref refid="structmetric__group_1a6e18dd1bdbfd92fc4d4d4ff658b8718d" kindref="member">function</ref>,<sp/>clock_value);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" kindref="member">delta</ref><sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;%16s<sp/>:<sp/>%10lu,<sp/>&quot;</highlight><highlight class="normal">,<sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1a3d81c56fb382b314f10925c9e5be78b6" kindref="member">name</ref>,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>group-&gt;<ref refid="structmetric__group_1aaac5ae86f698ed76dd5309bca67ae781" kindref="member">objects</ref>[i].<ref refid="structnamed__object_1aa60add432596827c889e6e9e22957d88" kindref="member">delta</ref>);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203" refid="object__api_8c_1a0bed8474bd33a912769360766f6b10d4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="object__api_8c_1a0bed8474bd33a912769360766f6b10d4" kindref="member">help</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;object_api\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;OPAE<sp/>Object<sp/>API<sp/>sample\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Usage:\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>object_api<sp/>[-hv]<sp/>[-S<sp/>&lt;segment&gt;]<sp/>[-B<sp/>&lt;bus&gt;]<sp/>[-D<sp/>&lt;device&gt;]<sp/>[-F<sp/>&lt;function&gt;]<sp/>[PCI_ADDR]\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-h,--help<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Print<sp/>this<sp/>help\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-v,--version<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Print<sp/>version<sp/>info<sp/>and<sp/>exit\n&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217" refid="object__api_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>GETOPT_STRING<sp/>&quot;hv&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218" refid="object__api_8c_1a3a1b6f72679286eae6f9eec936cc5533" refkind="member"><highlight class="normal"><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/><ref refid="object__api_8c_1a3a1b6f72679286eae6f9eec936cc5533" kindref="member">parse_args</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[])</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">option<sp/>longopts[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;help&quot;</highlight><highlight class="normal">,<sp/><sp/><sp/><sp/>no_argument,<sp/>NULL,<sp/></highlight><highlight class="charliteral">&apos;h&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;version&quot;</highlight><highlight class="normal">,<sp/>no_argument,<sp/>NULL,<sp/></highlight><highlight class="charliteral">&apos;v&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>NULL,<sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/>0<sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>getopt_ret;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>option_index;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(-1<sp/>!=<sp/>(getopt_ret<sp/>=<sp/>getopt_long(argc,<sp/>argv,<sp/><ref refid="object__api_8c_1acc2c9cc08f0f7b8f21f835d3fa0f6435" kindref="member">GETOPT_STRING</ref>,</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>longopts,<sp/>&amp;option_index)))<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*tmp_optarg<sp/>=<sp/>optarg;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Checks<sp/>to<sp/>see<sp/>if<sp/>optarg<sp/>is<sp/>null<sp/>and<sp/>if<sp/>not<sp/>it<sp/>goes<sp/>to<sp/>value</highlight></codeline>
+<codeline lineno="232"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>of<sp/>optarg<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((optarg)<sp/>&amp;&amp;<sp/>(</highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal"><sp/>==<sp/>*tmp_optarg))<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++tmp_optarg;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(getopt_ret)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;h&apos;</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>help<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1a0bed8474bd33a912769360766f6b10d4" kindref="member">help</ref>();</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;v&apos;</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>version<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;object_api<sp/>%s<sp/>%s%s\n&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPAE_VERSION,</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPAE_GIT_COMMIT_HASH,</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPAE_GIT_SRC_TREE_DIRTY<sp/>?<sp/></highlight><highlight class="stringliteral">&quot;*&quot;</highlight><highlight class="normal">:</highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>invalid<sp/>option<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Invalid<sp/>cmdline<sp/>option<sp/>\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da8527745386f7cea8d8aa64f96f2249a4" kindref="member">FPGA_EXCEPTION</ref>;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258" refid="object__api_8c_1aa29fc676ed569b67c95f0ba51150b387" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>USEC_TO_SEC<sp/>1000000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260" refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="object__api_8c_1a0ddf1224851353fc92bfbff6f499fa97" kindref="member">main</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[])</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1ab868bdeab946a8059abe7e9c114aee56" kindref="member">fpga_properties</ref><sp/>filter;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><ref refid="types_8h_1a252f538a10fb51d0988ed52946516d9e" kindref="member">fpga_token</ref><sp/>tokens[<ref refid="object__api_8c_1a09886d6ba96e67553bf3c49ed8ade975" kindref="member">MAX_TOKENS</ref>];</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6d" kindref="member">fpga_result</ref><sp/>res<sp/>=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>exit_code<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/>num_matches<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/>uint32_t<sp/>i<sp/>=<sp/>0,<sp/>j<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><ref refid="structtoken__group" kindref="compound">token_group</ref><sp/>*metrics<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a010d3b6839fc8763e66e4f953682a489" kindref="member">fpgaGetProperties</ref>(NULL,<sp/>&amp;filter);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><ref refid="object__api_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out,<sp/></highlight><highlight class="stringliteral">&quot;Creating<sp/>fpga_properties&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><ref refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" kindref="member">ADD_TO_CLEANUP</ref>(<ref refid="properties_8h_1a6f83533f996cf6bd25274e0b7b9c3050" kindref="member">fpgaDestroyProperties</ref>,<sp/>&amp;filter);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opae_set_properties_from_args(filter,</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;res,</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;argc,</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>argv))<sp/>{</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;failed<sp/>arg<sp/>parse&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_free;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res)<sp/>{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;failed<sp/>to<sp/>set<sp/>properties&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_free;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="object__api_8c_1a3a1b6f72679286eae6f9eec936cc5533" kindref="member">parse_args</ref>(argc,<sp/>argv);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)res<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;error<sp/>parsing<sp/>arguments&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_free;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>set<sp/>filter<sp/>to<sp/>accelerator<sp/>object</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="properties_8h_1a3724caa06200e0d3f0b56611c379d75b" kindref="member">fpgaPropertiesSetObjectType</ref>(filter,<sp/><ref refid="types__enum_8h_1a9b2ddb9e533441e79f19d45fa0a24934a91f784c1c357473adbde7188a244219a" kindref="member">FPGA_DEVICE</ref>);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><ref refid="object__api_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_free,<sp/></highlight><highlight class="stringliteral">&quot;Setting<sp/>ObjectType&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="enum_8h_1a277ba17f2377895855545bd82c1f901d" kindref="member">fpgaEnumerate</ref>(&amp;filter,<sp/>1,<sp/>tokens,<sp/><ref refid="object__api_8c_1a09886d6ba96e67553bf3c49ed8ade975" kindref="member">MAX_TOKENS</ref>,<sp/>&amp;num_matches);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><ref refid="object__api_8c_1a7635d12a96b25dd1760b4bc44130eed9" kindref="member">ON_ERR_GOTO</ref>(res,<sp/>out_free,<sp/></highlight><highlight class="stringliteral">&quot;Enumerating<sp/>for<sp/>properties&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_matches;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" kindref="member">ADD_TO_CLEANUP</ref>(<ref refid="enum_8h_1a150a7a8f46e0d6df12cc329ff7030e21" kindref="member">fpgaDestroyToken</ref>,<sp/>&amp;tokens[i]);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/>metrics<sp/>=<sp/>opae_calloc(num_matches,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structtoken__group" kindref="compound">token_group</ref>));</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(metrics<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/></highlight><highlight class="stringliteral">&quot;Could<sp/>not<sp/>allocate<sp/>array<sp/>for<sp/>metrics\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_free;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_matches;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>metrics[i].<ref refid="structtoken__group_1aff8b9ebac32292d61a68cdf373abcd07" kindref="member">token</ref><sp/>=<sp/>tokens[i];</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1acf84beec79fddbce4024fb6b3ff977e5" kindref="member">add_clock</ref>(&amp;metrics[i]);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>metrics[i].<ref refid="structtoken__group_1acf0c62f0bafada1b09873fae376f9c83" kindref="member">groups</ref><sp/>=<sp/>opae_calloc(3,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structmetric__group" kindref="compound">metric_group</ref>));</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>metrics[i].<ref refid="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" kindref="member">count</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structmetric__group" kindref="compound">metric_group</ref><sp/>*g_fabric<sp/>=<sp/><ref refid="object__api_8c_1a37d8cef8f07927f8c55c4b5c92bdc477" kindref="member">init_metric_group</ref>(</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tokens[i],<sp/></highlight><highlight class="stringliteral">&quot;*perf/fabric&quot;</highlight><highlight class="normal">,<sp/>&amp;metrics[i].groups[0]);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!g_fabric)</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out_free;</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1a38f61da696fc8113fbcb512f918c1c81" kindref="member">ADD_TO_CLEANUP</ref>(<ref refid="sysobject_8h_1a5829c9ba73a939da7faa71e7dca442b3" kindref="member">fpgaDestroyObject</ref>,<sp/>&amp;(g_fabric-&gt;<ref refid="structmetric__group_1a3f6d185fb89ae4822f85b88b2a7f8f60" kindref="member">object</ref>));</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" kindref="member">add_counter</ref>(g_fabric,<sp/></highlight><highlight class="stringliteral">&quot;mmio_write&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1ad17e22d237013df1ad0ad90a5604eee2" kindref="member">add_counter</ref>(g_fabric,<sp/></highlight><highlight class="stringliteral">&quot;mmio_read&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>10;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(--count<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_matches;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>metrics[i].<ref refid="structtoken__group_1a4d21c3b21093ffeb2d94e795ab5e6cde" kindref="member">count</ref>;<sp/>++j)<sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1accfee7be7eb9741f2a6ca3281a46dce8" kindref="member">print_counters</ref>(metrics[i].clock,</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;metrics[i].groups[j]);</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="hello__afu_8c_1a300ec1c0f7befcbb990985d36d56d8c9" kindref="member">usleep</ref>((useconds_t)(<ref refid="object__api_8c_1ab61f552ece35d302b110b6c2e154226f" kindref="member">options</ref>.<ref refid="structconfig_1a026c31834bf67496b4a0af04d40e2adb" kindref="member">interval_sec</ref></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/><ref refid="object__api_8c_1aa29fc676ed569b67c95f0ba51150b387" kindref="member">USEC_TO_SEC</ref>));</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/>exit_code<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal">out_free:</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(<ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref>--<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>res<sp/>=<sp/><ref refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" kindref="member">cleanup</ref>[<ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref>].fn(<ref refid="object__api_8c_1a742025e52f6ec88c8341d1a90e5ec679" kindref="member">cleanup</ref>[<ref refid="object__api_8c_1a9f95f0bf91a23d61298714eb5147b475" kindref="member">cleanup_size</ref>].param);</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>!=<sp/><ref refid="types__enum_8h_1a27aaa9bd2d94c9b53602b1a7af49fc6da727cb0690aa450810ffc8f5371401327" kindref="member">FPGA_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="object__api_8c_1aa11f434898b86d619a5ceb6a5d7bf066" kindref="member">print_err</ref>(</highlight><highlight class="stringliteral">&quot;Error<sp/>destroying<sp/>structure:<sp/>&quot;</highlight><highlight class="normal">,<sp/>res);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(metrics)<sp/>{</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_matches;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(metrics[i].groups)</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opae_free(metrics[i].groups);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>opae_free(metrics);</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="351"><highlight class="normal">out:</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>exit_code;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="samples/object_api/object_api.c"/>
+  </compounddef>
+</doxygen>

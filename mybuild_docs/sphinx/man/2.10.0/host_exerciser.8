@@ -1,0 +1,275 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "HOST_EXERCISER" "8" "Nov 22, 2023" "2.10.0" "OPAE"
+.SH NAME
+host_exerciser \- Host Exerciser lpbk and memory
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Usage: host_exerciser [OPTIONS] SUBCOMMAND
+
+
+Options:
+  \-h,\-\-help                   Print this help message and exit
+  \-p,\-\-pci\-address TEXT       [<domain>:]<bus>:<device>.<function>
+  \-l,\-\-log\-level TEXT:{trace,debug,info,warning,error,critical,off}=warning
+                              stdout logging level
+  \-s,\-\-shared                 open in shared mode, default is off
+  \-t,\-\-timeout UINT=60000     test timeout (msec)
+  \-m,\-\-mode UINT:value in {lpbk\->0,read\->1,trput\->3,write\->2} OR {0,1,3,2}=lpbk
+                              host exerciser mode {lpbk,read, write, trput}
+  \-\-cls UINT:value in {cl_1\->0,cl_2\->1,cl_4\->2,cl_8\->3} OR {0,1,2,3}=cl_1
+                              number of CLs per request{cl_1, cl_2, cl_4, cl_8}
+  \-\-continuousmode BOOLEAN=false
+                              test rollover or test termination
+  \-\-atomic UINT:value in {cas_4\->9,cas_8\->11,fadd_4\->1,fadd_8\->3,off\->0,swap_4\->5,swap_8\->7} OR {9,11,1,3,0,5,7}=off
+                              atomic requests (only permitted in combination with lpbk/cl_1)
+  \-\-encoding UINT:value in {default\->0,dm\->1,pu\->2,random\->3} OR {0,1,2,3}=default
+                              data mover or power user encoding \-\- random interleaves both in the same stream
+  \-d,\-\-delay BOOLEAN=false    Enables random delay insertion between requests
+  \-\-interleave UINT=0         Interleave requests pattern to use in throughput mode {0, 1, 2}
+                              indicating one of the following series of read/write requests:
+                              0: rd\-wr\-rd\-wr
+                              1: rd\-rd\-wr\-wr
+                              2: rd\-rd\-rd\-rd\-wr\-wr\-wr\-wr
+  \-\-interrupt UINT:INT in [0 \- 3]
+                              The Interrupt Vector Number for the device
+  \-\-contmodetime UINT=1       Continuous mode time in seconds
+  \-\-testall BOOLEAN=false     Run all tests
+  \-\-clock\-mhz UINT=0          Clock frequency (MHz) \-\- when zero, read the frequency from the AFU
+
+Subcommands:
+  lpbk                        run simple loopback test
+  mem                         run simple mem test
+
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH DESCRIPTION
+.sp
+The host exerciser used to exercise and characterize the various host\-FPGA
+interactions eg. MMIO, Data transfer from host to FPGA , PR, host to FPGA memory etc.
+.SS Host Exerciser Loopback (HE\-LBK)
+.sp
+HE\-LB is responsible for generating traffic with the intention of exercising the
+path from the AFU to the Host at full bandwidth.
+Host Exerciser Loopback (HE\-LBK) AFU can move data between host memory and FPGA.
+.sp
+HE\-LBK supports:
+.INDENT 0.0
+.IP \(bu 2
+Latency (AFU to Host memory read)
+.IP \(bu 2
+MMIO latency (Write+Read)
+.IP \(bu 2
+MMIO BW (64B MMIO writes)
+.IP \(bu 2
+BW (Read/Write, Read only, Wr only)
+.UNINDENT
+.SS Host Exerciser Memory (HE\-MEM)
+.sp
+HE\-MEM is used to exercise use of FPGA connected DDR; data read from the host is
+written to DDR, and the same data is read from DDR before sending it back to the
+host. HE\-MEM uses external DDR memory (i.e. EMIF) to store data. It has a customized
+version of the AVMM interface to communicate with the EMIF memory controller.
+.sp
+Execution of these exercisors requires the user to bind specific VF endpoint to vfio\-pci
+Bind the correct endpoint for a device with B/D/F 0000:b1:00.0
+.sp
+\fB[user@localhost]: sudo opae.io init \-d 0000:b1:00.2 user:user\fP
+.SS HOST EXERCISER SUB COMMANDS
+.sp
+\fBlpbk\fP
+.sp
+run host exerciser loopback test
+.sp
+\fBmem\fP
+.sp
+run host exerciser memory test
+.SH OPTIONAL ARGUMENTS
+.sp
+\fB\-\-help, \-h\fP
+.sp
+Prints help information and exit.
+.SH COMMON ARGUMENTS / OPTIONS
+.sp
+The following arguments are common to all commands and are optional.
+.sp
+\fB \-p,\-\-pci\-address\fP
+.sp
+PCIe domain, bus, device, function number of fpga resource.
+.sp
+\fB\-l,\-\-log\-level\fP
+.sp
+set host exerciser tool log level, trace, debug, info, warning, error, critical, off
+.sp
+\fB\-s,\-\-shared \fP
+.sp
+open FPGA PCIe resource in shared mode
+.sp
+\fB\-t,\-\-timeout\fP
+.sp
+host exerciser tool time out, by default time out 60000
+.sp
+\fB\-m,\-\-mode\fP
+.sp
+host exerciser test modes are lpbk, read, write, trput
+.sp
+\fB\-\-cls\fP
+.sp
+Number of cachelines per request 1, 2, 3, 4.
+.sp
+\fB\-\-continuousmode\fP
+.sp
+Configures test rollover or test termination mode.
+.sp
+\fB\-\-atomic\fP
+.sp
+atomic requests.
+.sp
+\fB\-\-encoding\fP
+.sp
+select data mover mode or power user mode or random.
+.sp
+\fB\-d,\-\-delay\fP
+.sp
+Enables random delay insertion between requests.
+.sp
+\fB\-\-interleave\fP
+.sp
+Enables interleave requests in throughput mode.
+Value:3’b000\-Rd,Wr,Rd,Wr
+Value:3’b001\-Rd,Rd,Wr,Wr
+Value:3’b010\-Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr
+Value:3’b011\-Not supported
+.sp
+\fB\-\-interrupt\fP
+.sp
+Accelerator interrupt vector Number.
+.sp
+\fB\-\-contmodetime\fP
+.sp
+Continuous mode time in seconds.
+.sp
+\fB\-\-testall \fP
+.sp
+Run all host exerciser tests.
+.sp
+\fB\-\-clock\-mhz\fP
+.sp
+pcie clock frequency, default value 350Mhz.
+.SH EXAMPLES
+.sp
+This command exerciser Loopback afu:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+host_exerciser lpbk
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command exerciser memory afu:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+host_exerciser mem
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command exerciser Loopback afu on pcie 000:3b:00.0:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+host_exerciser \-\-pci\-address 000:3b:00.0    lpbk
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command exerciser Loopback afu on pcie 000:3b:00.0 and run in write mode:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+host_exerciser \-\-pci\-address 000:3b:00.0   \-\-mode write lpbl
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command exerciser Loopback afu on pcie 000:3b:00.0 and run 2 cache lines per request:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+host_exerciser \-\-pci\-address 000:3b:00.0   \-\-cls cl_2  lpbk
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command exerciser Loopback afu on pcie 000:3b:00.0 and run continuous mode for 10 seconds:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+host_exerciser \-\-pci\-address 000:3b:00.0   \-cls cl_1   \-m 0 \-\-continuousmode true \-\-contmodetime 10 lpbk
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH REVISION HISTORY
+.sp
+| Document Version |  Intel Acceleration Stack Version  | Changes  |
+| —————\- |————————————|———\-|
+| 2018.05.21 | 1.1 Beta. (Supported with Intel Quartus Prime Pro Edition 17.1.) | Updated description of the \fBfme\fP command |
+.SH AUTHOR
+Intel DCG FPT SW
+.SH COPYRIGHT
+2017 Intel Corporation
+.\" Generated by docutils manpage writer.
+.

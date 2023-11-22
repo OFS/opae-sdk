@@ -1,0 +1,222 @@
+.TH "include/opae/mem_alloc.h" 3 "Wed Nov 22 2023" "Version -.." "OPAE C API" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/opae/mem_alloc.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdint\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBmem_link\fP"
+.br
+.ti -1c
+.RI "struct \fBmem_alloc\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBmem_alloc_init\fP (struct \fBmem_alloc\fP *m)"
+.br
+.ti -1c
+.RI "void \fBmem_alloc_destroy\fP (struct \fBmem_alloc\fP *m)"
+.br
+.ti -1c
+.RI "int \fBmem_alloc_add_free\fP (struct \fBmem_alloc\fP *m, uint64_t address, uint64_t size)"
+.br
+.ti -1c
+.RI "int \fBmem_alloc_get\fP (struct \fBmem_alloc\fP *m, uint64_t *address, uint64_t size)"
+.br
+.ti -1c
+.RI "int \fBmem_alloc_put\fP (struct \fBmem_alloc\fP *m, uint64_t address)"
+.br
+.in -1c
+.SH "Data Structure Documentation"
+.PP 
+.SH "struct mem_link"
+.PP 
+Provides an API for allocating/freeing a logical address space\&. There is no interaction with any OS memory allocation infrastructure, whether malloc, mmap, etc\&. The 'address ranges' tracked by this allocator are arbitrary 64-bit integers\&. The allocator simply provides the bookeeping logic that ensures that a unique address with the appropriate size is returned for each allocation request, and that an allocation can be freed, ie released back to the available pool of logical address space for future allocations\&. The memory backing the allocator's internal data structures is managed by malloc()/free()\&. 
+.PP
+Definition at line 43 of file mem_alloc\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+uint64_t \fIaddress\fP 
+.br
+.PP
+uint64_t \fIsize\fP 
+.br
+.PP
+struct \fBmem_link\fP * \fIprev\fP 
+.br
+.PP
+struct \fBmem_link\fP * \fInext\fP 
+.br
+.PP
+.RE
+.PP
+.SH "struct mem_alloc"
+.PP 
+Definition at line 50 of file mem_alloc\&.h\&.
+.PP
+\fBData Fields:\fP
+.RS 4
+struct \fBmem_link\fP \fIfree\fP 
+.br
+.PP
+struct \fBmem_link\fP \fIallocated\fP 
+.br
+.PP
+.RE
+.PP
+.SH "Function Documentation"
+.PP 
+.SS "void mem_alloc_init (struct \fBmem_alloc\fP * m)"
+Initialize a memory allocator object
+.PP
+After the call, the allocator is initialized but 'empty'\&. To add allocatable memory regions, further initialize the allocator with \fBmem_alloc_add_free()\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIm\fP The address of the memory allocator to initialize\&. 
+.RE
+.PP
+
+.SS "void mem_alloc_destroy (struct \fBmem_alloc\fP * m)"
+Destroy a memory allocator object
+.PP
+Frees all of the allocator's internal resources\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIm\fP The address of the memory allocator to destroy\&. 
+.RE
+.PP
+
+.SS "int mem_alloc_add_free (struct \fBmem_alloc\fP * m, uint64_t address, uint64_t size)"
+Add a memory region to an allocator\&.
+.PP
+The memory region is added to the allocatable space and is immediately ready for allocation\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIm\fP The memory allocator object\&. 
+.br
+\fIaddress\fP The beginning address of the memory region\&. 
+.br
+\fIsize\fP The size of the memory region\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+struct mem_alloc m;
+
+mem_alloc_init(&m);
+
+if (mem_alloc_add_free(&m, 0x4000, 4096)) {
+  // handle error
+}
+
+.fi
+.PP
+ 
+.SS "int mem_alloc_get (struct \fBmem_alloc\fP * m, uint64_t * address, uint64_t size)"
+Allocate memory
+.PP
+Retrieve an available memory address for a free block that is at least size bytes\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIm\fP The memory allocator object\&. 
+.br
+\fIaddress\fP The retrieved address for the allocation\&. 
+.br
+\fIsize\fP The request size in bytes\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+struct mem_alloc m;
+uint64_t addr = 0;
+
+mem_alloc_init(&m);
+
+if (mem_alloc_add_free(&m, 0x4000, 4096)) {
+  // handle error
+}
+
+\&.\&.\&.
+
+if (mem_alloc_get(&m, &addr, 4096)) {
+  // handle allocation error
+}
+
+.fi
+.PP
+ 
+.SS "int mem_alloc_put (struct \fBmem_alloc\fP * m, uint64_t address)"
+Free memory
+.PP
+Release a previously-allocated memory block\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIm\fP The memory allocator object\&. 
+.br
+\fIaddress\fP The address to free\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Non-zero on error\&. Zero on success\&.
+.RE
+.PP
+Example 
+.PP
+.nf
+struct mem_alloc m;
+uint64_t addr = 0;
+
+mem_alloc_init(&m);
+
+if (mem_alloc_add_free(&m, 0x4000, 4096)) {
+  // handle error
+}
+
+\&.\&.\&.
+
+if (mem_alloc_get(&m, &addr, 4096)) {
+  // handle allocation error
+}
+
+\&.\&.\&.
+
+if (mem_alloc_put(&m, addr)) {
+  // handle free error
+}
+
+.fi
+.PP
+ 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for OPAE C API from the source code\&.

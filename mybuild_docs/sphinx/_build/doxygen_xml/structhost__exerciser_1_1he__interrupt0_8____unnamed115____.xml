@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structhost__exerciser_1_1he__interrupt0_8____unnamed115____" kind="struct" language="C++" prot="public">
+    <compoundname>host_exerciser::he_interrupt0.__unnamed115__</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__interrupt0_8____unnamed115_____1afdf27665206a22cc41538cfc67c6fdf6" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>apci_id</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="229" column="14"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhost__exerciser_1_1he__interrupt0_8____unnamed115_____1a0e44ca4fccde3904f37bdb81c96e2dbc" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition></definition>
+        <argsstring></argsstring>
+        <name>VectorNum</name>
+        <bitfield> 16</bitfield>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="samples/host_exerciser/host_exerciser.h" line="230" column="14"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>host_exerciser::he_interrupt0.__unnamed115__</label>
+        <link refid="structhost__exerciser_1_1he__interrupt0_8____unnamed115____"/>
+      </node>
+    </collaborationgraph>
+    <location file="samples/host_exerciser/host_exerciser.h" line="228" column="3" bodyfile="samples/host_exerciser/host_exerciser.h" bodystart="228" bodyend="231"/>
+    <listofallmembers>
+      <member refid="structhost__exerciser_1_1he__interrupt0_8____unnamed115_____1afdf27665206a22cc41538cfc67c6fdf6" prot="public" virt="non-virtual"><scope>host_exerciser::he_interrupt0.__unnamed115__</scope><name>apci_id</name></member>
+      <member refid="structhost__exerciser_1_1he__interrupt0_8____unnamed115_____1a0e44ca4fccde3904f37bdb81c96e2dbc" prot="public" virt="non-virtual"><scope>host_exerciser::he_interrupt0.__unnamed115__</scope><name>VectorNum</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

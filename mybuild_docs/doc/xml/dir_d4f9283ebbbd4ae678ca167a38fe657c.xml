@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_d4f9283ebbbd4ae678ca167a38fe657c" kind="dir">
+    <compoundname>include/opae/cxx/core</compoundname>
+    <innerfile refid="errors_8h">errors.h</innerfile>
+    <innerfile refid="events_8h">events.h</innerfile>
+    <innerfile refid="except_8h">except.h</innerfile>
+    <innerfile refid="handle_8h">handle.h</innerfile>
+    <innerfile refid="cxx_2core_2properties_8h">properties.h</innerfile>
+    <innerfile refid="pvalue_8h">pvalue.h</innerfile>
+    <innerfile refid="shared__buffer_8h">shared_buffer.h</innerfile>
+    <innerfile refid="cxx_2core_2sysobject_8h">sysobject.h</innerfile>
+    <innerfile refid="token_8h">token.h</innerfile>
+    <innerfile refid="cxx_2core_2version_8h">version.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/opae/cxx/core/"/>
+  </compounddef>
+</doxygen>

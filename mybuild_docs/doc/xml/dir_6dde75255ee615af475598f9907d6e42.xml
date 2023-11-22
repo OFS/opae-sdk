@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_6dde75255ee615af475598f9907d6e42" kind="dir">
+    <compoundname>samples/cxl_mem_tg</compoundname>
+    <innerfile refid="cxl__mem__tg_8cpp">cxl_mem_tg.cpp</innerfile>
+    <innerfile refid="cxl__mem__tg_8h">cxl_mem_tg.h</innerfile>
+    <innerfile refid="cxl__tg__test_8h">cxl_tg_test.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="samples/cxl_mem_tg/"/>
+  </compounddef>
+</doxygen>
