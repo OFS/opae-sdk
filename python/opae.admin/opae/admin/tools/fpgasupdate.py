@@ -822,7 +822,8 @@ def main():
     # So we explicitly check for this condition and disallow it here with a descriptive message.
     boot_page = pac.fme.boot_page
     if boot_page is None:
-        return 1, 'Secure update failed. Could not find **/fpga_boot_image sysfs entry.'
+        LOG.error('Secure update failed. Could not find **/fpga_boot_image sysfs entry.')
+        sys.exit(1)        
 
     LOG.debug ("Boot page sysfs path: %s\n", boot_page.sysfs_path)
     LOG.debug ("Boot page value: %s\n", boot_page.value)
