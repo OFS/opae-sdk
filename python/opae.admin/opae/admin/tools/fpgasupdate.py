@@ -829,6 +829,9 @@ def main():
     LOG.debug ("Boot page value: %s\n", boot_page.value)
     LOG.debug ('Block0 Contype: %s\n',blk0['ConType'])
 
+    # The binary is produced by the PACSign utility. 
+    # database.CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
+    # the binary to indicate that the factory image is targeted.
     if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == database.CONTENT_FACTORY)):
         LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
         sys.exit(1)
