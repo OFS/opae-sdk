@@ -49,10 +49,10 @@ void he_cache_thread(uint8_t *buf_ptr, uint64_t len);
 class he_cache_cmd : public he_cmd {
 public:
   he_cache_cmd()
-      : he_continuousmode_(false), he_contmodetime_(0), he_linerep_count_(0),
+      : he_continuousmode_(false), he_contmodetime_(0), he_linerep_count_(1),
         he_stride_(0), he_test_(0), he_test_all_(false), he_dev_instance_(0),
         he_stride_cmd_(false), he_cls_count_(FPGA_512CACHE_LINES),
-        he_latency_iterations_(0) {}
+        he_latency_iterations_(0), he_loop_count_(1) {}
 
   virtual ~he_cache_cmd() {}
 
@@ -114,12 +114,17 @@ public:
     // Line repeat count
     app->add_option("--linerepcount", he_linerep_count_, "Line repeat count")
         ->transform(CLI::Range(1, 256))
-        ->default_val("10");
+        ->default_val("1");
 
     // Cache lines count
     app->add_option("--clscount", he_cls_count_, "Cache lines count")
         ->transform(CLI::Range(1, 512))
         ->default_val("512");
+
+    // Iteration loop count
+    app->add_option("--loops", he_loop_count_, "Number of loops")
+        ->transform(CLI::Range(1, 65535))
+        ->default_val("1");
 
     // Number of latency test iterations
     app->add_option("--latency_iterations", he_latency_iterations_,
@@ -150,6 +155,7 @@ public:
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Numa node:" << numa_node_ << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -274,6 +280,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -323,6 +330,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -420,6 +428,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -468,6 +477,7 @@ public:
     cout << "Read number Lines:" << he_cls_count_ << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -553,6 +563,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -599,6 +610,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set Write config
     he_wr_cfg_.value = 0;
@@ -651,6 +663,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -699,6 +712,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -786,6 +800,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -839,6 +854,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG
     he_wr_cfg_.value = 0;
@@ -888,6 +904,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -941,6 +958,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG
     he_rd_cfg_.value = 0;
@@ -1020,6 +1038,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -1066,12 +1085,13 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG
     he_wr_cfg_.value = 0;
     he_wr_cfg_.line_repeat_count = he_linerep_count_;
     he_wr_cfg_.write_traffic_enable = 1;
-    he_wr_cfg_.opcode = WR_PUSH_I;
+    he_wr_cfg_.opcode = WR_LINE_I;
     host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
 
     // set RD_ADDR_TABLE_CTR
@@ -1111,6 +1131,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -1260,6 +1281,7 @@ protected:
   bool he_stride_cmd_;
   uint32_t he_cls_count_;
   uint64_t he_latency_iterations_;
+  uint32_t he_loop_count_;
 };
 
 void he_cache_thread(uint8_t *buf_ptr, uint64_t len) {
