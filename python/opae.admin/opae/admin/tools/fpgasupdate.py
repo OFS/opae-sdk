@@ -52,8 +52,6 @@ import shutil
 from opae.admin.fpga import fpga
 from opae.admin.utils.progress import progress
 from opae.admin.version import pretty_version
-import pacsign
-from pacsign import database
 from opae.admin.sysfs import sysfs_device, sysfs_node
 
 if sys.version_info[0] == 2:
@@ -101,6 +99,9 @@ FPGA_ERR_INVALID_SIZE = 5
 FPGA_ERR_RW_ERROR = 6
 FPGA_ERR_WEAROUT = 7
 FPGA_ERR_MAX = 8
+
+# Values for ConType field in Block0 of output binary from PACSign utility.
+CONTENT_FACTORY = 3
 
 # bytes/sec when staging is flash
 FLASH_COPY_BPS = 43000.0
@@ -835,10 +836,10 @@ def main():
     LOG.debug ('Block0 ConType: %s\n', blk0['ConType'])
 
     # The binary is produced by the PACSign utility. 
-    # database.CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
+    # CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
     # the binary to indicate that the factory image is targeted. ConType refers to 'content type'
     # and indicates if the binary is factoryPR, static region, BMC-related etc.
-    if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == database.CONTENT_FACTORY)):
+    if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == CONTENT_FACTORY)):
         LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
         sys.exit(1)
 
