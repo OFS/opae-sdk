@@ -169,14 +169,17 @@ union he_wr_config {
   struct {
     uint64_t write_traffic_enable : 1;
     uint64_t continuous_mode_enable : 1;
-    uint64_t waitfor_completion : 1;
+    uint64_t barrier : 1;
     uint64_t preread_sync_enable : 1;
     uint64_t postread_sync_enable : 1;
     uint64_t data_pattern : 2;
     uint64_t cl_evict_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
-    uint64_t reserved : 44;
+    uint64_t rsvd_31_20 : 12;
+    uint64_t repeat_write_fsm : 16;
+    uint64_t disable_waitfor_completion : 1;
+    uint64_t rsvd_63_48 : 15;
   };
 };
 
@@ -222,10 +225,12 @@ union he_rd_config {
     uint64_t prewrite_sync_enable : 1;
     uint64_t postwrite_sync_enable : 1;
     uint64_t data_pattern : 2;
-    uint64_t cl_evict_enable : 1;
+    uint64_t data_check_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
-    uint64_t reserved : 44;
+    uint64_t rsvd_31_20 : 12;
+    uint64_t repeat_read_fsm : 16;
+    uint64_t rsvd_63_40 : 16;
   };
 };
 
