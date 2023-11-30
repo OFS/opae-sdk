@@ -36,6 +36,11 @@ namespace cxl_mem_tg {
 using opae::fpga::types::token;
 const char *AFU_ID = "4DADEA34-2C78-48CB-A3DC-5B831F5CECBB";
 
+static const uint64_t CL = 64;
+static const uint64_t KB = 1024;
+static const uint64_t MB = KB * 1024;
+static const uint64_t GB = MB * 1024;
+static const uint64_t FPGA_32GB_CACHE_LINES = (32 * GB) / 64;
 static const uint64_t MEM_TG_TEST_TIMEOUT = 3000000;
 static const uint64_t TEST_SLEEP_INVL = 100;
 static const uint64_t TG_CTRL_CLEAR = 0x8000000000000000;
@@ -82,6 +87,8 @@ enum {
   MEM_TG_CLK_COUNT = 0x0050,
   MEM_TG_WR_COUNT = 0x0058,
   MEM_TG_CLK_FREQ = 0x0060,
+  MEM_SIZE = 0x0068,
+
 };
 const int MEM_TG_CFG_OFFSET = 0x1000;
 
@@ -179,6 +186,16 @@ union mem_tg1_count {
   };
 };
 
+// Memory Size
+union tg_mem_size {
+    enum { offset = MEM_SIZE };
+    uint64_t value;
+    struct {
+        uint64_t total_mem_size : 32;
+        uint64_t hdm_mem_size : 32;
+    };
+};
+
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
 
@@ -193,7 +210,9 @@ class cxl_mem_tg : public test_afu {
         rcnt_(1),
         bcnt_(1),
         stride_(1),
-        mem_speed_(TG_FREQ) {
+        mem_speed_(TG_FREQ),
+        hdm_size_(FPGA_32GB_CACHE_LINES)
+  {
     // iterations
     app_.add_option("--count", count_, "Number of iterations to run")
         ->default_val("1");
@@ -259,6 +278,7 @@ class cxl_mem_tg : public test_afu {
   uint64_t mem_speed_;
   uint32_t status_;
   uint64_t tg_offset_;
+  uint64_t hdm_size_;
 
   std::map<uint32_t, uint32_t> limits_;
 
