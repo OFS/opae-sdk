@@ -304,7 +304,7 @@ class cxl_tg_test : public test_command {
     }
 
     if (tg_exe_->rcnt_ > tg_exe_->wcnt_) {
-        cerr << "Read cout exceed Write count" << endl;
+        cerr << "Read count exceeds Write count" << endl;
         return -1;
     }
 
@@ -315,7 +315,7 @@ class cxl_tg_test : public test_command {
 
     if ( (MAX(tg_exe_->wcnt_, tg_exe_->rcnt_) * tg_exe_->loop_) >=
         tg_exe_->hdm_size_) {
-        cerr << "Read,Write and loop cout exceed HDM memory size" << endl;
+        cerr << "Read,Write and loop count exceeds HDM memory size" << endl;
         return -1;
     }
 
