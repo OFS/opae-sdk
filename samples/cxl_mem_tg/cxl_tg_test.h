@@ -43,6 +43,8 @@ using opae::fpga::types::token;
 
 #define CXL_TG_BW_FACTOR   0.931323
 
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 /*
 1) Write to TG_CLEAR with data=0xF to clear all the failure status registers.
 2) Configure the registers with the value specified in table 1 below.
@@ -96,6 +98,8 @@ class cxl_tg_test : public test_command {
     tg_exe_->logger_->debug("GUIDH:0x{:x}", tg_exe_->read64(AFU_ID_H));
     tg_exe_->logger_->debug("TG Contol:0x{:x}", tg_exe_->read64(MEM_TG_CTRL));
     tg_exe_->logger_->debug("TG Status:0x{:x}", tg_exe_->read64(MEM_TG_STAT));
+    tg_exe_->logger_->debug("Memory Size:0x{:x}",
+                            tg_exe_->read64(MEM_SIZE));
     tg_exe_->logger_->debug("TG Total clock count:0x{:x}",
                             tg_exe_->read64(MEM_TG_CLK_COUNT));
     tg_exe_->logger_->debug("TG Write Clock Count:0x{:x}",
@@ -271,15 +275,48 @@ class cxl_tg_test : public test_command {
   // Configure the registers with the value
   int config_input_options() {
 
-
     mem_tg_ctl tg_ctl;
     tg_ctl.value = tg_exe_->read64(MEM_TG_CTRL);
     tg_exe_->logger_->debug("tg configure input options...");
     tg_exe_->logger_->debug("mem tg ctl:{0:x}", tg_ctl.value);
 
+    tg_mem_size mem_size;
+    mem_size.value = tg_exe_->read64(MEM_SIZE);
+
+    uint64_t value = mem_size.total_mem_size;
+    tg_exe_->logger_->debug("Total hardware memory size:{}", value);
+    value = mem_size.hdm_mem_size;
+    tg_exe_->logger_->debug("HDM memory size:{0:d}", value);
+
+    if (mem_size.hdm_mem_size != 0)
+        tg_exe_->hdm_size_ = mem_size.hdm_mem_size;
+
+   cout << "HDM memory cache line size:" << dec << tg_exe_->hdm_size_ << endl;
+
     if (tg_ctl.tg_capability != 0x1) {
-      std::cerr << "No traffic generator for mem" << std::endl;
+      cerr << "No traffic generator for memory" << endl;
       return -1;
+    }
+
+    if (tg_exe_->wcnt_ == 0 && tg_exe_->rcnt_ == 0) {
+        cerr << "Invalid Read and Write input arguments" << endl;
+        return -1;
+    }
+
+    if (tg_exe_->rcnt_ > tg_exe_->wcnt_) {
+        cerr << "Read count exceeds Write count" << endl;
+        return -1;
+    }
+
+    if ( tg_exe_->wcnt_ == 0) {
+        cerr << " Write count is zero" << endl;
+        return -1;
+    }
+
+    if ( (MAX(tg_exe_->wcnt_, tg_exe_->rcnt_) * tg_exe_->loop_) >=
+        tg_exe_->hdm_size_) {
+        cerr << "Read,Write and loop count exceeds HDM memory size" << endl;
+        return -1;
     }
 
     tg_exe_->mem_speed_ = tg_exe_->read64(MEM_TG_CLK_FREQ);
