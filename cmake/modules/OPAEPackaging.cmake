@@ -172,7 +172,7 @@ function(opae_python_install)
                 COMMAND ${Python3_EXECUTABLE} -m pip install \
                     --root=\$ENV{DESTDIR} \
                     --prefix=${CMAKE_INSTALL_PREFIX} \
-		    --no-warn-script-location .
+                    .
                 WORKING_DIRECTORY ${OPAE_PYTHON_INSTALL_SOURCE_DIR}
             )
         ${APPEND_CODE}

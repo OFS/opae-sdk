@@ -29,7 +29,7 @@ file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/ethernet/*.py)
 
 add_custom_command(
     OUTPUT ${OUTPUT}
-    COMMAND ${Python3_EXECUTABLE} -m pip install --root=${CMAKE_CURRENT_SOURCE_DIR}/build --no-warn-script-location .
+    COMMAND ${Python3_EXECUTABLE} -m pip install --root=${CMAKE_CURRENT_SOURCE_DIR}/build .
     COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS pyproject.toml ${PKG_FILES}

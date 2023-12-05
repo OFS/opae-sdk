@@ -324,18 +324,16 @@ def addDefaultFpgaFamily(opts):
     if ('OPAE_PLATFORM_FPGA_FAMILY' not in os.environ):
         try:
             # Get the FPGA technology tag using afu_platform_info
-            cmd = 'afu_platform_info --key=fpga-family '
+            cmd = ['afu_platform_info', '--key=fpga-family']
 
             # What's the platform name?
             plat_class_file = os.path.join(getHWLibPath(opts),
                                            'fme-platform-class.txt')
             with open(plat_class_file) as f:
-                cmd += f.read().strip()
+                cmd.append(f.read().strip())
 
-            proc = subprocess.Popen(cmd, shell=True,
-                                    stdout=subprocess.PIPE)
-            for line in proc.stdout:
-                line = line.decode('ascii').strip()
+            proc = subprocess.run(cmd, check=True, capture_output=True, encoding='ascii')
+            for line in proc.stdout.split('\n'):
                 os.environ['OPAE_PLATFORM_FPGA_FAMILY'] = line
             errcode = proc.wait()
             if (errcode):
@@ -358,11 +356,10 @@ def getQuartusVersion(opts):
             'QUARTUS_VERSION_MAJOR' not in os.environ):
         try:
             # Get the Quartus major version number
-            proc = subprocess.Popen('quartus_sh --version', shell=True,
-                                    stdout=subprocess.PIPE)
+            cmd = ['quartus_sh', '--version']
+            proc = subprocess.run(cmd, check=True, capture_output=True, encoding='ascii')
             ok = False
-            for line in proc.stdout:
-                line = line.decode('ascii').strip()
+            for line in proc.stdout.split('\n'):
                 if (line[:7] == 'Version'):
                     ok = True
 

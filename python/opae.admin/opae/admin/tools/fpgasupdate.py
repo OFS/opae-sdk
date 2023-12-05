@@ -52,6 +52,7 @@ import shutil
 from opae.admin.fpga import fpga
 from opae.admin.utils.progress import progress
 from opae.admin.version import pretty_version
+from opae.admin.sysfs import sysfs_device, sysfs_node
 
 if sys.version_info[0] == 2:
     input = raw_input  # noqa pylint: disable=E0602
@@ -98,6 +99,9 @@ FPGA_ERR_INVALID_SIZE = 5
 FPGA_ERR_RW_ERROR = 6
 FPGA_ERR_WEAROUT = 7
 FPGA_ERR_MAX = 8
+
+# Values for ConType field in Block0 of output binary from PACSign utility.
+CONTENT_FACTORY = 3
 
 # bytes/sec when staging is flash
 FLASH_COPY_BPS = 43000.0
@@ -810,6 +814,34 @@ def main():
     if (pac.upload_dev.find_one(os.path.join('update', 'filename')) or
         pac.upload_dev.find_one('loading')):
         use_ioctl = False
+
+    # The BMC disallows updating the factory image if the current boot-page is also 'factory'.
+    # The idea is to always have at least one known-good image in the flash so that
+    # you can recover from subsequent bad images.
+    # The BMC checks for this condition but does not, at the moment, report any useful error details.
+    # We simply get a generic error back and can't report any detail to the user.
+    # So we explicitly check for this condition and disallow it here with a descriptive message.
+
+    # The bootpage is read from the fpga_boot_image sysfs entry. The 'fme' object has many sysfs_nodes
+    # for various items, including the boot_page, so we use that here. It simply returns a string
+    # indicating the boot page: fpga_factory, fpga_user1, or fpga_user2
+
+    boot_page = pac.fme.boot_page
+    if boot_page is None:
+        LOG.error('Secure update failed. Could not find **/fpga_boot_image sysfs entry.')
+        sys.exit(1)        
+
+    LOG.debug ("Boot page sysfs path: %s\n", boot_page.sysfs_path)
+    LOG.debug ("Boot page value: %s\n", boot_page.value)
+    LOG.debug ('Block0 ConType: %s\n', blk0['ConType'])
+
+    # The binary is produced by the PACSign utility. 
+    # CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
+    # the binary to indicate that the factory image is targeted. ConType refers to 'content type'
+    # and indicates if the binary is factoryPR, static region, BMC-related etc.
+    if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == CONTENT_FACTORY)):
+        LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
+        sys.exit(1)
 
     LOG.warning('Update starting. Please do not interrupt.')
 

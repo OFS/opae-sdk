@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2023, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -42,8 +42,8 @@ VCP_ID = 0x0b30
 CONF_FILE = '/etc/modprobe.d/dfl-fme.conf'
 OPTION_LINE = 'options dfl_n3000_nios fec_mode='
 DRV_MODE = '/sys/module/dfl_n3000_nios/parameters/fec_mode'
-REMOVE_MOD = 'rmmod dfl_n3000_nios'
-PROBE_MOD = 'modprobe dfl_n3000_nios'
+REMOVE_MOD = ['rmmod', 'dfl_n3000_nios']
+PROBE_MOD = ['modprobe', 'dfl_n3000_nios']
 
 
 def get_fpga_sysfs_path(sbdf):
@@ -85,14 +85,11 @@ def do_rsu(sbdf, debug):
         return None
 
     try:
-        cmd = "rsu bmcimg {}".format(sbdf)
+        cmd = ['rsu', 'bmcimg', sbdf]
         if debug:
+            cmd.append('-d')
             print(cmd)
-            cmd += ' -d'
-        rc = subprocess.call(cmd, shell=True)
-        if rc != 0:
-            print("failed to '{}'".format(cmd))
-            return None
+        subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
         print('failed call')
         return None
@@ -145,10 +142,7 @@ def reload_driver(fec_mode, debug):
     try:
         if debug:
             print(REMOVE_MOD)
-        rc = subprocess.call(REMOVE_MOD, shell=True)
-        if rc != 0:
-            print("failed to '{}'".format(REMOVE_MOD))
-            return rc
+        subprocess.run(REMOVE_MOD, check=True)
     except subprocess.CalledProcessError as e:
         print('failed call')
         return 2
@@ -158,10 +152,7 @@ def reload_driver(fec_mode, debug):
     try:
         if debug:
             print(PROBE_MOD)
-        rc = subprocess.call(PROBE_MOD, shell=True)
-        if rc != 0:
-            print("failed to '{}'".format(PROBE_MOD))
-            return rc
+        subprocess.run(PROBE_MOD, check=True)
     except subprocess.CalledProcessError as e:
         print(e)
         return 2

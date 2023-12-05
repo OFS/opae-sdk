@@ -44,6 +44,7 @@ static const uint64_t BUFFER_SIZE_32KB = 32* KB;
 static const uint64_t FPGA_32KB_CACHE_LINES = (32 * KB) / 64;
 static const uint64_t FPGA_2MB_CACHE_LINES = (2 * MB) / 64;
 static const uint64_t FPGA_512CACHE_LINES = 512;
+static const double LATENCY_FACTOR = 2.5;
 
 // Host execiser CSR Offset
 enum {
@@ -168,14 +169,17 @@ union he_wr_config {
   struct {
     uint64_t write_traffic_enable : 1;
     uint64_t continuous_mode_enable : 1;
-    uint64_t waitfor_completion : 1;
+    uint64_t barrier : 1;
     uint64_t preread_sync_enable : 1;
     uint64_t postread_sync_enable : 1;
     uint64_t data_pattern : 2;
     uint64_t cl_evict_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
-    uint64_t reserved : 44;
+    uint64_t rsvd_31_20 : 12;
+    uint64_t repeat_write_fsm : 16;
+    uint64_t disable_waitfor_completion : 1;
+    uint64_t rsvd_63_48 : 15;
   };
 };
 
@@ -216,15 +220,17 @@ union he_rd_config {
   uint64_t value;
   struct {
     uint64_t read_traffic_enable : 1;
-    uint64_t continuous_mode_Enable : 1;
+    uint64_t continuous_mode_enable : 1;
     uint64_t waitfor_completion : 1;
     uint64_t prewrite_sync_enable : 1;
     uint64_t postwrite_sync_enable : 1;
     uint64_t data_pattern : 2;
-    uint64_t cl_evict_enable : 1;
+    uint64_t data_check_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
-    uint64_t reserved : 44;
+    uint64_t rsvd_31_20 : 12;
+    uint64_t repeat_read_fsm : 16;
+    uint64_t rsvd_63_40 : 16;
   };
 };
 
