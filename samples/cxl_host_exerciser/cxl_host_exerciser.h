@@ -351,7 +351,7 @@ typedef enum {
     HOST_BIAS_NA = 0x1,
     FPGAMEM_HOST_BIAS = 0x2,
     FPGAMEM_DEVICE_BIAS = 0x3,
-} he_bisa_support;
+} he_bias_support;
 
 const std::map<std::string, uint32_t> he_targets = {
     {"host", HE_TARGET_HOST},
@@ -418,7 +418,14 @@ struct he_cache_running_ptr {
     uint64_t phy_next_ptr;
     uint64_t data;
     he_cache_running_ptr *virt_next_ptr;
-    uint64_t rsvd[5];
+    uint64_t rsvd[4];
+    union {
+        uint64_t mode;
+        struct {
+            uint64_t rsvd_0_62 : 62;
+            uint64_t biasmode :2;
+        };
+    };
 };
 
 

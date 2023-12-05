@@ -34,7 +34,7 @@
 
 #define HE_TEST_STARTED      "Test started ......"
 #define HE_PRTEST_SCENARIO   "Pretest scenario started ......"
-#define HE_PING_PONG   "Ping ong test started ......"
+#define HE_PING_PONG         "Ping pong test started ......"
 #define HE_RUNNING_POINTER   "Running pointer test started ......"
 
 #define PFN_MASK_SIZE	8
@@ -455,8 +455,9 @@ public:
   }
 
    bool create_linked_list(uint64_t *virt_ptr_a, uint64_t phy_ptr_a,
-       uint64_t data, uint64_t max_size,
-       uint64_t *virt_ptr_b = NULL, uint64_t phy_ptr_b = 0) {
+       uint64_t data, uint64_t max_size, he_bias_support bias_a = HOSTMEM_BIAS,
+       uint64_t *virt_ptr_b = NULL, uint64_t phy_ptr_b = 0,
+       he_bias_support bias_b = FPGAMEM_HOST_BIAS) {
 
        uint64_t *temp_virt_ptr_a       = virt_ptr_a;
        uint64_t temp_phy_ptr_a         = phy_ptr_a;
@@ -465,9 +466,9 @@ public:
        uint64_t i                      = 0;
        struct he_cache_running_ptr *temp_node = NULL;
 
-       host_exe_->logger_->debug("virt_ptr_a:0x{:x}", fmt::ptr(virt_ptr_a));
+       host_exe_->logger_->debug("virt_ptr_a:{:p}", fmt::ptr(virt_ptr_a));
        host_exe_->logger_->debug("phy_ptr_a:0x{:x}", phy_ptr_a);
-       host_exe_->logger_->debug("virt_ptr_b:0x{:x}", fmt::ptr(virt_ptr_b));
+       host_exe_->logger_->debug("virt_ptr_b:{:p}", fmt::ptr(virt_ptr_b));
        host_exe_->logger_->debug("phy_ptr_b:0x{:x}", phy_ptr_b);
        host_exe_->logger_->debug("max_size:{0}", max_size);
        host_exe_->logger_->debug("data:{:x}", data);
@@ -487,6 +488,7 @@ public:
                temp_node->phy_next_ptr = temp_phy_ptr_a + 64;
                temp_node->data = data;
                temp_node->virt_next_ptr = (struct he_cache_running_ptr*)(temp_virt_ptr_a + 8);
+               temp_node->biasmode = bias_a;
 
                temp_node++;
                temp_phy_ptr_a = temp_phy_ptr_a + 64;
@@ -515,6 +517,7 @@ public:
                if (which == 0) {
                    temp_node_a->phy_next_ptr = temp_phy_ptr_b;
                    temp_node_a->data =  data;
+                   temp_node_a->biasmode = bias_b;
                    temp_node_a->virt_next_ptr = temp_node_b;
                    ++temp_node_a;
                    temp_phy_ptr_a += 64;
@@ -522,6 +525,7 @@ public:
                } else {
                    temp_node_b->phy_next_ptr = temp_phy_ptr_a;
                    temp_node_b->data = data;
+                   temp_node_b->biasmode = bias_a;
                    temp_node_b->virt_next_ptr = temp_node_a;
                    ++temp_node_b;
                    temp_phy_ptr_b += 64;
@@ -547,7 +551,7 @@ public:
        struct he_cache_running_ptr* temp = NULL;
        uint64_t i = 0;
 
-       host_exe_->logger_->debug("virt_ptr:0x{:x}", fmt::ptr(virt_ptr));
+       host_exe_->logger_->debug("virt_ptr:{:p}", fmt::ptr(virt_ptr));
        host_exe_->logger_->debug("phy_ptr:0x{:x}", phy_ptr);
        host_exe_->logger_->debug("max_size:{0}", max_size);
        host_exe_->logger_->debug("data:{:x}", data);

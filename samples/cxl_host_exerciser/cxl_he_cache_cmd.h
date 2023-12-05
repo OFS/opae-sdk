@@ -1218,10 +1218,10 @@ public:
 
           node_count = FPGA_2MB_CACHE_LINES - 10;
           cout << " linked list Node count:" << std::dec << node_count << endl;
-          node_count = 10;
 
           // create linked list
-          if (!create_linked_list(host_virt_ptr, host_phy_ptr, data, node_count)) {
+          if (!create_linked_list(host_virt_ptr, host_phy_ptr, data,
+              node_count,HOSTMEM_BIAS)) {
               cerr << "Failed to create linked list" << endl;
               host_exe_->free_pinned_buffer(host_virt_ptr);
               host_exe_->free_dsm();
@@ -1246,16 +1246,15 @@ public:
 
           node_count = FPGA_2MB_CACHE_LINES - 10;
           cout << " linked list Node count:" << std::dec << node_count << endl;
-          node_count = 10;
 
           // create linked list
-          if (!create_linked_list(fpga_virt_ptr, fpga_phy_ptr, data, node_count)) {
+          if (!create_linked_list(fpga_virt_ptr, fpga_phy_ptr, data,
+              node_count, FPGAMEM_HOST_BIAS)) {
               cerr << "Failed to create linked list" << endl;
               host_exe_->free_dsm();
               host_exe_->free_pinned_buffer(fpga_virt_ptr);
               return -1;
           }
-          he_ctl_.bias_support = HOSTMEM_BIAS;
           phy_ptr = fpga_phy_ptr;
 
       } else {
@@ -1290,11 +1289,11 @@ public:
 
           node_count = 2*(FPGA_2MB_CACHE_LINES - 10);
           cout << " linked list Node count:" << std::dec << node_count << endl;
-          node_count = 20;
 
           // create linked list
           if (!create_linked_list(host_virt_ptr, host_phy_ptr, data,
-              node_count, fpga_virt_ptr, fpga_phy_ptr)) {
+              node_count, HOSTMEM_BIAS, fpga_virt_ptr,
+              fpga_phy_ptr, FPGAMEM_HOST_BIAS)) {
               cerr << "Failed to create linked list" << endl;
               host_exe_->free_dsm();
               host_exe_->free_pinned_buffer(fpga_virt_ptr);
@@ -1388,7 +1387,7 @@ public:
       }
 
       he_rd_num_lines_.value = host_exe_->read64(HE_RD_NUM_LINES);
-      he_rd_num_lines_.max_count = 100000;
+      he_rd_num_lines_.max_count = INT_MAX/10000;
       host_exe_->write64(HE_RD_NUM_LINES, he_rd_num_lines_.value);
 
       cout << "HE_RD_NUM_LINES:" << std::hex << he_rd_num_lines_.value << endl;
@@ -1420,7 +1419,7 @@ public:
              usleep(HE_CACHE_TEST_SLEEP_INVL);
              if (--timeout == 0) {
                  he_forcetestcmpl();
-                 cout << "HE cache ping pong test time out error" << endl;
+                 cerr << "HE cache ping pong test time out error" << endl;
                  host_exerciser_errors();
                  he_perf_counters();
                  host_exe_->free_dsm();
@@ -1433,7 +1432,7 @@ public:
       // wait for completion
       if (!he_wait_test_completion()) {
           he_forcetestcmpl();
-          cout << "HE Cache ping pong test time out error" << endl;
+          cerr << "HE Cache ping pong test time out error" << endl;
           he_perf_counters();
           host_exerciser_errors();
           host_exe_->free_dsm();
