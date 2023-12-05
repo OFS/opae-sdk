@@ -32,10 +32,12 @@
 #define MEM_TG_FEATURE_GUIDH 0x0118e06b1fa349b9
 const char *HE_CACHE_AFU_ID = "0118E06B-1FA3-49B9-8159-9b5C2EBD4b23";
 
+#define RUNNIG_PTR_DATA_PATTERN 0x123456
+
 namespace host_exerciser {
 
-static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
-static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
+static const uint64_t HE_CACHE_TEST_TIMEOUT = 30000;
+static const uint64_t HE_CACHE_TEST_SLEEP_INVL = 100;
 static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
@@ -96,6 +98,14 @@ typedef enum {
   WR_FLUSH_CL_DCOH = 0x6,
 } he_wr_opcode;
 
+
+// Write Traffic Opcode
+typedef enum {
+    RD_WR_TEST = 0x0,
+    RUNNING_POINTER = 0x10,
+    PING_PONG = 0x20,
+ } he_test_type;
+
 // DFH Header
 union he_dfh {
   enum { offset = HE_DFH };
@@ -128,7 +138,9 @@ union he_ctl {
     uint64_t Start : 1;
     uint64_t ForcedTestCmpl : 1;
     uint64_t bias_support : 2;
-    uint64_t Reserved : 59;
+    uint64_t Reserved : 3;
+    uint64_t test_type : 8;
+    uint64_t Reserved1 :48;
   };
 };
 
@@ -210,7 +222,8 @@ union he_rd_num_lines {
   uint64_t value;
   struct {
     uint64_t read_num_lines : 16;
-    uint64_t reserved : 48;
+    uint64_t reserved : 16;
+    uint64_t max_count : 32;
   };
 };
 
@@ -297,12 +310,17 @@ typedef enum {
   HE_HOST_RD_CACHE_MISS = 0x6,
   HE_HOST_WR_CACHE_MISS = 0x7,
 
+  HE_CACHE_PING_PONG = 0x8,
+  HE_CACHE_RUNNING_POINTER= 0x9,
+
+
 } he_test_mode;
 
 // configures traget
 typedef enum {
   HE_TARGET_HOST = 0x0,
   HE_TARGET_FPGA = 0x1,
+  HE_TARGET_BOTH = 0x2,
 } he_target;
 
 
@@ -323,6 +341,8 @@ const std::map<std::string, uint32_t> he_test_modes = {
     {"hostwrcachehit", HE_HOST_WR_CACHE_HIT},
     {"hostrdcachemiss", HE_HOST_RD_CACHE_MISS},
     {"hostwrcachemiss", HE_HOST_WR_CACHE_MISS},
+    {"pingpong", HE_CACHE_PING_PONG},
+    {"runningpointer", HE_CACHE_RUNNING_POINTER},
 };
 
 // Bias Support
@@ -336,6 +356,7 @@ typedef enum {
 const std::map<std::string, uint32_t> he_targets = {
     {"host", HE_TARGET_HOST},
     {"fpga", HE_TARGET_FPGA},
+    {"both", HE_TARGET_BOTH},
 };
 
 // Bias support
@@ -391,6 +412,15 @@ std::map<uint32_t, uint32_t> addrtable_size = {
     {HE_ADDRTABLE_SIZE4, 4},       {HE_ADDRTABLE_SIZE2, 2},
 
 };
+
+// HE Cache Running pointer
+struct he_cache_running_ptr {
+    uint64_t phy_next_ptr;
+    uint64_t data;
+    he_cache_running_ptr *virt_next_ptr;
+    uint64_t rsvd[5];
+};
+
 
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
