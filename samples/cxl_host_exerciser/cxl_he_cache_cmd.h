@@ -1180,7 +1180,6 @@ public:
       usleep(1000);
   }
 
-
   int he_run_running_pointer_test() {
 
       cout << "********** Running pointer test start**********" << endl;
@@ -1204,17 +1203,16 @@ public:
       if (he_target_ == HE_TARGET_HOST ) {
 
           host_exe_->logger_->debug("Running pointer test target host");
-
           // Allocate Pinned  HOST buffer
           if (!host_exe_->allocate_pinned_buffer(&host_virt_ptr,BUFFER_SIZE_2MB, numa_node_)) {
-              cerr << "allocate pinned buffer failed" << endl;
+              cerr << "Allocate pinned buffer failed" << endl;
               host_exe_->free_dsm();
               return -1;
           }
 
           //virtual address to physical address
           host_phy_ptr = __mem_virt2phys(host_virt_ptr);
-          cout << "physical address:" << std::hex << host_phy_ptr << endl;
+          cout << "Host physical address:" << std::hex << host_phy_ptr << endl;
 
           node_count = FPGA_2MB_CACHE_LINES - 10;
           cout << " linked list Node count:" << std::dec << node_count << endl;
@@ -1235,14 +1233,14 @@ public:
           // Allocate running pointer buffers on FPGA
           host_exe_->logger_->debug("Running pointer test target fpga");
           if (!host_exe_->allocate_pinned_buffer(&fpga_virt_ptr, BUFFER_SIZE_2MB, 2)) {
-              cerr << "allocate pinned buffer failed" << endl;
+              cerr << "Allocate pinned buffer failed" << endl;
               host_exe_->free_dsm();
               return -1;
           }
 
           //virtual address to physical address
           fpga_phy_ptr = __mem_virt2phys(fpga_virt_ptr);
-          cout << "physical address:" << std::hex << fpga_phy_ptr << endl;
+          cout << "FPGA physical address:" << std::hex << fpga_phy_ptr << endl;
 
           node_count = FPGA_2MB_CACHE_LINES - 10;
           cout << " linked list Node count:" << std::dec << node_count << endl;
@@ -1255,6 +1253,7 @@ public:
               host_exe_->free_pinned_buffer(fpga_virt_ptr);
               return -1;
           }
+          he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
           phy_ptr = fpga_phy_ptr;
 
       } else {
@@ -1263,17 +1262,16 @@ public:
 
           // Allocate running pointer buffers on host and FPGA
           host_exe_->logger_->debug("Running pointer test target Host and FPGA");
-
           // Allocate Pinned Host buffer
           if (!host_exe_->allocate_pinned_buffer(&host_virt_ptr, BUFFER_SIZE_2MB, numa_node)) {
-              cerr << "allocate pinned buffer failed" << endl;
+              cerr << "Allocate pinned buffer failed" << endl;
               host_exe_->free_dsm();
               return -1;
           }
 
           //virtual address to physical address
           host_phy_ptr = __mem_virt2phys(host_virt_ptr);
-          cout << "host physical address:" << std::hex << host_phy_ptr << endl;
+          cout << "Host physical address:" << std::hex << host_phy_ptr << endl;
 
           // Allocate Pinned FPGA buffer
           if (!host_exe_->allocate_pinned_buffer(&fpga_virt_ptr, BUFFER_SIZE_2MB, 2)) {
@@ -1285,7 +1283,7 @@ public:
 
           //virtual address to physical address
           fpga_phy_ptr = __mem_virt2phys(fpga_virt_ptr);
-          cout << "fpga physical address:" << std::hex << host_phy_ptr << endl;
+          cout << "FPGA physical address:" << std::hex << host_phy_ptr << endl;
 
           node_count = 2*(FPGA_2MB_CACHE_LINES - 10);
           cout << " linked list Node count:" << std::dec << node_count << endl;
@@ -1301,7 +1299,7 @@ public:
               return -1;
           }
 
-          he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
+          he_ctl_.bias_support = HOSTMEM_BIAS;
           phy_ptr = host_phy_ptr;
 
       } // end
@@ -1400,7 +1398,6 @@ public:
       // Start ping pong test
       he_start_test(HE_PING_PONG, PING_PONG);
 
-
        while (true) {
 
           if (*virt_ptr >= he_rd_num_lines_.max_count) {
@@ -1482,12 +1479,10 @@ public:
            (he_test_ == HE_CACHE_PING_PONG)) &&
            he_target_ == HE_TARGET_BOTH) {
 
-          cerr << "Wrong input configuation FGPA/Host Read/Write cache\
+          cerr << "Wrong input configuration FGPA/Host Read/Write cache\
                  hit/miss and target memory both fpga and host" << endl;
           return false;
       }
-
-
 
       return true;
   }

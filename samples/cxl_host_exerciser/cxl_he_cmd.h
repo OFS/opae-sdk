@@ -427,7 +427,7 @@ public:
           cerr << "seek error\n";
           close(fd);
           return -1;
-      };
+      }
 
       retval = get_mtime(fname, &mtime2);
       if (retval) {
@@ -500,7 +500,6 @@ public:
            temp_node->data = 0;
        }
 
-  
        // Linked list on host and fpga memory
        if (virt_ptr_a != NULL && phy_ptr_a != 0 &&
            virt_ptr_b != NULL && phy_ptr_b != 0) {
@@ -544,12 +543,12 @@ public:
         return true;
    }
 
-   bool verify_linked_list(uint64_t* virt_ptr, uint64_t phy_ptr,
+   bool verify_linked_list(uint64_t *virt_ptr, uint64_t phy_ptr,
        uint64_t data, uint64_t max_size) {
 
-       bool  retval = true;
-       struct he_cache_running_ptr* temp = NULL;
-       uint64_t i = 0;
+       bool  retval                      = true;
+       struct he_cache_running_ptr *temp = NULL;
+       uint64_t i                        = 0;
 
        host_exe_->logger_->debug("virt_ptr:{:p}", fmt::ptr(virt_ptr));
        host_exe_->logger_->debug("phy_ptr:0x{:x}", phy_ptr);
@@ -557,7 +556,6 @@ public:
        host_exe_->logger_->debug("data:{:x}", data);
 
        temp = (struct he_cache_running_ptr*)(virt_ptr);
-
        for (i = 0; i < max_size; i++) {
 
                if (temp == NULL) {
@@ -566,11 +564,38 @@ public:
            }
            // 1's complement of data
            if (temp->data != ~data) {
-               cerr << "Failed to convert data to 1's complement at index:" << i << endl;
+               cerr << "Failed to convert data to 1's complement at index:"
+                   << i << endl;
                retval = false;
                break;
            }
            temp = temp->virt_next_ptr;
+       }
+       return retval;
+   }
+   
+   bool print_linked_list(uint64_t *virt_ptr, uint64_t phy_ptr,
+       uint64_t data, uint64_t max_size) {
+
+       bool  retval                               = true;
+       volatile struct he_cache_running_ptr *temp = NULL;
+       uint64_t i                                 = 0;
+
+       host_exe_->logger_->debug("virt_ptr:{:p}", fmt::ptr(virt_ptr));
+       host_exe_->logger_->debug("phy_ptr:0x{:x}", phy_ptr);
+       host_exe_->logger_->debug("max_size:{0}", max_size);
+       host_exe_->logger_->debug("data:{:x}", data);
+
+       temp = (struct he_cache_running_ptr*)(virt_ptr);
+       for (i = 0; i < max_size; i++) {
+
+           if (temp == NULL) {
+               retval = false;
+               break;
+           }
+           cout << "data:" << std::hex << temp->data << endl;
+           temp = temp->virt_next_ptr;
+           cout << "temp->virt_next_ptr:" << temp->virt_next_ptr << endl;
        }
        return retval;
    }

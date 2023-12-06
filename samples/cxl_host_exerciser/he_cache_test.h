@@ -842,7 +842,7 @@ public:
       dma_map.length = len;
       dma_map.csr_array[0] = 0;
 
-      logger_->debug("Allocate read buffer user addr 0x:{0:x} length :"
+      logger_->debug("Allocate pinned buffer user addr 0x:{0:x} length :"
           "{1:d}", dma_map.user_addr, dma_map.length);
 
       res = ioctl(fd_, DFL_CXL_CACHE_NUMA_BUFFER_MAP, &dma_map);
