@@ -1479,7 +1479,7 @@ public:
            (he_test_ == HE_CACHE_PING_PONG)) &&
            he_target_ == HE_TARGET_BOTH) {
 
-          cerr << "Wrong input configuration FGPA/Host Read/Write cache\
+          cerr << "Wrong input configuration FPGA/Host Read/Write cache\
                  hit/miss and target memory both fpga and host" << endl;
           return false;
       }
