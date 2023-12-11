@@ -94,6 +94,11 @@ enum { MATCHES_SIZE = 6 };
 #define DFL_CXL_CACHE_WR_ADDR_TABLE_DATA 0x068
 #define DFL_CXL_CACHE_RD_ADDR_TABLE_DATA 0x088
 
+// buffer access type
+typedef enum {
+    HE_CACHE_DMA_MMAP_RW = 0x0,
+    HE_CACHE_DMA_MMAP_R = 0x1,
+} he_mmap_access;
 
 bool buffer_allocate(void** addr, uint64_t len, uint32_t numa_node)
 {
@@ -284,7 +289,7 @@ public:
       const char *log_level = nullptr)
       : name_(name), afu_id_(afu_id ? afu_id : ""), app_(name_), pci_addr_(""),
         log_level_(log_level ? log_level : "info"), timeout_msec_(60000),
-        current_command_(nullptr) {
+        current_command_(nullptr), dma_mmap_access_(HE_CACHE_DMA_MMAP_RW) {
     if (!afu_id_.empty())
       app_.add_option("-g,--guid", afu_id_, "GUID")->default_str(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
@@ -544,6 +549,7 @@ public:
 
     cout << "DSM buffer numa node: " << numa_node << endl;
     dma_map.argsz = sizeof(dma_map);
+    dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_DSM_BASE;
@@ -599,8 +605,9 @@ public:
     return true;
   }
 
-  void reset_dsm() { 
-      memset(dsm_buffer_, 0, dsm_buf_len_);
+  void reset_dsm() {
+      if(dsm_buffer_)
+        memset(dsm_buffer_, 0, dsm_buf_len_);
   }
 
   bool allocate_cache_read(size_t len = MiB(2), uint32_t numa_node = 0) {
@@ -618,6 +625,8 @@ public:
     cout << "Read buffer numa node: " << numa_node << endl;
 
     dma_map.argsz = sizeof(dma_map);
+    if (dma_mmap_access_ == HE_CACHE_DMA_MMAP_RW)
+        dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA;
@@ -686,6 +695,8 @@ public:
 
     cout << "Write buffer numa node: " << numa_node << endl;
     dma_map.argsz = sizeof(dma_map);
+    if (dma_mmap_access_ == HE_CACHE_DMA_MMAP_RW)
+        dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA;
@@ -754,6 +765,8 @@ public:
     cout << "Read/Write buffer numa node: " << numa_node << endl;
 
     dma_map.argsz = sizeof(dma_map);
+    if (dma_mmap_access_ == HE_CACHE_DMA_MMAP_RW)
+        dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA;
@@ -821,6 +834,73 @@ public:
     return true;
   }
 
+
+  bool allocate_pinned_buffer(uint64_t **buf_ptr, size_t len = MiB(2), uint32_t numa_node = 0 ) {
+
+      int res = 0;
+      void* ptr = NULL;
+      struct dfl_cxl_cache_buffer_map dma_map;
+
+      memset(&dma_map, 0, sizeof(dma_map));
+
+      if (!buffer_allocate(&ptr, len, numa_node)) {
+          cerr << "Failed to allocate 2MB huge page:" << strerror(errno) << endl;
+          return false;
+      }
+      cout << "Pinned buffer numa node: " << numa_node << endl;
+
+      dma_map.argsz = sizeof(dma_map);
+      dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
+      dma_map.user_addr = (__u64)ptr;
+      dma_map.length = len;
+      dma_map.csr_array[0] = 0;
+
+      logger_->debug("Allocate pinned buffer user addr 0x:{0:x} length :"
+          "{1:d}", dma_map.user_addr, dma_map.length);
+
+      res = ioctl(fd_, DFL_CXL_CACHE_NUMA_BUFFER_MAP, &dma_map);
+      if (res) {
+          cerr << "ioctl DFL_CXL_CACHE_NUMA_BUFFER_MAP failed" << strerror(errno)
+              << endl;
+          goto out_free;
+      }
+
+      *buf_ptr = (uint64_t*)ptr;
+      return true;
+
+  out_free:
+      buffer_release(ptr, len);
+      return false;
+  }
+
+  bool free_pinned_buffer(uint64_t *buf_ptr, size_t len = MiB(2)) {
+
+      int res = 0;
+      struct dfl_cxl_cache_buffer_unmap dma_unmap;
+
+      if (buf_ptr == NULL)
+          return false;
+
+      memset(&dma_unmap, 0, sizeof(dma_unmap));
+      dma_unmap.argsz = sizeof(dma_unmap);
+      dma_unmap.user_addr = (__u64)buf_ptr;
+      dma_unmap.length = len;
+      dma_unmap.csr_array[0] = 0;
+
+      logger_->debug("free pinned user addr 0x:{0:x} length : {1:d} ",
+          dma_unmap.user_addr, dma_unmap.length);
+
+      res = ioctl(fd_, DFL_CXL_CACHE_NUMA_BUFFER_UNMAP, &dma_unmap);
+      if (res) {
+          cerr << "ioctl DFL_CXL_CACHE_NUMA_BUFFER_UNMAP failed" << strerror(errno)
+              << endl;
+      }
+
+      buffer_release(buf_ptr, len);
+      return true;
+  }
+
+
   uint8_t *get_dsm() const { return dsm_buffer_; }
 
   uint8_t *get_read() const { return rd_buffer_; }
@@ -828,6 +908,9 @@ public:
   uint8_t *get_write() const { return wr_buffer_; }
 
   uint8_t *get_read_write() const { return rd_wr_buffer_; }
+
+  void set_mmap_access(he_mmap_access access = HE_CACHE_DMA_MMAP_RW)
+  { dma_mmap_access_ = access; }
 
 protected:
   std::string name_;
@@ -859,6 +942,8 @@ protected:
 
   command::ptr_t current_command_;
   std::map<CLI::App *, command::ptr_t> commands_;
+
+  he_mmap_access dma_mmap_access_;
 
 public:
   std::shared_ptr<spdlog::logger> logger_;
