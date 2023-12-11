@@ -58,6 +58,7 @@ usr/bin/nlb3
 usr/bin/nlb7
 usr/bin/vabtool
 usr/bin/n5010tool
+usr/bin/opae-mem
 usr/share/opae/*
 usr/lib/python3/dist-packages/ethernet*
 usr/lib/python3/dist-packages/hssi_ethernet*
