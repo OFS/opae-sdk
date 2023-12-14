@@ -31,6 +31,10 @@
 #include <time.h>
 #include <sys/pci.h>
 
+#ifndef PCI_STD_NUM_BARS
+#define PCI_STD_NUM_BARS 6
+#endif // PCI_STD_NUM_BARS
+
 #include "opae_int.h"
 #include "opae_vfio.h"
 #include "dfl.h"
