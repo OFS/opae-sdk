@@ -73,6 +73,11 @@ extensions = [
 setup(
     name='opae.fpga',
     version='@OPAE_VERSION@',
-    packages=find_namespace_packages(), 
-    ext_modules=extensions
+    packages=find_namespace_packages(include=['opae.*']),
+    ext_modules=extensions,
+    entry_points={
+        'console_scripts': [
+            'opae-mem = opae.fpga.tools.opae_mem:main',
+        ]
+    },
 )

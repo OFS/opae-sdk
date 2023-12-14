@@ -94,6 +94,11 @@ enum { MATCHES_SIZE = 6 };
 #define DFL_CXL_CACHE_WR_ADDR_TABLE_DATA 0x068
 #define DFL_CXL_CACHE_RD_ADDR_TABLE_DATA 0x088
 
+// buffer access type
+typedef enum {
+    HE_CACHE_DMA_MMAP_RW = 0x0,
+    HE_CACHE_DMA_MMAP_R = 0x1,
+} he_mmap_access;
 
 bool buffer_allocate(void** addr, uint64_t len, uint32_t numa_node)
 {
@@ -284,7 +289,7 @@ public:
       const char *log_level = nullptr)
       : name_(name), afu_id_(afu_id ? afu_id : ""), app_(name_), pci_addr_(""),
         log_level_(log_level ? log_level : "info"), timeout_msec_(60000),
-        current_command_(nullptr) {
+        current_command_(nullptr), dma_mmap_access_(HE_CACHE_DMA_MMAP_RW) {
     if (!afu_id_.empty())
       app_.add_option("-g,--guid", afu_id_, "GUID")->default_str(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
@@ -544,6 +549,7 @@ public:
 
     cout << "DSM buffer numa node: " << numa_node << endl;
     dma_map.argsz = sizeof(dma_map);
+    dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_DSM_BASE;
@@ -619,6 +625,8 @@ public:
     cout << "Read buffer numa node: " << numa_node << endl;
 
     dma_map.argsz = sizeof(dma_map);
+    if (dma_mmap_access_ == HE_CACHE_DMA_MMAP_RW)
+        dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA;
@@ -687,6 +695,8 @@ public:
 
     cout << "Write buffer numa node: " << numa_node << endl;
     dma_map.argsz = sizeof(dma_map);
+    if (dma_mmap_access_ == HE_CACHE_DMA_MMAP_RW)
+        dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_WR_ADDR_TABLE_DATA;
@@ -755,6 +765,8 @@ public:
     cout << "Read/Write buffer numa node: " << numa_node << endl;
 
     dma_map.argsz = sizeof(dma_map);
+    if (dma_mmap_access_ == HE_CACHE_DMA_MMAP_RW)
+        dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
     dma_map.user_addr = (__u64)ptr;
     dma_map.length = len;
     dma_map.csr_array[0] = DFL_CXL_CACHE_RD_ADDR_TABLE_DATA;
@@ -838,6 +850,7 @@ public:
       cout << "Pinned buffer numa node: " << numa_node << endl;
 
       dma_map.argsz = sizeof(dma_map);
+      dma_map.flags = DFL_CXL_BUFFER_MAP_WRITABLE;
       dma_map.user_addr = (__u64)ptr;
       dma_map.length = len;
       dma_map.csr_array[0] = 0;
@@ -896,6 +909,9 @@ public:
 
   uint8_t *get_read_write() const { return rd_wr_buffer_; }
 
+  void set_mmap_access(he_mmap_access access = HE_CACHE_DMA_MMAP_RW)
+  { dma_mmap_access_ = access; }
+
 protected:
   std::string name_;
   std::string afu_id_;
@@ -926,6 +942,8 @@ protected:
 
   command::ptr_t current_command_;
   std::map<CLI::App *, command::ptr_t> commands_;
+
+  he_mmap_access dma_mmap_access_;
 
 public:
   std::shared_ptr<spdlog::logger> logger_;

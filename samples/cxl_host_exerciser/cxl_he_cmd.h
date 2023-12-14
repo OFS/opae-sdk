@@ -263,6 +263,7 @@ public:
             he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
         } else {
             he_ctl_.bias_support = FPGAMEM_DEVICE_BIAS;
+            host_exe_->set_mmap_access(HE_CACHE_DMA_MMAP_R);
         }
     }
 

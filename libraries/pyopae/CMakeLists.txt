@@ -44,8 +44,6 @@ set(PYOPAE_SRC
     pysysobject.cpp
 )
 
-
-
 opae_add_module_library(TARGET _opae
     SOURCE ${PYOPAE_SRC}
     LIBS
@@ -65,12 +63,29 @@ set_target_properties(_opae
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
 )
 
-add_custom_command(TARGET _opae
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/opae/fpga/__init__.py
-    ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
-    COMMENT "Copying namespace package files")
+set(PYPKGFILES
+  opae/fpga/__init__.py
+  opae/fpga/dfh.py
+  opae/fpga/feature.py
+  opae/fpga/mailbox.py
+  opae/fpga/hexview.py
+  opae/fpga/pcie/__init__.py
+  opae/fpga/pcie/address.py
+  opae/fpga/tools/__init__.py
+  opae/fpga/tools/opae_mem.py
+)
+
+foreach(pypkgfile ${PYPKGFILES})
+    get_filename_component(pypkgdir
+        ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/${pypkgfile} DIRECTORY)
+    add_custom_command(TARGET _opae
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${pypkgdir}
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/${pypkgfile}
+        ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
+        COMMENT "Copying namespace package files")
+endforeach(pypkgfile ${PYPKGFILES})
 
 add_custom_command(TARGET _opae
     POST_BUILD
@@ -84,7 +99,7 @@ if (OPAE_BUILD_PYTHON_DIST)
     set(PYFILES
         pyproject.toml
         setup.py
-        opae/fpga/__init__.py
+        ${PYPKGFILES}
         test_pyopae.py
         )
 
