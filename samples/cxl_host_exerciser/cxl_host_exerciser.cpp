@@ -28,7 +28,6 @@
 #include <signal.h>
 
 #include "cxl_he_cache_cmd.h"
-#include "cxl_he_cache_lpbk_cmd.h"
 #include "cxl_host_exerciser.h"
 
 void he_sig_handler(int);
@@ -37,7 +36,6 @@ int main(int argc, char *argv[]) {
 
   host_exerciser::host_exerciser app;
   app.register_command<host_exerciser::he_cache_cmd>();
-  app.register_command<host_exerciser::he_cache_lpbk_cmd>();
 
   // host exerciser signal handler
   struct sigaction  act_new;
