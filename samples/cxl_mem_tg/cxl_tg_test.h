@@ -283,13 +283,13 @@ class cxl_tg_test : public test_command {
     tg_mem_size mem_size;
     mem_size.value = tg_exe_->read64(MEM_SIZE);
 
-    uint64_t value = mem_size.total_mem_size;
+    uint64_t value = mem_size.total_mem_size * MB / CL;
     tg_exe_->logger_->debug("Total hardware memory size:{}", value);
-    value = mem_size.hdm_mem_size;
+    value = mem_size.hdm_mem_size * MB / CL;
     tg_exe_->logger_->debug("HDM memory size:{0:d}", value);
 
     if (mem_size.hdm_mem_size != 0)
-        tg_exe_->hdm_size_ = mem_size.hdm_mem_size;
+        tg_exe_->hdm_size_ = (mem_size.total_mem_size - mem_size.hdm_mem_size) * MB / CL;
 
    cout << "HDM memory cache line size:" << dec << tg_exe_->hdm_size_ << endl;
 
