@@ -417,7 +417,7 @@ public:
 
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -652,7 +652,7 @@ public:
 
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -893,7 +893,7 @@ public:
 
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -1120,7 +1120,7 @@ public:
 
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -1170,6 +1170,7 @@ public:
       // Force stop test
       he_ctl_.value = 0;
       he_ctl_.ForcedTestCmpl = 1;
+      he_ctl_.ResetL = 1;
       host_exe_->write64(HE_CTL, he_ctl_.value);
 
       if (!he_wait_test_completion())
