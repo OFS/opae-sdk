@@ -826,22 +826,30 @@ def main():
     # for various items, including the boot_page, so we use that here. It simply returns a string
     # indicating the boot page: fpga_factory, fpga_user1, or fpga_user2
 
+    # But there are 2 conditions where we may skip this check altogether.
+    # 1. If the boot_page entry is not available
+    # 2. If blk0 is absent (i.e. the binary is a '.gbs' rather than the output of PACSign)
+
     boot_page = pac.fme.boot_page
-    if boot_page is None:
-        LOG.error('Secure update failed. Could not find **/fpga_boot_image sysfs entry.')
-        sys.exit(1)        
 
-    LOG.debug ("Boot page sysfs path: %s\n", boot_page.sysfs_path)
-    LOG.debug ("Boot page value: %s\n", boot_page.value)
-    LOG.debug ('Block0 ConType: %s\n', blk0['ConType'])
+    if (boot_page is None) or (blk0 is None):
+        LOG.debug('Attemping to check if boot-page==factory and flash-target==factory...')
+        if boot_page is None:
+            LOG.debug('But could not find **/fpga_boot_image sysfs entry, which tells us the boot-page. Skipping check.')
+        if blk0 is None:
+            LOG.debug('But could not find Auth Block0 in the binary, therefore this may be a .gbs binary. Skipping check.')
+    else:
+        LOG.debug ("Boot page sysfs path: %s\n", boot_page.sysfs_path)
+        LOG.debug ("Boot page value: %s\n", boot_page.value)
+        LOG.debug ('Block0 ConType: %s\n', blk0['ConType'])
 
-    # The binary is produced by the PACSign utility. 
-    # CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
-    # the binary to indicate that the factory image is targeted. ConType refers to 'content type'
-    # and indicates if the binary is factoryPR, static region, BMC-related etc.
-    if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == CONTENT_FACTORY)):
-        LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
-        sys.exit(1)
+        # The binary is produced by the PACSign utility. 
+        # CONTENT_FACTORY is the enum that PACSign inserts into the block0 region of
+        # the binary to indicate that the factory image is targeted. ConType refers to 'content type'
+        # and indicates if the binary is factoryPR, static region, BMC-related etc.
+        if ((boot_page.value == 'fpga_factory') and (blk0['ConType'] == CONTENT_FACTORY)):
+            LOG.error('Secure update failed. Cannot update factory image when current boot-page is also factory.')
+            sys.exit(1)
 
     LOG.warning('Update starting. Please do not interrupt.')
 
