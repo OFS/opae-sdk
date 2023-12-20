@@ -723,7 +723,7 @@ public:
     he_rd_cfg_.value = 0;
     he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
-    he_rd_cfg_.opcode = RD_LINE_S;
+    he_rd_cfg_.opcode = RD_LINE_I;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
     // set RD_ADDR_TABLE_CTRL
@@ -940,228 +940,6 @@ public:
     host_exe_->free_dsm();
 
     cout << "********** Host LLC cache hit Write test end**********" << endl;
-    return 0;
-  }
-
-  int he_run_host_rd_cache_miss_test() {
-
-    cout << "********** Host LLC Read cache miss test start**********" << endl;
-    /*
-    STEPS
-    1) Allocate DSM, Read buffer
-    2) Flush host read buffer cache
-    3) Set read CXL config
-    4) Run test (AFU reads from host cache(cache lines are not in host LLC))
-    */
-
-    // HE_INFO
-    // Set Read number Lines
-    he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, he_cls_count_);
-    cout << "Read/write number Lines:" << he_cls_count_ << endl;
-    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
-    cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
-    cout << "Write address table size:" << he_info_.write_addr_table_size
-        << endl;
-    cout << "loop count:" << he_loop_count_ << endl;
-
-    // set RD_CONFIG
-    he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = he_linerep_count_;
-    he_rd_cfg_.read_traffic_enable = 1;
-    he_rd_cfg_.opcode = RD_LINE_I;
-    host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-
-    // set RD_ADDR_TABLE_CTR
-    rd_table_ctl_.value = 0;
-    rd_table_ctl_.enable_address_stride = 1;
-    rd_table_ctl_.stride = he_stride_;
-    host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-    // Allocate DSM buffer
-    if (!host_exe_->allocate_dsm()) {
-      cerr << "alloc dsm failed" << endl;
-      return -1;
-    }
-
-    // Allocate Read buffer
-    if (!host_exe_->allocate_cache_read(BUFFER_SIZE_2MB, numa_node_)) {
-      cerr << "allocate cache read failed" << endl;
-      host_exe_->free_dsm();
-      return -1;
-    }
-
-    // continuous mode
-    if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
-        host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-        host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-        // Start test
-        he_start_test();
-
-        // Continuous mode
-        he_continuousmode();
-
-        // performance
-        he_perf_counters(HE_CXL_RD_LATENCY);
-
-    } else if (he_latency_iterations_ > 0) {
-
-        // Latency loop test
-        double total_latency = 0;
-
-        rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = 1;
-
-        host_exe_->write64(HE_RD_NUM_LINES, 1);
-        host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-        host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-        for (uint64_t i = 0; i < he_latency_iterations_; i++) {
-            // Start test
-            he_start_test();
-
-            // wait for completion
-            if (!he_wait_test_completion()) {
-                he_perf_counters();
-                host_exerciser_errors();
-                host_exe_->free_cache_read();
-                host_exe_->free_dsm();
-                return -1;
-            }
-
-            total_latency = total_latency + get_ticks();
-            host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
-        } //end for loop
-
-        total_latency = total_latency * LATENCY_FACTOR;
-        host_exe_->logger_->info("Average Latency: {0:0.3f} nanoseconds",
-            total_latency / he_latency_iterations_);
-
-    } else {
-        // fpga read cache hit test
-        host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
-        host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-
-        // Start test
-        he_start_test();
-
-        // wait for completion
-        if (!he_wait_test_completion()) {
-            he_perf_counters();
-            host_exerciser_errors();
-            host_exe_->free_cache_read();
-            host_exe_->free_dsm();
-            return -1;
-        }
-        he_perf_counters(HE_CXL_RD_LATENCY);
-    }
-
-    host_exe_->free_cache_read();
-    host_exe_->free_dsm();
-
-    cout << "********** Ran  Host LLC Read cache miss successfully ********** "
-         << endl;
-
-    cout << "********** Host LLC Read cache miss test end**********" << endl;
-    return 0;
-  }
-
-  int he_run_host_wr_cache_miss_test() {
-
-    cout << "********** Host LLC Write cache miss test start**********" << endl;
-    /*
-    STEPS
-    1) Allocate DSM, write buffer
-    2) Flush host write buffer cache
-    3) Set write CXL config
-    4) Run test (AFU writes host memory (cache lines are not in host LLC))
-    */
-
-    // HE_INFO
-    // Set write number Lines
-    he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
-    cout << "Write number Lines:" << he_cls_count_ << endl;
-    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
-    cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
-    cout << "Write address table size:" << he_info_.write_addr_table_size
-        << endl;
-    cout << "loop count:" << he_loop_count_ << endl;
-
-    // set RD_CONFIG
-    he_wr_cfg_.value = 0;
-    he_wr_cfg_.line_repeat_count = he_linerep_count_;
-    he_wr_cfg_.write_traffic_enable = 1;
-    he_wr_cfg_.opcode = WR_LINE_I;
-    host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-
-    // set RD_ADDR_TABLE_CTR
-    wr_table_ctl_.value = 0;
-    wr_table_ctl_.enable_address_stride = 1;
-    wr_table_ctl_.stride = he_stride_;
-    host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-    // Allocate DSM buffer
-    if (!host_exe_->allocate_dsm()) {
-      cerr << "alloc dsm failed" << endl;
-      return -1;
-    }
-
-    // Allocate write buffer
-    if (!host_exe_->allocate_cache_write(BUFFER_SIZE_2MB, numa_node_)) {
-      cerr << "allocate cache read failed" << endl;
-      host_exe_->free_dsm();
-      return -1;
-    }
-
-    // continuous mode
-    if (he_continuousmode_) {
-        he_wr_cfg_.continuous_mode_enable = 0x1;
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-
-        // Start test
-        he_start_test();
-
-        // Continuous mode
-        he_continuousmode();
-
-        // performance
-        he_perf_counters();
-
-    } else {
-        // fpga Write cache hit test
-        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-        host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
-
-        // Start test
-        he_start_test();
-
-        // wait for completion
-        if (!he_wait_test_completion()) {
-            he_perf_counters();
-            host_exerciser_errors();
-            host_exe_->free_cache_write();
-            host_exe_->free_dsm();
-            return -1;
-        }
-        he_perf_counters();
-    }
-
-    host_exe_->free_cache_write();
-    host_exe_->free_dsm();
-
-    cout << "********** Ran  Host LLC Write cache miss successfully ********** "
-         << endl;
-
-    cout << "********** Host LLC Write cache miss test end**********" << endl;
     return 0;
   }
 
@@ -1475,8 +1253,6 @@ public:
            (he_test_ == HE_FPGA_WR_CACHE_MISS) ||
            (he_test_ == HE_HOST_RD_CACHE_HIT) ||
            (he_test_ == HE_HOST_WR_CACHE_HIT) ||
-           (he_test_ == HE_HOST_RD_CACHE_MISS) ||
-           (he_test_ == HE_HOST_WR_CACHE_MISS) ||
            (he_test_ == HE_CACHE_PING_PONG)) &&
            he_target_ == HE_TARGET_BOTH) {
 
@@ -1550,16 +1326,6 @@ public:
 
     if (he_test_ == HE_HOST_WR_CACHE_HIT) {
       ret = he_run_host_wr_cache_hit_test();
-      return ret;
-    }
-
-    if (he_test_ == HE_HOST_RD_CACHE_MISS) {
-      ret = he_run_host_rd_cache_miss_test();
-      return ret;
-    }
-
-    if (he_test_ == HE_HOST_WR_CACHE_MISS) {
-      ret = he_run_host_wr_cache_miss_test();
       return ret;
     }
 

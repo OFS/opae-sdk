@@ -339,8 +339,6 @@ const std::map<std::string, uint32_t> he_test_modes = {
     {"fpgawrcachemiss", HE_FPGA_WR_CACHE_MISS},
     {"hostrdcachehit", HE_HOST_RD_CACHE_HIT},
     {"hostwrcachehit", HE_HOST_WR_CACHE_HIT},
-    {"hostrdcachemiss", HE_HOST_RD_CACHE_MISS},
-    {"hostwrcachemiss", HE_HOST_WR_CACHE_MISS},
     {"pingpong", HE_CACHE_PING_PONG},
     {"runningpointer", HE_CACHE_RUNNING_POINTER},
 };
