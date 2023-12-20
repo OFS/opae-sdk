@@ -316,6 +316,7 @@ done
 %{_bindir}/nlb7
 %{_bindir}/vabtool
 %{_bindir}/n5010tool
+%{_bindir}/opae-mem
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*

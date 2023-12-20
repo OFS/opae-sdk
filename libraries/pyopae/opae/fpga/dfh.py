@@ -24,50 +24,52 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-[build-system]
-requires = ["setuptools>=59.6", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+"""Define Configuration and Status Register bit layouts for Device Feature
+Header version 0 and version 1."""
 
-[project]
-name = "opae.fpga"
-version = "@OPAE_VERSION@"
-description = "pyopae provides Python bindings around the OPAE C API"
-#readme = ""
-license = {text = "BSD-3-Clause"}
-requires-python = ">=3.6"
+from ctypes import Union, LittleEndianStructure, c_uint64
 
-[tool.setuptools]
-packages = [
-"opae",
-"opae.fpga",
-"opae.fpga.pcie",
-"opae.fpga.tools",
-]
 
-[tool.setuptools.package-data]
-"*" = [
-"README.md",
-"opae.cpp",
-"pycontext.h",
-"pycontext.cpp",
-"pyproperties.h",
-"pyproperties.cpp",
-"pyhandle.h",
-"pyhandle.cpp",
-"pytoken.h",
-"pytoken.cpp",
-"pyshared_buffer.h",
-"pyshared_buffer.cpp",
-"pyevents.h",
-"pyevents.cpp",
-"pyerrors.h",
-"pyerrors.cpp",
-"pysysobject.h",
-"pysysobject.cpp",
-]
+class CSR(Union):
+    """Configuration and Status Register"""
+    def __init__(self, value):
+        self.value = value
 
-[project.scripts]
-opae-mem = "opae.fpga.tools.opae_mem:main"
 
-[project.urls]
-Homepage = "https://opae.github.io"
+class DFH0_BITS(LittleEndianStructure):
+    """Bit fields for DFH v0."""
+    _fields_ = [
+        ('id', c_uint64, 12),          # Feature ID
+        ('rev', c_uint64, 4),          # Revision of feature
+        ('next', c_uint64, 24),
+        ('eol', c_uint64, 1),
+        ('reserved', c_uint64, 19),
+        ('feature_type', c_uint64, 4), # 1=AFU,3=private,4=FIU,5=interface
+    ]
+
+
+class dfh0(CSR):
+    """Device Feature Header version 0"""
+    _fields_ = [('bits', DFH0_BITS),
+                ('value', c_uint64)]
+    width = 64
+
+
+class DFH1_BITS(LittleEndianStructure):
+    """Bit fields for DFH v1."""
+    _fields_ = [
+        ('id', c_uint64, 12),          # Feature ID
+        ('rev', c_uint64, 4),          # Revision of feature
+        ('next', c_uint64, 24),
+        ('eol', c_uint64, 1),
+        ('reserved', c_uint64, 11),
+        ('dfh_version', c_uint64, 8),  # DFH version (1)
+        ('feature_type', c_uint64, 4), # 1=AFU,3=private,4=FIU,5=interface
+    ]
+
+
+class dfh1(CSR):
+    """Device Feature Header version 1"""
+    _fields_ = [('bits', DFH1_BITS),
+                ('value', c_uint64)]
+    width = 64

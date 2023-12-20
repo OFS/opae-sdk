@@ -191,8 +191,8 @@ union tg_mem_size {
     enum { offset = MEM_SIZE };
     uint64_t value;
     struct {
-        uint64_t total_mem_size : 32;
         uint64_t hdm_mem_size : 32;
+        uint64_t total_mem_size : 32;
     };
 };
 

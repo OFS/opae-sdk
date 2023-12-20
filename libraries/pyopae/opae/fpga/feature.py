@@ -24,50 +24,47 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-[build-system]
-requires = ["setuptools>=59.6", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+"""Provides a means to enumerate FPGA devices by examining their
+feature ID."""
 
-[project]
-name = "opae.fpga"
-version = "@OPAE_VERSION@"
-description = "pyopae provides Python bindings around the OPAE C API"
-#readme = ""
-license = {text = "BSD-3-Clause"}
-requires-python = ">=3.6"
+from opae import fpga
+from opae.fpga import dfh
+import opae.fpga.pcie.address as addr
 
-[tool.setuptools]
-packages = [
-"opae",
-"opae.fpga",
-"opae.fpga.pcie",
-"opae.fpga.tools",
-]
 
-[tool.setuptools.package-data]
-"*" = [
-"README.md",
-"opae.cpp",
-"pycontext.h",
-"pycontext.cpp",
-"pyproperties.h",
-"pyproperties.cpp",
-"pyhandle.h",
-"pyhandle.cpp",
-"pytoken.h",
-"pytoken.cpp",
-"pyshared_buffer.h",
-"pyshared_buffer.cpp",
-"pyevents.h",
-"pyevents.cpp",
-"pyerrors.h",
-"pyerrors.cpp",
-"pysysobject.h",
-"pysysobject.cpp",
-]
+def enumerate(access_width: int, region: int, **kwargs):
+    """Enumerate FPGA regions based on the given properties.
+       kwargs contains the standard FPGA properties used for
+       enumeration, and supports one additional property,
+       'feature_id', that when given acts as a filter for
+       selecting tokens by the feature_id field of the DFH.
+    """
+    feature_id = None
+    if 'feature_id' in kwargs:
+        feature_id = kwargs.get('feature_id')
+        del kwargs['feature_id']
 
-[project.scripts]
-opae-mem = "opae.fpga.tools.opae_mem:main"
+    tokens = fpga.enumerate(**kwargs)
 
-[project.urls]
-Homepage = "https://opae.github.io"
+    access = addr.memory_access(access_width)
+
+    if feature_id is None:
+        return tokens
+
+    result = []
+    while tokens:
+        tok = tokens.pop()
+        remove = True
+        try:
+            with fpga.open(tok, fpga.OPEN_SHARED) as hndl:
+                access.hndl = hndl
+                d = dfh.dfh0(access.read(0, dfh.dfh0.width, region))
+                if d.bits.id == int(feature_id):
+                    result.append(tok)
+                    remove = False
+        except RuntimeError:
+            pass
+        if remove:
+            del tok
+
+    return result
