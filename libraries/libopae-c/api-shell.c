@@ -307,6 +307,34 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 	return res != FPGA_OK ? res : cres;
 }
 
+fpga_result __OPAE_API__ fpgaGetChildren(fpga_handle handle,
+                                         uint32_t max_children,
+                                         fpga_handle *children,
+                                         uint32_t *num_children)
+{
+	fpga_result res;
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(num_children);
+
+	if ((max_children > 0) && !children) {
+		OPAE_ERR("max_children > 0 with NULL children");
+		return FPGA_INVALID_PARAM;
+	}
+
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetChildren,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_handle->adapter_table->fpgaGetChildren(
+		wrapped_handle->opae_handle, max_children,
+		children, num_children);
+
+	return res;
+}
+
+
 fpga_result __OPAE_API__ fpgaClose(fpga_handle handle)
 {
 	fpga_result res;

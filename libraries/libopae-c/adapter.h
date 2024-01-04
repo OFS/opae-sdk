@@ -43,6 +43,11 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaOpen)(fpga_token token, fpga_handle *handle,
 				int flags);
 
+	fpga_result (*fpgaGetChildren)(fpga_handle handle,
+				       uint32_t max_children,
+				       fpga_handle *children,
+				       uint32_t *num_children);
+
 	fpga_result (*fpgaClose)(fpga_handle handle);
 
 	fpga_result (*fpgaReset)(fpga_handle handle);

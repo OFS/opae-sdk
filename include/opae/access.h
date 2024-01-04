@@ -73,6 +73,35 @@ fpga_result fpgaOpen(fpga_token token, fpga_handle *handle,
 		     int flags);
 
 /**
+ * Extract the handles of children of a previously fpgaOpen()ed resource.
+ * Only AFUs with feature parameters that name child AFU GUIDs will have
+ * children.
+ *
+ * Child AFU handles may be used to connect to child-specific MMIO regions.
+ * There is no need to close child handles with fpgaClose(). The handles
+ * will be closed automatically when the parent is closed. Child handles
+ * may not be passed to fpgaPrepareBuffer(). All shared memory management
+ * must be associated with the parent.
+ *
+ * @param[in]  handle       Handle to previously opened FPGA object
+ * @param[in]  max_children Maximum number of handles that may be returned
+ *                          in the `children` array.
+ * @param[out] children     Pointer to an array of child handles currently
+ *                          open. When NULL or `max_children` is 0, the
+ *                          number of children will still be returned in
+ *                          `num_children`.
+ * @param[out] num_children Number of children belonging to the parent.
+ *                          This number may be higher than `max_children`.
+ * @returns                 FPGA_OK on success.
+ *                          FPGA_INVALID_PARAM if handle does not refer to
+ *                          an acquired resource, or if handle is NULL.
+ *                          FPGA_EXCEPTION if an internal error occurred
+ *                          while accessing the handle.
+ */
+fpga_result fpgaGetChildren(fpga_handle handle, uint32_t max_children,
+			    fpga_handle *children, uint32_t *num_children);
+
+/**
  * Close a previously opened FPGA object
  *
  * Relinquishes ownership of a previously fpgaOpen()ed resource. This enables
