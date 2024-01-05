@@ -144,6 +144,7 @@ uint32_t opae_wrapped_tokens_in_use(void);
 
 typedef struct _opae_wrapped_handle {
 	uint32_t magic;
+	bool is_child;
 	opae_wrapped_token *wrapped_token;
 	fpga_handle opae_handle;
 	opae_api_adapter_table *adapter_table;

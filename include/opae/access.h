@@ -77,11 +77,12 @@ fpga_result fpgaOpen(fpga_token token, fpga_handle *handle,
  * Only AFUs with feature parameters that name child AFU GUIDs will have
  * children.
  *
- * Child AFU handles may be used to connect to child-specific MMIO regions.
- * There is no need to close child handles with fpgaClose(). The handles
- * will be closed automatically when the parent is closed. Child handles
- * may not be passed to fpgaPrepareBuffer(). All shared memory management
- * must be associated with the parent.
+ * Child AFU handles may be used to connect to child-specific MMIO regions
+ * and manage interrupts. All child handles should be closed with
+ * fpgaClose(). Children and parents may be closed in any order.
+ *
+ * Child handles may not be passed to fpgaPrepareBuffer(). All shared
+ * memory management must be associated with the parent.
  *
  * @param[in]  handle       Handle to previously opened FPGA object
  * @param[in]  max_children Maximum number of handles that may be returned

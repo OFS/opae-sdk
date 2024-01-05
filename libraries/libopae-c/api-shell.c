@@ -192,6 +192,7 @@ opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
 
 	if (whan) {
 		whan->magic = OPAE_WRAPPED_HANDLE_MAGIC;
+		whan->is_child = false;
 		whan->wrapped_token = wt;
 		whan->opae_handle = opae_handle;
 		whan->adapter_table = adapter;
@@ -308,9 +309,9 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 }
 
 fpga_result __OPAE_API__ fpgaGetChildren(fpga_handle handle,
-                                         uint32_t max_children,
-                                         fpga_handle *children,
-                                         uint32_t *num_children)
+					 uint32_t max_children,
+					 fpga_handle *children,
+					 uint32_t *num_children)
 {
 	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
@@ -331,13 +332,41 @@ fpga_result __OPAE_API__ fpgaGetChildren(fpga_handle handle,
 		wrapped_handle->opae_handle, max_children,
 		children, num_children);
 
+	if (res == FPGA_OK) {
+		// Wrap each child handle, marking them as children
+		int nc = (max_children < *num_children) ? max_children : *num_children;
+		for (int c = 0; c < nc; ++c) {
+			opae_wrapped_handle *wrapped_child =
+				opae_allocate_wrapped_handle(
+					wrapped_handle->wrapped_token,
+					children[c], wrapped_handle->adapter_table);
+
+			if (wrapped_child) {
+				wrapped_child->is_child = true;
+				children[c] = wrapped_child;
+			} else {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+
+				// Clean up children successfully wrapped before
+				// the memory error.
+				for (int i = 0; i < c; ++i) {
+					opae_destroy_wrapped_handle(children[c]);
+					children[c] = NULL;
+				}
+
+				break;
+			}
+		}
+	}
+
 	return res;
 }
 
 
 fpga_result __OPAE_API__ fpgaClose(fpga_handle handle)
 {
-	fpga_result res;
+	fpga_result res = FPGA_OK;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
@@ -345,8 +374,10 @@ fpga_result __OPAE_API__ fpgaClose(fpga_handle handle)
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaClose,
 			       FPGA_NOT_SUPPORTED);
 
-	res = wrapped_handle->adapter_table->fpgaClose(
-		wrapped_handle->opae_handle);
+	// The only action required for children is destroying the wrapper
+	if (!wrapped_handle->is_child)
+		res = wrapped_handle->adapter_table->fpgaClose(
+			wrapped_handle->opae_handle);
 
 	opae_destroy_wrapped_handle(wrapped_handle);
 
@@ -948,6 +979,11 @@ fpga_result __OPAE_API__ fpgaPrepareBuffer(fpga_handle handle,
 	ASSERT_NOT_NULL(wsid);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaPrepareBuffer,
 			       FPGA_NOT_SUPPORTED);
+
+	if (wrapped_handle->is_child) {
+		OPAE_ERR("Call fpgaPrepareBuffer() from the parent handle");
+		return FPGA_NOT_SUPPORTED;
+	}
 
 	return wrapped_handle->adapter_table->fpgaPrepareBuffer(
 		wrapped_handle->opae_handle, len, buf_addr, wsid, flags);
