@@ -435,7 +435,7 @@ public:
     logger_->debug("DFH + 16: 0x:{0:X}", *(u64 + 2));
     logger_->debug("DFH + 24: 0x:{0:X}", *(u64 + 3));
 
-    return exit_codes::not_run;
+    return exit_codes::success;
   }
 
   int main(int argc, char *argv[]) {
@@ -474,7 +474,8 @@ public:
     }
 
     int res = open_handle(dev_path_[dev_index].c_str());
-    if (res != exit_codes::not_run) {
+    if (res != exit_codes::success) {
+      cerr << "Failed to open cxl device" << endl;
       return res;
     }
 
