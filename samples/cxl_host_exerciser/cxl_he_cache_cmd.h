@@ -1096,7 +1096,7 @@ public:
       host_exe_->write64(HE_RD_ADDR_TABLE_DATA, phy_ptr);
 
       // start test
-      he_start_test(HE_PING_PONG,RUNNING_POINTER);
+      he_start_test(HE_RUNNING_POINTER,RUNNING_POINTER);
 
       // wait for completion
       if (!he_wait_test_completion()) {
