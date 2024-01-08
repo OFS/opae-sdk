@@ -82,6 +82,9 @@ fpga_result afu_open_children(opae_wrapped_handle *wrapped_parent_handle)
 	// Does this AFU have children? Return FPGA_OK if it does not.
 	//
 
+	if (!adapter->fpgaReadMMIO64)
+		return FPGA_OK;
+
 	// DFH must be a v1 AFU with ID 0
 	result = adapter->fpgaReadMMIO64(handle, 0, 0, &v);
 	if (result != FPGA_OK)
