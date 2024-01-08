@@ -84,6 +84,11 @@ fpga_result afu_open_children(opae_wrapped_handle *wrapped_parent_handle)
 
 	if (!adapter->fpgaReadMMIO64)
 		return FPGA_OK;
+	// Don't load children if the attached plugin is missing support
+	// for probing workspace IDs for buffer info. Without it, IOVAs
+	// can't be shared with children.
+	if (!adapter->fpgaGetWSInfo)
+		return FPGA_OK;
 
 	// DFH must be a v1 AFU with ID 0
 	result = adapter->fpgaReadMMIO64(handle, 0, 0, &v);

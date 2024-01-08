@@ -277,7 +277,6 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 				  int flags)
 {
 	fpga_result res;
-	fpga_result cres = FPGA_OK;
 	opae_wrapped_token *wrapped_token;
 	fpga_token_header *token_hdr;
 	fpga_handle opae_handle = NULL;
@@ -302,8 +301,8 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 
 	if (!wrapped_handle) {
 		OPAE_ERR("malloc failed");
-		res = FPGA_NO_MEMORY;
-		cres = wrapped_token->adapter_table->fpgaClose(opae_handle);
+		wrapped_token->adapter_table->fpgaClose(opae_handle);
+		return FPGA_NO_MEMORY;
 	}
 
 	token_hdr = (fpga_token_header *)wrapped_token->opae_token;
@@ -325,7 +324,7 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 
 	*handle = wrapped_handle;
 
-	return res != FPGA_OK ? res : cres;
+	return FPGA_OK;
 }
 
 fpga_result __OPAE_API__ fpgaGetChildren(fpga_handle handle,
