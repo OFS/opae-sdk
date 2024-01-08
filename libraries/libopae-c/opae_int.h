@@ -147,6 +147,13 @@ typedef struct _opae_wrapped_handle {
 	opae_wrapped_token *wrapped_token;
 	fpga_handle opae_handle;
 	opae_api_adapter_table *adapter_table;
+
+	// For a multi-ported AFU with declared parent/child, pointer from
+	// child handle to parent.
+	struct _opae_wrapped_handle *parent;
+	// Linked list of children, starting at the parent. The list order
+	// matches the order of the parent's child AFU GUID parameter.
+	struct _opae_wrapped_handle *child_next;
 } opae_wrapped_handle;
 
 opae_wrapped_handle *
