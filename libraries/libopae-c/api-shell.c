@@ -40,6 +40,7 @@
 #include "pluginmgr.h"
 #include "opae_int.h"
 #include "props.h"
+#include "multi-port-afu.h"
 #include "mock/opae_std.h"
 
 const char *
@@ -195,6 +196,8 @@ opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
 		whan->wrapped_token = wt;
 		whan->opae_handle = opae_handle;
 		whan->adapter_table = adapter;
+		whan->parent = NULL;
+		whan->child_next = NULL;
 
 		opae_upref_wrapped_token(wt);
 	}
@@ -274,8 +277,8 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 				  int flags)
 {
 	fpga_result res;
-	fpga_result cres = FPGA_OK;
 	opae_wrapped_token *wrapped_token;
+	fpga_token_header *token_hdr;
 	fpga_handle opae_handle = NULL;
 	opae_wrapped_handle *wrapped_handle;
 
@@ -298,13 +301,65 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 
 	if (!wrapped_handle) {
 		OPAE_ERR("malloc failed");
-		res = FPGA_NO_MEMORY;
-		cres = wrapped_token->adapter_table->fpgaClose(opae_handle);
+		wrapped_token->adapter_table->fpgaClose(opae_handle);
+		return FPGA_NO_MEMORY;
+	}
+
+	token_hdr = (fpga_token_header *)wrapped_token->opae_token;
+	if (token_hdr->objtype == FPGA_ACCELERATOR) {
+		res = afu_open_children(wrapped_handle);
+		if (res != FPGA_OK) {
+			// Close any children that are open
+			afu_close_children(wrapped_handle);
+
+			// Close parent due to failure with child
+			if (wrapped_handle->adapter_table->fpgaClose)
+				wrapped_handle->adapter_table->fpgaClose(
+					wrapped_handle->opae_handle);
+
+			opae_destroy_wrapped_handle(wrapped_handle);
+			return res;
+		}
 	}
 
 	*handle = wrapped_handle;
 
-	return res != FPGA_OK ? res : cres;
+	return FPGA_OK;
+}
+
+fpga_result __OPAE_API__ fpgaGetChildren(fpga_handle handle,
+					 uint32_t max_children,
+					 fpga_handle *children,
+					 uint32_t *num_children)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(num_children);
+
+	if ((max_children > 0) && !children) {
+		OPAE_ERR("max_children > 0 with NULL children");
+		return FPGA_INVALID_PARAM;
+	}
+
+	*num_children = 0;
+
+	// Is handle a child? If so, it has no children.
+	if (wrapped_handle->parent)
+		return FPGA_OK;
+
+	// Children are already open
+	opae_wrapped_handle *wrapped_child = wrapped_handle->child_next;
+	while (wrapped_child) {
+		if (*num_children < max_children)
+			children[*num_children] = wrapped_child;
+
+		*num_children += 1;
+		wrapped_child = wrapped_child->child_next;
+	}
+
+	return FPGA_OK;
 }
 
 fpga_result __OPAE_API__ fpgaClose(fpga_handle handle)
@@ -320,6 +375,7 @@ fpga_result __OPAE_API__ fpgaClose(fpga_handle handle)
 	res = wrapped_handle->adapter_table->fpgaClose(
 		wrapped_handle->opae_handle);
 
+	afu_close_children(wrapped_handle);
 	opae_destroy_wrapped_handle(wrapped_handle);
 
 	return res;
@@ -905,6 +961,7 @@ fpga_result __OPAE_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 fpga_result __OPAE_API__ fpgaPrepareBuffer(fpga_handle handle,
 	uint64_t len, void **buf_addr, uint64_t *wsid, int flags)
 {
+	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
@@ -921,12 +978,33 @@ fpga_result __OPAE_API__ fpgaPrepareBuffer(fpga_handle handle,
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaPrepareBuffer,
 			       FPGA_NOT_SUPPORTED);
 
-	return wrapped_handle->adapter_table->fpgaPrepareBuffer(
+	if (wrapped_handle->parent) {
+		OPAE_ERR("Call fpgaPrepareBuffer() from the parent handle");
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	res = wrapped_handle->adapter_table->fpgaPrepareBuffer(
 		wrapped_handle->opae_handle, len, buf_addr, wsid, flags);
+	if (res != FPGA_OK)
+		return res;
+
+	res = afu_pin_buffer(wrapped_handle, *buf_addr, len, *wsid);
+	if (res == FPGA_OK)
+		return FPGA_OK;
+
+	// Error! Undo pinning of parent after child failure.
+	if (wrapped_handle->adapter_table->fpgaReleaseBuffer)
+		wrapped_handle->adapter_table->fpgaReleaseBuffer(
+			wrapped_handle->opae_handle, *wsid);
+
+	// Return the error
+	return res;
 }
 
 fpga_result __OPAE_API__ fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 {
+	fpga_result ret_res;
+	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
@@ -934,8 +1012,13 @@ fpga_result __OPAE_API__ fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaReleaseBuffer,
 			       FPGA_NOT_SUPPORTED);
 
-	return wrapped_handle->adapter_table->fpgaReleaseBuffer(
+	ret_res = afu_unpin_buffer(wrapped_handle, wsid);
+
+	res = wrapped_handle->adapter_table->fpgaReleaseBuffer(
 		wrapped_handle->opae_handle, wsid);
+	ret_res = (ret_res == FPGA_OK ? res : ret_res);
+
+	return ret_res;
 }
 
 fpga_result __OPAE_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
@@ -955,6 +1038,7 @@ fpga_result __OPAE_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 
 fpga_result __OPAE_API__ fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 {
+	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 
@@ -963,8 +1047,25 @@ fpga_result __OPAE_API__ fpgaBindSVA(fpga_handle handle, uint32_t *pasid)
 	if (!wrapped_handle->adapter_table->fpgaBindSVA)
 		return FPGA_NOT_SUPPORTED;
 
-	return wrapped_handle->adapter_table->fpgaBindSVA(
+	res = wrapped_handle->adapter_table->fpgaBindSVA(
 		wrapped_handle->opae_handle, pasid);
+	if (res != FPGA_OK)
+		return res;
+
+	opae_wrapped_handle *wrapped_child = wrapped_handle->child_next;
+	while (wrapped_child) {
+		if (!wrapped_child->adapter_table->fpgaBindSVA)
+			return FPGA_NOT_SUPPORTED;
+
+		res = wrapped_child->adapter_table->fpgaBindSVA(
+			wrapped_child->opae_handle, pasid);
+		if (res != FPGA_OK)
+			return res;
+
+		wrapped_child = wrapped_child->child_next;
+	}
+
+	return FPGA_OK;
 }
 
 fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)

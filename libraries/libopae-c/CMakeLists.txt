@@ -29,6 +29,7 @@ set(SRC
     api-shell.c
     init.c
     props.c
+    multi-port-afu.c
     cfg-file.c
     fpgad-cfg.c
     fpgainfo-cfg.c
