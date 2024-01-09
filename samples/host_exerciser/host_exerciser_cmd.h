@@ -832,9 +832,10 @@ public:
                                       (void*)source_->c_type(), source_->io_address());
             d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
             he_init_src_buffer(source_);
-        } catch (fpga::no_memory) {
+        } catch (fpga::no_memory e) {
             std::cout << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
         }
+        
         /* Allocate Destination Buffer
             Write to CSR_DST_ADDR */
         try {
@@ -844,7 +845,7 @@ public:
                                       (void*)destination_->c_type(), destination_->io_address());
             d_afu->write64(HE_DST_ADDR, cacheline_aligned_addr(destination_->io_address()));
             std::fill_n(destination_->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
-        } catch (fpga::no_memory) {
+        } catch (fpga::no_memory e) {
             std::cout << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
         }
 
@@ -858,7 +859,7 @@ public:
             d_afu->write32(HE_DSM_BASEL, cacheline_aligned_addr(dsm_->io_address()));
             d_afu->write32(HE_DSM_BASEH, cacheline_aligned_addr(dsm_->io_address()) >> 32);
             std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
-        } catch (fpga::no_memory) {
+        } catch (fpga::no_memory e) {
             std::cout << "DSM Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
         }
 
