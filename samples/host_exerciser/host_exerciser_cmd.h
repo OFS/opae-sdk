@@ -833,8 +833,9 @@ public:
             d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
             he_init_src_buffer(source_);
         }
-        catch (...) {
+        catch (opae::fpga::types::except &e) {
             std::cout << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
+            std::cout << e.what() << std::endl;
         }
 
         /* Allocate Destination Buffer
