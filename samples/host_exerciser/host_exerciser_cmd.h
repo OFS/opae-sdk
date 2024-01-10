@@ -828,15 +828,15 @@ public:
         try { 
             std::cout << "Allocate SRC Buffer" << std::endl;
             source_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
-            host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
-                                      (void*)source_->c_type(), source_->io_address());
-            d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
-            he_init_src_buffer(source_);
         }
         catch (opae::fpga::types::except &e) {
             std::cout << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
             std::cout << e.what() << std::endl;
         }
+        host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
+                                  (void*)source_->c_type(), source_->io_address());
+        d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
+        he_init_src_buffer(source_);
 
         /* Allocate Destination Buffer
             Write to CSR_DST_ADDR */
