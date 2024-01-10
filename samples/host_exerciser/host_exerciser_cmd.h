@@ -848,7 +848,7 @@ public:
             std::fill_n(destination_->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
         }
         catch (fpga::no_memory &nm_ex) {
-            std::cout << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
+            std::cout << "DST Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
         }
 
         /* Allocate DSM Buffer
