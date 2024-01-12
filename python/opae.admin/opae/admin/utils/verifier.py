@@ -251,9 +251,9 @@ class Block_0:
         print("\t\tMatch" if self.sha384 ==
               self.calc_sha384 else "\t\tNo match")
         if len(self.bitstream_version) != 0:
-            print("\tBitstream Version =\t\t{}".format(self.bitstream_version))
+            print("\tImage Info =\t\t{}".format(self.bitstream_version))
         else:
-            print("\tNo Bitstream Version")
+            print("\tNo Image Info")
         if self.cert_type == database.BITSTREAM_TYPE_CANCEL:
             print("\n\tCSK to cancel =\t{}".format(
                 int_from_bytes(self.payload[:4], byteorder="big")))
