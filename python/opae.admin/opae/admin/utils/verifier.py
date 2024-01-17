@@ -202,7 +202,7 @@ class Block_0:
         self.content_type = bits[8]
         self.cert_type = bits[9]
         self.slot_num = bits[10] & 0xF
-        self.bitstream_version = bytearray(bits[96:128]).decode()
+        self.image_info = bytearray(bits[96:128]).decode()
         self.sha256 = int_from_bytes(bits[16:48], byteorder="big")
         self.sha384 = int_from_bytes(bits[48:96], byteorder="big")
         self.calc_sha256 = int_from_bytes(
@@ -250,8 +250,8 @@ class Block_0:
                "\n\t\t\t{0:#0{1}x}").format(self.calc_sha384, 98))
         print("\t\tMatch" if self.sha384 ==
               self.calc_sha384 else "\t\tNo match")
-        if len(self.bitstream_version) != 0:
-            print("\tImage Info =\t\t{}".format(self.bitstream_version))
+        if len(self.image_info) != 0:
+            print("\tImage Info =\t\t{}".format(self.image_info))
         else:
             print("\tNo Image Info")
         if self.cert_type == database.BITSTREAM_TYPE_CANCEL:
