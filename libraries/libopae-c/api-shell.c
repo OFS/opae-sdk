@@ -985,7 +985,7 @@ fpga_result __OPAE_API__ fpgaPrepareBuffer(fpga_handle handle,
 
 	res = wrapped_handle->adapter_table->fpgaPrepareBuffer(
 		wrapped_handle->opae_handle, len, buf_addr, wsid, flags);
-	if (res != FPGA_OK)
+	if ((res != FPGA_OK) || !buf_addr)
 		return res;
 
 	res = afu_pin_buffer(wrapped_handle, *buf_addr, len, *wsid);
