@@ -179,8 +179,8 @@ fpga_result afu_open_children(opae_wrapped_handle *wrapped_parent_handle)
 			return FPGA_NOT_FOUND;
 		}
 
-		fpga_handle child_handle;
-		result = fpgaOpen(accel_token, &child_handle, 0);
+		fpga_handle child_handle = handle;
+		result = fpgaOpen(accel_token, &child_handle, FPGA_OPEN_HAS_PARENT_AFU);
 		fpgaDestroyToken(&accel_token);
 		if (result != FPGA_OK)
 			return result;

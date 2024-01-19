@@ -291,6 +291,11 @@ fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
 	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaClose,
 			       FPGA_NOT_SUPPORTED);
 
+	if (flags & FPGA_OPEN_HAS_PARENT_AFU) {
+		ASSERT_NOT_NULL(*handle);
+		opae_handle = *handle;
+	}
+
 	res = wrapped_token->adapter_table->fpgaOpen(wrapped_token->opae_token,
 						     &opae_handle, flags);
 
