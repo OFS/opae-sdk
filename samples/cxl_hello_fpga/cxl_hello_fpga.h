@@ -30,11 +30,10 @@
 #define MEM_TG_FEATURE_ID 0x25
 #define MEM_TG_FEATURE_GUIDL 0x81599b5c2ebd4b23
 #define MEM_TG_FEATURE_GUIDH 0x0118e06b1fa349b9
+#define HELLO_FPGA_CL_HEADER 0x36db6db6
 const char *HE_CACHE_AFU_ID = "0118E06B-1FA3-49B9-8159-9b5C2EBD4b23";
 
-#define RUNNIG_PTR_DATA_PATTERN 0x123456
-
-namespace host_exerciser {
+namespace hello_fpga {
 
 static const uint64_t HE_CACHE_TEST_TIMEOUT = 30000;
 static const uint64_t HE_CACHE_TEST_SLEEP_INVL = 100;
@@ -42,11 +41,11 @@ static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t BUFFER_SIZE_2MB = 2 * MB;
-static const uint64_t BUFFER_SIZE_32KB = 32* KB;
+static const uint64_t BUFFER_SIZE_32KB = 32 * KB;
 static const uint64_t FPGA_32KB_CACHE_LINES = (32 * KB) / 64;
 static const uint64_t FPGA_2MB_CACHE_LINES = (2 * MB) / 64;
 static const uint64_t FPGA_512CACHE_LINES = 512;
-static const double LATENCY_FACTOR = 2.5;
+static const uint64_t HELLO_FPGA_NUMCACHE_LINES = 5;
 
 // Host execiser CSR Offset
 enum {
@@ -98,14 +97,6 @@ typedef enum {
   WR_FLUSH_CL_DCOH = 0x6,
 } he_wr_opcode;
 
-
-// Write Traffic Opcode
-typedef enum {
-    RD_WR_TEST = 0x0,
-    RUNNING_POINTER = 0x10,
-    PING_PONG = 0x20,
- } he_test_type;
-
 // DFH Header
 union he_dfh {
   enum { offset = HE_DFH };
@@ -138,9 +129,7 @@ union he_ctl {
     uint64_t Start : 1;
     uint64_t ForcedTestCmpl : 1;
     uint64_t bias_support : 2;
-    uint64_t Reserved : 3;
-    uint64_t test_type : 8;
-    uint64_t Reserved1 :48;
+    uint64_t Reserved : 59;
   };
 };
 
@@ -181,17 +170,14 @@ union he_wr_config {
   struct {
     uint64_t write_traffic_enable : 1;
     uint64_t continuous_mode_enable : 1;
-    uint64_t barrier : 1;
+    uint64_t waitfor_completion : 1;
     uint64_t preread_sync_enable : 1;
     uint64_t postread_sync_enable : 1;
     uint64_t data_pattern : 2;
     uint64_t cl_evict_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
-    uint64_t rsvd_31_20 : 12;
-    uint64_t repeat_write_fsm : 16;
-    uint64_t disable_waitfor_completion : 1;
-    uint64_t rsvd_63_48 : 15;
+    uint64_t reserved : 44;
   };
 };
 
@@ -222,8 +208,7 @@ union he_rd_num_lines {
   uint64_t value;
   struct {
     uint64_t read_num_lines : 16;
-    uint64_t reserved : 16;
-    uint64_t max_count : 32;
+    uint64_t reserved : 48;
   };
 };
 
@@ -233,17 +218,15 @@ union he_rd_config {
   uint64_t value;
   struct {
     uint64_t read_traffic_enable : 1;
-    uint64_t continuous_mode_enable : 1;
+    uint64_t continuous_mode_Enable : 1;
     uint64_t waitfor_completion : 1;
     uint64_t prewrite_sync_enable : 1;
     uint64_t postwrite_sync_enable : 1;
     uint64_t data_pattern : 2;
-    uint64_t data_check_enable : 1;
+    uint64_t cl_evict_enable : 1;
     uint64_t opcode : 4;
     uint64_t line_repeat_count : 8;
-    uint64_t rsvd_31_20 : 12;
-    uint64_t repeat_read_fsm : 16;
-    uint64_t rsvd_63_40 : 16;
+    uint64_t reserved : 44;
   };
 };
 
@@ -298,21 +281,8 @@ struct he_cache_dsm_status {
 
 // configures test mode
 typedef enum {
-  HE_FPGA_RD_CACHE_HIT = 0x0,
-  HE_FPGA_WR_CACHE_HIT = 0x1,
 
-  HE_FPGA_RD_CACHE_MISS = 0x2,
-  HE_FPGA_WR_CACHE_MISS = 0x3,
-
-  HE_HOST_RD_CACHE_HIT = 0x4,
-  HE_HOST_WR_CACHE_HIT = 0x5,
-
-  HE_HOST_RD_CACHE_MISS = 0x6,
-  HE_HOST_WR_CACHE_MISS = 0x7,
-
-  HE_CACHE_PING_PONG = 0x8,
-  HE_CACHE_RUNNING_POINTER= 0x9,
-
+  HE_HELLO_FPGA = 0x0,
 
 } he_test_mode;
 
@@ -320,41 +290,31 @@ typedef enum {
 typedef enum {
   HE_TARGET_HOST = 0x0,
   HE_TARGET_FPGA = 0x1,
-  HE_TARGET_BOTH = 0x2,
 } he_target;
-
 
 // he cxl cache latency
 typedef enum {
-    HE_CXL_LATENCY_NONE = 0x0,
-    HE_CXL_RD_LATENCY = 0x1,
-    HE_CXL_WR_LATENCY = 0x2,
-    HE_CXL_RD_WR_LATENCY = 0x3,
+  HE_CXL_LATENCY_NONE = 0x0,
+  HE_CXL_RD_LATENCY = 0x1,
+  HE_CXL_WR_LATENCY = 0x2,
+  HE_CXL_RD_WR_LATENCY = 0x3,
 } he_cxl_latency;
 
 const std::map<std::string, uint32_t> he_test_modes = {
-    {"fpgardcachehit", HE_FPGA_RD_CACHE_HIT},
-    {"fpgawrcachehit", HE_FPGA_WR_CACHE_HIT},
-    {"fpgardcachemiss", HE_FPGA_RD_CACHE_MISS},
-    {"fpgawrcachemiss", HE_FPGA_WR_CACHE_MISS},
-    {"hostrdcachehit", HE_HOST_RD_CACHE_HIT},
-    {"hostwrcachehit", HE_HOST_WR_CACHE_HIT},
-    {"pingpong", HE_CACHE_PING_PONG},
-    {"runningpointer", HE_CACHE_RUNNING_POINTER},
+    {"hellofpga", HE_HELLO_FPGA},
 };
 
 // Bias Support
 typedef enum {
-    HOSTMEM_BIAS = 0x0,
-    HOST_BIAS_NA = 0x1,
-    FPGAMEM_HOST_BIAS = 0x2,
-    FPGAMEM_DEVICE_BIAS = 0x3,
-} he_bias_support;
+  HOSTMEM_BIAS = 0x0,
+  HOST_BIAS_NA = 0x1,
+  FPGAMEM_HOST_BIAS = 0x2,
+  FPGAMEM_DEVICE_BIAS = 0x3,
+} he_bisa_support;
 
 const std::map<std::string, uint32_t> he_targets = {
     {"host", HE_TARGET_HOST},
     {"fpga", HE_TARGET_FPGA},
-    {"both", HE_TARGET_BOTH},
 };
 
 // Bias support
@@ -365,8 +325,8 @@ const std::map<std::string, uint32_t> he_bias = {
 
 // he cxl cache device instance
 typedef enum {
-    HE_CXL_DEVICE0 = 0x0,
-    HE_CXL_DEVICE1 = 0x1,
+  HE_CXL_DEVICE0 = 0x0,
+  HE_CXL_DEVICE1 = 0x1,
 } he_cxl_dev;
 
 const std::map<std::string, uint32_t> he_cxl_device = {
@@ -411,29 +371,12 @@ std::map<uint32_t, uint32_t> addrtable_size = {
 
 };
 
-// HE Cache Running pointer
-struct he_cache_running_ptr {
-    uint64_t phy_next_ptr;
-    uint64_t data;
-    he_cache_running_ptr *virt_next_ptr;
-    uint64_t rsvd[4];
-    union {
-        uint64_t mode;
-        struct {
-            uint64_t rsvd_0_62 : 62;
-            uint64_t biasmode :2;
-        };
-    };
-};
-
-
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
 
-class host_exerciser : public test_afu {
-public:
-  host_exerciser()
-      : test_afu("host_exerciser", nullptr, "info"), count_(1) {}
+class hello_fpga : public test_afu {
+ public:
+  hello_fpga() : test_afu("hello_fpga", nullptr, "info"), count_(1) {}
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override {
     int res = exit_codes::not_run;
@@ -442,8 +385,7 @@ public:
     // Info prints details of an individual run. Turn it on if doing only one
     // test and the user hasn't changed level from the default.
     if ((log_level_.compare("warning") == 0))
-       logger_->set_level(spdlog::level::info);
-
+      logger_->set_level(spdlog::level::info);
 
     logger_->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;
@@ -454,8 +396,7 @@ public:
         res = test_afu::run(app, test);
         count++;
         logger_->debug("end iteration: {0:d}", count);
-        if (res)
-          break;
+        if (res) break;
       }
     } catch (std::exception &ex) {
       logger_->error(ex.what());
@@ -468,13 +409,12 @@ public:
     return res;
   }
 
-public:
+ public:
   uint32_t count_;
 
   bool option_passed(std::string option_str) {
-    if (app_.count(option_str) == 0)
-      return false;
+    if (app_.count(option_str) == 0) return false;
     return true;
   }
 };
-} // namespace host_exerciser
+}  // namespace hello_fpga

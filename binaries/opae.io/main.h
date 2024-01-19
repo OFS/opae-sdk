@@ -121,6 +121,9 @@ struct vfio_device {
     close();
   }
 
+  vfio_device(const vfio_device &) = delete;
+  vfio_device &operator=(const vfio_device &) = delete;
+
   static vfio_device* open(const char *pci_addr)
   {
     opae_vfio *v = new opae_vfio();
@@ -243,6 +246,5 @@ private:
   opae_vfio *v_;
   vfio_device(opae_vfio *v)
     : v_(v){}
-  vfio_device(const vfio_device &);
 };
 

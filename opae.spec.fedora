@@ -316,6 +316,7 @@ done
 %{_bindir}/nlb7
 %{_bindir}/vabtool
 %{_bindir}/n5010tool
+%{_bindir}/opae-mem
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
@@ -356,6 +357,7 @@ done
 %{_bindir}/ofs.uio
 %{_bindir}/cxl_mem_tg
 %{_bindir}/cxl_host_exerciser
+%{_bindir}/cxl_hello_fpga
 
 %{python3_sitearch}/opae.diag*
 %{python3_sitearch}/opae/diag*

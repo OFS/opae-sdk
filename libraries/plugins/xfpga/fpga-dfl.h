@@ -377,6 +377,7 @@ struct dfl_cxl_cache_region_info {
  */
 struct dfl_cxl_cache_buffer_map {
 	__u32 argsz;
+#define DFL_CXL_BUFFER_MAP_WRITABLE 1
 	__u32 flags;
 	__u64 user_addr;
 	__u64 length;

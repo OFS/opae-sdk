@@ -71,4 +71,5 @@ opae_add_subdirectory(n5010-test)
 opae_add_subdirectory(n5010-ctl)
 opae_add_subdirectory(cxl_mem_tg)
 opae_add_subdirectory(cxl_host_exerciser)
+opae_add_subdirectory(cxl_hello_fpga)
 
