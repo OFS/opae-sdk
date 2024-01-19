@@ -336,3 +336,86 @@ int mem_alloc_put(struct mem_alloc *m, uint64_t address)
 	ERR("attempt to free non-allocated 0x%lx\n", address);
 	return 1; // Address not found.
 }
+
+// Remove the range addr_start to addr_end from the free list in m,
+// splitting nodes containing any portion of the range if necessary.
+STATIC int mem_alloc_drop_free_region(struct mem_alloc *m,
+				      uint64_t addr_start, uint64_t addr_end)
+{
+	struct mem_link *p;
+	struct mem_link *p_next;
+
+	p_next = &m->free;
+	for (p = m->free.next ; p != &m->free ; p = p_next) {
+		uint64_t p_end = p->address + p->size;
+		p_next = p->next;
+		if ((addr_start < p_end) && (addr_end > p->address)) {
+			printf("Conflict with 0x%lx - 0x%lx\n", p->address, p_end);
+			if ((addr_start <= p->address) && (addr_end >= p_end)) {
+				// Drop the whole range of p
+				link_unlink(p);
+				opae_free(p);
+			} else if (addr_start <= p->address) {
+				// Reduce free range so it starts at addr_end
+				// (the end of the range being removed).
+				p->address = addr_end;
+				p->size = p_end - addr_end;
+			} else if (addr_end >= p_end) {
+				// Reduce free range so it ends at addr_start
+				// (the start of the range being removed).
+				p->size = addr_start - p->address;
+			} else {
+				// The remaining case: the range to drop is
+				// inside p, after the start of p and before
+				// the end of p.
+				p_next = mem_link_alloc(addr_end, p_end - addr_end);
+				if (!p_next) {
+					ERR("malloc() failed\n");
+					return 1;
+				}
+
+				p->size = addr_start - p->address;
+				link_after(p_next, p);
+			}
+		}
+	}
+
+	return 0;
+}
+
+// Walk the free list m_constr and remove any ranges NOT in m_constr from
+// the free list in m. This guarantees that all free addresses in m are
+// also present in m_constr.
+int mem_alloc_apply_constraint(struct mem_alloc *m, struct mem_alloc *m_constr)
+{
+	int r;
+	struct mem_link *p;
+
+	if ((m == NULL) || (m_constr == NULL))
+		return 1;
+
+	if (m_constr->free.next->address != 0) {
+		// First constraint region does not start at 0. Drop from
+		// 0 to start address.
+		r = mem_alloc_drop_free_region(m, 0,
+					       m_constr->free.next->address);
+		if (r)
+			return r;
+	}
+
+	// The constraint free list is sorted by address. Drop spaces between
+	// ranges on the free list.
+	for (p = m_constr->free.next; p != &m_constr->free; p = p->next) {
+		uint64_t r_start = p->address + p->size;
+		uint64_t r_end = (p->next == &m_constr->free) ?
+				     ~UINT64_C(0) : p->next->address;
+
+		if (r_start != r_end) {
+			r = mem_alloc_drop_free_region(m, r_start, r_end);
+			if (r)
+				return r;
+		}
+	}
+
+	return 0;
+}

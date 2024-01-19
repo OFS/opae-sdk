@@ -169,6 +169,20 @@ int mem_alloc_get(struct mem_alloc *m,
 int mem_alloc_put(struct mem_alloc *m,
 		  uint64_t address);
 
+/** Apply free list constraints from a second allocator.
+ *
+ * Apply the memory region constraints from the free
+ * list of m_constr to the m allocator object. After the
+ * call, all of allocator m's free address ranges are
+ * guaranteed to be within free ranges also found in m_constr.
+ *
+ * @param[in, out] m        The memory allocator object.
+ * @param[in]      m_constr A second allocator with new constraints.
+ * @returns Non-zero on error. Zero on success.
+ */
+int mem_alloc_apply_constraint(struct mem_alloc *m,
+			       struct mem_alloc *m_constr);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

@@ -875,6 +875,37 @@ int opae_vfio_buffer_free(struct opae_vfio *v,
 	return res;
 }
 
+int opae_vfio_buffer_map(struct opae_vfio *v,
+			 size_t size,
+			 uint8_t *buf,
+			 uint64_t iova)
+{
+	struct vfio_iommu_type1_dma_map dma_map;
+	memset(&dma_map, 0, sizeof(dma_map));
+
+	dma_map.argsz = sizeof(dma_map);
+	dma_map.vaddr = (uint64_t) buf;
+	dma_map.size = size;
+	dma_map.iova = iova;
+	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
+
+	return opae_ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map);
+}
+
+int opae_vfio_buffer_unmap(struct opae_vfio *v,
+			   size_t size,
+			   uint64_t iova)
+{
+	struct vfio_iommu_type1_dma_unmap dma_unmap;
+	memset(&dma_unmap, 0, sizeof(dma_unmap));
+
+	dma_unmap.argsz = sizeof(dma_unmap);
+	dma_unmap.size = size;
+	dma_unmap.iova = iova;
+
+	return opae_ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
+}
+
 STATIC int
 opae_vfio_device_set_irqs(struct opae_vfio *v,
 			  uint32_t index,
@@ -1294,6 +1325,17 @@ int opae_vfio_secure_open(struct opae_vfio *v,
 
 	regfree(&re);
 	return opae_vfio_init(v, pciaddr, token);
+}
+
+int opae_vfio_apply_group_constraint(struct opae_vfio *new_v,
+				     struct opae_vfio *v)
+{
+	if (!new_v || !v) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	return mem_alloc_apply_constraint(&v->iova_alloc, &new_v->iova_alloc);
 }
 
 int opae_vfio_region_get(struct opae_vfio *v,
