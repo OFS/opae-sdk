@@ -699,6 +699,9 @@ def update_fw_sysfs(infile, pac):
 
     retries = 0
     max_retries = 60 * 60 * 3
+    if estimated_time < timeout:
+       estimated_time = timeout
+
     with progress(time=estimated_time, **progress_cfg) as prg:
         while status.value in ('writing', 'programming', 'transferring'):
             time.sleep(timeout)
