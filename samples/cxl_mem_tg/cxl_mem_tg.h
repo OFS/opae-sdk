@@ -41,7 +41,7 @@ static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t GB = MB * 1024;
 static const uint64_t FPGA_32GB_CACHE_LINES = (32 * GB) / 64;
-static const uint64_t MEM_TG_TEST_TIMEOUT = 3000000;
+static const uint64_t MEM_TG_TEST_TIMEOUT = 500000;
 static const uint64_t TEST_SLEEP_INVL = 100;
 static const uint64_t TG_CTRL_CLEAR = 0x8000000000000000;
 static const uint64_t TG_SLEEP = 300 / 1000;
@@ -292,5 +292,19 @@ class cxl_mem_tg : public test_afu {
   }
 
   token::ptr_t get_token() { return handle_->get_token(); }
+
+  bool option_passed(string str) {
+      CLI::Option* opt = app_.get_option_no_throw(str);
+      if (opt && opt->count() == 1) {
+          return true;
+      }
+      return false;
+  }
+
+  uint64_t get_timeout() {
+      return timeout_msec_;
+  }
+
+
 };
 }  // end of namespace cxl_mem_tg
