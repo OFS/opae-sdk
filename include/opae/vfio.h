@@ -366,6 +366,7 @@ enum opae_vfio_buffer_flags {
  *                      to ignore.
  * @param[out]     iova Optional pointer to receive the IOVA address
  *                      for the buffer. Pass NULL to ignore.
+ * @param[in]     flags Flags for allocation (e.g. OPAE_VFIO_BUF_PREALLOCATED).
  * @returns Non-zero on error. Zero on success.
  *
  * Example

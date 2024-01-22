@@ -3,10 +3,10 @@ Jinja2==3.1.1
 requests==2.31.0
 docutils==0.14
 pygments==2.15.0
-sphinx==4.5.0
+sphinx==5.0.1
 sphinx-rtd-theme==1.0.0
 sphinx_fontawesome==0.0.6
 sphinx-markdown==1.0.2
 recommonmark==0.7.0
-breathe==4.33.1
+breathe==4.34.0
 urllib3==1.26.18

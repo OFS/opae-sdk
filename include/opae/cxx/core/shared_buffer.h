@@ -62,6 +62,7 @@ class shared_buffer {
   /** shared_buffer factory method - allocate a shared_buffer.
    * @param[in] handle The handle used to allocate the buffer.
    * @param[in] len    The length in bytes of the requested buffer.
+   * @param[in] read_only Set to true for a read only buffer.
    * @return A valid shared_buffer smart pointer on success, or an
    * empty smart pointer on failure.
    */
@@ -74,6 +75,7 @@ class shared_buffer {
    * @param[in] base The base of the pre-allocated memory.
    * @param[in] len The size of the pre-allocated memory,
    * which must be a multiple of the page size.
+   * @param[in] read_only Set to true for a read only buffer.
    * @return A valid shared_buffer smart pointer on success, or an
    * empty smart pointer on failure.
    */
