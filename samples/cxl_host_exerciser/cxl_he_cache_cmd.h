@@ -272,9 +272,9 @@ public:
                 return -1;
             }
 
-            total_latency = total_latency + get_ticks();
+            total_latency = total_latency + get_ticks() - get_penalty_start_ticks();
             host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
+                i, (double)((get_ticks()- get_penalty_start_ticks()) * LATENCY_FACTOR));
         } //end for loop
 
         total_latency = total_latency * LATENCY_FACTOR;
@@ -556,9 +556,9 @@ public:
                 return -1;
             }
 
-            total_latency = total_latency + get_ticks();
+            total_latency = total_latency + get_ticks() - get_penalty_start_ticks();
             host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
+                i, (double)((get_ticks() - get_penalty_start_ticks() ) * LATENCY_FACTOR));
         } //end for loop
 
         total_latency = total_latency * LATENCY_FACTOR;
@@ -793,9 +793,9 @@ public:
                 return -1;
             }
 
-            total_latency = total_latency + get_ticks();
+            total_latency = total_latency + get_ticks() - get_penalty_start_ticks();
             host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
+                i, (double)((get_ticks() - get_penalty_start_ticks() ) * LATENCY_FACTOR));
         } //end for loop
 
         total_latency = total_latency * LATENCY_FACTOR;

@@ -352,6 +352,19 @@ public:
           return 0;
   }
 
+  uint64_t get_penalty_start_ticks() {
+      volatile he_cache_dsm_status* dsm_status = NULL;
+
+      dsm_status = reinterpret_cast<he_cache_dsm_status*>(
+          (uint8_t*)(host_exe_->get_dsm()));
+      if (!dsm_status)
+          return 0;
+      if (dsm_status->penalty_start > 0)
+          return dsm_status->penalty_start;
+      else
+          return 0;
+  }
+  
   int  get_mtime(const char* file_name, struct timespec* mtime)
   {
       struct stat s;
