@@ -1276,6 +1276,26 @@ out_destroy_attr:
 	return res;
 }
 
+int opae_vfio_dev_busy(const char *pciaddr)
+{
+	char *group = opae_vfio_group_for(pciaddr);
+	if (!group) {
+		ERR("opae_vfio_group_for(\"%s\", O_RDWR)\n", pciaddr);
+		return 1;
+	}
+
+	int fd = opae_open(group, O_RDWR);
+	if (fd < 0) {
+		ERR("open(\"%s\", O_RDWR)\n", group);
+		opae_free(group);
+		return 2;
+	}
+
+	opae_free(group);
+	opae_close(fd);
+	return 0;
+}
+
 int opae_vfio_open(struct opae_vfio *v,
 		   const char *pciaddr)
 {
