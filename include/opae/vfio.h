@@ -225,6 +225,24 @@ int opae_vfio_secure_open(struct opae_vfio *v,
 			  const char *token);
 
 /**
+ * Note a new contraint on the group's IOVA space.
+ *
+ * OPAE does not yet attempt to connect multiple groups to the same vfio
+ * container. When multiple groups and containers are active in the same
+ * process, OPAE instead treats one container as the parent and applies
+ * the IOVA contraints of all other containers to the parent. This way,
+ * an IOVA choice in the parent is guaranteed legal in all groups.
+ * For now, the IOMMU has to be configured for each device but the
+ * same IOVA can be used because of the constraint managed here.
+ *
+ * @param[in] new_v  New source of IOVA constraints.
+ * @param[in] v      Apply constraints to this container.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_apply_group_constraint(struct opae_vfio *new_v,
+				     struct opae_vfio *v);
+
+/**
  * Query device MMIO region
  *
  * Retrieves info describing the MMIO region with the given region index.
@@ -366,6 +384,7 @@ enum opae_vfio_buffer_flags {
  *                      to ignore.
  * @param[out]     iova Optional pointer to receive the IOVA address
  *                      for the buffer. Pass NULL to ignore.
+ * @param[in]     flags Flags for allocation (e.g. OPAE_VFIO_BUF_PREALLOCATED).
  * @returns Non-zero on error. Zero on success.
  *
  * Example
@@ -446,6 +465,41 @@ struct opae_vfio_buffer *opae_vfio_buffer_info(struct opae_vfio *v,
  */
 int opae_vfio_buffer_free(struct opae_vfio *v,
 			  uint8_t *buf);
+
+/**
+ * Map an existing buffer for DMA at iova.
+ *
+ * Similar to opae_vfio_buffer_allocate_ex(), except that the
+ * iova is chosen by the caller and the buffer must already
+ * be allocated. The OPAE vfio library does not track the
+ * iova. It is the caller's responsibility to ensure the iova
+ * does not conflict. The caller is also responsible for
+ * unmapping with opae_vfio_buffer_unmap().
+ *
+ * @param[in, out] v    The open OPAE VFIO device.
+ * @param[in]      size Buffer size.
+ * @param[out]     buf  Buffer address.
+ * @param[out]     iova IOVA at which buffer should be mapped.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_buffer_map(struct opae_vfio *v,
+			 size_t size,
+			 uint8_t *buf,
+			 uint64_t iova);
+
+/**
+ * Unmap an existing pinned DMA page.
+ *
+ * Undo the effects of opae_vfio_buffer_map().
+ *
+ * @param[in, out] v    The open OPAE VFIO device.
+ * @param[in]      size Buffer size.
+ * @param[out]     iova IOVA at which buffer should be pinned.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_buffer_unmap(struct opae_vfio *v,
+			   size_t size,
+			   uint64_t iova);
 
 /**
  * Enable an IRQ

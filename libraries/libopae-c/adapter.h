@@ -102,7 +102,21 @@ typedef struct _opae_api_adapter_table {
 
 	fpga_result (*fpgaGetIOAddress)(fpga_handle handle, uint64_t wsid,
 					uint64_t *ioaddr);
+
 	fpga_result (*fpgaBindSVA)(fpga_handle handle, uint32_t *pasid);
+
+	// Internal methods between shell and plugin to pin/unpin an existing
+	// buffer at a specific ioaddr. Used when managing the same address
+	// space on parent and child AFU ports, all opened by the same process.
+	fpga_result (*fpgaPinBuffer)(fpga_handle handle, void *buf_addr,
+				     uint64_t len, uint64_t ioaddr);
+	fpga_result (*fpgaUnpinBuffer)(fpga_handle handle, void *buf_addr,
+				       uint64_t len, uint64_t ioaddr);
+
+	// Internal method to extract details of a workspace.
+	fpga_result (*fpgaGetWSInfo)(fpga_handle handle, uint64_t wsid,
+				     uint64_t *ioaddr,
+				     void **buf_addr, uint64_t *len);
 
 	/*
 	**	fpga_result (*fpgaGetOPAECVersion)(fpga_version *version);

@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2023, Intel Corporation
+## Copyright(c) 2023, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,39 +24,43 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(SRC
-    pluginmgr.c
-    api-shell.c
-    init.c
-    props.c
-    multi-port-afu.c
-    cfg-file.c
-    fpgad-cfg.c
-    fpgainfo-cfg.c
-    opae-cfg.c
-    ${opae-test_ROOT}/framework/mock/opae_std.c
-)
+if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)
 
-opae_add_shared_library(TARGET opae-c
-    EXPORT opae-targets
-    SOURCE ${SRC}
-    LIBS
-        dl
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${json-c_LIBRARIES}
-        ${uuid_LIBRARIES}
-    VERSION ${OPAE_VERSION}
-    SOVERSION ${OPAE_VERSION_MAJOR}
-    COMPONENT opaeclib
-)
+    if (fmt_LIBRARIES)
+        # if we found fmt before (from CMakeLists.txt)
+        # then we need to find it again from this directory
+        # so we can "import" the fmt::fmt link target
+        find_package(fmt)
+    endif (fmt_LIBRARIES)
 
+    opae_add_executable(TARGET cxl_hello_fpga
+        SOURCE cxl_hello_fpga.cpp
+        LIBS
+            opae-cxx-core
+            opae-c
+            ${spdlog_LIBRARIES}
+            ${json-c_LIBRARIES}
+            ${uuid_LIBRARIES}
+            ${numa_LIBRARIES}
+            ${fmt_LIBRARIES}
+        COMPONENT samplebin
+    )
 
-install(FILES adapter.h props.h opae_int.h
-    DESTINATION include/opae/plugin
-)
-install(FILES plugin.h
-    DESTINATION include/opae
-)
-install(FILES ${OPAE_SDK_SOURCE}/tests/framework/mock/opae_std.h
-    DESTINATION include/mock
-)
+    target_include_directories(cxl_hello_fpga
+        PRIVATE
+           ${OPAE_INCLUDE_PATHS}
+           ${CMAKE_CURRENT_SOURCE_DIR}
+           ${OPAE_LIB_SOURCE}/plugins/xfpga/
+           ${CLI11_INCLUDE_DIRS}
+           ${numa_INCLUDE_DIRS}
+           ${spdlog_INCLUDE_DIRS})
+
+       target_compile_options(cxl_hello_fpga PUBLIC
+        -Wno-unused-result
+    )
+
+    target_compile_definitions(cxl_hello_fpga PUBLIC
+        ${spdlog_DEFINITIONS}
+    )
+
+endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG AND OPAE_WITH_NUMA)

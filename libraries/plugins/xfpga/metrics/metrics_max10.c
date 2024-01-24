@@ -217,7 +217,7 @@ fpga_result  dfl_enum_max10_metrics_info_pattern(struct _fpga_handle *_handle,
 	}
 	strncat(sysfspath, DFL_MAX10_SYSFS_LABEL, strlen(DFL_MAX10_SYSFS_LABEL) + 1);
 
-	gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(sysfspath, 0, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		opae_globfree(&pglob);

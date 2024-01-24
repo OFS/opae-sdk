@@ -155,7 +155,9 @@ enum fpga_buffer_flags {
  */
 enum fpga_open_flags {
 	/** Open FPGA resource for shared access */
-	FPGA_OPEN_SHARED = (1u << 0)
+	FPGA_OPEN_SHARED = (1u << 0),
+	/** FPGA resource being opened has a parent in the same address space */
+	FPGA_OPEN_HAS_PARENT_AFU = (1u << 1)
 };
 
 /**

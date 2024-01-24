@@ -231,6 +231,12 @@ class fme(region):
         return self.find_one('*-sec*.*.auto')
 
     @property
+    def boot_page(self):
+        pmci = self.pmci_bus
+        if pmci:
+            return pmci.find_one('**/fpga_boot_image')
+
+    @property
     def altr_asmip(self):
         return self.find_one('altr-asmip*.*.auto')
 
@@ -660,11 +666,17 @@ class fpga_base(sysfs_device):
         call_process(f'{cmd}={output:08x}')
 
     def clear_uncorrectable_errors(self, device):
+        if not device.supports_ecap('aer'):
+            self.log.debug(f'No AER support in device {device.pci_address}')
+            return
         self.log.debug(f'Clearing uncorrectable errors for {device.pci_address}')
         cmd = f'setpci -s {device.pci_address} ECAP_AER+0x04.L'
         call_process(f'{cmd}=FFFFFFFF')
 
     def clear_correctable_errors(self, device):
+        if not device.supports_ecap('aer'):
+            self.log.debug(f'No AER support in device {device.pci_address}')
+            return
         self.log.debug(f'Clearing correctable errors for {device.pci_address}')
         cmd = f'setpci -s {device.pci_address} ECAP_AER+0x10.L'
         call_process(f'{cmd}=FFFFFFFF')

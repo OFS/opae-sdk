@@ -1,4 +1,4 @@
-// Copyright(c) 2023, Intel Corporation
+// Copyright(c) 2024, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,26 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <CLI/CLI.hpp>
-#include <iostream>
-#include <signal.h>
 
-#include "cxl_he_cache_cmd.h"
-#include "cxl_host_exerciser.h"
+//
+// Multi-ported AFUs have a parent AFU that names child AFUs by GUID. These
+// functions apply operations to all childen of a parent AFU.
+//
 
-void he_sig_handler(int);
+#ifndef __OPAE_MULTI_PORT_AFU_H__
+#define __OPAE_MULTI_PORT_AFU_H__
 
-int main(int argc, char *argv[]) {
+#include <stdint.h>
+#include <opae/types.h>
 
-  host_exerciser::host_exerciser app;
-  app.register_command<host_exerciser::he_cache_cmd>();
+fpga_result afu_open_children(opae_wrapped_handle *wrapped_parent_handle);
+fpga_result afu_close_children(opae_wrapped_handle *wrapped_parent_handle);
+fpga_result afu_pin_buffer(opae_wrapped_handle *wrapped_parent_handle,
+			   void *buf_addr, uint64_t len, uint64_t wsid);
+fpga_result afu_unpin_buffer(opae_wrapped_handle *wrapped_parent_handle,
+			     uint64_t wsid);
 
-  // host exerciser signal handler
-  struct sigaction  act_new;
-  memset(&act_new, 0, sizeof(act_new));
-
-  act_new.sa_handler = he_sig_handler;
-  sigaction(SIGINT, &act_new, NULL);
-
-  return app.main(argc, argv);
-}
+#endif // __OPAE_MULTI_PORT_AFU_H__

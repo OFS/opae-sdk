@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2023, Intel Corporation
 //
 // Redistribution  and	use  in source	and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -438,7 +438,7 @@ static void *dispatcherWorker(void* dma_handle) {
 	uint64_t desc_count = 1;
 	msgdma_sw_desc_t *sw_desc[FPGA_DMA_BLOCK_SIZE+1];
 	msgdma_sw_desc_t *first_sw_desc;
-	msgdma_hw_descp_t *hw_descp;
+	msgdma_hw_descp_t *hw_descp = nullptr;
 	bool is_owned_by_hw;
 	uint8_t block_size = 0;
 	uint8_t format;
@@ -516,7 +516,7 @@ static void *dispatcherWorker(void* dma_handle) {
 
 				// Skip invalid descriptors
 				for(k=1; k<= (FPGA_DMA_BLOCK_SIZE-desc_count); k++) {
-					msgdma_hw_descp_t *unused_hw_descp;
+					msgdma_hw_descp_t *unused_hw_descp = nullptr;
 					while(dma_h->free_desc.empty());
 					dma_h->free_desc.try_pop(unused_hw_descp);
 					dump_hw_desc_log(0, unused_hw_descp->hw_desc, disp_log);
@@ -544,7 +544,7 @@ static void *completionWorker(void* dma_handle) {
 		FPGA_DMA_ERR("Invalid DMA handle\n");
 		return NULL;
 	}
-	msgdma_sw_desc_t *sw_desc;
+	msgdma_sw_desc_t *sw_desc = nullptr;
 
 	debug_print("started completion worker\n");
 	while (1) {
@@ -560,7 +560,7 @@ static void *completionWorker(void* dma_handle) {
 
 			if(sw_desc->last == 1 && (sw_desc->hw_descp->hw_desc_id < (FPGA_DMA_BLOCK_SIZE - 1))) {
 				for(i = (sw_desc->hw_descp->hw_desc_id + 1) ; i < FPGA_DMA_BLOCK_SIZE ; i++) {
-					msgdma_hw_descp_t *unused_hw_descp;
+					msgdma_hw_descp_t *unused_hw_descp = nullptr;
 					dma_h->invalid_desc_queue.try_pop(unused_hw_descp);
 					dma_h->free_desc.push(unused_hw_descp);
 				}

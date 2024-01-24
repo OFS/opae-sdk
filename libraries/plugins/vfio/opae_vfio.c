@@ -699,6 +699,8 @@ fpga_result __VFIO_API__ vfio_fpgaOpen(fpga_token token, fpga_handle *handle, in
 
 	_handle->magic = VFIO_HANDLE_MAGIC;
 	_handle->token = clone_token(_token);
+	if (flags & FPGA_OPEN_HAS_PARENT_AFU)
+		_handle->parent_afu = handle_check_and_lock(*handle);
 
 	res = open_vfio_pair(_token->device->addr, &_handle->vfio_pair);
 	if (res) {
@@ -726,9 +728,21 @@ fpga_result __VFIO_API__ vfio_fpgaOpen(fpga_token token, fpga_handle *handle, in
 #endif // GCC_VERSION
 #endif // x86
 
+	if (_handle->parent_afu) {
+		if (opae_vfio_apply_group_constraint(
+				_handle->vfio_pair->device,
+				_handle->parent_afu->vfio_pair->device)) {
+			OPAE_ERR("error applying child vfio constraints");
+			res = FPGA_EXCEPTION;
+			goto out_attr_destroy;
+		}
+	}
+
 	*handle = _handle;
 	res = FPGA_OK;
 out_attr_destroy:
+	if (_handle && _handle->parent_afu)
+		pthread_mutex_unlock(&_handle->parent_afu->lock);
 	pthread_mutexattr_destroy(&mattr);
 	if (res && _handle) {
 		pthread_mutex_destroy(&_handle->lock);
@@ -1654,6 +1668,61 @@ out_unlock:
 	opae_mutex_unlock(err, &h->lock);
 
 	return res;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaPinBuffer(fpga_handle handle, void *buf_addr,
+					    uint64_t len, uint64_t ioaddr)
+{
+	vfio_handle *h;
+	h = handle_check(handle);
+	ASSERT_NOT_NULL(h);
+
+	struct opae_vfio *v = h->vfio_pair->device;
+	if (opae_vfio_buffer_map(v, len, buf_addr, ioaddr)) {
+		OPAE_DBG("could not map buffer");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaUnpinBuffer(fpga_handle handle, void *buf_addr,
+					      uint64_t len, uint64_t ioaddr)
+{
+	UNUSED_PARAM(buf_addr);
+
+	vfio_handle *h;
+	h = handle_check(handle);
+	ASSERT_NOT_NULL(h);
+
+	struct opae_vfio *v = h->vfio_pair->device;
+	if (opae_vfio_buffer_unmap(v, len, ioaddr)) {
+		OPAE_DBG("could not unmap buffer");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaGetWSInfo(fpga_handle handle, uint64_t wsid,
+					    uint64_t *ioaddr,
+					    void **buf_addr, uint64_t *len)
+{
+	UNUSED_PARAM(handle);
+
+	ASSERT_NOT_NULL(ioaddr);
+	ASSERT_NOT_NULL(buf_addr);
+	ASSERT_NOT_NULL(len);
+
+	struct opae_vfio_buffer *binfo = (struct opae_vfio_buffer *)wsid;
+
+	ASSERT_NOT_NULL(binfo);
+
+	*ioaddr = binfo->buffer_iova;
+	*buf_addr = (void *) binfo->buffer_ptr;
+	*len = binfo->buffer_size;
+
+	return FPGA_OK;
 }
 
 fpga_result __VFIO_API__ vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)

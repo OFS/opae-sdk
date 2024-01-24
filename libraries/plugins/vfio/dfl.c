@@ -29,6 +29,11 @@
 #endif // HAVE_CONFIG_H
 
 #include <time.h>
+#include <sys/pci.h>
+
+#ifndef PCI_STD_NUM_BARS
+#define PCI_STD_NUM_BARS 6
+#endif // PCI_STD_NUM_BARS
 
 #include "opae_int.h"
 #include "opae_vfio.h"
@@ -180,6 +185,12 @@ int walk_fme(vfio_pci_device_t *dev, struct opae_vfio *v,
 			continue;
 
 		bar = port_offset_reg.bits.bar;
+		if (bar >= PCI_STD_NUM_BARS) {
+			OPAE_DBG("ignoring invalid BAR %d at offset 0x%x",
+				 bar, fme_ports[i]);
+			continue;
+		}
+
 		if (opae_vfio_region_get(v, bar, &port_mmio, &size)) {
 			OPAE_ERR("failed to get Port BAR %d", bar);
 			continue;

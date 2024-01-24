@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <limits.h>
 #include "cxl_he_cmd.h"
 #include "cxl_host_exerciser.h"
 #include "he_cache_test.h"
@@ -49,10 +50,10 @@ void he_cache_thread(uint8_t *buf_ptr, uint64_t len);
 class he_cache_cmd : public he_cmd {
 public:
   he_cache_cmd()
-      : he_continuousmode_(false), he_contmodetime_(0), he_linerep_count_(0),
+      : he_continuousmode_(false), he_contmodetime_(0), he_linerep_count_(1),
         he_stride_(0), he_test_(0), he_test_all_(false), he_dev_instance_(0),
         he_stride_cmd_(false), he_cls_count_(FPGA_512CACHE_LINES),
-        he_latency_iterations_(0) {}
+        he_latency_iterations_(0), he_loop_count_(1) {}
 
   virtual ~he_cache_cmd() {}
 
@@ -114,12 +115,17 @@ public:
     // Line repeat count
     app->add_option("--linerepcount", he_linerep_count_, "Line repeat count")
         ->transform(CLI::Range(1, 256))
-        ->default_val("10");
+        ->default_val("1");
 
     // Cache lines count
     app->add_option("--clscount", he_cls_count_, "Cache lines count")
         ->transform(CLI::Range(1, 512))
         ->default_val("512");
+
+    // Iteration loop count
+    app->add_option("--loops", he_loop_count_, "Number of loops")
+        ->transform(CLI::Range(1, 65535))
+        ->default_val("1");
 
     // Number of latency test iterations
     app->add_option("--latency_iterations", he_latency_iterations_,
@@ -150,6 +156,7 @@ public:
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Numa node:" << numa_node_ << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -223,6 +230,8 @@ public:
         rd_table_ctl_.stride = he_stride_;
     }
 
+    host_exe_->reset_dsm();
+
     // Continuous mode
     if (he_continuousmode_) {
         he_rd_cfg_.continuous_mode_enable = 0x1;
@@ -263,9 +272,9 @@ public:
                 return -1;
             }
 
-            total_latency = total_latency + get_ticks();
+            total_latency = total_latency + get_ticks() - get_penalty_start_ticks();
             host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
+                i, (double)((get_ticks()- get_penalty_start_ticks()) * LATENCY_FACTOR));
         } //end for loop
 
         total_latency = total_latency * LATENCY_FACTOR;
@@ -274,6 +283,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -323,6 +333,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -402,9 +413,11 @@ public:
         wr_table_ctl_.stride = he_stride_;
     }
 
+    host_exe_->reset_dsm();
+
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -420,6 +433,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -468,6 +482,7 @@ public:
     cout << "Read number Lines:" << he_cls_count_ << endl;
     cout << "Line Repeat Count:" << he_linerep_count_ << endl;
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
@@ -541,9 +556,9 @@ public:
                 return -1;
             }
 
-            total_latency = total_latency + get_ticks();
+            total_latency = total_latency + get_ticks() - get_penalty_start_ticks();
             host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
+                i, (double)((get_ticks() - get_penalty_start_ticks() ) * LATENCY_FACTOR));
         } //end for loop
 
         total_latency = total_latency * LATENCY_FACTOR;
@@ -553,6 +568,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -599,6 +615,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set Write config
     he_wr_cfg_.value = 0;
@@ -635,7 +652,7 @@ public:
 
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -651,6 +668,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -699,12 +717,13 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG RdShared (CXL)
     he_rd_cfg_.value = 0;
     he_rd_cfg_.line_repeat_count = he_linerep_count_;
     he_rd_cfg_.read_traffic_enable = 1;
-    he_rd_cfg_.opcode = RD_LINE_S;
+    he_rd_cfg_.opcode = RD_LINE_I;
     host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
     // set RD_ADDR_TABLE_CTRL
@@ -774,9 +793,9 @@ public:
                 return -1;
             }
 
-            total_latency = total_latency + get_ticks();
+            total_latency = total_latency + get_ticks() - get_penalty_start_ticks();
             host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
+                i, (double)((get_ticks() - get_penalty_start_ticks() ) * LATENCY_FACTOR));
         } //end for loop
 
         total_latency = total_latency * LATENCY_FACTOR;
@@ -786,6 +805,7 @@ public:
     } else {
         // fpga read cache hit test
         host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
+        he_rd_cfg_.repeat_read_fsm = he_loop_count_;
         host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
 
         // Start test
@@ -839,6 +859,7 @@ public:
     cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
     cout << "Write address table size:" << he_info_.write_addr_table_size
         << endl;
+    cout << "loop count:" << he_loop_count_ << endl;
 
     // set RD_CONFIG
     he_wr_cfg_.value = 0;
@@ -872,7 +893,7 @@ public:
 
     // continuous mode
     if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
+        he_wr_cfg_.continuous_mode_enable = 0x1;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
@@ -888,6 +909,7 @@ public:
 
     } else {
         // fpga Write cache hit test
+        he_wr_cfg_.repeat_write_fsm = he_loop_count_;
         host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
         host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
         host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
@@ -921,230 +943,12 @@ public:
     return 0;
   }
 
-  int he_run_host_rd_cache_miss_test() {
-
-    cout << "********** Host LLC Read cache miss test start**********" << endl;
-    /*
-    STEPS
-    1) Allocate DSM, Read buffer
-    2) Flush host read buffer cache
-    3) Set read CXL config
-    4) Run test (AFU reads from host cache(cache lines are not in host LLC))
-    */
-
-    // HE_INFO
-    // Set Read number Lines
-    he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_RD_NUM_LINES, he_cls_count_);
-    cout << "Read/write number Lines:" << he_cls_count_ << endl;
-    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
-    cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
-    cout << "Write address table size:" << he_info_.write_addr_table_size
-        << endl;
-
-    // set RD_CONFIG
-    he_rd_cfg_.value = 0;
-    he_rd_cfg_.line_repeat_count = he_linerep_count_;
-    he_rd_cfg_.read_traffic_enable = 1;
-    he_rd_cfg_.opcode = RD_LINE_I;
-    host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-
-    // set RD_ADDR_TABLE_CTR
-    rd_table_ctl_.value = 0;
-    rd_table_ctl_.enable_address_stride = 1;
-    rd_table_ctl_.stride = he_stride_;
-    host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-    // Allocate DSM buffer
-    if (!host_exe_->allocate_dsm()) {
-      cerr << "alloc dsm failed" << endl;
-      return -1;
-    }
-
-    // Allocate Read buffer
-    if (!host_exe_->allocate_cache_read(BUFFER_SIZE_2MB, numa_node_)) {
-      cerr << "allocate cache read failed" << endl;
-      host_exe_->free_dsm();
-      return -1;
-    }
-
-    // continuous mode
-    if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
-        host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-        host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-        // Start test
-        he_start_test();
-
-        // Continuous mode
-        he_continuousmode();
-
-        // performance
-        he_perf_counters(HE_CXL_RD_LATENCY);
-
-    } else if (he_latency_iterations_ > 0) {
-
-        // Latency loop test
-        double total_latency = 0;
-
-        rd_table_ctl_.enable_address_stride = 1;
-        rd_table_ctl_.stride = 1;
-
-        host_exe_->write64(HE_RD_NUM_LINES, 1);
-        host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-        host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-        for (uint64_t i = 0; i < he_latency_iterations_; i++) {
-            // Start test
-            he_start_test();
-
-            // wait for completion
-            if (!he_wait_test_completion()) {
-                he_perf_counters();
-                host_exerciser_errors();
-                host_exe_->free_cache_read();
-                host_exe_->free_dsm();
-                return -1;
-            }
-
-            total_latency = total_latency + get_ticks();
-            host_exe_->logger_->info("Iteration: {0}  Latency: {1:0.3f} nanoseconds",
-                i, (double)(get_ticks() * LATENCY_FACTOR));
-        } //end for loop
-
-        total_latency = total_latency * LATENCY_FACTOR;
-        host_exe_->logger_->info("Average Latency: {0:0.3f} nanoseconds",
-            total_latency / he_latency_iterations_);
-
-    } else {
-        // fpga read cache hit test
-        host_exe_->write64(HE_RD_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-        host_exe_->write64(HE_RD_CONFIG, he_rd_cfg_.value);
-
-        // Start test
-        he_start_test();
-
-        // wait for completion
-        if (!he_wait_test_completion()) {
-            he_perf_counters();
-            host_exerciser_errors();
-            host_exe_->free_cache_read();
-            host_exe_->free_dsm();
-            return -1;
-        }
-        he_perf_counters(HE_CXL_RD_LATENCY);
-    }
-
-    host_exe_->free_cache_read();
-    host_exe_->free_dsm();
-
-    cout << "********** Ran  Host LLC Read cache miss successfully ********** "
-         << endl;
-
-    cout << "********** Host LLC Read cache miss test end**********" << endl;
-    return 0;
-  }
-
-  int he_run_host_wr_cache_miss_test() {
-
-    cout << "********** Host LLC Write cache miss test start**********" << endl;
-    /*
-    STEPS
-    1) Allocate DSM, write buffer
-    2) Flush host write buffer cache
-    3) Set write CXL config
-    4) Run test (AFU writes host memory (cache lines are not in host LLC))
-    */
-
-    // HE_INFO
-    // Set write number Lines
-    he_info_.value = host_exe_->read64(HE_INFO);
-    host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
-    cout << "Write number Lines:" << he_cls_count_ << endl;
-    cout << "Line Repeat Count:" << he_linerep_count_ << endl;
-    cout << "Read address table size:" << he_info_.read_addr_table_size << endl;
-    cout << "Write address table size:" << he_info_.write_addr_table_size
-        << endl;
-
-    // set RD_CONFIG
-    he_wr_cfg_.value = 0;
-    he_wr_cfg_.line_repeat_count = he_linerep_count_;
-    he_wr_cfg_.write_traffic_enable = 1;
-    he_wr_cfg_.opcode = WR_PUSH_I;
-    host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-
-    // set RD_ADDR_TABLE_CTR
-    wr_table_ctl_.value = 0;
-    wr_table_ctl_.enable_address_stride = 1;
-    wr_table_ctl_.stride = he_stride_;
-    host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, rd_table_ctl_.value);
-
-    // Allocate DSM buffer
-    if (!host_exe_->allocate_dsm()) {
-      cerr << "alloc dsm failed" << endl;
-      return -1;
-    }
-
-    // Allocate write buffer
-    if (!host_exe_->allocate_cache_write(BUFFER_SIZE_2MB, numa_node_)) {
-      cerr << "allocate cache read failed" << endl;
-      host_exe_->free_dsm();
-      return -1;
-    }
-
-    // continuous mode
-    if (he_continuousmode_) {
-        he_rd_cfg_.continuous_mode_enable = 0x1;
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-
-        // Start test
-        he_start_test();
-
-        // Continuous mode
-        he_continuousmode();
-
-        // performance
-        he_perf_counters();
-
-    } else {
-        // fpga Write cache hit test
-        host_exe_->write64(HE_WR_CONFIG, he_wr_cfg_.value);
-        host_exe_->write64(HE_WR_ADDR_TABLE_CTRL, wr_table_ctl_.value);
-        host_exe_->write64(HE_WR_NUM_LINES, he_cls_count_);
-
-        // Start test
-        he_start_test();
-
-        // wait for completion
-        if (!he_wait_test_completion()) {
-            he_perf_counters();
-            host_exerciser_errors();
-            host_exe_->free_cache_write();
-            host_exe_->free_dsm();
-            return -1;
-        }
-        he_perf_counters();
-    }
-
-    host_exe_->free_cache_write();
-    host_exe_->free_dsm();
-
-    cout << "********** Ran  Host LLC Write cache miss successfully ********** "
-         << endl;
-
-    cout << "********** Host LLC Write cache miss test end**********" << endl;
-    return 0;
-  }
-
-
   void he_forcetestcmpl()
   {
       // Force stop test
       he_ctl_.value = 0;
       he_ctl_.ForcedTestCmpl = 1;
+      he_ctl_.ResetL = 1;
       host_exe_->write64(HE_CTL, he_ctl_.value);
 
       if (!he_wait_test_completion())
@@ -1153,6 +957,271 @@ public:
       he_ctl_.value = 0;
       host_exe_->write64(HE_CTL, he_ctl_.value);
       usleep(1000);
+  }
+
+  int he_run_running_pointer_test() {
+
+      cout << "********** Running pointer test start**********" << endl;
+
+      uint64_t *host_virt_ptr    = NULL;
+      uint64_t *fpga_virt_ptr    = NULL;
+      uint64_t host_phy_ptr      = 0;
+      uint64_t fpga_phy_ptr      = 0;
+      uint64_t data              = RUNNIG_PTR_DATA_PATTERN;
+      uint32_t node_count        = 0;
+      uint64_t phy_ptr           = 0;
+      int retval                 = 0;
+
+      // Allocate DSM buffer
+      if (!host_exe_->allocate_dsm()) {
+          cerr << "allocate dsm failed" << endl;
+          return -1;
+      }
+
+      // Allocate running pointer buffers on HOST
+      if (he_target_ == HE_TARGET_HOST ) {
+
+          host_exe_->logger_->debug("Running pointer test target host");
+          // Allocate Pinned  HOST buffer
+          if (!host_exe_->allocate_pinned_buffer(&host_virt_ptr,BUFFER_SIZE_2MB, numa_node_)) {
+              cerr << "Allocate pinned buffer failed" << endl;
+              host_exe_->free_dsm();
+              return -1;
+          }
+
+          //virtual address to physical address
+          host_phy_ptr = __mem_virt2phys(host_virt_ptr);
+          cout << "Host physical address:" << std::hex << host_phy_ptr << endl;
+
+          node_count = FPGA_2MB_CACHE_LINES - 10;
+          cout << " linked list Node count:" << std::dec << node_count << endl;
+
+          // create linked list
+          if (!create_linked_list(host_virt_ptr, host_phy_ptr, data,
+              node_count,HOSTMEM_BIAS)) {
+              cerr << "Failed to create linked list" << endl;
+              host_exe_->free_pinned_buffer(host_virt_ptr);
+              host_exe_->free_dsm();
+              return -1;
+          }
+
+          phy_ptr = host_phy_ptr;
+
+      } else if (he_target_ == HE_TARGET_FPGA) {
+
+          // Allocate running pointer buffers on FPGA
+          host_exe_->logger_->debug("Running pointer test target fpga");
+          if (!host_exe_->allocate_pinned_buffer(&fpga_virt_ptr, BUFFER_SIZE_2MB, 2)) {
+              cerr << "Allocate pinned buffer failed" << endl;
+              host_exe_->free_dsm();
+              return -1;
+          }
+
+          //virtual address to physical address
+          fpga_phy_ptr = __mem_virt2phys(fpga_virt_ptr);
+          cout << "FPGA physical address:" << std::hex << fpga_phy_ptr << endl;
+
+          node_count = FPGA_2MB_CACHE_LINES - 10;
+          cout << " linked list Node count:" << std::dec << node_count << endl;
+
+          // create linked list
+          if (!create_linked_list(fpga_virt_ptr, fpga_phy_ptr, data,
+              node_count, FPGAMEM_HOST_BIAS)) {
+              cerr << "Failed to create linked list" << endl;
+              host_exe_->free_dsm();
+              host_exe_->free_pinned_buffer(fpga_virt_ptr);
+              return -1;
+          }
+          he_ctl_.bias_support = FPGAMEM_HOST_BIAS;
+          phy_ptr = fpga_phy_ptr;
+
+      } else {
+
+          int numa_node = numa_node_of_cpu(sched_getcpu());
+
+          // Allocate running pointer buffers on host and FPGA
+          host_exe_->logger_->debug("Running pointer test target Host and FPGA");
+          // Allocate Pinned Host buffer
+          if (!host_exe_->allocate_pinned_buffer(&host_virt_ptr, BUFFER_SIZE_2MB, numa_node)) {
+              cerr << "Allocate pinned buffer failed" << endl;
+              host_exe_->free_dsm();
+              return -1;
+          }
+
+          //virtual address to physical address
+          host_phy_ptr = __mem_virt2phys(host_virt_ptr);
+          cout << "Host physical address:" << std::hex << host_phy_ptr << endl;
+
+          // Allocate Pinned FPGA buffer
+          if (!host_exe_->allocate_pinned_buffer(&fpga_virt_ptr, BUFFER_SIZE_2MB, 2)) {
+              cerr << "allocate pinned buffer failed" << endl;
+              host_exe_->free_dsm();
+              host_exe_->free_pinned_buffer(host_virt_ptr);
+              return -1;
+          }
+
+          //virtual address to physical address
+          fpga_phy_ptr = __mem_virt2phys(fpga_virt_ptr);
+          cout << "FPGA physical address:" << std::hex << host_phy_ptr << endl;
+
+          node_count = 2*(FPGA_2MB_CACHE_LINES - 10);
+          cout << " linked list Node count:" << std::dec << node_count << endl;
+
+          // create linked list
+          if (!create_linked_list(host_virt_ptr, host_phy_ptr, data,
+              node_count, HOSTMEM_BIAS, fpga_virt_ptr,
+              fpga_phy_ptr, FPGAMEM_HOST_BIAS)) {
+              cerr << "Failed to create linked list" << endl;
+              host_exe_->free_dsm();
+              host_exe_->free_pinned_buffer(fpga_virt_ptr);
+              host_exe_->free_pinned_buffer(host_virt_ptr);
+              return -1;
+          }
+
+          he_ctl_.bias_support = HOSTMEM_BIAS;
+          phy_ptr = host_phy_ptr;
+
+      } // end
+
+
+      // Write linked list count
+      he_rd_num_lines_.value = host_exe_->read64(HE_RD_NUM_LINES);
+      he_rd_num_lines_.max_count = node_count;
+      host_exe_->write64(HE_RD_NUM_LINES, he_rd_num_lines_.value);
+
+      cout << "Linked list cout:" << std::dec << he_rd_num_lines_.max_count << endl;
+      cout << "physical address:" << std::hex << phy_ptr << endl;
+
+      // Write PHY addrees to Read table CSR
+      host_exe_->write64(HE_RD_ADDR_TABLE_DATA, phy_ptr);
+
+      // start test
+      he_start_test(HE_RUNNING_POINTER,RUNNING_POINTER);
+
+      // wait for completion
+      if (!he_wait_test_completion()) {
+          he_perf_counters();
+          host_exerciser_errors();
+          host_exe_->free_dsm();
+          host_exe_->free_pinned_buffer(fpga_virt_ptr);
+          host_exe_->free_pinned_buffer(host_virt_ptr);
+          return -1;
+      }
+
+      // verify linked list data
+      if (he_target_ == HE_TARGET_HOST) {
+ 
+          if (!verify_linked_list(host_virt_ptr, host_phy_ptr, data,
+              node_count)) {
+              cerr << "Failed to verify linked list" << endl;
+              retval = -1;
+          }
+      } else if (he_target_ == HE_TARGET_FPGA) {
+
+          if (!verify_linked_list(fpga_virt_ptr, fpga_phy_ptr, data,
+              node_count)) {
+              cerr << "Failed to verify linked list" << endl;
+              retval = -1;
+          }
+      }  else {
+          if (!verify_linked_list(host_virt_ptr, host_phy_ptr, data,
+              node_count)) {
+              cerr << "Failed to verify linked list" << endl;
+              retval = -1;
+          }
+      } // end
+
+      he_perf_counters();
+      host_exe_->free_dsm();
+      host_exe_->free_pinned_buffer(fpga_virt_ptr);
+      host_exe_->free_pinned_buffer(host_virt_ptr);
+
+
+      cout << "********** Ran Running pointer test successfully"
+          " **********" << endl;
+      cout << "********** Running pointer test start end**********" << endl;
+      return retval;
+  }
+
+  int he_run_ping_pong_test() {
+
+      cout << "********** Ping pong test start**********" << endl;
+
+      uint32_t timeout              = HE_CACHE_TEST_TIMEOUT;
+      volatile uint64_t* virt_ptr   = NULL;
+
+      // Allocate DSM buffer
+      if (!host_exe_->allocate_dsm()) {
+          cerr << "allocate dsm failed" << endl;
+          return -1;
+      }
+
+      // Allocate Read buffer
+      if (!host_exe_->allocate_cache_read(BUFFER_SIZE_2MB, numa_node_)) {
+          cerr << "allocate cache write failed" << endl;
+          host_exe_->free_dsm();
+          return -1;
+      }
+
+      he_rd_num_lines_.value = host_exe_->read64(HE_RD_NUM_LINES);
+      he_rd_num_lines_.max_count = INT_MAX/10000;
+      host_exe_->write64(HE_RD_NUM_LINES, he_rd_num_lines_.value);
+
+      cout << "HE_RD_NUM_LINES:" << std::hex << he_rd_num_lines_.value << endl;
+      cout << "Max ping poing count:" << std::dec << he_rd_num_lines_.max_count << endl;
+
+      // get ping pong test buffer pointer set value 0
+      virt_ptr = (uint64_t*)host_exe_->get_read();
+      *virt_ptr = 0x0;
+
+      // Start ping pong test
+      he_start_test(HE_PING_PONG, PING_PONG);
+
+       while (true) {
+
+          if (*virt_ptr >= he_rd_num_lines_.max_count) {
+             cout << "ping pong test completed successfully" << endl;
+             host_exe_->logger_->debug("reached ping pong  maximum value:{} ", *virt_ptr);
+             break;
+          }
+
+          // AFU increments numbers to odd numbers
+          if ((*virt_ptr) % 2 == 1) {
+
+             *virt_ptr = *virt_ptr + 1;
+             timeout = HE_CACHE_TEST_TIMEOUT;
+          } else {
+
+             usleep(HE_CACHE_TEST_SLEEP_INVL);
+             if (--timeout == 0) {
+                 he_forcetestcmpl();
+                 cerr << "HE cache ping pong test time out error" << endl;
+                 host_exerciser_errors();
+                 he_perf_counters();
+                 host_exe_->free_dsm();
+                 host_exe_->free_cache_read();
+                 return -1;
+            }
+         }
+       }; // end of while
+
+      // wait for completion
+      if (!he_wait_test_completion()) {
+          he_forcetestcmpl();
+          cerr << "HE Cache ping pong test time out error" << endl;
+          he_perf_counters();
+          host_exerciser_errors();
+          host_exe_->free_dsm();
+          host_exe_->free_cache_read();
+          return -1;
+      }
+
+      he_perf_counters();
+      host_exe_->free_dsm();
+      host_exe_->free_cache_read();
+
+      cout << "********** Ping pong test end**********" << endl;
+      return 0;
   }
 
 
@@ -1175,11 +1244,35 @@ public:
       return true;
   }
 
+
+  bool verify_input_options() {
+
+      if ( ( (he_test_ == HE_FPGA_RD_CACHE_HIT) ||
+           (he_test_ == HE_FPGA_WR_CACHE_HIT) ||
+           (he_test_ == HE_FPGA_RD_CACHE_MISS) ||
+           (he_test_ == HE_FPGA_WR_CACHE_MISS) ||
+           (he_test_ == HE_HOST_RD_CACHE_HIT) ||
+           (he_test_ == HE_HOST_WR_CACHE_HIT) ||
+           (he_test_ == HE_CACHE_PING_PONG)) &&
+           he_target_ == HE_TARGET_BOTH) {
+
+          cerr << "Wrong input configuration FPGA/Host Read/Write cache\
+                 hit/miss and target memory both fpga and host" << endl;
+          return false;
+      }
+
+      return true;
+  }
+
   virtual int run(test_afu *afu, CLI::App *app) {
     (void)app;
     int ret = 0;
 
     host_exe_ = dynamic_cast<host_exerciser *>(afu);
+
+    if (!verify_input_options()) {
+        return -1;
+    }
 
     if (!verify_numa_node()) {
       numa_node_ = 0;
@@ -1236,14 +1329,14 @@ public:
       return ret;
     }
 
-    if (he_test_ == HE_HOST_RD_CACHE_MISS) {
-      ret = he_run_host_rd_cache_miss_test();
-      return ret;
+    if (he_test_ == HE_CACHE_RUNNING_POINTER) {
+        ret = he_run_running_pointer_test();
+        return ret;
     }
 
-    if (he_test_ == HE_HOST_WR_CACHE_MISS) {
-      ret = he_run_host_wr_cache_miss_test();
-      return ret;
+    if (he_test_ == HE_CACHE_PING_PONG) {
+        ret = he_run_ping_pong_test();
+        return ret;
     }
 
     return 0;
@@ -1260,6 +1353,7 @@ protected:
   bool he_stride_cmd_;
   uint32_t he_cls_count_;
   uint64_t he_latency_iterations_;
+  uint32_t he_loop_count_;
 };
 
 void he_cache_thread(uint8_t *buf_ptr, uint64_t len) {

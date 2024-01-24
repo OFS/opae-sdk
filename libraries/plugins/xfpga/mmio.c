@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2017-2023, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -148,7 +148,7 @@ STATIC fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
 	if (!wm) {
 		result = map_mmio_region(handle, mmio_num);
 		if (result != FPGA_OK) {
-			OPAE_ERR("failed to map mmio region %d", mmio_num);
+			OPAE_DBG("failed to map mmio region %d", mmio_num);
 			return result;
 		}
 		wm = wsid_find_by_index(_handle->mmio_root, mmio_num);

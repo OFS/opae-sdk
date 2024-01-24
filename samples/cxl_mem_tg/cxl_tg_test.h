@@ -34,6 +34,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <ofs/ofs_primitives.h>
 
 #include "afu_test.h"
 #include "cxl_mem_tg.h"
@@ -42,6 +43,8 @@ using test_afu = opae::afu_test::afu;
 using opae::fpga::types::token;
 
 #define CXL_TG_BW_FACTOR   0.931323
+
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 /*
 1) Write to TG_CLEAR with data=0xF to clear all the failure status registers.
@@ -72,7 +75,7 @@ namespace cxl_mem_tg {
 
 class cxl_tg_test : public test_command {
  public:
-  cxl_tg_test() : tg_offset_(0x0), tg_exe_(NULL) {}
+  cxl_tg_test() : tg_offset_(0x0), timeout_usec_(MEM_TG_TEST_TIMEOUT), tg_exe_(NULL) {}
 
   virtual ~cxl_tg_test() {}
 
@@ -90,12 +93,42 @@ class cxl_tg_test : public test_command {
            ((1000.0 / (double)(tg_exe_->mem_speed_/1000) * (double)num_ticks));
   }
 
+  int ofs_wait_for_eq32(uint32_t offset, uint32_t value,
+      uint64_t timeout_usec, uint32_t sleep_usec) {
+      OFS_TIMESPEC_USEC(ts, sleep_usec);
+      struct timespec begin, now, save, rem;
+      save = ts;
+      uint32_t csr;
+      csr = tg_exe_->read32(offset);
+      clock_gettime(CLOCK_MONOTONIC, &begin);
+      while (csr != value) {
+          if (sleep_usec) {
+              ts = save;
+              while ((nanosleep(&ts, &rem) == -1) &&
+                  (errno == EINTR))
+                  ts = rem;
+          }
+          csr = tg_exe_->read32(offset);
+          clock_gettime(CLOCK_MONOTONIC, &now);
+          struct timespec delta;
+          ofs_diff_timespec(&delta, &now, &begin);
+          uint64_t delta_nsec = delta.tv_nsec + delta.tv_sec * SEC2NSEC;
+          if (delta_nsec > timeout_usec * USEC2NSEC) {
+              return 1;
+          }
+      }
+      return 0;
+
+  }
+
   void print_he_mem_tg() {
     tg_exe_->logger_->debug("DFH:0x{:x}", tg_exe_->read64(AFU_DFH));
     tg_exe_->logger_->debug("GUIDL:0x{:x}", tg_exe_->read64(AFU_ID_L));
     tg_exe_->logger_->debug("GUIDH:0x{:x}", tg_exe_->read64(AFU_ID_H));
     tg_exe_->logger_->debug("TG Contol:0x{:x}", tg_exe_->read64(MEM_TG_CTRL));
     tg_exe_->logger_->debug("TG Status:0x{:x}", tg_exe_->read64(MEM_TG_STAT));
+    tg_exe_->logger_->debug("Memory Size:0x{:x}",
+                            tg_exe_->read64(MEM_SIZE));
     tg_exe_->logger_->debug("TG Total clock count:0x{:x}",
                             tg_exe_->read64(MEM_TG_CLK_COUNT));
     tg_exe_->logger_->debug("TG Write Clock Count:0x{:x}",
@@ -211,20 +244,16 @@ class cxl_tg_test : public test_command {
     uint32_t tg_fail = 0;
     tg_exe_->logger_->debug("tg wait for test completion...");
 
-    tg_status = tg_exe_->read32(TG_TEST_COMPLETE);
-    tg_exe_->logger_->debug("test complete status:{}", tg_status);
-
-    while (tg_status != 0x1) {
-      tg_status = tg_exe_->read32(TG_TEST_COMPLETE);
-      std::this_thread::yield();
-      if (--timeout == 0) {
+    int ret = ofs_wait_for_eq32(TG_TEST_COMPLETE, 0x1,
+        timeout_usec_, TEST_SLEEP_INVL);
+    if (ret != 0) {
         std::cerr << "test completion timeout " << std::endl;
         tg_exe_->status_ = -1;
         tg_print_fail_info();
         return false;
-      }
     }
 
+    tg_exe_->logger_->debug("test complete status:{}", tg_exe_->read32(TG_TEST_COMPLETE));
     tg_exe_->logger_->debug("tg pass:{}", tg_exe_->read32(TG_PASS));
 
     tg_fail = tg_exe_->read32(TG_FAIL);
@@ -271,15 +300,54 @@ class cxl_tg_test : public test_command {
   // Configure the registers with the value
   int config_input_options() {
 
-
     mem_tg_ctl tg_ctl;
     tg_ctl.value = tg_exe_->read64(MEM_TG_CTRL);
     tg_exe_->logger_->debug("tg configure input options...");
     tg_exe_->logger_->debug("mem tg ctl:{0:x}", tg_ctl.value);
 
+    tg_mem_size mem_size;
+    mem_size.value = tg_exe_->read64(MEM_SIZE);
+
+    uint64_t value = mem_size.total_mem_size * MB / CL;
+    tg_exe_->logger_->debug("Total hardware memory size:{}", value);
+    value = mem_size.hdm_mem_size * MB / CL;
+    tg_exe_->logger_->debug("HDM memory size:{0:d}", value);
+
+    if (mem_size.hdm_mem_size != 0)
+        tg_exe_->hdm_size_ = (mem_size.total_mem_size - mem_size.hdm_mem_size) * MB / CL;
+
+   cout << "HDM memory cache line size:" << dec << tg_exe_->hdm_size_ << endl;
+
     if (tg_ctl.tg_capability != 0x1) {
-      std::cerr << "No traffic generator for mem" << std::endl;
+      cerr << "No traffic generator for memory" << endl;
       return -1;
+    }
+
+    if (tg_exe_->wcnt_ == 0 && tg_exe_->rcnt_ == 0) {
+        cerr << "Invalid Read and Write input arguments" << endl;
+        return -1;
+    }
+
+    if (tg_exe_->option_passed("--timeout")) {
+        timeout_usec_ = tg_exe_->get_timeout() * 1000;
+    }
+
+    if (tg_exe_->option_passed("--writes") &&
+        tg_exe_->option_passed("--reads") &&
+        (tg_exe_->rcnt_ > tg_exe_->wcnt_)) {
+        cerr << "Read count exceeds Write count" << endl;
+        return -1;
+    }
+
+    if ( tg_exe_->wcnt_ == 0) {
+        cerr << " Write count is zero" << endl;
+        return -1;
+    }
+
+    if ( (MAX(tg_exe_->wcnt_, tg_exe_->rcnt_) * tg_exe_->loop_) >=
+        tg_exe_->hdm_size_) {
+        cerr << "Read,Write and loop count exceeds HDM memory size" << endl;
+        return -1;
     }
 
     tg_exe_->mem_speed_ = tg_exe_->read64(MEM_TG_CLK_FREQ);
@@ -411,6 +479,7 @@ class cxl_tg_test : public test_command {
 
  protected:
   uint64_t tg_offset_;
+  uint64_t timeout_usec_;
   cxl_mem_tg *tg_exe_;
 };
 
