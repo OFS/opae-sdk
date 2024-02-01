@@ -31,5 +31,6 @@
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/pvalue.h>
 #include <opae/cxx/core/shared_buffer.h>
+#include <opae/cxx/core/sysobject.h>
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/version.h>
