@@ -215,6 +215,8 @@ public:
 
     filter->type = FPGA_DEVICE;
     auto tokens = fpga::token::enumerate({filter});
+
+    // Error out if the # of tokens != 1
     if (tokens.size() < 1) {
       if (pci_addr_.empty()) {
         logger_->error("no DEVICE found");
@@ -229,6 +231,8 @@ public:
       std::cerr << "more than one DEVICE found matching filter\n";
     }
     int flags = shared_ ? FPGA_OPEN_SHARED : 0;
+    
+    // Open a handle to the resource
     try {
       handle_device_ = fpga::handle::open(tokens[0], flags);
     } catch (fpga::no_access &err) {
@@ -378,8 +382,8 @@ protected:
   std::string log_level_;
   bool shared_;
   uint32_t timeout_msec_;
-  fpga::handle::ptr_t handle_;
-  fpga::handle::ptr_t handle_device_;
+  fpga::handle::ptr_t handle_;                      // Handle for the ACCELERATOR (AFU) resource
+  fpga::handle::ptr_t handle_device_;               // Handle for the DEVICE (FIM) resource
   command::ptr_t current_command_;
   std::map<CLI::App*, command::ptr_t> commands_;
 public:
