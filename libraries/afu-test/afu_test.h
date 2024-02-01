@@ -33,30 +33,24 @@
 #include <random>
 #include <thread>
 
-#include <CLI/CLI.hpp>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/basic_file_sink.h>
 #include <opae/cxx/core.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+#include <CLI/CLI.hpp>
 
 const char *sbdf_pattern =
-  "(([0-9a-fA-F]{4}):)?([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\.([0-9])";
+    "(([0-9a-fA-F]{4}):)?([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\.([0-9])";
 
-enum {
-  MATCHES_SIZE = 6
-};
-
+enum { MATCHES_SIZE = 6 };
 
 namespace opae {
 namespace afu_test {
 
 namespace fpga = fpga::types;
 
-
-template<typename T>
-inline bool parse_match_int(const char *s,
-                            regmatch_t m, T &v, int radix=10)
-{
+template <typename T>
+inline bool parse_match_int(const char *s, regmatch_t m, T &v, int radix = 10) {
   if (m.rm_so == -1 || m.rm_eo == -1) return false;
   errno = 0;
   v = std::strtoul(s + m.rm_so, NULL, radix);
@@ -65,16 +59,15 @@ inline bool parse_match_int(const char *s,
 
 union pcie_address {
   struct {
-    uint32_t function: 3;
-    uint32_t device: 5;
+    uint32_t function : 3;
+    uint32_t device : 5;
     uint32_t bus : 8;
     uint32_t domain : 16;
   } fields;
   uint32_t value;
 
-  static pcie_address parse(const char *s)
-  {
-    auto deleter = [&](regex_t *r){
+  static pcie_address parse(const char *s) {
+    auto deleter = [&](regex_t *r) {
       regfree(r);
       delete r;
     };
@@ -82,16 +75,13 @@ union pcie_address {
     regmatch_t matches[MATCHES_SIZE];
 
     int reg_res = regcomp(re.get(), sbdf_pattern, REG_EXTENDED | REG_ICASE);
-    if (reg_res)
-      throw std::runtime_error("could not compile regex");
+    if (reg_res) throw std::runtime_error("could not compile regex");
 
     reg_res = regexec(re.get(), s, MATCHES_SIZE, matches, 0);
-    if (reg_res)
-      throw std::runtime_error("pcie address not valid format");
+    if (reg_res) throw std::runtime_error("pcie address not valid format");
 
     uint16_t domain, bus, device, function;
-    if (!parse_match_int(s, matches[2], domain, 16))
-      domain = 0;
+    if (!parse_match_int(s, matches[2], domain, 16)) domain = 0;
     if (!parse_match_int(s, matches[3], bus, 16))
       throw std::runtime_error("error parsing pcie address");
     if (!parse_match_int(s, matches[4], device, 16))
@@ -99,38 +89,31 @@ union pcie_address {
     if (!parse_match_int(s, matches[5], function))
       throw std::runtime_error("error parsing; pcie address");
     pcie_address a;
-    a.fields.domain=domain;
-    a.fields.bus=bus;
-    a.fields.device=device;
-    a.fields.function=function;
+    a.fields.domain = domain;
+    a.fields.bus = bus;
+    a.fields.device = device;
+    a.fields.function = function;
     return a;
   }
-
 };
 
-class afu; // forward declaration
+class afu;  // forward declaration
 
 class command {
-public:
+ public:
   typedef std::shared_ptr<command> ptr_t;
   command() : running_(true) {}
-  virtual ~command(){}
+  virtual ~command() {}
   virtual const char *name() const = 0;
   virtual const char *description() const = 0;
   virtual int run(afu *afu, CLI::App *app) = 0;
-  virtual void add_options(CLI::App *app)
-  {
-    (void)app;
-  }
-  virtual const char *afu_id() const
-  {
-    return nullptr;
-  }
+  virtual void add_options(CLI::App *app) { (void)app; }
+  virtual const char *afu_id() const { return nullptr; }
 
   bool running() const { return running_; }
   void stop() { running_ = false; }
 
-private:
+ private:
   std::atomic<bool> running_;
 };
 
@@ -138,21 +121,20 @@ private:
 // spdlog version 1.9.0 defines SPDLOG_LEVEL_NAMES as an array of string_view_t.
 // Convert to vector of std::string to be used in CLI::IsMember().
 inline std::vector<std::string> spdlog_levels() {
-    std::vector<spdlog::string_view_t> levels_view = SPDLOG_LEVEL_NAMES;
-    std::vector<std::string> levels_str(levels_view.size());
-    std::transform(levels_view.begin(), levels_view.end(),
-                   levels_str.begin(),
-                   [](spdlog::string_view_t sv) {
-                     return std::string(sv.data(), sv.size());
-                   });
-    return levels_str;
+  std::vector<spdlog::string_view_t> levels_view = SPDLOG_LEVEL_NAMES;
+  std::vector<std::string> levels_str(levels_view.size());
+  std::transform(levels_view.begin(), levels_view.end(), levels_str.begin(),
+                 [](spdlog::string_view_t sv) {
+                   return std::string(sv.data(), sv.size());
+                 });
+  return levels_str;
 }
 #else
 inline std::vector<std::string> spdlog_levels() { return SPDLOG_LEVEL_NAMES; }
-#endif // SPDLOG_VERSION
+#endif  // SPDLOG_VERSION
 
 class afu {
-public:
+ public:
   typedef int (*command_fn)(afu *afu, CLI::App *app);
   enum exit_codes {
     success = 0,
@@ -163,48 +145,47 @@ public:
     error
   };
 
-  afu(const char *name, const char *afu_id = nullptr, const char *log_level = nullptr)
-  : name_(name)
-  , afu_id_(afu_id ? afu_id : "")
-  , app_(name_)
-  , pci_addr_("")
-  , log_level_(log_level ? log_level : "info")
-  , shared_(false)
-  , timeout_msec_(60000)
-  , handle_(nullptr)
-  , current_command_(nullptr)
-  {
+  afu(const char *name, const char *afu_id = nullptr,
+      const char *log_level = nullptr)
+      : name_(name),
+        afu_id_(afu_id ? afu_id : ""),
+        app_(name_),
+        pci_addr_(""),
+        log_level_(log_level ? log_level : "info"),
+        shared_(false),
+        timeout_msec_(60000),
+        handle_(nullptr),
+        current_command_(nullptr) {
     if (!afu_id_.empty())
       app_.add_option("-g,--guid", afu_id_, "GUID")->default_str(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
                     "[<domain>:]<bus>:<device>.<function>");
-    app_.add_option("-l,--log-level", log_level_, "stdout logging level")->
-      default_str(log_level_)->
-      check(CLI::IsMember(spdlog_levels()));
-    app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
-    app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_str(std::to_string(timeout_msec_));
+    app_.add_option("-l,--log-level", log_level_, "stdout logging level")
+        ->default_str(log_level_)
+        ->check(CLI::IsMember(spdlog_levels()));
+    app_.add_flag("-s,--shared", shared_,
+                  "open in shared mode, default is off");
+    app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")
+        ->default_str(std::to_string(timeout_msec_));
   }
   virtual ~afu() {
-    if (logger_)
-      spdlog::drop(logger_->name());
+    if (logger_) spdlog::drop(logger_->name());
   }
 
-  CLI::App & cli() { return app_; }
+  CLI::App &cli() { return app_; }
 
-  fpga::properties::ptr_t afu_properties() const
-  {
+  fpga::properties::ptr_t afu_properties() const {
     return fpga::properties::get(handle_);
   }
 
   int open_handle(const char *afu_id) {
-    
-    auto filter = fpga::properties::get(); // Get an empty properties object
+    auto filter = fpga::properties::get();  // Get an empty properties object
 
     // The following code attempts to get a token+handle for the DEVICE.
     // This is to allow access to OPAE-API functions that are only supported
     // through the xfpga plugin (i.e accessing sysfs entries)
     // In contrast, the ACCELERATOR token may be underlied by the vfio plugin.
-    
+
     if (!pci_addr_.empty()) {
       auto p = pcie_address::parse(pci_addr_.c_str());
       filter->segment = p.fields.domain;
@@ -215,19 +196,22 @@ public:
 
     filter->type = FPGA_DEVICE;
     auto tokens = fpga::token::enumerate({filter});
+
+    // Check if the number of tokens != 1 and error out.
     if (tokens.size() < 1) {
       if (pci_addr_.empty()) {
         logger_->error("no DEVICE found");
       } else {
-        logger_->error("no accelerator found at PCIe address {1}",
-            pci_addr_);
+        logger_->error("no accelerator found at PCIe address {1}", pci_addr_);
       }
       return exit_codes::not_found;
-    }    
+    }
 
     if (tokens.size() > 1) {
       std::cerr << "more than one DEVICE found matching filter\n";
     }
+
+    // Get a handle to the resource represented by the token
     int flags = shared_ ? FPGA_OPEN_SHARED : 0;
     try {
       handle_device_ = fpga::handle::open(tokens[0], flags);
@@ -236,14 +220,14 @@ public:
       return exit_codes::no_access;
     }
 
-    // The following code attempts to get a token + handle for the AFU 
+    // The following code attempts to get a token + handle for the AFU
     // (ACCELERATOR device) matching the given command's afu_id.
     // We reuse the PCIe SBDF addressing from above.
     auto app_afu_id = afu_id ? afu_id : afu_id_.c_str();
     filter->type = FPGA_ACCELERATOR;
     try {
       filter->guid.parse(app_afu_id);
-    } catch(opae::fpga::types::except & err) {
+    } catch (opae::fpga::types::except &err) {
       return error;
     }
 
@@ -253,7 +237,7 @@ public:
         logger_->error("no accelerator found with id: {0}", app_afu_id);
       } else {
         logger_->error("no accelerator found with id: {0} at PCIe address {1}",
-            app_afu_id, pci_addr_);
+                       app_afu_id, pci_addr_);
       }
       return exit_codes::not_found;
     }
@@ -261,7 +245,7 @@ public:
     if (tokens.size() > 1) {
       std::cerr << "more than one accelerator found matching filter\n";
     }
-    
+
     try {
       handle_ = fpga::handle::open(tokens[0], flags);
     } catch (fpga::no_access &err) {
@@ -272,10 +256,8 @@ public:
     return exit_codes::not_run;
   }
 
-  int main(int argc, char *argv[])
-  {
-    if (!commands_.empty())
-      app_.require_subcommand();
+  int main(int argc, char *argv[]) {
+    if (!commands_.empty()) app_.require_subcommand();
     CLI11_PARSE(app_, argc, argv);
 
     command::ptr_t test(nullptr);
@@ -305,17 +287,15 @@ public:
     return run(app, test);
   }
 
-  virtual int run(CLI::App *app, command::ptr_t test)
-  {
+  virtual int run(CLI::App *app, command::ptr_t test) {
     int res = exit_codes::not_run;
 
     current_command_ = test;
 
     try {
-      std::future<int> f = std::async(std::launch::async,
-        [this, test, app](){
-          return test->run(this, app);
-        });
+      std::future<int> f = std::async(std::launch::async, [this, test, app]() {
+        return test->run(this, app);
+      });
       auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
       if (status == std::future_status::timeout) {
         std::cerr << "Error: test timed out" << std::endl;
@@ -323,7 +303,7 @@ public:
         throw std::runtime_error("timeout");
       }
       res = f.get();
-    } catch(std::exception &ex) {
+    } catch (std::exception &ex) {
       res = exit_codes::exception;
     }
 
@@ -331,46 +311,34 @@ public:
     return res;
   }
 
-  template<class T>
-  CLI::App *register_command()
-  {
+  template <class T>
+  CLI::App *register_command() {
     command::ptr_t cmd(new T());
-    auto sub = app_.add_subcommand(cmd->name(),
-                                   cmd->description());
+    auto sub = app_.add_subcommand(cmd->name(), cmd->description());
     cmd->add_options(sub);
     commands_[sub] = cmd;
     return sub;
   }
 
-  fpga::handle::ptr_t handle() const {
-    return handle_;
-  }
+  fpga::handle::ptr_t handle() const { return handle_; }
 
-  fpga::handle::ptr_t handle_device() const {
-    return handle_device_;
-  }
+  fpga::handle::ptr_t handle_device() const { return handle_device_; }
 
-  uint64_t read64(uint32_t offset) const {
-    return handle_->read_csr64(offset);
-  }
+  uint64_t read64(uint32_t offset) const { return handle_->read_csr64(offset); }
 
   void write64(uint32_t offset, uint64_t value) const {
     return handle_->write_csr64(offset, value);
   }
 
-  uint32_t read32(uint32_t offset) const {
-    return handle_->read_csr32(offset);
-  }
+  uint32_t read32(uint32_t offset) const { return handle_->read_csr32(offset); }
 
   void write32(uint32_t offset, uint32_t value) const {
     return handle_->write_csr32(offset, value);
   }
 
-  command::ptr_t current_command() const {
-    return current_command_;
-  }
+  command::ptr_t current_command() const { return current_command_; }
 
-protected:
+ protected:
   std::string name_;
   std::string afu_id_;
   CLI::App app_;
@@ -378,15 +346,15 @@ protected:
   std::string log_level_;
   bool shared_;
   uint32_t timeout_msec_;
-  fpga::handle::ptr_t handle_;
-  fpga::handle::ptr_t handle_device_;
+  fpga::handle::ptr_t handle_;  // Handle for ACCELERATOR resource (i.e. an AFU)
+  fpga::handle::ptr_t
+      handle_device_;  // Handle for DEVICE resource (i.e. the FIM)
   command::ptr_t current_command_;
-  std::map<CLI::App*, command::ptr_t> commands_;
-public:
+  std::map<CLI::App *, command::ptr_t> commands_;
+
+ public:
   std::shared_ptr<spdlog::logger> logger_;
 };
 
-
-} // end of namespace afu_test
-} // end of namespace opae
-
+}  // end of namespace afu_test
+}  // end of namespace opae
