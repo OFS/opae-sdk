@@ -163,6 +163,26 @@ extern "C" {
 #endif
 
 /**
+ * Confirm that a device is available (not already open).
+ *
+ * Opens the PCIe device corresponding to the address given in pciaddr.
+ * The device must be bound to the vfio-pci driver prior to opening it.
+ * The data structures corresponding to IOVA space, MMIO regions,
+ * and DMA buffers are initialized.
+ *
+ * @param[in]  pciaddr The PCIe address of the requested device.
+ * @returns Non-zero when device is busy. Zero on success.
+ *
+ * Example
+ * @code{.c}
+ * if (opae_vfio_dev_busy("0000:00:00.0")) {
+ *   // handle error
+ * }
+ * @endcode
+ */
+int opae_vfio_dev_busy(const char *pciaddr);
+
+/**
  * Open and populate a VFIO device
  *
  * Opens the PCIe device corresponding to the address given in pciaddr.
