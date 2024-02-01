@@ -757,10 +757,13 @@ public:
         // fix that and clean up the code below.
         for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
           std::stringstream mem_cal_glob;
+          // Construct the glob string to search for the cal_fail sysfs entry
+          // for the i'th mem channel
           mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
+          // Ask for a sysobject with this glob string
           fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
               token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
-          if (testobj) {
+          if (testobj) { // if !=null, the sysfs entry was found
             // Error out if calibration has failed
             if (testobj->read64(0)) {  // Non-zero value (typically '1') means
                                        // calibration has failed
