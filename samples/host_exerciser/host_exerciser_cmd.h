@@ -29,6 +29,8 @@
 
 #include "afu_test.h"
 #include "host_exerciser.h"
+#include <opae/types_enum.h>
+#include <opae/cxx/core.h>
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
@@ -191,7 +193,7 @@ public:
         try {
             host_exe_->interrupt_wait(ev, 10000);
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
-	            host_exe_->compare(source_, destination_);
+                host_exe_->compare(source_, destination_);
         }
         catch (std::exception &ex) {
             std::cout << "Exception: " << ex.what() << std::endl;
@@ -735,7 +737,34 @@ public:
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
         token_ = d_afu->get_token();
+        token_device_ = d_afu->get_token_device();
 
+        // Check if memory calibration has failed and error out before proceeding with the test.
+        // The dfl-emif driver creates sysfs entries to report the calibration status for each memory channel.
+        // sysobjects are the OPAE-API's abstraction for sysfs entries. 
+        // However, at this time, these are only accessible through tokens that use the 
+        // xfpga plugin and not the vfio plugin. Hence our use of the DEVICE token (token_device_).
+        // One non-ideality of the following implementation is the use of MAX_NUM_MEM_CHANNELS.
+        // We are essentially doing a brute-force query of sysfs entries since we don't know how
+        // many mem channels exist on the given platform.
+        // What about glob wildcards? Why not simply glob for "*dfl*/**/inf*_cal_fail" and use
+        // the OPAE-API's support for arrays of sysobjects? The reason is that, at the time of this writing,
+        // the xfpga-plugin's sysobject implementation does not support arrays specifically when the glob contains
+        // a recursive wildcard "/**/". It's a strange and perhaps unnecessary limitation. Therefore, future work
+        // is to fix that and clean up the code below.
+        for (size_t i=0; i<MAX_NUM_MEM_CHANNELS;i++) {
+            std::stringstream mem_cal_glob;
+            mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
+            fpga::sysobject::ptr_t testobj = fpga::sysobject::get(token_device_,mem_cal_glob.str().c_str(),FPGA_OBJECT_GLOB);
+            if (testobj) {
+                // Error out if calibration has failed
+                if (testobj->read64(0)) { // Non-zero value (typically '1') means calibration has failed
+                    std::cout << "This sysfs entry reports that memory calibration has failed:" << mem_cal_glob.str().c_str() << std::endl;
+                    return -1;
+                }
+            }
+        }
+        
         // Read HW details
         uint64_t he_info = host_exe_->read64(HE_INFO0);
         he_lpbk_api_ver_ = (he_info >> 16);
@@ -831,6 +860,7 @@ protected:
     shared_buffer::ptr_t dsm_;
     he_interrupt0 he_interrupt_;
     token::ptr_t token_;
+    token::ptr_t token_device_;
     hostexe_req_len he_lpbk_max_reqlen_;
     uint8_t he_lpbk_api_ver_;
     bool he_lpbk_atomics_supported_;
