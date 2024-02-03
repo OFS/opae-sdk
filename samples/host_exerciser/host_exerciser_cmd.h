@@ -763,15 +763,16 @@ public:
           // Ask for a sysobject with this glob string
           fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
               token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
-          if (testobj) { // if !=null, the sysfs entry was found
-            // Error out if calibration has failed
-            if (testobj->read64(0)) {  // Non-zero value (typically '1') means
-                                       // calibration has failed
-              std::cout
-                  << "This sysfs entry reports that memory calibration has failed:"
-                  << mem_cal_glob.str().c_str() << std::endl;
-              return -1;
-            }
+
+          // if test obj !=null, the sysfs entry was found.
+          // Read the calibration status from the sysfs entry.
+          // A non-zero value (typically '1') means
+          // calibration has failed --> we error out.
+          if (testobj && testobj->read64(0)) { 
+            std::cout
+                << "This sysfs entry reports that memory calibration has failed:"
+                << mem_cal_glob.str().c_str() << std::endl;
+            return -1;
           }
         }
 
