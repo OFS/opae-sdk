@@ -44,6 +44,7 @@ static const uint64_t LOG2_CL = 6;
 static const size_t LPBK1_DSM_SIZE = 2 * KB;
 static const size_t LPBK1_BUFFER_SIZE = 64 * KB;
 static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 64 * KB;
+static const size_t MAX_NUM_MEM_CHANNELS = 8; // The maximum number of assumed memory channels created by the dfl-emif driver. 
 
 // Host execiser CSR Offset
 enum {
@@ -570,6 +571,11 @@ public:
   token::ptr_t get_token()
   {
     return handle_->get_token();
+  }
+
+  token::ptr_t get_token_device()
+  {
+    return handle_device_->get_token();
   }
 
   bool option_passed(std::string option_str)
