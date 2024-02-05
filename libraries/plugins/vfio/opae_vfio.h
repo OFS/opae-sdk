@@ -95,6 +95,7 @@ typedef struct _vfio_pair {
 typedef struct _vfio_handle {
 	uint32_t magic;
 	vfio_token *token;
+	struct _vfio_handle *parent_afu;
 	vfio_pair_t *vfio_pair;
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;

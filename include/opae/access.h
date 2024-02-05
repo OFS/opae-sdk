@@ -58,6 +58,12 @@ extern "C" {
  *                          when all associated handles have been closed
  *                          (either explicitly with fpgaClose() or by process
  *                          termination).
+ *                        * FPGA_OPEN_HAS_PARENT_AFU is currently supported only
+ *                          inside OPAE, between the shell and a plugin. It
+ *                          indicates that the resource being opened is a child
+ *                          of a parent resource that is already open in the
+ *                          same process. When set, the value of *handle on
+ *                          entry is the parent handle.
  * @returns             FPGA_OK on success. FPGA_NOT_FOUND if the resource for
  *                      'token' could not be found. FPGA_INVALID_PARAM if
  *                      'token' does not refer to a resource that can be

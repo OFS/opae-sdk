@@ -93,6 +93,13 @@ class init_action(base_action):
         init.add_argument('-d', '--device', dest='sdevice',
                           metavar='DEVICE', type=pci.pci_address,
                           help='the PCIe address of the FPGA device')
+        init.add_argument('-e', '--enable-sriov', action='store_true',
+                          default=False,
+                          help='enable SR-IOV during initialization')
+        init.add_argument('-f', '--force', action='store_true',
+                          default=False,
+                          help='force the driver to unbind, '
+                               'even if saving the previous driver fails')
         init.add_argument('user_group', nargs='?', default='root:root',
                           help='the user:group for assigning device permissions')
 
@@ -100,7 +107,8 @@ class init_action(base_action):
         if not self.device:
             raise SystemExit('Need device for init.')
 
-        utils.vfio_init(self.device, args.user_group)
+        kw = {'enable_sriov': args.enable_sriov}
+        utils.vfio_init(self.device, args.user_group, force=args.force, **kw)
         raise SystemExit(0)
 
 

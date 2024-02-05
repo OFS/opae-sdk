@@ -254,14 +254,13 @@ int main(int argc, char *argv[])
 	}
 
 	printf("---------------------------------------------------------------------------------------------------\n");
-	printf("metric_num              qualifier_name      group_name             metric_name            metric_units\n");
+	printf("%-11s | %-19s  | %-50s  | %-5s \n", "metric_num", "group_name", "metric_name", "metric_units");
 	printf("---------------------------------------------------------------------------------------------------\n");
 
 	for (i = 0; i < num_metrics; i++) {
 
-		printf("%-3ld  | %-30s  | %-15s  | %-30s  | %-10s \n",
-						metric_info[i].metric_num,
-						metric_info[i].qualifier_name,
+		printf("%-10ld  | %-20s | %-50s  | %-1s \n",
+						metric_info[i].metric_num + 1,
 						metric_info[i].group_name,
 						metric_info[i].metric_name,
 						metric_info[i].metric_units);
@@ -279,9 +278,9 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_close, "get num of metrics value by index");
 
 	printf("\n\n\n");
-	printf("-------------------------------------------------------------------------------------------------\n ");
-	printf("    metric_num              qualifier_name                    metric_name              value     \n ");
-	printf("-------------------------------------------------------------------------------------------------\n ");
+	printf("-------------------------------------------------------------------------------------------------\n");
+	printf("%-11s | %-19s  | %-50s  | %-20s \n", "metric_num", "group_name", "metric_name", "value");
+	printf("-------------------------------------------------------------------------------------------------\n");
 
 	for (i = 0; i < num_metrics; i++) {
 
@@ -289,26 +288,26 @@ int main(int argc, char *argv[])
 		if (metric_info[num].metric_datatype == FPGA_METRIC_DATATYPE_INT &&
 			metric_array[i].isvalid) {
 
-				printf("%-20ld  | %-30s   | %-25s  | %ld %-20s \n ",
-					metric_info[num].metric_num,
-					metric_info[num].qualifier_name,
+				printf("%-10ld  | %-19s  | %-50s  | %ld %-20s \n",
+					metric_info[num].metric_num +1,
+					metric_info[i].group_name,
 					metric_info[num].metric_name,
 					metric_array[i].value.ivalue,
 					metric_info[num].metric_units);
 		} else if (metric_info[num].metric_datatype == FPGA_METRIC_DATATYPE_DOUBLE &&
 			metric_array[i].isvalid) {
 
-			printf("%-20ld  | %-30s   | %-25s  | %0.2f %-20s \n ",
-				metric_info[num].metric_num,
-				metric_info[num].qualifier_name,
+			printf("%-10ld  | %-19s  | %-50s  | %0.2f %-20s \n",
+				metric_info[num].metric_num + 1,
+				metric_info[i].group_name,
 				metric_info[num].metric_name,
 				metric_array[i].value.dvalue,
 				metric_info[num].metric_units);
 		} else {
 
-			printf("%-20ld  | %-30s   | %-25s  | %s \n ",
-				metric_info[num].metric_num,
-				metric_info[num].qualifier_name,
+			printf("%-10ld  | %-19s  | %-50s  | %s \n",
+				metric_info[num].metric_num + 1,
+				metric_info[i].group_name,
 				metric_info[num].metric_name,
 				"Fails to read metric value");
 		}

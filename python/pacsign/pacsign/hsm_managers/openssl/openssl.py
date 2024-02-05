@@ -297,7 +297,7 @@ class openssl:
             try:
                 dll = CDLL(link)
             except OSError:
-                log.warn('CDLL(%s) failed', link)
+                log.debug('CDLL(%s) failed', link)
                 continue
 
             if dll is None:

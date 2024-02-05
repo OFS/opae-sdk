@@ -585,6 +585,20 @@ STATIC fpga_result vfio_reset(const vfio_pci_device_t *dev,
 	return FPGA_OK;
 }
 
+STATIC uint32_t vfio_irq_count(struct opae_vfio *device)
+{
+	struct opae_vfio_device_irq *irq =
+		device->device.irqs;
+
+	while (irq) {
+		if (irq->index == VFIO_PCI_MSIX_IRQ_INDEX)
+			return irq->count;
+		irq = irq->next;
+	}
+
+	return 0;
+}
+
 STATIC int vfio_walk(vfio_pci_device_t *dev)
 {
 	int res = 0;
@@ -649,6 +663,7 @@ STATIC int vfio_walk(vfio_pci_device_t *dev)
 	tok->user_mmio_count = 1;
 	tok->user_mmio[bar] = 0;
 	tok->ops.reset = vfio_reset;
+	tok->num_afu_irqs = vfio_irq_count(v);
 	vfio_get_guid(1+(uint64_t *)mmio, tok->hdr.guid);
 
 	// only check BAR 0 for an FPGA_ACCELERATOR, skip other BARs
@@ -699,6 +714,8 @@ fpga_result __VFIO_API__ vfio_fpgaOpen(fpga_token token, fpga_handle *handle, in
 
 	_handle->magic = VFIO_HANDLE_MAGIC;
 	_handle->token = clone_token(_token);
+	if (flags & FPGA_OPEN_HAS_PARENT_AFU)
+		_handle->parent_afu = handle_check_and_lock(*handle);
 
 	res = open_vfio_pair(_token->device->addr, &_handle->vfio_pair);
 	if (res) {
@@ -726,9 +743,21 @@ fpga_result __VFIO_API__ vfio_fpgaOpen(fpga_token token, fpga_handle *handle, in
 #endif // GCC_VERSION
 #endif // x86
 
+	if (_handle->parent_afu) {
+		if (opae_vfio_apply_group_constraint(
+				_handle->vfio_pair->device,
+				_handle->parent_afu->vfio_pair->device)) {
+			OPAE_ERR("error applying child vfio constraints");
+			res = FPGA_EXCEPTION;
+			goto out_attr_destroy;
+		}
+	}
+
 	*handle = _handle;
 	res = FPGA_OK;
 out_attr_destroy:
+	if (_handle && _handle->parent_afu)
+		pthread_mutex_unlock(&_handle->parent_afu->lock);
 	pthread_mutexattr_destroy(&mattr);
 	if (res && _handle) {
 		pthread_mutex_destroy(&_handle->lock);
@@ -867,9 +896,6 @@ fpga_result __VFIO_API__ vfio_fpgaUpdateProperties(fpga_token token, fpga_proper
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE);
 
 	if (t->hdr.objtype == FPGA_ACCELERATOR) {
-		fpga_result res;
-		vfio_pair_t *pair = NULL;
-
 		_prop->parent = NULL;
 		CLEAR_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
 
@@ -883,9 +909,7 @@ fpga_result __VFIO_API__ vfio_fpgaUpdateProperties(fpga_token token, fpga_proper
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_INTERRUPTS);
 
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_ACCELERATOR_STATE);
-		res = open_vfio_pair(t->device->addr, &pair);
-		if (res == FPGA_OK) {
-			close_vfio_pair(&pair);
+		if (!opae_vfio_dev_busy(t->device->addr)) {
 			_prop->u.accelerator.state =
 				t->afu_state = FPGA_ACCELERATOR_UNASSIGNED;
 		} else {
@@ -1363,20 +1387,6 @@ STATIC bool matches_filters(const fpga_properties *filters,
 	return false;
 }
 
-STATIC uint32_t vfio_irq_count(struct opae_vfio *device)
-{
-	struct opae_vfio_device_irq *irq =
-		device->device.irqs;
-
-	while (irq) {
-		if (irq->index == VFIO_PCI_MSIX_IRQ_INDEX)
-			return irq->count;
-		irq = irq->next;
-	}
-
-	return 0;
-}
-
 fpga_result __VFIO_API__ vfio_fpgaEnumerate(const fpga_properties *filters,
 			       uint32_t num_filters, fpga_token *tokens,
 			       uint32_t max_tokens, uint32_t *num_matches)
@@ -1388,13 +1398,13 @@ fpga_result __VFIO_API__ vfio_fpgaEnumerate(const fpga_properties *filters,
 		if (pci_matches_filters(filters, num_filters, dev)) {
 			vfio_token *tptr;
 
-			vfio_walk(dev);
+			// Walk the device if it hasn't been seen yet
+			if (!dev->tokens)
+				vfio_walk(dev);
+
 			tptr = dev->tokens;
 
 			while (tptr) {
-				vfio_pair_t *pair = NULL;
-				fpga_result res;
-
 				tptr->hdr.vendor_id = (uint16_t)tptr->device->vendor;
 				tptr->hdr.device_id = (uint16_t)tptr->device->device;
 				tptr->hdr.subsystem_vendor_id = tptr->device->subsystem_vendor;
@@ -1409,15 +1419,10 @@ fpga_result __VFIO_API__ vfio_fpgaEnumerate(const fpga_properties *filters,
 				if (tptr->hdr.objtype == FPGA_DEVICE)
 					memcpy(tptr->hdr.guid, tptr->compat_id, sizeof(fpga_guid));
 
-				res = open_vfio_pair(tptr->device->addr, &pair);
-				if (res == FPGA_OK) {
-					tptr->num_afu_irqs = vfio_irq_count(pair->device);
-
-					close_vfio_pair(&pair);
+				if (!opae_vfio_dev_busy(tptr->device->addr))
 					tptr->afu_state = FPGA_ACCELERATOR_UNASSIGNED;
-				} else {
+				else
 					tptr->afu_state = FPGA_ACCELERATOR_ASSIGNED;
-				}
 
 				if (matches_filters(filters, num_filters, tptr)) {
 					if (matches < max_tokens) {
@@ -1654,6 +1659,61 @@ out_unlock:
 	opae_mutex_unlock(err, &h->lock);
 
 	return res;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaPinBuffer(fpga_handle handle, void *buf_addr,
+					    uint64_t len, uint64_t ioaddr)
+{
+	vfio_handle *h;
+	h = handle_check(handle);
+	ASSERT_NOT_NULL(h);
+
+	struct opae_vfio *v = h->vfio_pair->device;
+	if (opae_vfio_buffer_map(v, len, buf_addr, ioaddr)) {
+		OPAE_DBG("could not map buffer");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaUnpinBuffer(fpga_handle handle, void *buf_addr,
+					      uint64_t len, uint64_t ioaddr)
+{
+	UNUSED_PARAM(buf_addr);
+
+	vfio_handle *h;
+	h = handle_check(handle);
+	ASSERT_NOT_NULL(h);
+
+	struct opae_vfio *v = h->vfio_pair->device;
+	if (opae_vfio_buffer_unmap(v, len, ioaddr)) {
+		OPAE_DBG("could not unmap buffer");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result __VFIO_API__ vfio_fpgaGetWSInfo(fpga_handle handle, uint64_t wsid,
+					    uint64_t *ioaddr,
+					    void **buf_addr, uint64_t *len)
+{
+	UNUSED_PARAM(handle);
+
+	ASSERT_NOT_NULL(ioaddr);
+	ASSERT_NOT_NULL(buf_addr);
+	ASSERT_NOT_NULL(len);
+
+	struct opae_vfio_buffer *binfo = (struct opae_vfio_buffer *)wsid;
+
+	ASSERT_NOT_NULL(binfo);
+
+	*ioaddr = binfo->buffer_iova;
+	*buf_addr = (void *) binfo->buffer_ptr;
+	*len = binfo->buffer_size;
+
+	return FPGA_OK;
 }
 
 fpga_result __VFIO_API__ vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)
