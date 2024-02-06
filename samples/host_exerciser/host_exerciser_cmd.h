@@ -831,7 +831,7 @@ public:
         }
         catch (opae::fpga::types::except &ex) {
             std::cerr << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
-            throw ex;
+            throw;
         }
         host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
                                   (void*)source_->c_type(), source_->io_address());
@@ -846,7 +846,7 @@ public:
         }
         catch (fpga::except &ex) {
             std::cerr << "DST Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
-            throw ex;
+            throw;
         }
         host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
                                   (void*)destination_->c_type(), destination_->io_address());
@@ -861,7 +861,7 @@ public:
         }
         catch (fpga::except &ex) {
             std::cerr << "DSM Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
-            throw ex;
+            throw;
         }
         host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
                                   (void*)dsm_->c_type(), dsm_->io_address());
