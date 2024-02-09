@@ -825,8 +825,14 @@ public:
 
         /* Allocate Source Buffer
         Write to CSR_SRC_ADDR */
-        std::cout << "Allocate SRC Buffer" << std::endl;
-        source_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+        try { 
+            std::cout << "Allocate SRC Buffer" << std::endl;
+            source_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+        }
+        catch (opae::fpga::types::except &ex) {
+            std::cerr << "SRC Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
+            throw;
+        }
         host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
                                   (void*)source_->c_type(), source_->io_address());
         d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
@@ -834,8 +840,14 @@ public:
 
         /* Allocate Destination Buffer
             Write to CSR_DST_ADDR */
-        std::cout << "Allocate DST Buffer" << std::endl;
-        destination_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+        try {
+            std::cout << "Allocate DST Buffer" << std::endl;
+            destination_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+        }
+        catch (fpga::except &ex) {
+            std::cerr << "DST Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
+            throw;
+        }
         host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
                                   (void*)destination_->c_type(), destination_->io_address());
         d_afu->write64(HE_DST_ADDR, cacheline_aligned_addr(destination_->io_address()));
@@ -843,8 +855,14 @@ public:
 
         /* Allocate DSM Buffer
             Write to CSR_AFU_DSM_BASEL */
-        std::cout << "Allocate DSM Buffer" << std::endl;
-        dsm_ = d_afu->allocate(LPBK1_DSM_SIZE);
+        try {
+            std::cout << "Allocate DSM Buffer" << std::endl;
+            dsm_ = d_afu->allocate(LPBK1_DSM_SIZE);
+        }
+        catch (fpga::except &ex) {
+            std::cerr << "DSM Buffer allocation failed. Please check that hugepages are reserved." << std::endl;
+            throw;
+        }
         host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
                                   (void*)dsm_->c_type(), dsm_->io_address());
         d_afu->write32(HE_DSM_BASEL, cacheline_aligned_addr(dsm_->io_address()));
