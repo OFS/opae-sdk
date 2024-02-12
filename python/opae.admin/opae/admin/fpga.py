@@ -449,6 +449,10 @@ class fpga_base(sysfs_device):
                     return upload_dev(fpga_sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
+            if not pmci:
+                self.log.debug('no PMCI found')
+                return None
+
             patterns = ['*fpga_sec_mgr*/*fpga_sec*',
                         'fpga_image_load/fpga_image*',
                         'firmware/secure-update*' ]
