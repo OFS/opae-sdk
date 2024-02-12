@@ -813,11 +813,6 @@ def main():
                     LOG.error('PR interface uuid mismatch.')
                     sys.exit(1)
 
-    # Check for 'update/filename' to determine if we use sysfs or ioctl
-    if (pac.upload_dev.find_one(os.path.join('update', 'filename')) or
-        pac.upload_dev.find_one('loading')):
-        use_ioctl = False
-
     # The BMC disallows updating the factory image if the current boot-page is also 'factory'.
     # The idea is to always have at least one known-good image in the flash so that
     # you can recover from subsequent bad images.
@@ -863,6 +858,11 @@ def main():
         stat, mesg = do_partial_reconf(pac.pci_node.pci_address,
                                        args.file.name)
     elif blk0 is not None:
+        # Check for 'update/filename' to determine if we use sysfs or ioctl
+        if (pac.upload_dev.find_one(os.path.join('update', 'filename')) or
+            pac.upload_dev.find_one('loading')):
+            use_ioctl = False
+
         sec_dev = pac.upload_dev
         if not sec_dev:
             LOG.error('Failed to find secure '
