@@ -53,14 +53,13 @@
 #define DFL_SEC_PMCI_GLOB "*dfl*/**/security/"
 
 typedef struct fpga_sec_key {
-	char name[FPGA_VAR_BUF_LEN];
-	char sysfs[FPGA_VAR_BUF_LEN];
+	const char *name;
+	const char *sysfs;
 } fpga_sec_key;
 
 #define SEC_ARRAY_MAX_SIZE 7
 
-fpga_sec_key sec_key_data[SEC_ARRAY_MAX_SIZE] =
-{
+fpga_sec_key sec_key_data[] = {
 	{.name = "BMC root entry hash",
 	 .sysfs = "*bmc_root_entry_hash"
 	},
@@ -81,7 +80,8 @@ fpga_sec_key sec_key_data[SEC_ARRAY_MAX_SIZE] =
 	},
 	{.name = "User flash update counter",
 	 .sysfs = "*flash_count"
-	}
+	},
+	{}
 };
 
 // boot page info sysfs
@@ -305,7 +305,7 @@ fpga_result print_sec_info(fpga_token token)
 	fpga_object tcm_object;
 	char name[SYSFS_PATH_MAX]         = { 0 };
 	char sysfs_path[SYSFS_PATH_MAX]   = { 0 };
-	int i                             = 0;
+	fpga_sec_key *p                   = NULL;
 
 	res = fpgaTokenGetObject(token, DFL_SEC_PMCI_GLOB, &tcm_object,
 		FPGA_OBJECT_GLOB);
@@ -315,13 +315,12 @@ fpga_result print_sec_info(fpga_token token)
 	}
 	printf("********** SEC Info START ************ \n");
 
-	for (i = 0; i < SEC_ARRAY_MAX_SIZE; i++)
-	{
+	for (p = sec_key_data; p->name; p++) {
 		memset(name, 0, sizeof(name));
 		memset(sysfs_path, 0, sizeof(sysfs_path));
 
 		if (snprintf(sysfs_path, sizeof(sysfs_path),
-			"%s/%s", DFL_SEC_PMCI_GLOB, sec_key_data[i].sysfs) < 0) {
+			"%s/%s", DFL_SEC_PMCI_GLOB, p->sysfs) < 0) {
 			OPAE_ERR("snprintf failed");
 			resval = FPGA_EXCEPTION;
 			goto exit;
@@ -329,12 +328,11 @@ fpga_result print_sec_info(fpga_token token)
 
 		res = read_sysfs(token, sysfs_path, name, SYSFS_PATH_MAX - 1);
 		if (res == FPGA_OK) {
-			printf("%-32s : %s\n", sec_key_data[i].name,
+			printf("%-32s : %s\n", p->name,
 				strlen(name) > 0 ? name : "None");
-		}
-		else {
-			OPAE_MSG("Failed to Read %s", sec_key_data[i].name);
-			printf("%-32s : %s\n", sec_key_data[i].name, "None");
+		} else {
+			OPAE_MSG("Failed to Read %s", p->name);
+			printf("%-32s : %s\n", p->name, "None");
 			resval = res;
 		}
 	}
