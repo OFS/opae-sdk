@@ -52,6 +52,38 @@
 
 #define DFL_SEC_PMCI_GLOB "*dfl*/**/security/"
 
+typedef struct fpga_sec_key {
+	char name[FPGA_VAR_BUF_LEN];
+	char sysfs[FPGA_VAR_BUF_LEN];
+} fpga_sec_key;
+
+#define SEC_ARRAY_MAX_SIZE 7
+
+fpga_sec_key sec_key_data[SEC_ARRAY_MAX_SIZE] =
+{
+	{.name = "BMC root entry hash",
+	 .sysfs = "*bmc_root_entry_hash"
+	},
+	{.name = "BMC CSK IDs canceled",
+	 .sysfs = "*bmc_canceled_csks"
+	},
+	{.name = "PR root entry hash",
+	 .sysfs = "*pr_root_entry_hash"
+	},
+	{.name = "AFU/PR CSK IDs canceled",
+	 .sysfs = "*pr_canceled_csks"
+	},
+	{.name = "FIM root entry hash",
+	 .sysfs = "*sr_root_entry_hash"
+	},
+	{.name = "FIM CSK IDs canceled",
+	 .sysfs = "*sr_canceled_csks"
+	},
+	{.name = "User flash update counter",
+	 .sysfs = "*flash_count"
+	}
+};
+
 // boot page info sysfs
 #define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
@@ -271,6 +303,9 @@ fpga_result print_sec_info(fpga_token token)
 	fpga_result res                   = FPGA_OK;
 	fpga_result resval                = FPGA_OK;
 	fpga_object tcm_object;
+	char name[SYSFS_PATH_MAX]         = { 0 };
+	char sysfs_path[SYSFS_PATH_MAX]   = { 0 };
+	int i                             = 0;
 
 	res = fpgaTokenGetObject(token, DFL_SEC_PMCI_GLOB, &tcm_object,
 		FPGA_OBJECT_GLOB);
@@ -280,6 +315,31 @@ fpga_result print_sec_info(fpga_token token)
 	}
 	printf("********** SEC Info START ************ \n");
 
+	for (i = 0; i < SEC_ARRAY_MAX_SIZE; i++)
+	{
+		memset(name, 0, sizeof(name));
+		memset(sysfs_path, 0, sizeof(sysfs_path));
+
+		if (snprintf(sysfs_path, sizeof(sysfs_path),
+			"%s/%s", DFL_SEC_PMCI_GLOB, sec_key_data[i].sysfs) < 0) {
+			OPAE_ERR("snprintf failed");
+			resval = FPGA_EXCEPTION;
+			goto exit;
+		}
+
+		res = read_sysfs(token, sysfs_path, name, SYSFS_PATH_MAX - 1);
+		if (res == FPGA_OK) {
+			printf("%-32s : %s\n", sec_key_data[i].name,
+				strlen(name) > 0 ? name : "None");
+		}
+		else {
+			OPAE_MSG("Failed to Read %s", sec_key_data[i].name);
+			printf("%-32s : %s\n", sec_key_data[i].name, "None");
+			resval = res;
+		}
+	}
+
+exit:
 	res = fpgaDestroyObject(&tcm_object);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to Destroy Object");
