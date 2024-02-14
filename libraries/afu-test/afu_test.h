@@ -204,13 +204,12 @@ public:
     // This is to allow access to OPAE-API functions that are only supported
     // through the xfpga plugin (i.e accessing sysfs entries)
     // In contrast, the ACCELERATOR token may be underlied by the vfio plugin.
-    
+    // Set PCIe segment, bus, and device properties to enumerate FPGA DEVICE (FME)
     if (!pci_addr_.empty()) {
       auto p = pcie_address::parse(pci_addr_.c_str());
       filter->segment = p.fields.domain;
       filter->bus = p.fields.bus;
       filter->device = p.fields.device;
-      filter->function = p.fields.function;
     }
 
     filter->type = FPGA_DEVICE;
@@ -242,7 +241,12 @@ public:
 
     // The following code attempts to get a token + handle for the AFU 
     // (ACCELERATOR device) matching the given command's afu_id.
-    // We reuse the PCIe SBDF addressing from above.
+    // Set PCIe segment, bus, device, and functionproperties to enumerate FPGA ACCELERATOR 
+    if (!pci_addr_.empty()) {
+        auto p = pcie_address::parse(pci_addr_.c_str());
+        filter->function = p.fields.function;
+    }
+
     auto app_afu_id = afu_id ? afu_id : afu_id_.c_str();
     filter->type = FPGA_ACCELERATOR;
     try {
