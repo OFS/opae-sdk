@@ -121,6 +121,8 @@ class progress(loggable):
             function, otherwise, None.
         """
         percent = int(pct*100)
+        if percent > 100:
+            percent = 100
         num_bars = int(pct*self._total_bars)
         bars = self.BAR*num_bars
         spaces = ' '*(self._total_bars - num_bars)
