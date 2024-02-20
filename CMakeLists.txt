@@ -881,7 +881,8 @@ endif(NOT DEFINED OPAE_MINIMAL_BUILD)
 ############################################################################
 install(DIRECTORY include/opae
     DESTINATION include
-    COMPONENT libopaeheaders)
+    COMPONENT libopaeheaders
+    PATTERN .clang-format EXCLUDE)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${CMAKE_BINARY_DIR}/include/config.h")
