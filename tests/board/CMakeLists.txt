@@ -48,12 +48,14 @@ opae_test_add_static_lib(TARGET board-d5005-static
     SOURCE ${OPAE_LIB_SOURCE}/libboard/board_d5005/board_d5005.c
     LIBS
         opae-c
+        opaeuio
 )
 
 opae_test_add_static_lib(TARGET board-n5010-static
     SOURCE ${OPAE_LIB_SOURCE}/libboard/board_n5010/board_n5010.c
     LIBS
         opae-c
+        opaeuio
 )
 
 opae_test_add_static_lib(TARGET board-n6000-static
