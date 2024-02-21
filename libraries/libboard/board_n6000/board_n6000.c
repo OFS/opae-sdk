@@ -36,7 +36,6 @@
 #include <opae/fpga.h>
 #include <netinet/ether.h>
 #include <net/ethernet.h>
-#include <opae/uio.h>
 #include "../board_common/board_common.h"
 #include "board_event_log.h"
 #include "board_n6000.h"
@@ -68,16 +67,6 @@
 #define DFL_SEC_SR_SDM_ROOT       DFL_SEC_PMCI_GLOB "sr_sdm_root_entry_hash"
 
 
-#define HSSI_FEATURE_ID                  0x15
-#define HSSI_100G_PROFILE                       27
-#define HSSI_25G_PROFILE                        21
-#define HSSI_10_PROFILE                         20
-
-#define HSSI_FEATURE_LIST                       0xC
-#define HSSI_PORT_ATTRIBUTE                     0x10
-#define HSSI_VERSION                            0x8
-#define HSSI_PORT_STATUS                        0x818
-
 // boot page info sysfs
 #define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
@@ -87,7 +76,6 @@
 #define IMAGE_INFO_STRIDE 4096
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
-#define GET_BIT(var, pos) ((var >> pos) & (1))
 
 // event log
 #define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log*/nvmem"
@@ -95,163 +83,6 @@
 // BOM info
 #define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info*/nvmem"
 #define FPGA_BOM_INFO_BUF_LEN   0x2000
-
-#define DFH_CSR_ADDR                  0x18
-#define DFH_CSR_SIZE                  0x20
-
-// hssi version
-struct hssi_version {
-	union {
-		uint32_t csr;
-		struct {
-			uint32_t rsvd : 8;
-			uint32_t minor : 8;
-			uint32_t major : 16;
-		};
-	};
-};
-
-//Physical Port Enable
-/*
-[6] - Port 0 Enable
-[7] - Port 1 Enable
-:
-[21] - Port 15 Enable
-*/
-#define PORT_ENABLE_COUNT 20
-
-// hssi feature list CSR
-struct hssi_feature_list {
-	union {
-		uint32_t csr;
-		struct {
-			uint32_t axi4_support : 1;
-			uint32_t hssi_num : 5;
-			uint32_t port_enable : 20;
-			uint32_t reserved : 6;
-		};
-	};
-};
-
-// hssi port attribute CSR
-//Interface Attribute Port X Parameters, X =0-15
-//Byte Offset: 0x10 + X * 4
-struct hssi_port_attribute {
-	union {
-		uint32_t csr;
-		struct {
-			uint32_t profile : 6;
-			uint32_t ready_latency : 4;
-			uint32_t data_bus_width : 3;
-			uint32_t low_speed_mac : 2;
-			uint32_t dynamic_pr : 1;
-			uint32_t sub_profile : 5;
-			uint32_t reserved : 11;
-		};
-	};
-};
-
-//HSSI Ethernet Port Status
-//Byte Offset: 0x818
-struct hssi_port_status {
-	union {
-		uint64_t csr;
-		struct {
-			uint64_t txplllocked : 16;
-			uint64_t txlanestable : 16;
-			uint64_t rxpcsready : 16;
-			uint64_t reserved : 16;
-		};
-	};
-};
-
-
-struct dfh {
-	union {
-		uint64_t csr;
-		struct {
-			uint64_t id : 12;
-			uint64_t feature_rev : 4;
-			uint64_t next : 24;
-			uint64_t eol : 1;
-			uint64_t reserved41 : 7;
-			uint64_t feature_minor_rev : 4;
-			uint64_t dfh_version : 8;
-			uint64_t type : 4;
-		};
-	};
-};
-
-struct dfh_csr_addr {
-	union {
-		uint32_t csr;
-		struct {
-			uint64_t rel : 1;
-			uint64_t addr : 63;
-		};
-	};
-};
-
-struct dfh_csr_group {
-	union {
-		uint32_t csr;
-		struct {
-			uint64_t instance_id : 16;
-			uint64_t grouping_id : 15;
-			uint64_t has_params : 1;
-			uint64_t csr_size : 32;
-		};
-	};
-};
-
-
-
-typedef struct hssi_port_profile {
-
-	uint32_t port_index;
-	char profile[FPGA_VAR_BUF_LEN];
-
-} hssi_port_profile;
-
-#define HSS_PORT_PROFILE_SIZE 34
-
-hssi_port_profile hssi_port_profiles[] = {
-
-	{.port_index = 0, .profile = "LL100G"},
-	{.port_index = 1, .profile = "Ultra100G"},
-	{.port_index = 2, .profile = "LL50G"},
-	{.port_index = 3, .profile = "LL40G"},
-	{.port_index = 4, .profile = "Ultra40G"},
-	{.port_index = 5, .profile = "25_50G"},
-	{.port_index = 6, .profile = "10_25G"},
-	{.port_index = 7, .profile = "MRPHY"},
-	{.port_index = 8, .profile = "LL10G"},
-	{.port_index = 9, .profile = "TSE PCS"},
-	{.port_index = 10, .profile = "TSE MAC"},
-	{.port_index = 11, .profile = "Flex-E"},
-	{.port_index = 12, .profile = "OTN"},
-	{.port_index = 13, .profile = "General PCS-Direct"},
-	{.port_index = 14, .profile = "General FEC-Direct"},
-	{.port_index = 15, .profile = "General PMA-Direct"},
-	{.port_index = 16, .profile = "MII"},
-	{.port_index = 17, .profile = "Ethernet PCS-Direct"},
-	{.port_index = 18, .profile = "Ethernet FEC-Direct"},
-	{.port_index = 19, .profile = "Ethernet PMA-Direct"},
-	{.port_index = 20, .profile = "10GbE"},
-	{.port_index = 21, .profile = "25GbE"},
-	{.port_index = 22, .profile = "40GCAUI-4"},
-	{.port_index = 23, .profile = "50GAUI-2"},
-	{.port_index = 24, .profile = "50GAUI-1"},
-	{.port_index = 25, .profile = "100GAUI-1"},
-	{.port_index = 26, .profile = "100GAUI-2"},
-	{.port_index = 27, .profile = "100GCAUI-4"},
-	{.port_index = 28, .profile = "200GAUI-2"},
-	{.port_index = 29, .profile = "200GAUI-4"},
-	{.port_index = 30, .profile = "200GAUI-8"},
-	{.port_index = 31, .profile = "400GAUI-4"},
-	{.port_index = 32, .profile = "400GAUI-8"},
-	{.port_index = 33, .profile = "CPRI"}
- };
 
 
 // Parse firmware version
@@ -505,42 +336,7 @@ fpga_result print_board_info(fpga_token token)
 // print phy group information
 fpga_result print_phy_info(fpga_token token)
 {
-	fpga_result res = FPGA_OK;
-	struct opae_uio uio;
-	char feature_dev[SYSFS_PATH_MAX] = { 0 };
-	uint8_t *mmap_ptr = NULL;
-
-	res = qsfp_cable_status(token);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to find QSFP cable info");
-	}
-
-	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to find feature HSSI");
-		return res;
-	}
-
-	res = opae_uio_open(&uio, feature_dev);
-	if (res) {
-		OPAE_ERR("Failed to open uio");
-		return res;
-	}
-
-	res = opae_uio_region_get(&uio, 0, (uint8_t **)&mmap_ptr, NULL);
-	if (res) {
-		OPAE_ERR("Failed to get uio region");
-		opae_uio_close(&uio);
-		return res;
-	}
-
-	res = print_hssi_port_status(mmap_ptr);
-	if (res) {
-		OPAE_ERR("Failed to read hssi port status");
-	}
-
-	opae_uio_close(&uio);
-	return res;
+	return print_common_phy_info(token);
 }
 
 // Sec info
@@ -869,88 +665,3 @@ out:
 	return FPGA_OK;
 }
 
-fpga_result print_hssi_port_status(uint8_t *uio_ptr)
-{
-	uint32_t i                     = 0;
-	uint32_t k                     = 0;
-	uint32_t ver_offset            = 0;
-	uint32_t feature_list_offset   = 0;
-	uint32_t port_sts_offset       = 0;
-	uint32_t port_attr_offset      = 0;
-	struct dfh dfh_csr;
-	struct dfh_csr_addr csr_addr;
-	struct hssi_port_attribute port_profile;
-	struct hssi_feature_list  feature_list;
-	struct hssi_version  hssi_ver;
-	struct hssi_port_status port_status;
-
-	if (uio_ptr == NULL) {
-		OPAE_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	dfh_csr.csr = *((uint64_t *)(uio_ptr + 0x0));
-	// dfhv0
-	if ((dfh_csr.feature_rev == 0) ||
-		(dfh_csr.feature_rev == 0x1)) {
-		ver_offset = HSSI_VERSION;
-		feature_list_offset = HSSI_FEATURE_LIST;
-		port_sts_offset = HSSI_PORT_STATUS;
-		port_attr_offset = HSSI_PORT_ATTRIBUTE;
-	} else if ((dfh_csr.feature_rev >= 0x2) && (dfh_csr.feature_rev < 0xf)) { // dfhv0.5
-		csr_addr.csr = *((uint64_t *)(uio_ptr + DFH_CSR_ADDR));
-		ver_offset = csr_addr.addr;
-		feature_list_offset = csr_addr.addr + 0x4;
-		port_sts_offset = HSSI_PORT_STATUS;
-		port_attr_offset = csr_addr.addr + 0x8;
-
-	} else {
-		printf("DFH feature revision not supported:%x \n", dfh_csr.feature_rev);
-		return FPGA_NOT_SUPPORTED;
-	}
-
-	feature_list.csr = *((uint32_t *)(uio_ptr + feature_list_offset));
-	hssi_ver.csr = *((uint32_t *)(uio_ptr + ver_offset));
-	port_status.csr = *((volatile uint64_t *)(uio_ptr
-		+ port_sts_offset));
-
-	printf("//****** HSSI information ******//\n");
-	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
-	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
-
-	for (i = 0; i < PORT_ENABLE_COUNT; i++) {
-
-		// prints only active/enabled ports
-		if ((GET_BIT(feature_list.port_enable, i) == 0)) {
-			continue;
-		}
-
-		port_profile.csr = *((volatile uint32_t *)(uio_ptr +
-			port_attr_offset + i * 4));
-
-		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
-			printf("Port%-28d :%s\n", i, "N/A");
-			continue;
-		}
-
-		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
-			if (hssi_port_profiles[j].port_index == port_profile.profile) {
-				// lock, tx, rx bits set - link status UP
-				// lock, tx, rx bits not set - link status DOWN
-				if ((GET_BIT(port_status.txplllocked, k) == 1) &&
-					(GET_BIT(port_status.txlanestable, k) == 1) &&
-					(GET_BIT(port_status.rxpcsready, k) == 1)) {
-					printf("Port%-28d :%-12s %s\n", i,
-						hssi_port_profiles[j].profile, "UP");
-				} else {
-					printf("Port%-28d :%-12s %s\n", i,
-						hssi_port_profiles[j].profile, "DOWN");
-				}
-				k++;
-				break;
-			}
-		}
-	}
-
-	return FPGA_OK;
-}
