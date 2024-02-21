@@ -293,6 +293,13 @@ STATIC libopae_config_data default_libopae_config_table[] = {
 	{ 0x8086, 0xbccf, 0x8086,          0x0000,          "libopae-u.so", "{}", 0 }, // OFS
 
 
+	{ 0x8086, 0xbcce, 0x8086,          0x0001,          "libxfpga.so",  "{}", 0 }, // OFS
+	{ 0x8086, 0xbcce, 0x8086,          0x0001,          "libopae-v.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbccf, 0x8086,          0x0001,          "libopae-v.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbcce, 0x8086,          0x0001,          "libopae-u.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbccf, 0x8086,          0x0001,          "libopae-u.so", "{}", 0 }, // OFS
+
+
 	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libxfpga.so",  "{}", 0 }, // N6000
 	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
 	{ 0x8086, 0xbccf, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
@@ -438,8 +445,15 @@ STATIC fpgainfo_config_data default_fpgainfo_config_table[] = {
 
 	{ 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_c6100.so", NULL,
 	"Intel IPU Platform F2000X-PL" },
-    { 0x8086, 0x0ddb, 0x8086, 0x0, 0x23, "libboard_cmc.so", NULL,
+
+	{ 0x8086, 0x0ddb, 0x8086, 0x0, 0x23, "libboard_cmc.so", NULL,
 	"Intel Acceleration Development Platform CMC" },
+
+	{ 0x8086, 0xbcce, 0x8086, 0x0001, 0x0, "libboard_jtag_pci_dk.so", NULL,
+	"Intel Acceleration Development Platform 0001" },
+
+	{ 0x8086, 0xbccf, 0x8086, 0x0001, 0x0, "libboard_jtag_pci_dk.so", NULL,
+	"Intel Acceleration Development Platform 0001" },
 
 	{ 0,      0, 0, 0, -1,         NULL, NULL, "" }
 };

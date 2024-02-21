@@ -185,6 +185,7 @@ done
 %{_libdir}/opae/libboard_d5005.so
 %{_libdir}/opae/libboard_n5010.so
 %{_libdir}/opae/libboard_n6000.so
+%{_libdir}/opae/libboard_jtag_pci_dk.so
 %{_libdir}/opae/libboard_c6100.so
 %{_libdir}/opae/libboard_cmc.so
 
