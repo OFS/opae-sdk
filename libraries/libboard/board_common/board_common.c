@@ -202,7 +202,7 @@ typedef struct hssi_port_profile {
 
 #define HSS_PORT_PROFILE_SIZE 34
 
-hssi_port_profile hssi_port_profiles[] = {
+static hssi_port_profile hssi_port_profiles[] = {
 
 	{.port_index = 0, .profile = "LL100G"},
 	{.port_index = 1, .profile = "Ultra100G"},
@@ -975,7 +975,7 @@ fpga_result qsfp_cable_status(const fpga_token token)
 	return res;
 }
 
-fpga_result print_hssi_port_status(uint8_t *uio_ptr)
+static fpga_result print_hssi_port_status(uint8_t *uio_ptr)
 {
 	uint32_t i                     = 0;
 	uint32_t k                     = 0;
