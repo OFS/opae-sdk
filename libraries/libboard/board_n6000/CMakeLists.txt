@@ -32,7 +32,6 @@ opae_add_module_library(TARGET board_n6000
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
-        opaeuio
         board_common
     COMPONENT opaeboardlib
 )
