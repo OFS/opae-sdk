@@ -172,6 +172,7 @@ public:
   , shared_(false)
   , timeout_msec_(60000)
   , handle_(nullptr)
+  , handle_device_(nullptr)
   , current_command_(nullptr)
   {
     if (!afu_id_.empty())
@@ -196,8 +197,53 @@ public:
     return fpga::properties::get(handle_);
   }
 
+  bool enum_fpga_device()
+  {
+    auto filter = fpga::properties::get(); // Get an empty properties object
+
+                                             // The following code attempts to get a token+handle for the DEVICE.
+    // This is to allow access to OPAE-API functions that are only supported
+    // through the xfpga plugin (i.e accessing sysfs entries)
+    // In contrast, the ACCELERATOR token may be underlied by the vfio plugin.
+    // Set PCIe segment, bus, and device properties to enumerate FPGA DEVICE (FME)
+    if (!pci_addr_.empty()) {
+        auto p = pcie_address::parse(pci_addr_.c_str());
+        filter->segment = p.fields.domain;
+        filter->bus = p.fields.bus;
+        filter->device = p.fields.device;
+    }
+
+    filter->type = FPGA_DEVICE;
+    auto tokens = fpga::token::enumerate({ filter });
+
+    // Error out if the # of tokens != 1
+    if (tokens.size() < 1) {
+        logger_->info("Not found FPGA DEVICE");
+        return false;
+    }
+
+    if (tokens.size() > 1) {
+        std::cout << "more than one FPGA DEVICE found \n";
+        return false;
+    }
+
+    int flags = shared_ ? FPGA_OPEN_SHARED : 0;
+    // Open a handle to the resource
+    try {
+        handle_device_ = fpga::handle::open(tokens[0], flags);
+    }
+    catch (fpga::no_access& err) {
+        std::cerr << err.what() << "\n";
+        return false;
+    }
+    return true;
+  }
+
   int open_handle(const char *afu_id) {
-    
+
+    if (!enum_fpga_device()) {
+        std::cout << "Not Found FME device\n";
+    }
     auto filter = fpga::properties::get(); // Get an empty properties object
 
     // The following code attempts to get a token+handle for the DEVICE.
@@ -210,41 +256,7 @@ public:
       filter->segment = p.fields.domain;
       filter->bus = p.fields.bus;
       filter->device = p.fields.device;
-    }
-
-    filter->type = FPGA_DEVICE;
-    auto tokens = fpga::token::enumerate({filter});
-
-    // Error out if the # of tokens != 1
-    if (tokens.size() < 1) {
-      if (pci_addr_.empty()) {
-        logger_->error("no DEVICE found");
-      } else {
-        logger_->error("no accelerator found at PCIe address {1}",
-            pci_addr_);
-      }
-      return exit_codes::not_found;
-    }    
-
-    if (tokens.size() > 1) {
-      std::cerr << "more than one DEVICE found matching filter\n";
-    }
-    int flags = shared_ ? FPGA_OPEN_SHARED : 0;
-    
-    // Open a handle to the resource
-    try {
-      handle_device_ = fpga::handle::open(tokens[0], flags);
-    } catch (fpga::no_access &err) {
-      std::cerr << err.what() << "\n";
-      return exit_codes::no_access;
-    }
-
-    // The following code attempts to get a token + handle for the AFU 
-    // (ACCELERATOR device) matching the given command's afu_id.
-    // Set PCIe segment, bus, device, and functionproperties to enumerate FPGA ACCELERATOR 
-    if (!pci_addr_.empty()) {
-        auto p = pcie_address::parse(pci_addr_.c_str());
-        filter->function = p.fields.function;
+      filter->function = p.fields.function;
     }
 
     auto app_afu_id = afu_id ? afu_id : afu_id_.c_str();
@@ -255,7 +267,7 @@ public:
       return error;
     }
 
-    tokens = fpga::token::enumerate({filter});
+    auto tokens = fpga::token::enumerate({filter});
     if (tokens.size() < 1) {
       if (pci_addr_.empty()) {
         logger_->error("no accelerator found with id: {0}", app_afu_id);
@@ -266,10 +278,7 @@ public:
       return exit_codes::not_found;
     }
 
-    if (tokens.size() > 1) {
-      std::cerr << "more than one accelerator found matching filter\n";
-    }
-    
+    int flags = shared_ ? FPGA_OPEN_SHARED : 0;
     try {
       handle_ = fpga::handle::open(tokens[0], flags);
     } catch (fpga::no_access &err) {
