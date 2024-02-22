@@ -848,6 +848,9 @@ public:
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         token_device_ = d_afu->get_token_device();
 
+        if (!token_device_)
+            return;
+
         // Check if memory calibration has failed and error out before proceeding
         // with the test. The dfl-emif driver creates sysfs entries to report the
         // calibration status for each memory channel. sysobjects are the OPAE-API's
@@ -865,28 +868,27 @@ public:
         // strange and perhaps unnecessary limitation. Therefore, future work is to
         // fix that and clean up the code below.
 
-        if (token_device_) {
-            for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
-                std::stringstream mem_cal_glob;
-                // Construct the glob string to search for the cal_fail sysfs entry
-                // for the i'th mem channel
-                mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
-                // Ask for a sysobject with this glob string
-                fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
-                    token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
+        for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
+            std::stringstream mem_cal_glob;
+            // Construct the glob string to search for the cal_fail sysfs entry
+            // for the i'th mem channel
+            mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
+            // Ask for a sysobject with this glob string
+            fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
+                token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
 
-                // if test obj !=null, the sysfs entry was found.
-                // Read the calibration status from the sysfs entry.
-                // A non-zero value (typically '1') means
-                // calibration has failed --> we error out.
-                if (testobj && testobj->read64(0)) {
-                    std::cout
-                        << "This sysfs entry reports that memory calibration has failed:"
-                        << mem_cal_glob.str().c_str() << std::endl;
-                    return;
-                }
+            // if test obj !=null, the sysfs entry was found.
+            // Read the calibration status from the sysfs entry.
+            // A non-zero value (typically '1') means
+            // calibration has failed --> we error out.
+            if (testobj && testobj->read64(0)) {
+                std::cout
+                    << "This sysfs entry reports that memory calibration has failed:"
+                    << mem_cal_glob.str().c_str() << std::endl;
+                return;
             }
         }
+
     }
 
 protected:

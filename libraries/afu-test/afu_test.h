@@ -218,12 +218,12 @@ public:
 
     // Error out if the # of tokens != 1
     if (tokens.size() < 1) {
-        logger_->info("Not found FPGA DEVICE");
+        logger_->info("no FPGA DEVICE found");
         return false;
     }
 
     if (tokens.size() > 1) {
-        std::cout << "more than one FPGA DEVICE found \n";
+        logger_->info("more than one FPGA DEVICE found ");
         return false;
     }
 
@@ -241,9 +241,8 @@ public:
 
   int open_handle(const char *afu_id) {
 
-    if (!enum_fpga_device()) {
-        std::cout << "Not Found FME device\n";
-    }
+     enum_fpga_device();
+
     auto filter = fpga::properties::get(); // Get an empty properties object
 
     // The following code attempts to get a token+handle for the DEVICE.
