@@ -241,7 +241,7 @@ public:
 
   int open_handle(const char *afu_id) {
 
-     enum_fpga_device();
+    enum_fpga_device();
 
     auto filter = fpga::properties::get(); // Get an empty properties object
 
