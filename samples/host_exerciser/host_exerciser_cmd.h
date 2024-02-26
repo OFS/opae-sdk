@@ -737,46 +737,8 @@ public:
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
         token_ = d_afu->get_token();
-        token_device_ = d_afu->get_token_device();
 
-        // Check if memory calibration has failed and error out before proceeding
-        // with the test. The dfl-emif driver creates sysfs entries to report the
-        // calibration status for each memory channel. sysobjects are the OPAE-API's
-        // abstraction for sysfs entries. However, at this time, these are only
-        // accessible through tokens that use the xfpga plugin and not the vfio
-        // plugin. Hence our use of the DEVICE token (token_device_). One
-        // non-ideality of the following implementation is the use of
-        // MAX_NUM_MEM_CHANNELS. We are essentially doing a brute-force query of
-        // sysfs entries since we don't know how many mem channels exist on the
-        // given platform. What about glob wildcards? Why not simply glob for
-        // "*dfl*/**/inf*_cal_fail" and use the OPAE-API's support for arrays of
-        // sysobjects? The reason is that, at the time of this writing, the
-        // xfpga-plugin's sysobject implementation does not support arrays
-        // specifically when the glob contains a recursive wildcard "/**/". It's a
-        // strange and perhaps unnecessary limitation. Therefore, future work is to
-        // fix that and clean up the code below.
-        for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
-          std::stringstream mem_cal_glob;
-          // Construct the glob string to search for the cal_fail sysfs entry
-          // for the i'th mem channel
-          mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
-          // Ask for a sysobject with this glob string
-          fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
-              token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
-
-          // if test obj !=null, the sysfs entry was found.
-          // Read the calibration status from the sysfs entry.
-          // A non-zero value (typically '1') means
-          // calibration has failed --> we error out.
-          if (testobj && testobj->read64(0)) { 
-            std::cout
-                << "This sysfs entry reports that memory calibration has failed:"
-                << mem_cal_glob.str().c_str() << std::endl;
-            return -1;
-          }
-        }
-
-
+        fpga_emif_status(afu);
         // Read HW details
         uint64_t he_info = host_exe_->read64(HE_INFO0);
         he_lpbk_api_ver_ = (he_info >> 16);
@@ -879,6 +841,54 @@ public:
             status = run_single_test();
 
         return status;
+    }
+	
+    void fpga_emif_status(test_afu* afu)
+    {
+        auto d_afu = dynamic_cast<host_exerciser*>(afu);
+        token_device_ = d_afu->get_token_device();
+
+        if (!token_device_)
+            return;
+
+        // Check if memory calibration has failed and error out before proceeding
+        // with the test. The dfl-emif driver creates sysfs entries to report the
+        // calibration status for each memory channel. sysobjects are the OPAE-API's
+        // abstraction for sysfs entries. However, at this time, these are only
+        // accessible through tokens that use the xfpga plugin and not the vfio
+        // plugin. Hence our use of the DEVICE token (token_device_). One
+        // non-ideality of the following implementation is the use of
+        // MAX_NUM_MEM_CHANNELS. We are essentially doing a brute-force query of
+        // sysfs entries since we don't know how many mem channels exist on the
+        // given platform. What about glob wildcards? Why not simply glob for
+        // "*dfl*/**/inf*_cal_fail" and use the OPAE-API's support for arrays of
+        // sysobjects? The reason is that, at the time of this writing, the
+        // xfpga-plugin's sysobject implementation does not support arrays
+        // specifically when the glob contains a recursive wildcard "/**/". It's a
+        // strange and perhaps unnecessary limitation. Therefore, future work is to
+        // fix that and clean up the code below.
+
+        for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
+            std::stringstream mem_cal_glob;
+            // Construct the glob string to search for the cal_fail sysfs entry
+            // for the i'th mem channel
+            mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
+            // Ask for a sysobject with this glob string
+            fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
+                token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
+
+            // if test obj !=null, the sysfs entry was found.
+            // Read the calibration status from the sysfs entry.
+            // A non-zero value (typically '1') means
+            // calibration has failed --> we error out.
+            if (testobj && testobj->read64(0)) {
+                std::cout
+                    << "This sysfs entry reports that memory calibration has failed:"
+                    << mem_cal_glob.str().c_str() << std::endl;
+                return;
+            }
+        }
+
     }
 
 protected:

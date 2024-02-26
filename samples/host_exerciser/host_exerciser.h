@@ -575,7 +575,9 @@ public:
 
   token::ptr_t get_token_device()
   {
-    return handle_device_->get_token();
+    if (handle_device_)
+        return handle_device_->get_token();
+    return nullptr;
   }
 
   bool option_passed(std::string option_str)
