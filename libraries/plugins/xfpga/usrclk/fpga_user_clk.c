@@ -135,7 +135,8 @@
 #define IOPLL_WRITE_POLL_TIMEOUT_US   1000000 /* Write poll timeout */
 
 #define USRCLK_FEATURE_ID             0x14
-const char USRCLK_GUID[]              = "FFFFFFFFFFFFFFFFEEEEEEEEEEEEEEEE";
+const char USRCLK_GUID[]                = "45AC5052C481412582380B8FF6C2F943";
+
 
  // DFHv0
 struct dfh {
@@ -160,12 +161,19 @@ static int using_iopll(char *sysfs_usrpath, const char *sysfs_path);
 
 bool is_file_empty(char* file_path) {
 	FILE *fp = fopen(file_path, "r");
-	if (feof(fp)){
+	if(fp == NULL){
+		printf("error opening file\n");
 		return 1;
-	} else{
+	}
+	int c = fgetc(fp);
+	if(c == EOF) {
+		fclose(fp);
+		return 1;
+	} else {
+		ungetc(c, fp);
+		fclose(fp);
 		return 0;
-	} 
-	fclose(fp);
+	}
 }
 
 fpga_result usrclk_reset(uint8_t *uio_ptr)
@@ -550,15 +558,34 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 	}
 
 	feature_gres = opae_glob(feature_path, GLOB_NOSORT, NULL, &feature_pglob);
-	//loop over feature_pglob.gl_pathv[i]check if above all files are empty, if all files empty then feature_gres = 1;
-	// need to do this because I see empty guid file in dfhv0 sysfs path - /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid
-	// its possible feature_id can be empty by some mistake which would need to be flagged
+	/* Loop over sysfs feature_id file paths to check if any file is not empty, if all files are empty then we need non empty guid file or it's an error;
+	   We need to do this because I see empty guid file in dfhv0 sysfs path eg - /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid
+	   It is possible feature_id can be empty by some mistake which would need to be flagged
+	*/
+	for (i = 0; i < feature_pglob.gl_pathc; i++) {
+		if(!is_file_empty(feature_pglob.gl_pathv[i])){
+			feature_gres = 0;
+			break;
+		} else{
+			feature_gres = 1;
+		}
+	}
 	
 	guid_gres    = opae_glob(guid_path, GLOB_NOSORT, NULL, &guid_pglob);
-	// loop over guid_pglob.gl_pathv[i]check if above all files are empty, if all files empty then guid_gres = 1;
-	// need to do this because I see empty guid file in dfhv0 sysfs path - /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid
-	printf("feature_gres = %d, guid gres = %d\n",feature_gres, guid_gres);
+	/* Loop over sysfs guid file paths to check if any file is not empty, if all files are empty then we need non empty feature_id file or it's an error;
+	   We need to do this because I see empty guid file in dfhv0 sysfs path eg - /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid
+	*/
+	for (i = 0; i < guid_pglob.gl_pathc; i++) {
+		if(!is_file_empty(guid_pglob.gl_pathv[i])){
+			guid_gres = 0;
+			break;
+		} else{
+			guid_gres = 1;
+		}
+	}
 
+	/* If we don't find guid or feature_id files in sysfs paths then error out
+	*/
 	if ((feature_gres) && (guid_gres)) {
 		OPAE_ERR("Failed pattern match feature id - %s: %s ,guid - %s: %s ",
 			feature_path, strerror(errno), guid_path, strerror(errno));
@@ -567,13 +594,12 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 		return FPGA_INVALID_PARAM;
 	} 
 
-	// guid gets priority over feature_id
-	// non-empty guid file being present in sysfs path (eg /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid) implies user is using dfhv1 IP
+	/* guid gets priority over feature_id
+	   non-empty guid file being present in sysfs path (eg /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid) implies user is using dfhv1 IP
+	*/
 	if (!guid_gres) {
-		printf("here 0\n");
 		pglob = guid_pglob;
 	} else {
-		printf("here 1\n");
 		pglob = feature_pglob;
 	}
 
@@ -602,7 +628,6 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 		}
 		
 		if ((value == feature_id) || (*guid == *userclk_guid)) {
-			printf("here 2\n");
 			res = FPGA_OK;
 			char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
 			if (p == NULL) {
