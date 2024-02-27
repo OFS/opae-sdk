@@ -135,7 +135,7 @@
 #define IOPLL_WRITE_POLL_TIMEOUT_US   1000000 /* Write poll timeout */
 
 #define USRCLK_FEATURE_ID             0x14
-const char USRCLK_GUID[]                = "45AC5052C481412582380B8FF6C2F943";
+const char USRCLK_GUID[]              = "45AC5052C481412582380B8FF6C2F943";
 
 
  // DFHv0
