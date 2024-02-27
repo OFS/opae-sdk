@@ -135,6 +135,7 @@
 #define IOPLL_WRITE_POLL_TIMEOUT_US   1000000 /* Write poll timeout */
 
 #define USRCLK_FEATURE_ID             0x14
+const char USRCLK_GUID[]              = "FFFFFFFFFFFFFFFFEEEEEEEEEEEEEEEE";
 
  // DFHv0
 struct dfh {
@@ -151,9 +152,21 @@ struct dfh {
 			uint64_t type : 4;
 		};
 	};
+	char guid_l[64];
+	char guid_h[64];
 };
 
 static int using_iopll(char *sysfs_usrpath, const char *sysfs_path);
+
+bool is_file_empty(char* file_path) {
+	FILE *fp = fopen(file_path, "r");
+	if (feof(fp)){
+		return 1;
+	} else{
+		return 0;
+	} 
+	fclose(fp);
+}
 
 fpga_result usrclk_reset(uint8_t *uio_ptr)
 {
@@ -501,15 +514,20 @@ fpga_result usrclk_calibrate(uint8_t *uio_ptr, uint8_t *seq)
 
 fpga_result get_usrclk_uio(const char *sysfs_path,
 	uint32_t feature_id,
+	const char* guid,
 	struct opae_uio *uio,
 	uint8_t **uio_ptr)
 {
 	fpga_result res                   = FPGA_NOT_FOUND;
 	char feature_path[SYSFS_PATH_MAX] = { 0 };
+	char guid_path[SYSFS_PATH_MAX]    = { 0 };
 	char dfl_dev_str[SYSFS_PATH_MAX]  = { 0 };
-	int gres, ret                     = 0;
+	int feature_gres, guid_gres,ret                     = 0;
 	size_t i                          = 0;
 	uint64_t value                    = 0;
+	char userclk_guid[128]            = { 0 };
+	glob_t feature_pglob;
+	glob_t guid_pglob;
 	glob_t pglob;
 
 	if (sysfs_path == NULL) {
@@ -524,29 +542,73 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 		return FPGA_EXCEPTION;
 	}
 
-	gres = opae_glob(feature_path, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		OPAE_ERR("Failed pattern match %s: %s",
-			feature_path, strerror(errno));
-		opae_globfree(&pglob);
+    if (snprintf(guid_path, sizeof(guid_path),
+		"%s/dfl_dev*/guid",
+		sysfs_path) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	feature_gres = opae_glob(feature_path, GLOB_NOSORT, NULL, &feature_pglob);
+	//loop over feature_pglob.gl_pathv[i]check if above all files are empty, if all files empty then feature_gres = 1;
+	// need to do this because I see empty guid file in dfhv0 sysfs path - /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid
+	// its possible feature_id can be empty by some mistake which would need to be flagged
+	
+	guid_gres    = opae_glob(guid_path, GLOB_NOSORT, NULL, &guid_pglob);
+	// loop over guid_pglob.gl_pathv[i]check if above all files are empty, if all files empty then guid_gres = 1;
+	// need to do this because I see empty guid file in dfhv0 sysfs path - /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid
+	printf("feature_gres = %d, guid gres = %d\n",feature_gres, guid_gres);
+
+	if ((feature_gres) && (guid_gres)) {
+		OPAE_ERR("Failed pattern match feature id - %s: %s ,guid - %s: %s ",
+			feature_path, strerror(errno), guid_path, strerror(errno));
+		opae_globfree(&feature_pglob);
+        opae_globfree(&guid_pglob);
 		return FPGA_INVALID_PARAM;
+	} 
+
+	// guid gets priority over feature_id
+	// non-empty guid file being present in sysfs path (eg /sys/class/fpga_region/region0/dfl-port.0/dfl_dev.0/guid) implies user is using dfhv1 IP
+	if (!guid_gres) {
+		printf("here 0\n");
+		pglob = guid_pglob;
+	} else {
+		printf("here 1\n");
+		pglob = feature_pglob;
 	}
 
 	for (i = 0; i < pglob.gl_pathc; i++) {
-		res = sysfs_read_u64(pglob.gl_pathv[i], &value);
-		if (res != FPGA_OK) {
-			OPAE_MSG("Failed to read sysfs value");
-			continue;
+		if (!guid_gres) {
+			int fd = open(pglob.gl_pathv[i],O_RDONLY);
+			if(fd == -1) {
+				OPAE_MSG("Could not open file %s\n", pglob.gl_pathv[i]);
+				continue;
+			}
+			ssize_t bytes_read = read(fd, userclk_guid, sizeof(userclk_guid));
+			if (bytes_read == -1) {
+				OPAE_MSG("Could not read from file %s\n",pglob.gl_pathv[i]);
+				continue;
+			}
+			if(close(fd) == -1) {
+				OPAE_MSG("Could not close file %s\n", pglob.gl_pathv[i]);
+				goto free;
+			}
+		} else {
+			res = sysfs_read_u64(pglob.gl_pathv[i], &value);
+			if (res != FPGA_OK) {
+				OPAE_MSG("Failed to read sysfs value");
+				continue;
+			}
 		}
-
-		if (value == feature_id) {
+		
+		if ((value == feature_id) || (*guid == *userclk_guid)) {
+			printf("here 2\n");
 			res = FPGA_OK;
 			char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
 			if (p == NULL) {
 				res = FPGA_NOT_FOUND;
 				goto free;
 			}
-
 			char *end = strchr(p, '/');
 			if (end == NULL) {
 				res = FPGA_NOT_FOUND;
@@ -574,7 +636,8 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 	}
 
 free:
-	opae_globfree(&pglob);
+	opae_globfree(&feature_pglob);
+	opae_globfree(&guid_pglob);
 	return res;
 }
 
@@ -616,6 +679,7 @@ fpga_result get_userclock(const char *sysfs_path,
 
 	result = get_usrclk_uio(sysfs_path,
 		USRCLK_FEATURE_ID,
+		USRCLK_GUID,
 		&uio,
 		&uio_ptr);
 	if (result != FPGA_OK) {
@@ -742,6 +806,7 @@ fpga_result set_userclock(const char *sysfs_path,
 
 	result = get_usrclk_uio(sysfs_path,
 		USRCLK_FEATURE_ID,
+		USRCLK_GUID,
 		&uio,
 		&uio_ptr);
 	if (result != FPGA_OK) {
@@ -827,6 +892,7 @@ fpga_result get_userclk_revision(const char *sysfs_path,
 	// get user clock dfh revision from UIO
 	result = get_usrclk_uio(sysfs_path,
 		USRCLK_FEATURE_ID,
+		USRCLK_GUID,
 		&uio,
 		&uio_ptr);
 	if (result == FPGA_OK) {
