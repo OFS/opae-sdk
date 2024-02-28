@@ -37,10 +37,8 @@ using opae::fpga::types::token;
 
 static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
 static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
-static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
-static const uint64_t LOG2_CL = 6;
 static const size_t LPBK1_DSM_SIZE = 2 * KB;
 static const size_t LPBK1_BUFFER_SIZE = 64 * KB;
 static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 64 * KB;
@@ -575,7 +573,9 @@ public:
 
   token::ptr_t get_token_device()
   {
-    return handle_device_->get_token();
+    if (handle_device_)
+        return handle_device_->get_token();
+    return nullptr;
   }
 
   bool option_passed(std::string option_str)

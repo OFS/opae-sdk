@@ -58,6 +58,8 @@ public:
           he_lpbk_cfg_.value = 0;
           he_lpbk_ctl_.value = 0;
           he_lpbk_max_reqlen_ = HOSTEXE_CLS_8;
+          he_lpbk_bus_bytes_ = 64;
+          he_lpbk_bus_bytes_log2_ = 6;
           he_lpbk_api_ver_ = 0;
           he_lpbk_atomics_supported_ = false;
           is_ase_sim_ = false;
@@ -119,13 +121,14 @@ public:
     }
 
     inline uint64_t cacheline_aligned_addr(uint64_t num) {
-        return num >> LOG2_CL;
+        return num >> he_lpbk_bus_bytes_log2_;
     }
 
     // Convert number of transactions to bandwidth (GB/s)
     double he_num_xfers_to_bw(uint64_t num_lines, uint64_t num_ticks)
     {
-        return (double)(num_lines * 64) / ((1000.0 / host_exe_->he_clock_mhz_ * num_ticks));
+        return (double)(num_lines * he_lpbk_bus_bytes_) /
+               ((1000.0 / host_exe_->he_clock_mhz_ * num_ticks));
     }
 
     inline uint64_t dsm_num_ticks(const volatile he_dsm_status *dsm_status)
@@ -167,7 +170,7 @@ public:
             else
                 num_cache_lines = dsm_num_reads(dsm_status) + dsm_num_writes(dsm_status);
         } else {
-            num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
+            num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * he_lpbk_bus_bytes_));
         }
 
         host_exerciser_status();
@@ -250,13 +253,13 @@ public:
         // Compare and swap? If so, seed the source buffers with values will
         // match. The hardware tests uses the line index as the test.
         if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_CAS_4) {
-            for (uint32_t i = 0; i < buffer->size()/CL; i += 3) {
-                buffer->write<uint32_t>(i, i*CL);
+            for (uint32_t i = 0; i < buffer->size()/he_lpbk_bus_bytes_; i += 3) {
+                buffer->write<uint32_t>(i, i*he_lpbk_bus_bytes_);
             }
         }
         if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_CAS_8) {
-            for (uint32_t i = 0; i < buffer->size()/CL; i += 3) {
-                buffer->write<uint64_t>(i, i*CL);
+            for (uint32_t i = 0; i < buffer->size()/he_lpbk_bus_bytes_; i += 3) {
+                buffer->write<uint64_t>(i, i*he_lpbk_bus_bytes_);
             }
         }
 
@@ -265,9 +268,9 @@ public:
         // the value at the start of each line to the second position so
         // it can be used as a check later.
         if (he_lpbk_cfg_.AtomicFunc != HOSTEXE_ATOMIC_OFF) {
-            for (uint32_t i = 0; i < buffer->size()/CL; i += 1) {
-                uint64_t v = buffer->read<uint64_t>(i*CL);
-                buffer->write<uint64_t>(v ^ 0xabababababababab, i*CL + 8);
+            for (uint32_t i = 0; i < buffer->size()/he_lpbk_bus_bytes_; i += 1) {
+                uint64_t v = buffer->read<uint64_t>(i*he_lpbk_bus_bytes_);
+                buffer->write<uint64_t>(v ^ 0xabababababababab, i*he_lpbk_bus_bytes_ + 8);
             }
         }
     }
@@ -280,14 +283,14 @@ public:
         for (uint64_t i = 0; i < 8; i++)
         {
             std::cout << std::hex
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*7)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*6)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*5)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*4)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*3)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*2)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*1)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*7)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*6)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*5)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*4)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*3)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*2)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*1)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_)
                       << std::dec << std::endl;
         }
 
@@ -319,13 +322,13 @@ public:
         bool is_cas = (he_lpbk_cfg_.AtomicFunc & 0xc) == 8;
 
         // Ignore the last entry to work around an off by one copy error
-        for (uint64_t i = 0; i < source_->size()/CL; i += 1) {
+        for (uint64_t i = 0; i < source_->size()/he_lpbk_bus_bytes_; i += 1) {
             // In source_, the first entry in every line is the atomically modified
             // value. The second entry holds the original value, hashed with a constant
             // so it isn't a simple repetition.
-            uint64_t src_a = source_->read<uint64_t>(i*CL);
+            uint64_t src_a = source_->read<uint64_t>(i*he_lpbk_bus_bytes_);
             // Read the original value and reverse the hash.
-            uint64_t src_b = source_->read<uint64_t>(i*CL + 8) ^ 0xabababababababab;
+            uint64_t src_b = source_->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8) ^ 0xabababababababab;
             uint64_t upd_a = 0;
 
             // Compute expected value
@@ -360,7 +363,7 @@ public:
 
             // The destination is comparatively easy. For all functions it is
             // simply the original source value.
-            uint64_t dst_a = destination_->read<uint64_t>(i*CL);
+            uint64_t dst_a = destination_->read<uint64_t>(i*he_lpbk_bus_bytes_);
             if (size_is_4) {
                 src_b &= 0xffffffff;
                 dst_a &= 0xffffffff;
@@ -737,50 +740,18 @@ public:
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
         token_ = d_afu->get_token();
-        token_device_ = d_afu->get_token_device();
 
-        // Check if memory calibration has failed and error out before proceeding
-        // with the test. The dfl-emif driver creates sysfs entries to report the
-        // calibration status for each memory channel. sysobjects are the OPAE-API's
-        // abstraction for sysfs entries. However, at this time, these are only
-        // accessible through tokens that use the xfpga plugin and not the vfio
-        // plugin. Hence our use of the DEVICE token (token_device_). One
-        // non-ideality of the following implementation is the use of
-        // MAX_NUM_MEM_CHANNELS. We are essentially doing a brute-force query of
-        // sysfs entries since we don't know how many mem channels exist on the
-        // given platform. What about glob wildcards? Why not simply glob for
-        // "*dfl*/**/inf*_cal_fail" and use the OPAE-API's support for arrays of
-        // sysobjects? The reason is that, at the time of this writing, the
-        // xfpga-plugin's sysobject implementation does not support arrays
-        // specifically when the glob contains a recursive wildcard "/**/". It's a
-        // strange and perhaps unnecessary limitation. Therefore, future work is to
-        // fix that and clean up the code below.
-        for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
-          std::stringstream mem_cal_glob;
-          // Construct the glob string to search for the cal_fail sysfs entry
-          // for the i'th mem channel
-          mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
-          // Ask for a sysobject with this glob string
-          fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
-              token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
-
-          // if test obj !=null, the sysfs entry was found.
-          // Read the calibration status from the sysfs entry.
-          // A non-zero value (typically '1') means
-          // calibration has failed --> we error out.
-          if (testobj && testobj->read64(0)) { 
-            std::cout
-                << "This sysfs entry reports that memory calibration has failed:"
-                << mem_cal_glob.str().c_str() << std::endl;
-            return -1;
-          }
-        }
-
-
+        fpga_emif_status(afu);
         // Read HW details
         uint64_t he_info = host_exe_->read64(HE_INFO0);
         he_lpbk_api_ver_ = (he_info >> 16);
         std::cout << "API version: " << uint32_t(he_lpbk_api_ver_) << std::endl;
+
+        if (he_lpbk_api_ver_ >= 3) {
+            he_lpbk_bus_bytes_log2_ = 5 + ((he_info >> 25) & 3);
+            he_lpbk_bus_bytes_ = 1 << he_lpbk_bus_bytes_log2_;
+        }
+        std::cout << "Bus width: " << he_lpbk_bus_bytes_ << " bytes" << std::endl;
 
         // For atomics support, the version must not be zero and bit 24 must be 0.
         he_lpbk_atomics_supported_ = (he_lpbk_api_ver_ != 0) &&
@@ -870,7 +841,7 @@ public:
         std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
 
         // Number of cache lines
-        d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * CL)) -1);
+        d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * he_lpbk_bus_bytes_)) -1);
 
         int status = 0;
         if (host_exe_->he_test_all_)
@@ -879,6 +850,54 @@ public:
             status = run_single_test();
 
         return status;
+    }
+	
+    void fpga_emif_status(test_afu* afu)
+    {
+        auto d_afu = dynamic_cast<host_exerciser*>(afu);
+        token_device_ = d_afu->get_token_device();
+
+        if (!token_device_)
+            return;
+
+        // Check if memory calibration has failed and error out before proceeding
+        // with the test. The dfl-emif driver creates sysfs entries to report the
+        // calibration status for each memory channel. sysobjects are the OPAE-API's
+        // abstraction for sysfs entries. However, at this time, these are only
+        // accessible through tokens that use the xfpga plugin and not the vfio
+        // plugin. Hence our use of the DEVICE token (token_device_). One
+        // non-ideality of the following implementation is the use of
+        // MAX_NUM_MEM_CHANNELS. We are essentially doing a brute-force query of
+        // sysfs entries since we don't know how many mem channels exist on the
+        // given platform. What about glob wildcards? Why not simply glob for
+        // "*dfl*/**/inf*_cal_fail" and use the OPAE-API's support for arrays of
+        // sysobjects? The reason is that, at the time of this writing, the
+        // xfpga-plugin's sysobject implementation does not support arrays
+        // specifically when the glob contains a recursive wildcard "/**/". It's a
+        // strange and perhaps unnecessary limitation. Therefore, future work is to
+        // fix that and clean up the code below.
+
+        for (size_t i = 0; i < MAX_NUM_MEM_CHANNELS; i++) {
+            std::stringstream mem_cal_glob;
+            // Construct the glob string to search for the cal_fail sysfs entry
+            // for the i'th mem channel
+            mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
+            // Ask for a sysobject with this glob string
+            fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
+                token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
+
+            // if test obj !=null, the sysfs entry was found.
+            // Read the calibration status from the sysfs entry.
+            // A non-zero value (typically '1') means
+            // calibration has failed --> we error out.
+            if (testobj && testobj->read64(0)) {
+                std::cout
+                    << "This sysfs entry reports that memory calibration has failed:"
+                    << mem_cal_glob.str().c_str() << std::endl;
+                return;
+            }
+        }
+
     }
 
 protected:
@@ -892,6 +911,8 @@ protected:
     token::ptr_t token_;
     token::ptr_t token_device_;
     hostexe_req_len he_lpbk_max_reqlen_;
+    uint32_t he_lpbk_bus_bytes_;
+    uint32_t he_lpbk_bus_bytes_log2_;
     uint8_t he_lpbk_api_ver_;
     bool he_lpbk_atomics_supported_;
     bool is_ase_sim_;
