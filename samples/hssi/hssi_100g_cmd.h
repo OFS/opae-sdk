@@ -416,7 +416,9 @@ public:
 
     if (eth_ifc == "") {
       std::cout << "No eth interface, so not "
-                   "honoring --eth-loopback." << std::endl;
+                   "honoring --eth-loopback. "
+                   "Try using the hssiloopback command instead."
+                << std::endl;
     } else {
       if (eth_loopback_ == "on")
         enable_eth_loopback(eth_ifc, true);
@@ -506,7 +508,9 @@ public:
 
     if (eth_ifc == "") {
       std::cout << "No eth interface, so not "
-                   "showing stats." << std::endl;
+                   "showing stats. "
+                   "Try using the hssistats command instead."
+                << std::endl;
     } else {
       show_eth_stats(eth_ifc);
 
