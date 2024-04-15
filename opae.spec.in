@@ -215,6 +215,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/packager
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/userclk
+@CMAKE_INSTALL_PREFIX@/bin/qsfpinfo
 @CMAKE_INSTALL_PREFIX@/bin/hps
 @CMAKE_INSTALL_PREFIX@/bin/vabtool
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-srv.so*

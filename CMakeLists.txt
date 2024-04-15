@@ -982,6 +982,7 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgadiagapps
 	toolpackager
 	tooluserclk
+	toolqsfpinfo
 	toolras
 	toolcoreidle
 	toolmmlink
@@ -1049,6 +1050,7 @@ define_pkg(tools
   define_pkg(tools-extra
   COMPONENTS
   tooluserclk
+  toolqsfpinfo
   toolras
   toolmmlink
   toolcoreidle

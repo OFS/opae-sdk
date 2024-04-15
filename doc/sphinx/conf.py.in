@@ -164,6 +164,7 @@ man_pages = [
     ("docs/fpga_tools/hssi/hssi", 'hssi', u'High Speed Serial Interface', [author], 8),
     ("docs/fpga_tools/opaevfio/opaevfio", 'opaevfio', u'Bind/Unbind accelerator to/from vfio-pci', [author], 8),
     ("docs/fpga_tools/userclk/userclk", 'userclk', u'Set AFU high and low clock frequency', [author], 8),
+    ("docs/fpga_tools/qsfpinfo/qsfpinfo", 'qsfpinfo', u'Print QSFP EEPROM information', [author], 8),
     ("docs/fpga_tools/pci_device/pci_device", 'pci_device', u'Common operations for PCIe devices', [author], 8),
     ("docs/fpga_tools/opae.io/opae.io", 'opae.io', u'User space access to PCIe devices', [author], 8),
     ("docs/fpga_tools/host_exerciser/host_exerciser", 'host_exerciser', u'Host Exerciser lpbk and memory', [author], 8),
