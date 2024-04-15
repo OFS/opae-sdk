@@ -30,6 +30,7 @@ usr/bin/fpgaport
 usr/bin/super-rsu
 usr/bin/mmlink
 usr/bin/userclk
+usr/bin/qsfpinfo
 usr/bin/hello_fpga
 usr/bin/object_api
 usr/bin/hello_events
