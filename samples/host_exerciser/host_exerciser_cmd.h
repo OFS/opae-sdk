@@ -741,7 +741,6 @@ public:
 
         token_ = d_afu->get_token();
 
-        fpga_emif_status(afu);
         // Read HW details
         uint64_t he_info = host_exe_->read64(HE_INFO0);
         he_lpbk_api_ver_ = (he_info >> 16);
@@ -783,6 +782,9 @@ public:
             std::cerr << "Failed to parse input options" << std::endl;
             return ret;
         }
+
+        if (!is_ase_sim_)
+            fpga_emif_status(afu);
 
         // assert reset he-lpbk
         he_lpbk_ctl_.value = 0;
