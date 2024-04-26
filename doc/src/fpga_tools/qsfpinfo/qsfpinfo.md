@@ -9,6 +9,7 @@
 
 qsfpinfo prints QSFP EEPROM information for QSFP modules present in cards with qsfp feature (id 0x13) e.g. N6010, N6011, using the qsfp-mem driver.
 
+qsfpinfo only prints QSFP EEPROM information if OPAE-SDK is compiled with  "-DOPAE_WITH_QSFPINFO_QSFPPRINT=ON".
 ## EXAMPLES  ##
 
 ```sh
@@ -92,5 +93,5 @@ FPGA function number.
 
 | Date | Intel Acceleration Stack Version | Changes Made |
 |:------|----------------------------|:--------------|
-|2024.04.15| IOFS EA | Initial release. |
+|2024.04.26| IOFS EA | Initial release. |
 

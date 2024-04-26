@@ -24,50 +24,71 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET qsfpinfo
-    SOURCE
-        main.c
-        cmis_wrap.c
-        sff-common_wrap.c
-    LIBS
-        argsfilter
-        opae-c
-        m
-    COMPONENT toolqsfpinfo
-)
+if (OPAE_WITH_QSFPINFO_QSFPPRINT)
+
+    opae_add_executable(TARGET qsfpinfo
+        SOURCE
+            main.c
+            cmis_wrap.c
+            sff-common_wrap.c
+        LIBS
+            argsfilter
+            opae-c
+            m
+        COMPONENT toolqsfpinfo
+    )
+
+    include(ExternalProject)
+
+    ExternalProject_Add(
+        ethtool_project
+        GIT_REPOSITORY "https://git.kernel.org/pub/scm/network/ethtool/ethtool.git"
+        GIT_TAG "v6.7"
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
+    )
+
+    ExternalProject_Get_Property(ethtool_project SOURCE_DIR)
+
+    add_custom_target(get-ethtool-files
+        DEPENDS ethtool_project
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${SOURCE_DIR}/cmis.c"
+            "${SOURCE_DIR}/cmis.h"
+            "${SOURCE_DIR}/qsfp.c"
+            "${SOURCE_DIR}/qsfp.h"
+            "${SOURCE_DIR}/sff-common.c"
+            "${SOURCE_DIR}/sff-common.h"
+            "${SOURCE_DIR}/internal.h"
+            "${SOURCE_DIR}/json_print.h"
+            "${SOURCE_DIR}/json_writer.h" "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SOURCE_DIR}/netlink/extapi.h" "${CMAKE_CURRENT_SOURCE_DIR}/netlink/extapi.h"
+    )
+
+    target_compile_options(qsfpinfo PUBLIC
+        -D_QSFPPRINT
+    )
+
+    add_dependencies(qsfpinfo get-ethtool-files)
+
+else(OPAE_WITH_QSFPINFO_QSFPPRINT)
+
+    opae_add_executable(TARGET qsfpinfo
+        SOURCE
+            main.c
+        LIBS
+            argsfilter
+            opae-c
+            m
+        COMPONENT toolqsfpinfo
+    )
+
+endif(OPAE_WITH_QSFPINFO_QSFPPRINT)
 
 target_include_directories(qsfpinfo
     PRIVATE
         ${OPAE_LIB_SOURCE}/argsfilter
 )
 
-include(ExternalProject)
-
-ExternalProject_Add(
-    ethtool_project
-    GIT_REPOSITORY "https://git.kernel.org/pub/scm/network/ethtool/ethtool.git"
-    GIT_TAG "v6.7"
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    UPDATE_COMMAND ""
-)
-
-ExternalProject_Get_Property(ethtool_project SOURCE_DIR)
-
-add_custom_target(get-ethtool-files
-    DEPENDS ethtool_project
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SOURCE_DIR}/cmis.c"
-        "${SOURCE_DIR}/cmis.h"
-        "${SOURCE_DIR}/qsfp.c"
-        "${SOURCE_DIR}/qsfp.h"
-        "${SOURCE_DIR}/sff-common.c"
-        "${SOURCE_DIR}/sff-common.h"
-        "${SOURCE_DIR}/internal.h"
-        "${SOURCE_DIR}/json_print.h"
-        "${SOURCE_DIR}/json_writer.h" "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SOURCE_DIR}/netlink/extapi.h" "${CMAKE_CURRENT_SOURCE_DIR}/netlink/extapi.h"
-    )
-
-add_dependencies(qsfpinfo get-ethtool-files)
