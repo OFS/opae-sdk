@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef QSFPPRINT
 // From ethtool
 #undef HAVE_CONFIG_H
 #include "qsfp.c"
@@ -92,6 +93,7 @@ static int sff8636_show(const char * regmap_path)
 	fclose (fp);
 	return 0;
 }
+#endif
 
 // Define the function to be called when ctrl-c (SIGINT) signal is sent to
 // process
@@ -168,7 +170,6 @@ fpga_result qsfp_cable_status(const fpga_token token, const size_t port)
 	uint64_t value               = 0;
 	size_t i                     = 0;
 	char qsfp_path[LPATH_MAX]     = { 0 };
-	char regmap_path[LPATH_MAX]   = { 0 };
 	int retval                   = 0;
 	size_t qsfp_count            = 0;
 
@@ -201,6 +202,9 @@ fpga_result qsfp_cable_status(const fpga_token token, const size_t port)
 					break;
 				case 1:
 					printf("QSFP%-45ld : %s \n", qsfp_count, "Connected");
+
+#ifdef QSFPPRINT
+					char regmap_path[LPATH_MAX]   = { 0 };
 					retval = snprintf(regmap_path, sizeof(regmap_path),
 						REGMAP_PATH, i);
 					if (retval < 0) {
@@ -208,6 +212,7 @@ fpga_result qsfp_cable_status(const fpga_token token, const size_t port)
 						return FPGA_EXCEPTION;
 					}
 					sff8636_show(regmap_path);
+#endif
 					break;
 				default:
 					printf("QSFP%-28ld : %s \n", qsfp_count, "N/A");
