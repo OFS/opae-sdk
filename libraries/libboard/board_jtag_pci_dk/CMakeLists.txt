@@ -1,4 +1,4 @@
-## Copyright(c) 2021-2022, Intel Corporation
+## Copyright(c) 2024, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,19 +24,17 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_module_library(TARGET board_n6000
-    SOURCE
-        board_n6000.c
-        board_event_log.c
-        ${opae-test_ROOT}/framework/mock/opae_std.c
+opae_add_module_library(TARGET board_jtag_pci_dk
+    SOURCE board_jtag_pci_dk.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
+        opaeuio
         board_common
     COMPONENT opaeboardlib
 )
 
-target_include_directories(board_n6000
+target_include_directories(board_jtag_pci_dk
     PRIVATE
         ${OPAE_LIB_SOURCE}/libboard/board_common
 )

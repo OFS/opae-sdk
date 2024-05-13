@@ -25,6 +25,7 @@ usr/lib/opae/libboard_n3000.so
 usr/lib/opae/libboard_d5005.so
 usr/lib/opae/libboard_n5010.so
 usr/lib/opae/libboard_n6000.so
+usr/lib/opae/libboard_jtag_pci_dk.so
 usr/lib/opae/libboard_c6100.so
 usr/lib/opae/libboard_cmc.so
 usr/bin/fpgad

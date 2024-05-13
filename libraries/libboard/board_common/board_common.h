@@ -196,6 +196,14 @@ fpga_result reformat_bom_info(
 */
 fpga_result qsfp_cable_status(const fpga_token token);
 
+/**
+* prints common phy information, including qsfp_cable_status
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success.
+* FPGA_EXCEPTION if invalid sysfs path
+*/
+fpga_result print_common_phy_info(fpga_token token);
 
 #ifdef __cplusplus
 }

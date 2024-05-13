@@ -151,6 +151,24 @@ inline std::vector<std::string> spdlog_levels() {
 inline std::vector<std::string> spdlog_levels() { return SPDLOG_LEVEL_NAMES; }
 #endif // SPDLOG_VERSION
 
+// Dropping a logger is optional, but not doing so will cause an exception
+// when re-registering a logger with the same name, e.g., in test runs.
+class scoped_register_logger {
+ public:
+  scoped_register_logger(std::shared_ptr<spdlog::logger> logger)
+      : logger_(std::move(logger)) {
+    spdlog::register_logger(logger_);
+  }
+
+  ~scoped_register_logger() { spdlog::drop(logger_->name()); }
+
+  scoped_register_logger(scoped_register_logger const &) = delete;
+  void operator=(scoped_register_logger const &) = delete;
+
+ private:
+  std::shared_ptr<spdlog::logger> logger_;
+};
+
 class afu {
 public:
   typedef int (*command_fn)(afu *afu, CLI::App *app);
@@ -186,8 +204,6 @@ public:
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_str(std::to_string(timeout_msec_));
   }
   virtual ~afu() {
-    if (logger_)
-      spdlog::drop(logger_->name());
   }
 
   CLI::App & cli() { return app_; }
@@ -310,7 +326,7 @@ public:
 
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     logger_ = std::make_shared<spdlog::logger>(test->name(), console_sink);
-    spdlog::register_logger(logger_);
+    scoped_register_logger register_logger(logger_);
     logger_->set_level(spdlog::level::from_str(log_level_));
 
     int res = open_handle(test->afu_id());
