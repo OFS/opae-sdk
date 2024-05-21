@@ -76,6 +76,7 @@
 #define SENSOR_SYSFS_ID                      "id"
 #define SENSOR_SYSFS_VALUE                   "value"
 #define MILLI                                 1000
+#define MICRO                                 1000000
 
 #define  FPGA_DISCRETE_N3000_DEVICEID           0x0B30
 
