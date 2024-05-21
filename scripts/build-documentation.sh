@@ -3,7 +3,9 @@ set -x
 PYTHON_VERSION=$(python3 --version | cut -d ' ' -f2)
 
 #install requirements
-python3 -m pip install --user -r doc/sphinx/requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r doc/sphinx/requirements.txt
 if [ $? != 0 ];
 then
 	echo "failed to install Python requirements"
