@@ -116,7 +116,7 @@ registers:
   - - [CSR_CE2HOST_STATUS, 0x0130, 0x0000000000000000, DMA Status]
     - - [Reserved, [63, 13], RsvdZ, 0x0, Reserved]
       - [CE_IMG_ADDR_STS, [12, 11], RO, 0x0, "00 - Reset value\n
-                                              11 - Legal descriptor programming by host SW\n
+                                              01 - Legal descriptor programming by host SW\n
                                               10 - Illegal descriptor programming by host SW\n
                                               11 - Reserved\n
                                               This value is set to 1  by copy engine when the image source \n
