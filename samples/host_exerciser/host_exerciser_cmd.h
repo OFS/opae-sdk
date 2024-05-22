@@ -60,6 +60,8 @@ public:
           he_lpbk_max_reqlen_ = HOSTEXE_CLS_8;
           he_lpbk_bus_bytes_ = 64;
           he_lpbk_bus_bytes_log2_ = 6;
+          local_mem_bus_bytes_ = 64;
+          local_mem_bus_bytes_log2_ = 6;
           he_lpbk_api_ver_ = 0;
           he_lpbk_atomics_supported_ = false;
           is_ase_sim_ = false;
@@ -127,7 +129,8 @@ public:
     // Convert number of transactions to bandwidth (GB/s)
     double he_num_xfers_to_bw(uint64_t num_lines, uint64_t num_ticks)
     {
-        return (double)(num_lines * he_lpbk_bus_bytes_) /
+        uint32_t bus_bytes = is_he_mem_ ? local_mem_bus_bytes_ : he_lpbk_bus_bytes_;
+        return (double)(num_lines * bus_bytes) /
                ((1000.0 / host_exe_->he_clock_mhz_ * num_ticks));
     }
 
@@ -282,16 +285,10 @@ public:
         // Dump the first 8 lines of a buffer
         for (uint64_t i = 0; i < 8; i++)
         {
-            std::cout << std::hex
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*7)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*6)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*5)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*4)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*3)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*2)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*1)
-                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_)
-                      << std::dec << std::endl;
+            std::cout << std::hex;
+            for (int64_t j = he_lpbk_bus_bytes_ / 8 - 1; j >= 0; j--)
+                std::cout << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*he_lpbk_bus_bytes_ + 8*j);
+            std::cout << std::dec << std::endl;
         }
 
         std::cout << " ..." << std::endl;
@@ -311,7 +308,24 @@ public:
 
         // Normal (non-atomic) is a simple comparison
         if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_OFF) {
-            return (source_->compare(destination_, source_->size()));
+            // In HE MEM mode if the local memory is narrower than the
+            // host memory bus some of the data is lost. The FPGA-side
+            // drops the portion of each line that doesn't map 1:1 to
+            // a local memory bank.
+            if (!is_he_mem_ || (he_lpbk_bus_bytes_ <= local_mem_bus_bytes_))
+                return (source_->compare(destination_, source_->size()));
+
+            // Resort to line-by-line comparison, ignoring the missing high
+            // part of each line skipped by the trip through local memory.
+            for (uint64_t offset = 0; offset < source_->size(); offset += he_lpbk_bus_bytes_) {
+                status = memcmp((uint8_t *)source_->c_type() + offset,
+                                (uint8_t *)destination_->c_type() + offset,
+                                local_mem_bus_bytes_);
+                if (status)
+                    return status;
+            }
+
+            return 0;
         }
 
         // Atomic mode is a far more complicated comparison. The source buffer
@@ -738,6 +752,7 @@ public:
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
+        is_he_mem_ = strcmp(this->name(), "mem") == 0;
 
         token_ = d_afu->get_token();
 
@@ -746,11 +761,20 @@ public:
         he_lpbk_api_ver_ = (he_info >> 16);
         std::cout << "API version: " << uint32_t(he_lpbk_api_ver_) << std::endl;
 
+        // Host memory (PCIe) bus width in HE_INFO0
         if (he_lpbk_api_ver_ >= 3) {
             he_lpbk_bus_bytes_log2_ = 5 + ((he_info >> 25) & 3);
             he_lpbk_bus_bytes_ = 1 << he_lpbk_bus_bytes_log2_;
         }
         std::cout << "Bus width: " << he_lpbk_bus_bytes_ << " bytes" << std::endl;
+
+        // Local memory bus width in HE_INFO0
+        if (he_lpbk_api_ver_ >= 4) {
+            local_mem_bus_bytes_log2_ = 2 + ((he_info >> 27) & 31);
+            local_mem_bus_bytes_ = 1 << local_mem_bus_bytes_log2_;
+        }
+        if (is_he_mem_)
+            std::cout << "Local memory bus width: " << local_mem_bus_bytes_ << " bytes" << std::endl;
 
         // For atomics support, the version must not be zero and bit 24 must be 0.
         he_lpbk_atomics_supported_ = (he_lpbk_api_ver_ != 0) &&
@@ -915,8 +939,11 @@ protected:
     hostexe_req_len he_lpbk_max_reqlen_;
     uint32_t he_lpbk_bus_bytes_;
     uint32_t he_lpbk_bus_bytes_log2_;
+    uint32_t local_mem_bus_bytes_;
+    uint32_t local_mem_bus_bytes_log2_;
     uint8_t he_lpbk_api_ver_;
     bool he_lpbk_atomics_supported_;
+    bool is_he_mem_;
     bool is_ase_sim_;
 };
 
