@@ -384,29 +384,29 @@ fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 		return result;
 	}
 
-	*dvalue = ((double)value / MILLI);
-
-	// Check for limits
-	if (strstr(_fpga_enum_metric->metric_name, DFL_POWER)) {
-
+	if (strstr(_fpga_enum_metric->metric_sysfs, DFL_POWER)) {
+		*dvalue = ((double)value / MICRO);
 		if (*dvalue  < POWER_LOW_LIMIT || *dvalue  > POWER_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (strstr(_fpga_enum_metric->metric_name, DFL_VOLTAGE)) {
-
+	} else if (strstr(_fpga_enum_metric->metric_sysfs, DFL_VOLTAGE)) {
+		*dvalue = ((double)value / MILLI);
 		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (strstr(_fpga_enum_metric->metric_name, DFL_CURRENT)) {
-
+	} else if (strstr(_fpga_enum_metric->metric_sysfs, DFL_CURRENT)) {
+		*dvalue = ((double)value / MILLI);
 		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (strstr(_fpga_enum_metric->metric_name, DFL_TEMPERATURE)) {
-
+	} else if (strstr(_fpga_enum_metric->metric_sysfs, DFL_TEMPERATURE)) {
+		*dvalue = ((double)value / MILLI);
 		if (*dvalue < THERMAL_LOW_LIMIT || *dvalue > THERMAL_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
+	} else {
+		OPAE_ERR("Unknown metric: %s", _fpga_enum_metric->metric_sysfs);
+		result = FPGA_EXCEPTION;
 	}
 
 	return result;
