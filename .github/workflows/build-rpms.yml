@@ -13,7 +13,7 @@ jobs:
   RPM:
     strategy:
       matrix:
-        distro: [fedora37, fedora38, rockylinux8]
+        distro: [fedora39, fedora40, rockylinux8]
     runs-on: ubuntu-latest
     name: Build ${{ matrix.distro }}
     steps:
