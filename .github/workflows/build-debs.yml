@@ -4,8 +4,15 @@ on:
   push:
     branches:
       - master
+      - 'release/*'
+    tags:
+      - '*'
   pull_request:
-    branches: [master]
+    branches:
+      - master
+      - 'release/*'
+    tags:
+      - '*'
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
