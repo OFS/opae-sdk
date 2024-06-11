@@ -284,6 +284,13 @@ legal_afu_ifc_update_classes = {
 def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
     fname = afu_ifc_req['file_path']
 
+    # Allow an AFU's JSON configuration to create macros
+    if ('define' in afu_ifc_req):
+        if ('define' in afu_ifc_db):
+            afu_ifc_db['define'] += afu_ifc_req['define']
+        else:
+            afu_ifc_db['define'] = afu_ifc_req['define']
+
     if ('module-ports' not in afu_ifc_req):
         return
     if (not isinstance(afu_ifc_req['module-ports'], list)):
