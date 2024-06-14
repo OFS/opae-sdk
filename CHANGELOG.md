@@ -2,6 +2,20 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.13.0-2]
+
+### Added
+
+- Add a mechanism for AFUs to set platform macros ([#3130]).
+
+### Fixed
+
+- Fix buffer comparison in interrupt test mode of host exerciser ([#3131]).
+
+[2.13.0-2]: https://github.com/OFS/opae-sdk/compare/2.13.0-1...2.13.0-2
+[#3130]: https://github.com/OFS/opae-sdk/pull/3130
+[#3131]: https://github.com/OFS/opae-sdk/pull/3131
+
 ## [2.13.0-1]
 
 ### Added
