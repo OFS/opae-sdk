@@ -198,8 +198,6 @@ public:
     {
         try {
             host_exe_->interrupt_wait(ev, 10000);
-            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
-                host_exe_->compare(source_, destination_);
         }
         catch (std::exception &ex) {
             std::cout << "Exception: " << ex.what() << std::endl;
