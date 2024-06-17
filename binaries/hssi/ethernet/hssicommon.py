@@ -51,10 +51,12 @@ BDF_PATTERN = re.compile(PATTERN, re.IGNORECASE)
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
 # mailbox register poll interval 1 microseconds
-HSSI_POLL_SLEEP_TIME = 1/1000000
+HSSI_POLL_SLEEP_TIME_SEC = 1/1000000
 
-# mailbox register poll timeout 500 microseconds
-HSSI_POLL_TIMEOUT = 5/10000
+# Mailbox register poll timeout 1 second. Responses are typically much
+# faster than one second, but in rare cases can take a while. No reason
+# to make this short since timeout is generally a failure.
+HSSI_POLL_TIMEOUT_SEC = 1
 
 HSSI_FEATURE_ID = 0x15
 
@@ -1185,11 +1187,11 @@ class HSSICOMMON(object):
                                             idx, width, 0)
             self.write32(region_index, reg_offset, value)
 
-            time.sleep(HSSI_POLL_SLEEP_TIME)
-            if total_time > HSSI_POLL_TIMEOUT:
+            time.sleep(HSSI_POLL_SLEEP_TIME_SEC)
+            if total_time > HSSI_POLL_TIMEOUT_SEC:
                 return False
 
-            total_time = HSSI_POLL_SLEEP_TIME + total_time
+            total_time = HSSI_POLL_SLEEP_TIME_SEC + total_time
         return False
 
     def clear_reg(self,
@@ -1209,11 +1211,11 @@ class HSSICOMMON(object):
                 return True
             self.write32(region_index, reg_offset, 0x0)
 
-            time.sleep(HSSI_POLL_SLEEP_TIME)
-            if total_time > HSSI_POLL_TIMEOUT:
+            time.sleep(HSSI_POLL_SLEEP_TIME_SEC)
+            if total_time > HSSI_POLL_TIMEOUT_SEC:
                 return False
 
-            total_time = HSSI_POLL_SLEEP_TIME + total_time
+            total_time = HSSI_POLL_SLEEP_TIME_SEC + total_time
 
         return False
 
@@ -1262,10 +1264,10 @@ class HSSICOMMON(object):
             if ((reg_data >> bit_index) & 1) == 1:
                 return True
 
-            time.sleep(HSSI_POLL_SLEEP_TIME)
-            if total_time > HSSI_POLL_TIMEOUT:
+            time.sleep(HSSI_POLL_SLEEP_TIME_SEC)
+            if total_time > HSSI_POLL_TIMEOUT_SEC:
                 return False
-            total_time = HSSI_POLL_SLEEP_TIME + total_time
+            total_time = HSSI_POLL_SLEEP_TIME_SEC + total_time
 
         return False
 
