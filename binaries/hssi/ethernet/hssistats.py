@@ -107,7 +107,7 @@ class FPGAHSSISTATS(HSSICOMMON):
             stats_list.append("{0: <32} |".format(str))
 
         for port in range(0, self.hssi_csr.HSSI_PORT_COUNT):
-            port_index = 0
+            stat_index = 0
             # add active ports
             enable = self.register_field_get(hssi_feature_list.port_enable,
                                              port)
@@ -124,8 +124,8 @@ class FPGAHSSISTATS(HSSICOMMON):
                                                          31, 1, 1)
                 res, value_lsb = self.read_reg(0, ctl_addr.value)
                 if not res:
-                    stats_list[port_index] += "{}|".format("N/A").rjust(20, ' ')
-                    port_index = port_index + 1
+                    stats_list[stat_index] += "{}|".format("N/A").rjust(20, ' ')
+                    stat_index = stat_index + 1
                     continue
 
                 # Read MSB value
@@ -133,15 +133,15 @@ class FPGAHSSISTATS(HSSICOMMON):
                                                          31, 1, 0)
                 res, value_msb = self.read_reg(0, ctl_addr.value)
                 if not res:
-                    stats_list[port_index] += "{}|".format("N/A").rjust(20, ' ')
-                    port_index = port_index + 1
+                    stats_list[stat_index] += "{}|".format("N/A").rjust(20, ' ')
+                    stat_index = stat_index + 1
                     continue
 
                 # 64 bit value
                 value = (value_msb << 32) | (value_lsb)
 
-                stats_list[port_index] += "{}|".format(value).rjust(20, ' ')
-                port_index = port_index + 1
+                stats_list[stat_index] += "{}|".format(value).rjust(20, ' ')
+                stat_index = stat_index + 1
 
         print("\n")
         for i in range(len(self.hssi_eth_stats)):
