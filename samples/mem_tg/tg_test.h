@@ -75,13 +75,13 @@ public:
     }
 
     // Convert number of transactions to bandwidth (GB/s)
-    double bw_calc(uint64_t xfer_bytes, uint64_t num_ticks)
+    double bw_calc(uint64_t xfer_bytes, uint64_t num_ticks) const
     {
         return (double)(xfer_bytes) / ((1000.0 / (double)tg_exe_->mem_speed_ * (double)num_ticks));
     }
 
-    void tg_perf (mem_tg *tg_exe_) {
-      
+    void tg_perf (mem_tg *tg_exe_) const
+    {
       // Lock mutex before printing so print statements don't collide between threads.
       std::unique_lock<std::mutex> print_lock(tg_print_mutex);
       std::cout << "Channel " << std::stoi(tg_exe_->mem_ch_[0]) << ":" << std::endl;
@@ -121,7 +121,7 @@ public:
       print_lock.unlock();
     }
   
-    bool tg_wait_test_completion (mem_tg *tg_exe_)
+    bool tg_wait_test_completion (mem_tg *tg_exe_) const
     {
         /* Wait for test completion */
         uint32_t timeout = MEM_TG_TEST_TIMEOUT * tg_exe_->loop_ * tg_exe_->bcnt_;
@@ -152,7 +152,7 @@ public:
         return true;
     }
 
-    int config_input_options(mem_tg *tg_exe_)
+    int config_input_options(mem_tg *tg_exe_) const
     {
         if (!tg_exe_)
           return -1;
@@ -178,7 +178,7 @@ public:
     }
 
     // The test state has been configured. Run one test instance.
-    int run_mem_test(mem_tg *tg_exe_)
+    int run_mem_test(mem_tg *tg_exe_) const
     {
       int status = 0;
 	
