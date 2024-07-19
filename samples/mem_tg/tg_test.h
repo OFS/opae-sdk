@@ -244,8 +244,8 @@ public:
       int num_channels = 0;
       if ((tg_exe_->mem_ch_[0]).find("all") == 0) {	
         uint64_t mem_capability = tg_exe_->read64(MEM_TG_CTRL);
-        channels = new int[sizeof(uint64_t)]; // size should be same as mem_capability 
-        for (uint32_t i = 0; i < sizeof(uint64_t); i++) { // number of iterations should be same as mem_capability 
+        channels = new int[64]; // size should be same as mem_capability
+        for (uint32_t i = 0; i < 64; i++) { // number of iterations should be same as mem_capability
           if ((mem_capability & (1ULL << i)) != 0) {
             channels[num_channels] = i;
             num_channels += 1;
