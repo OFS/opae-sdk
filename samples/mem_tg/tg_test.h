@@ -239,72 +239,53 @@ public:
         exit(1);
       }
 
-      // Parse mem_ch_ into array of selected channels and number of channels
-      int *channels = NULL;
-      int num_channels = 0;
+      // Parse mem_ch_ into array of selected channels
+      std::vector<uint32_t> channels;
       if ((tg_exe_->mem_ch_[0]).find("all") == 0) {	
         uint64_t mem_capability = tg_exe_->read64(MEM_TG_CTRL);
-        channels = new int[64]; // size should be same as mem_capability
         for (uint32_t i = 0; i < 64; i++) { // number of iterations should be same as mem_capability
           if ((mem_capability & (1ULL << i)) != 0) {
-            channels[num_channels] = i;
-            num_channels += 1;
+            channels.emplace_back(i);
           }
         }
-        channels[num_channels] = -1; // EOL
       } else {
-        channels = new int[tg_exe_->mem_ch_.size()];
-        num_channels = tg_exe_->mem_ch_.size();
-        try{
-          for (unsigned i = 0; i < tg_exe_->mem_ch_.size(); i++) {
-            channels[i] = std::stoi(tg_exe_->mem_ch_[i]);
+        try {
+          for (const std::string &mem_ch: tg_exe_->mem_ch_) {
+            channels.emplace_back(std::stoi(mem_ch));
           }
         } catch (std::invalid_argument &e) {
           std::cerr << "Error: invalid argument to std::stoi";
-          delete[] channels;
           return 1;
         }
       }
-      
-      // Spawn threads for each channel:
-      mem_tg *thread_tg_exe_objects[num_channels];
+
+      // Spawn threads for each channel
       std::vector<std::future<int>> futures;
-      std::vector<std::promise<int>> promises(num_channels);
       std::vector<std::thread> threads;
-      tg_num_threads = num_channels;
+      tg_num_threads = channels.size();
       tg_waiting_threads_counter = 0;
-      for (int i = 0; i < num_channels; i++) { 
-        if (channels[i] == -1) break;
-        thread_tg_exe_objects[i] = new mem_tg;
-        tg_exe_->duplicate(thread_tg_exe_objects[i]);
-        thread_tg_exe_objects[i]->mem_ch_.clear();
-        thread_tg_exe_objects[i]->mem_ch_.push_back(std::to_string(channels[i]));
-        futures.push_back(promises[i].get_future());
-        threads.emplace_back([&, i] { 
-          promises[i].set_value(run_thread_single_channel(thread_tg_exe_objects[i])); 
+      for (auto c: channels) {
+        std::promise<int> p;
+        futures.emplace_back(p.get_future());
+        threads.emplace_back([this, c, p = std::move(p)]() mutable {
+          mem_tg tg_exe;
+          tg_exe_->duplicate(&tg_exe);
+          tg_exe.mem_ch_.clear();
+          tg_exe.mem_ch_.push_back(std::to_string(c));
+          p.set_value(run_thread_single_channel(&tg_exe));
         });
       }
 
-      // Wait for all threads to exit then collect their exit statuses
+      // Wait for all threads to exit
       for (auto &thread : threads) {
         thread.join();
       }
-      
-      std::vector<int> exit_codes;
-      for (auto &future : futures) {
-        exit_codes.push_back(future.get());
+
+      for (size_t i = 0; i < channels.size(); i++) {
+        int ret = futures[i].get();
+        std::cout << "Thread on channel " << channels[i] << " exited with status " << ret << std::endl;
       }
 
-      // Print message showing thread statuses
-      for (int i = 0; i < num_channels; i++) {
-        std::cout << "Thread on channel " << channels[i] << " exited with status " << (long)exit_codes[i] << std::endl;
-      }
-
-      // Delete dynamic allocations 
-      delete[] channels;
-      for (int i = 0; i < num_channels; i++) {
-        delete thread_tg_exe_objects[i];
-      }
       return 0;
     }
 
