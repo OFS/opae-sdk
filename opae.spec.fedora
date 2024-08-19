@@ -93,7 +93,7 @@ Additional OPAE tools
        -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
        -DFETCHCONTENT_BASE_DIR=_build/_deps \
        -DOPAE_BUILD_PYTHON_DIST=ON \
-       -DOPAE_BUILD_FPGABIST=ON 
+       -DOPAE_BUILD_FPGABIST=ON
 
 %if 0%{?rhel}
 %if 0%{rhel} <= 8
@@ -289,6 +289,7 @@ done
 %{_bindir}/super-rsu
 %{_bindir}/mmlink
 %{_bindir}/userclk
+%{_bindir}/qsfpinfo
 %{_bindir}/hello_fpga
 %{_bindir}/object_api
 %{_bindir}/hello_events
@@ -385,7 +386,7 @@ done
 - Various Static code scan bug fixes
 - Added python3 support.
 - OPAE USMG API are deprecated.
-- Updated OPAE documentation.  
+- Updated OPAE documentation.
 
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.

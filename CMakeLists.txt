@@ -74,6 +74,9 @@ mark_as_advanced(OPAE_MINIMAL_BUILD)
 option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
 mark_as_advanced(OPAE_BUILD_TESTS)
 
+option(OPAE_WITH_QSFPINFO_QSFPPRINT "Enable qsfpinfo print qsfp" OFF)
+mark_as_advanced(OPAE_WITH_QSFPINFO_QSFPPRINT)
+
 ############################################################################
 ## Python Interpreter/Build Env  ###########################################
 ############################################################################
@@ -982,6 +985,7 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgadiagapps
 	toolpackager
 	tooluserclk
+	toolqsfpinfo
 	toolras
 	toolcoreidle
 	toolmmlink
@@ -1049,6 +1053,7 @@ define_pkg(tools
   define_pkg(tools-extra
   COMPONENTS
   tooluserclk
+  toolqsfpinfo
   toolras
   toolmmlink
   toolcoreidle

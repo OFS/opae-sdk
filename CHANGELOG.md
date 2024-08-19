@@ -2,6 +2,15 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.13.0-3]
+
+### Fixed
+
+- Increate hssi poll timeout from 500 us to 1 s ([#3132]).
+
+[2.13.0-3]: https://github.com/OFS/opae-sdk/compare/2.13.0-2...2.13.0-3
+[#3132]: https://github.com/OFS/opae-sdk/pull/3132
+
 ## [2.13.0-2]
 
 ### Added
