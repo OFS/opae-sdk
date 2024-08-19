@@ -449,6 +449,7 @@ def infer_type(expanded):
             'super-rsu',
             'mmlink',
             'userclk',
+            'qsfpinfo',
             'hello_fpga',
             'object_api',
             'hello_events',
