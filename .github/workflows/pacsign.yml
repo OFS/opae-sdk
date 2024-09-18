@@ -1,5 +1,9 @@
 name: Python pacsign tests
 
+# https://github.com/ossf/scorecard/blob/9ff40de429d0c7710076070387c8755494a9f187/docs/checks.md#token-permissions
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths: 
