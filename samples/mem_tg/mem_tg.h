@@ -145,6 +145,8 @@ public:
   , loop_(1)
   , wcnt_(1)
   , rcnt_(1)
+  , waddr_(0)
+  , raddr_(0)
   , bcnt_(1)
   , stride_(1)
   , mem_speed_(0)
@@ -215,6 +217,8 @@ public:
   uint32_t loop_;
   uint32_t wcnt_;
   uint32_t rcnt_;
+  uint64_t waddr_;
+  uint64_t raddr_;
   uint32_t bcnt_;
   uint32_t stride_;
   uint32_t pattern_;
@@ -247,6 +251,8 @@ public:
     duplicate_obj->loop_         = this->loop_;
     duplicate_obj->wcnt_         = this->wcnt_;
     duplicate_obj->rcnt_         = this->rcnt_;
+    duplicate_obj->waddr_        = this->waddr_;
+    duplicate_obj->raddr_        = this->raddr_;
     duplicate_obj->bcnt_         = this->bcnt_;
     duplicate_obj->stride_       = this->stride_;
     duplicate_obj->pattern_      = this->pattern_;

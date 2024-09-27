@@ -109,6 +109,8 @@ public:
 	
       std::cout << "DEBUG: wcnt_ " << std::dec << tg_exe_->wcnt_ << std::endl;
       std::cout << "DEBUG: rcnt_ " << std::dec << tg_exe_->rcnt_ << std::endl;
+      std::cout << "DEBUG: waddr_ " << std::dec << tg_exe_->waddr_ << std::endl;
+      std::cout << "DEBUG: raddr_ " << std::dec << tg_exe_->raddr_ << std::endl;
       std::cout << "DEBUG: bcnt_ " << std::dec << tg_exe_->bcnt_ << std::endl;
       std::cout << "DEBUG: loop_ " << std::dec << tg_exe_->loop_ << std::endl;
       std::cout << "DEBUG: num_ticks " << std::dec << num_ticks << std::endl;
@@ -167,6 +169,10 @@ public:
         tg_exe_->write32(tg_exe_->tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_WRITE_COUNT, tg_exe_->wcnt_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_L, tg_exe_->waddr_ & 0xFFFFFFFF);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_H, tg_exe_->waddr_ >> 32);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_L, tg_exe_->raddr_ & 0xFFFFFFFF);
+        tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_H, tg_exe_->raddr_ >> 32);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);
