@@ -270,6 +270,8 @@ public:
       std::vector<std::thread> threads;
       tg_num_threads = channels.size();
       tg_waiting_threads_counter = 0;
+      const uint64_t addr_offset = 1 << 30;
+      const uint64_t addr_count = 16;
       for (auto c: channels) {
         std::promise<int> p;
         futures.emplace_back(p.get_future());
@@ -278,6 +280,8 @@ public:
           tg_exe_->duplicate(&tg_exe);
           tg_exe.mem_ch_.clear();
           tg_exe.mem_ch_.push_back(std::to_string(c));
+          tg_exe.waddr_ = (c % addr_count) * addr_offset;
+          tg_exe.raddr_ = (c % addr_count) * addr_offset;
           p.set_value(run_thread_single_channel(&tg_exe));
         });
       }
