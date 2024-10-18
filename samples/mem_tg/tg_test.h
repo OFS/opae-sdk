@@ -33,6 +33,7 @@
 #include <string>
 #include <condition_variable> 
 #include <mutex>
+#include <cinttypes>
 
 #include "afu_test.h"
 #include "mem_tg.h"
@@ -169,10 +170,18 @@ public:
         tg_exe_->write32(tg_exe_->tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_WRITE_COUNT, tg_exe_->wcnt_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
+        printf("[%s] read TG_SEQ_START_ADDR_WR_L = 0x%" PRIx32 "\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_L));
+        printf("[%s] read TG_SEQ_START_ADDR_WR_H = 0x%" PRIx32 "\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_H));
+        printf("[%s] read TG_SEQ_START_ADDR_RD_L = 0x%" PRIx32 "\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_L));
+        printf("[%s] read TG_SEQ_START_ADDR_RD_H = 0x%" PRIx32 "\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_H));
         tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_L, tg_exe_->waddr_ & 0xFFFFFFFF);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_H, tg_exe_->waddr_ >> 32);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_L, tg_exe_->raddr_ & 0xFFFFFFFF);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_H, tg_exe_->raddr_ >> 32);
+        printf("[%s] wrote TG_SEQ_START_ADDR_WR_L = 0x%" PRIx32 " (expected 0x%" PRIx64 ")\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_L), tg_exe_->waddr_ & 0xFFFFFFFF);
+        printf("[%s] wrote TG_SEQ_START_ADDR_WR_H = 0x%" PRIx32 " (expected 0x%" PRIx64 ")\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_WR_H), tg_exe_->waddr_ >> 32);
+        printf("[%s] wrote TG_SEQ_START_ADDR_RD_L = 0x%" PRIx32 " (expected 0x%" PRIx64 ")\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_L), tg_exe_->raddr_ & 0xFFFFFFFF);
+        printf("[%s] wrote TG_SEQ_START_ADDR_RD_H = 0x%" PRIx32 " (expected 0x%" PRIx64 ")\n", tg_exe_->mem_ch_[0].c_str(), tg_exe_->read32(tg_exe_->tg_offset_+TG_SEQ_START_ADDR_RD_H), tg_exe_->raddr_ >> 32);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
         tg_exe_->write32(tg_exe_->tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);

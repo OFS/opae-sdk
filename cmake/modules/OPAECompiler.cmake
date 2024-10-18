@@ -189,11 +189,11 @@ function(opae_add_executable)
     target_compile_definitions(${OPAE_ADD_EXECUTABLE_TARGET}
         PRIVATE
             HAVE_CONFIG_H=1)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_definitions(${OPAE_ADD_EXECUTABLE_TARGET}
             PRIVATE
                 LIBOPAE_DEBUG=1)
-    endif()
+#   endif()
 
     target_link_libraries(${OPAE_ADD_EXECUTABLE_TARGET} ${OPAE_ADD_EXECUTABLE_LIBS})
 
@@ -278,11 +278,11 @@ function(opae_add_shared_library)
     target_compile_definitions(${OPAE_ADD_SHARED_LIBRARY_TARGET}
         PRIVATE
             HAVE_CONFIG_H=1)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_definitions(${OPAE_ADD_SHARED_LIBRARY_TARGET}
             PRIVATE
                 LIBOPAE_DEBUG=1)
-    endif()
+#   endif()
 
     if(OPAE_ADD_SHARED_LIBRARY_VERSION AND OPAE_ADD_SHARED_LIBRARY_SOVERSION)
         set_target_properties(${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTIES
@@ -374,11 +374,11 @@ function(opae_add_module_library)
     target_compile_definitions(${OPAE_ADD_MODULE_LIBRARY_TARGET}
         PRIVATE
             HAVE_CONFIG_H=1)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_definitions(${OPAE_ADD_MODULE_LIBRARY_TARGET}
             PRIVATE
                 LIBOPAE_DEBUG=1)
-    endif()
+#   endif()
 
     target_link_libraries(${OPAE_ADD_MODULE_LIBRARY_TARGET} ${OPAE_ADD_MODULE_LIBRARY_LIBS})
 
@@ -460,11 +460,11 @@ function(opae_add_static_library)
         PRIVATE
             PIC=1
             HAVE_CONFIG_H=1)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_definitions(${OPAE_ADD_STATIC_LIBRARY_TARGET}
             PRIVATE
                 LIBOPAE_DEBUG=1)
-    endif()
+#   endif()
 
     target_link_libraries(${OPAE_ADD_STATIC_LIBRARY_TARGET}
         ${OPAE_ADD_STATIC_LIBRARY_LIBS})
