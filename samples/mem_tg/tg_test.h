@@ -279,7 +279,7 @@ public:
       std::vector<std::thread> threads;
       tg_num_threads = channels.size();
       tg_waiting_threads_counter = 0;
-      const uint64_t addr_offset = 1 << 30;
+      const uint64_t addr_offset = 1 << (30 - 8); // 1 GiB as multiples of 256 B
       const uint64_t addr_count = 16;
       for (auto c: channels) {
         std::promise<int> p;
