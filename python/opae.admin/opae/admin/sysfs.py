@@ -166,7 +166,7 @@ class sysfs_node(loggable):
         try:
             with self._open('r') as fd:
                 return fd.read().strip()
-        except IOError as err:
+        except (IOError, OSError) as err:
             self.log.exception('error opening: %s - %s', self.sysfs_path, err)
             raise
 
@@ -183,7 +183,7 @@ class sysfs_node(loggable):
         try:
             with self._open('rb') as fd:
                 return fd.read()
-        except IOError as err:
+        except (IOError, OSError) as err:
             self.log.exception('error (bin)opening: %s - %s', self.sysfs_path, err)
             raise
 
