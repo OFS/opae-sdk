@@ -230,6 +230,11 @@ public:
       token_ = d_afu->get_token();
 
       // Read HW details
+      const uint64_t tg_version = tg_exe_->read64(TG_VERSION);
+      const uint32_t major_ver = (tg_version >> 12) & 0xf; // [51:48]
+      const uint32_t minor_ver = (tg_version >> 48) & 0xf; // [15:12]
+      tg_exe_->version_ = tg_exe_->version_code(major_ver, minor_ver);
+      tg_exe_->logger_->debug("version: {}.{}", major_ver, minor_ver);
 
       if (0 == tg_exe_->mem_speed_) {
         tg_exe_->mem_speed_ = 300;
