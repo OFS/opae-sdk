@@ -49,6 +49,81 @@ std::condition_variable tg_cv;
 std::atomic<int> tg_waiting_threads_counter;
 int tg_num_threads = -1; // Written to once in run() then read-only
 
+// Returns the number of 1 bits in the value of x.
+// C++20 provides std::popcount.
+static uint64_t popcount64(uint64_t x) {
+  uint64_t n = 0;
+  while (x) {
+    ++n;
+    x &= x - 1ULL;
+  }
+  return n;
+}
+
+// Returns the number of bits needed to store the value x.
+// C++20 provides std::bit_width.
+static uint64_t bit_width64(uint64_t x) {
+  uint64_t n = 0;
+  while (x >>= 1) ++n;
+  return n;
+}
+
+// Calculates read/write address offset for each channel, when one or
+// multiple Network-on-Chip (NoC) are present to facilitate data movement
+// between the FPGA core logic and memory. In this case, memory requests
+// from multiple channels through a single NoC must be non-overlapping
+// for maximum bandwidth. The TG feature register provides the number
+// of NoC and the total addressable memory per NoC, which may be
+// evenly divided into non-overlapping ranges for each channel.
+//
+// NoC support was added in TG version 1.1.
+class tg_channel_address_offset {
+private:
+  // read/write address offset per channel in multiples of 256 bytes
+  uint64_t offset_ = 0;
+  // number of channels after which offset wraps around to 0
+  uint64_t count_ = 1;
+
+public:
+  tg_channel_address_offset(mem_tg *tg_exe_) {
+    if (tg_exe_->version_ < tg_exe_->version_code(1, 1))
+      return;
+
+    const uint64_t mem_tg_feat = tg_exe_->read64(MEM_TG_FEAT);
+    const uint64_t noc_addr_width = mem_tg_feat & 0xfff; // [11:0]
+    const uint64_t num_noc = (mem_tg_feat >> 12) & 0xf;  // [15:12]
+
+    if (num_noc == 0)
+      return;
+
+    const uint64_t mem_ctrl = tg_exe_->read64(MEM_TG_CTRL);
+    const uint64_t num_channels = popcount64(mem_ctrl);
+
+    tg_exe_->logger_->debug("number of channels: {}", num_channels);
+    tg_exe_->logger_->debug("number of NoC: {}", num_noc);
+    tg_exe_->logger_->debug("address width per NoC: {}", noc_addr_width);
+
+    const uint64_t num_channels_bits = bit_width64(num_channels);
+    const uint64_t num_noc_bits = bit_width64(num_noc);
+
+    assert(num_channels == (1ULL << num_channels_bits));
+    assert(num_noc == (1ULL << num_noc_bits));
+    assert(num_channels_bits >= num_noc_bits);
+
+    const uint64_t channels_per_noc_bits = num_channels_bits - num_noc_bits;
+
+    offset_ = 1ULL << (noc_addr_width - (channels_per_noc_bits + 8));
+    count_ = 1ULL << channels_per_noc_bits;
+
+    tg_exe_->logger_->debug("address offset per channel: {}", offset_);
+    tg_exe_->logger_->debug("channels per NoC: {}", count_);
+  }
+
+  uint64_t offset_for_channel(uint32_t c) const {
+    return (c % count_) * offset_;
+  }
+};
+
 class tg_test : public test_command
 {
 public:
@@ -275,14 +350,16 @@ public:
       std::vector<std::thread> threads;
       tg_num_threads = channels.size();
       tg_waiting_threads_counter = 0;
+      tg_channel_address_offset addr_offset(tg_exe_);
       for (auto c: channels) {
         std::promise<int> p;
         futures.emplace_back(p.get_future());
-        threads.emplace_back([this, c, p = std::move(p)]() mutable {
+        threads.emplace_back([this, c, p = std::move(p), addr_offset]() mutable {
           mem_tg tg_exe;
           tg_exe_->duplicate(&tg_exe);
           tg_exe.mem_ch_.clear();
           tg_exe.mem_ch_.push_back(std::to_string(c));
+          tg_exe.raddr_ = tg_exe.waddr_ = addr_offset.offset_for_channel(c);
           p.set_value(run_thread_single_channel(&tg_exe));
         });
       }
