@@ -289,6 +289,10 @@ public:
         }
       }
 
+      const uint64_t tg_version = tg_exe_->read64(TG_VERSION);
+      const uint64_t major_vers = (tg_version >> 12) & 0xf;
+      const uint64_t minor_vers = (tg_version >> 48) & 0xf;
+
       const uint64_t mem_tg_ctrl = tg_exe_->read64(MEM_TG_CTRL);
       const uint64_t num_channels = popcount64(mem_tg_ctrl);
 
@@ -299,6 +303,8 @@ public:
       const uint64_t channels_per_noc = num_channels / num_nocs;
       const uint64_t channel_width = bit_width64(channels_per_noc);
 
+      printf("[DEBUG] tg_major_vers = %" PRIu64 "\n", major_vers);
+      printf("[DEBUG] tg_minor_vers = %" PRIu64 "\n", minor_vers);
       printf("[DEBUG] num_channels = %" PRIu64 "\n", num_channels);
       printf("[DEBUG] noc_width = %" PRIu64 "\n", noc_width);
       printf("[DEBUG] num_nocs = %" PRIu64 "\n", num_nocs);
