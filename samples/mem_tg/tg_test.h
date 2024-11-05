@@ -50,6 +50,25 @@ std::condition_variable tg_cv;
 std::atomic<int> tg_waiting_threads_counter;
 int tg_num_threads = -1; // Written to once in run() then read-only
 
+// Returns the number of 1 bits in the value of x.
+// C++20 provides std::popcount.
+static uint64_t popcount64(uint64_t x) {
+  uint64_t n = 0;
+  while (x) {
+    ++n;
+    x &= x - 1ULL;
+  }
+  return n;
+}
+
+// Returns the number of bits needed to store the value x.
+// C++20 provides std::bit_width.
+static uint64_t bit_width64(uint64_t x) {
+  uint64_t n = 0;
+  while (x >>= 1) ++n;
+  return n;
+}
+
 class tg_test : public test_command
 {
 public:
@@ -270,17 +289,33 @@ public:
         }
       }
 
+      const uint64_t mem_tg_ctrl = tg_exe_->read64(MEM_TG_CTRL);
+      const uint64_t num_channels = popcount64(mem_tg_ctrl);
+
+      const uint64_t mem_tg_feat = tg_exe_->read64(MEM_TG_FEAT);
+      const uint64_t noc_width = mem_tg_feat & 0xfff;
+      const uint64_t num_nocs = (mem_tg_feat >> 12) & 0xf;
+
+      const uint64_t channels_per_noc = num_channels / num_nocs;
+      const uint64_t channel_width = bit_width64(channels_per_noc);
+
+      printf("[DEBUG] num_channels = %" PRIu64 "\n", num_channels);
+      printf("[DEBUG] noc_width = %" PRIu64 "\n", noc_width);
+      printf("[DEBUG] num_nocs = %" PRIu64 "\n", num_nocs);
+      printf("[DEBUG] channels_per_noc = %" PRIu64 "\n", channels_per_noc);
+      printf("[DEBUG] channel_width = %" PRIu64 "\n", channel_width);
+
       // Spawn threads for each channel
       std::vector<std::future<int>> futures;
       std::vector<std::thread> threads;
       tg_num_threads = channels.size();
       tg_waiting_threads_counter = 0;
-      const uint64_t addr_offset = 1 << (30 - 8); // 1 GiB as multiples of 256 B
-      const uint64_t addr_count = 16;
+      const uint64_t addr_offset = 1 << (noc_width - (channel_width + 8)); // offset per channel in multiples of 256 B
+      const uint64_t addr_count = channels_per_noc;
       for (auto c: channels) {
         std::promise<int> p;
         futures.emplace_back(p.get_future());
-        threads.emplace_back([this, c, p = std::move(p)]() mutable {
+        threads.emplace_back([this, c, p = std::move(p), addr_count, addr_offset]() mutable {
           mem_tg tg_exe;
           tg_exe_->duplicate(&tg_exe);
           tg_exe.mem_ch_.clear();
