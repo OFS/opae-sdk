@@ -211,6 +211,13 @@ public:
     return res;
   }
 
+  // Combines major and minor version into single code for comparison.
+  static uint32_t version_code(uint32_t major, uint32_t minor)
+  {
+    // Major and minor version are encoded with 4 bits each.
+    return major * 16 + minor;
+  }
+
 public:
   uint32_t count_;
   std::vector<std::string> mem_ch_;
@@ -225,6 +232,7 @@ public:
   uint32_t mem_speed_;
   uint32_t status_;
   uint64_t tg_offset_;
+  uint32_t version_;
 
   std::map<uint32_t, uint32_t> limits_;
 
@@ -265,6 +273,7 @@ public:
     duplicate_obj->timeout_msec_ = this->timeout_msec_;
     duplicate_obj->handle_       = this->handle_;
     duplicate_obj->logger_       = this->logger_;
+    duplicate_obj->version_      = this->version_;
   }
 
 };
