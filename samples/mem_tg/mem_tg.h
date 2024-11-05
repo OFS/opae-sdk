@@ -78,6 +78,7 @@ enum {
   SCRATCHPAD      = 0x0028,
   MEM_TG_CTRL     = 0x0030,
   MEM_TG_STAT     = 0x0038,
+  MEM_TG_FEAT     = 0x0048,
   MEM_TG_CLOCKS   = 0x0050  
 };
 const int MEM_TG_CFG_OFFSET = 0x1000;
