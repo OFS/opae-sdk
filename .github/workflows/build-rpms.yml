@@ -24,7 +24,7 @@ jobs:
   RPM:
     strategy:
       matrix:
-        distro: [fedora39, fedora40, rockylinux8, rockylinux9]
+        distro: [fedora40, fedora41, rockylinux8, rockylinux9]
     runs-on: ubuntu-22.04
     name: Build ${{ matrix.distro }}
     steps:
