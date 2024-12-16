@@ -24,6 +24,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import logging
 import re
 import sys
 import subprocess
@@ -260,6 +261,10 @@ class unplug(object):
 
         if remove:
             if debug:
+                print(f'Resetting the root bridge {root.pci_address}')
+            root.reset_bridge()
+
+            if debug:
                 print(f'Removing the root device {root.pci_address}')
             root.remove()
 
@@ -348,6 +353,11 @@ def main():
                'plug': (plug.add_subparser, plug())}
 
     parser = ArgumentParser()
+
+    log_levels = ['verbose', 'info']
+    parser.add_argument('--log-level', choices=log_levels,
+                        default='info', help='log level to use')
+
     parser.add_argument('devices', type=pci_devices,
                         metavar='device-filter',
                         help=('PCIe filter of device '
@@ -365,6 +375,11 @@ def main():
         actions[k][0](subparser)
 
     args = parser.parse_args()
+
+    if args.log_level == 'info':
+        logging.basicConfig(level=logging.INFO, format='%(message)s')
+    else:
+        logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
     if hasattr(args, 'which') and args.which and args.which == 'plug':
         # Force a PCI bus rescan.
