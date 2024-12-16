@@ -28,6 +28,7 @@ from __future__ import absolute_import
 import glob
 import os
 import re
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import CalledProcessError, check_call, DEVNULL
@@ -228,6 +229,8 @@ class pci_node(sysfs_node):
         self._aer_cmd1 = 'setpci -s {} ECAP_AER+0x08.L'.format(
             pci_address['pci_address'])
         self._aer_cmd2 = 'setpci -s {} ECAP_AER+0x14.L'.format(
+            pci_address['pci_address'])
+        self._bridge_ctrl_cmd = 'setpci -s {} BRIDGE_CONTROL'.format(
             pci_address['pci_address'])
         if self.have_node('driver'):
             self._driver = os.readlink(self.node('driver').sysfs_path)
@@ -595,6 +598,26 @@ class pci_node(sysfs_node):
             call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
         except CalledProcessError as err:
             self.log.warn('error setting aer: %s', err)
+
+    def reset_bridge(self):
+        """reset_bridge Reset the devices under root port bridge object.
+
+        Notes:
+            This relies on calling 'setpci' and will log an exception if an
+            error was encountered while calling 'setpci'.
+        """
+        try:
+            # Get current bridge control value
+            bc = int(call_process(self._bridge_ctrl_cmd), 16)
+            # Enable bus reset
+            bc_reset = bc | 0x40
+            call_process(f"{self._bridge_ctrl_cmd}=0x{bc_reset:x}")
+            time.sleep(0.1)
+            # Clear bus reset
+            call_process(f"{self._bridge_ctrl_cmd}=0x{bc:x}")
+            time.sleep(0.25)
+        except CalledProcessError as err:
+            self.log.warn('error resetting bridge: %s', err)
 
     @property
     def sriov_totalvfs(self):
