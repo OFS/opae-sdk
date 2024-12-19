@@ -36,7 +36,7 @@ def call_process(cmd, no_dry=False):
         print(cmd)
         return '0x0' if 'setpci' in cmd else ''
 
-    LOG('process').error('Calling %s', cmd)
+    LOG('process').debug('Calling %s', cmd)
     try:
         output = subprocess.check_output(cmd.split(),
                                          stderr=subprocess.STDOUT)
