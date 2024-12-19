@@ -261,10 +261,6 @@ class unplug(object):
 
         if remove:
             if debug:
-                print(f'Resetting the root bridge {root.pci_address}')
-            root.reset_bridge()
-
-            if debug:
                 print(f'Removing the root device {root.pci_address}')
             root.remove()
 
@@ -314,6 +310,54 @@ class plug(object):
         call_process(f'{cmd}=FFFFFFFF')
 
 
+class reset(object):
+    @staticmethod
+    def add_subparser(subparser):
+        reset = subparser.add_parser('reset')
+        reset.add_argument('-d', '--debug', action='store_true',
+                           default=False, help='enable debug output')
+
+    def __call__(self, device, args):
+        debug = args.debug
+
+        root = device.pci_node.root
+
+        v0, v1 = None, None
+        if root.supports_ecap('aer'):
+            if debug:
+                print('ECAP_AER is supported')
+            v0, v1 = root.aer
+            root.aer = (0xFFFFFFFF, 0xFFFFFFFF)
+
+        reset.reset_node(root, debug)
+
+        if v0:
+            root.aer = (v0, v1)
+
+    @staticmethod
+    def reset_node(root, debug):
+        if debug:
+            print('Unbinding drivers for leaf devices')
+
+        for e in root.endpoints:
+            if debug:
+                print(f' unbind {e.pci_address}')
+            e.unbind()
+
+        for e in root.endpoints:
+            if debug:
+                print(f' remove {e.pci_address}')
+            try:
+                e.remove()
+            except NameError:
+                None # Ignore endpoints with no sysfs remove entry
+
+        if debug:
+            print(f'Resetting secondary devices under {root.pci_address}')
+        root.reset_bridge()
+        root.rescan()
+
+
 def add_unbind_subparser(subparser):
     subparser.add_parser('unbind')
 
@@ -350,7 +394,8 @@ def main():
                'aer': (aer.add_subparser, aer()),
                'topology': (add_topology_subparser, topology),
                'unplug': (unplug.add_subparser, unplug()),
-               'plug': (plug.add_subparser, plug())}
+               'plug': (plug.add_subparser, plug()),
+               'reset': (reset.add_subparser, reset())}
 
     parser = ArgumentParser()
 
@@ -397,6 +442,9 @@ def main():
                 actions['vf'][1](dev, args, args.numvfs)
             else:
                 actions[args.which][1](dev, args)
+                # Clear AER after reset
+                if args.which == 'reset':
+                    actions['plug'][1](dev, args)
         else:
             actions['topology'][1](dev, args)
 

@@ -232,6 +232,8 @@ class pci_node(sysfs_node):
             pci_address['pci_address'])
         self._bridge_ctrl_cmd = 'setpci -s {} BRIDGE_CONTROL'.format(
             pci_address['pci_address'])
+        self._link_status_cmd = 'setpci -s {} CAP_EXP+12.W'.format(
+            pci_address['pci_address'])
         if self.have_node('driver'):
             self._driver = os.readlink(self.node('driver').sysfs_path)
 
@@ -599,8 +601,39 @@ class pci_node(sysfs_node):
         except CalledProcessError as err:
             self.log.warn('error setting aer: %s', err)
 
+    def data_link_layer_active(self):
+        """data_link_layer_active Return true if PCIe data link is active.
+
+        Returns:
+            Bit 13 of the PCIe link status register.
+
+        Notes:
+            This relies on calling 'setpci' and will log an exception if an
+            error was encountered while calling 'setpci'.
+        """
+        try:
+            ls = int(call_process(self._link_status_cmd), 16)
+            return (ls >> 13) & 1
+        except CalledProcessError as err:
+            self.log.warn('error reading link status: %s', err)
+
+    def wait_for_data_link(self, target_state):
+        """wait_for_data_link Wait until data link active state matches
+                              target_state.
+        """
+        # Bridges are not required to implement the link layer active bit.
+        # Time out after a generous 5 seconds, assuming the target state
+        # is reached.
+        for i in range(5):
+            if self.data_link_layer_active() == target_state:
+                break
+            time.sleep(1)
+
+        # The spec requires at least 100ms delay after the link change.
+        time.sleep(0.25)
+
     def reset_bridge(self):
-        """reset_bridge Reset the devices under root port bridge object.
+        """reset_bridge Reset secondary devices under root port bridge object.
 
         Notes:
             This relies on calling 'setpci' and will log an exception if an
@@ -609,13 +642,15 @@ class pci_node(sysfs_node):
         try:
             # Get current bridge control value
             bc = int(call_process(self._bridge_ctrl_cmd), 16)
-            # Enable bus reset
+
+            # Enable secondary bus reset
             bc_reset = bc | 0x40
             call_process(f"{self._bridge_ctrl_cmd}=0x{bc_reset:x}")
-            time.sleep(0.1)
+            self.wait_for_data_link(0)
+
             # Clear bus reset
             call_process(f"{self._bridge_ctrl_cmd}=0x{bc:x}")
-            time.sleep(0.25)
+            self.wait_for_data_link(1)
         except CalledProcessError as err:
             self.log.warn('error resetting bridge: %s', err)
 
