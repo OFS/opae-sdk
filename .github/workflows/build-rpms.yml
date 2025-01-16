@@ -40,7 +40,7 @@ jobs:
           docker run --rm -v ${{ github.workspace }}:/opae-${{ matrix.distro }}/opae-sdk --workdir /opae-${{ matrix.distro }}/opae-sdk --entrypoint /bin/bash opae-${{ matrix.distro }} -c "/scripts/test-rpms.sh"
       - name: Upload Artifact
         if: ${{ github.event_name != 'pull_request'}}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OPAE-${{ matrix.distro }}
           path:
