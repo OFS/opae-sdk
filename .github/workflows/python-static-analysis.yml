@@ -55,7 +55,7 @@ jobs:
     - name: Archive results
       uses: actions/upload-artifact@v4
       with:
-        name: static-analysis
+        name: python-static-analysis-${{ matrix.python-version }}
         path: |
           ${{ github.workspace }}/pylint.log
           ${{ github.workspace }}/flake8.log
