@@ -41,7 +41,7 @@ from pacsign import common_util
 from pacsign.logger import log
 
 OPENSSL_VERSION_PATTERN = (r'OpenSSL\s+'
-                           r'(?P<version>\d+(?:\.\d+)*(?:[a-z]+)?)\s+'
+                           r'(?P<version>\d+(?:\.\d+)*(?:\S+)?)\s+'
                            r'(?P<om>FIPS)?\s*'
                            r'(?P<day>\d+)\s+(?P<month>\w+)\s+(?P<year>\d{4})')
 OPENSSL_VERSION_RE = re.compile(OPENSSL_VERSION_PATTERN)
