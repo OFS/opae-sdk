@@ -20,7 +20,7 @@ rm -rf coverage_files/*
 make -j $(nproc)
 
 lcov --directory . --zerocounters
-lcov -c -i -d . -o coverage.base 2> /dev/null
+lcov -c -i -d . -o coverage.base
 
 LD_LIBRARY_PATH=${PWD}/lib \
 CTEST_OUTPUT_ON_FAILURE=1 \
@@ -29,7 +29,7 @@ ctest --timeout 180
 
 find . \( -iname "*.gcda" -or -iname "*.gcno" \) -exec chmod 664 '{}' \;
 
-lcov --directory . --capture --output-file coverage.info 2> /dev/null
+lcov --directory . --capture --output-file coverage.info
 lcov -a coverage.base -a coverage.info --output-file coverage.total
 
 lcov --remove coverage.total \
@@ -48,5 +48,5 @@ lcov --remove coverage.total \
     '*samples/n5010-test/**' \
     --output-file coverage.info.cleaned
 
-genhtml --function-coverage -o coverage_report coverage.info.cleaned 2> /dev/null
+genhtml --function-coverage -o coverage_report coverage.info.cleaned
 exit $?
