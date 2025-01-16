@@ -46,7 +46,7 @@ jobs:
       matrix:
         lang-type: [c, cpp]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
@@ -69,7 +69,7 @@ jobs:
       matrix:
         build-type: [Debug, Release, RelWithDebInfo]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
@@ -93,7 +93,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
@@ -120,7 +120,7 @@ jobs:
   build-doc:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: update
       run: sudo apt-get update -y
     - name: Build Docker image
