@@ -53,7 +53,7 @@ jobs:
           --format csv \
           | tee ${{ github.workspace }}/bandit.log.csv
     - name: Archive results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: static-analysis
         path: |
