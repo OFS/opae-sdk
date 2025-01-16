@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         distro: [fedora39, fedora40, rockylinux8, rockylinux9]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Build ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v4
