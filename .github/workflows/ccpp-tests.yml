@@ -60,7 +60,9 @@ jobs:
     - name: upgrade
       run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
     - name: install
-      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y clang-format
+      run: |
+        sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y clang-format linux-headers-generic
+        install -t ${{ github.workspace }}/scripts /usr/src/linux-headers-*-generic/scripts/checkpatch.pl
     - name: test ${{ matrix.lang-type }}
       run: ${{ github.workspace }}/scripts/test-codingstyle-all.sh ${{ matrix.lang-type }}
   build:
