@@ -10,13 +10,13 @@ on:
   pull_request:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build-type: [Debug, Release, RelWithDebInfo]
     steps:
     - run: exit 0
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - run: exit 0

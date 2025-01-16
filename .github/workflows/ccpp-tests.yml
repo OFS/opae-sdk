@@ -41,12 +41,12 @@ on:
 
 jobs:
   coding-style:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         lang-type: [c, cpp]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
@@ -60,16 +60,18 @@ jobs:
     - name: upgrade
       run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
     - name: install
-      run: sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y clang-format
+      run: |
+        sudo -E DEBIAN_FRONTEND=noninteractive apt-get install -y clang-format linux-headers-generic
+        install -t ${{ github.workspace }}/scripts /usr/src/linux-headers-*-generic/scripts/checkpatch.pl
     - name: test ${{ matrix.lang-type }}
       run: ${{ github.workspace }}/scripts/test-codingstyle-all.sh ${{ matrix.lang-type }}
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build-type: [Debug, Release, RelWithDebInfo]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
@@ -91,9 +93,9 @@ jobs:
     - name: make ${{ matrix.build-type }}
       run: cd ${{ github.workspace }}/.build && make -j $(nproc)
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: bugfix
       run: sudo rm -f /var/cache/debconf/config.dat
     - name: disable_snap
@@ -118,9 +120,9 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: unittests/coverage.info.cleaned
   build-doc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: update
       run: sudo apt-get update -y
     - name: Build Docker image
@@ -136,7 +138,7 @@ jobs:
       working-directory: ${{ github.workspace }}/mybuild_docs
       run: ${{ github.workspace }}/scripts/push-documentation.sh "${GITHUB_TAG##*/}"
     - name: Archive html docs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: docs
         path: mybuild_docs/sphinx/html
@@ -146,7 +148,7 @@ jobs:
         args: --verbose --no-progress mybuild_docs/sphinx/html
         output: ${{ github.workspace }}/lychee
     - name: Archive lychee results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: link-checker
         path: ${{ github.workspace }}/lychee

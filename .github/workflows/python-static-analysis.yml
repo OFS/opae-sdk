@@ -15,17 +15,17 @@ on:
 
 jobs:
   analyze:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Update
       run: sudo apt-get update -y
     - name: Setup python${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -53,9 +53,9 @@ jobs:
           --format csv \
           | tee ${{ github.workspace }}/bandit.log.csv
     - name: Archive results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: static-analysis
+        name: python-static-analysis-${{ matrix.python-version }}
         path: |
           ${{ github.workspace }}/pylint.log
           ${{ github.workspace }}/flake8.log

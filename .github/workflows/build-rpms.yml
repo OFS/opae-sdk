@@ -25,10 +25,10 @@ jobs:
     strategy:
       matrix:
         distro: [fedora39, fedora40, rockylinux8, rockylinux9]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Build ${{ matrix.distro }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build Docker Image
         run: docker build . -f docker/${{ matrix.distro }}/Dockerfile -t opae-${{ matrix.distro }}
       - name: Build RPMs
@@ -40,7 +40,7 @@ jobs:
           docker run --rm -v ${{ github.workspace }}:/opae-${{ matrix.distro }}/opae-sdk --workdir /opae-${{ matrix.distro }}/opae-sdk --entrypoint /bin/bash opae-${{ matrix.distro }} -c "/scripts/test-rpms.sh"
       - name: Upload Artifact
         if: ${{ github.event_name != 'pull_request'}}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OPAE-${{ matrix.distro }}
           path:
