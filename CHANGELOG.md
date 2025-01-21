@@ -2,6 +2,25 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.14.0-1]
+
+### Added
+
+- Add tool `qsfpinfo` to print QSFP EEPROM information ([#3119]).
+
+### Fixed
+
+- Support more than 8 memory channels in `mem_tg` ([#3138]).
+- Add bridge reset when device is unplugged ([#3143], [#3144]).
+- Relax OpenSSL version check in `pacsign` ([#3147]).
+
+[2.14.0-1]: https://github.com/OFS/opae-sdk/compare/2.13.0-3...2.14.0-1
+[#3119]: https://github.com/OFS/opae-sdk/pull/3119
+[#3138]: https://github.com/OFS/opae-sdk/pull/3138
+[#3143]: https://github.com/OFS/opae-sdk/pull/3143
+[#3144]: https://github.com/OFS/opae-sdk/pull/3144
+[#3147]: https://github.com/OFS/opae-sdk/pull/3147
+
 ## [2.13.0-3]
 
 ### Fixed
