@@ -24,7 +24,7 @@ jobs:
   DEB:
     strategy:
       matrix:
-        distro: [ubuntu22]
+        distro: [ubuntu22, ubuntu24]
     runs-on: ubuntu-22.04
     name: Build ${{ matrix.distro }}
     steps:
