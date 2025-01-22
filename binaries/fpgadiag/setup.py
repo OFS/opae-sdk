@@ -24,9 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import setup, find_namespace_packages
+from setuptools import Extension, setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
-from distutils.extension import Extension
 
 # get the original build_extensions method
 original_build_extensions = build_ext.build_extensions
