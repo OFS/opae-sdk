@@ -2,6 +2,15 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.14.0-2]
+
+### Added
+
+- Add High Bandwidth Memory (HBM) support to `mem_tg` ([#3149]).
+
+[2.14.0-2]: https://github.com/OFS/opae-sdk/compare/2.14.0-1...2.14.0-2
+[#3149]: https://github.com/OFS/opae-sdk/pull/3149
+
 ## [2.14.0-1]
 
 ### Added
