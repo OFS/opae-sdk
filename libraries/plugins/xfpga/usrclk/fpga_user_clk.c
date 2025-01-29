@@ -659,6 +659,7 @@ fpga_result set_userclock(const char *sysfs_path,
 	fpga_result result                 = FPGA_OK;
 	ssize_t bytes_written              = 0;
 	struct opae_uio uio;
+	uint64_t v                         = 0;
 
 	unsigned int iopll_max_freq        = IOPLL_MAX_FREQ;
 	unsigned int iopll_min_freq        = IOPLL_MIN_FREQ;
@@ -748,6 +749,11 @@ fpga_result set_userclock(const char *sysfs_path,
 		OPAE_ERR("Failed to get user clock uio");
 		return result;
 	}
+
+	// Initialize seq from the current sequence number in STS0. The
+	// next command must start there.
+	v = *((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_STS0));
+	seq = FIELD_GET(IOPLL_SEQ, v) + 1;
 
 	result = usrclk_set_freq(uio_ptr, iopll_config, &seq);
 	if (result != FPGA_OK) {
