@@ -5,6 +5,7 @@ RUN apt-get install -y tzdata && dpkg-reconfigure --frontend noninteractive tzda
 RUN apt-get install -y build-essential cmake git libjson-c-dev uuid-dev git \
 	               python3-dev python3-pip python3-venv python3-wheel \
 		       doxygen libedit-dev libcap-dev libudev-dev
+RUN git config --system safe.directory '*'
 WORKDIR /root
 ENTRYPOINT [ "/bin/bash", "-c" ]
 
