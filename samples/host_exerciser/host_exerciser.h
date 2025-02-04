@@ -571,13 +571,6 @@ public:
     return handle_->get_token();
   }
 
-  token::ptr_t get_token_device()
-  {
-    if (handle_device_)
-        return handle_device_->get_token();
-    return nullptr;
-  }
-
   bool option_passed(std::string option_str)
   {
       if (app_.count(option_str) == 0)
