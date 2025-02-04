@@ -190,7 +190,7 @@ public:
   , shared_(false)
   , timeout_msec_(60000)
   , handle_(nullptr)
-  , handle_device_(nullptr)
+  , token_device_(nullptr)
   , current_command_(nullptr)
   {
     if (!afu_id_.empty())
@@ -213,7 +213,7 @@ public:
     return fpga::properties::get(handle_);
   }
 
-  bool enum_fpga_device()
+  fpga::token::ptr_t enum_fpga_device()
   {
     auto filter = fpga::properties::get(); // Get an empty properties object
 
@@ -235,29 +235,20 @@ public:
     // Error out if the # of tokens != 1
     if (tokens.size() < 1) {
         logger_->info("no FPGA DEVICE found");
-        return false;
+        return nullptr;
     }
 
     if (tokens.size() > 1) {
         logger_->info("more than one FPGA DEVICE found ");
-        return false;
+        return nullptr;
     }
 
-    int flags = shared_ ? FPGA_OPEN_SHARED : 0;
-    // Open a handle to the resource
-    try {
-        handle_device_ = fpga::handle::open(tokens[0], flags);
-    }
-    catch (fpga::no_access& err) {
-        std::cerr << err.what() << "\n";
-        return false;
-    }
-    return true;
+    return tokens[0];
   }
 
   int open_handle(const char *afu_id) {
 
-    enum_fpga_device();
+    token_device_ = enum_fpga_device();
 
     auto filter = fpga::properties::get(); // Get an empty properties object
 
@@ -378,8 +369,8 @@ public:
     return handle_;
   }
 
-  fpga::handle::ptr_t handle_device() const {
-    return handle_device_;
+  fpga::token::ptr_t token_device() const {
+    return token_device_;
   }
 
   uint64_t read64(uint32_t offset) const {
@@ -411,7 +402,7 @@ protected:
   bool shared_;
   uint32_t timeout_msec_;
   fpga::handle::ptr_t handle_;                      // Handle for the ACCELERATOR (AFU) resource
-  fpga::handle::ptr_t handle_device_;               // Handle for the DEVICE (FIM) resource
+  fpga::token::ptr_t token_device_;                 // Token for the DEVICE (FIM) resource
   command::ptr_t current_command_;
   std::map<CLI::App*, command::ptr_t> commands_;
 public:

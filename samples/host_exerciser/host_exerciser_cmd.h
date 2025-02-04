@@ -879,9 +879,9 @@ public:
     void fpga_emif_status(test_afu* afu)
     {
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
-        token_device_ = d_afu->get_token_device();
 
-        if (!token_device_)
+        const fpga::token::ptr_t token_device = d_afu->token_device();
+        if (!token_device)
             return;
 
         // Check if memory calibration has failed and error out before proceeding
@@ -908,7 +908,7 @@ public:
             mem_cal_glob << "*dfl*/**/inf" << i << "_cal_fail";
             // Ask for a sysobject with this glob string
             fpga::sysobject::ptr_t testobj = fpga::sysobject::get(
-                token_device_, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
+                token_device, mem_cal_glob.str().c_str(), FPGA_OBJECT_GLOB);
 
             // if test obj !=null, the sysfs entry was found.
             // Read the calibration status from the sysfs entry.
@@ -933,7 +933,6 @@ protected:
     shared_buffer::ptr_t dsm_;
     he_interrupt0 he_interrupt_;
     token::ptr_t token_;
-    token::ptr_t token_device_;
     hostexe_req_len he_lpbk_max_reqlen_;
     uint32_t he_lpbk_bus_bytes_;
     uint32_t he_lpbk_bus_bytes_log2_;
