@@ -50,6 +50,7 @@ opae_test_add_static_lib(TARGET xfpga-static
 	${OPAE_LIB_SOURCE}/plugins/xfpga/version.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/wsid_list.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/usrclk/fpga_user_clk.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/usrclk/fpga_user_clk_type1.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics_max10.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics_utils.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/afu_metrics.c

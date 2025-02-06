@@ -46,6 +46,7 @@ set(SRC
   version.c
   userclk.c
   usrclk/fpga_user_clk.c
+  usrclk/fpga_user_clk_type1.c
   plugin.c
   sysobject.c
   manage.c
