@@ -8,8 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Add High Bandwidth Memory (HBM) support to `mem_tg` ([#3149]).
 
+### Fixed
+
+- Fix user clock configuration sequence numbers ([#3156]).
+- Fix host exerciser memory calibration check as non-root user ([#3157]).
+
 [2.14.0-2]: https://github.com/OFS/opae-sdk/compare/2.14.0-1...2.14.0-2
 [#3149]: https://github.com/OFS/opae-sdk/pull/3149
+[#3156]: https://github.com/OFS/opae-sdk/pull/3156
+[#3157]: https://github.com/OFS/opae-sdk/pull/3157
 
 ## [2.14.0-1]
 
