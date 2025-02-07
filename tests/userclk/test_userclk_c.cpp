@@ -559,7 +559,7 @@ TEST_P(userclk_c_mock_p, main3) {
   ** FPGA_NOT_SUPPORTED.
   EXPECT_EQ(userclk_main(11, argv), 0);
   */
-  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_FOUND);
 }
 
 /**
@@ -607,7 +607,7 @@ TEST_P(userclk_c_mock_p, main4) {
   ** FPGA_NOT_SUPPORTED.
   EXPECT_EQ(userclk_main(11, argv), 0);
   */
-  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_FOUND);
 }
 
 /**
@@ -686,7 +686,7 @@ TEST_P(userclk_c_mock_p, main6) {
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, NULL };
 
-  EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(9, argv), FPGA_NOT_FOUND);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_mock_p);
