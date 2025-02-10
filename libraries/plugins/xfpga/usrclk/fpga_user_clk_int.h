@@ -47,6 +47,7 @@ extern "C" {
 #define IOPLL_ADDR                    GENMASK_ULL(41, 32)
 #define IOPLL_WRITE                   BIT_ULL(44)
 #define IOPLL_SEQ                     GENMASK_ULL(49, 48)
+#define IOPLL_MGMT_DATA_MASK          BIT_ULL(51)
 #define IOPLL_AVMM_RESET_N            BIT_ULL(52)
 #define IOPLL_MGMT_RESET              BIT_ULL(56)
 #define IOPLL_RESET                   BIT_ULL(57)
@@ -61,6 +62,7 @@ extern "C" {
 #define IOPLL_FREQ_STS1               0x20
 #define IOPLL_FREQUENCY               GENMASK_ULL(16, 0)
 #define IOPLL_REF_FREQ                GENMASK_ULL(50, 33)
+#define IOPLL_STS1_FPGA_FAMILY        GENMASK_ULL(59, 54)
 #define IOPLL_VERSION                 GENMASK_ULL(63, 60)
 
 #define IOPLL_CAL_DELAY_US            1000
@@ -70,9 +72,17 @@ extern "C" {
 #define  IOPLL_MAX_FREQ             600
 #define  IOPLL_MIN_FREQ             10
 
+// Revision stored in the user clock DFH indicates the CSR protocol
+#define  TYPE2_USRCLK_REV           2
 #define  AGILEX_USRCLK_REV          1
+
 #define  IOPLL_AGILEX_MAX_FREQ      800
 #define  IOPLL_AGILEX_MIN_FREQ      10
+
+#define CFG_PLL_LOW                   GENMASK_ULL(7, 0)
+#define CFG_PLL_HIGH                  GENMASK_ULL(15, 8)
+#define CFG_PLL_BYPASS_EN             BIT_ULL(16)
+#define CFG_PLL_EVEN_DUTY_EN          BIT_ULL(17)
 
 struct iopll_config {
 	unsigned int pll_freq_khz;
@@ -124,6 +134,18 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
  * @return error code
  */
 fpga_result set_userclock_type1(const char *sysfs_path, uint64_t revision,
+			  uint64_t userclk_high, uint64_t userclk_low);
+
+/**
+ * @brief set fpga user clock for read-modify-write pipeline (e.g. Agilex 5)
+ *
+ * @param sysfs_path  port sysfs path
+ * @param high user clock
+ * @param low user clock
+ *
+ * @return error code
+ */
+fpga_result set_userclock_type2(const char *sysfs_path,
 			  uint64_t userclk_high, uint64_t userclk_low);
 
 #ifdef __cplusplus
