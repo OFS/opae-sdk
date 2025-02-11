@@ -301,6 +301,10 @@ fpga_result set_userclock(const char *sysfs_path,
 		// clocks. This is handled in the type1 path.
 		result = set_userclock_type1(sysfs_path, 0,
 					     userclk_high, userclk_low);
+	} else if (revision == TYPE2_USRCLK_REV) {
+		// Type 2 is a masked read-modify-write pipeline. Agilex 5
+		// uses this.
+		result = set_userclock_type2(sysfs_path, userclk_high, userclk_low);
 	} else if (revision <= AGILEX_USRCLK_REV) {
 		// Agilex user clock DFH revision 1
 		// S10 & A10 user clock DFH revision 0

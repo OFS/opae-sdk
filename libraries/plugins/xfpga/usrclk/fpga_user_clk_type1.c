@@ -53,11 +53,6 @@
  * Section 7.2
  */
 
-#define CFG_PLL_LOW                   GENMASK_ULL(7, 0)
-#define CFG_PLL_HIGH                  GENMASK_ULL(15, 8)
-#define CFG_PLL_BYPASS_EN             BIT_ULL(16)
-#define CFG_PLL_EVEN_DUTY_EN          BIT_ULL(17)
-
 #define PLL_EVEN_DUTY_EN_SHIFT        7
 
 #define PLL_N_HIGH_ADDR               0x100
