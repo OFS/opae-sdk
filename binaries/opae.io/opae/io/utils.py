@@ -147,7 +147,7 @@ def vfio_init(pci_addr, new_owner='', force=False, **kwargs):
 
     if not iommu_enabled():
         LOG.error("Binding to vfio-pci will fail because IOMMU is disabled.")
-        raise SystemExit(os.EX_NOTFOUND)
+        raise SystemExit(1)
 
     if driver and driver != 'vfio-pci':
         dev_dict = get_dev_dict(JSON_FILE)
