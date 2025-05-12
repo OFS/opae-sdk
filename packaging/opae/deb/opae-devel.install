@@ -66,6 +66,6 @@ usr/lib/python3/dist-packages/hssi_ethernet*
 usr/lib/python3/dist-packages/pacsign*
 usr/lib/python3/dist-packages/packager*
 usr/lib/python3/dist-packages/libvfio*
-usr/lib/python3/dist-packages/opae.fpga*
+usr/lib/python3/dist-packages/opae_fpga*
 usr/lib/python3/dist-packages/opae/fpga*
 usr/lib/python3/dist-packages/platmgr*
