@@ -26,10 +26,10 @@ usr/bin/hssi
 usr/bin/opae.io
 usr/bin/mem_tg
 usr/bin/ofs.uio
-usr/lib/python3/dist-packages/opae.diag*
+usr/lib/python3/dist-packages/opae_diag*
 usr/lib/python3/dist-packages/opae/diag*
-usr/lib/python3/dist-packages/opae.io*
+usr/lib/python3/dist-packages/opae_io*
 usr/lib/python3/dist-packages/opae/io*
 usr/lib/python3/dist-packages/pyopaeuio*
-usr/lib/python3/dist-packages/ofs.uio*
+usr/lib/python3/dist-packages/ofs_uio*
 usr/lib/python3/dist-packages/uio*

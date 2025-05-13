@@ -34,7 +34,7 @@ usr/bin/fpgainfo
 usr/bin/fpgasupdate
 usr/bin/rsu
 usr/bin/pci_device
-usr/lib/python3/dist-packages/opae.admin*
+usr/lib/python3/dist-packages/opae_admin*
 usr/lib/python3/dist-packages/opae/admin*
 etc/sysconfig/fpgad.conf
 usr/lib/systemd/system/fpgad.service
