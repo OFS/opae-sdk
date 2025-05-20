@@ -47,7 +47,7 @@
 #define IOPLL_MEASURE_LOW             0
 #define IOPLL_MEASURE_HIGH            1
 #define IOPLL_MEASURE_DELAY_US        8000
-#define IOPLL_RESET_DELAY_US          1000
+#define IOPLL_RESET_DELAY_US          10000
 
  // DFHv0
 struct dfh {
