@@ -205,14 +205,14 @@ class usrclk_mock_c : public usrclk_c {};
  * @test    set_user_clock
  * @brief   Tests: xfpga_fpgaSetUserClock()
  * @details When the parameters are valid, fpgaGetUserClock returns
- *          FPGA_NOT_SUPPORTED on mock platforms.
+ *          FPGA_NOT_FOUND on mock platforms.
  */
 TEST_P(usrclk_mock_c, set_user_clock) {
   uint64_t high = 312;
   uint64_t low = 156;
   int flags = 0;
   EXPECT_EQ(xfpga_fpgaSetUserClock(accel_, high, low, flags),
-            FPGA_INVALID_PARAM);
+            FPGA_NOT_FOUND);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(usrclk_mock_c);

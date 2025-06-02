@@ -319,10 +319,10 @@ class reconf_c_mock_p : public opae_device_p<xfpga_> {
  * @test    set_afu_userclock
  * @brief   Tests: set_afu_userclock
  * @details When given valid parameters, set_afu_userclock
- *          returns FPGA_NOT_SUPPORTED on mock platforms.
+ *          returns FPGA_NOT_FOUND on mock platforms.
  */
 TEST_P(reconf_c_mock_p, set_afu_userclock) {
-  EXPECT_EQ(set_afu_userclock(device_, 312, 156), FPGA_INVALID_PARAM);
+  EXPECT_EQ(set_afu_userclock(device_, 312, 156), FPGA_NOT_FOUND);
 }
 
 /**

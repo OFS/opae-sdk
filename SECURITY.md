@@ -1,5 +1,5 @@
-# Security Policy #
-Intel is committed to rapidly addressing security vulnerabilities affecting our customers and providing clear guidance on the solution, impact, severity and mitigation.
+# Security Policy
+Altera is committed to the security of its products.
 
-## Reporting a Vulnerability ##
-Please report any security vulnerabilities in this project **[utilizing the guidelines here](https://www.intel.com/content/www/us/en/security-center/vulnerability-handling-guidelines.html)**.
+## Reporting a Vulnerability
+Security vulnerabilities in this project can be reported to Altera’s security incident response team utilizing the guidelines here: https://www.altera.com/security/psirt.html.

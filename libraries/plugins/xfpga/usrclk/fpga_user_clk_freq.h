@@ -44,23 +44,6 @@
 #ifndef FPGA_USER_CLK_FREQ_H_
 #define FPGA_USER_CLK_FREQ_H_
 
-#define  IOPLL_MAX_FREQ             600
-#define  IOPLL_MIN_FREQ             10
-
-#define  IOPLL_AGILEX_MAX_FREQ      800
-#define  IOPLL_AGILEX_MIN_FREQ      10
-
-struct iopll_config {
-	unsigned int pll_freq_khz;
-	unsigned int pll_m;
-	unsigned int pll_n;
-	unsigned int pll_c1;
-	unsigned int pll_c0;
-	unsigned int pll_lf;
-	unsigned int pll_cp;
-	unsigned int pll_rc;
-};
-
 // Reference frequency: 100MHz
 const struct iopll_config iopll_freq_config[] = {
 	{ 0, 0, 0, 0, 0, 0, 0, 0 }, // Freq 0 not configured

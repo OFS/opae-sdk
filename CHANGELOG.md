@@ -2,6 +2,27 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.14.0-3]
+
+### Added
+
+- userclk: separate device independent from Agilex 7 configuration ([#3159])
+- userclk: add support for Agilex 5 configuration ([#3161])
+
+### Fixed
+
+- Fix Ubuntu 24.04 debian package build issue ([#3165])
+- Fix userclk: increase the reset delay ([#3166])
+- Fix ubuntu 24.04: opae-unit test failing for use of deprecated function ([#3167])
+
+[2.14.0-3]: https://github.com/OFS/opae-sdk/compare/2.14.0-2...2.14.0-3
+[#3159]: https://github.com/OFS/opae-sdk/pull/3159
+[#3161]: https://github.com/OFS/opae-sdk/pull/3161
+[#3165]: https://github.com/OFS/opae-sdk/pull/3165
+[#3166]: https://github.com/OFS/opae-sdk/pull/3166
+[#3167]: https://github.com/OFS/opae-sdk/pull/3167
+
+
 ## [2.14.0-2]
 
 ### Added
