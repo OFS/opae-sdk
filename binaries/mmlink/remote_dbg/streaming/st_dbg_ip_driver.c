@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "st_dbg_ip_driver.h"
 #include "st_dbg_ip_allocator.h"
 
@@ -283,15 +284,30 @@ int get_mgmt_support() {
     }
 }
 
+struct ver_type {
+    unsigned long type;
+    unsigned long ver;
+};
+struct ver_type supported_ver_types[] = {
+    { SUPPORTED_TYPE, SUPPORTED_VERSION, },
+    { 0x15244444d, 1, },
+};
+
 int check_version_and_type() {
     uint64_t type_version = IORD_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_TYPE);
     unsigned long type = (unsigned long)type_version;
     unsigned long version = (unsigned long)(type_version >> 32);
-    if ((type != SUPPORTED_TYPE) || (version != SUPPORTED_VERSION)) {
-        return -1;
-    } else {
-        return 0;
+    unsigned int i;
+
+    for (i = 0; i < (sizeof(supported_ver_types)/sizeof(supported_ver_types[0])); i++) {
+        if ((type == supported_ver_types[i].type) && (version == supported_ver_types[i].ver)) {
+            printf("type = 0x%lx ver = 0x%lx is supported\n", type, version);
+            return 0;
+	}
     }
+    printf("type = 0x%lx ver = 0x%lx is not supported\n", type, version);
+    exit(1);
+    return -1;
 }
 
 int set_driver_param(const char *param, const char *val) {
