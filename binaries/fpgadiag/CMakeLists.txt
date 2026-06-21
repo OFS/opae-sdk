@@ -42,6 +42,7 @@ opae_add_shared_library(TARGET opae-c++-nlb
         src/diag_utils.cpp
     LIBS
         opae-c
+        opae-c++-utils
         opae-cxx-core
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
